@@ -1,0 +1,18 @@
+{
+  "identifier": "TRIGGER_WORKFLOW",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{!!actionConfiguration.formData.workflowId.data && !!actionConfiguration.formData.requestType.data && actionConfiguration.formData.requestType.data === 'TRIGGER_WORKFLOW'}}"
+  },
+  "children": [
+    {
+      "label": "Trigger data",
+      "tooltipText": "JSON formatted trigger data",
+      "propertyName": "trigger_data",
+      "configProperty": "actionConfiguration.formData.triggerData.data",
+      "controlType": "QUERY_DYNAMIC_TEXT",
+      "placeholderText": "{\n\t\"name\": \"John Doe\",\n\t\"email\": \"johndoe@appsmith.com\"\n}",
+      "isRequired": false
+    }
+  ]
+}

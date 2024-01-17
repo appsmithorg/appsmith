@@ -3,6 +3,7 @@ package com.appsmith.server.moduleconvertible.helper;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ModuleInput;
+import com.appsmith.server.dtos.ModuleConvertibleMetaDTO;
 import com.appsmith.server.modules.helpers.ModuleUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ModuleConvertibleHelperServiceImpl implements ModuleConvertibleHelper {
     @Override
     public Tuple2<List<ModuleInput>, ActionConfiguration> generateChildrenInputsForModule(
-            Set<String> jsonPathKeys, ActionConfiguration actionConfiguration) {
+            Set<String> jsonPathKeys,
+            ActionConfiguration actionConfiguration,
+            ModuleConvertibleMetaDTO moduleConvertibleMetaDTO) {
         if (jsonPathKeys == null || jsonPathKeys.isEmpty()) {
             return Tuples.of(Collections.emptyList(), actionConfiguration);
         }
@@ -49,7 +52,13 @@ public class ModuleConvertibleHelperServiceImpl implements ModuleConvertibleHelp
             moduleInput.setControlType("INPUT_TEXT");
             moduleInput.setLabel(newNameForInputField);
             moduleInput.setPropertyName("inputs." + newNameForInputField);
-            moduleInput.setDefaultValue("{{" + jsonPathKey + "}}");
+            // Set default value to empty string in the context of module editor
+            moduleInput.setDefaultValue("");
+
+            // Set the default value as it was before the conversion to this very module instance
+            moduleConvertibleMetaDTO
+                    .getInputNameToDefaultValueMap()
+                    .put(newNameForInputField, "{{" + jsonPathKey + "}}");
 
             moduleInputs.add(moduleInput);
         });

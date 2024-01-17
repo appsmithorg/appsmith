@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
@@ -56,4 +57,6 @@ public interface NewActionService extends NewActionServiceCE {
             AclPermission permission,
             boolean viewMode,
             boolean includeJs);
+
+    void generateAndSetActionPolicies(ModuleInstance moduleInstance, NewAction action);
 }

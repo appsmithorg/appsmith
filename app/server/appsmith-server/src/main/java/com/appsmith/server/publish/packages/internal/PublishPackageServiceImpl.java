@@ -2,7 +2,6 @@ package com.appsmith.server.publish.packages.internal;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -24,6 +23,7 @@ import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import com.appsmith.server.publish.packages.upgradable.PackageUpgradableService;
 import com.appsmith.server.repositories.PackageRepository;
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -34,8 +34,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -84,23 +82,24 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, packageId)))
                 .flatMap(originalPackage -> {
-                    int[] currentRawVersion = PackageUtils.parseVersion(originalPackage.getVersion());
-                    String nextVersion = PackageUtils.getNextVersion(
-                            currentRawVersion[0], currentRawVersion[1], currentRawVersion[2]);
+                    String nextVersion = PackageUtils.getNextVersion(originalPackage.getVersion());
 
                     // construct the package that's going to be published
-                    Package packageToBePublished = constructPackageToBePublished(originalPackage, nextVersion);
+                    Package packageToBePublished = constructPackageToBePublished(originalPackage);
 
                     // set the next version to the original package, so that the original package can always tell what's
                     // the latest version and when did it get published
                     originalPackage.setVersion(nextVersion);
                     originalPackage.setLastPublishedAt(packageToBePublished.getLastPublishedAt());
-                    publishingMetaDTO.setSourcePackageId(packageId);
+                    publishingMetaDTO.setOriginPackageId(packageId);
 
+                    Mono<UpdateResult> unsetCurrentLatestMono =
+                            packageRepository.unsetLatestPackageByOriginId(originalPackage.getId(), null);
                     Mono<Package> saveOriginalPackage = packageRepository.save(originalPackage);
                     Mono<Package> savePackageToBePublished = packageRepository.save(packageToBePublished);
 
-                    return Mono.zip(saveOriginalPackage, savePackageToBePublished)
+                    return unsetCurrentLatestMono
+                            .then(Mono.zip(saveOriginalPackage, savePackageToBePublished))
                             .flatMap(tuple2 -> {
                                 Package publishedPackage = tuple2.getT2();
                                 publishingMetaDTO.setPublishedPackage(publishedPackage);
@@ -231,25 +230,17 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
         }
     }
 
-    private Package constructPackageToBePublished(Package sourcePkg, String nextVersion) {
+    private Package constructPackageToBePublished(Package sourcePkg) {
         Package pkgToBePublished = new Package();
         AppsmithBeanUtils.copyNestedNonNullProperties(sourcePkg, pkgToBePublished);
         pkgToBePublished.setPublishedPackage(sourcePkg.getUnpublishedPackage());
         pkgToBePublished.setUnpublishedPackage(new PackageDTO());
-        pkgToBePublished.setSourcePackageId(sourcePkg.getId());
-        pkgToBePublished.setVersion(nextVersion);
+        pkgToBePublished.setOriginPackageId(sourcePkg.getId());
+        pkgToBePublished.setLatest(true);
         pkgToBePublished.setLastPublishedAt(Instant.now());
         pkgToBePublished.setId(null);
 
-        // The published version of the package should only be readable and exportable
-        Set<Policy> updatedPolicies = pkgToBePublished.getPolicies().stream()
-                .filter(policy -> policy.getPermission()
-                                .equals(packagePermission.getReadPermission().getValue())
-                        || policy.getPermission()
-                                .equals(packagePermission.getExportPermission().getValue()))
-                .collect(Collectors.toSet());
-
-        pkgToBePublished.setPolicies(updatedPolicies);
+        pkgToBePublished.setPolicies(pkgToBePublished.getPolicies());
 
         return pkgToBePublished;
     }

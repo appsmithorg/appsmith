@@ -5,11 +5,14 @@ import com.appsmith.external.models.ModuleType;
 import lombok.Data;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Data
 public class ModuleConvertibleMetaDTO {
     Mono<Reusable> publicEntityMono;
-    Mono<PackageDTO> sourcePackageMono;
-    PackageDTO sourcePackage;
+    Mono<PackageDTO> originPackageMono;
+    PackageDTO originPackageDTO;
     String publicEntityId;
     ModuleType moduleType;
     String branchName;
@@ -19,4 +22,5 @@ public class ModuleConvertibleMetaDTO {
     PackageDTO packageDTO;
     String originPackageId;
     String originModuleId;
+    Map<String, String> inputNameToDefaultValueMap = new HashMap<>();
 }

@@ -119,12 +119,13 @@ describe(
       assertHelper.AssertDocumentReady();
       homePage.EditAppFromAppHover(appName);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      agHelper.waitUntilTextVisible("Widgets");
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      agHelper.waitUntilTextVisible("UI");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      PageLeftPane.switchToAddNew();
       agHelper.WaitUntilEleAppear(
         locators._widgetPageIcon(draggableWidgets.INPUT_V2),
       );
-      entityExplorer.DragNDropWidget(
+      entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.INPUT_V2,
         500,
         300,
@@ -134,18 +135,8 @@ describe(
       );
       agHelper.AssertElementAbsence(locators._saveStatusError);
       EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
-      agHelper.WaitUntilEleAppear(
-        locators._widgetPageIcon(draggableWidgets.INPUT_V2),
-      );
-      entityExplorer.DragNDropWidget(
-        draggableWidgets.INPUT_V2,
-        500,
-        300,
-        "",
-        "",
-        true,
-      );
-      agHelper.AssertElementExist(locators._saveStatusError);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      agHelper.AssertElementAbsence(PageLeftPane.locators.addItem());
       EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
       agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
       agHelper.AssertElementAbsence(locators._contextMenuItem("Copy to page"));
@@ -172,9 +163,9 @@ describe(
       );
       homePage.EditAppFromAppHover(appName);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      agHelper.waitUntilTextVisible("Widgets");
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
-      entityExplorer.DragNDropWidget(
+      agHelper.waitUntilTextVisible("UI");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.INPUT_V2,
         300,
         100,
@@ -184,9 +175,9 @@ describe(
       );
 
       EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
-      agHelper.waitUntilTextVisible("Widgets");
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
-      entityExplorer.DragNDropWidget(
+      agHelper.waitUntilTextVisible("UI");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.INPUT_V2,
         500,
         500,

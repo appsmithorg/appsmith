@@ -4,6 +4,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import reactor.core.publisher.Flux;
@@ -34,4 +35,6 @@ public interface ActionCollectionService extends ActionCollectionServiceCE {
             String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode);
 
     Mono<ActionCollectionDTO> getPublicActionCollection(String moduleId, ResourceModes resourceMode);
+
+    void generateAndSetPolicies(ModuleInstance moduleInstance, ActionCollection actionCollection);
 }

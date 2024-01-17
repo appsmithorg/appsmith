@@ -12,7 +12,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, newCallsign: any;
@@ -86,10 +85,9 @@ describe(
     });
 
     it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "vessels");
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("public.vessels");
+      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
       agHelper.ValidateToastMessage("Successfully generated a page");
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       assertHelper.AssertNetworkStatus("@getActions", 200);
@@ -172,7 +170,6 @@ describe(
       dataSources.EnterQuery(updateQuery);
       agHelper.PressEscape();
       agHelper.AssertAutoSave();
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
       EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
       UpdatingVesselsJSONPropertyFileds();
     });
@@ -433,7 +430,6 @@ describe(
       dataSources.EnterQuery(insertQuery);
       agHelper.PressEscape();
       agHelper.AssertAutoSave();
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
     });
 
     it("11. Update JSON fields with placeholds for Addition - on Vessels", () => {
@@ -652,7 +648,7 @@ describe(
     it("18. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     });
 
     function generateCallsignInfo(rowIndex: number) {

@@ -25,6 +25,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -38,6 +39,7 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -53,6 +55,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -111,6 +114,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final AnalyticsService analyticsService;
     private final DatasourceStorageService datasourceStorageService;
     private final EnvironmentPermission environmentPermission;
+    private final ConfigService configService;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -136,7 +140,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
             DatasourceStorageService datasourceStorageService,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            ConfigService configService) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -154,6 +159,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
         this.environmentPermission = environmentPermission;
+        this.configService = configService;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -170,13 +176,19 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * @return Mono of actionExecutionResult if the query succeeds, error messages otherwise
      */
     @Override
-    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName, String environmentId) {
+    public Mono<ActionExecutionResult> executeAction(
+            Flux<Part> partFlux, String branchName, String environmentId, HttpHeaders httpHeaders) {
         return createExecuteActionDTO(partFlux)
                 .flatMap(executeActionDTO -> newActionService
                         .findByBranchNameAndDefaultActionId(
                                 branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
-                        .flatMap(branchedAction -> {
+                        .zipWith(configService.getInstanceId())
+                        .flatMap(tuple -> {
+                            NewAction branchedAction = tuple.getT1();
+                            String instanceId = tuple.getT2();
                             executeActionDTO.setActionId(branchedAction.getId());
+                            executeActionDTO.setWorkspaceId(branchedAction.getWorkspaceId());
+                            executeActionDTO.setInstanceId(instanceId);
 
                             boolean isEmbedded;
                             if (executeActionDTO.getViewMode()) {
@@ -201,7 +213,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                             environmentPermission.getExecutePermission(),
                                             isEmbedded));
                         }))
-                .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2()))
+                .flatMap(tuple2 ->
+                        this.executeAction(tuple2.getT1(), tuple2.getT2(), httpHeaders)) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -213,7 +226,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * @param environmentId
      * @return actionExecutionResult if query succeeds, error messages otherwise
      */
-    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentId) {
+    public Mono<ActionExecutionResult> executeAction(
+            ExecuteActionDTO executeActionDTO, String environmentId, HttpHeaders httpHeaders) {
 
         // 1. Validate input parameters which are required for mustache replacements
         replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
@@ -233,7 +247,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = getActionExecutionResult(
-                executeActionDTO, actionDTOMono, datasourceStorageMono, pluginMono, pluginExecutorMono);
+                executeActionDTO, actionDTOMono, datasourceStorageMono, pluginMono, pluginExecutorMono, httpHeaders);
 
         Mono<Map> editorConfigLabelMapMono = getEditorConfigLabelMap(datasourceStorageMono);
 
@@ -332,6 +346,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 })
                 .flatMap(executeActionDTO -> {
                     dto.setActionId(executeActionDTO.getActionId());
+                    dto.setDatasourceId(executeActionDTO.getDatasourceId());
                     dto.setViewMode(executeActionDTO.getViewMode());
                     dto.setParamProperties(executeActionDTO.getParamProperties());
                     dto.setPaginationField(executeActionDTO.getPaginationField());
@@ -703,7 +718,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             Mono<ActionDTO> actionDTOMono,
             Mono<DatasourceStorage> datasourceStorageMono,
             Mono<Plugin> pluginMono,
-            Mono<PluginExecutor> pluginExecutorMono) {
+            Mono<PluginExecutor> pluginExecutorMono,
+            HttpHeaders httpHeaders) {
 
         return Mono.zip(actionDTOMono, datasourceStorageMono, pluginExecutorMono, pluginMono)
                 .flatMap(tuple -> {
@@ -720,6 +736,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             actionDTO.getName());
 
                     Integer timeoutDuration = actionDTO.getActionConfiguration().getTimeoutInMillisecond();
+
+                    setAutoGeneratedHeaders(plugin, actionDTO, httpHeaders);
 
                     Mono<ActionExecutionResult> actionExecutionResultMono = verifyDatasourceAndMakeRequest(
                                     executeActionDTO, actionDTO, datasourceStorage, plugin, pluginExecutor)
@@ -1044,4 +1062,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     return Mono.just(request);
                 });
     }
+
+    protected void setAutoGeneratedHeaders(Plugin plugin, ActionDTO actionDTO, HttpHeaders httpHeaders) {}
 }

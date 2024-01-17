@@ -17,8 +17,8 @@ import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Validator;
-import org.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
@@ -60,7 +60,7 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<JSONObject> resolveApprovalRequest(ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
+    public Mono<JsonNode> resolveApprovalRequest(ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         Mono<Workflow> workflowMono = workflowRepository
@@ -73,7 +73,7 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, REQUEST, approvalRequestResolutionDTO.getRequestId())));
 
-        Mono<JSONObject> resolveApprovalRequestMono = workflowMono
+        Mono<JsonNode> resolveApprovalRequestMono = workflowMono
                 .flatMap(workflow -> approvalRequestMono)
                 .zipWith(currentUserMono)
                 .flatMap(pair -> {
@@ -82,7 +82,7 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
 
                     ApprovalRequestResolutionProxyDTO approvalRequestResolutionProxyDTO =
                             this.getApprovalRequestResolutionProxyDTO(approvalRequestResolutionDTO, approvalRequest);
-                    Mono<JSONObject> approvalRequestResolutionOnProxyMono = workflowProxyHelper
+                    Mono<JsonNode> approvalRequestResolutionOnProxyMono = workflowProxyHelper
                             .updateApprovalRequestResolutionOnProxy(approvalRequestResolutionProxyDTO)
                             .cache();
 

@@ -4,6 +4,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Environment;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workflow;
@@ -30,6 +31,7 @@ public class CommonAppsmithObjectData {
     Flux<NewPage> pageFlux;
     Flux<NewAction> actionFlux;
     Flux<ActionCollection> actionCollectionFlux;
+    Flux<ModuleInstance> moduleInstanceFlux;
     Flux<Datasource> datasourceFlux;
     Flux<Environment> environmentFlux;
     Flux<Workflow> workflowFlux;
@@ -38,6 +40,7 @@ public class CommonAppsmithObjectData {
     Mono<Map<String, Collection<NewPage>>> applicationPageMapMono;
     Mono<Map<String, Collection<NewAction>>> pageActionMapMono;
     Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionMapMono;
+    Mono<Map<String, Collection<ModuleInstance>>> pageModuleInstanceMapMono;
     Mono<Map<String, Collection<Datasource>>> workspaceDatasourceMapMono;
     Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono;
     Mono<Map<String, Collection<Workflow>>> workspaceWorkflowMapMono;

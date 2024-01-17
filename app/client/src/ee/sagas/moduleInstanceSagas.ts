@@ -32,6 +32,7 @@ import {
 import {
   getModuleInstanceById,
   getModuleInstancePublicAction,
+  getModuleInstancePublicEntity,
 } from "@appsmith/selectors/moduleInstanceSelectors";
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
@@ -53,26 +54,41 @@ import {
 } from "@appsmith/constants/messages";
 import * as log from "loglevel";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
-import type { JSCollection } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 import { updateActionData } from "actions/pluginActionActions";
 import { fetchAllPackagesSaga } from "./packagesSagas";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
+import type { MODULE_TYPE, Module } from "@appsmith/constants/ModuleConstants";
+import { getModuleById } from "@appsmith/selectors/modulesSelector";
+import { getNewEntityName } from "@appsmith/selectors/entitiesSelector";
+import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import analytics from "@appsmith/utils/Packages/analytics";
 
 export interface RefactorModuleInstanceNameProps {
   id: string;
   pageId: string;
   oldName: string;
   newName: string;
+  type: MODULE_TYPE | undefined;
 }
 
-function* createQueryModuleInstanceSaga(
+function* createModuleInstanceSaga(
   action: ReduxAction<CreateQueryModuleInstancePayload>,
 ) {
-  const { contextId, contextType, name, sourceModuleId } = action.payload;
+  const { contextId, contextType, sourceModuleId } = action.payload;
+
   try {
+    const module: Module = yield select(getModuleById, sourceModuleId);
+
+    const name: string = yield select(getNewEntityName, {
+      prefix: `${module.name}_`,
+      parentEntityId: contextId,
+      parentEntityKey: CreateNewActionKey.PAGE,
+    });
+
     const response: ApiResponse<CreateModuleInstanceResponse> = yield call(
       ModuleInstancesApi.createModuleInstance,
       {
@@ -93,6 +109,9 @@ function* createQueryModuleInstanceSaga(
         pageId: contextId,
         moduleInstanceId: response.data.moduleInstance.id,
       });
+
+      analytics.createModuleInstance(response.data.moduleInstance);
+
       if (redirectURL) {
         history.push(redirectURL);
       }
@@ -153,7 +172,7 @@ function* updateModuleInstanceSaga(
       ...action.payload.moduleInstance,
     };
 
-    const response: ApiResponse<ModuleInstance[]> = yield call(
+    const response: ApiResponse<ModuleInstance> = yield call(
       ModuleInstanceApi.updateModuleInstance,
       payload,
     );
@@ -164,6 +183,8 @@ function* updateModuleInstanceSaga(
         type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SUCCESS,
         payload: response.data,
       });
+
+      analytics.updateModuleInstance(response.data);
     }
   } catch (error) {
     yield put({
@@ -368,6 +389,9 @@ function* deleteModuleInstanceSaga(
         type: ReduxActionTypes.DELETE_MODULE_INSTANCE_SUCCESS,
         payload: action.payload,
       });
+
+      analytics.deleteModuleInstance(action.payload.id);
+
       history.push(builderURL({ pageId: currentPageId }));
     }
   } catch (error) {
@@ -383,12 +407,14 @@ export function* refactorModuleInstanceName({
   newName,
   oldName,
   pageId,
+  type,
 }: RefactorModuleInstanceNameProps) {
   const layoutId: string = yield select(getCurrentLayoutId);
   // call to refactor module instance
   const oldPublicQuery: Action | undefined = yield select(
-    getModuleInstancePublicAction,
+    getModuleInstancePublicEntity,
     id,
+    type,
   );
 
   const refactorResponse: ApiResponse =
@@ -425,9 +451,10 @@ export function* refactorModuleInstanceName({
       },
     });
     if (currentPageId === pageId) {
-      const publicQuery: Action | undefined = yield select(
-        getModuleInstancePublicAction,
+      const publicQuery: Action | JSAction | undefined = yield select(
+        getModuleInstancePublicEntity,
         id,
+        type,
       );
       yield put(
         updateActionData([
@@ -459,6 +486,7 @@ function* saveModuleInstanceNameSaga(
       pageId: moduleInstance?.contextId || "",
       oldName: moduleInstance?.name || "",
       newName: action.payload.name,
+      type: moduleInstance?.type || undefined,
     });
   } catch (error) {
     yield put({
@@ -504,6 +532,19 @@ function* convertEntityToInstanceSaga(
         payload: { ...response?.data, originalEntityId: publicEntityId },
       });
 
+      analytics.createModule({
+        ...response.data.module,
+        from: publicEntityId,
+      });
+
+      analytics.createModuleInstance(
+        response.data.moduleInstanceData.moduleInstance,
+      );
+
+      if (!packageId) {
+        analytics.createPackage(response.data.packageData);
+      }
+
       if (location.pathname === initiatedFromPathname) {
         const redirectUrl = moduleInstanceEditorURL({
           moduleInstanceId: response.data.moduleInstanceData.moduleInstance.id,
@@ -532,7 +573,7 @@ export default function* moduleInstanceSaga() {
   yield all([
     takeLatest(
       ReduxActionTypes.CREATE_MODULE_INSTANCE_INIT,
-      createQueryModuleInstanceSaga,
+      createModuleInstanceSaga,
     ),
     takeLatest(
       ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_INIT,

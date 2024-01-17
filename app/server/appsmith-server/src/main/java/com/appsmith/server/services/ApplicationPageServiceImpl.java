@@ -5,8 +5,10 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ModuleInstance;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -169,5 +171,17 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
         return super.deleteApplicationResources(application).flatMap(deletedApplication -> crudModuleInstanceService
                 .archiveModuleInstancesByApplicationId(application.getId(), AclPermission.DELETE_MODULE_INSTANCES)
                 .then(super.sendAppDeleteAnalytics(deletedApplication)));
+    }
+
+    @Override
+    protected Flux<ActionCollection> getCloneableActionCollections(String pageId) {
+        return super.getCloneableActionCollections(pageId)
+                .filter(cloneableActionCollection -> cloneableActionCollection.getRootModuleInstanceId() == null);
+    }
+
+    @Override
+    protected Flux<NewAction> getCloneableActions(String pageId) {
+        return super.getCloneableActions(pageId)
+                .filter(cloneableAction -> cloneableAction.getRootModuleInstanceId() == null);
     }
 }

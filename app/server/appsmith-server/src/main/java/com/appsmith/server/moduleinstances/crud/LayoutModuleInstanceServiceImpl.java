@@ -63,10 +63,36 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
 
             if (ResourceModes.EDIT.equals(resourceMode)) {
                 moduleInstanceFlux = repository.findAllUnpublishedByContextIdAndContextType(
-                        branchedContextId, contextType, moduleInstancePermission.getEditPermission());
+                        branchedContextId, contextType, moduleInstancePermission.getReadPermission());
             } else {
                 moduleInstanceFlux = repository.findAllPublishedByContextIdAndContextType(
                         branchedContextId, contextType, moduleInstancePermission.getExecutePermission());
+            }
+
+            return moduleInstanceFlux
+                    .flatMap(repository::setUserPermissionsInObject)
+                    .flatMap(moduleInstance -> generateModuleInstanceByViewMode(moduleInstance, resourceMode))
+                    .map(responseUtils::updateModuleInstanceDTOWithDefaultResources)
+                    .collectList();
+        });
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<List<ModuleInstanceDTO>> getAllModuleInstancesByContextIdAndContextTypeAndViewModeWithoutPermissions(
+            String contextId, CreatorContextType contextType, ResourceModes resourceMode, String branchName) {
+
+        Mono<String> branchedContextIdMono = findBranchedContextId(contextType, contextId, branchName);
+
+        return branchedContextIdMono.flatMap(branchedContextId -> {
+            Flux<ModuleInstance> moduleInstanceFlux;
+
+            if (ResourceModes.EDIT.equals(resourceMode)) {
+                moduleInstanceFlux =
+                        repository.findAllUnpublishedByContextIdAndContextType(branchedContextId, contextType, null);
+            } else {
+                moduleInstanceFlux =
+                        repository.findAllPublishedByContextIdAndContextType(branchedContextId, contextType, null);
             }
 
             return moduleInstanceFlux
@@ -111,6 +137,11 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
         }
 
         return moduleInstanceMono.flatMap(moduleInstance -> {
+            if (!moduleInstanceDTO
+                    .getVersion()
+                    .equals(moduleInstance.getUnpublishedModuleInstance().getVersion())) {
+                return Mono.error(new AppsmithException(AppsmithError.STALE_MODULE_REFERENCE));
+            }
             validateModuleInstanceDTO(moduleInstanceDTO, false);
             Update updateObj = prepareUpdatableFieldsForModuleInstance(moduleInstanceDTO, isRefactor);
 
@@ -167,6 +198,6 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
     @Override
     public Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission permission) {
-        return repository.findAllByRootModuleInstanceId(rootModuleInstanceId, Optional.ofNullable(permission));
+        return repository.findAllByRootModuleInstanceId(rootModuleInstanceId, null, Optional.ofNullable(permission));
     }
 }

@@ -162,6 +162,8 @@ public class NewActionPackageUpgradableServiceImpl implements PackageUpgradableS
                         simulatedActionDTO.setConfirmBeforeExecute(existingActionDTO.getConfirmBeforeExecute());
                     }
 
+                    newActionService.generateAndSetActionPolicies(existingModuleInstance, simulatedNewAction);
+
                     return simulatedNewAction;
                 })
                 .collectList()

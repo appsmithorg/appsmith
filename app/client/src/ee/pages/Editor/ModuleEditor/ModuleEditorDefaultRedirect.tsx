@@ -6,18 +6,14 @@ import { useSelector } from "react-redux";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { PluginType } from "entities/Action";
-import {
-  apiEditorIdURL,
-  jsCollectionIdURL,
-  queryEditorIdURL,
-  saasEditorApiIdURL,
-} from "@appsmith/RouteBuilder";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import { keyBy } from "lodash";
 import type { Plugin } from "api/PluginApi";
 import {
   getModulePublicAction,
   getModulePublicJSCollection,
 } from "@appsmith/selectors/modulesSelector";
+import { resolveActionURL } from "pages/Editor/Explorer/Actions/helpers";
 
 interface ModuleEditorDefaultRedirectProps {
   module: Module;
@@ -30,28 +26,19 @@ interface GetUrlProps {
 }
 
 const getURL = ({ id, moduleId, plugin }: GetUrlProps) => {
-  if (!!plugin && plugin.type === PluginType.SAAS) {
-    return saasEditorApiIdURL({
-      pluginPackageName: plugin.packageName,
-      apiId: id,
-      moduleId,
-    });
-  } else if (
-    plugin.type === PluginType.DB ||
-    plugin.type === PluginType.REMOTE
-  ) {
-    return queryEditorIdURL({
-      queryId: id,
-      moduleId,
-    });
-  } else if (plugin.type === PluginType.JS) {
+  if (plugin.type === PluginType.JS) {
     return jsCollectionIdURL({
       moduleId,
       collectionId: id,
     });
-  } else {
-    return apiEditorIdURL({ apiId: id, moduleId });
   }
+
+  return resolveActionURL({
+    pluginType: plugin.type,
+    plugin,
+    id,
+    parentEntityId: moduleId,
+  });
 };
 
 function ModuleEditorDefaultRedirect({

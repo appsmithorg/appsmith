@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Header, Body, Container } from "../common";
@@ -35,7 +35,6 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { JSFunctionRun } from "pages/Editor/JSEditor/JSFunctionRun";
 import type { JSActionDropdownOption } from "pages/Editor/JSEditor/utils";
 import {
-  convertJSActionToDropdownOption,
   convertJSActionsToDropdownOptions,
   getActionFromJsCollection,
   getJSActionOption,
@@ -108,10 +107,10 @@ function JSModuleInstanceEditor({
 
   const sortedJSactions = sortBy(publicJSCollection?.actions, ["name"]);
 
-  const jsActionOption = getJSActionOption(activeJSAction, sortedJSactions);
-
-  const [selectedJSActionOption, setSelectedJSActionOption] =
-    useState<JSActionDropdownOption>(jsActionOption);
+  const activJSActionOption = getJSActionOption(
+    activeJSAction,
+    sortedJSactions,
+  ) as JSActionDropdownOption;
 
   const isExecutePermitted = hasExecuteModuleInstancePermission(
     moduleInstance?.userPermissions,
@@ -120,12 +119,6 @@ function JSModuleInstanceEditor({
   const canManageModuleInstance = hasManageModuleInstancePermission(
     moduleInstance?.userPermissions,
   );
-
-  useEffect(() => {
-    if (jsActionOption.value !== selectedJSActionOption?.value) {
-      setSelectedJSActionOption(jsActionOption);
-    }
-  }, [jsActionOption, selectedJSActionOption]);
 
   const renderParamsColumns = useCallback(
     (action: JSAction) => {
@@ -173,11 +166,12 @@ function JSModuleInstanceEditor({
     if (value) {
       const jsAction = getActionFromJsCollection(value, publicJSCollection);
       if (jsAction) {
-        setSelectedJSActionOption({
-          data: jsAction,
-          value,
-          label: jsAction.name,
-        });
+        dispatch(
+          setModuleInstanceActiveJSAction({
+            jsCollectionId: publicJSCollection.id,
+            jsActionId: jsAction.id,
+          }),
+        );
       }
     }
   };
@@ -190,18 +184,17 @@ function JSModuleInstanceEditor({
     if (
       !disableRunFunctionality &&
       !isExecutingCurrentJSAction &&
-      selectedJSActionOption?.data
+      activJSActionOption?.data
     ) {
-      const jsAction = selectedJSActionOption.data;
+      const jsAction = activJSActionOption.data;
       setActiveResponse(jsAction);
-      if (jsAction.id !== selectedJSActionOption.data?.id)
-        setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
-      dispatch(
-        setModuleInstanceActiveJSAction({
-          jsCollectionId: publicJSCollection.id,
-          jsActionId: jsAction.id,
-        }),
-      );
+      if (jsAction.id !== activJSActionOption.data?.id)
+        dispatch(
+          setModuleInstanceActiveJSAction({
+            jsCollectionId: publicJSCollection.id,
+            jsActionId: jsAction.id,
+          }),
+        );
       dispatch(
         startExecutingJSFunction({
           action: jsAction,
@@ -238,8 +231,8 @@ function JSModuleInstanceEditor({
             }}
             onSelect={handleJSActionOptionSelection}
             options={convertJSActionsToDropdownOptions(sortedJSactions)}
-            selected={selectedJSActionOption}
-            showTooltip={!selectedJSActionOption.data}
+            selected={activJSActionOption}
+            showTooltip={!activJSActionOption.data}
           />
         </StyledJSFunctionRunWrapper>
       </Header>

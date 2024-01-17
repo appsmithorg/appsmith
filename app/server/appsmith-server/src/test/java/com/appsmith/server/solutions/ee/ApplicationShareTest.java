@@ -136,18 +136,22 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.MODULE_CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.MODULE_READ_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.PACKAGE_CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.PACKAGE_READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.READ_MODULES;
 import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
-import static com.appsmith.server.acl.AclPermission.READ_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGE_INSTANCES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.APPLICATION_DEVELOPER;
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
@@ -745,7 +749,8 @@ public class ApplicationShareTest {
 
             AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Module.class);
             assertThat(permissionByValue).isNotNull();
-            if (permissionByValue == READ_MODULES) {
+            if (Set.of(MODULE_READ_MODULE_INSTANCES, MODULE_CREATE_MODULE_INSTANCES)
+                    .contains(permissionByValue)) {
                 assertThat(permissionGroups).contains(devApplicationRole.getId());
             } else {
                 assertThat(permissionGroups).doesNotContain(devApplicationRole.getId());
@@ -758,7 +763,8 @@ public class ApplicationShareTest {
 
             AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Package.class);
             assertThat(permissionByValue).isNotNull();
-            if (permissionByValue == READ_PACKAGES) {
+            if (Set.of(PACKAGE_READ_MODULE_INSTANCES, PACKAGE_CREATE_MODULE_INSTANCES)
+                    .contains(permissionByValue)) {
                 assertThat(permissionGroups).contains(devApplicationRole.getId());
             } else {
                 assertThat(permissionGroups).doesNotContain(devApplicationRole.getId());
@@ -786,7 +792,11 @@ public class ApplicationShareTest {
         workspacePolicies.forEach(policy -> {
             if (policy.getPermission().equals(READ_WORKSPACES.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
-            } else if (policy.getPermission().equals(WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS.getValue())) {
+            } else if (Set.of(
+                            WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS.getValue(),
+                            WORKSPACE_CREATE_PACKAGE_INSTANCES.getValue(),
+                            WORKSPACE_READ_PACKAGE_INSTANCES.getValue())
+                    .contains(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             } else {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
@@ -1133,7 +1143,11 @@ public class ApplicationShareTest {
             if (policy.getPermission().equals(READ_WORKSPACES.getValue())) {
                 assertThat(policy.getPermissionGroups())
                         .contains(devApplicationRole.getId(), viewApplicationRole.getId());
-            } else if (policy.getPermission().equals(WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS.getValue())) {
+            } else if (Set.of(
+                            WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS.getValue(),
+                            WORKSPACE_CREATE_PACKAGE_INSTANCES.getValue(),
+                            WORKSPACE_READ_PACKAGE_INSTANCES.getValue())
+                    .contains(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
                 assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
             } else {
@@ -1726,7 +1740,8 @@ public class ApplicationShareTest {
 
             AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Module.class);
             assertThat(permissionByValue).isNotNull();
-            if (permissionByValue == READ_MODULES) {
+            if (Set.of(MODULE_READ_MODULE_INSTANCES, MODULE_CREATE_MODULE_INSTANCES)
+                    .contains(permissionByValue)) {
                 assertThat(permissionGroups).contains(devApplicationRole.getId());
                 assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
             } else {
@@ -1740,7 +1755,8 @@ public class ApplicationShareTest {
 
             AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Package.class);
             assertThat(permissionByValue).isNotNull();
-            if (permissionByValue == READ_PACKAGES) {
+            if (Set.of(PACKAGE_READ_MODULE_INSTANCES, PACKAGE_CREATE_MODULE_INSTANCES)
+                    .contains(permissionByValue)) {
                 assertThat(permissionGroups).contains(devApplicationRole.getId());
                 assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
             } else {
@@ -1769,7 +1785,11 @@ public class ApplicationShareTest {
             if (policy.getPermission().equals(READ_WORKSPACES.getValue())) {
                 assertThat(policy.getPermissionGroups())
                         .contains(devApplicationRole.getId(), viewApplicationRole.getId());
-            } else if (policy.getPermission().equals(WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS.getValue())) {
+            } else if (Set.of(
+                            WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS.getValue(),
+                            WORKSPACE_CREATE_PACKAGE_INSTANCES.getValue(),
+                            WORKSPACE_READ_PACKAGE_INSTANCES.getValue())
+                    .contains(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
                 assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
             } else {

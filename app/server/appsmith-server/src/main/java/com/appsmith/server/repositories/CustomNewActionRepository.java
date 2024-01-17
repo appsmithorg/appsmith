@@ -15,7 +15,8 @@ import java.util.Optional;
 
 public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
 
-    Flux<NewAction> findAllNonJSActionsByApplicationIds(List<String> applicationIds, List<String> includeFields);
+    Flux<NewAction> findAllUncomposedNonJSActionsByApplicationIds(
+            List<String> applicationIds, List<String> includeFields);
 
     Flux<NewAction> findAllByActionCollectionIdWithoutPermissions(
             List<String> collectionIds, List<String> includeFields);
@@ -25,7 +26,10 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
     Mono<NewAction> findPublicActionByModuleId(String moduleId, ResourceModes resourceMode);
 
     Flux<NewAction> findAllByRootModuleInstanceId(
-            String rootModuleInstanceId, Optional<AclPermission> permission, boolean includeJs);
+            String rootModuleInstanceId,
+            List<String> projectionFields,
+            Optional<AclPermission> permission,
+            boolean includeJs);
 
     Flux<NewAction> findUnpublishedActionsByModuleIdAndExecuteOnLoadSetByUserTrue(
             String moduleId, AclPermission editPermission);

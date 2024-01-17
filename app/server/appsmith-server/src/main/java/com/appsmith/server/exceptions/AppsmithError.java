@@ -1035,7 +1035,14 @@ public enum AppsmithError {
             "Rate limit blocking failed",
             ErrorType.INTERNAL_ERROR,
             null),
-
+    TRIGGER_PARAMETERS_EMPTY(
+            400,
+            AppsmithErrorCode.TRIGGER_PARAMETERS_EMPTY.getCode(),
+            "Trigger parameters empty.",
+            AppsmithErrorAction.DEFAULT,
+            "Trigger parameters empty.",
+            ErrorType.INTERNAL_ERROR,
+            null),
     // EE-only errors below this line:
     ASSIGN_UNASSIGN_MISSING_PERMISSION(
             403,
@@ -1222,6 +1229,14 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "License upgrade required.",
             ErrorType.ARGUMENT_ERROR,
+            null),
+    STALE_MODULE_REFERENCE(
+            423,
+            AppsmithErrorCode.STALE_MODULE_REFERENCE.getCode(),
+            "You are working with an older version of this module. Please refresh and retry.",
+            AppsmithErrorAction.DEFAULT,
+            "Stale module instance.",
+            ErrorType.CONFIGURATION_ERROR,
             null),
     ;
 

@@ -48,6 +48,9 @@ public class RoleConfigurationSolutionTest {
     @MockBean
     WorkspaceResources workspaceResources;
 
+    @MockBean
+    WorkflowResources workflowResources;
+
     @SpyBean
     FeatureFlagService featureFlagService;
 
@@ -83,6 +86,9 @@ public class RoleConfigurationSolutionTest {
                 .thenReturn(Mono.just(mockRoleTabDTO));
         Mockito.when(tenantResources.createOthersTab(Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
                 .thenReturn(Mono.just(mockRoleTabDTO));
+        Mockito.when(workflowResources.getWorkflowTabInfo(
+                        Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
+                .thenReturn(Mono.just(mockRoleTabDTO));
 
         if (superAdminPermissionGroupId == null) {
             superAdminPermissionGroupId =
@@ -102,6 +108,51 @@ public class RoleConfigurationSolutionTest {
                     assertThat(tabNames.get(1)).isEqualTo(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
                     assertThat(tabNames.get(2)).isEqualTo(RoleTab.GROUPS_ROLES.getName());
                     assertThat(tabNames.get(3)).isEqualTo(RoleTab.OTHERS.getName());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAllTabViewsTestWithWorkflows() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        RoleTabDTO mockRoleTabDTO = new RoleTabDTO();
+
+        Mockito.when(workspaceResources.getDataFromRepositoryForAllTabs()).thenReturn(new CommonAppsmithObjectData());
+        Mockito.when(workspaceResources.createApplicationResourcesTabView(
+                        Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
+                .thenReturn(Mono.just(mockRoleTabDTO));
+        Mockito.when(workspaceResources.createDatasourceResourcesTabView(
+                        Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
+                .thenReturn(Mono.just(mockRoleTabDTO));
+        Mockito.when(tenantResources.createGroupsAndRolesTab(Mockito.anyString()))
+                .thenReturn(Mono.just(mockRoleTabDTO));
+        Mockito.when(tenantResources.createOthersTab(Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
+                .thenReturn(Mono.just(mockRoleTabDTO));
+        Mockito.when(workflowResources.getWorkflowTabInfo(
+                        Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
+                .thenReturn(Mono.just(mockRoleTabDTO));
+
+        if (superAdminPermissionGroupId == null) {
+            superAdminPermissionGroupId =
+                    userUtils.getSuperAdminPermissionGroup().block().getId();
+        }
+
+        Mono<RoleViewDTO> allTabViewsMono = roleConfigurationSolution.getAllTabViews(superAdminPermissionGroupId);
+
+        StepVerifier.create(allTabViewsMono)
+                .assertNext(allTabView -> {
+                    assertThat(allTabView).isNotNull();
+                    assertThat(allTabView.getTabs().size()).isEqualTo(5);
+                    // Assert the tabs in order
+                    List<String> tabNames = new ArrayList<>(allTabView.getTabs().keySet());
+
+                    assertThat(tabNames.get(0)).isEqualTo(RoleTab.APPLICATION_RESOURCES.getName());
+                    assertThat(tabNames.get(1)).isEqualTo(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
+                    assertThat(tabNames.get(2)).isEqualTo(RoleTab.WORKFLOWS.getName());
+                    assertThat(tabNames.get(3)).isEqualTo(RoleTab.GROUPS_ROLES.getName());
+                    assertThat(tabNames.get(4)).isEqualTo(RoleTab.OTHERS.getName());
                 })
                 .verifyComplete();
     }

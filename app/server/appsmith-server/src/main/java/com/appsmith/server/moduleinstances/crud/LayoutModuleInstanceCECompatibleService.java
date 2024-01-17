@@ -22,6 +22,9 @@ public interface LayoutModuleInstanceCECompatibleService extends BaseModuleInsta
     Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission editPermission);
 
+    Mono<List<ModuleInstanceDTO>> getAllModuleInstancesByContextIdAndContextTypeAndViewModeWithoutPermissions(
+            String contextId, CreatorContextType contextType, ResourceModes resourceMode, String branchName);
+
     Mono<ModuleInstanceDTO> updateUnpublishedModuleInstance(
             ModuleInstanceDTO moduleInstanceDTO,
             String moduleInstanceId,

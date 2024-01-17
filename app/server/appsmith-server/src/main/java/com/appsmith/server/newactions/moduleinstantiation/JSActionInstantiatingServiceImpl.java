@@ -74,9 +74,6 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
                             unpublishedAction, moduleInstantiatingMetaDTO.getBranchName(), true);
                     toBeInstantiatedAction.setGitSyncId(null);
 
-                    //                    setDefaultResources(moduleInstantiatingMetaDTO, toBeInstantiatedAction,
-                    // newCollectionId);
-
                     List<String> newJSActions =
                             newCollectionIdToNewActionsMap.getOrDefault(newCollectionId, new ArrayList<>());
                     newJSActions.add(toBeInstantiatedAction.getId());
@@ -114,19 +111,6 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
                             .map(actionWithJsonPathKeys -> toBeInstantiatedAction);
                 }));
     }
-
-    //    private void setDefaultResources(
-    //            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,
-    //            NewAction toBeInstantiatedAction,
-    //            String newCollectionId) {
-    //        DefaultResources defaultResources = new DefaultResources();
-    //        defaultResources.setActionId(toBeInstantiatedAction.getId());
-    //        defaultResources.setCollectionId(newCollectionId);
-    //        defaultResources.setPageId(moduleInstantiatingMetaDTO.getContextId());
-    //        defaultResources.setBranchName(moduleInstantiatingMetaDTO.getBranchName());
-    //        toBeInstantiatedAction.setDefaultResources(defaultResources);
-    //        toBeInstantiatedAction.getUnpublishedAction().setDefaultResources(defaultResources);
-    //    }
 
     private void setRootModuleInstanceIdAndModuleInstanceId(
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO,

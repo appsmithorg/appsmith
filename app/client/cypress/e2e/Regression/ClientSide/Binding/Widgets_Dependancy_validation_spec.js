@@ -1,15 +1,13 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import {
-  entityExplorer,
-  agHelper,
-  deployMode,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Binding the multiple input Widget",
@@ -53,7 +51,7 @@ describe(
     });
 
     it("3. Binding second input widget with first input widget and validating", function () {
-      cy.selectEntityByName("Input2");
+      EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
       cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
       cy.wait("@updateLayout").should(
@@ -76,8 +74,8 @@ describe(
     });
 
     it("4. Binding third input widget with first input widget and validating", function () {
-      cy.CheckAndUnfoldWidgets();
-      cy.selectEntityByName("Input3");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("Input3", EntityType.Widget);
       cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
       cy.wait("@updateLayout").should(

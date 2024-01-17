@@ -2,16 +2,17 @@ const RBAC = require("../../../../../locators/RBAClocators.json");
 import {
   adminSettings,
   agHelper,
+  homePage,
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe.skip("Groups tab Tests", function () {
+describe("Groups tab Tests", { tags: ["@tag.AccessControl"] }, function () {
   let groups;
   before(() => {
     cy.AddIntercepts();
-    adminSettings.NavigateToAdminSettings();
     featureFlagIntercept({ license_gac_enabled: true });
-    cy.wait(2000);
+    agHelper.WaitUntilEleAppear(homePage._homeIcon);
+    adminSettings.NavigateToAdminSettings();
   });
 
   it("1. Verify functionality of groups tab ", function () {

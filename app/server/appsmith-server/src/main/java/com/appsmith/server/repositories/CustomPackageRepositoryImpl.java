@@ -12,11 +12,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuples;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -31,41 +29,31 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
     }
 
     @Override
-    public Flux<Package> findAllUserPackages(AclPermission permission) {
-        return queryAll(List.of(), Optional.ofNullable(permission));
+    public Flux<Package> findAllEditablePackages(AclPermission permission) {
+        Criteria onlyUnpublishedPackages = where(completeFieldName(QPackage.package$.publishedPackage.name))
+                .exists(false);
+        return queryAll(List.of(onlyUnpublishedPackages), Optional.ofNullable(permission));
     }
 
     @Override
     public Flux<Package> findAllConsumablePackages(String workspaceId, AclPermission permission) {
-        return findAllSourcePackages(workspaceId, Optional.empty())
-                .flatMap(sourcePackage -> Mono.just(Tuples.of(sourcePackage.getId(), sourcePackage.getVersion())))
-                .collectList()
-                .flatMapMany(allTuple2s -> {
-                    if (allTuple2s.isEmpty()) {
-                        return Flux.empty();
-                    }
-                    List<Criteria> allCriteria = allTuple2s.stream()
-                            .map(tuple2 -> Criteria.where(fieldName(QPackage.package$.sourcePackageId))
-                                    .is(tuple2.getT1())
-                                    .and(fieldName(QPackage.package$.version))
-                                    .is(tuple2.getT2()))
-                            .collect(Collectors.toList());
+        Criteria criteria = where(fieldName(QPackage.package$.workspaceId))
+                .is(workspaceId)
+                .and(fieldName(QPackage.package$.latest))
+                .is(true);
 
-                    Criteria finalCriteria = new Criteria().orOperator(allCriteria.toArray(new Criteria[0]));
-
-                    return queryAll(List.of(finalCriteria), Optional.of(permission));
-                });
+        return queryAll(List.of(criteria), Optional.of(permission));
     }
 
-    @NotNull private Flux<Package> findAllSourcePackages(String workspaceId, Optional<AclPermission> permission) {
-        Criteria sourcePackageCriteria = Criteria.where(fieldName(QPackage.package$.sourcePackageId))
+    @NotNull private Flux<Package> findAllOriginPackages(String workspaceId, Optional<AclPermission> permission) {
+        Criteria originPackageCriteria = Criteria.where(fieldName(QPackage.package$.originPackageId))
                 .is(null)
                 .and(fieldName(QPackage.package$.lastPublishedAt))
                 .ne(null)
                 .and(fieldName(QPackage.package$.workspaceId))
                 .is(workspaceId);
 
-        return queryAll(List.of(sourcePackageCriteria), permission);
+        return queryAll(List.of(originPackageCriteria), permission);
     }
 
     @Override
@@ -105,7 +93,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
     @Override
     public Flux<Package> findAllPublishedByUniqueReference(
             String workspaceId, List<ExportableModule> packageList, Optional<AclPermission> aclPermission) {
-        Criteria sourcePackageCriteria = Criteria.where(fieldName(QPackage.package$.sourcePackageId))
+        Criteria originPackageCriteria = Criteria.where(fieldName(QPackage.package$.originPackageId))
                 .exists(true)
                 .and(fieldName(QPackage.package$.workspaceId))
                 .is(workspaceId);
@@ -124,17 +112,52 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
             packageRefCriteria.orOperator(criteriaList);
         }
 
-        return queryAll(List.of(sourcePackageCriteria, packageRefCriteria), aclPermission);
+        return queryAll(List.of(originPackageCriteria, packageRefCriteria), aclPermission);
     }
 
     @Override
-    public Mono<Package> findPackageBySourcePackageIdAndVersion(
-            String sourcePackageId, String version, Optional<AclPermission> permission) {
-        Criteria sourcePackageCriteria = Criteria.where(fieldName(QPackage.package$.sourcePackageId))
-                .is(sourcePackageId)
+    public Mono<Package> findPackageByOriginPackageIdAndVersion(
+            String originPackageId, String version, Optional<AclPermission> permission) {
+        Criteria originPackageCriteria = Criteria.where(fieldName(QPackage.package$.originPackageId))
+                .is(originPackageId)
                 .and(fieldName(QPackage.package$.version))
                 .is(version);
 
-        return queryOne(List.of(sourcePackageCriteria), null, permission);
+        return queryOne(List.of(originPackageCriteria), null, permission);
+    }
+
+    @Override
+    public Flux<Package> findAllPackagesByWorkspaceId(
+            String workspaceId, List<String> projectionFields, Optional<AclPermission> permissionOptional) {
+        Criteria idCriteria = where(fieldName(QPackage.package$.workspaceId)).is(workspaceId);
+        return queryAll(
+                List.of(idCriteria),
+                Optional.ofNullable(projectionFields),
+                permissionOptional,
+                Optional.empty(),
+                NO_RECORD_LIMIT);
+    }
+
+    @Override
+    public Mono<UpdateResult> unsetLatestPackageByOriginId(String originPackageId, AclPermission permission) {
+        Criteria latestPackageCriteria =
+                where(completeFieldName(QPackage.package$.latest)).is(true);
+        Criteria originPackageIdCriteria =
+                where(completeFieldName(QPackage.package$.originPackageId)).is(originPackageId);
+
+        Update update = new Update();
+        update.set(completeFieldName(QPackage.package$.latest), false);
+        return updateByCriteria(List.of(latestPackageCriteria, originPackageIdCriteria), update, permission);
+    }
+
+    @Override
+    public Mono<Package> findLatestPackageByOriginPackageId(
+            String originPackageId, Optional<AclPermission> permission) {
+        Criteria originPackageCriteria = Criteria.where(fieldName(QPackage.package$.originPackageId))
+                .is(originPackageId)
+                .and(fieldName(QPackage.package$.latest))
+                .is(true);
+
+        return queryOne(List.of(originPackageCriteria), null, permission);
     }
 }

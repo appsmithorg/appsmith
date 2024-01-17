@@ -113,12 +113,17 @@ describe(
       cy.wait(5000);
       homePage.SearchAndOpenApp(appName);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
+      entityExplorer.DragDropWidgetNVerify(
+        "checkboxwidget",
+        300,
+        100,
+        "",
+        "",
+        true,
+      );
       agHelper.AssertElementAbsence(locators._saveStatusError);
       EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
-      PageLeftPane.switchSegment("Widgets");
-      entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
-      agHelper.AssertElementExist(locators._saveStatusError);
+      agHelper.AssertElementAbsence(PageLeftPane.locators.addItem());
       EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
       agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
       agHelper.AssertElementAbsence(locators._contextMenuItem("Copy to page"));

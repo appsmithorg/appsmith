@@ -1,0 +1,59 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Workflow name",
+          "tooltipText": "The workflow on which operations would execute.",
+          "description": "Select the workflow on which you would like to run operations.",
+          "propertyName": "workflow_name",
+          "configProperty": "actionConfiguration.formData.workflowId.data",
+          "isRequired": true,
+          "controlType": "DROP_DOWN",
+          "placeHolderName": "Select workflow name",
+          "fetchOptionsConditionally": true,
+          "conditionals": {
+            "fetchDynamicValues": {
+              "condition": "{{true}}",
+              "config": {
+                "params": {
+                  "requestType": "WORKFLOW_SELECTOR",
+                  "displayType": "DROP_DOWN",
+                  "parameters": {
+                    "workspaceId": "{{workspaceId}}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "label": "Request type",
+          "tooltipText": "The request type to execute on Workflow.",
+          "description": "Select a request type which you would like to execute.",
+          "propertyName": "workflow_request_type",
+          "configProperty": "actionConfiguration.formData.requestType.data",
+          "isRequired": true,
+          "controlType": "DROP_DOWN",
+          "options": [
+            {
+              "label": "Get approval requests",
+              "value": "GET_APPROVAL_REQUESTS"
+            },
+            {
+              "label": "Trigger Workflow",
+              "value": "TRIGGER_WORKFLOW"
+            },
+            {
+              "label": "Resolve approval requests",
+              "value": "RESOLVE_APPROVAL_REQUESTS"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": ["get_approval_requests.json", "resolve_approval_request.json", "trigger_workflow.json"]
+}

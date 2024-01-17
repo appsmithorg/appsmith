@@ -46,10 +46,13 @@ describe(
       // get the guid from the alias and assign it to the workspace name
       cy.get("@guid").then((guid) => {
         featureFlagIntercept({ license_gac_enabled: true });
-        cy.wait(2000);
+        agHelper.WaitUntilEleAppear(homePage._homeIcon);
         workspaceName = "workspace" + guid;
         appName = "app" + guid;
         homePage.CreateNewWorkspace(workspaceName, true);
+        agHelper.WaitUntilEleAppear(
+          homePage._existingWorkspaceCreateNewApp(workspaceName),
+        );
         homePage.CreateAppInWorkspace(workspaceName, appName);
         PageList.AddNewPage("New blank page")?.then((newPage) => {
           entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
@@ -93,9 +96,8 @@ describe(
     it("1. Check audit logs for above actions - instance admin", function () {
       adminSettings.NavigateToAdminSettings();
       agHelper.GetNClick(auditlogloc.LeftPaneAuditLogsLink);
-
       featureFlagIntercept({ license_audit_logs_enabled: true });
-
+      agHelper.WaitUntilEleAppear(auditlogloc.DateFilterContainer);
       agHelper.GetNClick(auditlogloc.DateFilterContainer);
       agHelper.GetNClick(auditlogloc.datePickerToday);
       rbacHelper.AssertAuditLogText(workspaceName, "updated");
@@ -114,21 +116,19 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      cy.wait(5000);
       featureFlagIntercept({
         license_audit_logs_enabled: true,
         license_gac_enabled: true,
       });
-      cy.wait(5000);
+      agHelper.WaitUntilEleAppear(adminSettings._adminSettingsBtn);
       agHelper.GetNClick(adminSettings._adminSettingsBtn);
-
       assertHelper.AssertNetworkStatus("@fetchAuditLogs", 200);
       agHelper.GetNClick(auditlogloc.RefreshButton);
       featureFlagIntercept({
         license_audit_logs_enabled: true,
         license_gac_enabled: true,
       });
-      cy.wait(2000);
+      agHelper.WaitUntilEleAppear(auditlogloc.DateFilterContainer);
       assertHelper.AssertNetworkStatus("@fetchAuditLogs", 200);
       agHelper.GetNClick(auditlogloc.DateFilterContainer);
       agHelper.GetNClick(auditlogloc.datePickerToday);

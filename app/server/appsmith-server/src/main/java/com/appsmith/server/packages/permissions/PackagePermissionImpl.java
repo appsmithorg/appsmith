@@ -36,6 +36,16 @@ public class PackagePermissionImpl implements PackagePermission {
     }
 
     @Override
+    public AclPermission getCreatePackageModuleInstancePermission() {
+        return AclPermission.PACKAGE_CREATE_MODULE_INSTANCES;
+    }
+
+    @Override
+    public AclPermission getReadPackageModuleInstancePermission() {
+        return AclPermission.PACKAGE_READ_MODULE_INSTANCES;
+    }
+
+    @Override
     public AclPermission getExportPermission(boolean isGitSync, boolean exportWithConfiguration) {
         return null;
     }

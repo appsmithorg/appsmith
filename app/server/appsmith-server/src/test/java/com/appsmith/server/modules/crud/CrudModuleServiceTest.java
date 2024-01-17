@@ -72,9 +72,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.appsmith.server.acl.AclPermission.CREATE_MODULE_EXECUTABLES;
-import static com.appsmith.server.acl.AclPermission.CREATE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.DELETE_MODULES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_MODULES;
+import static com.appsmith.server.acl.AclPermission.MODULE_CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.MODULE_READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_MODULES;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -334,12 +335,13 @@ class CrudModuleServiceTest {
                     assertThat(createdModule.getSettingsForm()).isNotNull();
                     Set<String> userPermissions = createdModule.getUserPermissions();
                     assertThat(userPermissions).isNotEmpty();
-                    assertThat(userPermissions).hasSize(5);
+                    assertThat(userPermissions).hasSize(6);
                     assertThat(userPermissions).allMatch(permission -> {
                         Set<AclPermission> permissionSet = Set.of(
                                 READ_MODULES,
                                 CREATE_MODULE_EXECUTABLES,
-                                CREATE_MODULE_INSTANCES,
+                                MODULE_CREATE_MODULE_INSTANCES,
+                                MODULE_READ_MODULE_INSTANCES,
                                 MANAGE_MODULES,
                                 DELETE_MODULES);
 

@@ -161,7 +161,8 @@ public class FieldNameCE {
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
-    public static final String ENVIRONMENT_ID = "environmentid";
+    public static final String HEADER_ENVIRONMENT_ID = "X-Appsmith-EnvironmentId";
+    public static final String ENVIRONMENT_ID = "environmentId";
 
     public static final String IS_FORCE_INSTALL = "forceInstall";
     public static final String IS_FORCE_REMOVE = "forceRemove";

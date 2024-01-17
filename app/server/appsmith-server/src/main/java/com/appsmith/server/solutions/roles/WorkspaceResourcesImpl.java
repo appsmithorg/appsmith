@@ -11,10 +11,12 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.QModuleInstance;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.Workflow;
@@ -23,6 +25,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
@@ -37,6 +40,7 @@ import com.appsmith.server.solutions.roles.dtos.DatasourceResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.EntityView;
 import com.appsmith.server.solutions.roles.dtos.EnvironmentResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.IdPermissionDTO;
+import com.appsmith.server.solutions.roles.dtos.ModuleInstanceResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.PageResourcesDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
 import org.springframework.stereotype.Component;
@@ -66,6 +70,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_DATASOURCE;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_ENVIRONMENT;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.completeFieldName;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateBaseViewDto;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPermissionDTOsAndUpdateMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getHierarchicalLateralPermMap;
@@ -82,6 +87,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
     private final NewPageRepository pageRepository;
     private final NewActionRepository actionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
+    private final ModuleInstanceRepository moduleInstanceRepository;
     private final DatasourceRepository datasourceRepository;
     private final WorkflowRepository workflowRepository;
     private final ResponseUtils responseUtils;
@@ -96,6 +102,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
             NewPageRepository pageRepository,
             NewActionRepository actionRepository,
             ActionCollectionRepository actionCollectionRepository,
+            ModuleInstanceRepository moduleInstanceRepository,
             DatasourceRepository datasourceRepository,
             WorkflowRepository workflowRepository,
             ResponseUtils responseUtils,
@@ -109,6 +116,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         this.pageRepository = pageRepository;
         this.actionRepository = actionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
+        this.moduleInstanceRepository = moduleInstanceRepository;
         this.datasourceRepository = datasourceRepository;
         this.workflowRepository = workflowRepository;
         this.responseUtils = responseUtils;
@@ -127,6 +135,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         Flux<NewPage> pageFlux = dataFromRepositoryForAllTabs.getPageFlux();
         Flux<NewAction> actionFlux = dataFromRepositoryForAllTabs.getActionFlux();
         Flux<ActionCollection> actionCollectionFlux = dataFromRepositoryForAllTabs.getActionCollectionFlux();
+        Flux<ModuleInstance> moduleInstanceFlux = dataFromRepositoryForAllTabs.getModuleInstanceFlux();
 
         Mono<Map<String, Collection<NewAction>>> pageActionNotDtoMapMono =
                 dataFromRepositoryForAllTabs.getPageActionMapMono();
@@ -140,6 +149,12 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 pageActionCollectionNotDtoMapMono.map(pageActionCollectionNotDtoMap -> getPageActionCollectionMap(
                         pageActionCollectionNotDtoMap, RoleTab.APPLICATION_RESOURCES, permissionGroupId));
 
+        Mono<Map<String, Collection<ModuleInstance>>> pageModuleInstanceMapNotDtoMono =
+                dataFromRepositoryForAllTabs.getPageModuleInstanceMapMono();
+        Mono<Map<String, Collection<ModuleInstanceResourceDTO>>> pageModuleInstanceMapMono =
+                pageModuleInstanceMapNotDtoMono.map(pageModuleInstanceNotDtoMap -> getPageModuleInstanceMap(
+                        pageModuleInstanceNotDtoMap, RoleTab.APPLICATION_RESOURCES, permissionGroupId));
+
         Mono<Map<String, Collection<Application>>> workspaceApplicationsMapMono =
                 dataFromRepositoryForAllTabs.getWorkspaceApplicationMapMono();
         Mono<Map<String, Collection<NewPage>>> applicationPagesMapMono =
@@ -152,7 +167,8 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 workspaceApplicationsMapMono,
                 applicationPagesMapMono,
                 pageActionsMapMono,
-                pageActionCollectionMapMono);
+                pageActionCollectionMapMono,
+                pageModuleInstanceMapMono);
 
         // Get the map for disabled edit interaction
         Mono<Map<String, Set<IdPermissionDTO>>> disableMapForApplicationResourcesMono =
@@ -162,18 +178,21 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                         applicationFlux,
                         pageFlux,
                         actionFlux,
-                        actionCollectionFlux);
+                        actionCollectionFlux,
+                        moduleInstanceFlux);
 
         Mono<EntityView> entityViewMono = Mono.zip(
                         workspaceApplicationsMapMono,
                         applicationPagesMapMono,
                         pageActionsMapMono,
-                        pageActionCollectionMapMono)
+                        pageActionCollectionMapMono,
+                        pageModuleInstanceMapMono)
                 .flatMap(tuple -> {
                     Map<String, Collection<Application>> workspaceApplications = tuple.getT1();
                     Map<String, Collection<NewPage>> applicationPages = tuple.getT2();
                     Map<String, Collection<ActionResourceDTO>> pageActions = tuple.getT3();
                     Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections = tuple.getT4();
+                    Map<String, Collection<ModuleInstanceResourceDTO>> pageModuleInstances = tuple.getT5();
 
                     return getWorkspaceDTOsForApplicationResources(
                                     permissionGroupId,
@@ -181,7 +200,8 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                                     workspaceApplications,
                                     applicationPages,
                                     pageActions,
-                                    pageActionCollections)
+                                    pageActionCollections,
+                                    pageModuleInstances)
                             .collectList()
                             .map(workspaceDTOs -> {
                                 EntityView entityView = new EntityView();
@@ -390,6 +410,34 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         return pageActionCollectionMap;
     }
 
+    private Map<String, Collection<ModuleInstanceResourceDTO>> getPageModuleInstanceMap(
+            Map<String, Collection<ModuleInstance>> pageModuleInstanceNotDtoMap,
+            RoleTab roleTab,
+            String permissionGroupId) {
+        Map<String, Collection<ModuleInstanceResourceDTO>> pageModuleInstanceMap = new HashMap<>();
+        pageModuleInstanceNotDtoMap.forEach((pageId, moduleInstances) -> {
+            Collection<ModuleInstanceResourceDTO> moduleInstanceResourceDTOList = moduleInstances.stream()
+                    .map(moduleInstance -> {
+                        ModuleInstanceResourceDTO moduleInstanceResourceDTO = new ModuleInstanceResourceDTO();
+                        moduleInstanceResourceDTO.setId(moduleInstance.getId());
+                        moduleInstanceResourceDTO.setName(
+                                moduleInstance.getUnpublishedModuleInstance().getName());
+                        Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                                roleTab,
+                                permissionGroupId,
+                                moduleInstance.getPolicies(),
+                                ModuleInstance.class,
+                                policyGenerator);
+                        moduleInstanceResourceDTO.setEnabled(permissionsTuple.getT1());
+                        moduleInstanceResourceDTO.setEditable(permissionsTuple.getT2());
+                        return moduleInstanceResourceDTO;
+                    })
+                    .collect(Collectors.toList());
+            pageModuleInstanceMap.put(pageId, moduleInstanceResourceDTOList);
+        });
+        return pageModuleInstanceMap;
+    }
+
     private Map<String, Collection<ActionResourceDTO>> getPageActionsMap(
             Map<String, Collection<NewAction>> pageActionNotDtoMap, RoleTab roleTab, String permissionGroupId) {
         Map<String, Collection<ActionResourceDTO>> pageActionsMap = new HashMap<>();
@@ -450,7 +498,8 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
             Map<String, Collection<Application>> workspaceApplications,
             Map<String, Collection<NewPage>> applicationPages,
             Map<String, Collection<ActionResourceDTO>> pageActions,
-            Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections) {
+            Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections,
+            Map<String, Collection<ModuleInstanceResourceDTO>> pageModuleInstances) {
         return workspaceFlux
                 .map(workspace -> generateBaseViewDto(
                         workspace,
@@ -470,6 +519,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                                         applicationPages,
                                         pageActions,
                                         pageActionCollections,
+                                        pageModuleInstances,
                                         applications,
                                         RoleTab.APPLICATION_RESOURCES)
                                 .collectList();
@@ -490,6 +540,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
             Map<String, Collection<NewPage>> applicationPages,
             Map<String, Collection<ActionResourceDTO>> pageActions,
             Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections,
+            Map<String, Collection<ModuleInstanceResourceDTO>> pageModuleInstances,
             Collection<Application> applications,
             RoleTab roleTab) {
         return Flux.fromIterable(applications).flatMap(application -> {
@@ -529,7 +580,13 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 return Mono.just(applicationDTO);
             }
             return getPageActionDTOs(
-                            permissionGroupId, pageActions, pageActionCollections, defaultPageIds, pages, roleTab)
+                            permissionGroupId,
+                            pageActions,
+                            pageActionCollections,
+                            pageModuleInstances,
+                            defaultPageIds,
+                            pages,
+                            roleTab)
                     .map(pageDTOs -> {
                         EntityView entityView = new EntityView();
                         entityView.setType(NewPage.class.getSimpleName());
@@ -544,6 +601,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
             String permissionGroupId,
             Map<String, Collection<ActionResourceDTO>> pageActions,
             Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections,
+            Map<String, Collection<ModuleInstanceResourceDTO>> pageModuleInstances,
             Set<String> defaultPageIds,
             Collection<NewPage> pages,
             RoleTab roleTab) {
@@ -551,6 +609,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .map(page -> {
                     List<BaseView> actionDTOs = (List) pageActions.get(page.getId());
                     List<BaseView> actionCollectionDTOs = (List) pageActionCollections.get(page.getId());
+                    List<BaseView> moduleInstanceDTOs = (List) pageModuleInstances.get(page.getId());
 
                     PageResourcesDTO pageDTO = new PageResourcesDTO();
                     pageDTO.setId(page.getId());
@@ -583,6 +642,15 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                         pageChildren.add(actionCollections);
                     }
 
+                    // Only add the action collection entity if not empty
+                    if (!CollectionUtils.isEmpty(moduleInstanceDTOs)) {
+                        EntityView moduleInstances;
+                        moduleInstances = new EntityView();
+                        moduleInstances.setType(ModuleInstance.class.getSimpleName());
+                        moduleInstances.setEntities(moduleInstanceDTOs);
+                        pageChildren.add(moduleInstances);
+                    }
+
                     pageDTO.setChildren(pageChildren);
                     return pageDTO;
                 })
@@ -595,7 +663,8 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
             Flux<Application> applicationFlux,
             Flux<NewPage> pageFlux,
             Flux<NewAction> actionFlux,
-            Flux<ActionCollection> actionCollectionFlux) {
+            Flux<ActionCollection> actionCollectionFlux,
+            Flux<ModuleInstance> moduleInstanceFlux) {
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
         Set<AclPermission> workspacePermissions = tabPermissions.stream()
@@ -667,12 +736,22 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 })
                 .then();
 
+        Mono<Void> updateModuleInstanceDisableMapMono = moduleInstanceFlux
+                .map(moduleInstance -> {
+                    String moduleInstanceId = moduleInstance.getId();
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            actionLateralMap, disableMap, moduleInstanceId, moduleInstanceId, Action.class);
+                    return moduleInstanceId;
+                })
+                .then();
+
         return Mono.when(
                         updateWorkspaceDisableMapMono,
                         updateApplicationDisableMapMono,
                         updatePageDisableMapMono,
                         updateActionDisableMapMono,
-                        updateActionCollectionDisableMapMono)
+                        updateActionCollectionDisableMapMono,
+                        updateModuleInstanceDisableMapMono)
                 .then(Mono.just(disableMap))
                 .map(disableMap1 -> {
                     disableMap1.values().removeIf(Set::isEmpty);
@@ -686,7 +765,8 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
             Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono,
             Mono<Map<String, Collection<NewPage>>> applicationPageMapMono,
             Mono<Map<String, Collection<ActionResourceDTO>>> pageActionMapMono,
-            Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono) {
+            Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono,
+            Mono<Map<String, Collection<ModuleInstanceResourceDTO>>> pageModuleInstanceMapMono) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
@@ -720,18 +800,26 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         Map<AclPermission, Set<AclPermission>> actionCollectionHierarchicalLateralMap =
                 getHierarchicalLateralPermMap(actionCollectionPermissions, policyGenerator, roleTab);
 
+        Set<AclPermission> moduleInstancePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Action.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> moduleInstanceHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(moduleInstancePermissions, policyGenerator, roleTab);
+
         ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap = new ConcurrentHashMap<>();
 
         return Mono.zip(
                         workspaceApplicationMapMono,
                         applicationPageMapMono,
                         pageActionMapMono,
-                        pageActionCollectionMapMono)
+                        pageActionCollectionMapMono,
+                        pageModuleInstanceMapMono)
                 .flatMapMany(tuple -> {
                     Map<String, Collection<Application>> workspaceApplicationMap = tuple.getT1();
                     Map<String, Collection<NewPage>> applicationPageMap = tuple.getT2();
                     Map<String, Collection<ActionResourceDTO>> pageActionMap = tuple.getT3();
                     Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap = tuple.getT4();
+                    Map<String, Collection<ModuleInstanceResourceDTO>> pageModuleInstanceMap = tuple.getT5();
 
                     return workspaceFlux.map(workspace -> {
                         String workspaceId = workspace.getId();
@@ -809,6 +897,23 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                                                         hoverMap,
                                                         actionCollectionId,
                                                         actionCollectionId,
+                                                        Action.class);
+                                            });
+                                        }
+
+                                        Collection<ModuleInstanceResourceDTO> moduleInstances =
+                                                pageModuleInstanceMap.get(page.getId());
+                                        if (!CollectionUtils.isEmpty(moduleInstances)) {
+                                            moduleInstances.stream().forEach(resourceDTO -> {
+                                                String id = resourceDTO.getId();
+
+                                                generateLateralPermissionDTOsAndUpdateMap(
+                                                        pageHierarchicalLateralMap, hoverMap, pageId, id, Action.class);
+                                                generateLateralPermissionDTOsAndUpdateMap(
+                                                        moduleInstanceHierarchicalLateralMap,
+                                                        hoverMap,
+                                                        id,
+                                                        id,
                                                         Action.class);
                                             });
                                         }
@@ -1117,7 +1222,8 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                             + fieldName(QNewAction.newAction.publishedAction.name));
                     actionIncludeFields.add(fieldName(QNewAction.newAction.publishedAction) + "."
                             + fieldName(QNewAction.newAction.publishedAction.pageId));
-                    return actionRepository.findAllNonJSActionsByApplicationIds(applicationIds, actionIncludeFields);
+                    return actionRepository.findAllUncomposedNonJSActionsByApplicationIds(
+                            applicationIds, actionIncludeFields);
                 })
                 .cache();
 
@@ -1135,8 +1241,25 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                     actionCollectionIncludeFields.add(fieldName(QActionCollection.actionCollection.publishedCollection)
                             + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
 
-                    return actionCollectionRepository.findAllByApplicationIds(
+                    return actionCollectionRepository.findAllUncomposedByApplicationIds(
                             applicationIds, actionCollectionIncludeFields);
+                })
+                .cache();
+
+        Flux<ModuleInstance> moduleInstanceFlux = applicationIdsMono
+                .flatMapMany(applicationIds -> {
+                    List<String> moduleInstanceIncludeFields = new ArrayList<>(includeFields);
+                    moduleInstanceIncludeFields.add(
+                            completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.name));
+                    moduleInstanceIncludeFields.add(
+                            completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.pageId));
+                    moduleInstanceIncludeFields.add(
+                            completeFieldName(QModuleInstance.moduleInstance.publishedModuleInstance.name));
+                    moduleInstanceIncludeFields.add(
+                            completeFieldName(QModuleInstance.moduleInstance.publishedModuleInstance.pageId));
+
+                    return moduleInstanceRepository.findAllUncomposedByApplicationIds(
+                            applicationIds, moduleInstanceIncludeFields);
                 })
                 .cache();
 
@@ -1157,6 +1280,13 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .collectMultimap(
                         actionCollection ->
                                 actionCollection.getUnpublishedCollection().getPageId(),
+                        Function.identity())
+                .cache();
+
+        Mono<Map<String, Collection<ModuleInstance>>> pageModuleInstanceMapMono = moduleInstanceFlux
+                .collectMultimap(
+                        moduleInstance ->
+                                moduleInstance.getUnpublishedModuleInstance().getPageId(),
                         Function.identity())
                 .cache();
 
@@ -1207,6 +1337,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 pagesFlux,
                 actionFlux,
                 actionCollectionFlux,
+                moduleInstanceFlux,
                 datasourceFlux,
                 environmentFlux,
                 workflowFlux,
@@ -1214,6 +1345,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 applicationPagesMapMono,
                 pageActionsMapMono,
                 pageActionCollectionMapMono,
+                pageModuleInstanceMapMono,
                 workspaceDatasourcesMapMono,
                 workspaceEnvironmentMapMono,
                 workspaceWorkflowMapMono,

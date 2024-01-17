@@ -5,6 +5,8 @@ import { getIconForEntity as CE_getIconForEntity } from "ce/components/editorCom
 import { importRemixIcon } from "@design-system/widgets-old";
 import type { Plugin } from "api/PluginApi";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { getModuleInstanceIcon } from "components/editorComponents/ActionCreator/helpers";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 const GuideLineIcon = importRemixIcon(
   async () => import("remixicon-react/GuideLineIcon"),
@@ -19,6 +21,6 @@ export const getIconForEntity: Record<
     return <GuideLineIcon />;
   },
   [ENTITY_TYPE.MODULE_INSTANCE]: () => {
-    return <GuideLineIcon />;
+    return getModuleInstanceIcon(MODULE_TYPE.JS);
   },
 };

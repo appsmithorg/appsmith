@@ -60,6 +60,7 @@ const ListWidgets = () => {
       {!widgetsExist ? (
         /* If no widgets exist, show the blank state */
         <EmptyState
+          buttonClassName="t--add-item"
           buttonText={createMessage(EDITOR_PANE_TEXTS.widget_add_button)}
           description={createMessage(
             EDITOR_PANE_TEXTS.widget_blank_state_description,
@@ -71,6 +72,7 @@ const ListWidgets = () => {
         /* We show the List Add button when side by side is not enabled  */
         <Flex flexDirection="column" px="spaces-3">
           <Button
+            className="t--add-item"
             kind={"secondary"}
             onClick={addButtonClickHandler}
             size={"sm"}

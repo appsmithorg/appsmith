@@ -11,9 +11,11 @@ import com.appsmith.server.repositories.ApiKeyRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +27,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ApiKeyAuthenticationConverter implements ServerAuthenticationConverter {
     private static final String APPSMITH_API_KEY_HEADER = "x-appsmith-key";
+    private static final String APPSMITH_API_KEY_QUERY_PARAM = "appsmithKey";
 
     private final UserRepository userRepository;
     private final ApiKeyRepository userApiKeyRepository;
@@ -33,10 +36,23 @@ public class ApiKeyAuthenticationConverter implements ServerAuthenticationConver
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         return Mono.justOrEmpty(exchange)
-                .flatMap(serverWebExchange -> Mono.justOrEmpty(
-                        serverWebExchange.getRequest().getHeaders().get(APPSMITH_API_KEY_HEADER)))
-                .filter(headerValues -> !headerValues.isEmpty())
-                .map(headerValues -> headerValues.get(0))
+                .flatMap(serverWebExchange -> {
+                    List<String> apiKeyHeaderList = serverWebExchange
+                            .getRequest()
+                            .getHeaders()
+                            .getOrDefault(APPSMITH_API_KEY_HEADER, List.of());
+                    List<String> apiKeyQueryParamList = serverWebExchange
+                            .getRequest()
+                            .getQueryParams()
+                            .getOrDefault(APPSMITH_API_KEY_QUERY_PARAM, List.of());
+                    if (isApiKeyPresent(apiKeyHeaderList)) {
+                        return Mono.just(getApiKey(apiKeyHeaderList));
+                    } else if (isApiKeyPresent(apiKeyQueryParamList)) {
+                        return Mono.just(getApiKey(apiKeyQueryParamList));
+                    } else {
+                        return Mono.empty();
+                    }
+                })
                 .flatMap(this::getAuthentication);
     }
 
@@ -86,5 +102,13 @@ public class ApiKeyAuthenticationConverter implements ServerAuthenticationConver
         } catch (Exception exception) {
             throw new AppsmithException(AppsmithError.INVALID_API_KEY);
         }
+    }
+
+    private boolean isApiKeyPresent(List<String> apiKeyList) {
+        return !CollectionUtils.isEmpty(apiKeyList) && !StringUtils.isEmpty(apiKeyList.get(0));
+    }
+
+    private String getApiKey(List<String> apiKeyList) {
+        return apiKeyList.get(0);
     }
 }

@@ -17,6 +17,7 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -187,7 +188,7 @@ describe(
       cy.CheckAndUnfoldEntityItem("Pages");
       EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
       cy.wait(4000);
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       // verify deletion of query
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "DeleteQuery",
@@ -235,20 +236,19 @@ describe(
       EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
       cy.wait(4000);
       // verify query deletion
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "UpdateQuery",
         action: "Delete",
         entityType: entityItems.Query,
       });
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.JS);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "JSObject1",
         action: "Delete",
         entityType: entityItems.JSObject,
       });
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
-      cy.get(RBAC.JsObject1).should("not.exist");
+      PageLeftPane.assertAbsence("JSObject1");
     });
 
     it("4. Delete permission : Page level, verify user do not have create and edit permissions", function () {
@@ -281,7 +281,7 @@ describe(
       cy.CheckAndUnfoldEntityItem("Pages");
       EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
       cy.wait(4000);
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "InsertQuery",
         action: "Delete",

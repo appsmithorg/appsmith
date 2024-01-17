@@ -33,7 +33,7 @@ export const getPageDependencyActions = (
   currentWorkspaceId: string = "",
   featureFlags: DependentFeatureFlags = {},
 ) => {
-  const CE = CE_getPageDependencyActions();
+  const CE = CE_getPageDependencyActions(currentWorkspaceId, featureFlags);
   const initActions = [
     ...CE.initActions,
     ...(featureFlags.showQueryModule

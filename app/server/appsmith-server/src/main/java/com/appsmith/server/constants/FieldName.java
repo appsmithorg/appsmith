@@ -147,4 +147,5 @@ public class FieldName extends FieldNameCE {
     public static final String PACKAGE = "package";
     public static final String MODULE_INSTANCE_LIST = "moduleInstanceList";
     public static final String MODULE_LIST = "moduleList";
+    public static final String COOKIE = "cookie";
 }

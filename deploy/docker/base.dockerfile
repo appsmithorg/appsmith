@@ -57,7 +57,7 @@ RUN curl  --silent --show-error https://temporal.download/cli.sh | sh
 
 # Untar & install keycloak - Service Layer
 RUN mkdir -p /opt/keycloak/data \
-  && curl --location https://github.com/keycloak/keycloak/releases/download/22.0.4/keycloak-22.0.4.tar.gz \
+  && curl --location https://github.com/keycloak/keycloak/releases/download/23.0.4/keycloak-23.0.4.tar.gz \
   | tar -xz -C /opt/keycloak --strip-components 1 \
   && curl --location --output "/opt/h2-2.1.214.jar" 'https://search.maven.org/remotecontent?filepath=com/h2database/h2/2.1.214/h2-2.1.214.jar'
 

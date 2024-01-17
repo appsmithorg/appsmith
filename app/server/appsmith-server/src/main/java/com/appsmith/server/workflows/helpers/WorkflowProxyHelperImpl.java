@@ -6,7 +6,9 @@ import com.appsmith.server.dtos.WorkflowTriggerProxyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
-import org.json.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,20 +31,22 @@ public class WorkflowProxyHelperImpl implements WorkflowProxyHelper {
 
     private final WebClient webClient;
     private final CommonConfig commonConfig;
+    private final ObjectMapper objectMapper;
 
-    public WorkflowProxyHelperImpl(CommonConfig commonConfig) {
+    public WorkflowProxyHelperImpl(CommonConfig commonConfig, ObjectMapper objectMapper) {
         webClient = WebClientUtils.builder().build();
         this.commonConfig = commonConfig;
+        this.objectMapper = objectMapper;
     }
 
     @Override
-    public Mono<JSONObject> getWorkflowHistoryFromProxySource(MultiValueMap<String, String> filters) {
+    public Mono<JsonNode> getWorkflowHistoryFromProxySource(MultiValueMap<String, String> filters) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(
                         getWorkflowProxyUrlString(WORKFLOW_HISTORY_URI))
                 .queryParams(filters);
 
-        Mono<ResponseEntity<JSONObject>> responseEntityMono =
-                webClient.get().uri(uriBuilder.build().toUri()).retrieve().toEntity(JSONObject.class);
+        Mono<ResponseEntity<String>> responseEntityMono =
+                webClient.get().uri(uriBuilder.build().toUri()).retrieve().toEntity(String.class);
 
         return checkWorkflowResponseForError(responseEntityMono, FETCH_WORKFLOW_HISTORY);
     }
@@ -51,8 +55,8 @@ public class WorkflowProxyHelperImpl implements WorkflowProxyHelper {
         return commonConfig.getWorkflowProxyUrl() + uri;
     }
 
-    private Mono<JSONObject> checkWorkflowResponseForError(
-            Mono<ResponseEntity<JSONObject>> responseEntityMono, String workflowRequest) {
+    private Mono<JsonNode> checkWorkflowResponseForError(
+            Mono<ResponseEntity<String>> responseEntityMono, String workflowRequest) {
         return responseEntityMono
                 .doOnError(error -> {
                     throw new AppsmithException(
@@ -65,39 +69,45 @@ public class WorkflowProxyHelperImpl implements WorkflowProxyHelper {
                                 workflowRequest,
                                 responseEntity.getStatusCode()));
                     }
-                    return Mono.just(responseEntity.getBody());
+                    JsonNode jsonNodeResponse = null;
+                    try {
+                        jsonNodeResponse = objectMapper.readTree(responseEntity.getBody());
+                        return Mono.just(jsonNodeResponse);
+                    } catch (JsonProcessingException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e.getMessage()));
+                    }
                 });
     }
 
     @Override
-    public Mono<JSONObject> updateApprovalRequestResolutionOnProxy(
+    public Mono<JsonNode> updateApprovalRequestResolutionOnProxy(
             ApprovalRequestResolutionProxyDTO approvalRequestResolutionProxyDTO) {
         UriComponentsBuilder uriBuilder =
                 UriComponentsBuilder.fromUriString(getWorkflowProxyUrlString(APPROVAL_REQUEST_RESOLUTION_URI));
-        Mono<ResponseEntity<JSONObject>> responseEntityMono = webClient
+        Mono<ResponseEntity<String>> responseEntityMono = webClient
                 .put()
                 .uri(uriBuilder.build().toUri())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(approvalRequestResolutionProxyDTO))
                 .retrieve()
-                .toEntity(JSONObject.class);
+                .toEntity(String.class);
 
         return checkWorkflowResponseForError(responseEntityMono, RESOLVE_APPROVAL_REQUEST);
     }
 
     @Override
-    public Mono<JSONObject> triggerWorkflowOnProxy(
+    public Mono<JsonNode> triggerWorkflowOnProxy(
             WorkflowTriggerProxyDTO workflowTriggerProxyDTO, HttpHeaders httpHeaders) {
         UriComponentsBuilder uriBuilder =
                 UriComponentsBuilder.fromUriString(getWorkflowProxyUrlString(WORKFLOW_TRIGGER_URI));
-        Mono<ResponseEntity<JSONObject>> responseEntityMono = webClient
+        Mono<ResponseEntity<String>> responseEntityMono = webClient
                 .post()
                 .uri(uriBuilder.build().toUri())
                 .headers(httpHeader -> httpHeader.addAll(httpHeaders))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(workflowTriggerProxyDTO))
                 .retrieve()
-                .toEntity(JSONObject.class);
+                .toEntity(String.class);
 
         return checkWorkflowResponseForError(responseEntityMono, TRIGGER_WORKFLOW_ON_PROXY);
     }

@@ -28,6 +28,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ObjectUtils;
+import com.appsmith.server.helpers.PackageUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
@@ -145,6 +146,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     Package newPackage = new Package();
                     newPackage.setWorkspaceId(workspace.getId());
                     newPackage.setPackageUUID(new ObjectId().toString());
+                    newPackage.setVersion(PackageUtils.getNextVersion(null));
 
                     newPackage.setUnpublishedPackage(packageToBeCreated);
                     packageToBeCreated.setCustomJSLibs(new HashSet<>());
@@ -187,7 +189,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<List<PackageDTO>> getAllEditablePackages() {
         return repository
-                .findAllUserPackages(packagePermission.getEditPermission())
+                .findAllEditablePackages(packagePermission.getEditPermission())
                 .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.EDIT))
                 .collectList();
     }
@@ -343,7 +345,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ConsumablePackagesAndModulesDTO> getAllPackagesForConsumer(String workspaceId) {
         return repository
-                .findAllConsumablePackages(workspaceId, packagePermission.getReadPermission())
+                .findAllConsumablePackages(workspaceId, packagePermission.getReadPackageModuleInstancePermission())
                 .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.VIEW))
                 .collectList()
                 .flatMap(packageDTOS -> {
@@ -406,10 +408,10 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     }
 
     @Override
-    public Mono<PackageDTO> getConsumablePackageBySourcePackageIdAndVersion(String sourcePackageId, String version) {
+    public Mono<PackageDTO> getLatestConsumablePackageByOriginPackageId(String originPackageId) {
         return repository
-                .findPackageBySourcePackageIdAndVersion(
-                        sourcePackageId, version, Optional.of(packagePermission.getReadPermission()))
+                .findLatestPackageByOriginPackageId(
+                        originPackageId, Optional.of(packagePermission.getCreatePackageModuleInstancePermission()))
                 .flatMap(aPackage ->
                         setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getPublishedPackage()));
     }

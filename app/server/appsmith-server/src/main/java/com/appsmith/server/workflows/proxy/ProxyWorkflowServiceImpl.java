@@ -9,9 +9,11 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 public class ProxyWorkflowServiceImpl extends ProxyWorkflowServiceCECompatibleImpl implements ProxyWorkflowService {
 
     private final WorkflowProxyHelper workflowProxyHelper;
+    private final ObjectMapper objectMapper;
 
     public ProxyWorkflowServiceImpl(
             Scheduler scheduler,
@@ -42,20 +45,22 @@ public class ProxyWorkflowServiceImpl extends ProxyWorkflowServiceCECompatibleIm
             ReactiveMongoTemplate reactiveMongoTemplate,
             WorkflowRepository repository,
             AnalyticsService analyticsService,
-            WorkflowProxyHelper workflowProxyHelper) {
+            WorkflowProxyHelper workflowProxyHelper,
+            ObjectMapper objectMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workflowProxyHelper = workflowProxyHelper;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<JSONObject> getWorkflowHistory(MultiValueMap<String, String> filters) {
+    public Mono<JsonNode> getWorkflowHistory(MultiValueMap<String, String> filters) {
         return validateAccessToWorkflowsAndUpdateWorkflowIds(filters).flatMap(sanitisedFilters -> {
             if (sanitisedFilters.containsKey(WORKFLOW_ID)
                     && StringUtils.isNotEmpty(sanitisedFilters.getFirst(WORKFLOW_ID))) {
                 return workflowProxyHelper.getWorkflowHistoryFromProxySource(sanitisedFilters);
             }
-            return Mono.just(new JSONObject());
+            return Mono.just(emptyJsonNode());
         });
     }
 
@@ -85,7 +90,7 @@ public class ProxyWorkflowServiceImpl extends ProxyWorkflowServiceCECompatibleIm
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<JSONObject> getWorkflowHistoryByWorkflowId(String id, MultiValueMap<String, String> filters) {
+    public Mono<JsonNode> getWorkflowHistoryByWorkflowId(String id, MultiValueMap<String, String> filters) {
         Mono<Workflow> workflowMono = repository
                 .findById(id, READ_HISTORY_WORKFLOWS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, WORKFLOW, id)));
@@ -102,5 +107,10 @@ public class ProxyWorkflowServiceImpl extends ProxyWorkflowServiceCECompatibleIm
         updatedFilters.remove(WORKFLOW_ID);
         updatedFilters.add(WORKFLOW_ID, String.join(FILTER_DELIMITER, workflowIds));
         return updatedFilters;
+    }
+
+    @SneakyThrows
+    private JsonNode emptyJsonNode() {
+        return objectMapper.readTree("{}");
     }
 }

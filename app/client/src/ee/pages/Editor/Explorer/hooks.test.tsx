@@ -19,12 +19,14 @@ import {
   CONVERT_MODULE_CTA_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
+import * as moduleFeatureSelectors from "@appsmith/selectors/moduleFeatureSelectors";
 
 jest.mock("@appsmith/selectors/packageSelectors");
 jest.mock("@appsmith/selectors/workspaceSelectors");
 jest.mock("utils/hooks/useFeatureFlag");
 jest.mock("selectors/editorSelectors");
 jest.mock("@appsmith/selectors/entitiesSelector");
+jest.mock("@appsmith/selectors/moduleFeatureSelectors");
 
 const packagesList = [
   {
@@ -177,9 +179,19 @@ const pagePermissions = [
   "delete:pages",
 ];
 
+const setQueryModuleFeatureFlag = (value: boolean) => {
+  const moduleFeatureSelectorsFactory = moduleFeatureSelectors as jest.Mocked<
+    typeof moduleFeatureSelectors
+  >;
+  moduleFeatureSelectorsFactory.getShowQueryModule.mockImplementation(
+    () => value,
+  );
+};
+
 describe("#useConvertToModuleOptions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    setQueryModuleFeatureFlag(true);
   });
 
   it("should return the correct TreeDropdownOption for positive condition", () => {

@@ -58,7 +58,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 .and(completeFieldName(QModuleInstance.moduleInstance.publishedModuleInstance.contextType))
                 .is(contextType);
 
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
     }
 
     @Override
@@ -76,7 +76,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 .isNull();
         criteria.add(deletedAtNullCriterion);
 
-        return queryAll(criteria, Optional.of(permission));
+        return queryAll(criteria, Optional.ofNullable(permission));
     }
 
     @Override
@@ -87,16 +87,21 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 where(defaultResources + "." + FieldName.MODULE_INSTANCE_ID).is(defaultModuleInstanceId);
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
-        return queryOne(List.of(defaultModuleInstanceIdCriteria, branchCriteria), null, Optional.of(permission));
+        return queryOne(
+                List.of(defaultModuleInstanceIdCriteria, branchCriteria), null, Optional.ofNullable(permission));
     }
 
     @Override
     public Flux<ModuleInstance> findAllByRootModuleInstanceId(
-            String rootModuleInstanceId, Optional<AclPermission> permission) {
+            String rootModuleInstanceId, List<String> projectionFields, Optional<AclPermission> permission) {
         Criteria rootModuleInstanceIdCriterion = where(fieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
                 .is(rootModuleInstanceId);
 
-        return queryAll(List.of(rootModuleInstanceIdCriterion), permission);
+        return queryAll(
+                List.of(rootModuleInstanceIdCriterion),
+                Optional.ofNullable(projectionFields),
+                permission,
+                Optional.empty());
     }
 
     @Override
@@ -185,5 +190,18 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
 
         return count(List.of(moduleIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<ModuleInstance> findAllUncomposedByApplicationIds(
+            List<String> applicationIds, List<String> projectionFields) {
+        Criteria applicationCriteria = Criteria.where(fieldName(QModuleInstance.moduleInstance.applicationId))
+                .in(applicationIds);
+
+        Criteria notComposedCriteria = Criteria.where(fieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
+                .exists(false);
+
+        return queryAll(
+                List.of(applicationCriteria, notComposedCriteria), projectionFields, null, null, NO_RECORD_LIMIT);
     }
 }

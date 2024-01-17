@@ -1,19 +1,23 @@
 package com.appsmith.server.actioncollections.base;
 
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.modules.metadata.ModuleMetadataService;
-import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -48,8 +52,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
     private final ResponseUtils responseUtils;
-    private final ModulePermissionChecker modulePermissionChecker;
     private final ModuleMetadataService moduleMetadataService;
+    private final PolicyGenerator policyGenerator;
 
     public ActionCollectionServiceImpl(
             Scheduler scheduler,
@@ -65,7 +69,6 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ApplicationPermission applicationPermission,
             ActionPermission actionPermission,
             DefaultResourcesService<ActionCollection> defaultResourcesService,
-            ModulePermissionChecker modulePermissionChecker,
             ModuleMetadataService moduleMetadataService) {
         super(
                 scheduler,
@@ -84,8 +87,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.responseUtils = responseUtils;
-        this.modulePermissionChecker = modulePermissionChecker;
         this.moduleMetadataService = moduleMetadataService;
+        this.policyGenerator = policyGenerator;
     }
 
     @Override
@@ -113,7 +116,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     @Override
     public Mono<List<ActionCollectionDTO>> archiveActionCollectionsByRootModuleInstanceId(String rootModuleInstanceId) {
         return repository
-                .findAllByRootModuleInstanceIds(List.of(rootModuleInstanceId), Optional.empty())
+                .findAllByRootModuleInstanceId(rootModuleInstanceId, null, Optional.empty())
                 .flatMap(actionCollection -> deleteUnpublishedActionCollection(actionCollection.getId()))
                 .collectList();
     }
@@ -121,15 +124,14 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     @Override
     public Flux<ActionCollection> findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission permission) {
-        return repository.findAllByRootModuleInstanceIds(
-                List.of(rootModuleInstanceId), Optional.ofNullable(permission));
+        return repository.findAllByRootModuleInstanceId(rootModuleInstanceId, null, Optional.ofNullable(permission));
     }
 
     @Override
     public Flux<ActionCollectionDTO> findAllUnpublishedComposedActionCollectionDTOsByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission permission) {
         return repository
-                .findAllByRootModuleInstanceIds(List.of(rootModuleInstanceId), Optional.ofNullable(permission))
+                .findAllByRootModuleInstanceId(rootModuleInstanceId, null, Optional.ofNullable(permission))
                 .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false))
                 .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
@@ -272,6 +274,17 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                                 actionCollection, ResourceModes.VIEW == resourceMode)
                         .flatMap(actionCollectionDTO -> populateActionCollectionByViewMode(
                                 actionCollectionDTO, ResourceModes.VIEW == resourceMode)));
+    }
+
+    @Override
+    public void generateAndSetPolicies(ModuleInstance moduleInstance, ActionCollection actionCollection) {
+        if (moduleInstance == null) {
+            throw new AppsmithException(
+                    AppsmithError.INTERNAL_SERVER_ERROR, "No module instance found to copy policies from.");
+        }
+        Set<Policy> documentPolicies =
+                policyGenerator.getAllChildPolicies(moduleInstance.getPolicies(), ModuleInstance.class, Action.class);
+        actionCollection.setPolicies(documentPolicies);
     }
 
     @Override

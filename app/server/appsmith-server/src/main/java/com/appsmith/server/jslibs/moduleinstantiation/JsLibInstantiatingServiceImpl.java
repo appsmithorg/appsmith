@@ -33,7 +33,10 @@ public class JsLibInstantiatingServiceImpl implements ModuleInstantiatingService
 
     @Override
     public Mono<List<CustomJSLib>> generateInstantiatedEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
-        return customJSLibService.getAllJSLibsInContext(
-                moduleInstantiatingMetaDTO.getSourcePackageId(), CreatorContextType.PACKAGE, null, true);
+        // TODO: Nidhi Bring back post beta
+        //        return customJSLibService.getAllJSLibsInContext(
+        //                moduleInstantiatingMetaDTO.getSourcePackageId(), CreatorContextType.PACKAGE, null, true);
+
+        return Mono.just(List.of());
     }
 }

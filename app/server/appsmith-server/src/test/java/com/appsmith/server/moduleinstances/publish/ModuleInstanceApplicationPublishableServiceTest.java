@@ -19,6 +19,7 @@ import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
@@ -112,6 +113,9 @@ public class ModuleInstanceApplicationPublishableServiceTest {
     @Autowired
     CustomJSLibService customJSLibService;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
     @BeforeEach
     public void setup() {
         moduleInstanceTestHelper = new ModuleInstanceTestHelper(
@@ -130,7 +134,8 @@ public class ModuleInstanceApplicationPublishableServiceTest {
                 pluginService,
                 crudModuleInstanceService,
                 objectMapper,
-                customJSLibService);
+                customJSLibService,
+                pluginRepository);
         moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("CRUD_Module_Instance_Workspace");
         moduleInstanceTestHelperDTO.setApplicationName("CRUD_Module_Instance_Application");

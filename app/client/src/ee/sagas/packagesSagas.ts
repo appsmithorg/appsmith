@@ -43,6 +43,7 @@ import type {
 } from "@appsmith/constants/PackageConstants";
 import { toast } from "design-system";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
+import analytics from "@appsmith/utils/Packages/analytics";
 
 interface CreatePackageSagaProps {
   workspaceId: string;
@@ -127,6 +128,8 @@ export function* createPackageFromWorkspaceSaga(
         type: ReduxActionTypes.CREATE_PACKAGE_FROM_WORKSPACE_SUCCESS,
         payload: response.data,
       });
+
+      analytics.createPackage(response.data);
 
       history.push(`${BASE_PACKAGE_EDITOR_PATH}/${id}`);
     }
@@ -233,6 +236,8 @@ export function* updatePackageSaga(action: ReduxAction<Package>) {
         payload: response.data,
       });
 
+      analytics.updatePackage(response.data);
+
       return response.data;
     }
   } catch (error) {
@@ -258,6 +263,8 @@ export function* deletePackageSaga(action: ReduxAction<DeletePackagePayload>) {
         type: ReduxActionTypes.DELETE_PACKAGE_SUCCESS,
         payload: action.payload,
       });
+
+      analytics.deletePackage(action.payload.id);
 
       return response.data;
     }
@@ -286,6 +293,8 @@ export function* publishPackageSaga(
         type: ReduxActionTypes.PUBLISH_PACKAGE_SUCCESS,
         payload: response.data,
       });
+
+      analytics.publishPackage(action.payload.packageId);
 
       toast.show("Package published successfully", { kind: "success" });
 

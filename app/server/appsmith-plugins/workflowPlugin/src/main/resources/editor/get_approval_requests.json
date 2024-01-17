@@ -1,0 +1,52 @@
+{
+  "identifier": "GET_APPROVAL_REQUESTS",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{!!actionConfiguration.formData.workflowId.data && !!actionConfiguration.formData.requestType.data && actionConfiguration.formData.requestType.data === 'GET_APPROVAL_REQUESTS'}}"
+  },
+  "children": [
+    {
+      "label": "Request name",
+      "tooltipText": "Search approval requests by name",
+      "propertyName": "request_name",
+      "configProperty": "actionConfiguration.formData.requestName.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "placeholderText": "\"request 1\", \"request 2\"",
+      "isRequired": false
+    },
+    {
+      "label": "Request status",
+      "tooltipText": "Filter by request status",
+      "propertyName": "request_status",
+      "configProperty": "actionConfiguration.formData.requestStatus.data",
+      "controlType": "DROP_DOWN",
+      "alternateViewTypes": ["json"],
+      "initialValue": "PENDING",
+      "isRequired": true,
+      "options": [
+        {
+          "label": "Pending",
+          "value": "PENDING"
+        },
+        {
+          "label": "Resolved",
+          "value": "RESOLVED"
+        }
+      ]
+    },
+    {
+      "label": "Limit",
+      "configProperty": "actionConfiguration.formData.limit.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "placeholderText": "10",
+      "initialValue": ""
+    },
+    {
+      "label": "Skip",
+      "configProperty": "actionConfiguration.formData.skip.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "placeholderText": "0",
+      "initialValue": ""
+    }
+  ]
+}

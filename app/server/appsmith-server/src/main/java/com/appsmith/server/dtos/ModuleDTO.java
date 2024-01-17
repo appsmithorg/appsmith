@@ -47,6 +47,10 @@ public class ModuleDTO implements Identifiable {
     String packageId;
 
     @Transient
+    @JsonView(Views.Public.class)
+    String version;
+
+    @Transient
     @JsonView(Views.Export.class)
     String packageUUID;
 

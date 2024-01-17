@@ -38,6 +38,7 @@ import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
@@ -164,6 +165,9 @@ class QueryToModuleConvertibleServiceTest {
     @Autowired
     EntityToModuleConverterService entityToModuleConverterService;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
     @BeforeEach
     void setup() {
         moduleInstanceTestHelper = new ModuleInstanceTestHelper(
@@ -182,7 +186,8 @@ class QueryToModuleConvertibleServiceTest {
                 pluginService,
                 crudModuleInstanceService,
                 objectMapper,
-                customJSLibService);
+                customJSLibService,
+                pluginRepository);
         moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("Convert_Query_To_Module_Workspace");
         moduleInstanceTestHelperDTO.setApplicationName("Convert_Query_To_Module_Application");
@@ -356,7 +361,7 @@ class QueryToModuleConvertibleServiceTest {
                 packageRepository.findById(packageIdRef.get()).block();
         assertThat(publishedPackage).isNotNull();
         Package sourcePackage = packageRepository
-                .findById(publishedPackage.getSourcePackageId())
+                .findById(publishedPackage.getOriginPackageId())
                 .block();
         assertThat(sourcePackage).isNotNull();
         return sourcePackage;
@@ -446,14 +451,14 @@ class QueryToModuleConvertibleServiceTest {
     private void verifyModuleAssertions(ModuleDTO moduleDTO, String expectedName, int numberOfInputs) {
         assertThat(moduleDTO.getName()).isEqualTo(expectedName);
         assertThat(moduleDTO.getInputsForm().get(0).getChildren()).hasSize(numberOfInputs);
-        assertThat(moduleDTO.getUserPermissions()).hasSize(2);
+        assertThat(moduleDTO.getUserPermissions()).hasSize(6);
         assertThat(moduleDTO.getOriginModuleId()).isNotNull();
         moduleDTO.getInputsForm().get(0).getChildren().forEach(moduleInput -> {
             assertThat(moduleInput.getId()).isNotNull();
             assertThat(moduleInput.getLabel()).isNotNull();
             assertThat(moduleInput.getControlType()).isEqualTo("INPUT_TEXT");
             assertThat(moduleInput.getPropertyName()).isEqualTo("inputs." + moduleInput.getLabel());
-            assertThat(moduleInput.getDefaultValue()).isNotNull();
+            assertThat(moduleInput.getDefaultValue()).isEmpty();
         });
     }
 
@@ -462,7 +467,7 @@ class QueryToModuleConvertibleServiceTest {
         assertThat(packageDTO.getName()).isEqualTo("Untitled Package 1");
         assertThat(packageDTO.getColor()).isNotNull();
         assertThat(packageDTO.getLastPublishedAt()).isNotNull();
-        assertThat(packageDTO.getUserPermissions()).hasSize(2);
+        assertThat(packageDTO.getUserPermissions()).hasSize(8);
     }
 
     private void updateLayoutWithReferences() throws JsonProcessingException {

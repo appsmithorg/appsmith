@@ -1,5 +1,6 @@
 export * from "ce/selectors/entitiesSelector";
 import { createSelector } from "reselect";
+import type { NewEntityNameOptions } from "ce/selectors/entitiesSelector";
 import {
   getAction as CE_getAction,
   getActionData as CE_getActionData,
@@ -34,6 +35,7 @@ import { PluginType, type Action } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { JSCollection } from "entities/JSCollection";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 export const getCurrentModule = createSelector(
   getAllModules,
@@ -81,7 +83,7 @@ export const selectFilesForExplorer = createSelector(
   getAllModuleInstances,
   getAllModules,
   getPackages,
-  (CE_files, moduleInstances, modules, packages) => {
+  (CE_files, moduleInstances = {}, modules = {}, packages = {}) => {
     const modulesArray = convertModulesToArray(modules);
     const modulePackageMap = getModuleIdPackageNameMap(modulesArray, packages);
     const moduleInstanceFiles = Object.values(moduleInstances).reduce(
@@ -304,3 +306,28 @@ export const getIsActionConverting = (state: AppState, actionId: string) => {
 
   return action?.isConverting || false;
 };
+
+export const getNewEntityName = createSelector(
+  getActions,
+  getJSCollections,
+  getModuleInstances,
+  (_state: AppState, options: NewEntityNameOptions) => options,
+  (actions, jsCollections, moduleInstances = {}, options) => {
+    const { parentEntityId, parentEntityKey, prefix } = options;
+    const actionNames = actions
+      .filter((a) => a.config[parentEntityKey] === parentEntityId)
+      .map((a) => a.config.name);
+    const jsActionsNames = jsCollections
+      .filter((a) => a.config[parentEntityKey] === parentEntityId)
+      .map((a) => a.config.name);
+
+    const moduleInstanceNames = Object.values(moduleInstances).map(
+      (mi) => mi.name,
+    );
+
+    return getNextEntityName(
+      prefix,
+      actionNames.concat(jsActionsNames).concat(moduleInstanceNames),
+    );
+  },
+);

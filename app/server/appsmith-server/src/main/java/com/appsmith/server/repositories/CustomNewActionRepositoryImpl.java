@@ -49,13 +49,23 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
-    public Flux<NewAction> findAllNonJSActionsByApplicationIds(
+    public Flux<NewAction> findAllUncomposedNonJSActionsByApplicationIds(
             List<String> applicationIds, List<String> includeFields) {
-        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
+        Criteria applicationCriteria =
+                Criteria.where(fieldName(QNewAction.newAction.applicationId)).in(applicationIds);
         // Query only the non-JS actions as the JS actions are stored in the actionCollection collection
         Criteria nonJsActionCriteria =
                 Criteria.where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
-        return queryAll(List.of(applicationCriteria, nonJsActionCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+
+        Criteria notComposedCriteria = Criteria.where(fieldName(QNewAction.newAction.rootModuleInstanceId))
+                .exists(false);
+
+        return queryAll(
+                List.of(applicationCriteria, nonJsActionCriteria, notComposedCriteria),
+                includeFields,
+                null,
+                null,
+                NO_RECORD_LIMIT);
     }
 
     @Override
@@ -112,7 +122,10 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
     @Override
     public Flux<NewAction> findAllByRootModuleInstanceId(
-            String rootModuleInstanceId, Optional<AclPermission> permission, boolean includeJs) {
+            String rootModuleInstanceId,
+            List<String> projectionFields,
+            Optional<AclPermission> permission,
+            boolean includeJs) {
         List<Criteria> criteria = new ArrayList<>();
 
         String moduleInstanceIdPath = fieldName(QNewAction.newAction.moduleInstanceId);
@@ -126,7 +139,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteria.add(moduleInstanceIdCriteria);
 
-        return queryAll(criteria, permission);
+        return queryAll(criteria, Optional.ofNullable(projectionFields), permission, Optional.empty());
     }
 
     public Flux<NewAction> findUnpublishedActionsByModuleIdAndExecuteOnLoadSetByUserTrue(
@@ -305,7 +318,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
-        return queryAll(criteriaList, Optional.of(permission));
+        return queryAll(criteriaList, Optional.ofNullable(permission));
     }
 
     @Override
@@ -339,7 +352,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
-        return queryAll(criteriaList, Optional.of(permission));
+        return queryAll(criteriaList, Optional.ofNullable(permission));
     }
 
     @Override

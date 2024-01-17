@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.roles;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.QDatasource;
@@ -17,10 +18,12 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QModule;
 import com.appsmith.server.domains.QModuleInstance;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
+import com.appsmith.server.domains.QPackage;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workflow;
@@ -39,6 +42,7 @@ import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
@@ -80,21 +84,32 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.MODULE_CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.MODULE_READ_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.PACKAGE_CREATE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.PACKAGE_READ_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGE_INSTANCES;
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
 import static com.appsmith.server.constants.FieldName.ENTITY_UPDATED_PERMISSIONS;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
@@ -103,6 +118,7 @@ import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORI
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
 import static com.appsmith.server.solutions.roles.constants.RoleTab.WORKFLOWS;
+import static com.appsmith.server.solutions.roles.constants.RoleTab.getRoleTabOrder;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -122,6 +138,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
     private final NewActionRepository newActionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ModuleInstanceRepository moduleInstanceRepository;
+    private final PackageRepository packageRepository;
     private final ModuleRepository moduleRepository;
     private final AnalyticsService analyticsService;
     private final NewPageRepository newPageRepository;
@@ -144,6 +161,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             NewActionRepository newActionRepository,
             ActionCollectionRepository actionCollectionRepository,
             ModuleInstanceRepository moduleInstanceRepository,
+            PackageRepository packageRepository,
             ModuleRepository moduleRepository,
             AnalyticsService analyticsService,
             NewPageRepository newPageRepository,
@@ -165,6 +183,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         this.newActionRepository = newActionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
         this.moduleInstanceRepository = moduleInstanceRepository;
+        this.packageRepository = packageRepository;
         this.moduleRepository = moduleRepository;
         this.analyticsService = analyticsService;
         this.newPageRepository = newPageRepository;
@@ -205,7 +224,21 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                     return roleViewDTO;
                 });
         return appendAdditionalTabsBasedOnFeatureFlag(
-                permissionGroupId, dataFromRepositoryForAllTabs, baseRoleViewDTOMono);
+                        permissionGroupId, dataFromRepositoryForAllTabs, baseRoleViewDTOMono)
+                .map(this::putTabsInOrder);
+    }
+
+    private RoleViewDTO putTabsInOrder(RoleViewDTO roleViewDTO) {
+        List<RoleTab> roleTabOrder = getRoleTabOrder();
+        LinkedHashMap<String, RoleTabDTO> unsortedTabs = roleViewDTO.getTabs();
+        LinkedHashMap<String, RoleTabDTO> sortedTabs = new LinkedHashMap<>();
+        roleTabOrder.forEach(roleTabInRank -> {
+            if (unsortedTabs.containsKey(roleTabInRank.getName())) {
+                sortedTabs.put(roleTabInRank.getName(), unsortedTabs.get(roleTabInRank.getName()));
+            }
+        });
+        roleViewDTO.setTabs(sortedTabs);
+        return roleViewDTO;
     }
 
     private Mono<RoleViewDTO> appendAdditionalTabsBasedOnFeatureFlag(
@@ -589,6 +622,22 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             sideEffectOnCustomThemeGivenApplicationUpdate(
                     sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
 
+        } else if (tab == RoleTab.APPLICATION_RESOURCES && NewPage.class.equals(aClazz)) {
+
+            // If Page action permissions are being edited, then
+            // In case of create page actions permission,
+            // also add permissions to read and create module instances to all modules and packages in that workspace
+            sideEffectOnModulesAndPackagesGivenNewPageUpdate(
+                    sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+
+        } else if (tab == RoleTab.APPLICATION_RESOURCES && ModuleInstance.class.equals(aClazz)) {
+
+            // If module instance permissions are being edited, then
+            // In case of edit or view permission,
+            // also add permissions to view module instances to all modules and packages in that workspace
+            sideEffectOnModulesAndPackagesGivenModuleInstanceUpdate(
+                    sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+
         } else if (tab == RoleTab.GROUPS_ROLES && PermissionGroup.class.equals(aClazz)) {
 
             sideEffectOnAssociateRoleGivenPermissionGroupUpdate(
@@ -644,6 +693,257 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         }
     }
 
+    private void sideEffectOnModulesAndPackagesGivenNewPageUpdate(
+            List<Mono<Long>> sideEffects,
+            String id,
+            List<AclPermission> added,
+            List<AclPermission> removed,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+
+        Boolean toBeAdded;
+        if (added.contains(PAGE_CREATE_PAGE_ACTIONS)) {
+            toBeAdded = true;
+        } else {
+            toBeAdded = null;
+        }
+
+        if (toBeAdded != null) {
+            Mono<String> workspaceIdMono = newPageRepository
+                    .findById(id, List.of(fieldName(QNewPage.newPage.applicationId)), null)
+                    .flatMap(newPage -> applicationRepository.findById(
+                            newPage.getApplicationId(), List.of(fieldName(QApplication.application.workspaceId)), null))
+                    .map(Application::getWorkspaceId)
+                    .cache();
+
+            Flux<Package> packageFlux = workspaceIdMono
+                    .flatMapMany(workspaceId -> packageRepository.findAllPackagesByWorkspaceId(
+                            workspaceId, List.of(fieldName(QPackage.package$.id)), Optional.empty()))
+                    .cache();
+
+            Mono<Long> packagelistMono = packageFlux
+                    .map(aPackage -> {
+                        sideEffectsClassMap.put(aPackage.getId(), Package.class);
+
+                        sideEffectsAddedMap.merge(
+                                aPackage.getId(),
+                                List.of(PACKAGE_READ_MODULE_INSTANCES, PACKAGE_CREATE_MODULE_INSTANCES),
+                                ListUtils::union);
+
+                        return 1L;
+                    })
+                    .reduce(0L, Long::sum)
+                    .switchIfEmpty(Mono.just(0L));
+
+            Mono<Long> modulesListMono = packageFlux
+                    .map(Package::getId)
+                    .flatMapSequential(packageId -> moduleRepository.getAllModulesByPackageId(packageId, null))
+                    .map(module -> {
+                        sideEffectsClassMap.put(module.getId(), Module.class);
+                        sideEffectsAddedMap.merge(
+                                module.getId(),
+                                List.of(MODULE_CREATE_MODULE_INSTANCES, MODULE_READ_MODULE_INSTANCES),
+                                ListUtils::union);
+
+                        return 1L;
+                    })
+                    .reduce(0L, Long::sum)
+                    .switchIfEmpty(Mono.just(0L));
+
+            Mono<Long> workspaceMono = workspaceIdMono
+                    .map(workspaceId -> {
+                        sideEffectsClassMap.put(workspaceId, Workspace.class);
+
+                        sideEffectsAddedMap.merge(
+                                workspaceId,
+                                List.of(WORKSPACE_CREATE_PACKAGE_INSTANCES, WORKSPACE_READ_PACKAGE_INSTANCES),
+                                ListUtils::union);
+
+                        return 1L;
+                    })
+                    .switchIfEmpty(Mono.just(0L));
+
+            sideEffects.add(packagelistMono);
+            sideEffects.add(modulesListMono);
+            sideEffects.add(workspaceMono);
+        }
+    }
+
+    private void sideEffectOnModulesAndPackagesGivenModuleInstanceUpdate(
+            List<Mono<Long>> sideEffects,
+            String id,
+            List<AclPermission> added,
+            List<AclPermission> removed,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+
+        // Check which of the above permissions we are dealing with
+        if (added.contains(READ_MODULE_INSTANCES)) {
+            // This means that the user should be able to load the module instance configs
+            // Update package, workspace and modules permissions as well
+            addReadModuleInstancePermissionsToHierarchicalParents(
+                    sideEffects, id, added, sideEffectsAddedMap, sideEffectsClassMap);
+        }
+
+        // Add permissions to all private entities within this module instances
+        // This includes actions, actions collections and module instances
+        Mono<Long> newActionsMono = newActionRepository
+                .findAllByRootModuleInstanceId(id, List.of(fieldName(QNewAction.newAction.id)), Optional.empty(), true)
+                .map(newAction -> {
+                    sideEffectsClassMap.put(newAction.getId(), NewAction.class);
+
+                    updateExecutablePermissionsFromEditedModuleInstance(sideEffectsAddedMap, newAction, added);
+                    updateExecutablePermissionsFromEditedModuleInstance(sideEffectsRemovedMap, newAction, removed);
+
+                    return 1L;
+                })
+                .reduce(0L, Long::sum)
+                .switchIfEmpty(Mono.just(0L));
+        Mono<Long> collectionsMono = actionCollectionRepository
+                .findAllByRootModuleInstanceId(
+                        id, List.of(fieldName(QActionCollection.actionCollection.id)), Optional.empty())
+                .map(actionCollection -> {
+                    sideEffectsClassMap.put(actionCollection.getId(), ActionCollection.class);
+
+                    updateExecutablePermissionsFromEditedModuleInstance(sideEffectsAddedMap, actionCollection, added);
+                    updateExecutablePermissionsFromEditedModuleInstance(
+                            sideEffectsRemovedMap, actionCollection, removed);
+
+                    return 1L;
+                })
+                .reduce(0L, Long::sum)
+                .switchIfEmpty(Mono.just(0L));
+        Mono<Long> moduleInstancesMono = moduleInstanceRepository
+                .findAllByRootModuleInstanceId(
+                        id, List.of(fieldName(QModuleInstance.moduleInstance.id)), Optional.empty())
+                .map(moduleInstance -> {
+                    sideEffectsClassMap.put(moduleInstance.getId(), ModuleInstance.class);
+
+                    updateComposedModuleInstancePermissionsFromEditedModuleInstance(
+                            sideEffectsAddedMap, moduleInstance, added);
+                    updateComposedModuleInstancePermissionsFromEditedModuleInstance(
+                            sideEffectsRemovedMap, moduleInstance, removed);
+
+                    return 1L;
+                })
+                .reduce(0L, Long::sum)
+                .switchIfEmpty(Mono.just(0L));
+
+        sideEffects.add(newActionsMono);
+        sideEffects.add(collectionsMono);
+        sideEffects.add(moduleInstancesMono);
+    }
+
+    private void updateExecutablePermissionsFromEditedModuleInstance(
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsMap,
+            BaseDomain executable,
+            List<AclPermission> edited) {
+        ArrayList<AclPermission> permissions = new ArrayList<>();
+        if (edited.contains(EXECUTE_MODULE_INSTANCES)) {
+            permissions.add(EXECUTE_ACTIONS);
+        }
+        if (edited.contains(READ_MODULE_INSTANCES)) {
+            permissions.add(READ_ACTIONS);
+        }
+        if (edited.contains(MANAGE_MODULE_INSTANCES)) {
+            permissions.add(MANAGE_ACTIONS);
+        }
+        if (edited.contains(DELETE_MODULE_INSTANCES)) {
+            permissions.add(DELETE_ACTIONS);
+        }
+        sideEffectsMap.merge(executable.getId(), permissions, ListUtils::union);
+    }
+
+    private void updateComposedModuleInstancePermissionsFromEditedModuleInstance(
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsMap,
+            ModuleInstance executable,
+            List<AclPermission> edited) {
+        ArrayList<AclPermission> permissions = new ArrayList<>();
+        if (edited.contains(EXECUTE_MODULE_INSTANCES)) {
+            permissions.add(EXECUTE_MODULE_INSTANCES);
+        }
+        if (edited.contains(READ_MODULE_INSTANCES)) {
+            permissions.add(READ_MODULE_INSTANCES);
+        }
+        if (edited.contains(MANAGE_MODULE_INSTANCES)) {
+            permissions.add(MANAGE_MODULE_INSTANCES);
+        }
+        if (edited.contains(DELETE_MODULE_INSTANCES)) {
+            permissions.add(DELETE_MODULE_INSTANCES);
+        }
+        sideEffectsMap.merge(executable.getId(), permissions, ListUtils::union);
+    }
+
+    private void addReadModuleInstancePermissionsToHierarchicalParents(
+            List<Mono<Long>> sideEffects,
+            String id,
+            List<AclPermission> added,
+            ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+            ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+
+        Mono<ModuleInstance> moduleInstanceMono = moduleInstanceRepository
+                .findById(
+                        id,
+                        List.of(
+                                fieldName(QModuleInstance.moduleInstance.originModuleId),
+                                fieldName(QModuleInstance.moduleInstance.workspaceId)),
+                        null)
+                .cache();
+        Flux<Module> moduleFlux = moduleInstanceMono
+                .flatMapMany(moduleInstance -> {
+                    List<String> moduleFields =
+                            List.of(fieldName(QModule.module.id), fieldName(QModule.module.packageId));
+                    Mono<Module> byIdMono =
+                            moduleRepository.findById(moduleInstance.getOriginModuleId(), moduleFields, null);
+                    return moduleRepository
+                            .findAllByOriginModuleId(moduleInstance.getOriginModuleId(), moduleFields, Optional.empty())
+                            .concatWith(byIdMono);
+                })
+                .cache();
+
+        Mono<Long> modulesListMono = moduleFlux
+                .map(module -> {
+                    sideEffectsClassMap.put(module.getId(), Module.class);
+                    sideEffectsAddedMap.merge(module.getId(), List.of(MODULE_READ_MODULE_INSTANCES), ListUtils::union);
+
+                    return 1L;
+                })
+                .reduce(0L, Long::sum)
+                .switchIfEmpty(Mono.just(0L));
+
+        Mono<Long> packagelistMono = moduleFlux
+                .map(Module::getPackageId)
+                .distinct()
+                .map(packageId -> {
+                    sideEffectsClassMap.put(packageId, Package.class);
+
+                    sideEffectsAddedMap.merge(packageId, List.of(PACKAGE_READ_MODULE_INSTANCES), ListUtils::union);
+
+                    return 1L;
+                })
+                .reduce(0L, Long::sum)
+                .switchIfEmpty(Mono.just(0L));
+
+        Mono<Long> workspaceMono = moduleInstanceMono
+                .map(moduleInstance -> {
+                    sideEffectsClassMap.put(moduleInstance.getWorkspaceId(), Workspace.class);
+
+                    sideEffectsAddedMap.merge(
+                            moduleInstance.getWorkspaceId(),
+                            List.of(WORKSPACE_READ_PACKAGE_INSTANCES),
+                            ListUtils::union);
+
+                    return 1L;
+                })
+                .switchIfEmpty(Mono.just(0L));
+
+        sideEffects.add(packagelistMono);
+        sideEffects.add(modulesListMono);
+        sideEffects.add(workspaceMono);
+    }
+
     /**
      * Applies side effects on workspace read permissions based on any workflow permission.
      *
@@ -655,7 +955,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
      *       the workflow visible on the home page. The side effect is added to the provided list of Monos.</li>
      *   <li>Ensures that the same workspace read permission is not given again if already done.</li>
      * </ul>
-     *
      */
     private void sideEffectOnReadWorkspaceGivenAnyWorkflowPermission(
             String id,
@@ -700,7 +999,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
      *   <li>If both {@code MANAGE_ACTIONS} and {@code DELETE_ACTIONS} permissions are removed,
      *       {@code READ_ACTIONS} and {@code EXECUTE_ACTIONS} permissions are removed.</li>
      * </ul>
-     *
      */
     private void sideEffectOnExecutablesGivenEditOrDeleteExecutablePermission(
             String id,
@@ -766,7 +1064,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
      *   <li>If {@code MANAGE_WORKFLOWS} permission is added, {@code PUBLISH_WORKFLOWS} permission is added.</li>
      *   <li>If {@code MANAGE_WORKFLOWS} permission is removed, {@code PUBLISH_WORKFLOWS} permission is removed.</li>
      * </ul>
-     *
      */
     private void sideEffectOnWorkflowsGivenEditPermission(
             String id,
@@ -792,7 +1089,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
-        List<String> includedFields = List.of(fieldName(QEnvironment.environment.id));
         Flux<String> envIdFlux =
                 environmentRepository.findByWorkspaceId(workspaceId).map(Environment::getId);
 
@@ -1308,8 +1604,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
         List<String> includedFieldsForModuleInstance = List.of(
                 fieldName(QModuleInstance.moduleInstance.id), fieldName(QModuleInstance.moduleInstance.sourceModuleId));
-        List<String> includedFieldsForModule =
-                List.of(fieldName(QModule.module.id), fieldName(QModule.module.packageId));
 
         Mono<List<NewPage>> allPagesInApplicationMono = newPageRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(applicationId), includeFieldsForPage)
@@ -1327,26 +1621,16 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
 
         Mono<List<ModuleInstance>> allModuleInstancesInApplicationMono = moduleInstancesFlux.collectList();
 
-        Mono<Set<String>> moduleIdListMono =
-                moduleInstancesFlux.map(ModuleInstance::getSourceModuleId).collect(Collectors.toSet());
-
-        Mono<List<Module>> allModulesUsedInApplicationMono = moduleIdListMono
-                .flatMapMany(moduleIdSet ->
-                        moduleRepository.findAllByIds(moduleIdSet, includedFieldsForModule, Optional.empty()))
-                .collectList();
-
         return Mono.zip(
                         allPagesInApplicationMono,
                         allActionsInApplicationMono,
                         allActionCollectionInApplicationMono,
-                        allModuleInstancesInApplicationMono,
-                        allModulesUsedInApplicationMono)
+                        allModuleInstancesInApplicationMono)
                 .flatMap(tuple -> {
                     List<NewPage> newPages = tuple.getT1();
                     List<NewAction> newActions = tuple.getT2();
                     List<ActionCollection> actionCollections = tuple.getT3();
                     List<ModuleInstance> moduleInstances = tuple.getT4();
-                    List<Module> modules = tuple.getT5();
                     Set<String> datasourceIds = getAllDatasourceIdsFromActions(newActions);
 
                     Map<String, Class> entityIdEntityClassMap = new HashMap<>();
@@ -1409,28 +1693,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                         toBeRemovedPermissionsForEntities.put(
                                 moduleInstance.getId(),
                                 toBeRemovedPermissions.getOrDefault(ModuleInstance.class.getSimpleName(), List.of()));
-                    });
-
-                    Set<String> packageIds = new HashSet<>();
-
-                    modules.forEach(module -> {
-                        packageIds.add(module.getPackageId());
-                        entityIdEntityClassMap.put(module.getId(), Module.class);
-                        toBeAddedPermissionsForEntities.put(
-                                module.getId(),
-                                toBeAddedPermissions.getOrDefault(Module.class.getSimpleName(), List.of()));
-                        toBeRemovedPermissionsForEntities.put(
-                                module.getId(),
-                                toBeRemovedPermissions.getOrDefault(Module.class.getSimpleName(), List.of()));
-                    });
-
-                    packageIds.forEach(packageId -> {
-                        entityIdEntityClassMap.put(packageId, Package.class);
-                        toBeAddedPermissionsForEntities.put(
-                                packageId, toBeAddedPermissions.getOrDefault(Package.class.getSimpleName(), List.of()));
-                        toBeRemovedPermissionsForEntities.put(
-                                packageId,
-                                toBeRemovedPermissions.getOrDefault(Package.class.getSimpleName(), List.of()));
                     });
 
                     return bulkUpdateEntityPoliciesForApplicationRole(
@@ -1536,31 +1798,76 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             String roleId,
             Map<String, List<AclPermission>> toBeAddedPermissions,
             Map<String, List<AclPermission>> toBeRemovedPermissions) {
-        List<String> includeFields = List.of(fieldName(QDatasource.datasource.id));
+        List<String> includeFieldsForDatasource = List.of(fieldName(QDatasource.datasource.id));
+        List<String> includedFieldsForModule = List.of(fieldName(QModule.module.id));
+        List<String> includedFieldsForPackage = List.of(fieldName(QPackage.package$.id));
         Mono<List<Datasource>> allDatasourcesInWorkspaceMono = datasourceRepository
-                .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includeFields)
+                .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includeFieldsForDatasource)
                 .collectList();
-        return allDatasourcesInWorkspaceMono.flatMap(datasources -> {
-            Map<String, Class> entityIdEntityClassMap = new HashMap<>();
-            Map<String, List<AclPermission>> toBeAddedPermissionsForEntities = new HashMap<>();
-            Map<String, List<AclPermission>> toBeRemovedPermissionsForEntities = new HashMap<>();
-            entityIdEntityClassMap.put(workspaceId, Workspace.class);
-            toBeAddedPermissionsForEntities.put(
-                    workspaceId, toBeAddedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
-            toBeRemovedPermissionsForEntities.put(
-                    workspaceId, toBeRemovedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
-            datasources.forEach(datasource -> {
-                entityIdEntityClassMap.put(datasource.getId(), Datasource.class);
-                toBeAddedPermissionsForEntities.put(
-                        datasource.getId(),
-                        toBeAddedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
-                toBeRemovedPermissionsForEntities.put(
-                        datasource.getId(),
-                        toBeRemovedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
-            });
-            return bulkUpdateEntityPoliciesForApplicationRole(
-                    entityIdEntityClassMap, roleId, toBeAddedPermissionsForEntities, toBeRemovedPermissionsForEntities);
-        });
+
+        Mono<List<Package>> allPackagesMono = packageRepository
+                .findAllPackagesByWorkspaceId(workspaceId, includedFieldsForPackage, Optional.empty())
+                .collectList()
+                .cache();
+
+        Mono<List<Module>> allModulesUsedInApplicationMono = allPackagesMono
+                .map(allPackages ->
+                        allPackages.stream().map(aPackage -> aPackage.getId()).collect(Collectors.toList()))
+                .flatMapMany(allPackageIds -> moduleRepository.getAllModulesByPackageIds(
+                        allPackageIds, includedFieldsForModule, Optional.empty()))
+                .collectList();
+
+        return Mono.zip(allDatasourcesInWorkspaceMono, allPackagesMono, allModulesUsedInApplicationMono)
+                .flatMap(tuple3 -> {
+                    List<Datasource> datasources = tuple3.getT1();
+                    List<Package> packages = tuple3.getT2();
+                    List<Module> modules = tuple3.getT3();
+
+                    Map<String, Class> entityIdEntityClassMap = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeAddedPermissionsForEntities = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeRemovedPermissionsForEntities = new HashMap<>();
+                    entityIdEntityClassMap.put(workspaceId, Workspace.class);
+                    toBeAddedPermissionsForEntities.put(
+                            workspaceId, toBeAddedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
+                    toBeRemovedPermissionsForEntities.put(
+                            workspaceId,
+                            toBeRemovedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
+                    datasources.forEach(datasource -> {
+                        entityIdEntityClassMap.put(datasource.getId(), Datasource.class);
+                        toBeAddedPermissionsForEntities.put(
+                                datasource.getId(),
+                                toBeAddedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                datasource.getId(),
+                                toBeRemovedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                    });
+
+                    modules.forEach(module -> {
+                        entityIdEntityClassMap.put(module.getId(), Module.class);
+                        toBeAddedPermissionsForEntities.put(
+                                module.getId(),
+                                toBeAddedPermissions.getOrDefault(Module.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                module.getId(),
+                                toBeRemovedPermissions.getOrDefault(Module.class.getSimpleName(), List.of()));
+                    });
+
+                    packages.forEach(aPackage -> {
+                        entityIdEntityClassMap.put(aPackage.getId(), Package.class);
+                        toBeAddedPermissionsForEntities.put(
+                                aPackage.getId(),
+                                toBeAddedPermissions.getOrDefault(Package.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                aPackage.getId(),
+                                toBeRemovedPermissions.getOrDefault(Package.class.getSimpleName(), List.of()));
+                    });
+
+                    return bulkUpdateEntityPoliciesForApplicationRole(
+                            entityIdEntityClassMap,
+                            roleId,
+                            toBeAddedPermissionsForEntities,
+                            toBeRemovedPermissionsForEntities);
+                });
     }
 
     @Override

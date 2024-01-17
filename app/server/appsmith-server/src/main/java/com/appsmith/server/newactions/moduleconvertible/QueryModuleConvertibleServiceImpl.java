@@ -56,118 +56,92 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
     @Override
     public Mono<Void> convertToModule(ModuleConvertibleMetaDTO moduleConvertibleMetaDTO) {
 
-        return moduleConvertibleMetaDTO.getPublicEntityMono().flatMap(publicEntityReusable -> {
-            return moduleConvertibleMetaDTO
-                    .getSourcePackageMono()
-                    .flatMap(sourcePackage -> {
-                        ActionDTO publicEntity = (ActionDTO) publicEntityReusable;
-                        moduleConvertibleMetaDTO.setSourcePackage(sourcePackage);
-                        moduleConvertibleMetaDTO.setOriginPackageId(sourcePackage.getId());
+        return moduleConvertibleMetaDTO.getPublicEntityMono().flatMap(publicEntityReusable -> moduleConvertibleMetaDTO
+                .getOriginPackageMono()
+                .flatMap(originPackageDTO -> {
+                    ActionDTO publicEntity = (ActionDTO) publicEntityReusable;
+                    moduleConvertibleMetaDTO.setOriginPackageDTO(originPackageDTO);
+                    moduleConvertibleMetaDTO.setOriginPackageId(originPackageDTO.getId());
 
-                        // Save the pageId before resetting
-                        final String pageId = publicEntity.getPageId();
-                        resetContextSpecificFieldsAndSetContextType(publicEntity);
+                    // Save the pageId before resetting
+                    final String pageId = publicEntity.getPageId();
+                    resetContextSpecificFieldsAndSetContextType(publicEntity);
 
-                        Mono<List<ModuleDTO>> moduleNamesMono =
-                                crudModuleService.getAllModuleDTOs(sourcePackage.getId(), ResourceModes.EDIT);
+                    Mono<List<ModuleDTO>> moduleNamesMono =
+                            crudModuleService.getAllModuleDTOs(originPackageDTO.getId(), ResourceModes.EDIT);
 
-                        // Generate inputs for the module to be created
-                        return moduleNamesMono
-                                .flatMap(existingModuleDTOs -> {
-                                    // Create module request DTO
-                                    ModuleDTO moduleDTO =
-                                            createModuleDTO(sourcePackage.getId(), publicEntity, existingModuleDTOs);
-                                    // Set the inputs form to the module
-                                    List<ModuleInputForm> inputForms = constructInputsForm(publicEntity);
-                                    moduleDTO.setInputsForm(inputForms);
+                    // Generate inputs for the module to be created
+                    return moduleNamesMono
+                            .flatMap(existingModuleDTOs -> {
+                                // Create module request DTO
+                                ModuleDTO moduleDTO =
+                                        createModuleDTO(originPackageDTO.getId(), publicEntity, existingModuleDTOs);
+                                // Set the inputs form to the module
+                                List<ModuleInputForm> inputForms =
+                                        constructInputsForm(publicEntity, moduleConvertibleMetaDTO);
+                                moduleDTO.setInputsForm(inputForms);
 
-                                    // Delete the unpublished version of the source query
-                                    Mono<ActionDTO> deleteOriginalQueryMono = newActionService.deleteUnpublishedAction(
-                                            moduleConvertibleMetaDTO.getPublicEntityId());
+                                // Delete the unpublished version of the source query
+                                Mono<ActionDTO> deleteOriginalQueryMono = newActionService.deleteUnpublishedAction(
+                                        moduleConvertibleMetaDTO.getPublicEntityId());
 
-                                    // Prepare module instance creation request for the newly created module
-                                    final ModuleInstanceDTO moduleInstanceReqDTO =
-                                            createModuleInstanceRequestDTO(pageId, publicEntity);
+                                // Prepare module instance creation request for the newly created module
+                                final ModuleInstanceDTO moduleInstanceReqDTO =
+                                        createModuleInstanceRequestDTO(pageId, publicEntity);
 
-                                    // Create module instance and set module instance and associated entities in the
-                                    // metaDTO
-                                    Mono<CreateModuleInstanceResponseDTO> createModuleInstanceMono =
-                                            getCreateModuleInstanceResponseDTOMono(
-                                                    moduleConvertibleMetaDTO, moduleInstanceReqDTO);
+                                // Create module instance and set module instance and associated entities in the
+                                // metaDTO
+                                Mono<CreateModuleInstanceResponseDTO> createModuleInstanceMono =
+                                        getCreateModuleInstanceResponseDTOMono(
+                                                moduleConvertibleMetaDTO, moduleInstanceReqDTO);
 
-                                    return crudModuleService
-                                            .createModule(moduleDTO)
-                                            .flatMap(createdModuleDTO -> publishPackageService
-                                                    .publishPackage(sourcePackage.getId())
-                                                    .flatMap(published -> {
-                                                        // Need to fetch the updated source package after the
-                                                        // publish-package event as the version number has been updated
-                                                        return crudPackageService
-                                                                .getPackageDetails(sourcePackage.getId())
-                                                                .flatMap(packageDetailsDTO -> {
-                                                                    moduleConvertibleMetaDTO.setSourcePackage(
-                                                                            packageDetailsDTO.getPackageData());
-                                                                    moduleConvertibleMetaDTO.setOriginModuleId(
-                                                                            createdModuleDTO.getId());
-                                                                    // Fetch the newly created module after publishing
-                                                                    // the
-                                                                    // package
-                                                                    Mono<Tuple2<PackageDTO, ModuleDTO>>
-                                                                            consumablePackageAndModuleMono =
-                                                                                    fetchConsumablePackageAndModuleMono(
-                                                                                            moduleConvertibleMetaDTO,
-                                                                                            moduleInstanceReqDTO);
-                                                                    return consumablePackageAndModuleMono;
-                                                                });
-                                                    })
-                                                    .then(Mono.defer(() -> deleteOriginalQueryMono))
-                                                    .then(Mono.defer(() -> createModuleInstanceMono))
-                                                    .thenReturn(createdModuleDTO))
-                                            .flatMap(toBeUpdatedModuleDTO -> {
-                                                // Reset default values to empty after module instance is created
-                                                toBeUpdatedModuleDTO
-                                                        .getInputsForm()
-                                                        .forEach(moduleInputForm -> {
-                                                            moduleInputForm
-                                                                    .getChildren()
-                                                                    .forEach(moduleInput ->
-                                                                            moduleInput.setDefaultValue(""));
-                                                        });
-                                                return crudModuleService
-                                                        .updateModule(
-                                                                toBeUpdatedModuleDTO, toBeUpdatedModuleDTO.getId())
-                                                        .flatMap(updatedModuleDTO -> {
-                                                            moduleConvertibleMetaDTO
-                                                                    .getModuleDTO()
-                                                                    .setInputsForm(updatedModuleDTO.getInputsForm());
-                                                            return publishPackageService.publishPackage(
-                                                                    sourcePackage.getId());
-                                                        });
-                                            });
-                                })
-                                .then();
-                    })
-                    .as(transactionalOperator::transactional);
-        });
+                                return crudModuleService
+                                        .createModule(moduleDTO)
+                                        .flatMap(createdModuleDTO -> publishPackageService
+                                                .publishPackage(originPackageDTO.getId())
+                                                .flatMap(published -> {
+                                                    // Need to fetch the updated source package after the
+                                                    // publish-package event as the version number has been updated
+                                                    return crudPackageService
+                                                            .getPackageDetails(originPackageDTO.getId())
+                                                            .flatMap(packageDetailsDTO -> {
+                                                                moduleConvertibleMetaDTO.setOriginPackageDTO(
+                                                                        packageDetailsDTO.getPackageData());
+                                                                moduleConvertibleMetaDTO.setOriginModuleId(
+                                                                        createdModuleDTO.getId());
+                                                                // Override default values of this very module instance
+                                                                // with the ones that existed before the conversion from
+                                                                // "query to module"
+                                                                moduleInstanceReqDTO.setInputs(
+                                                                        moduleConvertibleMetaDTO
+                                                                                .getInputNameToDefaultValueMap());
+                                                                return fetchConsumablePackageAndModuleMono(
+                                                                        moduleConvertibleMetaDTO, moduleInstanceReqDTO);
+                                                            });
+                                                })
+                                                .then(Mono.defer(() -> deleteOriginalQueryMono))
+                                                .then(Mono.defer(() -> createModuleInstanceMono)));
+                            })
+                            .then();
+                })
+                .as(transactionalOperator::transactional));
     }
 
     private Mono<CreateModuleInstanceResponseDTO> getCreateModuleInstanceResponseDTOMono(
             ModuleConvertibleMetaDTO moduleConvertibleMetaDTO, ModuleInstanceDTO moduleInstanceReqDTO) {
-        Mono<CreateModuleInstanceResponseDTO> createModuleInstanceMono = crudModuleInstanceService
+        return crudModuleInstanceService
                 .createModuleInstance(moduleInstanceReqDTO, moduleConvertibleMetaDTO.getBranchName())
                 .map(createModuleInstanceResponseDTO -> {
                     moduleConvertibleMetaDTO.setModuleInstanceData(createModuleInstanceResponseDTO);
                     return createModuleInstanceResponseDTO;
                 });
-        return createModuleInstanceMono;
     }
 
     private Mono<Tuple2<PackageDTO, ModuleDTO>> fetchConsumablePackageAndModuleMono(
             ModuleConvertibleMetaDTO moduleConvertibleMetaDTO, ModuleInstanceDTO moduleInstanceReqDTO) {
 
-        Mono<PackageDTO> consumablePackageMono = crudPackageService.getConsumablePackageBySourcePackageIdAndVersion(
-                moduleConvertibleMetaDTO.getSourcePackage().getId(),
-                moduleConvertibleMetaDTO.getSourcePackage().getVersion());
+        Mono<PackageDTO> consumablePackageMono = crudPackageService.getLatestConsumablePackageByOriginPackageId(
+                moduleConvertibleMetaDTO.getOriginPackageDTO().getId());
         return consumablePackageMono.flatMap(consumablePackageDTO -> {
             return crudModuleService
                     .getConsumableModuleByPackageIdAndOriginModuleId(
@@ -229,13 +203,14 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
         publicEntity.setContextType(CreatorContextType.PAGE);
     }
 
-    private List<ModuleInputForm> constructInputsForm(ActionDTO publicEntity) {
+    private List<ModuleInputForm> constructInputsForm(
+            ActionDTO publicEntity, ModuleConvertibleMetaDTO moduleConvertibleMetaDTO) {
         List<ModuleInputForm> moduleInputForms = new ArrayList<>();
         ModuleInputForm moduleInputForm = new ModuleInputForm();
         moduleInputForm.setId(ModuleUtils.generateUniqueIdForInputField());
         moduleInputForm.setSectionName("");
         Tuple2 tuple2 = moduleConvertibleHelper.generateChildrenInputsForModule(
-                publicEntity.getJsonPathKeys(), publicEntity.getActionConfiguration());
+                publicEntity.getJsonPathKeys(), publicEntity.getActionConfiguration(), moduleConvertibleMetaDTO);
 
         moduleInputForm.setChildren((List<ModuleInput>) tuple2.getT1());
         moduleInputForms.add(moduleInputForm);

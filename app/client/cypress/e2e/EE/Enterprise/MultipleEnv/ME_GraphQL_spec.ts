@@ -29,7 +29,7 @@ let GRAPHQL_VARIABLES = `{
 
 describe(
   "GraphQL Datasource for Staging & Prod verifications",
-  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
+  { tags: ["@tag.MultiEnv", "@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     let prodEnv: string,
       stagingEnv: string,

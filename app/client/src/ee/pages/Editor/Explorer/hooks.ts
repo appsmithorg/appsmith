@@ -23,6 +23,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreatePackagePermission } from "@appsmith/utils/permissionHelpers";
 import { getIsActionConverting } from "@appsmith/selectors/entitiesSelector";
+import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 
 export function useActiveAction() {
   const location = useLocation();
@@ -56,11 +57,12 @@ export const useConvertToModuleOptions = ({
   canDelete,
   id,
   moduleType,
-}: UseConvertToModulesOptionsProps): TreeDropdownOption => {
+}: UseConvertToModulesOptionsProps): TreeDropdownOption | undefined => {
   const packages = usePackageListToConvertEntity();
   const dispatch = useDispatch();
   const hasPackages = Boolean(packages.length);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const showQueryModule = useSelector(getShowQueryModule);
   const pagePermissions = useSelector(getPagePermissions);
   const canCreateModuleInstance = getHasCreateActionPermission(
     isFeatureEnabled,
@@ -89,6 +91,8 @@ export const useConvertToModuleOptions = ({
     },
     [id, moduleType],
   );
+
+  if (!showQueryModule) return undefined;
 
   const hasPackagesOrCanCreateNewPackage = hasPackages || canCreateNewPackage;
 

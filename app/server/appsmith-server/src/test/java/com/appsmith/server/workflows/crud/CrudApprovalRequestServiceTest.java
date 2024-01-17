@@ -29,8 +29,10 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import com.appsmith.server.workflows.interact.InteractApprovalRequestService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -423,7 +425,7 @@ class CrudApprovalRequestServiceTest {
     @WithUserDetails("api_user")
     public void testGetAllApprovalRequests() {
         String testName = "testGetAllApprovalRequests";
-        Mockito.doReturn(Mono.just(new JSONObject()))
+        Mockito.doReturn(Mono.just(emptyJsonNode()))
                 .when(workflowProxyHelper)
                 .updateApprovalRequestResolutionOnProxy(any());
 
@@ -786,7 +788,7 @@ class CrudApprovalRequestServiceTest {
                 .block();
     }
 
-    private Mono<JSONObject> resolveApprovalRequestInviteUser(
+    private Mono<JsonNode> resolveApprovalRequestInviteUser(
             ApprovalRequest approvalRequest,
             String approvalRequestResolutionReason,
             String resolution,
@@ -800,5 +802,14 @@ class CrudApprovalRequestServiceTest {
 
         return runAs(
                 interactApprovalRequestService.resolveApprovalRequest(approvalRequestResolutionDTO), user, password);
+    }
+
+    private JsonNode emptyJsonNode() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readTree("{}");
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

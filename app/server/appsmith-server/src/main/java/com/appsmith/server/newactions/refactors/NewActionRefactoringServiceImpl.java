@@ -3,7 +3,6 @@ package com.appsmith.server.newactions.refactors;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.EntityType;
@@ -74,8 +73,7 @@ public class NewActionRefactoringServiceImpl extends NewActionRefactoringService
             String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
         if (isModuleContext(contextType)) {
             return newActionService
-                    .findAllActionsByContextIdAndContextTypeAndViewMode(
-                            contextId, contextType, AclPermission.MANAGE_ACTIONS, viewMode, true)
+                    .findAllActionsByContextIdAndContextTypeAndViewMode(contextId, contextType, null, viewMode, true)
                     .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, viewMode));
         } else {
             return super.getExistingEntities(contextId, contextType, layoutId, viewMode);

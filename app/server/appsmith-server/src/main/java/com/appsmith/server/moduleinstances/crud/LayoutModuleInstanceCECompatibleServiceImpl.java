@@ -40,6 +40,12 @@ public class LayoutModuleInstanceCECompatibleServiceImpl extends BaseModuleInsta
     }
 
     @Override
+    public Mono<List<ModuleInstanceDTO>> getAllModuleInstancesByContextIdAndContextTypeAndViewModeWithoutPermissions(
+            String contextId, CreatorContextType contextType, ResourceModes resourceMode, String branchName) {
+        return Mono.empty();
+    }
+
+    @Override
     public Mono<ModuleInstanceDTO> updateUnpublishedModuleInstance(
             ModuleInstanceDTO moduleInstanceDTO,
             String moduleInstanceId,

@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.InMemoryReactiveClientRegistrationRepositoryConfiguration;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.configurations.solutions.OidcAccessTokenUpdateSolution;
@@ -100,6 +101,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     PartialImportService partialImportService;
+
+    @MockBean
+    ProjectProperties projectProperties;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();

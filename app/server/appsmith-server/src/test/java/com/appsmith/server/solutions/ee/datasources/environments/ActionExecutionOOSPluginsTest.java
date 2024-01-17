@@ -54,6 +54,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.codec.ByteBufferDecoder;
 import org.springframework.core.codec.StringDecoder;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.DecoderHttpMessageReader;
@@ -340,7 +341,7 @@ public class ActionExecutionOOSPluginsTest {
 
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
-        return actionExecutionSolution.executeAction(partsFlux, null, stagingEnvironmentId);
+        return actionExecutionSolution.executeAction(partsFlux, null, stagingEnvironmentId, new HttpHeaders());
     }
 
     @Test

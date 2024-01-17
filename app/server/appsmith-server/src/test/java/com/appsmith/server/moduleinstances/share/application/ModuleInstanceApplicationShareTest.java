@@ -35,6 +35,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.EnvironmentService;
@@ -203,6 +204,9 @@ public class ModuleInstanceApplicationShareTest {
     @Autowired
     CustomJSLibService customJSLibService;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
     String workspaceId;
 
     Workspace workspace;
@@ -226,7 +230,8 @@ public class ModuleInstanceApplicationShareTest {
                 pluginService,
                 crudModuleInstanceService,
                 objectMapper,
-                customJSLibService);
+                customJSLibService,
+                pluginRepository);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));

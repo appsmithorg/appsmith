@@ -1,6 +1,7 @@
 export * from "ce/utils/getEntityPayloadInfo";
 import {
   ENTITY_TYPE,
+  type ModuleInstanceEntityConfig,
   type EntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import { getCurrentModule } from "@appsmith/selectors/entitiesSelector";
@@ -22,6 +23,13 @@ export const getEntityPayloadInfo: Record<
     return {
       iconId: currentModule.type,
       id: currentModule.id,
+    };
+  },
+  [ENTITY_TYPE.MODULE_INSTANCE]: (entityConfig) => {
+    const config = entityConfig as ModuleInstanceEntityConfig;
+    return {
+      iconId: config.type,
+      id: config.moduleInstanceId,
     };
   },
 };
