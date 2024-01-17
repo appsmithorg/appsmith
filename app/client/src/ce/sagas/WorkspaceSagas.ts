@@ -64,14 +64,20 @@ export function* fetchAllWorkspacesSaga(
         payload: workspaces,
       });
       if (action?.payload?.workspaceId || action?.payload?.fetchEntities) {
-        const workspaceId = action?.payload?.workspaceId || workspaces[0].id;
+        const workspaceId = action?.payload?.workspaceId || workspaces[0]?.id;
         const activeWorkspace = workspaces.find(
           (workspace) => workspace.id === workspaceId,
         );
         const { errorActions, initActions, successActions } =
           getWorkspaceEntitiesActions(workspaceId);
-
-        yield call(failFastApiCalls, initActions, successActions, errorActions);
+        if (workspaceId) {
+          yield call(
+            failFastApiCalls,
+            initActions,
+            successActions,
+            errorActions,
+          );
+        }
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: { ...activeWorkspace },
