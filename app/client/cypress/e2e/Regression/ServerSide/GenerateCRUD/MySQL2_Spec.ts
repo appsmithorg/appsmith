@@ -89,9 +89,9 @@ describe(
     });
 
     it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "Stores");
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("Stores");
+
       GenerateCRUDNValidateDeployPage(
         "2106",
         "Hillstreet News and Tobacco",
@@ -388,7 +388,7 @@ describe(
       () => {
         deployMode.DeployApp();
         deployMode.NavigateBacktoEditor();
-        dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
+        dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
       },
     );
 
@@ -398,7 +398,9 @@ describe(
       col3Text: string,
       jsonFromHeader: string,
     ) {
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      agHelper.GetNClick(
+        `${dataSources._generatePageBtn}, ${dataSources._datasourceCardGeneratePageBtn}`,
+      );
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes

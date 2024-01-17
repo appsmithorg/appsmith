@@ -63,6 +63,9 @@
   font-weight: 400;
   margin-right: 2px;
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: calc(100% - 22px);
 }
 
 .eventControl {
