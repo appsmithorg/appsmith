@@ -34,19 +34,13 @@ import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { initialize, autofill, change, reset } from "redux-form";
 import type { Property } from "api/ActionAPI";
-import { createNewQueryName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import {
   getAction,
-  getActions,
   getDatasourceActionRouteInfo,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import type {
-  ActionData,
-  ActionDataState,
-} from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   createActionRequest,
   setActionProperty,
@@ -724,14 +718,6 @@ function* handleCreateNewApiActionSaga(
   const { apiType = PluginPackageName.REST_API, from, pageId } = action.payload;
 
   if (pageId) {
-    const actions: ActionDataState = yield select(getActions);
-    const pageActions = actions.filter(
-      (a: ActionData) => a.config.pageId === pageId,
-    );
-    // Create a new action name prefix based on the apiType
-    const actionPrefix =
-      apiType === PluginPackageName.APPSMITH_AI ? "Query" : "API";
-    const newActionName = createNewQueryName(pageActions, pageId, actionPrefix);
     // Note: Do NOT send pluginId on top level here.
     // It breaks embedded rest datasource flow.
 
@@ -740,7 +726,6 @@ function* handleCreateNewApiActionSaga(
       {
         apiType,
         from,
-        newActionName,
       },
     );
 
