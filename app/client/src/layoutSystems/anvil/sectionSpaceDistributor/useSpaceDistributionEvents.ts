@@ -101,8 +101,8 @@ const updatedCSSOfWidgetsOnHittingMinimumLimit = (
   }
 };
 const maxSpeedLimit = 4000;
-const ratioOfSpeedToAnimation = 0.55 / maxSpeedLimit;
-const baseAnimationDuration = 0.75;
+const baseAnimationDuration = 0.25;
+const ratioOfSpeedToAnimation = baseAnimationDuration / maxSpeedLimit;
 const checkForNeedToAddMagneticForce = (
   mouseSpeed: number,
   leftZoneDom: HTMLElement,
