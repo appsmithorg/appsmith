@@ -10,6 +10,7 @@ import {
 } from "@appsmith/constants/messages";
 import CustomWidgetBuilderService from "utils/CustomWidgetBuilderService";
 import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ButtonControlState {
   isSourceEditorOpen: boolean;
@@ -24,7 +25,32 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
     isSourceEditorOpen: false,
   };
 
+  getPayload = () => {
+    return {
+      name: this.props.widgetProperties.widgetName,
+      widgetId: this.props.widgetProperties.widgetId,
+      srcDoc: this.props.widgetProperties.srcDoc,
+      uncompiledSrcDoc: this.props.widgetProperties.uncompiledSrcDoc,
+      model:
+        this.props.widgetProperties.__evaluation__?.evaluatedValues
+          ?.defaultModel,
+      events: this.props.widgetProperties.events.reduce(
+        (prev: Record<string, string>, curr: string) => {
+          prev[curr] = this.props.widgetProperties[curr];
+
+          return prev;
+        },
+        {},
+      ),
+      theme: this.props.widgetProperties.__evaluation__?.evaluatedValues?.theme,
+    };
+  };
+
   onCTAClick = () => {
+    AnalyticsUtil.logEvent("CUSTOM_WIDGET_EDIT_SOURCE_CLICKED", {
+      widgetId: this.props.widgetProperties.widgetId,
+    });
+
     if (
       CustomWidgetBuilderService.isConnected(
         this.props.widgetProperties.widgetId,
@@ -40,22 +66,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
       onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.READY, () => {
         postMessage({
           type: CUSTOM_WIDGET_BUILDER_EVENTS.READY_ACK,
-          name: this.props.widgetProperties.widgetName,
-          srcDoc: this.props.widgetProperties.srcDoc,
-          uncompiledSrcDoc: this.props.widgetProperties.uncompiledSrcDoc,
-          model:
-            this.props.widgetProperties.__evaluation__?.evaluatedValues
-              ?.defaultModel,
-          events: this.props.widgetProperties.events.reduce(
-            (prev: Record<string, string>, curr: string) => {
-              prev[curr] = this.props.widgetProperties[curr];
-
-              return prev;
-            },
-            {},
-          ),
-          theme:
-            this.props.widgetProperties.__evaluation__?.evaluatedValues?.theme,
+          ...this.getPayload(),
         });
       });
 
@@ -74,6 +85,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
       onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED, () => {
         CustomWidgetBuilderService.closeConnection(
           this.props.widgetProperties.widgetId,
+          true,
         );
 
         this.setState({
@@ -105,6 +117,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
         this.props.widgetProperties.widgetId,
       )?.postMessage({
         type: CUSTOM_WIDGET_BUILDER_EVENTS.RESUME,
+        ...this.getPayload(),
       });
     }
   }

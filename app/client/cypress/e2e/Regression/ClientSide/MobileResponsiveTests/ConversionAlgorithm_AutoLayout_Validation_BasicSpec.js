@@ -14,8 +14,8 @@ describe(
     it("1. Validate basic conversion algorithm usecases", function () {
       _.agHelper.AddDsl("conversionFrAutoLayoutDsl");
       //cy.openPropertyPane("containerwidget");
-      cy.get("@getConsolidatedData").then((httpResponse) => {
-        const data = httpResponse.response.body.data.pageWithMigratedDsl.data;
+      cy.get("@getPage").then((httpResponse) => {
+        const data = httpResponse.response.body.data;
         testHeight = data.layouts[0].dsl.bottomRow;
       });
 

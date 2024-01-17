@@ -92,6 +92,8 @@ import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
 } from "@appsmith/selectors/applicationSelectors";
+import { DEFAULT_CREATE_APPSMITH_AI_CONFIG } from "constants/ApiEditorConstants/AppsmithAIEditorConstants";
+import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -677,9 +679,13 @@ export function* createDefaultApiActionPayload(
   const { apiType, from, newActionName } = props;
   const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
   // Default Config is Rest Api Plugin Config
-  let defaultConfig = DEFAULT_CREATE_API_CONFIG;
+  let defaultConfig: any = DEFAULT_CREATE_API_CONFIG;
   if (apiType === PluginPackageName.GRAPHQL) {
     defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
+  }
+  if (apiType === PluginPackageName.APPSMITH_AI) {
+    defaultConfig = DEFAULT_CREATE_APPSMITH_AI_CONFIG;
+    yield call(checkAndGetPluginFormConfigsSaga, pluginId);
   }
 
   return {
@@ -689,6 +695,7 @@ export function* createDefaultApiActionPayload(
       name: defaultConfig.datasource.name,
       pluginId,
       workspaceId,
+      datasourceConfiguration: defaultConfig.datasource.datasourceConfiguration,
     },
     eventData: {
       actionType: defaultConfig.eventData.actionType,

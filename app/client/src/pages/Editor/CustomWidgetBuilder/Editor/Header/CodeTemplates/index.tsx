@@ -22,6 +22,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledButton = styled(Button)`
   height: 32px !important;
@@ -70,13 +71,14 @@ function ConfirmationModal(props: {
 }
 
 export function CodeTemplates() {
-  const { bulkUpdate, initialSrcDoc, lastSaved } = useContext(
+  const { bulkUpdate, initialSrcDoc, lastSaved, widgetId } = useContext(
     CustomWidgetBuilderContext,
   );
 
   const [open, setOpen] = useState(false);
 
   const [selectedTemplate, setSelectedTemplate] = useState<SrcDoc | null>(null);
+  const [selectedTemplateName, setSelectedTemplateName] = useState("");
 
   return (
     <div className={styles.templateMenu}>
@@ -85,9 +87,13 @@ export function CodeTemplates() {
           <StyledButton
             className="t--custom-widget-template-trigger"
             kind="secondary"
+            onClick={() => {
+              AnalyticsUtil.logEvent("CUSTOM_WIDGET_BUILDER_TEMPLATE_OPENED", {
+                widgetId: widgetId,
+              });
+            }}
             size="sm"
             startIcon="query"
-            style={{}}
           >
             {createMessage(CUSTOM_WIDGET_FEATURE.template.buttonCTA)}
           </StyledButton>
@@ -98,7 +104,17 @@ export function CodeTemplates() {
               <MenuItem
                 onClick={() => {
                   setSelectedTemplate(initialSrcDoc);
+                  setSelectedTemplateName(
+                    CUSTOM_WIDGET_FEATURE.template.revert,
+                  );
                   setOpen(true);
+                  AnalyticsUtil.logEvent(
+                    "CUSTOM_WIDGET_BUILDER_TEMPLATE_SELECT",
+                    {
+                      widgetId: widgetId,
+                      templateName: CUSTOM_WIDGET_FEATURE.template.revert,
+                    },
+                  );
                 }}
               >
                 {createMessage(CUSTOM_WIDGET_FEATURE.template.revert)}
@@ -111,7 +127,15 @@ export function CodeTemplates() {
               key={template.key}
               onClick={() => {
                 setSelectedTemplate(template.uncompiledSrcDoc);
+                setSelectedTemplateName(template.key);
                 setOpen(true);
+                AnalyticsUtil.logEvent(
+                  "CUSTOM_WIDGET_BUILDER_TEMPLATE_SELECT",
+                  {
+                    widgetId: widgetId,
+                    templateName: template.key,
+                  },
+                );
               }}
             >
               {template.key}
@@ -122,18 +146,42 @@ export function CodeTemplates() {
       <ConfirmationModal
         onCancel={() => {
           setSelectedTemplate(null);
+          setSelectedTemplateName("");
           setOpen(false);
+          AnalyticsUtil.logEvent(
+            "CUSTOM_WIDGET_BUILDER_TEMPLATE_SELECT_CANCELED",
+            {
+              widgetId: widgetId,
+              templateName: selectedTemplateName,
+            },
+          );
         }}
         onOpenChange={(flag: boolean) => {
           if (!flag) {
             setSelectedTemplate(null);
+            setSelectedTemplateName("");
             setOpen(false);
+            AnalyticsUtil.logEvent(
+              "CUSTOM_WIDGET_BUILDER_TEMPLATE_SELECT_CANCELED",
+              {
+                widgetId: widgetId,
+                templateName: selectedTemplateName,
+              },
+            );
           }
         }}
         onReplace={() => {
           selectedTemplate && bulkUpdate?.(selectedTemplate);
           setSelectedTemplate(null);
+          setSelectedTemplateName("");
           setOpen(false);
+          AnalyticsUtil.logEvent(
+            "CUSTOM_WIDGET_BUILDER_TEMPLATE_SELECT_CONFIRMED",
+            {
+              widgetId: widgetId,
+              templateName: selectedTemplateName,
+            },
+          );
         }}
         open={open}
       />

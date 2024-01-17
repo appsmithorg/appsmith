@@ -64,7 +64,11 @@ import {
   SlashCommand,
 } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { PagePaneData } from "@appsmith/selectors/entitiesSelector";
+import type {
+  EditorSegmentList,
+  EntityItem,
+} from "@appsmith/selectors/appIDESelectors";
+import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -75,7 +79,6 @@ import {
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-  selectQueriesForPagespane,
   getPageActions,
   getNewEntityName,
 } from "@appsmith/selectors/entitiesSelector";
@@ -119,7 +122,6 @@ import {
   RequestPayloadAnalyticsPath,
   checkAndLogErrorsIfCyclicDependency,
   enhanceRequestPayloadWithEventData,
-  getFromServerWhenNoPrefetchedResult,
 } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
@@ -262,22 +264,28 @@ export function* createActionRequestSaga(
   >,
 ) {
   const payload = { ...actionPayload.payload };
-
+  const pluginId =
+    actionPayload.payload.pluginId ||
+    actionPayload.payload.datasource?.pluginId;
   if (!actionPayload.payload.name) {
     const { parentEntityId, parentEntityKey } = resolveParentEntityMetadata(
       actionPayload.payload,
     );
 
     if (!parentEntityId || !parentEntityKey) return;
-    const plugin: Plugin | undefined = yield select(
-      getPlugin,
-      actionPayload.payload.pluginId,
-    );
+    const plugin: Plugin | undefined = yield select(getPlugin, pluginId || "");
+    const isQueryType =
+      plugin?.type === PluginType.DB ||
+      plugin?.packageName === PluginPackageName.APPSMITH_AI;
 
-    const prefix =
-      plugin?.type === PluginType.DB
-        ? DEFAULT_PREFIX.QUERY
-        : DEFAULT_PREFIX.API;
+    const prefix = isQueryType ? DEFAULT_PREFIX.QUERY : DEFAULT_PREFIX.API;
+
+    if (
+      plugin?.type === PluginType.DB ||
+      plugin?.packageName === PluginPackageName.APPSMITH_AI
+    ) {
+      DEFAULT_PREFIX.QUERY;
+    }
 
     const name: string = yield select(getNewEntityName, {
       prefix,
@@ -359,18 +367,15 @@ export function* fetchActionDatasourceStructure(
 export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId, unpublishedActions } = action.payload;
+  const { applicationId } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: ApiResponse<Action[]> = yield call(
-      getFromServerWhenNoPrefetchedResult,
-      unpublishedActions,
-      async () => ActionAPI.fetchActions({ applicationId }),
-    );
-
+    const response: ApiResponse<Action[]> = yield ActionAPI.fetchActions({
+      applicationId,
+    });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -397,18 +402,14 @@ export function* fetchActionsSaga(
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId, publishedActions } = action.payload;
+  const { applicationId } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
   );
   try {
-    const response: ApiResponse<ActionViewMode[]> = yield call(
-      getFromServerWhenNoPrefetchedResult,
-      publishedActions,
-      async () => ActionAPI.fetchActionsForViewMode(applicationId),
-    );
-
+    const response: ApiResponse<ActionViewMode[]> =
+      yield ActionAPI.fetchActionsForViewMode(applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const correctFormatResponse = response.data.map((action) => {
@@ -587,20 +588,17 @@ function* handleDeleteActionRedirect(deletedAction: Action) {
 
   // Check if another action is present in the group and redirect to it, orelse
   // navigate to tht top of the list
-  const currentSortedList: PagePaneData = yield select(
-    selectQueriesForPagespane,
+  const currentSortedList: EditorSegmentList = yield select(
+    selectQuerySegmentEditorList,
   );
-  let deletedActionGroup;
-  for (const [group, actions] of Object.entries(currentSortedList)) {
-    if (actions.find((a) => a.id === deletedAction.id)) {
-      deletedActionGroup = group;
+  let remainingGroupActions: EntityItem[] = [];
+  for (const { items } of currentSortedList) {
+    if (items.find((a) => a.key === deletedAction.id)) {
+      remainingGroupActions = items.filter((a) => a.key !== deletedAction.id);
       break;
     }
   }
-  const groupActions = currentSortedList[deletedActionGroup || ""];
-  const remainingGroupActions = groupActions.filter(
-    (a) => a.id !== deletedAction.id,
-  );
+
   let url;
   if (remainingGroupActions.length === 0) {
     const toRedirect = otherActions[0];
@@ -613,7 +611,7 @@ function* handleDeleteActionRedirect(deletedAction: Action) {
   } else {
     const toRedirect = remainingGroupActions[0];
     const config = getActionConfig(toRedirect.type);
-    url = config?.getURL(pageId, toRedirect.id, toRedirect.type);
+    url = config?.getURL(pageId, toRedirect.key, toRedirect.type);
   }
   if (url) {
     history.push(url);
