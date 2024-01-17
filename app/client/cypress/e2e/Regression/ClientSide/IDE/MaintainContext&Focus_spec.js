@@ -78,7 +78,7 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
 
     cy.wait(1000);
-    cy.focusCodeInput(".js-editor", { ch: 4, line: 4 });
+    cy.focusCodeInput(".js-editor", { ch: 2, line: 4 });
     cy.wait("@saveAction");
 
     EditorNavigation.SelectEntityByName("JSObject2", EntityType.JSObject);

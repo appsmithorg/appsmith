@@ -516,7 +516,10 @@ Cypress.Commands.add(
       codeMirrorInput.focus();
       cy.wait(200);
       codeMirrorInput.setCursor(cursor);
-      cy.assertCursorOnCodeInput($selector, cursor);
+      cy.wait(200);
+      const editorCursor = codeMirrorInput.getCursor();
+      expect(editorCursor.ch).to.equal(cursor.ch);
+      expect(editorCursor.line).to.equal(cursor.line);
     });
   },
 );
