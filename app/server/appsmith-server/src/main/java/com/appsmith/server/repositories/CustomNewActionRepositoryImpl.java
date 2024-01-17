@@ -318,7 +318,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
-        return queryAll(criteriaList, Optional.of(permission));
+        return queryAll(criteriaList, Optional.ofNullable(permission));
     }
 
     @Override

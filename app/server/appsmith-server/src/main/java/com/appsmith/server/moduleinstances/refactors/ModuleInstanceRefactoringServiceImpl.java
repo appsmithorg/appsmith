@@ -77,7 +77,7 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
         String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
         return moduleInstanceService
-                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
+                .getAllModuleInstancesByContextIdAndContextTypeAndViewModeWithoutPermissions(
                         pageId, CreatorContextType.PAGE, ResourceModes.EDIT, null)
                 .flatMapMany(Flux::fromIterable)
                 .zipWith(evalVersionMono)
@@ -213,7 +213,8 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
         ResourceModes resourceMode = viewMode ? ResourceModes.VIEW : ResourceModes.EDIT;
 
         return moduleInstanceService
-                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(contextId, contextType, resourceMode, null)
+                .getAllModuleInstancesByContextIdAndContextTypeAndViewModeWithoutPermissions(
+                        contextId, contextType, resourceMode, null)
                 .flatMapMany(Flux::fromIterable)
                 .map(ModuleInstanceDTO::getName);
     }

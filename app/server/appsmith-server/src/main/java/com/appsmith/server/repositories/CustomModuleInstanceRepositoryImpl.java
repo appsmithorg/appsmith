@@ -76,7 +76,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 .isNull();
         criteria.add(deletedAtNullCriterion);
 
-        return queryAll(criteria, Optional.of(permission));
+        return queryAll(criteria, Optional.ofNullable(permission));
     }
 
     @Override
@@ -87,7 +87,8 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 where(defaultResources + "." + FieldName.MODULE_INSTANCE_ID).is(defaultModuleInstanceId);
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
-        return queryOne(List.of(defaultModuleInstanceIdCriteria, branchCriteria), null, Optional.of(permission));
+        return queryOne(
+                List.of(defaultModuleInstanceIdCriteria, branchCriteria), null, Optional.ofNullable(permission));
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.appsmith.server.actioncollections.refactors;
 
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -68,7 +67,7 @@ public class ActionCollectionRefactoringServiceImpl extends ActionCollectionRefa
         if (isModuleContext(contextType)) {
             return actionCollectionService
                     .findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
-                            contextId, contextType, AclPermission.MANAGE_ACTIONS, viewMode)
+                            contextId, contextType, null, viewMode)
                     .flatMap(actionCollection ->
                             actionCollectionService.generateActionCollectionByViewMode(actionCollection, viewMode));
         } else {

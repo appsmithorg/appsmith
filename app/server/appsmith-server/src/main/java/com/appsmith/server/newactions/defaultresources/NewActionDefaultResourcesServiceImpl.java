@@ -12,14 +12,13 @@ public class NewActionDefaultResourcesServiceImpl extends NewActionDefaultResour
 
     @Override
     public NewAction initialize(NewAction domainObject, String branchName, boolean resetExistingValues) {
+        DefaultResources existingDefaultResources = domainObject.getDefaultResources();
         NewAction updatedDomainObject = super.initialize(domainObject, branchName, resetExistingValues);
-
-        DefaultResources existingDefaultResources = updatedDomainObject.getDefaultResources();
 
         String defaultModuleInstanceId = domainObject.getModuleInstanceId();
         String defaultRootModuleInstanceId = domainObject.getRootModuleInstanceId();
 
-        if (!resetExistingValues) {
+        if (existingDefaultResources != null && !resetExistingValues) {
             // Check if there are properties to be copied over from existing
             if (StringUtils.hasText(existingDefaultResources.getModuleInstanceId())) {
                 defaultModuleInstanceId = existingDefaultResources.getModuleInstanceId();
@@ -30,8 +29,9 @@ public class NewActionDefaultResourcesServiceImpl extends NewActionDefaultResour
             }
         }
 
-        existingDefaultResources.setModuleInstanceId(defaultModuleInstanceId);
-        existingDefaultResources.setRootModuleInstanceId(defaultRootModuleInstanceId);
+        DefaultResources updatedDefaultResources = updatedDomainObject.getDefaultResources();
+        updatedDefaultResources.setModuleInstanceId(defaultModuleInstanceId);
+        updatedDefaultResources.setRootModuleInstanceId(defaultRootModuleInstanceId);
 
         return updatedDomainObject;
     }

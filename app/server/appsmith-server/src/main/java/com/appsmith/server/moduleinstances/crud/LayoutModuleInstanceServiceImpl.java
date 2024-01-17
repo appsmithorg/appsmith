@@ -77,6 +77,32 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
         });
     }
 
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<List<ModuleInstanceDTO>> getAllModuleInstancesByContextIdAndContextTypeAndViewModeWithoutPermissions(
+            String contextId, CreatorContextType contextType, ResourceModes resourceMode, String branchName) {
+
+        Mono<String> branchedContextIdMono = findBranchedContextId(contextType, contextId, branchName);
+
+        return branchedContextIdMono.flatMap(branchedContextId -> {
+            Flux<ModuleInstance> moduleInstanceFlux;
+
+            if (ResourceModes.EDIT.equals(resourceMode)) {
+                moduleInstanceFlux =
+                        repository.findAllUnpublishedByContextIdAndContextType(branchedContextId, contextType, null);
+            } else {
+                moduleInstanceFlux =
+                        repository.findAllPublishedByContextIdAndContextType(branchedContextId, contextType, null);
+            }
+
+            return moduleInstanceFlux
+                    .flatMap(repository::setUserPermissionsInObject)
+                    .flatMap(moduleInstance -> generateModuleInstanceByViewMode(moduleInstance, resourceMode))
+                    .map(responseUtils::updateModuleInstanceDTOWithDefaultResources)
+                    .collectList();
+        });
+    }
+
     private Mono<String> findBranchedContextId(CreatorContextType contextType, String contextId, String branchName) {
         switch (contextType) {
             case PAGE:

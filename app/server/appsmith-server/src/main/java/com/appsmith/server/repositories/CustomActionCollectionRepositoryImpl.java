@@ -155,7 +155,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
                         + fieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
                 .is(null);
         List<Criteria> criteriaList = List.of(contextIdAndContextTypeCriteria, deletedCriterion);
-        return queryAll(criteriaList, Optional.of(permission));
+        return queryAll(criteriaList, Optional.ofNullable(permission));
     }
 
     @Override
