@@ -33,6 +33,7 @@ import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PackageRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -150,6 +151,9 @@ class ModuleInstanceRoleConfigurationsTest {
     @Autowired
     private CustomJSLibService customJSLibService;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
     User api_user = null;
 
     @BeforeEach
@@ -200,7 +204,8 @@ class ModuleInstanceRoleConfigurationsTest {
                 pluginService,
                 crudModuleInstanceService,
                 objectMapper,
-                customJSLibService);
+                customJSLibService,
+                pluginRepository);
         ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("Workspace - " + testName);
         moduleInstanceTestHelperDTO.setApplicationName("Application - " + testName);
@@ -322,7 +327,8 @@ class ModuleInstanceRoleConfigurationsTest {
                 pluginService,
                 crudModuleInstanceService,
                 objectMapper,
-                customJSLibService);
+                customJSLibService,
+                pluginRepository);
         ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("Workspace - " + testName);
         moduleInstanceTestHelperDTO.setApplicationName("Application - " + testName);

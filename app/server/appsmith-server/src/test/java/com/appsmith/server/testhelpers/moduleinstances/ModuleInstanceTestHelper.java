@@ -24,6 +24,8 @@ import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PluginWorkspaceDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -35,6 +37,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserService;
@@ -94,6 +97,8 @@ public class ModuleInstanceTestHelper {
     ObjectMapper objectMapper;
 
     CustomJSLibService customJSLibService;
+
+    PluginRepository pluginRepository;
 
     public void createPrerequisites(ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO) {
 
@@ -208,6 +213,21 @@ public class ModuleInstanceTestHelper {
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
         moduleInstanceTestHelperDTO.setDatasource(datasource);
+
+        Datasource jsDatasource = new Datasource();
+        Plugin installedJsPlugin =
+                pluginRepository.findByPackageName("installed-js-plugin").block();
+        PluginWorkspaceDTO pluginWorkspaceDTO = new PluginWorkspaceDTO();
+        pluginWorkspaceDTO.setPluginId(installedJsPlugin.getId());
+        pluginWorkspaceDTO.setWorkspaceId(moduleInstanceTestHelperDTO.getWorkspaceId());
+        pluginWorkspaceDTO.setStatus(WorkspacePluginStatus.FREE);
+        pluginService.installPlugin(pluginWorkspaceDTO).block();
+        jsDatasource = new Datasource();
+        jsDatasource.setName("Default Database");
+        jsDatasource.setWorkspaceId(moduleInstanceTestHelperDTO.getWorkspaceId());
+        jsDatasource.setPluginId(installedJsPlugin.getId());
+
+        moduleInstanceTestHelperDTO.setJsDatasource(jsDatasource);
     }
 
     private PackageDTO getPackageRequestDTO() {

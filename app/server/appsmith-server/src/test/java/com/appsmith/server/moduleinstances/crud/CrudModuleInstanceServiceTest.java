@@ -53,9 +53,11 @@ import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -186,6 +188,12 @@ class CrudModuleInstanceServiceTest {
     @Autowired
     ApplicationForkingService applicationForkingService;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
+
     // Test helpers
     ModuleInstanceTestHelper moduleInstanceTestHelper;
 
@@ -209,7 +217,8 @@ class CrudModuleInstanceServiceTest {
                 pluginService,
                 crudModuleInstanceService,
                 objectMapper,
-                customJSLibService);
+                customJSLibService,
+                pluginRepository);
         moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("CRUD_Module_Instance_Workspace");
         moduleInstanceTestHelperDTO.setApplicationName("CRUD_Module_Instance_Application");

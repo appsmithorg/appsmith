@@ -38,6 +38,7 @@ import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
@@ -164,6 +165,9 @@ class QueryToModuleConvertibleServiceTest {
     @Autowired
     EntityToModuleConverterService entityToModuleConverterService;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
     @BeforeEach
     void setup() {
         moduleInstanceTestHelper = new ModuleInstanceTestHelper(
@@ -182,7 +186,8 @@ class QueryToModuleConvertibleServiceTest {
                 pluginService,
                 crudModuleInstanceService,
                 objectMapper,
-                customJSLibService);
+                customJSLibService,
+                pluginRepository);
         moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("Convert_Query_To_Module_Workspace");
         moduleInstanceTestHelperDTO.setApplicationName("Convert_Query_To_Module_Application");
