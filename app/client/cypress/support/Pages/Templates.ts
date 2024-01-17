@@ -8,6 +8,8 @@ export class Templates {
     _templatesTab: ".t--templates-tab",
     _forkApp: ".t--fork-template",
     _templateCard: "[data-testid='template-card']",
+    _buildingBlockCardOnCanvas: "[data-testid='t--canvas-building-block-item']",
+    _datasourceConnectPromptSubmitBtn: "[data-testid='t--datasource-connect-prompt-submit-btn']",
     _templatesSearchInput: "[data-testid='t--application-search-input']",
     _resultsHeader: "[data-testid='t--application-templates-results-header']",
     _templateViewGoBack: "[data-testid='t--template-view-goback']",

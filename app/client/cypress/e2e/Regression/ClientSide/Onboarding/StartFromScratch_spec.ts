@@ -4,14 +4,19 @@ import {
   agHelper,
   onboarding,
   templates,
+  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import FirstTimeUserOnboardingLocators from "../../../../locators/FirstTimeUserOnboarding.json";
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Start with scratch userflow",
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   function () {
-    before(() => {
+    beforeEach(() => {
       featureFlagIntercept({
         ab_show_templates_instead_of_blank_canvas_enabled: true,
         ab_create_new_apps_enabled: true,
@@ -20,9 +25,6 @@ describe(
       cy.get("@guid").then((uid) => {
         (cy as any).Signup(`${uid}@appsmithtest.com`, uid);
       });
-    });
-
-    it("1. onboarding flow - should check page entity selection in explorer", function () {
       agHelper.GetNClick(onboarding.locators.startFromScratchCard);
 
       agHelper.GetNClick(FirstTimeUserOnboardingLocators.introModalCloseBtn);
@@ -30,6 +32,9 @@ describe(
       featureFlagIntercept({
         ab_show_templates_instead_of_blank_canvas_enabled: true,
       });
+    });
+
+    it("1. onboarding flow - should check page entity selection in explorer", function () {
       agHelper.GetNClick(onboarding.locators.seeMoreButtonOnCanvas, 0, true);
 
       agHelper.AssertElementVisibility(template.templateDialogBox);
@@ -44,6 +49,39 @@ describe(
         .first()
         .prev()
         .should("have.text", "Building Blocks");
+      agHelper
+        .GetElement(templates.locators._buildingBlockCardOnCanvas)
+        .should("have.length", 3);
+    });
+
+    it("2. `Connect your data` pop up should come up when we fork a building block from canvas.", function () {
+      agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas, 0);
+
+      agHelper.WaitUntilEleDisappear("Importing template");
+      agHelper.GetNClick(
+        templates.locators._datasourceConnectPromptSubmitBtn,
+        0,
+        false,
+        5000,
+      );
+      cy.url().should("include", "datasources/NEW");
+    });
+
+    it("2. `Connect your data` pop up should NOT come up when user already has a datasource.", function () {
+      dataSources.CreateMockDB("Users");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+
+      agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas, 0);
+
+      agHelper.WaitUntilEleDisappear("Importing template");
+
+      // there is no way of avoiding this wait
+      // the pop up has a hardcode timeout of 3 seconds
+      // to ensure it is not coming up, we need to wait for 4 seconds
+      agHelper.Sleep(4000);
+      agHelper.AssertElementAbsence(
+        templates.locators._datasourceConnectPromptSubmitBtn,
+      );
     });
   },
 );
