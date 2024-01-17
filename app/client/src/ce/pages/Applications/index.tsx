@@ -683,17 +683,19 @@ export function ApplicationsSection(props: any) {
         );
       }
     };
+
     const showWorkspaceMenuOptions =
       canInviteToWorkspace ||
       hasManageWorkspacePermissions ||
-      hasCreateNewApplicationPermission ||
       (canDeleteWorkspace && applications.length === 0) ||
       renderManageEnvironmentMenu;
+
     const handleResetMenuState = () => {
       setWorkspaceToOpenMenu(null);
       setWarnLeavingWorkspace(false);
       setWarnDeleteWorkspace(false);
     };
+
     const handleWorkspaceMenuClose = (open: boolean) => {
       if (!open && !warnLeavingWorkspace && !warnDeleteWorkspace) {
         handleResetMenuState();
