@@ -2,21 +2,21 @@ import React from "react";
 import clsx from "classnames";
 import { useSelector } from "react-redux";
 
-import type { PagePaneDataObject } from "@appsmith/selectors/entitiesSelector";
+import type { EntityItem } from "@appsmith/selectors/appIDESelectors";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import history, { NavigationMethod } from "utils/history";
 import { StyledTab } from "./StyledComponents";
 
-const JSTab = ({ data }: { data: PagePaneDataObject }) => {
+const JSTab = ({ data }: { data: EntityItem }) => {
   const activeActionId = useActiveAction();
   const pageId = useSelector(getCurrentPageId);
 
   const navigateToJSCollection = () => {
     const navigateToUrl = jsCollectionIdURL({
       pageId,
-      collectionId: data.id,
+      collectionId: data.key,
       params: {},
     });
 
@@ -27,10 +27,10 @@ const JSTab = ({ data }: { data: PagePaneDataObject }) => {
 
   return (
     <StyledTab
-      className={clsx("editor-tab", activeActionId === data.id && "active")}
+      className={clsx("editor-tab", activeActionId === data.key && "active")}
       onClick={navigateToJSCollection}
     >
-      {data.name}
+      {data.title}
     </StyledTab>
   );
 };
