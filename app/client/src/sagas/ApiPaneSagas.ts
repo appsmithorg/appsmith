@@ -732,7 +732,7 @@ function* handleCreateNewApiActionSaga(
 
     // Change the action name to Query if the plugin is Appsmith AI
     if (apiType === PluginPackageName.APPSMITH_AI) {
-      newActionName = createNewQueryName(pageActions, pageId, "Query");
+      newActionName = createNewQueryName(pageActions, pageId);
     }
     // Note: Do NOT send pluginId on top level here.
     // It breaks embedded rest datasource flow.
