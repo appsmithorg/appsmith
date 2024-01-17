@@ -9,6 +9,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ButtonControlState {
   showInput: boolean;
@@ -72,8 +73,12 @@ class ButtonControl extends BaseControl<
   reset = () => {
     this.setState({ showInput: false, eventName: "", pristine: true });
   };
+
   onCancel = () => {
     this.reset();
+    AnalyticsUtil.logEvent("CUSTOM_WIDGET_ADD_EVENT_CANCEL_CLICKED", {
+      widgetId: this.props.widgetProperties.widgetId,
+    });
   };
 
   onSave = () => {
@@ -83,6 +88,9 @@ class ButtonControl extends BaseControl<
     );
     this.batchUpdateProperties(updates);
     this.reset();
+    AnalyticsUtil.logEvent("CUSTOM_WIDGET_ADD_EVENT_SAVE_CLICKED", {
+      widgetId: this.props.widgetProperties.widgetId,
+    });
   };
 
   hasError = () => {
@@ -172,7 +180,12 @@ class ButtonControl extends BaseControl<
         ) : (
           <Button
             kind="tertiary"
-            onClick={() => this.setState({ showInput: true })}
+            onClick={() => {
+              this.setState({ showInput: true });
+              AnalyticsUtil.logEvent("CUSTOM_WIDGET_ADD_EVENT_CLICKED", {
+                widgetId: this.props.widgetProperties.widgetId,
+              });
+            }}
             size="sm"
             startIcon="plus"
           >

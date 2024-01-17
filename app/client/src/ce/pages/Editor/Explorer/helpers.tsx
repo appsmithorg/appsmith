@@ -5,9 +5,6 @@ import {
   QUERIES_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
-  BUILDER_PATH_DEPRECATED,
-  BUILDER_PATH,
-  BUILDER_CUSTOM_PATH,
   matchBuilderPath,
   matchViewerPath,
   BUILDER_VIEWER_PATH_PREFIX,
@@ -21,6 +18,7 @@ import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReduce
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { PluginType } from "entities/Action";
 import localStorage from "utils/localStorage";
+import { EDITOR_PATHS } from "@appsmith/entities/IDE/utils";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -49,7 +47,7 @@ export interface ExplorerFileEntity {
 
 export const matchBasePath = (pathname: string) => {
   const basePathMatch = matchPath(pathname, {
-    path: [BUILDER_PATH_DEPRECATED, BUILDER_PATH, BUILDER_CUSTOM_PATH],
+    path: EDITOR_PATHS,
     strict: false,
     exact: false,
   });

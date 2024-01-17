@@ -23,7 +23,7 @@ describe(
       onboarding.closeIntroModal();
     });
 
-    it("1. Verify Repo limit flow for CE instance", function () {
+    it("1. Verify Repo limit flow for CE/EE instances", function () {
       agHelper.Sleep(2000); // adding wait for app to load
       homePage.LogOutviaAPI();
       cy.generateUUID().then((uid) => {
@@ -31,12 +31,14 @@ describe(
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
+      onboarding.closeIntroModal();
       gitSync.CreateNConnectToGit(repoName1, true, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName1 = repName;
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
+      onboarding.closeIntroModal();
       gitSync.CreateNConnectToGit(repoName2, true, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName2 = repName;
