@@ -60,7 +60,8 @@ export const resolveActionURL = ({
   } else if (
     pluginType === PluginType.DB ||
     pluginType === PluginType.REMOTE ||
-    pluginType === PluginType.AI
+    pluginType === PluginType.AI ||
+    pluginType === PluginType.INTERNAL
   ) {
     return queryEditorIdURL({
       parentEntityId,
