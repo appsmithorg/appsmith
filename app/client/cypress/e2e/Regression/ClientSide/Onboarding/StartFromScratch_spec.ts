@@ -60,9 +60,6 @@ describe(
       agHelper.WaitUntilEleDisappear("Importing template");
       agHelper.AssertElementVisibility(
         templates.locators._datasourceConnectPromptSubmitBtn,
-        true,
-        0,
-        5000,
       );
       agHelper.GetNClick(templates.locators._datasourceConnectPromptSubmitBtn);
       cy.url().should("include", "datasources/NEW");
