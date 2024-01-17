@@ -32,6 +32,9 @@ describe(
       featureFlagIntercept({
         ab_show_templates_instead_of_blank_canvas_enabled: true,
       });
+      agHelper
+        .GetElement(templates.locators._buildingBlockCardOnCanvas)
+        .should("have.length", 3);
     });
 
     it("1. onboarding flow - should check page entity selection in explorer", function () {
@@ -49,9 +52,6 @@ describe(
         .first()
         .prev()
         .should("have.text", "Building Blocks");
-      agHelper
-        .GetElement(templates.locators._buildingBlockCardOnCanvas)
-        .should("have.length", 3);
     });
 
     it("2. `Connect your data` pop up should come up when we fork a building block from canvas.", function () {
