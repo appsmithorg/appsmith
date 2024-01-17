@@ -730,7 +730,7 @@ function* handleCreateNewApiActionSaga(
     );
     // Create a new action name prefix based on the apiType
     const actionPrefix =
-      apiType === PluginPackageName.APPSMITH_AI ? "Query" : "API";
+      apiType === PluginPackageName.APPSMITH_AI ? "Query" : "Api";
     const newActionName = createNewQueryName(pageActions, pageId, actionPrefix);
     // Note: Do NOT send pluginId on top level here.
     // It breaks embedded rest datasource flow.
