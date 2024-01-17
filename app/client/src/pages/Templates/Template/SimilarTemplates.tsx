@@ -6,7 +6,6 @@ import {
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import { Text, Link } from "design-system";
 import React, { useCallback } from "react";
-import type { MasonryProps } from "react-masonry-css";
 import styled from "styled-components";
 import { Section } from "./TemplateDescription";
 import FixedHeightTemplate from "./FixedHeightTemplate";
@@ -34,7 +33,6 @@ const TemplateGrid = styled.div`
 interface SimilarTemplatesProp {
   similarTemplates: TemplateInterface[];
   onBackPress: (e: React.MouseEvent) => void;
-  breakpointCols: MasonryProps["breakpointCols"];
   onClick: (template: TemplateInterface) => void;
   onFork?: (template: TemplateInterface) => void;
   className?: string;
