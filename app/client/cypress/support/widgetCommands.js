@@ -516,7 +516,7 @@ Cypress.Commands.add(
       codeMirrorInput.focus();
       cy.wait(200);
       codeMirrorInput.setCursor(cursor);
-      cy.wait(1000); //time for value to set
+      cy.assertCursorOnCodeInput($selector, cursor);
     });
   },
 );
