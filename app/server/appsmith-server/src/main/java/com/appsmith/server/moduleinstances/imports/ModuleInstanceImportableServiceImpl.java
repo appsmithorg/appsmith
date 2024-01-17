@@ -33,7 +33,6 @@ import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -83,17 +82,38 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
 
         List<ModuleInstance> moduleInstanceList = applicationJson.getModuleInstanceList();
 
-        if (TRUE.equals(importingMetaDTO.getAppendToApp()) || moduleInstanceList == null) {
-            // We do not support templates or partial import with module instances
-            // Ignore these entities and proceed assuming we never actually get here
-            // TODO: Determine if we need to error out here instead.
-            return Mono.empty().then();
+        if (moduleInstanceList == null) {
+            moduleInstanceList = new ArrayList<>();
+        }
+
+        Mono<List<ModuleInstance>> importedModuleInstancesMono = Mono.justOrEmpty(moduleInstanceList);
+        if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
+            importedModuleInstancesMono = importedModuleInstancesMono.map(moduleInstanceList1 -> {
+                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                        .distinct()
+                        .toList();
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
+
+                for (NewPage newPage : importedNewPages) {
+                    String newPageName = newPage.getUnpublishedPage().getName();
+                    String oldPageName = newToOldNameMap.get(newPageName);
+
+                    if (!newPageName.equals(oldPageName)) {
+                        renamePageInModuleInstances(moduleInstanceList1, oldPageName, newPageName);
+                    }
+                }
+                return moduleInstanceList1;
+            });
         }
 
         // At this point, we are either importing into a fresh app or a git synced app
-        return applicationMono
-                .flatMap(importedApplication -> importModuleInstances(
-                        moduleInstanceList, importedApplication, importingMetaDTO, mappedImportableResourcesDTO))
+        return Mono.zip(importedModuleInstancesMono, applicationMono)
+                .flatMap(tuple2 -> {
+                    List<ModuleInstance> moduleInstances = tuple2.getT1();
+                    Application importedApplication = tuple2.getT2();
+                    return importModuleInstances(
+                            moduleInstances, importedApplication, importingMetaDTO, mappedImportableResourcesDTO);
+                })
                 .flatMap(importModuleInstanceResultDTO -> {
                     log.info("Module instances imported. result: {}", importModuleInstanceResultDTO.getGist());
                     // Updating the existing application for git-sync
@@ -141,7 +161,16 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 .then();
     }
 
-    @NotNull private Mono<ImportModuleInstanceResultDTO> importModuleInstances(
+    private void renamePageInModuleInstances(
+            List<ModuleInstance> moduleInstanceList, String oldPageName, String newPageName) {
+        for (ModuleInstance moduleInstance : moduleInstanceList) {
+            if (moduleInstance.getUnpublishedModuleInstance().getPageId().equals(oldPageName)) {
+                moduleInstance.getUnpublishedModuleInstance().setPageId(newPageName);
+            }
+        }
+    }
+
+    private Mono<ImportModuleInstanceResultDTO> importModuleInstances(
             List<ModuleInstance> moduleInstanceList,
             Application importedApplication,
             ImportingMetaDTO importingMetaDTO,
@@ -166,9 +195,9 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                     Map<String, ModuleInstance> moduleInstancesInCurrentApp = tuple2.getT1();
                     Map<String, ModuleInstance> moduleInstancesInBranches = tuple2.getT2();
 
-                    List<ModuleInstance> existingModuleInstanceList = new ArrayList<>();
+                    List<ModuleInstance> updatableModuleInstanceList = new ArrayList<>();
                     ImportModuleInstanceResultDTO importModuleInstanceResultDTO = new ImportModuleInstanceResultDTO();
-                    importModuleInstanceResultDTO.setExistingModuleInstances(existingModuleInstanceList);
+                    importModuleInstanceResultDTO.setExistingModuleInstances(moduleInstancesInCurrentApp.values());
 
                     List<Mono<CreateModuleInstanceResponseDTO>> newModuleInstanceMonoList = new ArrayList<>();
                     for (ModuleInstance moduleInstance : moduleInstanceList) {
@@ -243,7 +272,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                             updateExistingInstance(existingInstance, moduleInstance, importingMetaDTO);
 
                             // Add it to modules instance list that'll be updated in bulk
-                            existingModuleInstanceList.add(existingInstance);
+                            updatableModuleInstanceList.add(existingInstance);
 
                             updateMappedModuleInstanceRef(
                                     mappedImportableResourcesDTO,
@@ -293,14 +322,14 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                             });
 
                     Mono<List<ModuleInstance>> bulkUpdateMono = repository
-                            .bulkUpdate(existingModuleInstanceList)
+                            .bulkUpdate(updatableModuleInstanceList)
                             .then(Mono.defer(() -> {
                                 if (importingMetaDTO.getBranchName() != null) {
                                     return updateDefaultResourcesForPrivateCompositeEntities(
-                                                    existingModuleInstanceList, importingMetaDTO)
-                                            .thenReturn(existingModuleInstanceList);
+                                                    updatableModuleInstanceList, importingMetaDTO)
+                                            .thenReturn(updatableModuleInstanceList);
                                 } else {
-                                    return Mono.just(existingModuleInstanceList);
+                                    return Mono.just(updatableModuleInstanceList);
                                 }
                             }));
 
