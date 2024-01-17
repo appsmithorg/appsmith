@@ -880,8 +880,8 @@ export const ApplictionsMainPage = (props: any) => {
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: { ...activeWorkspace },
         });
+        fetchWorkspaceEntities({ dispatch, activeWorkspaceId, featureFlags });
       }
-      fetchWorkspaceEntities({ dispatch, activeWorkspaceId, featureFlags });
     }
   }, [urlHash, fetchedWorkspaces, activeWorkspaceId]);
 
