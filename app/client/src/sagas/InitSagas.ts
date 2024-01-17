@@ -53,13 +53,10 @@ import {
 import {
   isEditorPath,
   isViewerPath,
+  matchEditorPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
-import {
-  GIT_BRANCH_QUERY_KEY,
-  matchBuilderPath,
-  matchViewerPath,
-} from "../constants/routes";
+import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
@@ -237,8 +234,9 @@ function* appEngineSaga(action: ReduxAction<AppEnginePayload>) {
 function* eagerPageInitSaga() {
   const url = window.location.pathname;
   const search = window.location.search;
-  const matchedUrl = matchBuilderPath(url);
-  if (isEditorPath(url) && matchedUrl) {
+  if (isEditorPath(url)) {
+    const matchedUrl = matchEditorPath(url);
+    if (!matchedUrl) return;
     const {
       params: { applicationId, pageId },
     } = matchedUrl;
