@@ -11,22 +11,18 @@ describe(
   function () {
     before(() => {
       agHelper.AddDsl("customWidget");
-      cy.wait(5000);
     });
 
     const getIframeBody = () => {
       // get the iframe > document > body
       // and retry until the body element is not empty
-      return (
-        cy
-          .get(".t--widget-customwidget iframe")
-          .its("0.contentDocument.body")
-          .should("not.be.empty")
-          // wraps "body" DOM element to allow
-          // chaining more Cypress commands, like ".find(...)"
-          // https://on.cypress.io/wrap
-          .then(cy.wrap)
-      );
+      return cy
+        .get(".t--widget-customwidget iframe")
+        .its("0.contentDocument")
+        .should("exist")
+        .its("body")
+        .should("not.be.undefined")
+        .then(cy.wrap);
     };
 
     it("shoud check that default model changes are converyed to custom component", () => {

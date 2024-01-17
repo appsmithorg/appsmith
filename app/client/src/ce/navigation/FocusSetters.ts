@@ -1,4 +1,4 @@
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import {
   apiEditorIdURL,
   builderURL,
@@ -21,6 +21,9 @@ export function setSelectedDatasource(id: string | undefined) {
       datasourcesEditorIdURL({
         datasourceId: id,
       }),
+      {
+        invokedBy: NavigationMethod.ContextSwitching,
+      },
     );
   }
 }
@@ -35,6 +38,9 @@ export function setSelectedQuery(state: QueryListState) {
               apiId: state.id,
               pluginPackageName: state.pluginPackageName,
             }),
+            {
+              invokedBy: NavigationMethod.ContextSwitching,
+            },
           );
         }
         break;
@@ -43,6 +49,9 @@ export function setSelectedQuery(state: QueryListState) {
           queryEditorIdURL({
             queryId: state.id,
           }),
+          {
+            invokedBy: NavigationMethod.ContextSwitching,
+          },
         );
         break;
       case PluginType.API:
@@ -53,6 +62,9 @@ export function setSelectedQuery(state: QueryListState) {
             apiEditorIdURL({
               apiId: state.id,
             }),
+            {
+              invokedBy: NavigationMethod.ContextSwitching,
+            },
           );
         }
         break;
@@ -76,16 +88,24 @@ export function setSelectedSegment(tab?: EditorEntityTab) {
   if (tab) {
     switch (tab) {
       case EditorEntityTab.JS:
-        history.replace(jsCollectionListURL({ persistExistingParams: true }));
+        history.replace(jsCollectionListURL({ persistExistingParams: true }), {
+          invokedBy: NavigationMethod.ContextSwitching,
+        });
         break;
       case EditorEntityTab.QUERIES:
-        history.replace(queryListURL({ persistExistingParams: true }));
+        history.replace(queryListURL({ persistExistingParams: true }), {
+          invokedBy: NavigationMethod.ContextSwitching,
+        });
         break;
       case EditorEntityTab.UI:
-        history.replace(widgetListURL({ persistExistingParams: true }));
+        history.replace(widgetListURL({ persistExistingParams: true }), {
+          invokedBy: NavigationMethod.ContextSwitching,
+        });
         break;
       default:
-        history.replace(builderURL({ persistExistingParams: true }));
+        history.replace(builderURL({ persistExistingParams: true }), {
+          invokedBy: NavigationMethod.ContextSwitching,
+        });
     }
   }
 }

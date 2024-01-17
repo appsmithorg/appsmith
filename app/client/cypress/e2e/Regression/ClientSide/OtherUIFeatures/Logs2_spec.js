@@ -20,7 +20,7 @@ describe("Debugger logs", function () {
   });
 
   it("1. Console log on text widget with normal moustache binding", function () {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     _.entityExplorer.DragDropWidgetNVerify("textwidget", 400, 400);
     _.propPane.UpdatePropertyFieldValue(
       "Text",

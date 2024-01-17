@@ -3,7 +3,6 @@ import {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
-const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -16,7 +15,6 @@ describe(
   { tags: ["@tag.Widget", "@tag.Filepicker"] },
   () => {
     it("1. Drag & drop FilePicker/Text widgets", () => {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
       cy.get(widgetsPage.filepickerwidgetv2).should("exist");
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
@@ -45,7 +43,7 @@ describe(
     });
 
     it("3. Check if the uploaded data does not reset when back from query page", () => {
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
@@ -63,7 +61,7 @@ describe(
       cy.validateEvaluatedValue("testFile.mov");
 
       // Go back to widgets page
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
         "1 files selected",
@@ -76,8 +74,7 @@ describe(
       cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
       cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
       cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       cy.get(".t--entity-item:contains(Api1)").click();
       cy.focusCodeInput("[class*='t--actionConfiguration']");
       cy.wait(1000);
