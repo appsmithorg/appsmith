@@ -5,12 +5,14 @@ import styled from "styled-components";
 import { SpaceDistributorHandleDimensions } from "./constants";
 import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
 import { useSpaceDistributionEvents } from "./useSpaceDistributionEvents";
+import { getDistributionHandleId } from "./spaceDistributionUtils";
 
 interface SpaceDistributionNodeProps {
   columnPosition: number;
   left: number;
   parentZones: string[];
   sectionLayoutId: string;
+  sectionWidgetId: string;
   spaceToWorkWith: number;
   spaceDistributed: { [key: string]: number };
 }
@@ -52,6 +54,7 @@ export const SpaceDistributionHandle = ({
   left,
   parentZones,
   sectionLayoutId,
+  sectionWidgetId,
   spaceDistributed,
   spaceToWorkWith,
 }: SpaceDistributionNodeProps) => {
@@ -73,6 +76,7 @@ export const SpaceDistributionHandle = ({
     columnPosition,
     isCurrentHandleDistributingSpace,
     sectionLayoutId,
+    sectionWidgetId,
     spaceToWorkWith,
   });
   useEffect(() => {
@@ -93,6 +97,10 @@ export const SpaceDistributionHandle = ({
   }, [isDistributingSpace]);
 
   return (
-    <StyledSpaceDistributionHandle left={leftPositionOfHandle} ref={ref} />
+    <StyledSpaceDistributionHandle
+      id={getDistributionHandleId(leftZone)}
+      left={leftPositionOfHandle}
+      ref={ref}
+    />
   );
 };

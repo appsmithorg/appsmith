@@ -36,6 +36,16 @@ export const propertyPaneContent = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.NUMBER },
       },
+      {
+        propertyName: "spaceDistributed",
+        label: "Section Split",
+        controlType: "SECTION_SPLITTER",
+        helpText: "Distribute the 12 column section space between zones",
+        isBindProperty: true,
+        isJSConvertible: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.OBJECT },
+      },
     ],
   },
 ];

@@ -5,3 +5,7 @@ export const SpaceDistributorHandleDimensions = {
   borderRadius: 4,
   padding: 2,
 };
+
+export const PropPaneDistributionHandleCustomEvent = "propPaneMouseDown";
+
+export const ZoneMinShrinkablePixels = 10;

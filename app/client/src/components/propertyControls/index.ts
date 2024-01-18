@@ -68,6 +68,10 @@ import CustomWidgetEditSourceButtonControl from "./CustomWidgetEditSourceButtonC
 import CustomWidgetAddEventButtonControl from "./CustomWidgetAddEventButtonControl";
 import type { ZoneStepperControlProps } from "./ZoneStepperControl";
 import ZoneStepperControl from "./ZoneStepperControl";
+import {
+  SectionSplitterControl,
+  type SectionSplitterControlProps,
+} from "./SectionSplitterControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -116,6 +120,7 @@ export const PropertyControls = {
   CustomWidgetEditSourceButtonControl,
   CustomWidgetAddEventButtonControl,
   ZoneStepperControl,
+  SectionSplitterControl,
 };
 
 export type PropertyControlPropsType =
@@ -142,7 +147,8 @@ export type PropertyControlPropsType =
   | ListComputeControlProps
   | OneClickBindingControlProps
   | WrappedCodeEditorControlProps
-  | ZoneStepperControlProps;
+  | ZoneStepperControlProps
+  | SectionSplitterControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

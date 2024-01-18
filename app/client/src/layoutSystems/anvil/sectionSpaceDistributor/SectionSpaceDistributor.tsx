@@ -112,6 +112,7 @@ const SectionSpaceDistributorHandles = (
           left={each.position.left}
           parentZones={each.parentZones}
           sectionLayoutId={props.sectionLayoutId}
+          sectionWidgetId={props.sectionWidgetId}
           spaceDistributed={spaceDistributed}
           spaceToWorkWith={spaceToWorkWith}
         />
