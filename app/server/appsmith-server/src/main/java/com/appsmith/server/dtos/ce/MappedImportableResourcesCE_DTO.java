@@ -1,6 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
-import com.appsmith.server.domains.NewPage;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportActionResultDTO;
@@ -16,13 +16,27 @@ import java.util.Map;
 @Data
 public class MappedImportableResourcesCE_DTO {
 
+    // Artifacts independent entities
     Map<String, String> pluginMap = new HashMap<>();
     Map<String, String> datasourceNameToIdMap = new HashMap<>();
 
+    // Artifact dependent
+    // This attribute is re-usable across artifacts according to the needs
+    Map<String, String> pageOrModuleNewNameToOldName;
+
+    /**
+     * Attribute used to carry objects specific to the context of the Artifacts.
+     * In case of application it carries the NewPage entity
+     * In case of packages it would carry modules
+     */
+    Map<String, ? extends BranchAwareDomain> pageOrModuleMap;
+
+    // Artifact dependent and common
     List<CustomJSLibContextDTO> installedJsLibsList;
-    Map<String, String> newPageNameToOldPageNameMap;
-    Map<String, NewPage> pageNameMap;
     ImportActionResultDTO actionResultDTO;
     ImportActionCollectionResultDTO actionCollectionResultDTO;
     ImportedActionAndCollectionMapsDTO actionAndCollectionMapsDTO = new ImportedActionAndCollectionMapsDTO();
+
+    // This is being used to carry the resources from ArtifactExchangeJson
+    Map<String, Object> resourceStoreFromArtifactExchangeJson = new HashMap<>();
 }
