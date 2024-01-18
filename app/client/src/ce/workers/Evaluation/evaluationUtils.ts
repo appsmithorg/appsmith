@@ -14,7 +14,16 @@ import type {
   ConfigTree,
 } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
-import _, { difference, find, get, has, isEmpty, isNil, set } from "lodash";
+import _, {
+  difference,
+  find,
+  get,
+  has,
+  isEmpty,
+  isEqual,
+  isNil,
+  set,
+} from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -810,6 +819,7 @@ export const overrideWidgetProperties = (params: {
 
   const configEntity = configTree[entityName] as WidgetEntityConfig;
   if (propertyPath in configEntity.overridingPropertyPaths) {
+    if (isEqual(value, get(currentTree, fullPropertyPath))) return;
     const clonedValue = klona(value);
     const overridingPropertyPaths =
       configEntity.overridingPropertyPaths[propertyPath];
@@ -848,6 +858,7 @@ export const overrideWidgetProperties = (params: {
     propertyPath in configEntity.propertyOverrideDependency &&
     value === undefined
   ) {
+    if (isEqual(value, get(currentTree, fullPropertyPath))) return;
     // When a reset a widget its meta value becomes undefined, ideally they should reset to default value.
     // below we handle logic to reset meta values to default values.
     const propertyOverridingKeyMap =
