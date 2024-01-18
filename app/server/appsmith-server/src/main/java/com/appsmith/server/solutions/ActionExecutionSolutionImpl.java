@@ -43,7 +43,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 newActionService,
                 actionPermission,
                 observationRegistry,
-                objectMapper,
+                newRelicRegistry, objectMapper,
                 repository,
                 datasourceService,
                 pluginService,

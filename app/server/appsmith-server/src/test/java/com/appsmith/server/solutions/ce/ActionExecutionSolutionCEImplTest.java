@@ -28,6 +28,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.newrelic.NewRelicRegistry;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,6 +91,9 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     ObservationRegistry observationRegistry;
 
+    @Autowired
+    NewRelicRegistry newRelicRegistry;
+
     @SpyBean
     ObjectMapper objectMapper;
 
@@ -145,7 +149,7 @@ class ActionExecutionSolutionCEImplTest {
                 newActionService,
                 actionPermission,
                 observationRegistry,
-                objectMapper,
+                newRelicRegistry, objectMapper,
                 repository,
                 datasourceService,
                 pluginService,

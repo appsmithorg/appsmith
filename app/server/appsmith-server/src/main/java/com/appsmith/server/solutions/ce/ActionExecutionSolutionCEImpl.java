@@ -48,6 +48,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.newrelic.NewRelicRegistry;
 import io.micrometer.observation.ObservationRegistry;
 import io.opentelemetry.api.trace.Span;
 import lombok.extern.slf4j.Slf4j;
@@ -102,6 +103,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
     private final ObservationRegistry observationRegistry;
+    private final NewRelicRegistry newRelicRegistry;
     private final ObjectMapper objectMapper;
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
@@ -127,27 +129,28 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     public static final String SPAN_ATTRIBUTE_KEY_PLUGIN_NAME = "pluginName";
 
     public ActionExecutionSolutionCEImpl(
-            NewActionService newActionService,
-            ActionPermission actionPermission,
-            ObservationRegistry observationRegistry,
-            ObjectMapper objectMapper,
-            NewActionRepository repository,
-            DatasourceService datasourceService,
-            PluginService pluginService,
-            DatasourceContextService datasourceContextService,
-            PluginExecutorHelper pluginExecutorHelper,
-            NewPageService newPageService,
-            ApplicationService applicationService,
-            SessionUserService sessionUserService,
-            AuthenticationValidator authenticationValidator,
-            DatasourcePermission datasourcePermission,
-            AnalyticsService analyticsService,
-            DatasourceStorageService datasourceStorageService,
-            EnvironmentPermission environmentPermission,
-            OtlpTelemetry otlpTelemetry) {
+        NewActionService newActionService,
+        ActionPermission actionPermission,
+        ObservationRegistry observationRegistry,
+        NewRelicRegistry newRelicRegistry, ObjectMapper objectMapper,
+        NewActionRepository repository,
+        DatasourceService datasourceService,
+        PluginService pluginService,
+        DatasourceContextService datasourceContextService,
+        PluginExecutorHelper pluginExecutorHelper,
+        NewPageService newPageService,
+        ApplicationService applicationService,
+        SessionUserService sessionUserService,
+        AuthenticationValidator authenticationValidator,
+        DatasourcePermission datasourcePermission,
+        AnalyticsService analyticsService,
+        DatasourceStorageService datasourceStorageService,
+        EnvironmentPermission environmentPermission,
+        OtlpTelemetry otlpTelemetry) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
+        this.newRelicRegistry = newRelicRegistry;
         this.objectMapper = objectMapper;
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -638,6 +641,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             PluginExecutor pluginExecutor,
             Span parentSpan) {
 
+        /**
+         * a.b.c.d
+         */
         Mono<ActionExecutionResult> executionMono = authenticationValidator
                 .validateAuthentication(datasourceStorage)
                 .zipWhen(validatedDatasource -> datasourceContextService
