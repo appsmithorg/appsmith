@@ -409,7 +409,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
 
-    // proficiency screen 
+    // proficiency screen
     this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
     this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
     this.agHelper.GetNClick(
