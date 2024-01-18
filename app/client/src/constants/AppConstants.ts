@@ -97,7 +97,7 @@ export interface ThemeSetting {
   density: number;
   sizing: number;
   fontFamily: string;
-  iconStyle: "filled" | "outlined";
+  iconStyle: "FILLED" | "OUTLINED";
 }
 
 export type StringsFromNavigationSetting = Omit<
@@ -137,7 +137,7 @@ export const defaultThemeSetting: ThemeSetting = {
   borderRadius: "6px",
   density: 1,
   sizing: 1,
-  iconStyle: "outlined",
+  iconStyle: "OUTLINED",
 };
 
 export const SIDEBAR_WIDTH = {

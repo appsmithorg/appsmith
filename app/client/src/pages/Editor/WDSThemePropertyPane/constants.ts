@@ -35,6 +35,6 @@ export const THEME_SETTINGS_BORDER_RADIUS_OPTIONS = [
 ];
 
 export const THEME_SETTINGS_ICON_STYLE_OPTIONS = [
-  { label: "Filled", value: "filled" },
-  { label: "Outlined", value: "outlined" },
+  { label: "Filled", value: "FILLED" },
+  { label: "Outlined", value: "OUTLINED" },
 ];
