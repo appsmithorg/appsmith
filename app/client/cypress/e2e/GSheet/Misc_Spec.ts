@@ -174,7 +174,7 @@ describe(
 
       // Select the datasource, spreadsheet and sheet name
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClick(locators._visibleTextSpan(dataSourceName), 1, true);
+      agHelper.GetNClick(locators._visibleTextSpan(dataSourceName), 0, true);
       agHelper.AssertElementAbsence(
         locators._btnSpinner,
         Cypress.config("defaultCommandTimeout"),
