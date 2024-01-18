@@ -27,7 +27,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import java.time.Duration;
 import java.util.Optional;
 
-@SpringBootApplication(scanBasePackages = {"com.appsmith.server"})
+@SpringBootApplication
 @EnableScheduling
 @Slf4j
 public class ServerApplication {
