@@ -68,11 +68,11 @@ public class WebClientUtils {
     }
 
     public static WebClient.Builder builder() {
-        return builder(HttpClient.create());
+        return builder(HttpClient.create().httpResponseDecoder(spec -> spec.maxHeaderSize(16 * 1024)));
     }
 
     public static WebClient.Builder builder(ConnectionProvider provider) {
-        return builder(HttpClient.create(provider));
+        return builder(HttpClient.create(provider).httpResponseDecoder(spec -> spec.maxHeaderSize(16 * 1024)));
     }
 
     public static WebClient.Builder builder(HttpClient httpClient) {
