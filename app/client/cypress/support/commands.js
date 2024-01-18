@@ -318,13 +318,11 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.username).type(uname);
   cy.get(signupPage.password).type(pword);
   agHelper.GetNClick(signupPage.submitBtn);
-  agHelper.GetElement("body").then(($body) => {
-    if ($body.find(signupPage.proficiencyGroupButton).length > 0) {
-      cy.get(signupPage.proficiencyGroupButton).first().click();
-      cy.get(signupPage.useCaseGroupButton).first().click();
-      cy.get(signupPage.getStartedSubmit).click({ force: true });
-    }
-  });
+
+  agHelper.GetNClick(signupPage.proficiencyGroupButton);
+  agHelper.GetNClick(signupPage.useCaseGroupButton);
+  agHelper.GetNClick(signupPage.getStartedSubmit, 0, true);
+
   cy.wait("@getMe");
   cy.wait(3000);
   initLocalstorage();
