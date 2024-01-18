@@ -1,6 +1,10 @@
 package com.appsmith.server;
 
 import com.appsmith.server.configurations.ProjectProperties;
+import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.newrelic.NewRelicConfig;
+import io.micrometer.newrelic.NewRelicMeterRegistry;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.aop.ObservedAspect;
 import io.opentelemetry.api.OpenTelemetry;
@@ -50,6 +54,32 @@ public class ServerApplication {
             return AutoConfiguredOpenTelemetrySdk.initialize().getOpenTelemetrySdk();
         }
         return null;
+    }
+
+    @Bean
+    public MeterRegistry getNewRelicMeterRegistry() {
+        NewRelicConfig newRelicConfig = new NewRelicConfig() {
+            @Override
+            public String accountId() {
+                return "id";
+                // return System.getenv("APPSMITH_NEW_RELIC_ACCOUNT_ID");
+            }
+
+            @Override
+            public String apiKey() {
+                return "key";
+                // return System.getenv("APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY");
+            }
+
+            @Override
+            public String get(String k) {
+                return null; // accept the rest of the defaults
+            }
+        };
+
+        //NewRelicConfig newRelicConfig = new NewRelicConfig();
+
+        return new NewRelicMeterRegistry(newRelicConfig, Clock.SYSTEM);
     }
 
     @Bean

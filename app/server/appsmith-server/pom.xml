@@ -62,6 +62,11 @@
             <artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
             <version>1.22.0-alpha</version>
         </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-new-relic</artifactId>
+            <version>1.12.2</version>
+        </dependency>
 
         <!--
             Ideally this dependency should have been added in the pom.xml file of GraphQLPlugin module, but it is
