@@ -5,7 +5,7 @@ import { omit } from "lodash";
 import { AppIcon, Size, TextType, Text } from "design-system-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Checkbox, type MenuItemProps } from "design-system";
+import { Button, Checkbox, type MenuItemProps } from "design-system";
 
 import GitConnectedBadge from "./GitConnectedBadge";
 import { noop } from "utils/AppsmithUtils";
@@ -334,6 +334,10 @@ const ModifiedDataComponent = styled.div`
   & ~ * {
     flex-shrink: 0;
   }
+`;
+
+export const ContextMenuTrigger = styled(Button)<{ isHidden?: boolean }>`
+  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
 `;
 
 function Card({

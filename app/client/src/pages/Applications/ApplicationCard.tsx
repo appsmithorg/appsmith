@@ -54,7 +54,7 @@ import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
 import { getCurrentUser } from "actions/authActions";
-import Card from "components/common/Card";
+import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";
 import {
   NO_PERMISSION_TO_SELECT_FOR_DELETE,
@@ -102,10 +102,6 @@ export interface ModifiedMenuItemProps extends MenuItemProps {
   key?: string;
   "data-testid"?: string;
 }
-
-const ContextMenuTrigger = styled(Button)<{ isHidden?: boolean }>`
-  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
-`;
 
 export function ApplicationCard(props: ApplicationCardProps) {
   const { isFetchingApplications } = props;
