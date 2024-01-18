@@ -308,6 +308,7 @@ export class HomePage {
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
         this.agHelper.GetNClick(this._applicationName);
+        this.agHelper.AssertElementVisibility(this._appMenu);
         this.agHelper.GetNClickByContains(this._appMenu, "Rename");
       }
     });
