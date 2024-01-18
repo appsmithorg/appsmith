@@ -125,7 +125,7 @@ function NewActionButton(props: NewActionButtonProps) {
         height={pages.length <= 4 ? "fit-content" : "186px"}
         side={"bottom"}
       >
-        <Text className="pl-2" kind="heading-xs">{`Create a ${
+        <Text className="pl-2" kind="heading-xs">{`Create ${
           pluginType === PluginType.DB || pluginType === PluginType.SAAS
             ? "query"
             : "api"
