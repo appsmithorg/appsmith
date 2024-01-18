@@ -319,9 +319,15 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.password).type(pword);
   agHelper.GetNClick(signupPage.submitBtn);
 
-  agHelper.GetNClick(signupPage.proficiencyGroupButton);
-  agHelper.GetNClick(signupPage.useCaseGroupButton);
-  agHelper.GetNClick(signupPage.getStartedSubmit, 0, true);
+  agHelper.GetElement(signupPage.proficiencyGroupButton).then((buttons) => {
+    if (buttons) {
+      expect(buttons).to.have.length.greaterThan(0);
+
+      agHelper.GetNClick(signupPage.proficiencyGroupButton);
+      agHelper.GetNClick(signupPage.useCaseGroupButton);
+      agHelper.GetNClick(signupPage.getStartedSubmit, 0, true);
+    }
+  });
 
   cy.wait("@getMe");
   cy.wait(3000);
