@@ -1669,6 +1669,18 @@ export class AggregateHelper {
     return this.GetElement(widgetSelector).eq(index).invoke("css", attribute);
   }
 
+  public GetWidgetCSSValue(
+    widgetSelector: string,
+    attribute: string,
+    index = 0,
+  ) {
+    return this.GetElement(widgetSelector)
+      .eq(index)
+      .then(($element) => {
+        cy.wrap($element.css(attribute)).as("cssAttributeValue");
+      });
+  }
+
   GetWidgetByName(widgetName: string) {
     return this.GetElement(this.locator._widgetByName(widgetName));
   }
