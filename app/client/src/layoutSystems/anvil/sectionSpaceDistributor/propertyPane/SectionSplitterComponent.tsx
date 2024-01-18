@@ -43,6 +43,7 @@ const Splitter = styled.div`
   cursor: col-resize;
   user-select: none;
   -webkit-user-select: none;
+  &:hover,
   &.active {
     background-color: #f86a2b;
   }
@@ -68,6 +69,8 @@ export const SectionSplitterComponent = ({
     <FlexBasedSection id={"prop-pane-" + sectionWidgetId}>
       {allZoneIdsInOrder.map((zoneId: string, index: number) => {
         const zoneValue = currentDistributedSpace[zoneId];
+        const zoneLabel =
+          zoneValue + (allZoneIdsInOrder.length === 1 ? " columns" : "");
         const isNotLastZone = allZoneIdsInOrder.length - 1 !== index;
         const distributionHandleId = getDistributionHandleId(zoneId);
         const propPaneZoneId = getPropertyPaneZoneId(zoneId);
@@ -95,7 +98,7 @@ export const SectionSplitterComponent = ({
               id={propPaneZoneId}
               key={propPaneZoneId}
             >
-              {zoneValue}
+              {zoneLabel}
             </FlexChild>
             {isNotLastZone ? (
               <Splitter
