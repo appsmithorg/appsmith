@@ -1,6 +1,10 @@
 import React from "react";
 import { PluginPackageName } from "entities/Action";
-import { CurlIconV2, GraphQLIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import {
+  AppsmithAIIcon,
+  CurlIconV2,
+  GraphQLIconV2,
+} from "pages/Editor/Explorer/ExplorerIcons";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
@@ -11,6 +15,7 @@ import {
 } from "components/editorComponents/GlobalSearch/utils";
 import { createQueryModule } from "@appsmith/actions/moduleActions";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import { FocusEntity } from "navigation/FocusEntity";
 
 export const actionOperations: ActionOperation[] = [
   {
@@ -56,3 +61,19 @@ export const actionOperations: ActionOperation[] = [
     },
   },
 ];
+
+export const appsmithAIActionOperation: ActionOperation = {
+  title: "New Appsmith AI Query",
+  entityExplorerTitle: "Appsmith AI",
+  desc: "Create an Appsmith AI Query",
+  icon: <AppsmithAIIcon />,
+  kind: SEARCH_ITEM_TYPES.actionOperation,
+  action: (packageId: string, from: EventLocation) =>
+    createQueryModule({
+      packageId,
+      from,
+      type: MODULE_TYPE.QUERY,
+      apiType: PluginPackageName.APPSMITH_AI,
+    }),
+  focusEntityType: FocusEntity.API,
+};

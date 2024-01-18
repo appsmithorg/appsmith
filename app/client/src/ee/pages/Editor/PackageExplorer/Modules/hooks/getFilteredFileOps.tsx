@@ -29,7 +29,7 @@ import {
   updateActionOperations,
   useRecentlyUsedDSMap,
 } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
-import { actionOperations } from "./utils";
+import { actionOperations, appsmithAIActionOperation } from "./utils";
 import type { Plugin } from "api/PluginApi";
 import { createQueryModule } from "@appsmith/actions/moduleActions";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
@@ -37,6 +37,7 @@ import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 export const useFilteredFileOperations = (query = "") => {
   const allDatasources = useSelector(getDatasources);
   const plugins = useSelector(getPlugins);
+  const showAppsmithAIQuery = useFeatureFlag(FEATURE_FLAG.ab_appsmith_ai_query);
 
   // helper map for sorting based on recent usage
   const recentlyUsedDSMap = useRecentlyUsedDSMap();
@@ -71,8 +72,9 @@ export const useFilteredFileOperations = (query = "") => {
     canCreateModules,
     canCreateDatasource,
     plugins,
-    recentlyUsedDSMap,
     query,
+    recentlyUsedDSMap,
+    showAppsmithAIQuery,
   });
 };
 
@@ -83,22 +85,29 @@ export const useFilteredAndSortedFileOperations = ({
   plugins = [],
   query,
   recentlyUsedDSMap = {},
+  showAppsmithAIQuery = false,
 }: {
   allDatasources?: Datasource[];
   canCreateModules?: boolean;
   canCreateDatasource?: boolean;
   plugins?: Plugin[];
-  recentlyUsedDSMap?: Record<string, number>;
   query: string;
+  recentlyUsedDSMap?: Record<string, number>;
+  showAppsmithAIQuery?: boolean;
 }) => {
   const fileOperations: ActionOperation[] = [];
   if (!canCreateModules) return fileOperations;
+
+  // Add appsmith AI operation if the feature flag is enabled
+  const allActionOperations = showAppsmithAIQuery
+    ? [...actionOperations, appsmithAIActionOperation]
+    : actionOperations;
 
   /**
    *  Work around to get the rest api cloud image.
    *  We don't have it store as a svg
    */
-  const actionOps = updateActionOperations(plugins, actionOperations);
+  const actionOps = updateActionOperations(plugins, allActionOperations);
 
   // Add app datasources
   if (allDatasources.length > 0) {

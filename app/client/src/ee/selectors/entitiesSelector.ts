@@ -33,7 +33,10 @@ import {
 import type { ActionResponse } from "api/ActionAPI";
 import { PluginType, type Action } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import { isEmbeddedRestDatasource } from "entities/Datasource";
+import {
+  isEmbeddedAIDataSource,
+  isEmbeddedRestDatasource,
+} from "entities/Datasource";
 import type { JSCollection } from "entities/JSCollection";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
@@ -256,6 +259,10 @@ export const selectFilesForPackageExplorer = createSelector(
         group = isEmbeddedRestDatasource(file.config.datasource)
           ? "APIs"
           : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else if (file.config.pluginType === PluginType.AI) {
+        group = isEmbeddedAIDataSource(file.config.datasource)
+          ? "AI Queries"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
