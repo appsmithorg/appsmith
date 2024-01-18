@@ -57,6 +57,8 @@ import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 import StartWithTemplatesWrapper from "./StartWithTemplatesWrapper";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -192,6 +194,10 @@ const CreateNewAppsOption = ({
       state,
       currentApplicationIdForCreateNewApp,
     ),
+  );
+
+  const isEnabledForStartWithDataDefault = useFeatureFlag(
+    FEATURE_FLAG.ab_create_new_apps_enabled,
   );
 
   const dispatch = useDispatch();
@@ -367,6 +373,38 @@ const CreateNewAppsOption = ({
     }
   };
 
+  const renderStartWithData = () => {
+    return (
+      <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+        <Header
+          subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+          title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+        />
+        <WithDataWrapper>
+          {createNewAppPluginId && !!selectedDatasource ? (
+            selectedPlugin?.type === PluginType.SAAS ? (
+              <DatasourceForm
+                datasourceId={TEMP_DATASOURCE_ID}
+                isOnboardingFlow
+                pageId={application?.defaultPageId || ""}
+                pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
+              />
+            ) : (
+              <DataSourceEditor
+                applicationId={currentApplicationIdForCreateNewApp}
+                datasourceId={TEMP_DATASOURCE_ID}
+                isOnboardingFlow
+                pageId={application?.defaultPageId}
+              />
+            )
+          ) : (
+            <CreateNewDatasourceTab />
+          )}
+        </WithDataWrapper>
+      </Flex>
+    );
+  };
+
   const selectionOptions: CardProps[] = [
     {
       onClick: onClickStartWithData,
@@ -409,6 +447,10 @@ const CreateNewAppsOption = ({
         })),
       );
 
+    if (isEnabledForStartWithDataDefault) {
+      onClickStartWithData();
+    }
+
     return () => {
       resetCreateNewAppFlow();
     };
@@ -435,7 +477,9 @@ const CreateNewAppsOption = ({
           {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
         </Link>
       </BackWrapper>
-      {useType === START_WITH_TYPE.TEMPLATE ? (
+      {isEnabledForStartWithDataDefault ? (
+        renderStartWithData()
+      ) : useType === START_WITH_TYPE.TEMPLATE ? (
         selectedTemplate ? (
           <TemplateView
             onClickUseTemplate={onClickUseTemplate}
@@ -452,33 +496,7 @@ const CreateNewAppsOption = ({
           />
         )
       ) : useType === START_WITH_TYPE.DATA ? (
-        <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-          <Header
-            subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
-            title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
-          />
-          <WithDataWrapper>
-            {createNewAppPluginId && !!selectedDatasource ? (
-              selectedPlugin?.type === PluginType.SAAS ? (
-                <DatasourceForm
-                  datasourceId={TEMP_DATASOURCE_ID}
-                  isOnboardingFlow
-                  pageId={application?.defaultPageId || ""}
-                  pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
-                />
-              ) : (
-                <DataSourceEditor
-                  applicationId={currentApplicationIdForCreateNewApp}
-                  datasourceId={TEMP_DATASOURCE_ID}
-                  isOnboardingFlow
-                  pageId={application?.defaultPageId}
-                />
-              )
-            ) : (
-              <CreateNewDatasourceTab />
-            )}
-          </WithDataWrapper>
-        </Flex>
+        renderStartWithData()
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">
