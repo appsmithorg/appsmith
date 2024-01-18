@@ -14,6 +14,7 @@ import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.AnalyticsService;
@@ -65,6 +66,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     ImportApplicationService importApplicationService;
+
+    @MockBean
+    ImportService importService;
 
     @MockBean
     ExportApplicationService exportApplicationService;
