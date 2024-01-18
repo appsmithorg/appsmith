@@ -7,6 +7,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
@@ -309,18 +310,15 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
 Cypress.Commands.add("Signup", (uname, pword) => {
   homePageTS.InvokeDispatchOnStore();
   cy.wait("@postLogout");
-
   cy.visit("/user/signup", { timeout: 60000 });
-  cy.wait(4000); //for sign up page to open fully
   cy.wait("@signUpLogin")
     .its("response.body.responseMeta.status")
     .should("eq", 200);
-  cy.get(signupPage.username).should("be.visible");
+  agHelper.WaitUntilEleAppear(signupPage.username);
   cy.get(signupPage.username).type(uname);
   cy.get(signupPage.password).type(pword);
-  cy.get(signupPage.submitBtn).click();
-  cy.wait(1000);
-  cy.get("body").then(($body) => {
+  agHelper.GetNClick(signupPage.submitBtn);
+  agHelper.GetElement("body").then(($body) => {
     if ($body.find(signupPage.proficiencyGroupButton).length > 0) {
       cy.get(signupPage.proficiencyGroupButton).first().click();
       cy.get(signupPage.useCaseGroupButton).first().click();
@@ -479,16 +477,6 @@ Cypress.Commands.add(
       });
   },
 );
-
-Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
-  cy.get(commonlocators.widgetSection)
-    .invoke("attr", "id")
-    .then((id) => {
-      if (id === "arrow-right-s-line") {
-        cy.get(commonlocators.widgetSection).click({ force: true });
-      }
-    });
-});
 
 Cypress.Commands.add("clickTest", (testbutton) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -687,9 +675,9 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
 });
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
-  cy.get(explorer.createNew).click({ force: true });
-  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS Object");
-  cy.get("span:contains('New JS Object')").eq(0).click({ force: true });
+  PageLeftPane.switchSegment(PagePaneSegment.JS);
+  PageLeftPane.switchToAddNew();
+  cy.get("span:contains('New JS object')").eq(0).click({ force: true });
 });
 
 Cypress.Commands.add("importCurl", () => {
@@ -735,6 +723,9 @@ Cypress.Commands.add("deleteDataSource", () => {
 });
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
+  PageLeftPane.switchSegment(PagePaneSegment.UI);
+  PageLeftPane.switchToAddNew();
+  cy.get("body").type("{esc}");
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(500);
   cy.get(selector)
@@ -754,6 +745,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
 Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
@@ -774,6 +767,8 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   "dragAndDropToWidgetBySelector",
   (widgetType, destinationSelector, { x, y }) => {
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
@@ -1344,7 +1339,7 @@ Cypress.Commands.add("createSuperUser", () => {
 
   if (CURRENT_REPO === REPO.CE) {
     cy.get("#loading").should("not.exist");
-    cy.get("#sidebar").should("be.visible");
+    AppSidebar.assertVisible();
   }
 
   cy.LogOut();

@@ -7,6 +7,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledSegmentedControl = styled(SegmentedControl)`
   & .ads-v2-icon {
@@ -15,10 +16,17 @@ const StyledSegmentedControl = styled(SegmentedControl)`
 `;
 
 export default function LayoutControls() {
-  const context = useContext(CustomWidgetBuilderContext);
+  const { selectedLayout, selectLayout, widgetId } = useContext(
+    CustomWidgetBuilderContext,
+  );
 
   const onChange = (value: string) => {
-    context.selectLayout?.(value);
+    selectLayout?.(value);
+
+    AnalyticsUtil.logEvent("CUSTOM_WIDGET_BUILDER_LAYOUT_CHANGED", {
+      widgetId: widgetId,
+      layoutName: value,
+    });
   };
 
   return (
@@ -37,7 +45,7 @@ export default function LayoutControls() {
             value: "tabs",
           },
         ]}
-        value={context.selectedLayout}
+        value={selectedLayout}
       />
     </div>
   );

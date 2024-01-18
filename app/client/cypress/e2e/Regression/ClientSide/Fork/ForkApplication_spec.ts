@@ -14,6 +14,7 @@ import {
   inviteModal,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  AppSidebar,
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -85,7 +86,7 @@ describe(
           });
           cy.wait(2000);
         }
-        cy.get("#sidebar").should("be.visible");
+        AppSidebar.assertVisible();
         deployMode.DeployApp();
         agHelper.Sleep(2000);
         cy.get("button:contains('Share')").first().click({ force: true });

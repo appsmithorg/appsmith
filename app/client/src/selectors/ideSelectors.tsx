@@ -1,6 +1,7 @@
 import { createSelector } from "reselect";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { AppState } from "@appsmith/reducers";
+import { getPageActions } from "@appsmith/selectors/entitiesSelector";
 
 export const getIsAppSidebarEnabled = createSelector(
   selectFeatureFlags,
@@ -23,13 +24,16 @@ export const getIDEViewMode = (state: AppState) => state.ui.ide.view;
 export const getPagesActiveStatus = (state: AppState) =>
   state.ui.ide.pagesActive;
 
-export const getActionsCount = (state: AppState) =>
-  state.entities.actions.length || 0;
+export const getActionsCount = (pageId: string) =>
+  createSelector(getPageActions(pageId), (actions) => {
+    return actions.length || 0;
+  });
 
-export const getJsActionsCount = (state: AppState) =>
-  state.entities.jsActions.length || 0;
+export const getJsActionsCount = (state: AppState, pageId: string) =>
+  state.entities.jsActions.filter((v) => v.config.pageId === pageId).length ||
+  0;
 
-export const getWidgetsCount = (state: AppState) =>
-  Object.values(state.entities.canvasWidgets).filter(
+export const getWidgetsCount = (state: AppState, pageId: string) =>
+  Object.values(state.ui.pageWidgets[pageId].dsl).filter(
     (w) => w.type !== "CANVAS_WIDGET",
   ).length || 0;

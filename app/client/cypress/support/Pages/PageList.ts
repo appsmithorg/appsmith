@@ -51,6 +51,18 @@ class PageList {
     });
     ObjectsRegistry.AssertHelper.AssertNetworkStatus("@clonePage", 201);
   }
+
+  assertPresence(pageName: string) {
+    ObjectsRegistry.AggregateHelper.AssertElementVisibility(
+      this.locators.pageListItem(pageName),
+    );
+  }
+
+  assertAbsence(pageName: string) {
+    ObjectsRegistry.AggregateHelper.AssertElementAbsence(
+      this.locators.pageListItem(pageName),
+    );
+  }
 }
 
 export default new PageList();

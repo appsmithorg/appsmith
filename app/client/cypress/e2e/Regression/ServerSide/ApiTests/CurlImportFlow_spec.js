@@ -1,9 +1,10 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 import ApiEditor from "../../../../locators/ApiEditor";
 
 import {
@@ -44,7 +45,8 @@ describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
   it("2. Bug:15175 Creating new cURL import query from entity explorer crashes the app", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      cy.get(globalSearchLocators.createNew).click();
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      PageLeftPane.switchToAddNew();
       cy.xpath("//span[text()='New cURL import']").click();
       cy.get("textarea").type(
         'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +

@@ -15,6 +15,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -22,10 +23,6 @@ describe("UUID Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Importing App & setting theme", () => {
-    featureFlagIntercept({
-      ab_gsheet_schema_enabled: true,
-      ab_mock_mongo_schema_enabled: true,
-    });
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -88,8 +85,6 @@ describe("UUID Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
-
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("5. Inserting record - uuidtype", () => {
@@ -244,7 +239,7 @@ describe("UUID Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   it("10. Validating UUID functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     //Validating use of extention
     query = `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; CREATE EXTENSION IF NOT EXISTS "pgcrypto"`;
     dataSources.CreateQueryForDS(dsName, query, "verifyUUIDFunctions");
@@ -322,7 +317,6 @@ describe("UUID Datatype tests", { tags: ["@tag.Datasource"] }, function () {
       entityType: entityItems.Query,
     });
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("11. Deleting records - uuidtype", () => {
@@ -380,21 +374,17 @@ describe("UUID Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.uuidtype", false);
   });
 
   it("15. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
 
   it("16. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 });
