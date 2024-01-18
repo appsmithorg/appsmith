@@ -49,6 +49,14 @@ public class DataUtils {
 
     public static String FIELD_API_CONTENT_TYPE = "apiContentType";
 
+    /**
+     * this Gson builder has three parameters for creating a gson instances which is required to maintain the JSON as received
+     * setLenient() : allows parsing of JSONs which don't strictly adhere to RFC4627 (our older implementation is also more permissive)
+     * setObjectToNumberStrategy(): How to parse numbers which comes as a part of JSON objects
+     * i.e. [4, 5.5, 7] --> [4, 5.5, 7] (with lazily parsed numbers), default was [4.0, 5.5, 7.0]
+     * setNumberToNumberStrategy() : same as above but only applies to number json
+     * 4 -> 4,  4.7 --> 4.7
+     */
     private static final Gson gson = new GsonBuilder()
             .setLenient()
             .setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
