@@ -322,6 +322,13 @@ public class DataUtils {
             return null;
         }
 
+        // For both list and Map type we have used fallback parsing strategies, First GSON tries to parse
+        // the jsonString (we've used gson because the native jsonObject gson uses to parse JSON is implemented on top
+        // of linkedHashMaps, which preserves the order of attributes),
+        // however if gson encounters any errors, which could arise due to a lenient jsonString
+        // i.e. { "a" : "one", "b" : "two",} (Notice the comma at the end), this is not a valid json according to
+        // RFC4627. GSON would fail here, however JsonParser from net.minidev would parse this in permissive mode.
+
         if (type.equals(List.class)) {
             return parseJsonIntoListWithOrderedObjects(jsonString, gson, jsonParser);
         } else {
