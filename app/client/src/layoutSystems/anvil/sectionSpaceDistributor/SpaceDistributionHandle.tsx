@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { SpaceDistributorHandleDimensions } from "./constants";
 import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
 import { useSpaceDistributionEvents } from "./useSpaceDistributionEvents";
-import { getDistributionHandleId } from "./spaceDistributionUtils";
+import { getDistributionHandleId } from "./spaceDistributionEditorUtils";
 
 interface SpaceDistributionNodeProps {
   columnPosition: number;

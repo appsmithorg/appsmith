@@ -12,7 +12,7 @@ import {
   updateCSSOfWidgetsOnHandleMove,
   updateCSSOfWidgetsOnHittingMinimumLimit,
   getPropertyPaneDistributionHandleId,
-} from "./spaceDistributionUtils";
+} from "./spaceDistributionEditorUtils";
 import { PropPaneDistributionHandleCustomEvent } from "./constants";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -68,16 +68,6 @@ export const useSpaceDistributionEvents = ({
       );
       let leftZonePropPaneDom: HTMLElement | null = null;
       let rightZonePropPaneDom: HTMLElement | null = null;
-      // let propPaneHandle: HTMLElement | null = null;
-      // const leftZonePropPaneDom = document.getElementById(
-      //   getPropertyPaneZoneId(leftZone),
-      // );
-      // const rightZonePropPaneDom = document.getElementById(
-      //   getPropertyPaneZoneId(rightZone),
-      // );
-      // const propPaneHandle = document.getElementById(
-      //   getPropertyPaneDistributionHandleId(leftZone),
-      // );
 
       // Keep track of the growth factors for both zones
       const currentGrowthFactor = {
@@ -154,6 +144,8 @@ export const useSpaceDistributionEvents = ({
         resetCSSOnZones(spaceDistributed);
         removeMouseMoveHandlers();
         currentMouseSpeed.current = 0;
+        leftZonePropPaneDom = null;
+        rightZonePropPaneDom = null;
         if (ref.current) {
           ref.current.removeEventListener("transitionend", onCSSTransitionEnd);
         }

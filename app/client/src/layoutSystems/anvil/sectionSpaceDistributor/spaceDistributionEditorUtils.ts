@@ -263,11 +263,19 @@ export const resetCSSOnZones = (spaceDistributed: {
 }) => {
   Object.keys(spaceDistributed).forEach((zoneId) => {
     const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
+    const zonePropDom = document.getElementById(getPropertyPaneZoneId(zoneId));
     if (zoneDom) {
       zoneDom.style.flexGrow = "";
       zoneDom.style.transition = "all 0.3s ease";
+      if (zonePropDom) {
+        zonePropDom.style.flexGrow = "";
+        zonePropDom.style.transition = "all 0.3s ease";
+      }
       setTimeout(() => {
         zoneDom.style.transition = "";
+        if (zonePropDom) {
+          zonePropDom.style.transition = "";
+        }
       }, 500);
     }
   });
