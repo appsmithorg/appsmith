@@ -402,22 +402,22 @@ export class HomePage {
 
   public SignUp(uname: string, pswd: string) {
     this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
-    //signup screen
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
     this.agHelper.TypeText(this._password, pswd);
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
-
-    // proficiency screen 
-    this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
-    this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
-    this.agHelper.GetNClick(
-      SignupPageLocators.getStartedSubmit,
-      undefined,
-      true,
-    );
-
+    cy.get("body").then(($body) => {
+      if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
+        this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
+        this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
+        this.agHelper.GetNClick(
+          SignupPageLocators.getStartedSubmit,
+          undefined,
+          true,
+        );
+      }
+    });
     this.assertHelper.AssertNetworkStatus("@getMe");
     this.agHelper.Sleep(3000);
   }
