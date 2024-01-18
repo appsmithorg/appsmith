@@ -49,6 +49,7 @@ import {
 } from "./SchemaViewModeCSS";
 import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
+import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 
 interface Props {
   datasource: Datasource;
@@ -106,6 +107,8 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   const { failedFetchingPreviewData, fetchPreviewData, isLoading } =
     useDatasourceQuery({ setPreviewData, setPreviewDataError });
+
+  const isGeneratePageLoading = useSelector(getIsGeneratingTemplatePage);
 
   // default table name to first table
   useEffect(() => {
@@ -277,6 +280,7 @@ const DatasourceViewModeSchema = (props: Props) => {
         <ButtonContainer>
           <Button
             className="t--datasource-generate-page"
+            isLoading={isGeneratePageLoading}
             key="datasource-generate-page"
             kind="primary"
             onClick={generatePageAction}

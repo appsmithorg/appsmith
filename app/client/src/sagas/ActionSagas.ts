@@ -31,6 +31,7 @@ import type {
 import {
   copyActionError,
   copyActionSuccess,
+  createActionInit,
   createActionSuccess,
   deleteActionSuccess,
   fetchActionsForPage,
@@ -63,10 +64,8 @@ import {
   SlashCommand,
 } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type {
-  EditorSegmentList,
-  EntityItem,
-} from "@appsmith/selectors/appIDESelectors";
+import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
+import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
 import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import {
   getAction,
@@ -79,6 +78,7 @@ import {
   getPlugin,
   getSettingConfig,
   getPageActions,
+  getNewEntityName,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -142,6 +142,12 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { getActionConfig } from "../pages/Editor/Explorer/Actions/helpers";
+import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
+
+export const DEFAULT_PREFIX = {
+  QUERY: "Query",
+  API: "Api",
+} as const;
 
 export function* createDefaultActionPayloadWithPluginDefaults(
   props: CreateActionDefaultsParams,
@@ -243,6 +249,52 @@ export function* getPluginActionDefaultValues(pluginId: string) {
     initialValues = merge(initialValues, settingInitialValues);
   }
   return initialValues;
+}
+
+/**
+ * This saga prepares the action request i.e it helps generating a
+ * new name of an action. This is to reduce any dependency on name generation
+ * on the caller of this saga.
+ */
+export function* createActionRequestSaga(
+  actionPayload: ReduxAction<
+    Partial<Action> & { eventData: any; pluginId: string }
+  >,
+) {
+  const payload = { ...actionPayload.payload };
+  const pluginId =
+    actionPayload.payload.pluginId ||
+    actionPayload.payload.datasource?.pluginId;
+  if (!actionPayload.payload.name) {
+    const { parentEntityId, parentEntityKey } = resolveParentEntityMetadata(
+      actionPayload.payload,
+    );
+
+    if (!parentEntityId || !parentEntityKey) return;
+    const plugin: Plugin | undefined = yield select(getPlugin, pluginId || "");
+    const isQueryType =
+      plugin?.type === PluginType.DB ||
+      plugin?.packageName === PluginPackageName.APPSMITH_AI;
+
+    const prefix = isQueryType ? DEFAULT_PREFIX.QUERY : DEFAULT_PREFIX.API;
+
+    if (
+      plugin?.type === PluginType.DB ||
+      plugin?.packageName === PluginPackageName.APPSMITH_AI
+    ) {
+      DEFAULT_PREFIX.QUERY;
+    }
+
+    const name: string = yield select(getNewEntityName, {
+      prefix,
+      parentEntityId,
+      parentEntityKey,
+    });
+
+    payload.name = name;
+  }
+
+  yield put(createActionInit(payload));
 }
 
 export function* createActionSaga(
@@ -1128,6 +1180,7 @@ export function* watchActionSagas() {
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
       fetchActionsForViewModeSaga,
     ),
+    takeEvery(ReduxActionTypes.CREATE_ACTION_REQUEST, createActionRequestSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),

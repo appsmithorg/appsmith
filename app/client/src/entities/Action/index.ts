@@ -285,11 +285,11 @@ export const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
 export interface CreateApiActionDefaultsParams {
   apiType: string;
   from?: EventLocation;
-  newActionName: string;
+  newActionName?: string;
 }
 
 export interface CreateActionDefaultsParams {
   datasourceId: string;
   from?: EventLocation;
-  newActionName: string;
+  newActionName?: string;
 }

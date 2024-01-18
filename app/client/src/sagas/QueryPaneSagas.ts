@@ -36,7 +36,6 @@ import {
   getSettingConfig,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
-  getActions,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -86,8 +85,6 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { ChangeQueryPayload } from "actions/queryPaneActions";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
@@ -506,23 +503,14 @@ function* createNewQueryForDatasourceSaga(
     from: EventLocation;
   }>,
 ) {
-  const { datasourceId, from, pageId } = action.payload;
+  const { datasourceId, from } = action.payload;
   if (!datasourceId) return;
-
-  const actions: ActionDataState = yield select(getActions);
-  const datasource: Datasource = yield select(getDatasource, datasourceId);
-  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
-  const newActionName =
-    plugin?.type === PluginType.DB
-      ? createNewQueryName(actions, pageId || "")
-      : createNewApiName(actions, pageId || "");
 
   const createActionPayload: Partial<Action> = yield call(
     createDefaultActionPayloadWithPluginDefaults,
     {
       datasourceId,
       from,
-      newActionName,
     },
   );
 
