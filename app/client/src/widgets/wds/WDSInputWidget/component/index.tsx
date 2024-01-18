@@ -8,9 +8,16 @@ import { INPUT_TYPES } from "../constants";
 import type { InputComponentProps } from "./types";
 import { useDebouncedValue } from "@mantine/hooks";
 
+const DEBOUNCE_TIME = 300;
+
 function InputComponent(props: InputComponentProps) {
-  const [validationStatus] = useDebouncedValue(props.validationStatus, 300);
-  const [errorMessage] = useDebouncedValue(props.errorMessage, 300);
+  // Note: because of how derived props are handled by MetaHoc, the isValid shows wrong
+  // values for some milliseconds. To avoid that, we are using debounced value.
+  const [validationStatus] = useDebouncedValue(
+    props.validationStatus,
+    DEBOUNCE_TIME,
+  );
+  const [errorMessage] = useDebouncedValue(props.errorMessage, DEBOUNCE_TIME);
 
   const startIcon = (() => {
     if (props.iconName && props.iconAlign === "left") {
