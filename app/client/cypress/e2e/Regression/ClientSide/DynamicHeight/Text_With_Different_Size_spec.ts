@@ -156,7 +156,12 @@ describe(
                                         "Text1",
                                         EntityType.Widget,
                                       );
-                                      agHelper.Sleep(2000);
+                                      agHelper.AssertElementLength(
+                                        locators._widgetInDeployed(
+                                          draggableWidgets.TEXT,
+                                        ),
+                                        4,
+                                      );
                                       agHelper
                                         .GetWidgetCSSFrAttribute(
                                           locators._widgetInDeployed(
@@ -183,11 +188,16 @@ describe(
                                                 (
                                                   UpdatedSmallValueOfSecondText,
                                                 ) => {
+                                                  agHelper.AssertElementLength(
+                                                    locators._widgetInDeployed(
+                                                      draggableWidgets.TEXT,
+                                                    ),
+                                                    4,
+                                                  );
                                                   EditorNavigation.SelectEntityByName(
                                                     "Text3",
                                                     EntityType.Widget,
                                                   );
-                                                  agHelper.Sleep(2000);
                                                   agHelper
                                                     .GetWidgetCSSFrAttribute(
                                                       locators._widgetInDeployed(
@@ -200,11 +210,17 @@ describe(
                                                       (
                                                         UpdatedSmallValueOfThirdText,
                                                       ) => {
+                                                        agHelper.AssertElementLength(
+                                                          locators._widgetInDeployed(
+                                                            draggableWidgets.TEXT,
+                                                          ),
+                                                          4,
+                                                        );
                                                         EditorNavigation.SelectEntityByName(
                                                           "Text4",
                                                           EntityType.Widget,
                                                         );
-                                                        agHelper.Sleep(2000);
+
                                                         agHelper
                                                           .GetWidgetCSSFrAttribute(
                                                             locators._widgetInDeployed(
