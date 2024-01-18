@@ -2229,9 +2229,9 @@ export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
 export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   header: () => "Choose a template",
   layouts: {
-    dashboard: {
-      name: () => "Visualize your data",
-      description: () => "Use to see your data in charts",
+    sortFilterTable: {
+      name: () => "Filter your data",
+      description: () => "Use to filter and sort your data",
     },
     form: {
       name: () => "Form",
@@ -2356,6 +2356,7 @@ export const CUSTOM_WIDGET_FEATURE = {
   },
   templateKey: {
     blank: () => "Blank",
+    vanillaJs: () => "Vanilla JS",
     react: () => "React",
     vue: () => "Vue",
   },
@@ -2375,7 +2376,7 @@ export const CUSTOM_WIDGET_FEATURE = {
     split: () => "Splits",
   },
   referrences: {
-    title: () => "Referrences",
+    title: () => "References",
     tooltip: {
       open: () => "Open references",
       close: () => "Close references",
@@ -2411,6 +2412,8 @@ export const CUSTOM_WIDGET_FEATURE = {
     helpDropdown: {
       stackoverflow: () => "Search StackOverflow",
     },
+    noOnReadyWarning: (url: string) =>
+      `Missing appsmith.onReady() function call. Initiate your component inside 'appsmith.onReady()' for your custom widget to work as expected. For more information - ${url}`,
   },
   preview: {
     eventFired: () => "Event fired:",
