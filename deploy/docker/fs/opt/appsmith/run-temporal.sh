@@ -1,6 +1,7 @@
 #!/bin/bash
 
 exec /root/.temporalio/bin/temporal server start-dev \
+    --log-level error \
     --headless # disable web ui
 
 # exec /root/.temporalio/bin/temporal server start-dev \
