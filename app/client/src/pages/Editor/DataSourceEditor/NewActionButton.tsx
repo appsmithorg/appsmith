@@ -128,7 +128,7 @@ function NewActionButton(props: NewActionButtonProps) {
         <Text className="pl-2" kind="heading-xs">{`Create ${
           pluginType === PluginType.DB || pluginType === PluginType.SAAS
             ? "query"
-            : "api"
+            : "API"
         } in`}</Text>
         {pageMenuItems.map((page, i) => {
           if (page) {
