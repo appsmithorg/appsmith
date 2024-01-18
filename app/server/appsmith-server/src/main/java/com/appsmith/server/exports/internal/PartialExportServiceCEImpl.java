@@ -136,7 +136,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                         branchedPageId,
                                         partialExportFileDTO.getActionCollectionList(),
                                         applicationJson,
-                                        mappedResourcesDTO)
+                                        mappedResourcesDTO,
+                                        branchName)
                                 .then(Mono.just(branchedPageId));
                     }
                     return Mono.just(branchedPageId);
@@ -148,7 +149,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                         branchedPageId,
                                         partialExportFileDTO.getActionList(),
                                         applicationJson,
-                                        mappedResourcesDTO)
+                                        mappedResourcesDTO,
+                                        branchName)
                                 .then(Mono.just(branchedPageId));
                     }
                     return Mono.just(branchedPageId);
@@ -212,11 +214,17 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
             String pageId,
             List<String> validActions,
             ApplicationJson applicationJson,
-            MappedExportableResourcesDTO mappedResourcesDTO) {
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            String branchName) {
         return newActionService.findByPageId(pageId).collectList().flatMap(actions -> {
+            // For git connected app, the filtering has to be done on the default action id
+            // since the client is not aware of the branched resource id
             List<NewAction> updatedActionList = actions.stream()
-                    .filter(action -> validActions.contains(action.getId()))
+                    .filter(action -> branchName != null
+                            ? validActions.contains(action.getDefaultResources().getActionId())
+                            : validActions.contains(action.getId()))
                     .toList();
+
             // Map name to id for exportable entities
             newActionExportableService.mapNameToIdForExportableEntities(mappedResourcesDTO, updatedActionList);
             // Make it exportable by removing the ids
@@ -232,10 +240,16 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
             String pageId,
             List<String> validActions,
             ApplicationJson applicationJson,
-            MappedExportableResourcesDTO mappedResourcesDTO) {
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            String branchName) {
         return actionCollectionService.findByPageId(pageId).collectList().flatMap(actionCollections -> {
+            // For git connected app, the filtering has to be done on the default actionCollection id
+            // since the client is not aware of the branched resource id
             List<ActionCollection> updatedActionCollectionList = actionCollections.stream()
-                    .filter(actionCollection -> validActions.contains(actionCollection.getId()))
+                    .filter(actionCollection -> branchName != null
+                            ? validActions.contains(
+                                    actionCollection.getDefaultResources().getCollectionId())
+                            : validActions.contains(actionCollection.getId()))
                     .toList();
             // Map name to id for exportable entities
             actionCollectionExportableService.mapNameToIdForExportableEntities(

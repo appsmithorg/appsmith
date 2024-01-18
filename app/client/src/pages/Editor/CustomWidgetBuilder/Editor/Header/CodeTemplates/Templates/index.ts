@@ -1,5 +1,5 @@
-import blank from "./blank";
+import vanillaJs from "./vanillaJs";
 import react from "./react";
 import vue from "./vue";
 
-export default [blank, react, vue];
+export default [vanillaJs, react, vue];
