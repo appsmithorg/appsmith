@@ -5,13 +5,11 @@ import {
   CHAT_WITH_US,
   DOCUMENTATION,
   HELP,
-  TRY_GUIDED_TOUR,
   WHATS_NEW,
   createMessage,
 } from "@appsmith/constants/messages";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import {
   getAdminSettingsPath,
@@ -32,7 +30,6 @@ import {
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouteMatch } from "react-router";
-import { getOnboardingWorkspaces } from "selectors/onboardingSelectors";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
@@ -40,8 +37,6 @@ import {
   getOnSelectAction,
 } from "../CustomizedDropdown/dropdownHelpers";
 import { IntercomConsent } from "pages/Editor/HelpButton";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { onboardingCreateApplication } from "actions/onboardingActions";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import styled from "styled-components";
@@ -66,9 +61,7 @@ const HomepageHeaderAction = ({
 }) => {
   const dispatch = useDispatch();
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const isFetchingApplications = useSelector(getIsFetchingApplications);
   const tenantPermissions = useSelector(getTenantPermissions);
-  const onboardingWorkspaces = useSelector(getOnboardingWorkspaces);
   const isCreateNewAppFlow = useSelector(
     getCurrentApplicationIdForCreateNewApp,
   );
@@ -131,21 +124,6 @@ const HomepageHeaderAction = ({
               <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
             ) : (
               <>
-                <MenuItem
-                  className="t--welcome-tour"
-                  onClick={() => {
-                    if (
-                      !isFetchingApplications &&
-                      !!onboardingWorkspaces.length
-                    ) {
-                      AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-                      dispatch(onboardingCreateApplication());
-                    }
-                  }}
-                  startIcon="guide"
-                >
-                  {createMessage(TRY_GUIDED_TOUR)}
-                </MenuItem>
                 <MenuItem
                   className="t--documentation-button"
                   onClick={() => {
