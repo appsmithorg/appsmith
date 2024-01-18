@@ -19,6 +19,7 @@ import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActio
 import type { PluginType } from "entities/Action";
 import localStorage from "utils/localStorage";
 import { EDITOR_PATHS } from "@appsmith/entities/IDE/utils";
+import type { Match } from "path-to-regexp";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -93,8 +94,13 @@ export function getAppViewerPageIdFromPath(path: string): string | null {
   return null;
 }
 
+export const matchEditorPath = (
+  path: string,
+): Match<{ applicationId: string; pageId: string }> => {
+  return matchBuilderPath(path, { end: false });
+};
 export const isEditorPath = (path: string) => {
-  return !!matchBuilderPath(path, { end: false });
+  return !!matchEditorPath(path);
 };
 
 export const isViewerPath = (path: string) => {

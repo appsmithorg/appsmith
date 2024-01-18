@@ -20,9 +20,8 @@ import type { Color } from "constants/Colors";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledIframe = styled.iframe<{ width: number; height: number }>`
   width: ${(props) => props.width - 8}px;
@@ -101,6 +100,16 @@ function CustomComponent(props: CustomComponentProps) {
               },
               "*",
             );
+
+            if (
+              props.renderMode === "DEPLOYED" ||
+              props.renderMode === "EDITOR"
+            ) {
+              AnalyticsUtil.logEvent("CUSTOM_WIDGET_LOAD_INIT", {
+                widgetId: props.widgetId,
+                renderMode: props.renderMode,
+              });
+            }
             break;
           case EVENTS.CUSTOM_WIDGET_UPDATE_MODEL:
             props.update(message.data);
@@ -256,11 +265,10 @@ export const mapStateToProps = (
   ownProps: CustomComponentProps,
 ) => {
   const isPreviewMode = combinedPreviewModeSelector(state);
-  const appMode = getAppMode(state);
 
   return {
     needsOverlay:
-      appMode == APP_MODE.EDIT &&
+      ownProps.renderMode === "EDITOR" &&
       !isPreviewMode &&
       ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId,
   };

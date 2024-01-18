@@ -31,6 +31,7 @@ import { Link } from "design-system";
 import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledLink = styled(Link)`
   display: inline-block;
@@ -332,6 +333,11 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         },
         globalContext: contextObj,
       });
+
+      AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_TRIGGER_EVENT", {
+        widgetId: this.props.widgetId,
+        eventName,
+      });
     }
   };
 
@@ -339,6 +345,10 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("model", {
       ...this.props.model,
       ...data,
+    });
+
+    AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
+      widgetId: this.props.widgetId,
     });
   };
 

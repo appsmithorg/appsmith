@@ -28,7 +28,7 @@ import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/ho
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
+import type { PartialExportParams } from "sagas/PartialImportExportSagas";
 import { getCurrentPageName } from "selectors/editorSelectors";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
@@ -98,6 +98,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       {
         content: jsObjects ? (
           <EntityCheckboxSelector
+            containerTestId="t--partialExportModal-jsObjectsSection"
             entities={jsObjects}
             onEntityChecked={(id, selected) =>
               onEntitySelected("jsObjects", id, selected)
@@ -120,6 +121,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         content:
           appWideDS.length > 0 ? (
             <EntityCheckboxSelector
+              containerTestId="t--partialExportModal-datasourcesSection"
               entities={appWideDS}
               onEntityChecked={(id, selected) =>
                 onEntitySelected("datasources", id, selected)
@@ -164,6 +166,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         content:
           customJsLibraries.length > 0 ? (
             <EntityCheckboxSelector
+              containerTestId="t--partialExportModal-customJSLibsSection"
               entities={customJsLibraries}
               onEntityChecked={(id, selected) =>
                 onEntitySelected("customJSLibs", id, selected)
@@ -271,7 +274,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         <Text kind="heading-s" renderAs="h2">
           {createMessage(PARTIAL_IMPORT_EXPORT.export.modalSubHeading)}
         </Text>
-        <ScrollableSection>
+        <ScrollableSection data-testid="t--partialExportModal">
           {entities.map(
             ({ content, icon, onResetClick, shouldShowReset, title }) => (
               <React.Fragment key={title}>
@@ -279,6 +282,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
                   <CollapsibleHeader>
                     <div className="w-full flex justify-between">
                       <Text
+                        data-testid="t--partialExportModal-collapsibleHeader"
                         kind="heading-s"
                         style={{
                           display: "flex",
