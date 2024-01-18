@@ -85,10 +85,9 @@ describe(
     });
 
     it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "vessels");
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("public.vessels");
+      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
       agHelper.ValidateToastMessage("Successfully generated a page");
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       assertHelper.AssertNetworkStatus("@getActions", 200);
@@ -649,7 +648,7 @@ describe(
     it("18. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     });
 
     function generateCallsignInfo(rowIndex: number) {

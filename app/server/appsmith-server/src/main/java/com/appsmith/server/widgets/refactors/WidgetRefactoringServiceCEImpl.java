@@ -14,7 +14,6 @@ import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.EntityRefactoringServiceCE;
 import com.appsmith.server.services.AstService;
-import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -44,7 +43,6 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     private final NewPageService newPageService;
     private final AstService astService;
     private final ObjectMapper objectMapper;
-    private final PagePermission pagePermission;
 
     @Override
     public AnalyticsEvents getRefactorAnalyticsEvent(EntityType entityType) {
@@ -115,7 +113,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
             String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
         return newPageService
                 // fetch the unpublished page
-                .findPageById(contextId, pagePermission.getReadPermission(), viewMode)
+                .findPageById(contextId, null, viewMode)
                 .flatMapMany(page -> {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {

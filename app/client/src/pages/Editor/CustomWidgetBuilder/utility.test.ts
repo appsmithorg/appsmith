@@ -56,14 +56,14 @@ describe("compileSrcDoc", () => {
     const result = compileSrcDoc(validSrcDoc);
 
     expect(result.code).toEqual(validSrcDoc);
-    expect(result.warnings).toHaveLength(0);
+    expect(result.warnings).toHaveLength(1);
     expect(result.errors).toHaveLength(0);
   });
 
   it("should handle Babel compilation errors", () => {
     const srcDocWithErrors = {
       html: "<div>Hello World</div>",
-      js: "const a = 5 )",
+      js: "appsmith.onReady(() => {const a = 5 )})",
       css: "div { color: red; }",
     };
 

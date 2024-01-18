@@ -248,7 +248,7 @@ export class JSEditor {
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
       .blur();
-    this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
+    PageLeftPane.assertPresence(renameVal);
   }
 
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
@@ -260,7 +260,6 @@ export class JSEditor {
       renameVal + "{enter}",
     );
     PageLeftPane.assertPresence(renameVal);
-    this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 
   public GetJSObjectName() {
