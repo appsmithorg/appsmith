@@ -79,7 +79,6 @@ import {
   getSettingConfig,
   getPageActions,
   getNewEntityName,
-  getSelectedTableName,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -173,6 +172,7 @@ export function* createDefaultActionPayload({
   datasourceId,
   from,
   newActionName,
+  queryDefaultTableName,
 }: CreateActionDefaultsParams) {
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
@@ -199,11 +199,9 @@ export function* createDefaultActionPayload({
     datasource?.id,
   );
 
-  const dsPreviewTableName: string = yield select(getSelectedTableName);
-
   const defaultActionConfig: any = getDefaultTemplateActionConfig(
     plugin,
-    dsPreviewTableName,
+    queryDefaultTableName,
     dsStructure,
     datasource?.isMock,
   );

@@ -494,9 +494,10 @@ function* createNewQueryForDatasourceSaga(
     pageId: string;
     datasourceId: string;
     from: EventLocation;
+    queryDefaultTableName?: string;
   }>,
 ) {
-  const { datasourceId, from } = action.payload;
+  const { datasourceId, from, queryDefaultTableName } = action.payload;
   if (!datasourceId) return;
 
   const createActionPayload: Partial<Action> = yield call(
@@ -504,6 +505,7 @@ function* createNewQueryForDatasourceSaga(
     {
       datasourceId,
       from,
+      queryDefaultTableName,
     },
   );
 

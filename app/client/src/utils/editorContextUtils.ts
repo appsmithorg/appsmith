@@ -240,7 +240,7 @@ export function getSQLPluginsMockTableName(pluginId: string) {
 
 export function getDefaultTemplateActionConfig(
   plugin: Plugin,
-  dsPreviewTable: string,
+  dsPreviewTable?: string,
   dsStructure?: DatasourceStructure,
   isMock?: boolean,
 ) {
