@@ -169,23 +169,28 @@ export function* updateSectionsDistributedSpace(
   );
 
   // Initializing the object to store the updated distributed space
-  let updatedDistributedSpace: { [key: string]: number } = {};
+  let updatedDistributedSpace: { [key: string]: number } =
+    currentDistributedSpace;
+  let updateZoneOrder = previousZoneOrder;
 
   // Handling removal of zones and updating distributed space
   zonesToRemove.forEach((eachZone) => {
     const zoneProps = widgetsBeforeUpdate[eachZone];
-    const index = previousZoneOrder.indexOf(eachZone);
+    const index = updateZoneOrder.indexOf(eachZone);
     const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
-      currentDistributedSpace,
-      previousZoneOrder,
+      updatedDistributedSpace,
+      updateZoneOrder,
       -zoneProps.flexGrow || commonSpace,
       index,
     );
+    updateZoneOrder = updateZoneOrder.filter((_, i) => i !== index);
     updatedDistributedSpace = updatedZoneOrder.reduce(
       (result, each, index) => {
         return {
           ...result,
-          [each]: updatedDistributedSpaceArray[index],
+          ...(updatedDistributedSpaceArray[index]
+            ? { [each]: updatedDistributedSpaceArray[index] }
+            : {}),
         };
       },
       {} as { [key: string]: number },
@@ -197,16 +202,19 @@ export function* updateSectionsDistributedSpace(
     const zoneProps = widgetsAfterUpdate[eachZone];
     const index = updatedZoneOrder.indexOf(eachZone);
     const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
-      currentDistributedSpace,
-      previousZoneOrder,
+      updatedDistributedSpace,
+      updateZoneOrder,
       zoneProps.flexGrow || commonSpace,
       index,
     );
+    updateZoneOrder.splice(index, 0, eachZone);
     updatedDistributedSpace = updatedZoneOrder.reduce(
       (result, each, index) => {
         return {
           ...result,
-          [each]: updatedDistributedSpaceArray[index],
+          ...(updatedDistributedSpaceArray[index]
+            ? { [each]: updatedDistributedSpaceArray[index] }
+            : {}),
         };
       },
       {} as { [key: string]: number },
