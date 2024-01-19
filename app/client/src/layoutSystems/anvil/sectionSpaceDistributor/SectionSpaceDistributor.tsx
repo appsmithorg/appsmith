@@ -1,6 +1,6 @@
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
-import React, { useEffect } from "react";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
@@ -8,10 +8,6 @@ import { getWidgetByID } from "sagas/selectors";
 import { getDefaultSpaceDistributed } from "./spaceRedistributionUtils";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
-import { getSelectedWidgets } from "selectors/ui";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;
@@ -45,37 +41,26 @@ const getAnvilZoneOffset = (zoneId: string) => {
 const SectionSpaceDistributorHandles = (
   props: SectionSpaceDistributorHandlesProps,
 ) => {
-  const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
-  const selectedWidgets = useSelector(getSelectedWidgets);
-  const { selectWidget } = useWidgetSelection();
+  const { sectionLayoutId, sectionWidgetId, zones } = props;
   // Get layout element positions and section widget
   const layoutElementPositions = useSelector(getLayoutElementPositions);
-  const sectionWidget = useSelector(getWidgetByID(props.sectionWidgetId));
-  const zoneIds = props.zones.map((each) => each.widgetId);
+  const sectionWidget = useSelector(getWidgetByID(sectionWidgetId));
+  const zoneIds = useMemo(() => {
+    return zones.map((each) => each.widgetId);
+  }, [zones]);
   // Get the default space distribution for the specified zones
   const defaultSpaceDistributed = getDefaultSpaceDistributed(zoneIds);
 
   // Destructure spaceDistributed property from sectionWidget or use default
   const { spaceDistributed = defaultSpaceDistributed } = sectionWidget;
-  const zoneOffset = getAnvilZoneOffset(props.zones[0].widgetId);
+  const zoneOffset = getAnvilZoneOffset(zones[0].widgetId);
   // Initialize variables for tracking zone positions and space to work with
   let previousZonePosition: LayoutElementPosition;
   let previousZoneColumn = 0;
-  let spaceToWorkWith = -(zoneOffset * props.zones.length);
-
-  useEffect(() => {
-    if (
-      !(
-        selectedWidgets.includes(props.sectionWidgetId) ||
-        zoneIds.some((each) => selectedWidgets.includes(each))
-      )
-    ) {
-      selectWidget(SelectionRequestType.One, [props.sectionWidgetId]);
-    }
-  }, [isDistributingSpace]);
+  let spaceToWorkWith = -(zoneOffset * zones.length);
 
   // Generate an array of space distribution nodes based on the zones
-  const SectionSpaceDistributorNodes = props.zones.reduce(
+  const SectionSpaceDistributorNodes = zones.reduce(
     (nodesArray, each, index) => {
       const widgetPosition = layoutElementPositions[each.widgetId];
       spaceToWorkWith = spaceToWorkWith + widgetPosition.width;
@@ -94,7 +79,7 @@ const SectionSpaceDistributorHandles = (
           (previousZonePosition.offsetLeft + previousZonePosition.width);
 
         nodesArray.push({
-          parentZones: [props.zones[index - 1].widgetId, each.widgetId],
+          parentZones: [zones[index - 1].widgetId, each.widgetId],
           spaceBetweenZones,
           columnPosition: previousZoneColumn,
           position: {
@@ -127,10 +112,11 @@ const SectionSpaceDistributorHandles = (
           key={index}
           left={each.position.left}
           parentZones={each.parentZones}
-          sectionLayoutId={props.sectionLayoutId}
-          sectionWidgetId={props.sectionWidgetId}
+          sectionLayoutId={sectionLayoutId}
+          sectionWidgetId={sectionWidgetId}
           spaceDistributed={spaceDistributed}
           spaceToWorkWith={spaceToWorkWith}
+          zoneIds={zoneIds}
         />
       ))}
     </>

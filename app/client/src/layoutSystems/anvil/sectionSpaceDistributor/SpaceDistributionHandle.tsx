@@ -15,6 +15,7 @@ interface SpaceDistributionNodeProps {
   sectionWidgetId: string;
   spaceToWorkWith: number;
   spaceDistributed: { [key: string]: number };
+  zoneIds: string[];
 }
 const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   display: inline;
@@ -57,6 +58,7 @@ export const SpaceDistributionHandle = ({
   sectionWidgetId,
   spaceDistributed,
   spaceToWorkWith,
+  zoneIds,
 }: SpaceDistributionNodeProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
@@ -78,6 +80,7 @@ export const SpaceDistributionHandle = ({
     sectionLayoutId,
     sectionWidgetId,
     spaceToWorkWith,
+    zoneIds,
   });
   useEffect(() => {
     if (ref.current) {

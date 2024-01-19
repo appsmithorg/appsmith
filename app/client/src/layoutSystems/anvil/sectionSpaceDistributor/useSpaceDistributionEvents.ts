@@ -1,6 +1,6 @@
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useCallback, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { AnvilReduxActionTypes } from "../integrations/actions/actionTypes";
 import {
   type SpaceDistributionZoneDomCollection,
@@ -14,6 +14,9 @@ import {
   getPropertyPaneDistributionHandleId,
 } from "./spaceDistributionEditorUtils";
 import { PropPaneDistributionHandleCustomEvent } from "./constants";
+import { getSelectedWidgets } from "selectors/ui";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -25,6 +28,7 @@ interface SpaceDistributionEventsProps {
   sectionWidgetId: string;
   isCurrentHandleDistributingSpace: React.MutableRefObject<boolean>;
   spaceToWorkWith: number;
+  zoneIds: string[];
 }
 
 export const useSpaceDistributionEvents = ({
@@ -37,12 +41,25 @@ export const useSpaceDistributionEvents = ({
   sectionWidgetId,
   spaceDistributed,
   spaceToWorkWith,
+  zoneIds,
 }: SpaceDistributionEventsProps) => {
   const dispatch = useDispatch();
   const columnIndicatorDivRef = useRef<HTMLDivElement>();
   const currentMouseSpeed = useRef(0);
   const mouseSpeedTrackingCallback =
     getMouseSpeedTrackingCallback(currentMouseSpeed);
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const { selectWidget } = useWidgetSelection();
+  const selectCorrespondingSectionWidget = useCallback(() => {
+    if (
+      !(
+        selectedWidgets.includes(sectionWidgetId) ||
+        zoneIds.some((each) => selectedWidgets.includes(each))
+      )
+    ) {
+      selectWidget(SelectionRequestType.One, [sectionWidgetId]);
+    }
+  }, [sectionWidgetId, selectedWidgets, zoneIds]);
   useEffect(() => {
     if (ref.current) {
       // Check if the ref to the DOM element exists
@@ -155,6 +172,7 @@ export const useSpaceDistributionEvents = ({
           columnWidth = computedProps.columnWidth;
           minimumShrinkableSpacePerBlock =
             computedProps.minimumShrinkableSpacePerBlock;
+          selectCorrespondingSectionWidget();
         } else {
           const sectionPreviewBlockDom = document.getElementById(
             "prop-pane-" + sectionWidgetId,
@@ -303,6 +321,7 @@ export const useSpaceDistributionEvents = ({
     }
   }, [
     columnPosition,
+    selectCorrespondingSectionWidget,
     sectionLayoutId,
     sectionWidgetId,
     spaceDistributed,
