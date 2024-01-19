@@ -430,10 +430,6 @@ public class Application extends BaseDomain {
             this.colorMode = colorMode;
         }
 
-        public ThemeSetting(IconStyle iconStyle) {
-            this.iconStyle = iconStyle;
-        }
-
         public enum Type {
             LIGHT,
             DARK
