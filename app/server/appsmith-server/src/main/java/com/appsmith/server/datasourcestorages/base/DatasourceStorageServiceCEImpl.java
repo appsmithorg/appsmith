@@ -216,8 +216,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         return Mono.just(datasourceStorage)
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
-                .flatMap(this::executePreSaveActions)
-                ; /*.flatMap(unsavedDatasourceStorage -> {
+                .flatMap(this::executePreSaveActions); /*.flatMap(unsavedDatasourceStorage -> {
                     return repository.save(unsavedDatasourceStorage).map(datasourceStorage1 -> {
                         // datasourceStorage.pluginName is a transient field. It was set by validateDatasource method
                         // object from db will have pluginName=null so set it manually from the unsaved
