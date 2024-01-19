@@ -273,6 +273,7 @@ class InteractWorkflowServiceTest {
         User workflowBotUser =
                 userRepository.findByCaseInsensitiveEmail(userEmail).block();
         assertThat(workflowBotUser).isNotNull();
+        assertThat(workflowBotUser.getIsSystemGenerated()).isTrue();
         List<PermissionGroup> workflowBotRoles = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(workflow.getId(), Workflow.class.getSimpleName())
                 .collectList()
@@ -446,6 +447,7 @@ class InteractWorkflowServiceTest {
         User workflowBotUser =
                 userRepository.findByCaseInsensitiveEmail(userEmail).block();
         assertThat(workflowBotUser).isNotNull();
+        assertThat(workflowBotUser.getIsSystemGenerated()).isTrue();
         List<PermissionGroup> workflowBotRoles = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(workflow.getId(), Workflow.class.getSimpleName())
                 .collectList()

@@ -318,6 +318,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
         user.setEmail(userEmail);
         user.setName(userName);
         user.setTenantId(tenantId);
+        user.setIsSystemGenerated(TRUE);
         return getWorkflowBotUser(workflow, tenantId).switchIfEmpty(userRepository.save(user));
     }
 
