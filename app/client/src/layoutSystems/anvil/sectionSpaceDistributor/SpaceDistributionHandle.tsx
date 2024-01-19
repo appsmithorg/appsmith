@@ -26,7 +26,7 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   padding: 0px ${SpaceDistributorHandleDimensions.padding}px;
   border: ${SpaceDistributorHandleDimensions.border}px solid;
   border-color: white;
-  background: #f86a2b;
+  background: var(--ads-v2-color-bg-brand);
   opacity: 0%;
   z-index: 1000;
   left: ${({ left }) => left}px;

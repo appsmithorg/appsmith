@@ -65,6 +65,7 @@ export const useSpaceDistributionEvents = ({
       );
       let leftZonePropPaneDom: HTMLElement | null = null;
       let rightZonePropPaneDom: HTMLElement | null = null;
+      let propPaneHandle: HTMLElement | null = null;
 
       // Keep track of the growth factors for both zones
       const currentGrowthFactor = {
@@ -81,9 +82,6 @@ export const useSpaceDistributionEvents = ({
         if (ref.current && sectionLayoutDom) {
           ref.current.classList.add("active");
         }
-        const propPaneHandle = document.getElementById(
-          getPropertyPaneDistributionHandleId(leftZone),
-        );
         if (propPaneHandle) {
           propPaneHandle.classList.add("active");
         }
@@ -141,8 +139,7 @@ export const useSpaceDistributionEvents = ({
         resetCSSOnZones(spaceDistributed);
         removeMouseMoveHandlers();
         currentMouseSpeed.current = 0;
-        leftZonePropPaneDom = null;
-        rightZonePropPaneDom = null;
+        clearPropPaneDomReferences();
         if (ref.current) {
           ref.current.removeEventListener("transitionend", onCSSTransitionEnd);
         }
@@ -187,24 +184,37 @@ export const useSpaceDistributionEvents = ({
         e.preventDefault();
 
         if (isCurrentHandleDistributingSpace.current && ref.current) {
-          const propPaneHandle = document.getElementById(
-            getPropertyPaneDistributionHandleId(leftZone),
-          );
           resetDistributionHandleCSS(ref, propPaneHandle);
           requestAnimationFrame(onCSSTransitionEnd);
           isCurrentHandleDistributingSpace.current = false;
         }
       };
 
+      const tryFetchingPropPaneDomReferences = () => {
+        leftZonePropPaneDom = document.getElementById(
+          getPropertyPaneZoneId(leftZone),
+        );
+        rightZonePropPaneDom = document.getElementById(
+          getPropertyPaneZoneId(rightZone),
+        );
+        propPaneHandle = document.getElementById(
+          getPropertyPaneDistributionHandleId(leftZone),
+        );
+        if (propPaneHandle) {
+          propPaneHandle.classList.add("active");
+        }
+      };
+
+      const clearPropPaneDomReferences = () => {
+        leftZonePropPaneDom = null;
+        rightZonePropPaneDom = null;
+        propPaneHandle = null;
+      };
+
       // Callback triggered when the mouse moves while the handle is distributing space
       const onMouseMove = (e: MouseEvent) => {
         if (!(leftZonePropPaneDom && rightZonePropPaneDom)) {
-          leftZonePropPaneDom = document.getElementById(
-            getPropertyPaneZoneId(leftZone),
-          );
-          rightZonePropPaneDom = document.getElementById(
-            getPropertyPaneZoneId(rightZone),
-          );
+          tryFetchingPropPaneDomReferences();
         }
         // Ensure the reference to the handle and the distribution flag are valid
         if (ref.current && isCurrentHandleDistributingSpace.current) {

@@ -45,9 +45,39 @@ const Splitter = styled.div`
   -webkit-user-select: none;
   &:hover,
   &.active {
-    background-color: #f86a2b;
+    background: var(--ads-v2-color-bg-brand);
   }
 `;
+
+const ZoneSplitter = ({
+  distributionHandleId,
+  propPaneHandleId,
+}: {
+  propPaneHandleId: string;
+  distributionHandleId: string;
+}) => {
+  const onMouseDown = (e: any) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const distributionHandle = document.getElementById(distributionHandleId);
+    if (distributionHandle) {
+      distributionHandle.dispatchEvent(
+        new CustomEvent(PropPaneDistributionHandleCustomEvent, {
+          detail: {
+            mouseDownEvent: e,
+          },
+        }),
+      );
+    }
+  };
+  return (
+    <Splitter
+      id={propPaneHandleId}
+      key={propPaneHandleId}
+      onMouseDown={onMouseDown}
+    />
+  );
+};
 
 export const SectionSplitterComponent = ({
   sectionWidgetId,
@@ -74,22 +104,6 @@ export const SectionSplitterComponent = ({
         const isNotLastZone = allZoneIdsInOrder.length - 1 !== index;
         const distributionHandleId = getDistributionHandleId(zoneId);
         const propPaneZoneId = getPropertyPaneZoneId(zoneId);
-        const onMouseDown = (e: any) => {
-          e.stopPropagation();
-          e.preventDefault();
-          const distributionHandle =
-            document.getElementById(distributionHandleId);
-          if (distributionHandle) {
-            distributionHandle.classList.add("active");
-            distributionHandle.dispatchEvent(
-              new CustomEvent(PropPaneDistributionHandleCustomEvent, {
-                detail: {
-                  mouseDownEvent: e,
-                },
-              }),
-            );
-          }
-        };
         const propPaneHandleId = getPropertyPaneDistributionHandleId(zoneId);
         return (
           <>
@@ -101,10 +115,9 @@ export const SectionSplitterComponent = ({
               {zoneLabel}
             </FlexChild>
             {isNotLastZone ? (
-              <Splitter
-                id={propPaneHandleId}
-                key={propPaneHandleId}
-                onMouseDown={onMouseDown}
+              <ZoneSplitter
+                distributionHandleId={distributionHandleId}
+                propPaneHandleId={propPaneHandleId}
               />
             ) : null}
           </>
