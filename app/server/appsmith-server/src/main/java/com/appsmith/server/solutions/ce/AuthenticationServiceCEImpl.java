@@ -415,6 +415,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             integrationDTO.setApplicationId(defaultApplicationId);
                             integrationDTO.setBranch(branchName);
                             integrationDTO.setImportForGit(importForGit);
+                            integrationDTO.setWorkspaceId(datasource.getWorkspaceId());
                             final Plugin plugin = tuple.getT3();
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());
