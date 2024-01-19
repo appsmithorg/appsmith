@@ -197,7 +197,7 @@ const CreateNewAppsOption = ({
   );
 
   const isEnabledForStartWithDataDefault = useFeatureFlag(
-    FEATURE_FLAG.ab_create_new_apps_enabled,
+    FEATURE_FLAG.ab_start_with_data_default_enabled,
   );
 
   const dispatch = useDispatch();
