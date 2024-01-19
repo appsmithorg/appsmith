@@ -1,7 +1,6 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLeading } from "redux-saga/effects";
-import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
 import { updateAndSaveAnvilLayout } from "../../utils/anvilChecksUtils";
 import { builderURL } from "@appsmith/RouteBuilder";
@@ -26,6 +25,7 @@ import { getDestinedParent } from "layoutSystems/anvil/utils/paste/destinationUt
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
+import { getSelectedWidgets } from "selectors/ui";
 
 function* pasteWidgetSagas() {
   try {
@@ -38,17 +38,14 @@ function* pasteWidgetSagas() {
 
     if (!originalWidgets.length) return;
 
-    const selectedWidget: FlattenedWidgetProps =
-      yield getSelectedWidgetWhenPasting();
-
     let allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-    const destinationInfo: PasteDestinationInfo = yield call(
-      getDestinedParent,
-      allWidgets,
-      copiedWidgets,
-      selectedWidget,
-    );
+    const selectedWidgetIds: string[] = yield select(getSelectedWidgets);
+
+    const selectedWidgets: FlattenedWidgetProps[] = [];
+    for (const id of selectedWidgetIds) {
+      selectedWidgets.push(allWidgets[id]);
+    }
 
     /**
      * Track mapping between original and new widgetIds.
@@ -56,36 +53,51 @@ function* pasteWidgetSagas() {
     let widgetIdMap: Record<string, string> = {};
     let reverseWidgetIdMap: Record<string, string> = {};
 
-    const parent: FlattenedWidgetProps =
-      allWidgets[
-        destinationInfo.parentOrder[destinationInfo.parentOrder.length - 1]
-      ];
+    yield all(
+      selectedWidgets.map((selectedWidget: FlattenedWidgetProps) =>
+        call(function* () {
+          const destinationInfo: PasteDestinationInfo = yield call(
+            getDestinedParent,
+            allWidgets,
+            copiedWidgets,
+            selectedWidget,
+          );
 
-    if (parent.widgetId === MAIN_CONTAINER_WIDGET_ID) {
-      const res: PastePayload = yield call(
-        pasteWidgetsIntoMainCanvas,
-        allWidgets,
-        originalWidgets,
-        destinationInfo,
-        widgetIdMap,
-        reverseWidgetIdMap,
-      );
-      allWidgets = res.widgets;
-      widgetIdMap = res.widgetIdMap;
-      reverseWidgetIdMap = res.reverseWidgetIdMap;
-    } else {
-      const res: PastePayload = yield call(
-        WidgetFactory.performPasteOperation,
-        allWidgets,
-        originalWidgets,
-        destinationInfo,
-        widgetIdMap,
-        reverseWidgetIdMap,
-      );
-      allWidgets = res.widgets;
-      widgetIdMap = res.widgetIdMap;
-      reverseWidgetIdMap = res.reverseWidgetIdMap;
-    }
+          const parent: FlattenedWidgetProps =
+            allWidgets[
+              destinationInfo.parentOrder[
+                destinationInfo.parentOrder.length - 1
+              ]
+            ];
+
+          if (parent.widgetId === MAIN_CONTAINER_WIDGET_ID) {
+            const res: PastePayload = yield call(
+              pasteWidgetsIntoMainCanvas,
+              allWidgets,
+              originalWidgets,
+              destinationInfo,
+              widgetIdMap,
+              reverseWidgetIdMap,
+            );
+            allWidgets = res.widgets;
+            widgetIdMap = res.widgetIdMap;
+            reverseWidgetIdMap = res.reverseWidgetIdMap;
+          } else {
+            const res: PastePayload = yield call(
+              WidgetFactory.performPasteOperation,
+              allWidgets,
+              originalWidgets,
+              destinationInfo,
+              widgetIdMap,
+              reverseWidgetIdMap,
+            );
+            allWidgets = res.widgets;
+            widgetIdMap = res.widgetIdMap;
+            reverseWidgetIdMap = res.reverseWidgetIdMap;
+          }
+        }),
+      ),
+    );
 
     /**
      * Save state
