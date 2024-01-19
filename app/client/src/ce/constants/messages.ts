@@ -1122,6 +1122,9 @@ export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
   `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
 export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
+
+export const GENERAL = () => "General";
+export const BRANCH = () => "Branch";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
@@ -1811,7 +1814,6 @@ export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
 export const APP_SETTINGS_PANE_HEADER = () => "Settings";
 export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
-export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
 export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
   "App name, icon and share";

@@ -4,12 +4,7 @@ import { isString } from "lodash";
 import { styleConfig, contentConfig } from "./propertyConfig";
 import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 
-const customEChartsEnabled = true;
-const showFusionChartDeprecationMessage = true;
-const config = [
-  ...contentConfig(customEChartsEnabled, showFusionChartDeprecationMessage),
-  ...styleConfig,
-];
+const config = [...contentConfig(), ...styleConfig];
 
 declare global {
   namespace jest {
