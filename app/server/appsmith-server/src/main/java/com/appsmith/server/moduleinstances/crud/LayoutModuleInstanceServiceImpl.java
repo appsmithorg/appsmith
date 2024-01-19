@@ -110,6 +110,9 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
             case MODULE:
                 // TODO: Fetch branched contextId based on the context type when Git is implemented in modules
                 return Mono.just(contextId);
+            case WORKFLOW:
+                // TODO: Fetch branched contextId based on the context type when Git is implemented in workflows
+                return Mono.just(contextId);
             default:
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.CONTEXT_TYPE));
         }
