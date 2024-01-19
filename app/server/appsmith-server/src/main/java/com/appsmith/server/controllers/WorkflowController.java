@@ -4,7 +4,6 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import com.appsmith.server.workflows.interact.InteractWorkflowService;
 import com.appsmith.server.workflows.proxy.ProxyWorkflowService;
@@ -40,17 +39,14 @@ public class WorkflowController {
     private final ProxyWorkflowService proxyWorkflowService;
 
     private final InteractWorkflowService interactWorkflowService;
-    private final CrudWorkflowEntityService crudWorkflowEntityService;
 
     public WorkflowController(
             CrudWorkflowService crudWorkflowService,
             ProxyWorkflowService proxyWorkflowService,
-            InteractWorkflowService interactWorkflowService,
-            CrudWorkflowEntityService crudWorkflowEntityService) {
+            InteractWorkflowService interactWorkflowService) {
         this.crudWorkflowService = crudWorkflowService;
         this.proxyWorkflowService = proxyWorkflowService;
         this.interactWorkflowService = interactWorkflowService;
-        this.crudWorkflowEntityService = crudWorkflowEntityService;
     }
 
     @JsonView(Views.Public.class)
@@ -148,7 +144,9 @@ public class WorkflowController {
     @JsonView(Views.Public.class)
     @PostMapping("/trigger/{workflowId}")
     public Mono<ResponseDTO<JsonNode>> triggerWorkflow(
-            @PathVariable String workflowId, ServerWebExchange serverWebExchange, @RequestBody JsonNode triggerData) {
+            @PathVariable String workflowId,
+            ServerWebExchange serverWebExchange,
+            @RequestBody(required = false) JsonNode triggerData) {
         return interactWorkflowService
                 .triggerWorkflow(workflowId, serverWebExchange.getRequest().getHeaders(), triggerData)
                 .map(triggeredWorkflow -> new ResponseDTO<>(HttpStatus.OK.value(), triggeredWorkflow, null));
