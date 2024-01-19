@@ -39,7 +39,11 @@ describe("@design-system/widgets/Button", () => {
 
   it("renders icon when passed", () => {
     const { container } = render(<Button icon="star" />);
-    const icon = container.querySelector("button [data-icon]") as HTMLElement;
+    // Note: using testid=t--fallack-icon as the icon is rendered lazily and the fallback component
+    // has a testid
+    const icon = container.querySelector(
+      "button [data-testid='t--fallback-icon']",
+    ) as HTMLElement;
 
     expect(icon).toBeInTheDocument();
   });
