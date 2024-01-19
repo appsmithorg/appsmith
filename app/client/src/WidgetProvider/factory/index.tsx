@@ -428,7 +428,7 @@ class WidgetFactory {
   @freeze
   static getWidgetAutoLayoutConfig(type: WidgetType): AutoLayoutConfig {
     // we don't need AutoLayoutConfig config for WDS widgets
-    if (type.includes("WDS")) return {};
+    if (type?.includes("WDS")) return {};
 
     const widget = WidgetFactory.widgetsMap.get(type);
 
