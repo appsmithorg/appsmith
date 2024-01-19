@@ -78,6 +78,15 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     };
   }
 
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 0,
+        active: true,
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (widget: CustomWidgetProps, extraDefsToDefine?: ExtraDef) => ({
       isVisible: DefaultAutocompleteDefinitions.isVisible,

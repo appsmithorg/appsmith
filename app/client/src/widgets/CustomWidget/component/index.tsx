@@ -22,6 +22,7 @@ import type { AppState } from "@appsmith/reducers";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EVENTS } from "./customWidgetscript";
 
 const StyledIframe = styled.iframe<{ width: number; height: number }>`
   width: ${(props) => props.width - 8}px;
@@ -36,17 +37,6 @@ const OverlayDiv = styled.div`
   height: 100%;
 `;
 
-const EVENTS = {
-  CUSTOM_WIDGET_READY: "CUSTOM_WIDGET_READY",
-  CUSTOM_WIDGET_READY_ACK: "CUSTOM_WIDGET_READY_ACK",
-  CUSTOM_WIDGET_UPDATE_MODEL: "CUSTOM_WIDGET_UPDATE_MODEL",
-  CUSTOM_WIDGET_TRIGGER_EVENT: "CUSTOM_WIDGET_TRIGGER_EVENT",
-  CUSTOM_WIDGET_MODEL_CHANGE: "CUSTOM_WIDGET_MODEL_CHANGE",
-  CUSTOM_WIDGET_UI_CHANGE: "CUSTOM_WIDGET_UI_CHANGE",
-  CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK: "CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK",
-  CUSTOM_WIDGET_THEME_UPDATE: "CUSTOM_WIDGET_THEME_UPDATE",
-};
-
 // this is the padding set by the canvas
 const WIDGET_PADDING = 8;
 
@@ -56,6 +46,8 @@ function CustomComponent(props: CustomComponentProps) {
   const [loading, setLoading] = React.useState(true);
 
   const [isIframeReady, setIsIframeReady] = useState(false);
+
+  const [height, setHeight] = useState(props.height);
 
   const theme = useMemo(() => {
     return {
@@ -117,11 +109,11 @@ function CustomComponent(props: CustomComponentProps) {
           case EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT:
             props.execute(message.data.eventName, message.data.contextObj);
             break;
-          case "UPDATE_HEIGHT":
+          case EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT:
             const height = message.data.height;
 
-            if (height) {
-              iframe.current!.style.height = `${height}px`;
+            if (props.renderMode !== "BUILDER" && height) {
+              setHeight(height);
             }
             break;
           case "CUSTOM_WIDGET_CONSOLE_EVENT":
@@ -207,6 +199,9 @@ function CustomComponent(props: CustomComponentProps) {
       className={clsx({
         "bp3-skeleton": loading,
       })}
+      style={{
+        height: height + "px",
+      }}
     >
       {props.needsOverlay && <OverlayDiv data-testid="iframe-overlay" />}
       <WidgetStyleContainer
@@ -218,7 +213,7 @@ function CustomComponent(props: CustomComponentProps) {
         widgetId={props.widgetId}
       >
         <StyledIframe
-          height={props.height}
+          height={height}
           loading="lazy"
           onLoad={() => {
             setLoading(false);
