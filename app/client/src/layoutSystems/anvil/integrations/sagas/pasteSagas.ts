@@ -26,6 +26,7 @@ import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/main
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
 import { getSelectedWidgets } from "selectors/ui";
+import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 
 function* pasteWidgetSagas() {
   try {
@@ -42,17 +43,18 @@ function* pasteWidgetSagas() {
 
     const selectedWidgetIds: string[] = yield select(getSelectedWidgets);
 
-    const selectedWidgets: FlattenedWidgetProps[] = [];
-    for (const id of selectedWidgetIds) {
-      selectedWidgets.push(allWidgets[id]);
-    }
+    const pastingParent: FlattenedWidgetProps =
+      yield getSelectedWidgetWhenPasting();
+
+    const selectedWidgets: FlattenedWidgetProps[] = selectedWidgetIds.length
+      ? selectedWidgetIds.map((id: string) => allWidgets[id])
+      : [pastingParent];
 
     /**
      * Track mapping between original and new widgetIds.
      */
     let widgetIdMap: Record<string, string> = {};
     let reverseWidgetIdMap: Record<string, string> = {};
-
     yield all(
       selectedWidgets.map((selectedWidget: FlattenedWidgetProps) =>
         call(function* () {

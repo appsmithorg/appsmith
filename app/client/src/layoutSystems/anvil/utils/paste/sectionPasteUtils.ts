@@ -134,7 +134,6 @@ export function* pasteWidgetsInSection(
       info,
       map,
       reverseMap,
-      0,
     );
     return res;
   }
