@@ -3,6 +3,8 @@ import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export function useFeatureFlag(flagName: FeatureFlag): boolean {
+  if (flagName === "ab_wds_enabled") return true;
+
   const flagValues = useSelector(selectFeatureFlags);
   if (flagName in flagValues) {
     return flagValues[flagName];
