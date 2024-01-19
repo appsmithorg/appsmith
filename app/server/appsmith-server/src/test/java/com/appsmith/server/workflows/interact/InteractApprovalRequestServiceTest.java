@@ -667,7 +667,7 @@ public class InteractApprovalRequestServiceTest {
             approvalRequestCreationDTO.setRequestToUsers(Set.of(user.getUsername()));
         }
         if (Objects.nonNull(userGroupDTO)) {
-            approvalRequestCreationDTO.setRequestToGroups(Set.of(userGroupDTO.getId()));
+            approvalRequestCreationDTO.setRequestToGroups(Set.of(userGroupDTO.getName()));
         }
 
         return crudApprovalRequestService

@@ -422,6 +422,79 @@ class CrudApprovalRequestServiceTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
+    public void testValidCreateApprovalRequest_multipleGroupsWithSameName() {
+        String testName = "testValidCreateApprovalRequest_multipleGroupsWithSameName";
+
+        UserGroup userGroup1 = new UserGroup();
+        userGroup1.setName(testName);
+        UserGroupDTO createdUserGroupDTO1 =
+                userGroupService.createGroup(userGroup1).block();
+
+        UserGroup userGroup2 = new UserGroup();
+        userGroup2.setName(testName);
+        UserGroupDTO createdUserGroupDTO2 =
+                userGroupService.createGroup(userGroup2).block();
+
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+        User createdUser = userService.create(user).block();
+
+        String resolution1 = "resolution1";
+        String resolution2 = "resolution2";
+        Set<String> allowedResolutions = Set.of(resolution1, resolution2);
+        String approvalRequestTitle = "Title: " + testName;
+        String approvalRequestMessage = "Message: " + testName;
+        String approvalRequestRunId = "Run ID: " + testName;
+
+        ApprovalRequest approvalRequest = createTestApprovalRequest(
+                approvalRequestTitle,
+                approvalRequestMessage,
+                allowedResolutions,
+                approvalRequestRunId,
+                createdUser,
+                createdUserGroupDTO2);
+
+        assertThat(approvalRequest).isNotNull();
+        assertThat(approvalRequest.getId()).isNotEmpty();
+        assertThat(approvalRequest.getTitle()).isEqualTo(approvalRequestTitle);
+        assertThat(approvalRequest.getDescription()).isEqualTo(approvalRequestMessage);
+        assertThat(approvalRequest.getWorkflowId()).isEqualTo(workflow.getId());
+        assertThat(approvalRequest.getResolutionStatus()).isEqualTo(PENDING);
+        assertThat(approvalRequest.getAllowedResolutions()).containsExactlyInAnyOrderElementsOf(allowedResolutions);
+        assertThat(approvalRequest.getRunId()).isEqualTo(approvalRequestRunId);
+
+        List<PermissionGroup> approvalRequestRoles = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(
+                        approvalRequest.getId(), ApprovalRequest.class.getSimpleName())
+                .collectList()
+                .block();
+        assertThat(approvalRequestRoles).hasSize(1);
+        PermissionGroup approvalRequestRole = approvalRequestRoles.get(0);
+        assertThat(approvalRequestRole.getId()).isNotEmpty();
+        assertThat(approvalRequestRole.getName())
+                .isEqualTo(String.format(APPROVAL_REQUEST_ROLE_PREFIX, approvalRequest.getId()));
+        assertThat(approvalRequestRole.getAssignedToUserIds()).containsOnly(createdUser.getId());
+        assertThat(approvalRequestRole.getAssignedToGroupIds())
+                .containsOnly(createdUserGroupDTO2.getId(), createdUserGroupDTO1.getId());
+
+        Set<Policy> expectedApprovalRequestPolicies = new HashSet<>();
+        Policy readApprovalRequestPolicy = Policy.builder()
+                .permission(READ_APPROVAL_REQUESTS.getValue())
+                .permissionGroups(Set.of(approvalRequestRole.getId()))
+                .build();
+        Policy resolveApprovalRequestPolicy = Policy.builder()
+                .permission(RESOLVE_APPROVAL_REQUESTS.getValue())
+                .permissionGroups(Set.of(approvalRequestRole.getId()))
+                .build();
+        expectedApprovalRequestPolicies.add(readApprovalRequestPolicy);
+        expectedApprovalRequestPolicies.add(resolveApprovalRequestPolicy);
+
+        assertThat(approvalRequest.getPolicies()).isEqualTo(expectedApprovalRequestPolicies);
+    }
+
+    @Test
     @WithUserDetails("api_user")
     public void testGetAllApprovalRequests() {
         String testName = "testGetAllApprovalRequests";
@@ -440,19 +513,19 @@ class CrudApprovalRequestServiceTest {
         User createdUser2 = userService.create(user2).block();
 
         UserGroup userGroup1 = new UserGroup();
-        userGroup1.setName(testName);
+        userGroup1.setName(testName + 1);
         userGroup1.setUsers(Set.of(createdUser1.getId()));
         UserGroupDTO createdUserGroupDTO1 =
                 userGroupService.createGroup(userGroup1).block();
 
         UserGroup userGroup2 = new UserGroup();
-        userGroup2.setName(testName);
+        userGroup2.setName(testName + 2);
         userGroup2.setUsers(Set.of(createdUser2.getId()));
         UserGroupDTO createdUserGroupDTO2 =
                 userGroupService.createGroup(userGroup2).block();
 
         UserGroup userGroup3 = new UserGroup();
-        userGroup3.setName(testName);
+        userGroup3.setName(testName + 3);
         userGroup3.setUsers(Set.of(createdUser1.getId(), createdUser2.getId()));
         UserGroupDTO createdUserGroupDTO3 =
                 userGroupService.createGroup(userGroup3).block();
@@ -780,7 +853,7 @@ class CrudApprovalRequestServiceTest {
             approvalRequestCreationDTO.setRequestToUsers(Set.of(user.getUsername()));
         }
         if (Objects.nonNull(userGroupDTO)) {
-            approvalRequestCreationDTO.setRequestToGroups(Set.of(userGroupDTO.getId()));
+            approvalRequestCreationDTO.setRequestToGroups(Set.of(userGroupDTO.getName()));
         }
 
         return crudApprovalRequestService
