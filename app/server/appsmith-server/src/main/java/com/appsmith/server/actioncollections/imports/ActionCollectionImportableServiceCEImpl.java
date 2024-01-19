@@ -61,7 +61,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                         : applicationJson.getActionCollectionList();
 
         Mono<ImportActionCollectionResultDTO> importActionCollectionMono = createImportActionCollectionMono(
-                importedActionCollectionList, applicationMono, importingMetaDTO, mappedImportableResourcesDTO);
+                importedActionCollectionList,
+                applicationMono,
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                isPartialImport);
 
         return importActionCollectionMono
                 .doOnNext(mappedImportableResourcesDTO::setActionCollectionResultDTO)
@@ -72,7 +76,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             List<ActionCollection> importedActionCollectionList,
             Mono<Application> importApplicationMono,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            boolean isPartialImport) {
         Mono<List<ActionCollection>> importedActionCollectionMono = Mono.just(importedActionCollectionList);
 
         if (importingMetaDTO.getAppendToArtifact()) {
@@ -99,7 +104,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                 .flatMap(objects -> {
                     log.info("Importing action collections");
                     return this.importActionCollections(
-                            objects.getT1(), objects.getT2(), importingMetaDTO, mappedImportableResourcesDTO);
+                            objects.getT1(),
+                            objects.getT2(),
+                            importingMetaDTO,
+                            mappedImportableResourcesDTO,
+                            isPartialImport);
                 })
                 .onErrorResume(throwable -> {
                     log.error("Error importing action collections", throwable);
@@ -129,7 +138,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             Application application,
             List<ActionCollection> importedActionCollectionList,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            boolean isPartialImport) {
 
         /* Mono.just(application) is created to avoid the eagerly fetching of existing actionCollections
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
@@ -140,10 +150,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     final String workspaceId = importedApplication.getWorkspaceId();
 
                     // Map of gitSyncId to actionCollection of the existing records in DB
-                    Mono<Map<String, ActionCollection>> actionCollectionsInCurrentAppMono =
-                            getCollectionsInCurrentAppFlux(importedApplication)
-                                    .filter(collection -> collection.getGitSyncId() != null)
-                                    .collectMap(ActionCollection::getGitSyncId);
+                    Flux<ActionCollection> existingActionCollectionFlux =
+                            getCollectionsInCurrentAppFlux(importedApplication);
 
                     Mono<Map<String, ActionCollection>> actionCollectionsInBranchesMono;
                     if (importedApplication.getGitApplicationMetadata() != null) {
@@ -156,7 +164,21 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                         actionCollectionsInBranchesMono = Mono.just(Collections.emptyMap());
                     }
 
-                    return Mono.zip(actionCollectionsInCurrentAppMono, actionCollectionsInBranchesMono)
+                    // update the action name in the json to avoid duplicate names for the partial import
+                    // It is page level action and hence the action name should be unique
+                    return existingActionCollectionFlux
+                            .collectList()
+                            .flatMap(actionCollectionList -> {
+                                if (isPartialImport) {
+                                    updateActionCollectionNameBeforeMerge(
+                                            importedActionCollectionList, actionCollectionList);
+                                }
+                                Mono<Map<String, ActionCollection>> actionCollectionsInCurrentAppMono =
+                                        Flux.fromIterable(actionCollectionList)
+                                                .filter(collection -> collection.getGitSyncId() != null)
+                                                .collectMap(ActionCollection::getGitSyncId);
+                                return Mono.zip(actionCollectionsInCurrentAppMono, actionCollectionsInBranchesMono);
+                            })
                             .flatMap(objects -> {
                                 Map<String, ActionCollection> actionsCollectionsInCurrentApp = objects.getT1();
                                 Map<String, ActionCollection> actionsCollectionsInBranches = objects.getT2();
@@ -321,6 +343,34 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     log.error("Error saving action collections", e);
                     return Mono.error(e);
                 });
+    }
+
+    private void updateActionCollectionNameBeforeMerge(
+            List<ActionCollection> importedNewActionCollectionList, List<ActionCollection> newActionCollectionList) {
+        List<String> newNewActionCollectionListNames = newActionCollectionList.stream()
+                .map(actionCollection ->
+                        actionCollection.getUnpublishedCollection().getName())
+                .toList();
+
+        for (ActionCollection actionCollection : importedNewActionCollectionList) {
+
+            String
+                    oldNameActionCollection =
+                            actionCollection.getUnpublishedCollection().getName(),
+                    newNameActionCollection =
+                            actionCollection.getUnpublishedCollection().getName();
+            int i = 1;
+            while (newNewActionCollectionListNames.contains(newNameActionCollection)) {
+                newNameActionCollection = oldNameActionCollection + i;
+                i++;
+            }
+            String oldId = actionCollection.getId().split("_")[1];
+            actionCollection.setId(newNameActionCollection + "_" + oldId);
+            actionCollection.getUnpublishedCollection().setName(newNameActionCollection);
+            if (actionCollection.getPublishedCollection() != null) {
+                actionCollection.getPublishedCollection().setName(newNameActionCollection);
+            }
+        }
     }
 
     protected Flux<ActionCollection> getCollectionsInCurrentAppFlux(Application importedApplication) {
