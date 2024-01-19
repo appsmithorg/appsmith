@@ -2,7 +2,7 @@ import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
 } from "WidgetProvider/constants";
-import { zonePreset } from "layoutSystems/anvil/layoutComponents/presets/zonePreset";
+import { modalPreset } from "layoutSystems/anvil/layoutComponents/presets/ModalPreset";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -15,10 +15,11 @@ export const defaultsConfig = {
   version: 1,
   rows: 0,
   columns: 0,
-  isVisible: true,
+  isVisible: false,
   showFooter: true,
   showHeader: true,
   size: "medium",
+  title: "Modal",
   showSubmitButton: true,
   submitButtonText: "Submit",
   showCancelButton: true,
@@ -35,7 +36,7 @@ export const defaultsConfig = {
         ) => {
           if (layoutSystemType !== LayoutSystemTypes.ANVIL) return [];
 
-          const layout: LayoutProps[] = zonePreset();
+          const layout: LayoutProps[] = modalPreset();
           return getWidgetBluePrintUpdates({
             [widget.widgetId]: {
               layout,

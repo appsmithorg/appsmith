@@ -43,7 +43,7 @@ export const widgetNameWrapperStyle: CSSProperties = {
   position: "absolute",
   top: 0,
   left: 0,
-  zIndex: 2,
+  zIndex: 99999,
   pointerEvents: "none",
   display: "flex",
   flexDirection: "column",

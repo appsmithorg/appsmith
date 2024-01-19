@@ -9,6 +9,7 @@ export const Modal = (props: ModalProps) => {
     children,
     overlayClassName,
     size = "medium",
+    style,
     triggerRef,
     ...rest
   } = props;
@@ -19,6 +20,7 @@ export const Modal = (props: ModalProps) => {
       <PopoverModalContent
         data-size={size}
         overlayClassName={clsx(styles.overlay, overlayClassName)}
+        style={style}
       >
         {children}
       </PopoverModalContent>

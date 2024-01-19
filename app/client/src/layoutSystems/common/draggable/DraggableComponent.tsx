@@ -157,8 +157,8 @@ function DraggableComponent(props: DraggableComponentProps) {
       data-testid={isSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
+      onMouseEnter={handleMouseOver}
       onMouseLeave={handleMouseLeave}
-      onMouseOver={handleMouseOver}
       ref={draggableRef}
       style={dragWrapperStyle}
     >

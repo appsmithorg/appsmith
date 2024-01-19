@@ -152,6 +152,8 @@ export function* addNewChildToDSL(
 ) {
   const { alignment, canvasId } = highlight;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+  const parentWidgetWithLayout = allWidgets[canvasId];
   let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
 
   const draggedWidgets: WidgetLayoutProps[] = [
@@ -169,7 +171,7 @@ export function* addNewChildToDSL(
     });
   } else {
     // Handle different scenarios based on the drop zone type (main canvas, section, or generic layout)
-    if (!!isMainCanvas) {
+    if (!!isMainCanvas || parentWidgetWithLayout.detachFromLayout) {
       updatedWidgets = yield call(
         addWidgetsToMainCanvasLayout,
         updatedWidgets,
@@ -305,9 +307,10 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
     const isSection = draggedOn === "SECTION";
     const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const parentWidgetWithLayout = allWidgets[highlight.canvasId];
     let updatedWidgets: CanvasWidgetsReduxState = allWidgets;
 
-    if (isMainCanvas) {
+    if (isMainCanvas || parentWidgetWithLayout.detachFromLayout) {
       /**
        * * Widgets are dropped on to Main Canvas.
        */

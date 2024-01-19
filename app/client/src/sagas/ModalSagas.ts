@@ -49,6 +49,7 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
 } from "layoutSystems/common/utils/constants";
+import { isWidgetSelected } from "selectors/widgetSelectors";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -128,7 +129,9 @@ export function* showIfModalSaga(
   }
 }
 
-export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
+export function* showModalSaga(
+  action: ReduxAction<{ modalId: string; shouldSelectModal: boolean }>,
+) {
   // First we close the currently open modals (if any)
   // Notice the empty payload.
   yield call(closeModalSaga, {
@@ -139,6 +142,18 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
 
   yield put(focusWidget(action.payload.modalId));
+
+  const isModalSelected: boolean = yield select(
+    isWidgetSelected(action.payload.modalId),
+  );
+
+  if (!isModalSelected) {
+    yield put(
+      selectWidgetInitAction(SelectionRequestType.One, [
+        action.payload.modalId,
+      ]),
+    );
+  }
 
   const widgetLikeProps = {
     widgetId: action.payload.modalId,
@@ -169,6 +184,7 @@ export function* closeModalSaga(
 ) {
   try {
     const { modalName } = action.payload;
+
     let widgetIds: string[] = [];
     // If modalName is provided, we just want to close this modal
     if (modalName) {
@@ -187,6 +203,9 @@ export function* closeModalSaga(
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
 
       // Get widgetIds of all widgets of type MODAL_WIDGET
+      // Note: Not updating this code path for WDS_MODAL_WIDGET, as the functionality
+      // may require us to keep existing modals open.
+      // In this, the flow of switching back and forth between multiple modals is to be tested.
       const modalWidgetIds: string[] = yield select(
         getWidgetIdsByType,
         WidgetTypes.MODAL_WIDGET,

@@ -281,12 +281,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                 },
               ];
 
-              const layout: LayoutProps[] = modalPreset(
-                textWidget.widgetId,
-                iconWidget.widgetId,
-                buttonWidget2.widgetId,
-                buttonWidget1.widgetId,
-              );
+              const layout: LayoutProps[] = modalPreset();
 
               //Add widget specific property Defaults, for autoLayout widget
               const { disabledPropsDefaults } =

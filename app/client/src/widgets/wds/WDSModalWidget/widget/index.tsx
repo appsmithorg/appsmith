@@ -18,6 +18,13 @@ import styled from "styled-components";
 const StyledModalBody = styled.div`
   & > div {
     min-height: var(--sizing-16);
+    max-height: calc(
+      var(--canvas-height) - var(--outer-spacing-4) - var(--outer-spacing-4) - var(
+          --outer-spacing-4
+        ) - 60px
+    );
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 `;
 
@@ -56,6 +63,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     }
     this.props.updateWidgetMetaProperty("isVisible", false);
     this.selectWidgetRequest(SelectionRequestType.Empty);
+    this.unfocusWidget();
   };
 
   onSubmitClick = () => {
@@ -92,6 +100,12 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         isOpen={this.getModalVisibility()}
         onClose={this.onModalClose}
         size={this.props.size}
+        style={{
+          width: `calc(var(--provider-width) - var(--sizing-6))`,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
       >
         <ModalContent className={this.props.className}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}

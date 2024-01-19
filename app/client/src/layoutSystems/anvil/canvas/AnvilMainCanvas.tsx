@@ -10,14 +10,23 @@ import { getWidgets } from "sagas/selectors";
 import { getRenderMode } from "selectors/editorSelectors";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import { denormalize } from "utils/canvasStructureHelpers";
+import type { WidgetProps } from "widgets/BaseWidget";
+import log from "loglevel";
 
 function useDetachedChildren(children: CanvasWidgetStructure[]) {
+  const start = performance.now();
   const widgets = useSelector(getWidgets);
   const detachedChildren = useMemo(() => {
     return children
       .map((child) => widgets[child.widgetId])
-      .filter((child) => child.detachFromLayout === true);
+      .filter((child) => child.detachFromLayout === true)
+      .map((child) => {
+        return denormalize(child.widgetId, widgets);
+      });
   }, [children, widgets]);
+  const end = performance.now();
+  log.debug("### Computing detached children took:", end - start, "ms");
   return detachedChildren;
 }
 
@@ -29,7 +38,7 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
   const detachedChildren = useDetachedChildren(props.children);
   const renderDetachedChildren = detachedChildren.map((child) =>
     renderChildWidget({
-      childWidgetData: child,
+      childWidgetData: child as WidgetProps,
       defaultWidgetProps: {},
       noPad: false,
       // Adding these properties as the type insists on providing this

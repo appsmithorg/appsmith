@@ -11,11 +11,19 @@ import { generateClassName } from "utils/generators";
 export type ObservableElementType = "widget" | "layout";
 
 export function useObserveDetachedWidget(widgetId: string) {
+  // We don't need the observer in preview mode or the published app
+  // This is because the positions need to be observed only to enable
+  // editor features
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const appMode = useSelector(getAppMode);
+  if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
+    return;
+  }
   const className = generateClassName(widgetId);
   const ref = {
     current: document.querySelector(`.${className}`) as HTMLDivElement,
   };
-  positionObserver.observeWidget(widgetId, "", ref);
+  positionObserver.observeWidget(widgetId, "", ref, true);
   return () => {
     const element = document.querySelector(`.${className}`) as HTMLDivElement;
     const domID = element.getAttribute("id");

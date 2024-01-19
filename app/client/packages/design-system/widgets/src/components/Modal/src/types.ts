@@ -16,6 +16,8 @@ export interface ModalProps
   size?: "small" | "medium" | "large";
   /** The children of the component. */
   children: ReactNode;
+
+  style?: React.CSSProperties;
 }
 
 export interface ModalContentProps {
