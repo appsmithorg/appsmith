@@ -1,6 +1,5 @@
 import { Button, BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
-import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 
 <Meta
   title="Design-system/Widgets/Button"
@@ -102,7 +101,7 @@ There are 3 variants of the button component.
   name="With Icon"
   args={{
     children: "With Icon",
-    icon: EmotionHappyLineIcon,
+    icon: "star",
   }}
 >
   {Template.bind({})}
@@ -114,7 +113,7 @@ There are 3 variants of the button component.
   name="Icon Position - Start"
   args={{
     children: "Icon Start",
-    icon: EmotionHappyLineIcon,
+    icon: "123",
   }}
 >
   {Template.bind({})}
@@ -124,7 +123,7 @@ There are 3 variants of the button component.
   name="Icon Position - End"
   args={{
     children: "Icon End",
-    icon: EmotionHappyLineIcon,
+    icon: "alert-square",
     iconPosition: "end",
   }}
 >
