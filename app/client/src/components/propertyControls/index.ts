@@ -72,6 +72,8 @@ import {
   SectionSplitterControl,
   type SectionSplitterControlProps,
 } from "./SectionSplitterControl";
+import type { IconSelectControlV2Props } from "./IconSelectControlV2";
+import IconSelectControlV2 from "./IconSelectControlV2";
 
 export const PropertyControls = {
   InputTextControl,
@@ -121,6 +123,7 @@ export const PropertyControls = {
   CustomWidgetAddEventButtonControl,
   ZoneStepperControl,
   SectionSplitterControl,
+  IconSelectControlV2,
 };
 
 export type PropertyControlPropsType =
@@ -148,7 +151,8 @@ export type PropertyControlPropsType =
   | OneClickBindingControlProps
   | WrappedCodeEditorControlProps
   | ZoneStepperControlProps
-  | SectionSplitterControlProps;
+  | SectionSplitterControlProps
+  | IconSelectControlV2Props;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

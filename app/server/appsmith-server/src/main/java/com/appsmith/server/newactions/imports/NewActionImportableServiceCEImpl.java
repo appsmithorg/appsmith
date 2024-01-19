@@ -18,7 +18,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -69,12 +69,13 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
         Mono<List<NewAction>> importedNewActionMono = Mono.justOrEmpty(importedNewActionList);
-        if (TRUE.equals(importingMetaDTO.getAppendToApp())) {
+        if (TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
-                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageOrModuleMap().values().stream()
                         .distinct()
+                        .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                         .toList();
-                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getPageOrModuleNewNameToOldName();
 
                 for (NewPage newPage : importedNewPages) {
                     String newPageName = newPage.getUnpublishedPage().getName();
@@ -98,8 +99,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
-                            && !TRUE.equals(importingMetaDTO.getAppendToApp())
+                    if (StringUtils.hasText(importingMetaDTO.getArtifactId())
+                            && !TRUE.equals(importingMetaDTO.getAppendToArtifact())
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
                         Set<String> invalidActionIds = new HashSet<>();
@@ -159,8 +160,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
-                            && !TRUE.equals(importingMetaDTO.getAppendToApp())
+                    if (StringUtils.hasText(importingMetaDTO.getArtifactId())
+                            && !TRUE.equals(importingMetaDTO.getAppendToArtifact())
                             && Boolean.FALSE.equals(isPartialImport)) {
                         // Remove unwanted action collections
                         Set<String> invalidCollectionIds = new HashSet<>();
@@ -273,7 +274,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         unpublishedAction.setId(newAction.getId());
                                         parentPage = updatePageInAction(
                                                 unpublishedAction,
-                                                mappedImportableResourcesDTO.getPageNameMap(),
+                                                (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap(),
                                                 importActionResultDTO.getActionIdMap());
                                         sanitizeDatasourceInActionDTO(
                                                 unpublishedAction,
@@ -290,7 +292,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         }
                                         NewPage publishedActionPage = updatePageInAction(
                                                 publishedAction,
-                                                mappedImportableResourcesDTO.getPageNameMap(),
+                                                (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap(),
                                                 importActionResultDTO.getActionIdMap());
                                         parentPage = parentPage == null ? publishedActionPage : parentPage;
                                         sanitizeDatasourceInActionDTO(
@@ -484,7 +487,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             NewAction existingAction,
             NewAction actionToImport,
             String branchName,
-            ImportApplicationPermissionProvider permissionProvider) {
+            ImportArtifactPermissionProvider permissionProvider) {
         // Since the resource is already present in DB, just update resource
         if (!permissionProvider.hasEditPermission(existingAction)) {
             log.error("User does not have permission to edit action with id: {}", existingAction.getId());

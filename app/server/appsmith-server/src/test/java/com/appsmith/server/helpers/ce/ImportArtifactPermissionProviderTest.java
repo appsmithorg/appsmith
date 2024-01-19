@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-class ImportApplicationPermissionProviderTest {
+class ImportArtifactPermissionProviderTest {
     @Autowired
     ApplicationPermission applicationPermission;
 
@@ -48,22 +48,21 @@ class ImportApplicationPermissionProviderTest {
 
     @Test
     public void testCheckPermissionMethods_WhenNoPermissionProvided_ReturnsTrue() {
-        ImportApplicationPermissionProvider importApplicationPermissionProvider =
-                ImportApplicationPermissionProvider.builder(
-                                applicationPermission,
-                                pagePermission,
-                                actionPermission,
-                                datasourcePermission,
-                                workspacePermission)
-                        .build();
+        ImportArtifactPermissionProvider importArtifactPermissionProvider = ImportArtifactPermissionProvider.builder(
+                        applicationPermission,
+                        pagePermission,
+                        actionPermission,
+                        datasourcePermission,
+                        workspacePermission)
+                .build();
 
-        assertTrue(importApplicationPermissionProvider.hasEditPermission(new NewPage()));
-        assertTrue(importApplicationPermissionProvider.hasEditPermission(new NewAction()));
-        assertTrue(importApplicationPermissionProvider.hasEditPermission(new Datasource()));
+        assertTrue(importArtifactPermissionProvider.hasEditPermission(new NewPage()));
+        assertTrue(importArtifactPermissionProvider.hasEditPermission(new NewAction()));
+        assertTrue(importArtifactPermissionProvider.hasEditPermission(new Datasource()));
 
-        assertTrue(importApplicationPermissionProvider.canCreateDatasource(new Workspace()));
-        assertTrue(importApplicationPermissionProvider.canCreateAction(new NewPage()));
-        assertTrue(importApplicationPermissionProvider.canCreatePage(new Application()));
+        assertTrue(importArtifactPermissionProvider.canCreateDatasource(new Workspace()));
+        assertTrue(importArtifactPermissionProvider.canCreateAction(new NewPage()));
+        assertTrue(importArtifactPermissionProvider.canCreatePage(new Application()));
     }
 
     @Test
@@ -81,7 +80,7 @@ class ImportApplicationPermissionProviderTest {
         for (Tuple2<BaseDomain, DomainPermission> domainAndPermission : domainAndPermissionList) {
             BaseDomain domain = domainAndPermission.getT1();
             // create a permission provider that sets edit permission on the domain
-            ImportApplicationPermissionProvider provider =
+            ImportArtifactPermissionProvider provider =
                     createPermissionProviderForDomainEditPermission(domain, domainAndPermission.getT2());
 
             if (domain instanceof NewPage) {
@@ -108,7 +107,7 @@ class ImportApplicationPermissionProviderTest {
         for (Tuple2<BaseDomain, AclPermission> domainAndPermission : domainAndPermissionList) {
             BaseDomain domain = domainAndPermission.getT1();
             // create a permission provider that sets edit permission on the domain
-            ImportApplicationPermissionProvider provider =
+            ImportArtifactPermissionProvider provider =
                     createPermissionProviderForDomainCreatePermission(domain, domainAndPermission.getT2());
 
             if (domain instanceof Application) {
@@ -123,7 +122,7 @@ class ImportApplicationPermissionProviderTest {
 
     @Test
     public void tesBuilderIsSettingTheCorrectParametersToPermissionProvider() {
-        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider.builder(
+        ImportArtifactPermissionProvider.Builder builder = ImportArtifactPermissionProvider.builder(
                 applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
 
         assertThat(builder.requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
@@ -147,7 +146,7 @@ class ImportApplicationPermissionProviderTest {
 
     @Test
     public void testAllPermissionsRequiredIsSettingAllPermissionsAsRequired() {
-        ImportApplicationPermissionProvider provider = ImportApplicationPermissionProvider.builder(
+        ImportArtifactPermissionProvider provider = ImportArtifactPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,
@@ -176,11 +175,11 @@ class ImportApplicationPermissionProviderTest {
      * @param domainPermission
      * @return
      */
-    private ImportApplicationPermissionProvider createPermissionProviderForDomainEditPermission(
+    private ImportArtifactPermissionProvider createPermissionProviderForDomainEditPermission(
             BaseDomain baseDomain, DomainPermission domainPermission) {
         setPoliciesToDomain(baseDomain, domainPermission.getEditPermission());
 
-        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider.builder(
+        ImportArtifactPermissionProvider.Builder builder = ImportArtifactPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,
@@ -210,11 +209,11 @@ class ImportApplicationPermissionProviderTest {
      * @param permission
      * @return
      */
-    private ImportApplicationPermissionProvider createPermissionProviderForDomainCreatePermission(
+    private ImportArtifactPermissionProvider createPermissionProviderForDomainCreatePermission(
             BaseDomain baseDomain, AclPermission permission) {
         setPoliciesToDomain(baseDomain, permission);
 
-        ImportApplicationPermissionProvider.Builder builder = ImportApplicationPermissionProvider.builder(
+        ImportArtifactPermissionProvider.Builder builder = ImportArtifactPermissionProvider.builder(
                         applicationPermission,
                         pagePermission,
                         actionPermission,

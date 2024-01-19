@@ -24,7 +24,7 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportExportUtils;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -155,9 +155,9 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 });
     }
 
-    private Mono<ImportApplicationPermissionProvider> getPermissionProviderForUpdateNonGitConnectedAppFromJson() {
+    private Mono<ImportArtifactPermissionProvider> getPermissionProviderForUpdateNonGitConnectedAppFromJson() {
         return permissionGroupRepository.getCurrentUserPermissionGroups().map(permissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
+            ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
                             applicationPermission,
                             pagePermission,
                             actionPermission,
@@ -213,7 +213,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 return getPermissionProviderForUpdateNonGitConnectedAppFromJson()
                         .zipWith(permissionGroupIdsMono)
                         .flatMap(tuple2 -> {
-                            ImportApplicationPermissionProvider permissionProvider = tuple2.getT1();
+                            ImportArtifactPermissionProvider permissionProvider = tuple2.getT1();
                             Set<String> permissionGroups = tuple2.getT2();
 
                             if (!StringUtils.isEmpty(applicationId)
@@ -266,7 +266,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         }
 
         return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
+            ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
                             applicationPermission,
                             pagePermission,
                             actionPermission,
@@ -304,7 +304,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
              * Sync is a system level operation to get the latest code from Git. If the user does not have some
              * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
              */
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
+            ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
                             applicationPermission,
                             pagePermission,
                             actionPermission,
@@ -332,7 +332,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
          * Only permission required is to edit the application.
          */
         return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
+            ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
                             applicationPermission,
                             pagePermission,
                             actionPermission,
@@ -406,29 +406,29 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             return application;
         });
 
-        if (StringUtils.isEmpty(importingMetaDTO.getApplicationId())) {
+        if (StringUtils.isEmpty(importingMetaDTO.getArtifactId())) {
             importApplicationMono = importApplicationMono.flatMap(application -> {
                 return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
             });
         } else {
             Mono<Application> existingApplicationMono = applicationService
                     .findById(
-                            importingMetaDTO.getApplicationId(),
+                            importingMetaDTO.getArtifactId(),
                             importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication())
                     .switchIfEmpty(Mono.defer(() -> {
                         log.error(
                                 "No application found with id: {} and permission: {}",
-                                importingMetaDTO.getApplicationId(),
+                                importingMetaDTO.getArtifactId(),
                                 importingMetaDTO.getPermissionProvider().getRequiredPermissionOnTargetApplication());
                         return Mono.error(new AppsmithException(
                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.APPLICATION,
-                                importingMetaDTO.getApplicationId()));
+                                importingMetaDTO.getArtifactId()));
                     }))
                     .cache();
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
-            if (importingMetaDTO.getAppendToApp()) { // we don't need to do anything with the imported application
+            if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
                 importApplicationMono = existingApplicationMono;
             } else {
                 importApplicationMono = Mono.zip(importApplicationMono, existingApplicationMono)
@@ -500,7 +500,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             String applicationId,
             String branchName,
             boolean appendToApp,
-            ImportApplicationPermissionProvider permissionProvider,
+            ImportArtifactPermissionProvider permissionProvider,
             Set<String> permissionGroups) {
         /*
            1. Migrate resource to latest schema
@@ -905,7 +905,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         }
 
         return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
+            ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
                             applicationPermission,
                             pagePermission,
                             actionPermission,
