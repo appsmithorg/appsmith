@@ -210,7 +210,7 @@ export const handlers = {
       (a) => a.config.moduleInstanceId !== action.payload.id,
     );
     draftState.jsCollections = draftState.jsCollections.filter(
-      (a) => a.config.id === action.payload.id,
+      (a) => a.config.moduleInstanceId !== action.payload.id,
     );
   },
 

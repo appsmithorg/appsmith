@@ -395,6 +395,7 @@ function* softRefreshModulesSaga() {
   toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, currentEnvName), {
     kind: "success",
   });
+  yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
 }
 
 export default function* modulesSaga() {
