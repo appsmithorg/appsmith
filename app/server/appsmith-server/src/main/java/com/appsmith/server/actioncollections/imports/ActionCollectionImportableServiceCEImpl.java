@@ -75,12 +75,13 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         Mono<List<ActionCollection>> importedActionCollectionMono = Mono.just(importedActionCollectionList);
 
-        if (importingMetaDTO.getAppendToApp()) {
+        if (importingMetaDTO.getAppendToArtifact()) {
             importedActionCollectionMono = importedActionCollectionMono.map(importedActionCollectionList1 -> {
-                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageOrModuleMap().values().stream()
                         .distinct()
+                        .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                         .toList();
-                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getPageOrModuleNewNameToOldName();
 
                 for (NewPage newPage : importedNewPages) {
                     String newPageName = newPage.getUnpublishedPage().getName();
@@ -194,7 +195,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .getPluginMap()
                                                 .get(unpublishedCollection.getPluginId()));
                                         parentPage = updatePageInActionCollection(
-                                                unpublishedCollection, mappedImportableResourcesDTO.getPageNameMap());
+                                                unpublishedCollection, (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap());
                                     }
 
                                     if (publishedCollection != null && publishedCollection.getName() != null) {
@@ -209,8 +211,9 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                         if (StringUtils.isEmpty(publishedCollection.getPageId())) {
                                             publishedCollection.setPageId(fallbackParentPageId);
                                         }
-                                        NewPage publishedCollectionPage = updatePageInActionCollection(
-                                                publishedCollection, mappedImportableResourcesDTO.getPageNameMap());
+                                        NewPage publishedCollectionPage =
+                                                updatePageInActionCollection(publishedCollection, (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap());
                                         parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                                     }
 
