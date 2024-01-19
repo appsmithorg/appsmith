@@ -11,9 +11,7 @@ export class SectionSplitterControl extends BaseControl<SectionSplitterControlPr
   }
   render() {
     return (
-      <SectionSplitterComponent
-        sectionWidgetId={this.props.widgetProperties.widgetId}
-      />
+      <SectionSplitterComponent sectionWidgetId={this.props.propertyValue} />
     );
   }
 }
