@@ -159,6 +159,12 @@ const debuggerReducer = createImmerReducer(initialState, {
   ) => {
     state.context = action.context;
   },
+  // Resetting debugger state after env switch
+  [ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS]: () => {
+    return {
+      ...initialState,
+    };
+  },
 });
 
 export interface DebuggerReduxState {
