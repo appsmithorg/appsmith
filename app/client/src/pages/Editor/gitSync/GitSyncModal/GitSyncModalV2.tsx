@@ -26,7 +26,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import GitConnectionV2 from "../Tabs/GitConnectionV2";
-import GitSettings from "../Tabs/GitSettings";
 import { GitSyncModalTab } from "entities/GitSync";
 import ConnectionSuccess from "../Tabs/ConnectionSuccess";
 import styled from "styled-components";
@@ -152,7 +151,6 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
             ))}
           {activeTabKey === GitSyncModalTab.DEPLOY && <Deploy />}
           {activeTabKey === GitSyncModalTab.MERGE && <Merge />}
-          {activeTabKey === GitSyncModalTab.SETTINGS && <GitSettings />}
         </StyledModalContent>
       </Modal>
       <GitErrorPopup />
