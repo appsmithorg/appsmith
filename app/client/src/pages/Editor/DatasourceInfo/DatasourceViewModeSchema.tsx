@@ -5,6 +5,7 @@ import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getNumberOfEntitiesInCurrentPage,
+  getSelectedTableName,
 } from "@appsmith/selectors/entitiesSelector";
 import DatasourceStructureHeader from "./DatasourceStructureHeader";
 import { Button } from "design-system";
@@ -94,7 +95,6 @@ const DatasourceViewModeSchema = (props: Props) => {
   const applicationId: string = useSelector(getCurrentApplicationId);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
 
-  const [tableName, setTableName] = useState("");
   const [previewData, setPreviewData] = useState([]);
   // this error is for when there's an issue with the datasource structure
   const [previewDataError, setPreviewDataError] = useState(false);
@@ -105,6 +105,8 @@ const DatasourceViewModeSchema = (props: Props) => {
       ? GENERATE_PAGE_MODE.NEW
       : GENERATE_PAGE_MODE.REPLACE_EMPTY,
   );
+
+  const tableName = useSelector(getSelectedTableName);
 
   const { failedFetchingPreviewData, fetchPreviewData, isLoading } =
     useDatasourceQuery({ setPreviewData, setPreviewDataError });
@@ -118,7 +120,11 @@ const DatasourceViewModeSchema = (props: Props) => {
       !!datasourceStructure.tables &&
       datasourceStructure.tables?.length > 0
     ) {
-      setTableName(datasourceStructure.tables[0].name);
+      dispatch(
+        setDatasourcePreviewSelectedTableName(
+          datasourceStructure.tables[0].name,
+        ),
+      );
     }
 
     // if the datasource structure is loading or undefined or if there's an error in the structure
@@ -131,7 +137,7 @@ const DatasourceViewModeSchema = (props: Props) => {
     ) {
       setPreviewData([]);
       setPreviewDataError(true);
-      setTableName("");
+      dispatch(setDatasourcePreviewSelectedTableName(""));
     }
   }, [datasourceStructure, isDatasourceStructureLoading]);
 
@@ -184,8 +190,6 @@ const DatasourceViewModeSchema = (props: Props) => {
       datasourceId: props.datasource.id,
       pluginId: props.datasource.pluginId,
     });
-    setTableName(table);
-
     // This sets table name in redux state to be used to create appropriate query
     dispatch(setDatasourcePreviewSelectedTableName(table));
   };
