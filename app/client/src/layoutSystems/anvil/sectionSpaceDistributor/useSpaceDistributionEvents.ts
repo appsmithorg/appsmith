@@ -191,6 +191,11 @@ export const useSpaceDistributionEvents = ({
       };
 
       const tryFetchingPropPaneDomReferences = () => {
+        // Retrieve DOM elements for the left and right zones on the property pane
+        // Why are we fetching these references here?
+        // Because the property pane is rendered after space distribution is started when no corresponding zone/section is selected before
+        // start of space distribution.
+        // Check SpaceDistributionHandle component's useEffect for more details.
         leftZonePropPaneDom = document.getElementById(
           getPropertyPaneZoneId(leftZone),
         );
