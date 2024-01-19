@@ -1,5 +1,9 @@
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { CopiedWidgetData, PasteDestinationInfo } from "./types";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+  PastePayload,
+} from "./types";
 import { getDestinedParent } from "./destinationUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { anvilWidgets } from "widgets/anvil/constants";
@@ -116,19 +120,21 @@ export function* pasteWidgetsInSection(
   }
 
   if (zones.length || nonZones.length) {
-    widgets = yield call(
+    const info: PasteDestinationInfo = yield call(
+      getDestinedParent,
+      widgets,
+      [...zones, ...nonZones],
+      widgets[MAIN_CONTAINER_WIDGET_ID],
+    );
+    const res: PastePayload = yield call(
       pasteWidgetsIntoMainCanvas,
       widgets,
       [...zones, ...nonZones],
-      yield call(
-        getDestinedParent,
-        widgets,
-        [...zones, ...nonZones],
-        widgets[MAIN_CONTAINER_WIDGET_ID],
-      ),
+      info,
       map,
       reverseMap,
     );
+    return res;
   }
   return { widgets, widgetIdMap: map, reverseWidgetIdMap: reverseMap };
 }
