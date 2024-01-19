@@ -13,6 +13,7 @@ import { getPluginByPackageName } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "WidgetProvider/factory";
 import {
+  AppsmithAIIcon,
   CurlIconV2,
   EntityIcon,
   GraphQLIconV2,
@@ -270,6 +271,26 @@ export interface ActionOperation {
   dsName?: string;
   entityExplorerTitle?: string;
 }
+
+export const appsmithAIActionOperation: ActionOperation = {
+  title: "New Appsmith AI Query",
+  entityExplorerTitle: "Appsmith AI",
+  desc: "Create an Appsmith AI Query",
+  icon: <AppsmithAIIcon />,
+  kind: SEARCH_ITEM_TYPES.actionOperation,
+  action: (
+    entityId: string,
+    location: EventLocation,
+    entityType?: ActionParentEntityTypeInterface,
+  ) =>
+    createNewAPIBasedOnParentEntity(
+      entityId,
+      location,
+      PluginPackageName.APPSMITH_AI,
+      entityType,
+    ),
+  focusEntityType: FocusEntity.API,
+};
 
 export const actionOperations: ActionOperation[] = [
   {

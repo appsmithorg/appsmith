@@ -15,7 +15,7 @@ import {
   STARTER_BUILDING_BLOCKS,
   STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
 } from "constants/TemplatesConstants";
-import { Button } from "design-system";
+import { Button, Text } from "design-system";
 import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -31,9 +31,6 @@ import {
   TemplateLayoutContentItem,
   TemplateLayoutContentItemContent,
   TemplateLayoutFrame,
-  TemplateLayoutHeaderText,
-  TemplateLayoutRowItemDescription,
-  TemplateLayoutRowItemTitle,
 } from "./StyledComponents";
 
 function StarterBuildingBlocks() {
@@ -119,18 +116,30 @@ function StarterBuildingBlocks() {
   }
 
   return (
-    <TemplateLayoutFrame screenshot={templateSreenshot}>
+    <TemplateLayoutFrame
+      data-testid="t--canvas-building-block-frame"
+      screenshot={templateSreenshot}
+    >
       <TemplateLayoutContainer
+        data-testid="t--canvas-building-block-container"
         onMouseEnter={() => setLayoutActive(true)}
         onMouseLeave={() => setLayoutActive(false)}
       >
-        <TemplateLayoutHeaderText layoutActive={layoutActive}>
+        <Text
+          kind="heading-m"
+          style={{
+            opacity: layoutActive ? "1" : "0.7",
+            color: "var(--colors-semantics-text-emphasis)",
+            marginBottom: "16px",
+          }}
+        >
           {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header)}
-        </TemplateLayoutHeaderText>
+        </Text>
 
         <TemplateLayoutContentGrid>
           {layoutItems.map((item, index) => (
             <TemplateLayoutContentItem
+              data-testid="t--canvas-building-block-item"
               key={item.id}
               onClick={() =>
                 onClick(
@@ -150,12 +159,27 @@ function StarterBuildingBlocks() {
               </IconContainer>
 
               <TemplateLayoutContentItemContent>
-                <TemplateLayoutRowItemTitle layoutActive={layoutActive}>
+                <Text
+                  kind={"heading-xs"}
+                  style={{
+                    color:
+                      "var(--colors-ui-content-heading-sub-section-heading)",
+                    opacity: layoutActive ? "1" : "0.7",
+                    fontWeight: 500,
+                  }}
+                >
                   {item.title}
-                </TemplateLayoutRowItemTitle>
-                <TemplateLayoutRowItemDescription layoutActive={layoutActive}>
+                </Text>
+                <Text
+                  kind="body-s"
+                  style={{
+                    color: "var(--colors-ui-content-supplementary)",
+                    opacity: layoutActive ? "1" : "0.7",
+                    textAlign: "center",
+                  }}
+                >
                   {item.description}
-                </TemplateLayoutRowItemDescription>
+                </Text>
               </TemplateLayoutContentItemContent>
             </TemplateLayoutContentItem>
           ))}
@@ -163,6 +187,7 @@ function StarterBuildingBlocks() {
 
         <Button
           className="mt-4"
+          data-testid="t--canvas-building-block-see-more"
           kind="tertiary"
           onClick={onSeeMoreClick}
           size="md"

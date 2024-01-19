@@ -27,6 +27,7 @@ export interface SrcDoc {
 export interface CustomWidgetBuilderContextValueType {
   //Custom widget name
   name: string;
+  widgetId: string;
 
   isReferenceOpen: boolean;
   selectedLayout: string;

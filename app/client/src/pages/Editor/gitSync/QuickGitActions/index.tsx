@@ -27,6 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   discardChanges,
   gitPullInit,
+  setGitSettingsModalOpenAction,
   setIsGitSyncModalOpen,
 } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
@@ -49,6 +50,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import AutocommitStatusbar from "./AutocommitStatusbar";
 import { useHasConnectToGitPermission } from "../hooks/gitPermissionHooks";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 
 interface QuickActionButtonProps {
   className?: string;
@@ -199,7 +201,7 @@ const getQuickActionButtons = ({
       icon: "down-arrow-2",
       onClick: () => !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
-      disabled: pullDisabled,
+      disabled: !showPullLoadingState && pullDisabled,
       loading: showPullLoadingState,
     },
     {
@@ -354,15 +356,22 @@ export default function QuickGitActions() {
       });
     },
     settings: () => {
-      dispatch(
-        setIsGitSyncModalOpen({
-          isOpen: true,
-          tab: isGitConnectV2Enabled
-            ? GitSyncModalTab.SETTINGS
-            : GitSyncModalTab.GIT_CONNECTION,
-          isDeploying: true,
-        }),
-      );
+      if (isGitConnectV2Enabled) {
+        dispatch(
+          setGitSettingsModalOpenAction({
+            open: true,
+            tab: GitSettingsTab.GENERAL,
+          }),
+        );
+      } else {
+        dispatch(
+          setIsGitSyncModalOpen({
+            isOpen: true,
+            tab: GitSyncModalTab.GIT_CONNECTION,
+            isDeploying: true,
+          }),
+        );
+      }
       AnalyticsUtil.logEvent("GS_SETTING_CLICK", {
         source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
       });

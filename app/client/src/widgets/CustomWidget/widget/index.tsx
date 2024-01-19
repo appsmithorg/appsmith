@@ -8,9 +8,13 @@ import BaseWidget from "widgets/BaseWidget";
 import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
-import { RenderModes, WIDGET_TAGS } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { AppThemeProperties, SetterConfig } from "entities/AppTheming";
+import type {
+  AppThemeProperties,
+  SetterConfig,
+  Stylesheet,
+} from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -19,9 +23,15 @@ import { DEFAULT_MODEL } from "../constants";
 import defaultApp from "./defaultApp";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import { CUSTOM_WIDGET_DOC_URL } from "pages/Editor/CustomWidgetBuilder/constants";
+import {
+  CUSTOM_WIDGET_DEFAULT_MODEL_DOC_URL,
+  CUSTOM_WIDGET_DOC_URL,
+} from "pages/Editor/CustomWidgetBuilder/constants";
 import { Link } from "design-system";
 import styled from "styled-components";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { Colors } from "constants/Colors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledLink = styled(Link)`
   display: inline-block;
@@ -52,7 +62,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     return {
       widgetName: "Custom",
       rows: 30,
-      columns: 20,
+      columns: 23,
       version: 1,
       onResetClick: "{{showAlert('Successfully reset!!', '');}}",
       events: ["onResetClick"],
@@ -62,6 +72,9 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       uncompiledSrcDoc: defaultApp.uncompiledSrcDoc,
       theme: "{{appsmith.theme}}",
       dynamicBindingPathList: [{ key: "theme" }],
+      borderColor: Colors.GREY_5,
+      borderWidth: "1",
+      backgroundColor: "#FFFFFF",
     };
   }
 
@@ -80,6 +93,13 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
           type: "boolean",
         },
       },
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
   }
 
@@ -126,7 +146,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
                   kind="secondary"
                   rel="noopener noreferrer"
                   target="_blank"
-                  to={CUSTOM_WIDGET_DOC_URL}
+                  to={CUSTOM_WIDGET_DEFAULT_MODEL_DOC_URL}
                 >
                   Read more
                 </StyledLink>
@@ -190,6 +210,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
               },
             },
             dependencies: ["events"],
+            helpText: "when the event is triggered from custom widget",
           }));
         },
         children: [
@@ -217,7 +238,71 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneStyleConfig() {
-    return [];
+    return [
+      {
+        sectionName: "Color",
+        children: [
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "backgroundColor",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "borderColor",
+            label: "Border color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Border and shadow",
+        children: [
+          {
+            helpText: "Enter value for border width",
+            propertyName: "borderWidth",
+            label: "Border width",
+            placeholderText: "Enter value in px",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border radius",
+            helpText: "Rounds the corners of the widgets's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+    ];
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -248,6 +333,11 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         },
         globalContext: contextObj,
       });
+
+      AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_TRIGGER_EVENT", {
+        widgetId: this.props.widgetId,
+        eventName,
+      });
     }
   };
 
@@ -255,6 +345,10 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("model", {
       ...this.props.model,
       ...data,
+    });
+
+    AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
+      widgetId: this.props.widgetId,
     });
   };
 
@@ -270,17 +364,19 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   getWidgetView() {
     return (
       <CustomComponent
+        backgroundColor={this.props.backgroundColor}
+        borderColor={this.props.borderColor}
+        borderRadius={this.props.borderRadius}
+        borderWidth={this.props.borderWidth}
+        boxShadow={this.props.boxShadow}
         execute={this.execute}
         height={this.props.componentHeight}
         model={this.props.model || {}}
-        needsOverlay={
-          this.props.renderMode === RenderModes.CANVAS &&
-          !this.props.isWidgetSelected
-        }
         renderMode={this.getRenderMode()}
         srcDoc={this.props.srcDoc}
         theme={this.props.theme}
         update={this.update}
+        widgetId={this.props.widgetId}
         width={this.props.componentWidth}
       />
     );

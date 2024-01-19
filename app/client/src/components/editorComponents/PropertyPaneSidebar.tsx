@@ -20,6 +20,7 @@ import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import styled from "styled-components";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
 
@@ -61,8 +62,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   //the current selected WidgetId is not equal to previous widget id,
   //then don't render PropertyPane
   const shouldNotRenderPane =
-    isDraggingOrResizing &&
-    selectedWidgetIds[0] !== prevSelectedWidgetId.current;
+    (isDraggingOrResizing &&
+      selectedWidgetIds[0] !== prevSelectedWidgetId.current) ||
+    selectedWidgetIds[0] === MAIN_CONTAINER_WIDGET_ID;
 
   // This is to keep the theming properties from changing,
   // while dragging a widget when no other widgets were selected

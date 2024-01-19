@@ -2809,6 +2809,7 @@ public class ApplicationServiceCETest {
         themeSettings.setDensity(1);
         themeSettings.setSizing(1);
         themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
         testApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
 
         Mono<Application> applicationMono = applicationPageService
@@ -2974,17 +2975,13 @@ public class ApplicationServiceCETest {
                     NewAction archivedActionFromActionCollection = tuple.getT2();
 
                     assertThat(archivedAction.getDeletedAt()).isNotNull();
-                    assertThat(archivedAction.getDeleted()).isTrue();
 
                     assertThat(archivedActionCollection.getDeletedAt()).isNotNull();
-                    assertThat(archivedActionCollection.getDeleted()).isTrue();
 
                     assertThat(archivedPage.getDeletedAt()).isNotNull();
-                    assertThat(archivedPage.getDeleted()).isTrue();
 
                     assertThat(archivedActionFromActionCollection.getDeletedAt())
                             .isNotNull();
-                    assertThat(archivedActionFromActionCollection.getDeleted()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -3951,17 +3948,13 @@ public class ApplicationServiceCETest {
                     NewAction archivedActionFromActionCollection = tuple.getT2();
 
                     assertThat(archivedAction.getDeletedAt()).isNotNull();
-                    assertThat(archivedAction.getDeleted()).isTrue();
 
                     assertThat(archivedActionCollection.getDeletedAt()).isNotNull();
-                    assertThat(archivedActionCollection.getDeleted()).isTrue();
 
                     assertThat(archivedPage.getDeletedAt()).isNotNull();
-                    assertThat(archivedPage.getDeleted()).isTrue();
 
                     assertThat(archivedActionFromActionCollection.getDeletedAt())
                             .isNotNull();
-                    assertThat(archivedActionFromActionCollection.getDeleted()).isTrue();
                 })
                 .verifyComplete();
     }

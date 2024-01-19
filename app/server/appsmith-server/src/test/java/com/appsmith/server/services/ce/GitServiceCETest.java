@@ -2864,6 +2864,7 @@ public class GitServiceCETest {
                     themeSettings.setAccentColor("#FFFFFF");
                     themeSettings.setFontFamily("#000000");
                     themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+                    themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
                     branchedApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
                     return Mono.just(branchedApplication);
                 })
@@ -2892,6 +2893,7 @@ public class GitServiceCETest {
                     assertThat(themes.getDensity()).isEqualTo(1);
                     assertThat(themes.getFontFamily()).isEqualTo("#000000");
                     assertThat(themes.getSizing()).isEqualTo(1);
+                    assertThat(themes.getIconStyle()).isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
                 })
                 .verifyComplete();
     }
@@ -3804,7 +3806,7 @@ public class GitServiceCETest {
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
                     assertThat(application1.getId()).isEqualTo(application.getId());
-                    assertThat(application1.getDeleted()).isFalse();
+                    assertThat(application1.isDeleted()).isFalse();
                 })
                 .verifyComplete();
     }
@@ -3881,7 +3883,7 @@ public class GitServiceCETest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
-                    assertThat(application1.getDeleted()).isEqualTo(Boolean.FALSE);
+                    assertThat(application1.isDeleted()).isFalse();
                     assertThat(application1.getName()).isEqualTo("deleteBranch_defaultBranchUpdated_Success1");
                 })
                 .verifyComplete();

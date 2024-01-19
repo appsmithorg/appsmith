@@ -1,9 +1,9 @@
 name: Test, build and push Docker Image
 
 on:
-  # This workflow will run everyday at 06:00 AM IST (12:30 AM UTC) on weekdays
+  # This workflow will run everyday at 7:00AM, 10:00AM, 1:00PM, 4:00PM IST on weekdays
   schedule:
-    - cron: "30 00 * * 1-5"
+    - cron: "30 1-12/3 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
     inputs:
@@ -86,7 +86,7 @@ jobs:
   ci-test:
     needs: [setup, build-docker-image]
     # Only run if the build step is successful
-    if: success()
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
     name: ci-test
     uses: ./.github/workflows/ci-test-custom-script.yml
     secrets: inherit
@@ -98,6 +98,7 @@ jobs:
   server-unit-tests:
     name: server-unit-tests
     needs: [build-docker-image]
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
@@ -107,6 +108,7 @@ jobs:
   client-unit-tests:
     name: client-unit-tests
     needs: [build-docker-image]
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
     uses: ./.github/workflows/client-unit-tests.yml
     secrets: inherit
     with:
@@ -116,8 +118,8 @@ jobs:
     needs: [ci-test, client-unit-tests, server-unit-tests]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
       github.event_name == 'schedule' ||
+      ( github.event_name != 'push' || github.ref == 'refs/heads/master' ) ||
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
@@ -401,10 +403,10 @@ jobs:
           merged_upto_sha='${{ steps.merge.outputs.merged_upto_sha }}'
           merged_upto_sha_short="$(echo "$merged_upto_sha" | grep -o '^.\{8\}' || true)"
 
-          details="🚨 TBP workflow failed in <$run_url|${{ github.run_id }}/attempts/${{ github.run_attempt }}>.
+          details="🚨 TBP workflow failed in <$run_url|${{ github.run_id }}/attempts/${{ github.run_attempt }}>."
 
-          # This unweildy horror of a sed command, converts standard Markdown links to Slack's unweildy link syntax.
-          slack_message="$(echo "$details" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
+          # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
+          slack_message=$(echo "$details" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')
 
           # This is the ChannelId of the tech channel.
           body="$(jq -nc \

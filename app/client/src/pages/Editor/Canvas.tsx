@@ -24,7 +24,6 @@ import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
-  pageId: string;
   canvasWidth: number;
   enableMainCanvasResizer?: boolean;
 }
@@ -61,6 +60,7 @@ const Canvas = (props: CanvasProps) => {
     fontFamily: themeSetting.fontFamily as FontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
+    iconStyle: themeSetting.iconStyle.toLowerCase(),
   };
   const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
 

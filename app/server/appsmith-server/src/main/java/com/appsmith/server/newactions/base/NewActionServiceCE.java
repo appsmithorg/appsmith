@@ -91,6 +91,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
 
+    Flux<ActionDTO> getUnpublishedActionsByPageId(String pageId, AclPermission permission);
+
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName);
 
     Mono<ActionDTO> populateHintMessages(ActionDTO action);
@@ -132,8 +134,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
-
-    void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName);
 
     Mono<ImportedActionAndCollectionMapsDTO> updateActionsWithImportedCollectionIds(
             ImportActionCollectionResultDTO importActionCollectionResultDTO,

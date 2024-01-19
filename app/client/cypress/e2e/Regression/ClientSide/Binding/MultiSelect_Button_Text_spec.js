@@ -4,12 +4,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-const explorer = require("../../../../locators/explorerlocators.json");
-import {
-  agHelper,
-  entityExplorer,
-  deployMode,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 import {
   WIDGET,
   PROPERTY_SELECTOR,
@@ -49,7 +44,6 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       });
 
       it(`1. DragDrop Widget ${testConfig.widgetName}`, function () {
-        cy.get(explorer.addWidget).click();
         cy.dragAndDropToCanvas(widgetSelector, { x: 300, y: 200 });
         cy.get(getWidgetSelector(widgetSelector)).should("exist");
       });
