@@ -14,8 +14,6 @@ import {
   getPropertyPaneDistributionHandleId,
 } from "./spaceDistributionEditorUtils";
 import { PropPaneDistributionHandleCustomEvent } from "./constants";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -43,7 +41,6 @@ export const useSpaceDistributionEvents = ({
   const dispatch = useDispatch();
   const columnIndicatorDivRef = useRef<HTMLDivElement>();
   const currentMouseSpeed = useRef(0);
-  const { selectWidget } = useWidgetSelection();
   const mouseSpeedTrackingCallback =
     getMouseSpeedTrackingCallback(currentMouseSpeed);
   useEffect(() => {
@@ -156,7 +153,6 @@ export const useSpaceDistributionEvents = ({
 
       // Callback when mouse button is pressed down
       const onMouseDown = (e: MouseEvent, propHandle = false) => {
-        selectWidget(SelectionRequestType.One, [sectionWidgetId]);
         if (!propHandle) {
           const computedProps = getSpaceRedistributionProps(spaceToWorkWith);
           columnWidth = computedProps.columnWidth;

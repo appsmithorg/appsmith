@@ -1,6 +1,6 @@
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
@@ -8,6 +8,10 @@ import { getWidgetByID } from "sagas/selectors";
 import { getDefaultSpaceDistributed } from "./spaceRedistributionUtils";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
+import { getSelectedWidgets } from "selectors/ui";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;
@@ -41,14 +45,15 @@ const getAnvilZoneOffset = (zoneId: string) => {
 const SectionSpaceDistributorHandles = (
   props: SectionSpaceDistributorHandlesProps,
 ) => {
+  const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const { selectWidget } = useWidgetSelection();
   // Get layout element positions and section widget
   const layoutElementPositions = useSelector(getLayoutElementPositions);
   const sectionWidget = useSelector(getWidgetByID(props.sectionWidgetId));
-
+  const zoneIds = props.zones.map((each) => each.widgetId);
   // Get the default space distribution for the specified zones
-  const defaultSpaceDistributed = getDefaultSpaceDistributed(
-    props.zones.map((each) => each.widgetId),
-  );
+  const defaultSpaceDistributed = getDefaultSpaceDistributed(zoneIds);
 
   // Destructure spaceDistributed property from sectionWidget or use default
   const { spaceDistributed = defaultSpaceDistributed } = sectionWidget;
@@ -57,6 +62,17 @@ const SectionSpaceDistributorHandles = (
   let previousZonePosition: LayoutElementPosition;
   let previousZoneColumn = 0;
   let spaceToWorkWith = -(zoneOffset * props.zones.length);
+
+  useEffect(() => {
+    if (
+      !(
+        selectedWidgets.includes(props.sectionWidgetId) ||
+        zoneIds.some((each) => selectedWidgets.includes(each))
+      )
+    ) {
+      selectWidget(SelectionRequestType.One, [props.sectionWidgetId]);
+    }
+  }, [isDistributingSpace]);
 
   // Generate an array of space distribution nodes based on the zones
   const SectionSpaceDistributorNodes = props.zones.reduce(
