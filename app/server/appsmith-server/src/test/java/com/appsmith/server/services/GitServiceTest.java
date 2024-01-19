@@ -10,15 +10,22 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.ce.AutoDeployment;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitDeployApplicationResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -36,13 +43,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -50,6 +60,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_REMOVE_PROTECTED_BRANCH;
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_UPDATE_DEFAULT_BRANCH;
+import static com.appsmith.external.constants.GitConstants.ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,6 +114,15 @@ public class GitServiceTest {
 
     @SpyBean
     AnalyticsService analyticsService;
+
+    @SpyBean
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
 
     private static final GitProfile testUserProfile = new GitProfile();
 
@@ -724,6 +744,7 @@ public class GitServiceTest {
             gitApplicationMetadata.setBranchName(s);
             gitApplicationMetadata.setDefaultBranchName(defaultBranchName);
             gitApplicationMetadata.setDefaultApplicationId(defaultAppId);
+            gitApplicationMetadata.setRepoName("repo-name");
             createdApp.setGitApplicationMetadata(gitApplicationMetadata);
 
             applicationRepository.save(createdApp).block();
@@ -845,6 +866,261 @@ public class GitServiceTest {
                     // develop branch removed from protected, GIT_REMOVE_PROTECTED_BRANCH event should be sent once
                     verify(analyticsService, times(1))
                             .sendEvent(eq(GIT_REMOVE_PROTECTED_BRANCH.getEventName()), anyString(), anyMap());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void generateBearerTokenForApplication_WhenFeatureFlagOff_ThrowsError() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        StepVerifier.create(gitService.generateBearerTokenForApplication("dummy-id"))
+                .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void generateBearerTokenForApplication_ApplicationExists_BotUserAdded() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
+        // create git connected applications
+        List<String> branches = List.of("main", "develop");
+        final String defaultApplicationId = createBranchedApplication(branches);
+
+        /*
+        Things to verify:
+        1. Bot user is created
+        2. Permission group is created for the bot user for the default application id
+        3. Each branched application has the manage application permission allowed to this permission group
+        */
+
+        Mono<Tuple2<List<PermissionGroup>, List<Application>>> tuple2Mono = gitService
+                .generateBearerTokenForApplication(defaultApplicationId)
+                .then(userRepository.findByEmail(GitUtils.generateGitBotUserEmail(defaultApplicationId)))
+                .flatMapMany(botUser -> permissionGroupRepository.findAllByAssignedToUserIdsIn(Set.of(botUser.getId())))
+                .collectList()
+                .zipWhen(ignored -> applicationService
+                        .findAllApplicationsByDefaultApplicationId(
+                                defaultApplicationId, applicationPermission.getEditPermission())
+                        .collectList());
+
+        StepVerifier.create(tuple2Mono)
+                .assertNext(objects -> {
+                    List<Application> applications = objects.getT2();
+                    List<PermissionGroup> permissionGroups = objects.getT1();
+                    PermissionGroup permissionGroup = permissionGroups.get(0);
+                    assertThat(applications.size()).isEqualTo(branches.size());
+                    assertThat(permissionGroups.size()).isEqualTo(1);
+
+                    for (Application application : applications) {
+                        Optional<Policy> optionalPolicy = application.getPolicies().stream()
+                                .filter(policy -> policy.getPermission()
+                                        .equals(applicationPermission
+                                                .getEditPermission()
+                                                .getValue()))
+                                .findFirst();
+                        assertThat(optionalPolicy.isPresent()).isTrue();
+                        Policy policy = optionalPolicy.get();
+                        assertThat(policy.getPermissionGroups()).contains(permissionGroup.getId());
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void configureAutoDeployment_WhenFeatureFlagIsOff_ThrowsError() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        StepVerifier.create(gitService.configureAutoDeployment("dummy-id", "branch", true))
+                .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void configureAutoDeployment_WhenBranchNotFound_ThrowsError() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        // create git connected applications
+        List<String> branches = List.of("main", "develop");
+        final String defaultApplicationId = createBranchedApplication(branches);
+
+        StepVerifier.create(gitService.configureAutoDeployment(defaultApplicationId, "release", true))
+                .verifyErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                        FieldName.APPLICATION, defaultApplicationId + "," + "release"));
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void configureAutoDeployment_WhenNoConfigExists_NewConfigAdded() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        // create git connected applications
+        List<String> branches = List.of("main", "develop");
+        final String defaultApplicationId = createBranchedApplication(branches);
+        Mono<Application> applicationMono = gitService
+                .configureAutoDeployment(defaultApplicationId, "develop", true)
+                .then(applicationService.findById(defaultApplicationId));
+
+        StepVerifier.create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getGitApplicationMetadata()).isNotNull();
+                    Set<AutoDeployment> autoDeployments =
+                            application.getGitApplicationMetadata().getAutoDeploymentConfigs();
+                    assertThat(autoDeployments.size()).isEqualTo(1);
+                    AutoDeployment autoDeployment = new AutoDeployment();
+                    autoDeployment.setBranchName("develop");
+                    assertThat(autoDeployments).containsExactly(autoDeployment);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void configureAutoDeployment_WhenConfigAlreadyExists_NewConfigAdded() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        // create git connected applications
+        List<String> branches = List.of("main", "develop", "release");
+        final String defaultApplicationId = createBranchedApplication(branches);
+        Mono<Application> applicationMono = gitService
+                .configureAutoDeployment(defaultApplicationId, "develop", true)
+                // add develop twice
+                .then(gitService.configureAutoDeployment(defaultApplicationId, "develop", true))
+                .then(gitService.configureAutoDeployment(defaultApplicationId, "main", true))
+                .then(gitService.configureAutoDeployment(defaultApplicationId, "release", true))
+                .then(gitService.configureAutoDeployment(defaultApplicationId, "develop", false))
+                .then(applicationService.findById(defaultApplicationId));
+
+        StepVerifier.create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getGitApplicationMetadata()).isNotNull();
+                    Set<AutoDeployment> autoDeployments =
+                            application.getGitApplicationMetadata().getAutoDeploymentConfigs();
+                    assertThat(autoDeployments.size()).isEqualTo(2);
+                    AutoDeployment autoDeploymentForMain = new AutoDeployment();
+                    autoDeploymentForMain.setBranchName("main");
+
+                    AutoDeployment autoDeploymentForRelease = new AutoDeployment();
+                    autoDeploymentForRelease.setBranchName("release");
+                    assertThat(autoDeployments).contains(autoDeploymentForMain, autoDeploymentForRelease);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void autoDeployGitApplication_WhenFeatureFlagIsOff_ThrowsError() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        StepVerifier.create(gitService.autoDeployGitApplication("dummy-id", "branch"))
+                .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void autoDeployGitApplication_WhenConfigDoesNotExist_ThrowsError() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
+        String defaultAppId = createBranchedApplication(List.of("main", "develop"));
+        StepVerifier.create(gitService.autoDeployGitApplication(defaultAppId, "develop"))
+                .verifyErrorMessage(AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(
+                        ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED + "develop"));
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void autoDeployGitApplication_WhenConfigDoesNotExistForProvidedBranch_ThrowsError() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
+        String defaultAppId = createBranchedApplication(List.of("main", "develop"));
+
+        Mono<GitDeployApplicationResultDTO> resultDTOMono = applicationRepository
+                .findById(defaultAppId)
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setAutoDeploymentConfigs(new HashSet<>());
+                    AutoDeployment autoDeployment = new AutoDeployment();
+                    autoDeployment.setBranchName("develop");
+                    application
+                            .getGitApplicationMetadata()
+                            .getAutoDeploymentConfigs()
+                            .add(autoDeployment);
+                    return applicationRepository.save(application);
+                })
+                .then(gitService.autoDeployGitApplication(defaultAppId, "main"));
+
+        StepVerifier.create(resultDTOMono)
+                .verifyErrorMessage(AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(
+                        ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED + "main"));
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void autoDeployGitApplication_WhenConfigExistsForTargetBranch_ApplicationPulledAndDeployed() {
+        String defaultAppId = createBranchedApplication(List.of("main"));
+        Application rootApplication =
+                applicationRepository.findById(defaultAppId).block();
+
+        ApplicationJson applicationJson = new ApplicationJson();
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(gitExecutor.rebaseBranch(any(Path.class), eq("main"))).thenReturn(Mono.just(TRUE));
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
+                        anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(Mono.just(applicationJson));
+        Mockito.when(importApplicationService.importApplicationInWorkspaceFromGit(
+                        anyString(), any(ApplicationJson.class), anyString(), anyString()))
+                .thenReturn(Mono.just(rootApplication));
+
+        Mono<Application> resultDTOMono = applicationRepository
+                .findById(defaultAppId)
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setAutoDeploymentConfigs(new HashSet<>());
+                    AutoDeployment autoDeployment = new AutoDeployment();
+                    autoDeployment.setBranchName("main");
+                    application
+                            .getGitApplicationMetadata()
+                            .getAutoDeploymentConfigs()
+                            .add(autoDeployment);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> {
+                    assertThat(application.getPages().size()).isEqualTo(1);
+                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    return applicationPageService
+                            .clonePage(application.getPages().get(0).getId())
+                            .thenReturn(application);
+                })
+                .then(gitService.autoDeployGitApplication(defaultAppId, "main"))
+                .then(applicationRepository.findById(defaultAppId));
+
+        StepVerifier.create(resultDTOMono)
+                .assertNext(application -> {
+                    assertThat(application.getPages().size()).isEqualTo(2);
+                    assertThat(application.getPublishedPages().size()).isEqualTo(2);
                 })
                 .verifyComplete();
     }

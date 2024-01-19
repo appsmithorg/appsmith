@@ -3,6 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -11,10 +13,19 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.Module;
+import com.appsmith.server.domains.Package;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.ce.AutoDeployment;
+import com.appsmith.server.dtos.ApiKeyRequestDto;
+import com.appsmith.server.dtos.GitDeployApplicationResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.AppsmithRoleUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
@@ -26,24 +37,36 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce_compatible.GitServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_UPDATE_DEFAULT_BRANCH;
+import static com.appsmith.external.constants.GitConstants.ERROR_APPLICATION_NOT_GIT_CONNECTED;
+import static com.appsmith.external.constants.GitConstants.ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED;
 import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
+import static com.appsmith.server.acl.AppsmithRole.GIT_WEB_HOOK_EXECUTOR;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_GIT_CONFIGURATION;
 
 @Slf4j
@@ -52,9 +75,14 @@ import static com.appsmith.server.exceptions.AppsmithError.INVALID_GIT_CONFIGURA
 public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitService {
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
-    private final WorkspacePermission workspacePermission;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
+    private final PermissionGroupRepository permissionGroupRepository;
+    private final TenantService tenantService;
+    private final UserRepository userRepository;
+    private final RoleConfigurationSolution roleConfigurationSolution;
+    private final ApiKeyService apiKeyService;
+    private final PolicyGenerator policyGenerator;
 
     public GitServiceImpl(
             UserService userService,
@@ -83,7 +111,13 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             ObservationRegistry observationRegistry,
             GitPrivateRepoHelper gitPrivateRepoHelper,
             TransactionalOperator transactionalOperator,
-            GitAutoCommitHelper gitAutoCommitHelper) {
+            GitAutoCommitHelper gitAutoCommitHelper,
+            PermissionGroupRepository permissionGroupRepository,
+            TenantService tenantService,
+            UserRepository userRepository,
+            RoleConfigurationSolution roleConfigurationSolution,
+            ApiKeyService apiKeyService,
+            PolicyGenerator policyGenerator) {
         super(
                 userService,
                 userDataService,
@@ -114,9 +148,14 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 gitAutoCommitHelper);
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
-        this.workspacePermission = workspacePermission;
         this.sessionUserService = sessionUserService;
         this.analyticsService = analyticsService;
+        this.permissionGroupRepository = permissionGroupRepository;
+        this.tenantService = tenantService;
+        this.userRepository = userRepository;
+        this.roleConfigurationSolution = roleConfigurationSolution;
+        this.apiKeyService = apiKeyService;
+        this.policyGenerator = policyGenerator;
     }
 
     @Override
@@ -224,5 +263,225 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 .getCurrentUser()
                 .flatMap(user -> analyticsService.sendEvent(
                         GIT_UPDATE_DEFAULT_BRANCH.getEventName(), user.getUsername(), analyticsProps));
+    }
+
+    /**
+     * This method is responsible to do the following:
+     * 1. Create a bot user for this default application is does not exist
+     * 2. Create a permission group for this bot user and application if does not exist
+     * 3. Add the permission group to the policies of all applications under this git connected app
+     * 4. Invalidate all the previously generated API keys
+     * 5. Generate a new API key for this bot user
+     * @param defaultApplicationId ID of the default application
+     * @return The generated key
+     */
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_git_continuous_delivery_enabled)
+    public Mono<String> generateBearerTokenForApplication(String defaultApplicationId) {
+        // get all the branched applications, we'll need this later
+        Flux<Application> branchedApplications = applicationService
+                .findAllApplicationsByDefaultApplicationId(
+                        defaultApplicationId, applicationPermission.getEditPermission())
+                .cache();
+
+        Mono<Application> rootAppMono = branchedApplications
+                .filter(application -> defaultApplicationId.equals(application.getId()))
+                .single() // using single because exactly one item should emit and will throw if no item or multiple
+                // found
+                .cache();
+
+        Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
+
+        // Create Git bot user
+        Mono<User> gitBotUserMono = Mono.zip(rootAppMono, defaultTenantIdMono)
+                .flatMap(pair -> {
+                    Application application = pair.getT1();
+                    String tenantId = pair.getT2();
+                    return getOrCreateGitBotUser(application, tenantId);
+                })
+                .cache();
+
+        // Create Role
+        Mono<PermissionGroup> gitBotRoleMono = Mono.zip(rootAppMono, gitBotUserMono)
+                .flatMap(pair -> {
+                    Application application = pair.getT1();
+                    User botUser = pair.getT2();
+                    return getOrCreateGitBotRole(application, botUser);
+                });
+
+        // Associate role with related resources.
+        Mono<Void> associateApplicationAndRelatedResourcesWithGitRoleFlux = Mono.zip(
+                        branchedApplications.collectList(), gitBotRoleMono)
+                .flatMap(pair -> {
+                    List<Application> applications = pair.getT1();
+                    PermissionGroup permissionGroup = pair.getT2();
+                    List<Mono<Long>> assignRolesToAppsMonos = new ArrayList<>();
+                    for (Application application : applications) {
+                        assignRolesToAppsMonos.add(assignGitBotRoleToAllBranchedApplications(
+                                application.getId(), permissionGroup.getId()));
+                    }
+                    return Flux.merge(assignRolesToAppsMonos).then();
+                });
+
+        // Generate API Key for the User
+        Mono<String> generateApiKeyForGitBotUser = gitBotUserMono.flatMap(gitBotUser -> {
+            ApiKeyRequestDto apiKeyRequestDto =
+                    ApiKeyRequestDto.builder().email(gitBotUser.getUsername()).build();
+            // Note: generating and archiving the api keys without permission check, because we are fetching
+            // the Application using Edit permission.
+            // GenerateApiKey & ArchiveAllApiKeysForUser uses Instance Admin role in order to archive keys.
+            return apiKeyService
+                    .archiveAllApiKeysForUserWithoutPermissionCheck(gitBotUser.getUsername())
+                    .then(apiKeyService.generateApiKeyWithoutPermissionCheck(apiKeyRequestDto));
+        });
+
+        return associateApplicationAndRelatedResourcesWithGitRoleFlux.then(generateApiKeyForGitBotUser);
+    }
+
+    /**
+     * We already have a service method GitService.discardChanges that does the following:
+     * 1. Discard any uncommitted local changes in Git
+     * 2. Pull from remote
+     * 3. Publish the application
+     * In this webhook, we'll trigger the existing discardChanges method.
+     * It'll also change the response to a different format so that it's meaningful to the entity that
+     * triggered this webhook.
+     * @param defaultApplicationId ID of the default application
+     * @param branchName Name of the branch
+     * @return A response DTO with some Metadata regarding this action.
+     */
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_git_continuous_delivery_enabled)
+    public Mono<GitDeployApplicationResultDTO> autoDeployGitApplication(
+            String defaultApplicationId, String branchName) {
+        return getApplicationById(defaultApplicationId, applicationPermission.getEditPermission())
+                .flatMap(application -> {
+                    String error = validateAutoDeploymentState(application, branchName);
+                    if (error != null) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error));
+                    }
+                    // return the application for the target branch
+                    return applicationService.findByBranchNameAndDefaultApplicationId(
+                            branchName, defaultApplicationId, applicationPermission.getEditPermission());
+                })
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND,
+                        FieldName.APPLICATION,
+                        defaultApplicationId + "," + branchName)))
+                .then(discardChanges(defaultApplicationId, branchName))
+                .map(application -> {
+                    GitDeployApplicationResultDTO resultDTO = new GitDeployApplicationResultDTO();
+                    resultDTO.setApplicationId(defaultApplicationId);
+                    resultDTO.setBranchName(branchName);
+                    resultDTO.setApplicationName(application.getName());
+                    resultDTO.setDeployedAt(Instant.now());
+                    resultDTO.setRepoUrl(application.getGitApplicationMetadata().getRemoteUrl());
+                    return resultDTO;
+                });
+    }
+
+    private String validateAutoDeploymentState(Application application, String targetBranchName) {
+        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+        String error = null;
+        if (gitApplicationMetadata == null) {
+            error = ERROR_APPLICATION_NOT_GIT_CONNECTED;
+        } else {
+            AutoDeployment autoDeployment = new AutoDeployment();
+            autoDeployment.setBranchName(targetBranchName);
+            if (CollectionUtils.isEmpty(gitApplicationMetadata.getAutoDeploymentConfigs())
+                    || !gitApplicationMetadata.getAutoDeploymentConfigs().contains(autoDeployment)) {
+                error = ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED + targetBranchName;
+            }
+        }
+        return error;
+    }
+
+    private Mono<PermissionGroup> getOrCreateGitBotRole(Application application, User user) {
+        PermissionGroup gitBotRole = new PermissionGroup();
+        gitBotRole.setName(GitUtils.generateGitBotRoleName(application));
+        gitBotRole.setDefaultDomainType(Application.class.getSimpleName());
+        gitBotRole.setDefaultDomainId(application.getId());
+        gitBotRole.setDescription(GIT_WEB_HOOK_EXECUTOR.getDescription());
+        gitBotRole.setAssignedToUserIds(Set.of(user.getId()));
+
+        return getGitBotRole(application).switchIfEmpty(Mono.defer(() -> permissionGroupRepository.save(gitBotRole)));
+    }
+
+    private Mono<PermissionGroup> getGitBotRole(Application application) {
+        return permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(application.getId(), Application.class.getSimpleName())
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.GIT_WEB_HOOK_EXECUTOR))
+                .next(); // using next so that it'll return a single item or empty. if empty, we need to create
+    }
+
+    private Mono<User> getOrCreateGitBotUser(Application application, String tenantId) {
+        String userEmail = GitUtils.generateGitBotUserEmail(application.getId());
+        String userName = GitUtils.generateGitBotUserName(application.getId());
+        User user = new User();
+        user.setEmail(userEmail);
+        user.setName(userName);
+        user.setTenantId(tenantId);
+        user.setIsSystemGenerated(Boolean.TRUE);
+        return getApplicationBotUser(application, tenantId).switchIfEmpty(Mono.defer(() -> userRepository.save(user)));
+    }
+
+    private Mono<User> getApplicationBotUser(Application application, String tenantId) {
+        String userEmail = GitUtils.generateGitBotUserEmail(application.getId());
+        return userRepository.findByEmailAndTenantId(userEmail, tenantId);
+    }
+
+    private Mono<Long> assignGitBotRoleToAllBranchedApplications(String applicationId, String permissionGroupId) {
+        Map<String, List<AclPermission>> permissionListMapForGitWebhookExecutorRole =
+                AppsmithRoleUtils.getPermissionListMapForRole(
+                        List.of(Application.class, Workspace.class, Module.class, Package.class),
+                        GIT_WEB_HOOK_EXECUTOR);
+
+        return roleConfigurationSolution.updateApplicationAndRelatedResourcesWithPermissionsForRole(
+                applicationId, permissionGroupId, permissionListMapForGitWebhookExecutorRole, Map.of());
+    }
+
+    /**
+     * In order to enable or disable the auto deployment, user need to preconfigure this.
+     * The configuration will contain which branches of this application are enabled for auto deployment from webhook.
+     * This method is used to enable or disable a branch from auto deployment feature.
+     * The application's branch should be already checked in to perform this action.
+     * @param defaultApplicationId ID of the default application
+     * @param branchName name of the branch, which should be enabled or disabled
+     * @param enabled boolean flag to set enabled or disabled.
+     *                If true, auto deployment will be enabled for the provided branch.
+     * @return A list of objects containing currently enabled branches
+     */
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_git_continuous_delivery_enabled)
+    public Mono<Set<AutoDeployment>> configureAutoDeployment(
+            String defaultApplicationId, String branchName, boolean enabled) {
+        // try to find whether the target branch is already checked out, otherwise return error
+        return applicationService
+                .findByBranchNameAndDefaultApplicationId(
+                        branchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND,
+                        FieldName.APPLICATION,
+                        defaultApplicationId + "," + branchName)))
+                // find the root application as auto deployment configuration is only stored in the root application
+                .then(getApplicationById(defaultApplicationId, applicationPermission.getEditPermission()))
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    // update or create the configuration for the auto deployment
+                    if (gitApplicationMetadata.getAutoDeploymentConfigs() == null) {
+                        gitApplicationMetadata.setAutoDeploymentConfigs(new HashSet<>());
+                    }
+                    AutoDeployment autoDeployment = new AutoDeployment();
+                    autoDeployment.setBranchName(branchName);
+                    if (enabled) {
+                        gitApplicationMetadata.getAutoDeploymentConfigs().add(autoDeployment);
+                    } else {
+                        gitApplicationMetadata.getAutoDeploymentConfigs().remove(autoDeployment);
+                    }
+
+                    return applicationService
+                            .save(application)
+                            .thenReturn(gitApplicationMetadata.getAutoDeploymentConfigs());
+                });
     }
 }

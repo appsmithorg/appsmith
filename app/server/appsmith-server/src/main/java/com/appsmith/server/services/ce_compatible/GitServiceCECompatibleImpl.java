@@ -5,6 +5,8 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.ce.AutoDeployment;
+import com.appsmith.server.dtos.GitDeployApplicationResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
@@ -32,6 +34,8 @@ import io.micrometer.observation.ObservationRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
+
+import java.util.Set;
 
 @Service
 public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitServiceCECompatible {
@@ -96,6 +100,23 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
 
     @Override
     public Mono<String> setDefaultBranch(String defaultApplicationId, String newDefaultBranchName) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<String> generateBearerTokenForApplication(String defaultApplicationId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<GitDeployApplicationResultDTO> autoDeployGitApplication(
+            String defaultApplicationId, String branchName) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<Set<AutoDeployment>> configureAutoDeployment(
+            String defaultApplicationId, String branchName, boolean enabled) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }
