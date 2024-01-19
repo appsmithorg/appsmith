@@ -1092,6 +1092,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
+    public Flux<ActionDTO> getUnpublishedActionsByPageId(String pageId, AclPermission permission) {
+        return this.repository
+                .findByPageIdAndViewMode(pageId, false, permission)
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
+                .flatMap(this::setTransientFieldsInUnpublishedAction);
+    }
+
+    @Override
     public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName) {
         return getUnpublishedActions(params, branchName, TRUE);
     }

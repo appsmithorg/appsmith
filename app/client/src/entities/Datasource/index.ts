@@ -1,5 +1,5 @@
 import type { APIResponseError } from "api/ApiResponses";
-import type { ActionConfig, Property } from "entities/Action";
+import type { ActionConfig, Property, StoredDatasource } from "entities/Action";
 import _ from "lodash";
 import type { SSL } from "./RestAPIForm";
 
@@ -99,6 +99,10 @@ interface BaseDatasource {
   isDeleting?: boolean;
   isMock?: boolean;
 }
+
+export const isEmbeddedAIDataSource = (datasource: StoredDatasource) => {
+  return !datasource.id;
+};
 
 export const isEmbeddedRestDatasource = (
   val: any,

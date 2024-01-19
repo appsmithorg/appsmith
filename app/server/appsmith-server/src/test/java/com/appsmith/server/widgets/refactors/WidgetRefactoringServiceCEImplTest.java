@@ -4,7 +4,6 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +33,6 @@ class WidgetRefactoringServiceCEImplTest {
     private final String postWord = ")\\b";
 
     @Autowired
-    PagePermission pagePermission;
-
-    @Autowired
     ActionPermission actionPermission;
 
     @MockBean
@@ -54,8 +50,7 @@ class WidgetRefactoringServiceCEImplTest {
 
     @BeforeEach
     public void setUp() {
-        widgetRefactoringServiceCE =
-                new WidgetRefactoringServiceCEImpl(newPageService, astService, mapper, pagePermission);
+        widgetRefactoringServiceCE = new WidgetRefactoringServiceCEImpl(newPageService, astService, mapper);
     }
 
     @Test

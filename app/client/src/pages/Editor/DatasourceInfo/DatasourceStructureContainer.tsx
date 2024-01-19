@@ -48,6 +48,7 @@ export const SCHEMALESS_PLUGINS: Array<string> = [
   PluginName.REDIS,
   PluginName.GOOGLE_SHEETS,
   PluginName.OPEN_AI,
+  PluginName.APPSMITH_AI,
 ];
 
 const Container = (props: Props) => {

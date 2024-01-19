@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { MenuItem } from "design-system-old";
 import {
@@ -7,14 +7,10 @@ import {
   APPSMITH_DISPLAY_VERSION,
   createMessage,
   DOCUMENTATION,
-  WELCOME_TOUR,
 } from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
-import { getOnboardingWorkspaces } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import { onboardingCreateApplication } from "actions/onboardingActions";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import {
   DropdownOnSelectActions,
@@ -59,8 +55,6 @@ export const LeftPaneVersionData = styled.div`
 `;
 
 function LeftPaneBottomSection() {
-  const dispatch = useDispatch();
-  const onboardingWorkspaces = useSelector(getOnboardingWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
@@ -107,18 +101,6 @@ function LeftPaneBottomSection() {
                 window.open(DOCS_BASE_URL, "_blank");
               }}
               text={createMessage(DOCUMENTATION)}
-            />
-
-            <MenuItem
-              containerClassName={"t--welcome-tour"}
-              icon="guide"
-              onSelect={() => {
-                if (!isFetchingApplications && !!onboardingWorkspaces.length) {
-                  AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-                  dispatch(onboardingCreateApplication());
-                }
-              }}
-              text={createMessage(WELCOME_TOUR)}
             />
             <MenuItem
               containerClassName={"t--product-updates-btn"}

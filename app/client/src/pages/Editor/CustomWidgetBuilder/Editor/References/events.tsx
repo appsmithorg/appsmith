@@ -14,6 +14,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledLazyCodeEditorWrapper = styled.div`
   .CodeMirror-line.CodeMirror-line {
@@ -31,11 +32,16 @@ const StyledLazyCodeEditorWrapper = styled.div`
 `;
 
 export default function Events() {
-  const { events } = useContext(CustomWidgetBuilderContext);
+  const { events, widgetId } = useContext(CustomWidgetBuilderContext);
 
   const [openState, setOpenState] = useState<Record<string, boolean>>({});
 
   const toggleOpen = useCallback((event: string) => {
+    AnalyticsUtil.logEvent("CUSTOM_WIDGET_BUILDER_REFERENCE_EVENT_OPENED", {
+      widgetId: widgetId,
+      eventName: event,
+    });
+
     setOpenState((prev) => {
       return {
         ...prev,

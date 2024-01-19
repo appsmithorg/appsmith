@@ -48,7 +48,6 @@ import layoutConversionReducer from "reducers/uiReducers/layoutConversionReducer
 import oneClickBindingReducer from "reducers/uiReducers/oneClickBindingReducer";
 import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
 import ideReducer from "../../../reducers/uiReducers/ideReducer";
-import consolidatedPageLoadReducer from "reducers/uiReducers/consolidatedPageLoadReducer";
 
 export const uiReducerObject = {
   analytics: analyticsReducer,
@@ -101,5 +100,4 @@ export const uiReducerObject = {
   oneClickBinding: oneClickBindingReducer,
   activeField: activeFieldReducer,
   ide: ideReducer,
-  consolidatedPageLoad: consolidatedPageLoadReducer,
 };

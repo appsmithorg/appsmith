@@ -65,6 +65,3 @@ export const getDatasourceCollapsibleState = createSelector(
 
 export const getIsImportingCurl = (state: AppState) =>
   state.ui.imports.isImportingCurl;
-
-export const getIsConsolidatedPageLoading = (state: AppState) =>
-  state.ui.consolidatedPageLoad.isLoading;

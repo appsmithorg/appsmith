@@ -195,4 +195,7 @@ public class FieldNameCE {
     public static final String INSTANCE_ID = "instanceId";
     public static final String IP_ADDRESS = "ipAddress";
     public static final String VERSION = "version";
+    public static final String PUBLISHED = "published";
+    public static final String UNPUBLISHED = "unpublished";
+    public static final String ARTIFACT_CONTEXT = "artifactContext";
 }
