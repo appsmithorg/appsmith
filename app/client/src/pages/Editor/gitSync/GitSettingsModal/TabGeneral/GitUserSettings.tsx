@@ -31,7 +31,7 @@ import {
 
 const Container = styled.div`
   padding-top: 8px;
-  padding-bottom: 16px;
+  padding-bottom: 8px;
 `;
 
 const HeadContainer = styled.div`
