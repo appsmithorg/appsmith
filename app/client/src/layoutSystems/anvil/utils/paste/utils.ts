@@ -14,7 +14,6 @@ import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import WidgetFactory from "WidgetProvider/factory";
 import { widgetHierarchy } from "../constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { prePasteValidations } from "./valiationUtils";
 
 export function* addPastedWidgets(
   arr: CopiedWidgetData,
@@ -263,7 +262,6 @@ export function getNewParentId(
    * => it is a container widget (Section / Zone / Modal).
    */
   if (!!selectedWidget.layout) {
-    if (!prePasteValidations(selectedWidget, copiedWidgets, order)) return null;
     return selectedWidget.widgetId;
   } else {
     /**

@@ -149,9 +149,10 @@ export function* updateSectionsDistributedSpace(
   const commonSpace = SectionColumns / childrenToUpdate.length;
 
   // Extracting the order of zones before and after the update
-  const previousZoneOrder: string[] = widgetsBeforeUpdate[
-    sectionWidgetId
-  ].layout[0].layout.map((each: WidgetLayoutProps) => each.widgetId);
+  const previousZoneOrder: string[] =
+    widgetsBeforeUpdate[sectionWidgetId]?.layout[0]?.layout?.map(
+      (each: WidgetLayoutProps) => each.widgetId,
+    ) ?? [];
   const currentDistributedSpace =
     sectionWidget.spaceDistributed ||
     getDefaultSpaceDistributed(previousZoneOrder);

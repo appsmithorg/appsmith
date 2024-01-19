@@ -25,6 +25,13 @@ import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvi
 import { Elevations, anvilWidgets } from "widgets/anvil/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SectionColumns } from "layoutSystems/anvil/utils/constants";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+  PastePayload,
+} from "layoutSystems/anvil/utils/paste/types";
+import { call } from "redux-saga/effects";
+import { pasteWidgetsInZone } from "layoutSystems/anvil/utils/paste/zonePasteUtils";
 
 class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   static type = anvilWidgets.ZONE_WIDGET;
@@ -98,6 +105,24 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
       widget = rest;
     }
     return widget;
+  }
+
+  static *performPasteOperation(
+    allWidgets: CanvasWidgetsReduxState,
+    copiedWidgets: CopiedWidgetData[],
+    destinationInfo: PasteDestinationInfo,
+    widgetIdMap: Record<string, string>,
+    reverseWidgetIdMap: Record<string, string>,
+  ) {
+    const res: PastePayload = yield call(
+      pasteWidgetsInZone,
+      allWidgets,
+      copiedWidgets,
+      destinationInfo,
+      widgetIdMap,
+      reverseWidgetIdMap,
+    );
+    return res;
   }
 
   getWidgetView(): ReactNode {

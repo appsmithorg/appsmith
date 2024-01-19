@@ -25,6 +25,13 @@ import { ContainerComponent } from "widgets/anvil/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { Elevations, anvilWidgets } from "widgets/anvil/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+  PastePayload,
+} from "layoutSystems/anvil/utils/paste/types";
+import { call } from "redux-saga/effects";
+import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
 
 class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   static type = anvilWidgets.SECTION_WIDGET;
@@ -100,6 +107,24 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
       widget.spaceDistributed = newSpaceDistribution;
     }
     return widget;
+  }
+
+  static *performPasteOperation(
+    allWidgets: CanvasWidgetsReduxState,
+    copiedWidgets: CopiedWidgetData[],
+    destinationInfo: PasteDestinationInfo,
+    widgetIdMap: Record<string, string>,
+    reverseWidgetIdMap: Record<string, string>,
+  ) {
+    const res: PastePayload = yield call(
+      pasteWidgetsInSection,
+      allWidgets,
+      copiedWidgets,
+      destinationInfo,
+      widgetIdMap,
+      reverseWidgetIdMap,
+    );
+    return res;
   }
 
   getWidgetView(): ReactNode {
