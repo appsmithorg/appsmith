@@ -1459,5 +1459,51 @@ export const getNewEntityName = createSelector(
   },
 );
 
+export interface EntityItem {
+  title: string;
+  type: PluginType;
+  key: string;
+  group?: string;
+}
+
+export const getQuerySegmentItems = createSelector(
+  getCurrentActions,
+  selectDatasourceIdToNameMap,
+  (actions, datasourceIdToNameMap) => {
+    const items: EntityItem[] = actions.map((action) => {
+      let group;
+      if (action.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(action.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
+      } else if (action.config.pluginType === PluginType.AI) {
+        group = isEmbeddedAIDataSource(action.config.datasource)
+          ? "AI Queries"
+          : datasourceIdToNameMap[action.config.datasource.id] ?? "AI Queries";
+      } else {
+        group = datasourceIdToNameMap[action.config.datasource.id];
+      }
+      return {
+        title: action.config.name,
+        key: action.config.id,
+        type: action.config.pluginType,
+        group,
+      };
+    });
+    return items;
+  },
+);
+export const getJSSegmentItems = createSelector(
+  getCurrentJSCollections,
+  (jsActions) => {
+    const items: EntityItem[] = jsActions.map((js) => ({
+      title: js.config.name,
+      key: js.config.id,
+      type: PluginType.JS,
+    }));
+    return items;
+  },
+);
+
 export const getSelectedTableName = (state: AppState) =>
   state.ui.datasourcePane.selectedTableName;

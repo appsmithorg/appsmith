@@ -64,10 +64,8 @@ import {
   SlashCommand,
 } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type {
-  EditorSegmentList,
-  EntityItem,
-} from "@appsmith/selectors/appIDESelectors";
+import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
+import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
 import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import {
   getAction,
