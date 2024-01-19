@@ -182,24 +182,8 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     border-color: var(--ads-v2-color-gray-100);
     .t--app-multi-select-checkbox {
       display: inline;
-      visibility: visible;
-      opacity: 1;
-    }
-  }
-
-  .t--app-multi-select-checkbox {
-    display: none;
-    height: 14px;
-    margin-left: 4px;
-    visibility: hidden;
-    opacity: 0;
-    transition:
-      visibility 0s,
-      opacity 0.2s linear;
-    &.t--app-multi-select-mode-checkbox {
-      display: inline;
-      visibility: visible;
-      opacity: 1;
+      animation: multi-select-check 0.5s;
+      animation-fill-mode: forwards;
     }
   }
 
@@ -207,10 +191,36 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     border-color: var(--ads-v2-color-blue-300);
     .t--app-multi-select-checkbox {
       display: inline;
-      visibility: visible;
-      opacity: 1;
+      animation: multi-select-check 0.5s;
+      animation-fill-mode: forwards;
     }
   }`}
+
+  .t--app-multi-select-checkbox {
+    display: none;
+    height: 14px;
+    visibility: hidden;
+    opacity: 0;
+    margin-left: -24px;
+    &.t--app-multi-select-mode-checkbox {
+      display: inline;
+      animation: multi-select-check 0.5s;
+      animation-fill-mode: forwards;
+    }
+  }
+
+  @keyframes multi-select-check {
+    from {
+      margin-left: -24px;
+      visibility: hidden;
+      opacity: 0;
+    }
+    to {
+      visibility: visible;
+      opacity: 1;
+      margin-left: 4px;
+    }
+  }
 `;
 
 const Wrapper = styled(
