@@ -3,16 +3,11 @@ name: Test, build and push Airgapped docker Image
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
-
-  # trigger for pushes to release and master
-  push:
-    branches: [master]
-    paths:
-      - "app/client/**"
-      - "app/server/**"
-      - "app/rts/**"
-      - "!app/client/cypress/manual_TestSuite/**"
-
+  
+  # This workflow will run at midnight UTC, every Sunday
+  schedule:
+    - cron: "0 0 * * 0"
+    
 jobs:
   server-build:
     name: server-build

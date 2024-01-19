@@ -54,14 +54,14 @@ import {
 } from "@appsmith/constants/messages";
 import * as log from "loglevel";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
-import type { JSAction, JSCollection } from "entities/JSCollection";
+import type { JSCollection } from "entities/JSCollection";
 import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 import { updateActionData } from "actions/pluginActionActions";
 import { fetchAllPackagesSaga } from "./packagesSagas";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
-import type { MODULE_TYPE, Module } from "@appsmith/constants/ModuleConstants";
+import { MODULE_TYPE, type Module } from "@appsmith/constants/ModuleConstants";
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import { getNewEntityName } from "@appsmith/selectors/entitiesSelector";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
@@ -411,7 +411,7 @@ export function* refactorModuleInstanceName({
 }: RefactorModuleInstanceNameProps) {
   const layoutId: string = yield select(getCurrentLayoutId);
   // call to refactor module instance
-  const oldPublicQuery: Action | undefined = yield select(
+  const oldPublicQuery: Action | JSCollection | undefined = yield select(
     getModuleInstancePublicEntity,
     id,
     type,
@@ -451,21 +451,36 @@ export function* refactorModuleInstanceName({
       },
     });
     if (currentPageId === pageId) {
-      const publicQuery: Action | JSAction | undefined = yield select(
+      const publicQuery: Action | JSCollection | undefined = yield select(
         getModuleInstancePublicEntity,
         id,
         type,
       );
-      yield put(
-        updateActionData([
-          {
-            entityName: `${publicQuery?.name}`,
-            dataPath: "data",
-            data: undefined,
-            dataPathRef: `${oldPublicQuery?.name}.data`,
-          },
-        ]),
-      );
+      if (type === MODULE_TYPE.QUERY) {
+        yield put(
+          updateActionData([
+            {
+              entityName: `${publicQuery?.name}`,
+              dataPath: "data",
+              data: undefined,
+              dataPathRef: `${oldPublicQuery?.name}.data`,
+            },
+          ]),
+        );
+      } else if (type === MODULE_TYPE.JS) {
+        const publicObject = publicQuery as JSCollection;
+        const functions = publicObject && publicObject.actions;
+        yield put(
+          updateActionData(
+            functions.map((f) => ({
+              entityName: `${publicQuery?.name}`,
+              data: undefined,
+              dataPath: `${f.name}.data`,
+              dataPathRef: `${oldPublicQuery?.name}.${f.name}.data`,
+            })),
+          ),
+        );
+      }
     }
   }
 }

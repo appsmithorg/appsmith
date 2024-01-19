@@ -87,12 +87,14 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
         }
 
         Mono<List<ModuleInstance>> importedModuleInstancesMono = Mono.justOrEmpty(moduleInstanceList);
-        if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
+        if (Boolean.TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             importedModuleInstancesMono = importedModuleInstancesMono.map(moduleInstanceList1 -> {
-                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageOrModuleMap().values().stream()
+                        .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                         .distinct()
                         .toList();
-                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
+
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getPageOrModuleNewNameToOldName();
 
                 for (NewPage newPage : importedNewPages) {
                     String newPageName = newPage.getUnpublishedPage().getName();
@@ -121,8 +123,8 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
-                            && !TRUE.equals(importingMetaDTO.getAppendToApp())
+                    if (StringUtils.hasText(importingMetaDTO.getArtifactId())
+                            && !TRUE.equals(importingMetaDTO.getAppendToArtifact())
                             && CollectionUtils.isNotEmpty(importModuleInstanceResultDTO.getExistingModuleInstances())) {
                         // Remove unwanted module instances
                         Set<String> invalidModuleInstanceIds = new HashSet<>();
@@ -245,9 +247,9 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                             unpublishedModuleInstance.setId(moduleInstance.getId());
                             unpublishedModuleInstance.setSourceModuleId(moduleInstance.getSourceModuleId());
                             unpublishedModuleInstance.setModuleUUID(moduleInstance.getModuleUUID());
+                            parentPage = updatePageInModuleInstance(unpublishedModuleInstance, (Map<String, NewPage>)
+                                    mappedImportableResourcesDTO.getPageOrModuleMap());
                             unpublishedModuleInstance.setVersion(unpublishedModuleInstance.getVersion());
-                            parentPage = updatePageInModuleInstance(
-                                    unpublishedModuleInstance, mappedImportableResourcesDTO.getPageNameMap());
                             unpublishedModuleInstance.setContextId(unpublishedModuleInstance.getPageId());
                         }
 
@@ -256,8 +258,9 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                             if (!StringUtils.hasLength(publishedModuleInstance.getPageId())) {
                                 publishedModuleInstance.setPageId(fallbackParentPageId);
                             }
-                            NewPage publishedModuleInstancePage = updatePageInModuleInstance(
-                                    publishedModuleInstance, mappedImportableResourcesDTO.getPageNameMap());
+                            NewPage publishedModuleInstancePage =
+                                    updatePageInModuleInstance(publishedModuleInstance, (Map<String, NewPage>)
+                                            mappedImportableResourcesDTO.getPageOrModuleMap());
                             parentPage = parentPage == null ? publishedModuleInstancePage : parentPage;
                         }
 
