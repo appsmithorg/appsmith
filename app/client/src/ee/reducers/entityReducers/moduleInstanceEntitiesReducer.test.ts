@@ -199,14 +199,14 @@ const convertActionsToStateActions = (actions: Action[] | JSCollection[]) => {
 };
 
 describe("moduleInstanceEntitiesReducer", () => {
-  it("should handle UPDATE_MODULE_INSTANCE_SETTINGS_SUCCESS when payload is action", () => {
+  it("should handle UPDATE_MODULE_INSTANCE_SETTINGS_INIT when payload is action", () => {
     const currentState = {
       actions: convertActionsToStateActions(DEFAULT_ACTIONS),
       jsCollections: convertActionsToStateActions(DEFAULT_JS_COLLECTIONS),
     };
 
     const action = {
-      type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_SUCCESS,
+      type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_INIT,
       payload: {
         id: "6526621d4b7c8d450a102985",
         name: "QueryModule2",
@@ -238,7 +238,7 @@ describe("moduleInstanceEntitiesReducer", () => {
     expect(nextState).toEqual(expectedState);
   });
 
-  it("should handle UPDATE_MODULE_INSTANCE_SETTINGS_SUCCESS when payload is js collection", () => {
+  it("should handle UPDATE_MODULE_INSTANCE_SETTINGS_INIT when payload is js collection", () => {
     const currentState = {
       actions: convertActionsToStateActions(DEFAULT_ACTIONS),
       jsCollections: convertActionsToStateActions(DEFAULT_JS_COLLECTIONS),
@@ -249,7 +249,7 @@ describe("moduleInstanceEntitiesReducer", () => {
     updatedJSCollection.actions[0].confirmBeforeExecute = false;
 
     const action = {
-      type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_SUCCESS,
+      type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_INIT,
       payload: updatedJSCollection as unknown as JSCollection,
     };
 

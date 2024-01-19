@@ -429,6 +429,7 @@ export const CANNOT_CREATE_MODULE_WARN = () =>
 export const GO_TO_MODULE = () => "Go to Module";
 export const START_SWITCH_ENVIRONMENT_FOR_PACKAGE = (environment: string) =>
   `Switching your environment to ${environment.toLowerCase()}`;
+export const UPDATE_MODULE_INPUT_ERROR = () => "Failed to update inputs";
 // Modules end
 
 //Worflows start

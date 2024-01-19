@@ -42,7 +42,7 @@ const InputFieldWrapper = styled.div`
   gap: var(--ads-v2-spaces-3);
 `;
 
-const DEBOUNCE_TIMEOUT = 150;
+const DEBOUNCE_TIMEOUT = 100;
 
 function InputsForm({
   defaultValues,

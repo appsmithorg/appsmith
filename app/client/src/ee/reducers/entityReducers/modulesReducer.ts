@@ -6,7 +6,10 @@ import type {
   FetchPackageResponse,
   FetchConsumablePackagesInWorkspaceResponse,
 } from "@appsmith/api/PackageApi";
-import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
+import type {
+  DeleteModulePayload,
+  UpdateModuleInputsPayload,
+} from "@appsmith/actions/moduleActions";
 import { klona } from "klona";
 import type { ConvertEntityToInstanceResponse } from "@appsmith/api/ModuleInstanceApi";
 
@@ -65,12 +68,12 @@ const modulesReducer = createImmerReducer(initialState, {
 
     return draftState;
   },
-  [ReduxActionTypes.UPDATE_MODULE_INPUTS_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_MODULE_INPUTS_INIT]: (
     draftState: ModulesReducerState,
-    action: ReduxAction<Module>,
+    action: ReduxAction<UpdateModuleInputsPayload>,
   ) => {
-    const module = action.payload;
-    draftState[module.id].inputsForm = module.inputsForm;
+    const { id, inputsForm } = action.payload;
+    draftState[id].inputsForm = inputsForm;
 
     return draftState;
   },

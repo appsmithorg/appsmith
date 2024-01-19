@@ -56,7 +56,7 @@ const generateDefaultInputForm = () => {
   return { inputsForm: [defaultInputSection] };
 };
 
-const DEBOUNCE_TIMEOUT = 150;
+const DEBOUNCE_TIMEOUT = 100;
 
 function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
   const dispatch = useDispatch();
