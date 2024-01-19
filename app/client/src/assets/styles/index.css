@@ -70,3 +70,19 @@ input::placeholder,
 textarea::placeholder {
   color: var(--ads-v2-color-fg-subtle);
 }
+
+.resize-wrapper {
+  display: block;
+  outline-offset: 1px;
+  outline: 1px solid !important;
+  will-change: outline-color;
+  outline-color: transparent !important;
+}
+
+.show-boundary {
+  outline-color: #fafafa !important;
+}
+
+.pointer-event-none {
+  pointer-events: none;
+}
