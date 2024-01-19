@@ -129,12 +129,15 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
         String resolutionPath = fieldName(QApprovalRequest.approvalRequest.resolution);
         String resolvedAtPath = fieldName(QApprovalRequest.approvalRequest.resolvedAt);
         String resolvedByPath = fieldName(QApprovalRequest.approvalRequest.resolvedBy);
+        String resolutionMetadataPath = fieldName(QApprovalRequest.approvalRequest.resolutionMetadata);
 
         ObjectUtils.setIfNotEmpty(updateObj, resolutionStatusPath, RESOLVED);
         ObjectUtils.setIfNotEmpty(updateObj, resolutionReasonPath, approvalRequestResolutionDTO.getResolutionReason());
         ObjectUtils.setIfNotEmpty(updateObj, resolutionPath, approvalRequestResolutionDTO.getResolution());
         ObjectUtils.setIfNotEmpty(updateObj, resolvedAtPath, Instant.now());
         ObjectUtils.setIfNotEmpty(updateObj, resolvedByPath, user.getUsername());
+        ObjectUtils.setIfNotEmpty(
+                updateObj, resolutionMetadataPath, approvalRequestResolutionDTO.getResolutionMetadata());
 
         return updateObj;
     }

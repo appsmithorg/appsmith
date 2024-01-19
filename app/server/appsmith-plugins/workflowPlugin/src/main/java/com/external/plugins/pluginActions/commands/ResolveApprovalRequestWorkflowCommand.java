@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.dtos.ResolveApprovalRequestWorkflowCommandDTO;
 import com.external.plugins.exceptions.WorkflowPluginError;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +17,7 @@ import java.util.Map;
 
 import static com.external.plugins.constants.FieldNames.REQUEST_ID;
 import static com.external.plugins.constants.FieldNames.RESOLUTION;
+import static com.external.plugins.constants.FieldNames.RESOLUTION_METADATA;
 import static com.external.plugins.constants.FieldNames.RESOLUTION_REASON;
 import static com.external.plugins.constants.FieldNames.WORKFLOW_ID;
 import static com.external.plugins.constants.Urls.RESOLVE_APPROVAL_REQUEST_URL;
@@ -68,6 +71,16 @@ public class ResolveApprovalRequestWorkflowCommand extends BaseWorkflowCommand {
         String resolutionReason = extractStringFromFormData(formData, RESOLUTION_REASON);
         if (StringUtils.isNotEmpty(resolutionReason)) {
             resolveApprovalRequestWorkflowCommandDTO.setResolutionReason(resolutionReason);
+        }
+
+        String resolutionMetadata = extractStringFromFormData(formData, RESOLUTION_METADATA);
+        if (StringUtils.isNotEmpty(resolutionMetadata)) {
+            try {
+                JsonNode jsonNode = objectMapper.readTree(resolutionMetadata);
+                resolveApprovalRequestWorkflowCommandDTO.setResolutionMetadata(jsonNode);
+            } catch (JsonProcessingException e) {
+                throw new AppsmithPluginException(WorkflowPluginError.RESOLUTION_METADATA_INVALID_JSON);
+            }
         }
         return gson.toJson(resolveApprovalRequestWorkflowCommandDTO);
     }

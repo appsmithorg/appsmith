@@ -14,6 +14,8 @@ import java.util.Map;
 import static com.appsmith.external.models.ErrorType.WORKFLOW_ERROR;
 import static com.external.plugins.constants.FieldNames.REQUEST_ID;
 import static com.external.plugins.constants.FieldNames.REQUEST_TYPE;
+import static com.external.plugins.constants.FieldNames.RESOLUTION;
+import static com.external.plugins.constants.FieldNames.RESOLUTION_METADATA;
 import static com.external.plugins.constants.FieldNames.WORKFLOW_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -109,6 +111,34 @@ public class ResolveApprovalRequestWorkflowCommandTest {
                             .isEqualTo(WorkflowPluginError.APPROVAL_REQUEST_RESOLUTION_MISSING.getMessage());
                     assertThat(executionResult.getStatusCode())
                             .isEqualTo(WorkflowPluginError.APPROVAL_REQUEST_RESOLUTION_MISSING.getAppErrorCode());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteRequestWithInvalidResolutionMetadata() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> formData = new HashMap<>();
+        formData.put(REQUEST_TYPE, Map.of("data", "RESOLVE_APPROVAL_REQUESTS"));
+        formData.put(WORKFLOW_ID, Map.of("data", "WORKFLOW_ID"));
+        formData.put(REQUEST_ID, Map.of("data", "REQUEST_ID"));
+        formData.put(RESOLUTION, Map.of("data", "RESOLUTION"));
+        formData.put(RESOLUTION_METADATA, Map.of("data", "{"));
+        actionConfiguration.setFormData(formData);
+
+        Mono<ActionExecutionResult> executionResultMono =
+                workflowPluginExecutor.execute(null, null, actionConfiguration);
+
+        StepVerifier.create(executionResultMono)
+                .assertNext(executionResult -> {
+                    assertThat(executionResult.getIsExecutionSuccess()).isFalse();
+                    assertThat(executionResult.getErrorType()).isEqualTo(WORKFLOW_ERROR.toString());
+                    assertThat(executionResult.getTitle())
+                            .isEqualTo(WorkflowPluginError.RESOLUTION_METADATA_INVALID_JSON.getTitle());
+                    assertThat(executionResult.getBody())
+                            .isEqualTo(WorkflowPluginError.RESOLUTION_METADATA_INVALID_JSON.getMessage());
+                    assertThat(executionResult.getStatusCode())
+                            .isEqualTo(WorkflowPluginError.RESOLUTION_METADATA_INVALID_JSON.getAppErrorCode());
                 })
                 .verifyComplete();
     }

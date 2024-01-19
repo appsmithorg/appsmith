@@ -90,6 +90,15 @@ public enum WorkflowPluginError implements BasePluginError {
             ErrorType.WORKFLOW_ERROR,
             "",
             ""),
+    RESOLUTION_METADATA_INVALID_JSON(
+            400,
+            "PE-WF-4008",
+            "Resolution metadata json invalid",
+            "Resolution metadata json invalid",
+            AppsmithErrorAction.DEFAULT,
+            ErrorType.WORKFLOW_ERROR,
+            "",
+            ""),
     ;
     private final Integer httpErrorCode;
     private final String appErrorCode;
