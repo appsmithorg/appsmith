@@ -419,6 +419,11 @@ class CrudApprovalRequestServiceTest {
         expectedApprovalRequestPolicies.add(resolveApprovalRequestPolicy);
 
         assertThat(approvalRequest.getPolicies()).isEqualTo(expectedApprovalRequestPolicies);
+
+        UserGroupDTO userGroupDTOPostApprovalRequest =
+                userGroupService.getGroupById(createdUserGroupDTO.getId()).block();
+
+        assertThat(userGroupDTOPostApprovalRequest.getRoles()).isEmpty();
     }
 
     @Test
