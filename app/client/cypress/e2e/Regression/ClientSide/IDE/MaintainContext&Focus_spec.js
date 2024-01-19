@@ -36,7 +36,6 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
   });
 
   it("1. Focus on different entities", () => {
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
       "Container1",
     ]);

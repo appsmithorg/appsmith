@@ -254,9 +254,11 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
             this.props.resetSnipingMode();
-            this.props.deselectAllWidgets();
-            this.props.closeProppane();
-            this.props.closeTableFilterProppane();
+            if (matchBuilderPath(window.location.pathname)) {
+              this.props.deselectAllWidgets();
+              this.props.closeProppane();
+              this.props.closeTableFilterProppane();
+            }
             e.preventDefault();
           }}
         />

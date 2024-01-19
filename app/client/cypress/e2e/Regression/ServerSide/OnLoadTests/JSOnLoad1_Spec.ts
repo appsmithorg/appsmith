@@ -14,6 +14,8 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 let dsName: any, jsName: any;
 
@@ -196,6 +198,7 @@ describe(
         action: "Delete",
         entityType: entityItems.JSObject,
       });
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "GetEmployee",
         action: "Delete",

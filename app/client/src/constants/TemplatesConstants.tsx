@@ -12,15 +12,15 @@ export const COMMUNITY_PORTAL = {
 
 const RecordEdit = importSvg(
   async () =>
-    import("../assets/icons/templates/starter-template-record-edit.svg"),
+    import("../assets/icons/templates/canvas-starter-record-edit.svg"),
 );
 const RecordDetails = importSvg(
   async () =>
-    import("../assets/icons/templates/starter-template-record-details.svg"),
+    import("../assets/icons/templates/canvas-starter-record-details.svg"),
 );
-const Dashboard = importSvg(
+const SortFilterTable = importSvg(
   async () =>
-    import("../assets/icons/templates/starter-template-dashboard.svg"),
+    import("../assets/icons/templates/canvas-starter-sort-filter-table.svg"),
 );
 
 export const STARTER_BUILDING_BLOCK_TEMPLATE_NAME = "Starter Building Block";
@@ -61,17 +61,17 @@ export const STARTER_BUILDING_BLOCKS = {
     {
       id: 3,
       title: createMessage(
-        STARTER_BUILDING_BLOCKS_LAYOUTS.layouts.dashboard.name,
+        STARTER_BUILDING_BLOCKS_LAYOUTS.layouts.sortFilterTable.name,
       ),
       description: createMessage(
-        STARTER_BUILDING_BLOCKS_LAYOUTS.layouts.dashboard.description,
+        STARTER_BUILDING_BLOCKS_LAYOUTS.layouts.sortFilterTable.description,
       ),
-      icon: <Dashboard />,
+      icon: <SortFilterTable />,
       screenshot:
-        "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-dashboard.png",
+        "https://images.ctfassets.net/lpvian6u6i39/55ERsTeUvbAzJVaBBsInZr/0009fee0adb710b91c18a5bdc989deeb/canvas-starter-building-block-sort-filter-table.png?fm=png&q=50",
       templateId: "6530e343fa63b553e4be0266",
       templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-      templatePageName: "Dashboard",
+      templatePageName: "Sort and Filter Table",
     },
   ],
 };

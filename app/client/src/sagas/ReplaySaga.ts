@@ -52,7 +52,12 @@ import {
   getSettingConfig,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import { isAPIAction, isQueryAction, isSaaSAction } from "entities/Action";
+import {
+  isAIAction,
+  isAPIAction,
+  isQueryAction,
+  isSaaSAction,
+} from "entities/Action";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
@@ -301,7 +306,9 @@ function* replayActionSaga(
 
   //Reinitialize form
   const currentFormName =
-    isQueryAction(replayEntity) || isSaaSAction(replayEntity)
+    isQueryAction(replayEntity) ||
+    isSaaSAction(replayEntity) ||
+    isAIAction(replayEntity)
       ? QUERY_EDITOR_FORM_NAME
       : API_EDITOR_FORM_NAME;
   yield put(initialize(currentFormName, replayEntity));

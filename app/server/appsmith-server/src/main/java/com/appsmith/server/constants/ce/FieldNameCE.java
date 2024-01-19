@@ -161,6 +161,7 @@ public class FieldNameCE {
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
+    public static final String HEADER_ENVIRONMENT_ID = "X-Appsmith-EnvironmentId";
     public static final String ENVIRONMENT_ID = "environmentId";
 
     public static final String IS_FORCE_INSTALL = "forceInstall";
@@ -195,4 +196,7 @@ public class FieldNameCE {
     public static final String INSTANCE_ID = "instanceId";
     public static final String IP_ADDRESS = "ipAddress";
     public static final String VERSION = "version";
+    public static final String PUBLISHED = "published";
+    public static final String UNPUBLISHED = "unpublished";
+    public static final String ARTIFACT_CONTEXT = "artifactContext";
 }

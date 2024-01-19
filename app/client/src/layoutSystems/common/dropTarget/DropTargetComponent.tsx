@@ -294,7 +294,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   // This shows the property pane
   const showPropertyPane = useShowPropertyPane();
 
-  const { deselectAll, focusWidget } = useWidgetSelection();
+  const { focusWidget, goToWidgetAdd } = useWidgetSelection();
 
   // Everytime we get a new bottomRow, or we toggle shouldScrollContents
   // we call this effect
@@ -345,7 +345,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
       // Check if Target is the MainCanvas
       if (isTargetMainCanvas) {
-        deselectAll();
+        goToWidgetAdd();
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
         e.preventDefault();

@@ -136,11 +136,11 @@ import {
   mergeDynamicPropertyPaths,
   purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
+import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import {
-  partialImportSaga,
   partialExportSaga,
-  widgetSelectionSagas,
-} from "./WidgetSelectionSagas";
+  partialImportSaga,
+} from "./PartialImportExportSagas";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
@@ -389,6 +389,20 @@ function getDynamicTriggerPathListUpdate(
   };
 }
 
+const DYNAMIC_BINDING_IGNORED_LIST = [
+  /* Table widget */
+  "primaryColumns",
+  "derivedColumns",
+
+  /* custom widget */
+  "srcDoc.html",
+  "srcDoc.css",
+  "srcDoc.js",
+  "uncompiledSrcDoc.html",
+  "uncompiledSrcDoc.css",
+  "uncompiledSrcDoc.js",
+];
+
 function getDynamicBindingPathListUpdate(
   widget: WidgetProps,
   propertyPath: string,
@@ -400,9 +414,12 @@ function getDynamicBindingPathListUpdate(
     stringProp = JSON.stringify(propertyValue);
   }
 
-  //TODO(abhinav): This is not appropriate from the platform's archtecture's point of view.
+  /*
+   * TODO(Balaji Soundararajan): This is not appropriate from the platform's archtecture's point of view.
+   * This setting should come from widget configuration
+   */
   // Figure out a holistic solutions where we donot have to stringify above.
-  if (propertyPath === "primaryColumns" || propertyPath === "derivedColumns") {
+  if (DYNAMIC_BINDING_IGNORED_LIST.includes(propertyPath)) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.NOOP,

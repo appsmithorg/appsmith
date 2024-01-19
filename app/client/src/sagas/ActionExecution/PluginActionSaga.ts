@@ -646,7 +646,15 @@ export default function* executePluginActionTriggerSaga(
       },
     });
   }
-  return [payload.body, params];
+  return [
+    payload.body,
+    params,
+    {
+      isExecutionSuccess: payload.isExecutionSuccess,
+      statusCode: payload.statusCode,
+      headers: payload.headers,
+    },
+  ];
 }
 
 function* runActionShortcutSaga() {

@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
@@ -11,6 +12,7 @@ import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.AnalyticsService;
@@ -58,6 +60,9 @@ public class ApplicationControllerTest {
     ImportApplicationService importApplicationService;
 
     @MockBean
+    ImportService importService;
+
+    @MockBean
     ExportApplicationService exportApplicationService;
 
     @MockBean
@@ -86,6 +91,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     PartialImportService partialImportService;
+
+    @MockBean
+    ProjectProperties projectProperties;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();

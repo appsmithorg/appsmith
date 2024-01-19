@@ -41,7 +41,7 @@ jobs:
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'repository_dispatch' ||
-      github.event_name == 'schedule' 
+      github.event_name == 'schedule'
     defaults:
       run:
         working-directory: app/client
@@ -166,6 +166,11 @@ jobs:
       - if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
         run: exit 1
 
+      - name: Install postgres-dependencies
+        run: |
+          sudo apt update -y
+          sudo apt install -y postgresql-client
+
       # Create a run record exactly at the time of merge to release to
       # ensure we compare run details with code at this point
       - name: Create Perf Meta
@@ -219,8 +224,6 @@ jobs:
         run: |
           npm install -g yarn
           yarn install --immutable
-          sudo apt update -y
-          sudo apt install -y postgresql-client
 
       # Type checking before starting the build
       - name: Run type check
@@ -239,13 +242,6 @@ jobs:
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
               echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
           fi
-          # Since this is an unreleased build, we set the version to incremented version number with
-          # a `-SNAPSHOT` suffix.
-          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
-          echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
-          echo "next_version = $next_version"
-          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
@@ -260,8 +256,6 @@ jobs:
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
-            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_VERSION_EDITION="Community" \
             yarn build
 

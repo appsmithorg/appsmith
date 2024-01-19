@@ -5,16 +5,18 @@ import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Transient;
 
 import java.util.List;
 import java.util.Map;
@@ -27,17 +29,15 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class ApplicationJsonCE {
+public class ApplicationJsonCE implements ArtifactExchangeJson {
 
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
-    @Transient
     @JsonView({Views.Public.class, Views.Export.class})
     Integer clientSchemaVersion;
 
     // To convey the schema version of the server and will be used to check if the imported file is compatible with
     // current DB schema
-    @Transient
     @JsonView({Views.Public.class, Views.Export.class})
     Integer serverSchemaVersion;
 
@@ -114,4 +114,19 @@ public class ApplicationJsonCE {
 
     @JsonView({Views.Public.class, Views.Export.class})
     String widgets;
+
+    @Override
+    public ArtifactJsonType getArtifactJsonType() {
+        return ArtifactJsonType.APPLICATION;
+    }
+
+    @Override
+    public ImportableArtifact getImportableArtifact() {
+        return this.getExportedApplication();
+    }
+
+    @Override
+    public List<CustomJSLib> getCustomJsLibFromArtifact() {
+        return this.getCustomJSLibList();
+    }
 }

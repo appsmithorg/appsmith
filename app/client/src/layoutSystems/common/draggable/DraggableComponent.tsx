@@ -111,6 +111,11 @@ function DraggableComponent(props: DraggableComponentProps) {
     e.stopPropagation();
   };
 
+  const handleMouseLeave = () => {
+    // on leaving a widget, we reset the focused widget
+    focusWidget && focusWidget();
+  };
+
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
     display: !props.isFlexChild && isCurrentWidgetDragging ? "none" : "block",
@@ -152,6 +157,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       data-testid={isSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
+      onMouseLeave={handleMouseLeave}
       onMouseOver={handleMouseOver}
       ref={draggableRef}
       style={dragWrapperStyle}
