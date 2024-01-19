@@ -11,8 +11,15 @@ import {
 import type { AppThemeProperties } from "entities/AppTheming";
 
 export default function Preview() {
-  const { key, model, srcDoc, theme, updateDebuggerLogs, updateModel } =
-    useContext(CustomWidgetBuilderContext);
+  const {
+    key,
+    model,
+    srcDoc,
+    theme,
+    updateDebuggerLogs,
+    updateModel,
+    widgetId,
+  } = useContext(CustomWidgetBuilderContext);
 
   const [dimensions, setDimensions] = useState({
     width: 300,
@@ -100,6 +107,7 @@ export default function Preview() {
             args: [{ message }, { message: data }],
           });
         }}
+        widgetId={widgetId || ""}
         width={dimensions.width}
       />
       <Debugger />

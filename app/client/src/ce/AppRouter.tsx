@@ -41,11 +41,13 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import { useDispatch, useSelector } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
+import { connect, useSelector } from "react-redux";
 
 import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
+import { getCurrentUser } from "actions/authActions";
 import {
   getCurrentUserLoading,
   getFeatureFlagsFetching,
@@ -55,6 +57,11 @@ import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
+import {
+  fetchFeatureFlagsInit,
+  fetchProductAlertInit,
+} from "actions/userActions";
+import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
 import {
   getTenantPermissions,
@@ -70,7 +77,6 @@ import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSett
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
-import { getIsConsolidatedPageLoading } from "selectors/ui";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -153,53 +159,65 @@ export function Routes() {
   );
 }
 
-export default function AppRouter() {
-  const safeCrash: boolean = useSelector(getSafeCrash);
-  const safeCrashCode: ERROR_CODES | undefined = useSelector(getSafeCrashCode);
+function AppRouter(props: {
+  safeCrash: boolean;
+  getCurrentUser: () => void;
+  getFeatureFlags: () => void;
+  getCurrentTenant: () => void;
+  initCurrentPage: () => void;
+  fetchProductAlert: () => void;
+  safeCrashCode?: ERROR_CODES;
+}) {
+  const {
+    fetchProductAlert,
+    getCurrentTenant,
+    getCurrentUser,
+    getFeatureFlags,
+    initCurrentPage,
+  } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
   const featuresIsLoading = useSelector(getFeatureFlagsFetching);
-  const isConsolidatedPageLoading = useSelector(getIsConsolidatedPageLoading);
-  const dispatch = useDispatch();
-  const isConsolidatedFetchEnabled = useFeatureFlag(
-    FEATURE_FLAG.rollout_consolidated_page_load_fetch_enabled,
-  );
 
   useEffect(() => {
-    dispatch(initCurrentPage());
+    getCurrentUser();
+    getFeatureFlags();
+    getCurrentTenant();
+    initCurrentPage();
+    fetchProductAlert();
   }, []);
 
   useBrandingTheme();
 
-  let isLoading: boolean;
-  if (isConsolidatedFetchEnabled) {
-    isLoading = isConsolidatedPageLoading;
-  } else {
-    isLoading = tenantIsLoading || currentUserIsLoading || featuresIsLoading;
-  }
   // hide the top loader once the tenant is loaded
   useEffect(() => {
-    if (!isLoading) {
+    if (
+      tenantIsLoading === false &&
+      currentUserIsLoading === false &&
+      featuresIsLoading === false
+    ) {
       const loader = document.getElementById("loader") as HTMLDivElement;
+
       if (loader) {
         loader.style.width = "100vw";
+
         setTimeout(() => {
           loader.style.opacity = "0";
         });
       }
     }
-  }, [isLoading]);
+  }, [tenantIsLoading, currentUserIsLoading, featuresIsLoading]);
 
-  if (isLoading) return null;
+  if (tenantIsLoading || currentUserIsLoading || featuresIsLoading) return null;
 
   return (
     <Router history={history}>
       <Suspense fallback={loadingIndicator}>
         <RouteChangeListener />
-        {safeCrash && safeCrashCode ? (
+        {props.safeCrash && props.safeCrashCode ? (
           <>
             <ErrorPageHeader />
-            <ErrorPage code={safeCrashCode} />
+            <ErrorPage code={props.safeCrashCode} />
           </>
         ) : (
           <>
@@ -214,3 +232,18 @@ export default function AppRouter() {
     </Router>
   );
 }
+
+export const mapStateToProps = (state: AppState) => ({
+  safeCrash: getSafeCrash(state),
+  safeCrashCode: getSafeCrashCode(state),
+});
+
+export const mapDispatchToProps = (dispatch: any) => ({
+  getCurrentUser: () => dispatch(getCurrentUser()),
+  getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
+  getCurrentTenant: () => dispatch(getCurrentTenant(false)),
+  initCurrentPage: () => dispatch(initCurrentPage()),
+  fetchProductAlert: () => dispatch(fetchProductAlertInit()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

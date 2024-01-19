@@ -7,19 +7,14 @@ export const FEATURE_FLAG = {
     "release_appnavigationlogoupload_enabled",
   release_embed_hide_share_settings_enabled:
     "release_embed_hide_share_settings_enabled",
-  ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
   ab_wds_enabled: "ab_wds_enabled",
   release_table_serverside_filtering_enabled:
     "release_table_serverside_filtering_enabled",
-  release_custom_echarts_enabled: "release_custom_echarts_enabled",
   license_branding_enabled: "license_branding_enabled",
   release_git_status_lite_enabled: "release_git_status_lite_enabled",
   license_sso_saml_enabled: "license_sso_saml_enabled",
   license_sso_oidc_enabled: "license_sso_oidc_enabled",
   release_git_connect_v2_enabled: "release_git_connect_v2_enabled",
-  deprecate_custom_fusioncharts_enabled:
-    "deprecate_custom_fusioncharts_enabled",
-  ab_mock_mongo_schema_enabled: "ab_mock_mongo_schema_enabled",
   license_private_embeds_enabled: "license_private_embeds_enabled",
   release_show_publish_app_to_community_enabled:
     "release_show_publish_app_to_community_enabled",
@@ -48,8 +43,7 @@ export const FEATURE_FLAG = {
     "ab_one_click_learning_popover_enabled",
   release_side_by_side_ide_enabled: "release_side_by_side_ide_enabled",
   release_global_add_pane_enabled: "release_global_add_pane_enabled",
-  rollout_consolidated_page_load_fetch_enabled:
-    "rollout_consolidated_page_load_fetch_enabled",
+  ab_appsmith_ai_query: "ab_appsmith_ai_query",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -61,17 +55,13 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_datasource_environments_enabled: false,
   release_appnavigationlogoupload_enabled: false,
   release_embed_hide_share_settings_enabled: false,
-  ab_gsheet_schema_enabled: false,
   ab_wds_enabled: false,
   release_table_serverside_filtering_enabled: false,
-  release_custom_echarts_enabled: false,
   license_branding_enabled: false,
   release_git_status_lite_enabled: false,
   license_sso_saml_enabled: false,
   license_sso_oidc_enabled: false,
   release_git_connect_v2_enabled: false,
-  deprecate_custom_fusioncharts_enabled: false,
-  ab_mock_mongo_schema_enabled: false,
   license_private_embeds_enabled: false,
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
@@ -91,7 +81,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_one_click_learning_popover_enabled: false,
   release_side_by_side_ide_enabled: false,
   release_global_add_pane_enabled: false,
-  rollout_consolidated_page_load_fetch_enabled: false,
+  ab_appsmith_ai_query: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

@@ -27,7 +27,8 @@ describe(
       agHelper.Sleep(2000); // adding wait for app to load
       homePage.LogOutviaAPI();
       cy.generateUUID().then((uid) => {
-        cy.Signup(`${uid}@appsmithtest.com`, uid);
+        homePage.SignUp(`${uid}@appsmithtest.com`, uid);
+        onboarding.closeIntroModal();
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();

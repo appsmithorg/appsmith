@@ -10,6 +10,13 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
+import history, { NavigationMethod } from "utils/history";
+import {
+  jsCollectionListURL,
+  queryListURL,
+  widgetListURL,
+} from "@appsmith/RouteBuilder";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -103,4 +110,39 @@ export const useEditorPaneWidth = (): number => {
   }, [isSideBySideEnabled, editorMode, segment, propertyPaneWidth]);
 
   return width;
+};
+
+export const useSegmentNavigation = (): {
+  onSegmentChange: (value: string) => void;
+} => {
+  const pageId = useSelector(getCurrentPageId);
+
+  /**
+   * Callback to handle the segment change
+   *
+   * @param value
+   * @returns
+   *
+   */
+  const onSegmentChange = (value: string) => {
+    switch (value) {
+      case EditorEntityTab.QUERIES:
+        history.push(queryListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
+        break;
+      case EditorEntityTab.JS:
+        history.push(jsCollectionListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
+        break;
+      case EditorEntityTab.UI:
+        history.push(widgetListURL({ pageId }), {
+          invokedBy: NavigationMethod.SegmentControl,
+        });
+        break;
+    }
+  };
+
+  return { onSegmentChange };
 };

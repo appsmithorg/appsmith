@@ -18,7 +18,6 @@ export interface FetchPageRequest {
   isFirstLoad?: boolean;
   handleResponseLater?: boolean;
   migrateDSL?: boolean;
-  pageWithMigratedDsl?: FetchPageResponse;
 }
 
 export interface FetchPublishedPageRequest {

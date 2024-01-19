@@ -1,7 +1,6 @@
 import {
   agHelper,
   apiPage,
-  assertHelper,
   deployMode,
   entityExplorer,
   entityItems,
@@ -138,19 +137,17 @@ describe(
 
       deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
       agHelper.Sleep(5000); //for all api's to ccomplete call!
-      assertHelper.AssertNetworkStatus("@getConsolidatedData");
-
-      cy.get("@getConsolidatedData").then(($response: any) => {
+      cy.wait("@viewPage").then(($response) => {
         const respBody = JSON.stringify($response.response?.body);
-        const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
+
         const _randomFlora =
-          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[0];
+          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[0];
         const _randomUser =
-          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[1];
+          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[1];
         const _genderize =
-          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[2];
+          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[2];
         const _suggestions =
-          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[3];
+          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[3];
         // cy.log("_randomFlora is: " + JSON.stringify(_randomFlora))
         // cy.log("_randomUser is: " + JSON.stringify(_randomUser))
         // cy.log("_genderize is: " + JSON.stringify(_genderize))
@@ -199,20 +196,17 @@ describe(
       }); // verifies Bug 10055
 
       deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
-      assertHelper.AssertNetworkStatus("@getConsolidatedData");
-
-      cy.get("@getConsolidatedData").then(($response: any) => {
+      agHelper.Sleep(5000); //for all api's to ccomplete call!
+      cy.wait("@viewPage").then(($response) => {
         const respBody = JSON.stringify($response.response?.body);
-        const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
-
         const _randomFlora =
-          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[0];
+          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[0];
         const _randomUser =
-          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[1];
+          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[1];
         const _genderize =
-          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[2];
+          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[2];
         const _suggestions =
-          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[3];
+          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[3];
 
         expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
           "RandomFlora",
