@@ -1,9 +1,5 @@
+import { ICONS } from "@design-system/widgets";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { IconNames } from "@blueprintjs/icons";
-
-const ICON_NAMES = Object.keys(IconNames).map(
-  (name: string) => IconNames[name as keyof typeof IconNames],
-);
 
 export const propertyPaneContentConfig = [
   {
@@ -13,7 +9,7 @@ export const propertyPaneContentConfig = [
         propertyName: "iconName",
         label: "Icon",
         helpText: "Sets the icon to be used for the icon button",
-        controlType: "ICON_SELECT",
+        controlType: "ICON_SELECT_V2",
         defaultIconName: "plus",
         hideNoneIcon: true,
         isJSConvertible: true,
@@ -22,8 +18,8 @@ export const propertyPaneContentConfig = [
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: ICON_NAMES,
-            default: IconNames.PLUS,
+            allowedValues: Object.keys(ICONS) as unknown as string[],
+            default: "plus",
           },
         },
       },
