@@ -124,7 +124,8 @@ export function* pasteWidgetsInSection(
       getDestinedParent,
       widgets,
       [...zones, ...nonZones],
-      widgets[MAIN_CONTAINER_WIDGET_ID],
+      parent,
+      parent.parentId ?? MAIN_CONTAINER_WIDGET_ID,
     );
     const res: PastePayload = yield call(
       pasteWidgetsIntoMainCanvas,
@@ -133,6 +134,7 @@ export function* pasteWidgetsInSection(
       info,
       map,
       reverseMap,
+      0,
     );
     return res;
   }

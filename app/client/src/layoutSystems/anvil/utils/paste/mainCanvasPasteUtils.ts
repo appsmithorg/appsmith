@@ -13,6 +13,7 @@ export function* pasteWidgetsIntoMainCanvas(
   destinationInfo: PasteDestinationInfo,
   widgetIdMap: Record<string, string>,
   reverseWidgetIdMap: Record<string, string>,
+  overrideLayoutIndex?: number,
 ) {
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
   let map: Record<string, string> = { ...widgetIdMap };
@@ -48,8 +49,13 @@ export function* pasteWidgetsIntoMainCanvas(
       }),
     ),
   );
-  const layoutIndex = layoutOrder.length - 1;
+  const layoutIndex =
+    overrideLayoutIndex !== undefined
+      ? overrideLayoutIndex
+      : layoutOrder.length - 1;
   const targetLayout: LayoutProps = layoutOrder[layoutIndex];
+  const targetRowIndex =
+    overrideLayoutIndex !== undefined ? overrideLayoutIndex + 1 : layoutIndex;
 
   widgets = yield call(
     handleWidgetMovement,
@@ -63,7 +69,7 @@ export function* pasteWidgetsIntoMainCanvas(
       layoutOrder: layoutOrder
         .slice(0, layoutIndex + 1)
         .map((each: LayoutProps) => each.layoutId),
-      rowIndex: rowIndex[layoutIndex],
+      rowIndex: rowIndex[targetRowIndex],
     },
     true,
     false,

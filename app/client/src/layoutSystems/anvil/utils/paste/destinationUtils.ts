@@ -12,6 +12,7 @@ export function* getDestinedParent(
   allWidgets: CanvasWidgetsReduxState,
   copiedWidgets: CopiedWidgetData[],
   selectedWidget: FlattenedWidgetProps,
+  overrideParentWidgetId?: string,
 ) {
   const childHierarchy: number = copiedWidgets[0].hierarchy;
   const parentHierarchy: number = getWidgetHierarchy(
@@ -39,6 +40,8 @@ export function* getDestinedParent(
     index = getWidgetHierarchy(parent.type, parent.widgetId);
     parentOrder.push(parent.widgetId);
   }
+
+  if (overrideParentWidgetId) parentOrder.push(overrideParentWidgetId);
 
   /**
    * Deduce the position index of pasted widgets in the new parent.
