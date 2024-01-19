@@ -6,7 +6,6 @@ import { Item, Menu, MenuList } from "../../Menu";
 import { useListState } from "@react-stately/list";
 
 import styles from "./styles.module.css";
-import { MoreIcon } from "./icons/MoreIcon";
 import type { ActionGroupProps } from "./types";
 import { useActionGroup } from "./useActionGroup";
 import { IconButton } from "../../IconButton";
@@ -81,7 +80,7 @@ const _ActionGroup = <T extends object>(
             <Menu onAction={onAction}>
               <IconButton
                 color={color}
-                icon={MoreIcon}
+                icon="dots"
                 size="large"
                 variant={variant}
               />

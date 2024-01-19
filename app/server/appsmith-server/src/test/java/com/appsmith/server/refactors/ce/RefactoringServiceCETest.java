@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -569,9 +570,13 @@ class RefactoringServiceCETest {
         duplicateNameCompleteAction.setProviderId(duplicateName.getProviderId());
         duplicateNameCompleteAction.setDocumentation(duplicateName.getDocumentation());
         duplicateNameCompleteAction.setApplicationId(duplicateName.getApplicationId());
+        duplicateNameCompleteAction.setDefaultResources(new DefaultResources());
 
         // Now save this action directly in the repo to create a duplicate action name scenario
-        actionRepository.save(duplicateNameCompleteAction).block();
+        newActionService
+                .validateAction(duplicateNameCompleteAction)
+                .flatMap(validatedAction -> actionRepository.save(validatedAction))
+                .block();
 
         LayoutDTO firstLayout = updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
