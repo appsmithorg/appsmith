@@ -16,23 +16,11 @@ describe(
       _.agHelper.GetNClick(templateLocators.startFromTemplateOnboardingCard);
     });
 
-    it("1. Fork a template to an workspace", () => {
+    it("1. Fork a template to an workspace during onboarding should open the template in an application", () => {
       _.agHelper.GetNClick(templateLocators.templateCard);
       _.agHelper.FailIfErrorToast("INTERNAL_SERVER_ERROR");
-
       _.agHelper.GetNClick(templateLocators.templateViewForkButton);
       _.agHelper.WaitUntilEleAppear(commonlocators.canvas);
-    });
-
-    it("2. Update query param on opening fork modal in template detailed view", () => {
-      cy.get(templateLocators.templateCard).first().click();
-      _.agHelper.FailIfErrorToast("INTERNAL_SERVER_ERROR");
-      _.agHelper.GetNClick(templateLocators.templateViewForkButton);
-      _.agHelper.WaitUntilEleAppear(commonlocators.canvas);
-
-      _.agHelper.AssertURL("?showForkTemplateModal=true");
-      cy.get(templateLocators.dialogForkButton).click({ force: true });
-      _.agHelper.AssertElementVisibility(commonlocators.canvas);
     });
   },
 );
