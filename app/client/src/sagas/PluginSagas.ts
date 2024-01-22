@@ -112,22 +112,26 @@ function* fetchPluginFormConfigsSaga(action?: {
     for (const pluginId of actionPluginIds) {
       pluginIdFormsToFetch.add(pluginId);
     }
+    const pluginCalls = [...pluginIdFormsToFetch].map((id) =>
+      call(
+        getFromServerWhenNoPrefetchedResult,
+        // Set the data if it exists in the prefetched data
+        // This is to avoid making a call to the server for the data
+        pluginFormConfigs?.data?.[id as any]
+          ? {
+              ...pluginFormConfigs,
+              data: pluginFormConfigs?.data?.[id as any],
+            }
+          : undefined,
+        // If the data does not exist in the prefetched data, make a call to the server
+        () => call(PluginsApi.fetchFormConfig, id),
+      ),
+    );
+
+    const pluginFormResponses: ApiResponse<PluginFormPayload>[] =
+      yield all(pluginCalls);
 
     const pluginFormData: PluginFormPayload[] = [];
-    const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield call(
-      getFromServerWhenNoPrefetchedResult,
-      pluginFormConfigs &&
-        [...pluginIdFormsToFetch].map((id) => ({
-          ...pluginFormConfigs,
-          data: pluginFormConfigs?.data?.[id as any],
-        })),
-      () =>
-        all(
-          [...pluginIdFormsToFetch].map((id) =>
-            call(PluginsApi.fetchFormConfig, id),
-          ),
-        ),
-    );
 
     for (let i = 0; i < pluginFormResponses.length; i++) {
       const response = pluginFormResponses[i];
