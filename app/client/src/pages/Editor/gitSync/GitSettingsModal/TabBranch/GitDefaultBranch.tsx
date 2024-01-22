@@ -17,7 +17,7 @@ import { useAppsmithEnterpriseLink } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
-  padding-top: 16px;
+  padding-top: 8px;
   padding-bottom: 16px;
 `;
 

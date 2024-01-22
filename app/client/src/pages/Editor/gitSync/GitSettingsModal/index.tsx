@@ -8,18 +8,20 @@ import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
 
 import GitErrorPopup from "../components/GitErrorPopup";
 
-import { Modal, ModalContent, ModalHeader } from "design-system";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import styled from "styled-components";
 import Menu from "../Menu";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import {
   BRANCH,
+  CONTINUOUS_DELIVERY,
   GENERAL,
   SETTINGS_GIT,
   createMessage,
 } from "@appsmith/constants/messages";
 import TabGeneral from "./TabGeneral";
 import TabBranch from "./TabBranch";
+import GitSettingsCDTab from "@appsmith/components/gitComponents/GitSettingsCDTab";
 
 const menuOptions = [
   {
@@ -29,6 +31,10 @@ const menuOptions = [
   {
     key: GitSettingsTab.BRANCH,
     title: createMessage(BRANCH),
+  },
+  {
+    key: GitSettingsTab.CD,
+    title: createMessage(CONTINUOUS_DELIVERY),
   },
 ];
 
@@ -79,8 +85,11 @@ function GitSettingsModal() {
             }
             options={menuOptions}
           />
-          {activeTabKey === GitSettingsTab.GENERAL && <TabGeneral />}
-          {activeTabKey === GitSettingsTab.BRANCH && <TabBranch />}
+          <ModalBody>
+            {activeTabKey === GitSettingsTab.GENERAL && <TabGeneral />}
+            {activeTabKey === GitSettingsTab.BRANCH && <TabBranch />}
+            {activeTabKey === GitSettingsTab.CD && <GitSettingsCDTab />}
+          </ModalBody>
         </StyledModalContent>
       </Modal>
       <GitErrorPopup />
