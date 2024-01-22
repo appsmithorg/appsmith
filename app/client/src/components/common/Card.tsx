@@ -5,16 +5,19 @@ import { omit } from "lodash";
 import { AppIcon, Size, TextType, Text } from "design-system-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import type { MenuItemProps } from "design-system";
+import { Button, Checkbox, type MenuItemProps } from "design-system";
 
 import GitConnectedBadge from "./GitConnectedBadge";
+import { noop } from "utils/AppsmithUtils";
 
 type CardProps = PropsWithChildren<{
   backgroundColor: string;
   contextMenu: React.ReactNode;
   editedByText: string;
+  handleMultipleSelection?: (e: any) => void;
   hasReadPermission: boolean;
   icon: string;
+  isEnabledMultipleSelection: boolean;
   isContextMenuOpen: boolean;
   isFetching: boolean;
   isMobile?: boolean;
@@ -172,42 +175,50 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
    `}
   overflow: hidden;
 
-  ${(props) => `&.${props.testId}-selected {
-    animation: deleteshake 0.5s linear infinite;
-    filter: grayscale(1);
-  }`}
-  @-webkit-keyframes deleteshake {
-    0% {
-      transform: rotate(0deg);
-    }
-    25% {
-      transform: rotate(5deg);
-    }
-    50% {
-      transform: rotate(0deg);
-    }
-    75% {
-      transform: rotate(-5deg);
-    }
-    100% {
-      transform: rotate(0deg);
+  border: 2px solid transparent;
+  padding: var(--ads-spaces-1);
+  border-radius: var(--ads-v2-border-radius);
+  &:hover {
+    border-color: var(--ads-v2-color-gray-100);
+    .t--app-multi-select-checkbox {
+      display: inline;
+      animation: multi-select-check 0.5s;
+      animation-fill-mode: forwards;
     }
   }
-  @keyframes deleteshake {
-    0% {
-      transform: rotate(0deg);
+
+  ${(props) => `&.${props.testId}-selected {
+    border-color: var(--ads-v2-color-blue-300);
+    .t--app-multi-select-checkbox {
+      display: inline;
+      animation: multi-select-check 0.5s;
+      animation-fill-mode: forwards;
     }
-    25% {
-      transform: rotate(5deg);
+  }`}
+
+  .t--app-multi-select-checkbox {
+    display: none;
+    height: 14px;
+    visibility: hidden;
+    opacity: 0;
+    margin-left: -24px;
+    &.t--app-multi-select-mode-checkbox {
+      display: inline;
+      animation: multi-select-check 0.5s;
+      animation-fill-mode: forwards;
     }
-    50% {
-      transform: rotate(0deg);
+  }
+
+  @keyframes multi-select-check {
+    from {
+      margin-left: -24px;
+      visibility: hidden;
+      opacity: 0;
     }
-    75% {
-      transform: rotate(-5deg);
-    }
-    100% {
-      transform: rotate(0deg);
+    to {
+      visibility: visible;
+      opacity: 1;
+      margin-left: 4px;
     }
   }
 `;
@@ -288,9 +299,8 @@ const Control = styled.div<{ fixed?: boolean }>`
 
 const CardFooter = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin: 4px 0;
+  margin: 4px 0 0 0;
   width: ${(props) => props.theme.card.minWidth}px;
 
   @media screen and (min-width: 1500px) {
@@ -324,9 +334,20 @@ const CardFooter = styled.div`
 const ModifiedDataComponent = styled.div`
   font-size: 13px;
   color: var(--ads-v2-color-fg-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  flex-grow: 1;
   &::first-letter {
     text-transform: uppercase;
   }
+  & ~ * {
+    flex-shrink: 0;
+  }
+`;
+
+export const ContextMenuTrigger = styled(Button)<{ isHidden?: boolean }>`
+  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
 `;
 
 function Card({
@@ -334,9 +355,11 @@ function Card({
   children,
   contextMenu,
   editedByText,
+  handleMultipleSelection,
   hasReadPermission,
   icon,
   isContextMenuOpen,
+  isEnabledMultipleSelection,
   isFetching,
   isMobile,
   isSelected,
@@ -350,7 +373,14 @@ function Card({
   titleTestId,
 }: CardProps) {
   return (
-    <Container isMobile={isMobile} onClick={primaryAction}>
+    <Container
+      isMobile={isMobile}
+      onClick={
+        isEnabledMultipleSelection && handleMultipleSelection
+          ? handleMultipleSelection
+          : primaryAction
+      }
+    >
       <NameWrapper
         className={`${testId} ${isSelected ? `${testId}-selected` : ""}`}
         hasReadPermission={hasReadPermission}
@@ -391,6 +421,23 @@ function Card({
           )}
         </Wrapper>
         <CardFooter>
+          {handleMultipleSelection && (
+            <div
+              onClick={
+                isEnabledMultipleSelection ? noop : handleMultipleSelection
+              }
+            >
+              <Checkbox
+                aria-label="Multiple Selection"
+                className={`t--app-multi-select-checkbox ${
+                  isEnabledMultipleSelection
+                    ? "t--app-multi-select-mode-checkbox"
+                    : ""
+                }`}
+                isSelected={isSelected}
+              />
+            </div>
+          )}
           <ModifiedDataComponent className="t--application-edited-text">
             {editedByText}
           </ModifiedDataComponent>
