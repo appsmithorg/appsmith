@@ -193,6 +193,11 @@ export interface AIAction extends BaseAction {
   actionConfiguration: any;
   datasource: StoredDatasource;
 }
+export interface InternalAction extends BaseAction {
+  pluginType: PluginType.INTERNAL;
+  actionConfiguration: any;
+  datasource: StoredDatasource;
+}
 
 export interface EmbeddedApiAction extends BaseApiAction {
   datasource: EmbeddedRestDatasource;
@@ -233,7 +238,8 @@ export type Action =
   | QueryAction
   | SaaSAction
   | RemoteAction
-  | AIAction;
+  | AIAction
+  | InternalAction;
 
 export enum SlashCommand {
   NEW_API,

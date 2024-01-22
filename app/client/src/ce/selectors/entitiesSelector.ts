@@ -1047,6 +1047,9 @@ export const selectFilesForExplorer = createSelector(
         group = isEmbeddedAIDataSource(file.config.datasource)
           ? "AI Queries"
           : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
+      } else if (file.config.pluginType === PluginType.INTERNAL) {
+        // TODO: Add a group for internal actions, currently only Workflow actions are internal
+        group = "Workflows";
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
