@@ -69,21 +69,21 @@ export const handlers = {
     }
     return state;
   },
-  [ReduxActionTypes.SETUP_PAGE_INIT]: (state: EditorReduxState) => ({
+  [ReduxActionTypes.FETCH_PAGE_INIT]: (state: EditorReduxState) => ({
     ...state,
     loadingStates: {
       ...state.loadingStates,
       isPageSwitching: true,
     },
   }),
-  [ReduxActionTypes.SETUP_PAGE_SUCCESS]: (state: EditorReduxState) => ({
+  [ReduxActionTypes.FETCH_PAGE_SUCCESS]: (state: EditorReduxState) => ({
     ...state,
     loadingStates: {
       ...state.loadingStates,
       isPageSwitching: false,
     },
   }),
-  [ReduxActionErrorTypes.SETUP_PAGE_ERROR]: (state: EditorReduxState) => ({
+  [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: (state: EditorReduxState) => ({
     ...state,
     loadingStates: {
       ...state.loadingStates,
