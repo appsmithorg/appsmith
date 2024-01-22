@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   activeGitSettingsModalTabSelector,
   isGitSettingsModalOpenSelector,
@@ -22,21 +22,8 @@ import {
 import TabGeneral from "./TabGeneral";
 import TabBranch from "./TabBranch";
 import GitSettingsCDTab from "@appsmith/components/gitComponents/GitSettingsCDTab";
-
-const menuOptions = [
-  {
-    key: GitSettingsTab.GENERAL,
-    title: createMessage(GENERAL),
-  },
-  {
-    key: GitSettingsTab.BRANCH,
-    title: createMessage(BRANCH),
-  },
-  {
-    key: GitSettingsTab.CD,
-    title: createMessage(CONTINUOUS_DELIVERY),
-  },
-];
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -51,6 +38,33 @@ const StyledModalContent = styled(ModalContent)`
 function GitSettingsModal() {
   const isModalOpen = useSelector(isGitSettingsModalOpenSelector);
   const activeTabKey = useSelector(activeGitSettingsModalTabSelector);
+
+  const isGitCDEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_git_continuous_delivery_enabled,
+  );
+
+  const menuOptions = useMemo(() => {
+    const menuOptions = [
+      {
+        key: GitSettingsTab.GENERAL,
+        title: createMessage(GENERAL),
+      },
+      {
+        key: GitSettingsTab.BRANCH,
+        title: createMessage(BRANCH),
+      },
+    ];
+
+    if (isGitCDEnabled) {
+      menuOptions.push({
+        key: GitSettingsTab.CD,
+        title: createMessage(CONTINUOUS_DELIVERY),
+      });
+    }
+
+    return menuOptions;
+  }, [isGitCDEnabled]);
+
   const dispatch = useDispatch();
 
   const setActiveTabKey = (tabKey: GitSettingsTab) => {
@@ -88,7 +102,9 @@ function GitSettingsModal() {
           <ModalBody>
             {activeTabKey === GitSettingsTab.GENERAL && <TabGeneral />}
             {activeTabKey === GitSettingsTab.BRANCH && <TabBranch />}
-            {activeTabKey === GitSettingsTab.CD && <GitSettingsCDTab />}
+            {isGitCDEnabled && activeTabKey === GitSettingsTab.CD && (
+              <GitSettingsCDTab />
+            )}
           </ModalBody>
         </StyledModalContent>
       </Modal>
