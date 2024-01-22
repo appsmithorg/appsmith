@@ -9,13 +9,13 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # Install dependency packages
-RUN apt-get update \
+RUN set -o xtrace \
+  && apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
     supervisor curl nfs-common gnupg wget netcat openssh-client \
     gettext \
-    python3-pip git ca-certificates \
-  && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
+    ca-certificates \
   # Install MongoDB v5, Redis, PostgreSQL v13
   && curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
@@ -23,8 +23,6 @@ RUN apt-get update \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-13 \
-  && apt-get remove --yes git python3-pip \
-  && apt-get autoremove --yes \
   && apt-get clean
 
 # Install Java
@@ -55,7 +53,6 @@ RUN set -o xtrace \
 RUN rm -rf \
   /root/.cache \
   /root/.npm \
-  /root/.pip \
   /usr/local/share/doc \
   /usr/share/doc \
   /usr/share/man \
