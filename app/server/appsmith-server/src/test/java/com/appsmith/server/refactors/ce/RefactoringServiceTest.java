@@ -246,7 +246,8 @@ public class RefactoringServiceTest {
         ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
         mockActionCollectionDTO.setName("testCollection");
 
-        Mockito.when(actionCollectionService.getActionCollectionsByViewMode(Mockito.any(), Mockito.anyBoolean()))
+        Mockito.when(actionCollectionService.getCollectionsByPageIdAndViewMode(
+                        Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Flux.just(mockActionCollectionDTO));
 
         Mono<Boolean> nameAllowedMono = refactoringService.isNameAllowed(
