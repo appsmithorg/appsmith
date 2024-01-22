@@ -66,19 +66,13 @@ export function* pasteWidgetsInZone(
     targetLayout.maxChildLimit !== undefined &&
     targetLayout.maxChildLimit > 0 &&
     targetLayout.layout.length >= targetLayout.maxChildLimit;
-  // console.log("####", {
-  //   destinationInfo,
-  //   layoutIndex,
-  //   currentRowIndex,
-  //   maxChildLimitMet,
-  // });
+
   if (maxChildLimitMet) {
     layoutIndex -= 1;
     targetRowIndex -= 1;
     targetLayout = layoutOrder[layoutIndex];
     currentRowIndex = rowIndex[targetRowIndex];
   }
-  // console.log("####", { layoutIndex, currentRowIndex, targetRowIndex });
 
   if (smallWidgets.length) {
     widgets = yield call(
@@ -108,7 +102,6 @@ export function* pasteWidgetsInZone(
       currentRowIndex = rowIndex[targetRowIndex];
     }
     const extraRow = smallWidgets.length > 0 && maxChildLimitMet ? 1 : 0;
-    // console.log("####", { layoutIndex, currentRowIndex, targetRowIndex });
     yield all(
       largeWidgets.map((each: CopiedWidgetData, index: number) =>
         call(function* () {

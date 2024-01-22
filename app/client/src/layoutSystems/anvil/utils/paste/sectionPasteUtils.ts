@@ -26,7 +26,6 @@ export function* pasteWidgetsInSection(
   let map: Record<string, string> = { ...widgetIdMap };
   let reverseMap: Record<string, string> = { ...reverseWidgetIdMap };
   const { alignment, layoutOrder, parentOrder, rowIndex } = destinationInfo;
-  // console.log("####", { destinationInfo, copiedWidgets, allWidgets });
   const parent: FlattenedWidgetProps =
     allWidgets[parentOrder[parentOrder.length - 1]];
 
@@ -95,13 +94,7 @@ export function* pasteWidgetsInSection(
   const targetRowIndex = rowIndex[rowIndex.length - 1] ?? 0;
   let count = targetLayout.layout.length;
   let zoneCount = 0;
-  // console.log("####", {
-  //   zones,
-  //   nonZones,
-  //   targetLayout,
-  //   targetRowIndex,
-  //   zoneCount,
-  // });
+
   while (count < (targetLayout.maxChildLimit ?? 0)) {
     if (areZones) {
       const zone = children.shift();
