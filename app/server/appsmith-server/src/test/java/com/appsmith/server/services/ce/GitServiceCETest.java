@@ -2864,6 +2864,7 @@ public class GitServiceCETest {
                     themeSettings.setAccentColor("#FFFFFF");
                     themeSettings.setFontFamily("#000000");
                     themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+                    themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
                     branchedApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
                     return Mono.just(branchedApplication);
                 })
@@ -2892,6 +2893,7 @@ public class GitServiceCETest {
                     assertThat(themes.getDensity()).isEqualTo(1);
                     assertThat(themes.getFontFamily()).isEqualTo("#000000");
                     assertThat(themes.getSizing()).isEqualTo(1);
+                    assertThat(themes.getIconStyle()).isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
                 })
                 .verifyComplete();
     }
