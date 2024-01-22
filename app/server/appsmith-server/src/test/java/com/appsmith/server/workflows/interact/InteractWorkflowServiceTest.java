@@ -87,6 +87,7 @@ import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
+import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_HEADER;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -743,7 +744,8 @@ class InteractWorkflowServiceTest {
     void testTriggerWorkflow_workflowNotPublished() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cookie", "Cookie");
-        Mono<JsonNode> triggerWorkflowMono = interactWorkflowService.triggerWorkflow(workflow.getId(), headers, null);
+        Mono<JsonNode> triggerWorkflowMono =
+                interactWorkflowService.triggerWorkflow(workflow.getId(), null, headers, null);
         AppsmithException unsupportedException = assertThrows(AppsmithException.class, triggerWorkflowMono::block);
         assertThat(unsupportedException.getMessage())
                 .isEqualTo(AppsmithError.WORKFLOW_NOT_TRIGGERED_WORKFLOW_NOT_PUBLISHED.getMessage(workflow.getId()));
@@ -793,9 +795,9 @@ class InteractWorkflowServiceTest {
                 .generateBearerTokenForWebhook(workflow.getId())
                 .block();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Appsmith-Key", apiKey);
+        headers.add(APPSMITH_API_KEY_HEADER, apiKey);
         JsonNode triggered = interactWorkflowService
-                .triggerWorkflow(workflow.getId(), headers, null)
+                .triggerWorkflow(workflow.getId(), null, headers, null)
                 .block();
 
         assertThat(triggered.toString()).isEqualTo(emptyJsonNode().toString());

@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -44,7 +45,8 @@ public class InteractWorkflowServiceCECompatibleImpl extends BaseWorkflowService
     }
 
     @Override
-    public Mono<JsonNode> triggerWorkflow(String workflowId, HttpHeaders headers, JsonNode triggerData) {
+    public Mono<JsonNode> triggerWorkflow(
+            String workflowId, MultiValueMap<String, String> queryParams, HttpHeaders headers, JsonNode triggerData) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

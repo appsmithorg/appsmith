@@ -148,7 +148,11 @@ public class WorkflowController {
             ServerWebExchange serverWebExchange,
             @RequestBody(required = false) JsonNode triggerData) {
         return interactWorkflowService
-                .triggerWorkflow(workflowId, serverWebExchange.getRequest().getHeaders(), triggerData)
+                .triggerWorkflow(
+                        workflowId,
+                        serverWebExchange.getRequest().getQueryParams(),
+                        serverWebExchange.getRequest().getHeaders(),
+                        triggerData)
                 .map(triggeredWorkflow -> new ResponseDTO<>(HttpStatus.OK.value(), triggeredWorkflow, null));
     }
 }

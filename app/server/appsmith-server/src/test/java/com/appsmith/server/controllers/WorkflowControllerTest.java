@@ -84,7 +84,8 @@ public class WorkflowControllerTest {
     @Test
     @WithMockUser
     void testTriggerWorkflow_withoutTriggerData() {
-        Mockito.when(interactWorkflowService.triggerWorkflow(Mockito.anyString(), Mockito.any(), Mockito.any()))
+        Mockito.when(interactWorkflowService.triggerWorkflow(
+                        Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(emptyJsonNode()));
 
         webTestClient
@@ -98,7 +99,8 @@ public class WorkflowControllerTest {
     @Test
     @WithMockUser
     void testTriggerWorkflow_withTriggerData() {
-        Mockito.when(interactWorkflowService.triggerWorkflow(Mockito.anyString(), Mockito.any(), Mockito.any()))
+        Mockito.when(interactWorkflowService.triggerWorkflow(
+                        Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(emptyJsonNode()));
 
         webTestClient

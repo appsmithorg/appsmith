@@ -22,13 +22,13 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_HEADER;
+import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_QUERY_PARAM;
+
 @Slf4j
 @Component
 @AllArgsConstructor
 public class ApiKeyAuthenticationConverter implements ServerAuthenticationConverter {
-    private static final String APPSMITH_API_KEY_HEADER = "x-appsmith-key";
-    private static final String APPSMITH_API_KEY_QUERY_PARAM = "appsmithKey";
-
     private final UserRepository userRepository;
     private final ApiKeyRepository userApiKeyRepository;
     private final EncryptionService encryptionService;

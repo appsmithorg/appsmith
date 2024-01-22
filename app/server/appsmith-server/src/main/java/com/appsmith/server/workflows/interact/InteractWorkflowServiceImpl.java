@@ -37,12 +37,14 @@ import com.appsmith.server.workflows.permission.WorkflowPermission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.bulk.BulkWriteResult;
 import jakarta.validation.Validator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -55,6 +57,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AppsmithRole.WORKFLOW_EXECUTOR;
+import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_HEADER;
+import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_QUERY_PARAM;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -389,14 +393,33 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
      */
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<JsonNode> triggerWorkflow(String workflowId, HttpHeaders headers, JsonNode triggerData) {
+    public Mono<JsonNode> triggerWorkflow(
+            String workflowId, MultiValueMap<String, String> queryParams, HttpHeaders headers, JsonNode triggerData) {
         Mono<Workflow> workflowMono = findById(workflowId, workflowPermission.getExecutePermission());
 
         Mono<WorkflowTriggerProxyDTO> workflowTriggerProxyDTOMono =
                 workflowMono.flatMap(workflow -> generateWorkflowTriggerProxyDTOMono(workflow, triggerData));
 
+        /*
+         * Post the introduction of API Key authentication via query parameters.
+         * Hence, adding the API key to the headers which will be passed to the Workflow Proxy.
+         */
+        HttpHeaders headersWithQueryParamAuth = createHeadersWithQueryParamAuth(headers, queryParams);
+
         return workflowTriggerProxyDTOMono.flatMap(workflowTriggerProxyDTO ->
-                workflowProxyHelper.triggerWorkflowOnProxy(workflowTriggerProxyDTO, headers));
+                workflowProxyHelper.triggerWorkflowOnProxy(workflowTriggerProxyDTO, headersWithQueryParamAuth));
+    }
+
+    private HttpHeaders createHeadersWithQueryParamAuth(
+            HttpHeaders headers, MultiValueMap<String, String> queryParams) {
+        HttpHeaders newHeaders = new HttpHeaders();
+        if (!CollectionUtils.isEmpty(queryParams)
+                && queryParams.containsKey(APPSMITH_API_KEY_QUERY_PARAM)
+                && StringUtils.isNotEmpty(queryParams.getFirst(APPSMITH_API_KEY_QUERY_PARAM))) {
+            newHeaders.set(APPSMITH_API_KEY_HEADER, queryParams.getFirst(APPSMITH_API_KEY_QUERY_PARAM));
+        }
+        newHeaders.putAll(headers);
+        return newHeaders;
     }
 
     private Mono<Workflow> findById(String workflowId, AclPermission aclPermission) {
