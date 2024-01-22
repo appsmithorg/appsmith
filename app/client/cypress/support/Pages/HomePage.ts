@@ -124,6 +124,9 @@ export class HomePage {
 
   public _searchWorkspaceLocator = (workspaceName: string) =>
     `[data-testid="${workspaceName}"]`;
+  private _applicationMultiSelectionCheckbox = (applicationName: string) =>
+    this._appCard(applicationName) +
+    "//label[contains(@class, 't--app-multi-select-checkbox')]";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -694,7 +697,9 @@ export class HomePage {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
-    this.agHelper.WaitUntilToastDisappear("Deleting application...");
+    // Toast has been removed
+    // this.agHelper.WaitUntilToastDisappear("Deleting application...");
+    this.assertHelper.AssertNetworkStatus("@deleteApp", 200);
   }
 
   public DeleteAppviaAPI(appId: any) {
@@ -730,18 +735,13 @@ export class HomePage {
     });
   }
 
-  public SelectMultipleApplicationToDelete(
-    applicationName: string,
-    position: Cypress.PositionType = "center",
-  ) {
+  public SelectMultipleApplicationToDelete(applicationName: string) {
+    this.agHelper
+      .GetElement(this._appCard(applicationName))
+      .first()
+      .realHover();
     this.agHelper.GetNClick(
-      this._applicationEditedText(applicationName),
-      0,
-      true,
-      500,
-      false,
-      true,
-      position,
+      this._applicationMultiSelectionCheckbox(applicationName),
     );
   }
   public SelectMultipleApplicationToDeleteByCard(

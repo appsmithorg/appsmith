@@ -23,6 +23,7 @@ import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getSelectedTableName } from "@appsmith/selectors/entitiesSelector";
 
 interface NewActionButtonProps {
   datasource?: Datasource;
@@ -53,6 +54,7 @@ function NewActionButton(props: NewActionButtonProps) {
     pages.find((p) => p.pageId === currentPageId),
     ...pages.filter((p) => p.pageId !== currentPageId),
   ];
+  const queryDefaultTableName = useSelector(getSelectedTableName);
 
   const createQueryAction = useCallback(
     (pageId: string) => {
@@ -78,12 +80,13 @@ function NewActionButton(props: NewActionButtonProps) {
               pageId,
               props.eventFrom as EventLocation,
               datasource?.id,
+              queryDefaultTableName,
             ),
           );
         }
       }
     },
-    [dispatch, currentPageId, datasource, pluginType],
+    [dispatch, currentPageId, datasource, pluginType, queryDefaultTableName],
   );
 
   const handleOnInteraction = useCallback(

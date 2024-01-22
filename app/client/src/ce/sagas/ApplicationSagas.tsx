@@ -63,7 +63,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
-  DELETING_APPLICATION,
   DELETING_MULTIPLE_APPLICATION,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
@@ -476,7 +475,6 @@ export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    toast.show(createMessage(DELETING_APPLICATION));
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.deleteApplication,

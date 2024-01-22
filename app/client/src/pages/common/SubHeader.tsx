@@ -31,22 +31,16 @@ const SubHeaderWrapper = styled.div<{
   justify-content: flex-end;
   background: var(--ads-v2-color-bg);
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
-  ${({ isBannerVisible, isMobile, isVisible }) =>
+  ${({ isBannerVisible, isMobile }) =>
     isMobile
       ? `padding: 12px 16px;
         position: sticky; ${
           isBannerVisible ? "top: 80px; margin-top: 80px" : "top: 0; margin: 0"
         };
         `
-      : `padding: ${
-          isVisible
-            ? `${CONTAINER_WRAPPER_PADDING} ${CONTAINER_WRAPPER_PADDING} 12px ${CONTAINER_WRAPPER_PADDING}`
-            : ""
-        } ; 
-          position: sticky; 
-      ${
-        isBannerVisible ? "top: 40px; margin-top: 40px" : "top: 0"
-      }; align-items: center;`}
+      : `padding: ${CONTAINER_WRAPPER_PADDING} ${CONTAINER_WRAPPER_PADDING} 12px ${CONTAINER_WRAPPER_PADDING} ; position: sticky; ${
+          isBannerVisible ? "top: 40px; margin-top: 40px" : "top: 0"
+        }; align-items: center;`}
 `;
 
 const MultipleDeleteWrapper = styled.div`
@@ -112,16 +106,18 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
         <MultipleDeleteWrapper>
           <Button
             isLoading={deleteMultipleApplicationObject.isDeleting}
+            kind="error"
             onClick={() => setShowConfirmationModal(true)}
-            size="sm"
+            size="md"
             startIcon="delete-bin-line"
           >
-            Delete
+            Delete {deleteMultipleApplicationObject.list?.length} apps
           </Button>
           <Button
             kind="secondary"
             onClick={handleCancelMultipleDelete}
-            size="sm"
+            size="md"
+            startIcon="close"
           >
             Cancel
           </Button>

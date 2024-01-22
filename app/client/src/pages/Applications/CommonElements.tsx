@@ -23,7 +23,6 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   align-items: baseline;
   justify-content: center;
   flex: 0;
-  width: ${(props) => props.theme.card.minWidth}px;
 
   @media screen and (min-width: 1500px) {
     .bp3-card {
@@ -46,8 +45,6 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   }
 
   @media screen and (min-width: 1447px) and (max-width: 1477px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[3] * 2}px;
     .bp3-card {
       width: ${(props) => props.theme.card.minWidth - 8}px;
       height: ${(props) => props.theme.card.minHeight - 8}px;
@@ -55,8 +52,6 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   }
 
   @media screen and (min-width: 1417px) and (max-width: 1446px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[3] * 2}px;
     .bp3-card {
       width: ${(props) => props.theme.card.minWidth - 11}px;
       height: ${(props) => props.theme.card.minHeight - 11}px;
@@ -64,8 +59,6 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   }
 
   @media screen and (min-width: 1400px) and (max-width: 1417px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[2] * 2}px;
     .bp3-card {
       width: ${(props) => props.theme.card.minWidth - 15}px;
       height: ${(props) => props.theme.card.minHeight - 15}px;
@@ -73,8 +66,6 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   }
 
   @media screen and (max-width: 1400px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[2] * 2}px;
     .bp3-card {
       width: ${(props) => props.theme.card.minWidth - 15}px;
       height: ${(props) => props.theme.card.minHeight - 15}px;
