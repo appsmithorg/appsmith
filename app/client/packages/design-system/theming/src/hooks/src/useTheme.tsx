@@ -4,7 +4,7 @@ import { TokensAccessor, defaultTokens } from "../../token";
 import { useFluidSizing, useFluidSpacing, useFluidTypography } from "./";
 
 import type { ColorMode } from "../../color";
-import type { TokenSource, FontFamily } from "../../token";
+import type { TokenSource, FontFamily, IconStyle } from "../../token";
 
 const { fluid, ...restDefaultTokens } = defaultTokens;
 
@@ -19,6 +19,7 @@ export interface UseThemeProps {
   fontFamily?: FontFamily;
   userDensity?: number;
   userSizing?: number;
+  iconStyle?: IconStyle;
 }
 
 export function useTheme(props: UseThemeProps = {}) {
@@ -26,6 +27,7 @@ export function useTheme(props: UseThemeProps = {}) {
     borderRadius,
     colorMode = "light",
     fontFamily,
+    iconStyle = "outlined",
     seedColor,
     userDensity = 1,
     userSizing = 1,
@@ -154,6 +156,19 @@ export function useTheme(props: UseThemeProps = {}) {
       });
     }
   }, [innerSpacing]);
+
+  useEffect(() => {
+    if (iconStyle) {
+      tokensAccessor.updateIconStyle(iconStyle);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          iconStyle: tokensAccessor.getIconStyle(),
+        };
+      });
+    }
+  }, [iconStyle]);
 
   return { theme, setTheme };
 }

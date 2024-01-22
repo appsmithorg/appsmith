@@ -24,10 +24,6 @@ import {
   Item,
 } from "@design-system/widgets";
 // This component is used only for testing purpose and is not used in the prod
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import EmotionUnhappyLineIcon from "remixicon-react/EmotionUnhappyLineIcon";
 
 export const ComplexForm = () => {
   const fakeSubmit = async () => {
@@ -81,8 +77,8 @@ export const ComplexForm = () => {
           <Flex direction="column" gap="spacing-2">
             <Text isBold>Feedback is important to us</Text>
             <Flex>
-              <IconButton icon={EmotionHappyLineIcon} variant="ghost" />
-              <IconButton icon={EmotionUnhappyLineIcon} variant="ghost" />
+              <IconButton icon="star" variant="ghost" />
+              <IconButton icon="star" variant="ghost" />
             </Flex>
           </Flex>
           <TextArea label="Your comment" />
