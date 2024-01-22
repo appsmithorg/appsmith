@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { SpaceDistributorHandleDimensions } from "./constants";
 import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
 import { useSpaceDistributionEvents } from "./useSpaceDistributionEvents";
-import { getDistributionHandleId } from "./spaceDistributionEditorUtils";
+import { getDistributionHandleId } from "./utils/spaceDistributionEditorUtils";
 
 interface SpaceDistributionNodeProps {
   columnPosition: number;
@@ -38,7 +38,7 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   }
 `;
 
-const updateHandlePosition = (
+const updateDistributionHandlePosition = (
   entries: ResizeObserverEntry[],
   ref: React.RefObject<HTMLDivElement>,
 ) => {
@@ -60,16 +60,30 @@ export const SpaceDistributionHandle = ({
   spaceToWorkWith,
   zoneIds,
 }: SpaceDistributionNodeProps) => {
+  // Create a ref for the distribution handle DOM element
   const ref = useRef<HTMLDivElement>(null);
+
+  // Get the status of space distribution from Redux store
   const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
+
+  // Use a ref to keep track of whether the current handle is distributing space
   const isCurrentHandleDistributingSpace = useRef(false);
+
+  // Calculate the left position of the distribution handle
   const leftPositionOfHandle =
     left - SpaceDistributorHandleDimensions.width * 0.5;
+
+  // Destructure the parent zones array of zone ids
   const [leftZone, rightZone] = parentZones;
+
+  // Create a ref for ResizeObserver for the right zone
   const resizeObserverRef = useRef<ResizeObserver>();
   resizeObserverRef.current = new ResizeObserver((entries) => {
-    updateHandlePosition(entries, ref);
+    // Update the position of the distribution handle on resize
+    updateDistributionHandlePosition(entries, ref);
   });
+
+  // Use a custom hook to handle space distribution events
   useSpaceDistributionEvents({
     ref,
     spaceDistributed,
@@ -82,18 +96,26 @@ export const SpaceDistributionHandle = ({
     spaceToWorkWith,
     zoneIds,
   });
+
   useEffect(() => {
     if (ref.current) {
+      // Get the DOM element of the right zone
       const rightZoneDom = document.getElementById(
         getAnvilWidgetDOMId(rightZone),
       );
+
       if (isDistributingSpace) {
+        // If space is currently being distributed, hide the handle only if it is not the current handle distributing space.
         if (!isCurrentHandleDistributingSpace.current) {
           ref.current.style.display = "none";
+        } else {
+          // Observe the right zone for resizing during space distribution and update the position of the handle
+          rightZoneDom && resizeObserverRef.current?.observe(rightZoneDom);
         }
-        rightZoneDom && resizeObserverRef.current?.observe(rightZoneDom);
       } else {
+        // If space distribution is not active, show the handle
         ref.current.style.display = "block";
+        // Stop observing the right zone for resizing
         rightZoneDom && resizeObserverRef.current?.unobserve(rightZoneDom);
       }
     }

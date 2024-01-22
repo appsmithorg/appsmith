@@ -3,20 +3,22 @@ import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AnvilReduxActionTypes } from "../integrations/actions/actionTypes";
 import {
-  type SpaceDistributionZoneDomCollection,
   getMouseSpeedTrackingCallback,
   getPropertyPaneZoneId,
-  getSpaceRedistributionProps,
+  computePropsForSpaceDistribution,
   resetCSSOnZones,
   resetDistributionHandleCSS,
-  updateCSSOfWidgetsOnHandleMove,
-  updateCSSOfWidgetsOnHittingMinimumLimit,
   getPropertyPaneDistributionHandleId,
-} from "./spaceDistributionEditorUtils";
+} from "./utils/spaceDistributionEditorUtils";
 import { PropPaneDistributionHandleCustomEvent } from "./constants";
 import { getSelectedWidgets } from "selectors/ui";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import {
+  type SpaceDistributionZoneDomCollection,
+  updateWidgetCSSOnHandleMove,
+  updateWidgetCSSOnMinimumLimit,
+} from "./utils/onMouseMoveUtils";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -168,7 +170,8 @@ export const useSpaceDistributionEvents = ({
       // Callback when mouse button is pressed down
       const onMouseDown = (e: MouseEvent, propHandle = false) => {
         if (!propHandle) {
-          const computedProps = getSpaceRedistributionProps(spaceToWorkWith);
+          const computedProps =
+            computePropsForSpaceDistribution(spaceToWorkWith);
           columnWidth = computedProps.columnWidth;
           minimumShrinkableSpacePerBlock =
             computedProps.minimumShrinkableSpacePerBlock;
@@ -178,7 +181,7 @@ export const useSpaceDistributionEvents = ({
             "prop-pane-" + sectionWidgetId,
           );
           if (sectionPreviewBlockDom) {
-            const computedPropsForHandle = getSpaceRedistributionProps(
+            const computedPropsForHandle = computePropsForSpaceDistribution(
               sectionPreviewBlockDom.offsetWidth,
             );
             columnWidth = computedPropsForHandle.columnWidth;
@@ -276,8 +279,7 @@ export const useSpaceDistributionEvents = ({
               leftZoneComputedColumns >= minimumShrinkableSpacePerBlock &&
               rightZoneComputedColumns >= minimumShrinkableSpacePerBlock
             ) {
-              updateCSSOfWidgetsOnHandleMove(
-                ref,
+              updateWidgetCSSOnHandleMove(
                 leftZoneComputedColumns,
                 rightZoneComputedColumns,
                 zoneDomCollection,
@@ -290,7 +292,7 @@ export const useSpaceDistributionEvents = ({
                 currentMouseSpeed.current,
               );
             } else {
-              updateCSSOfWidgetsOnHittingMinimumLimit(
+              updateWidgetCSSOnMinimumLimit(
                 leftZoneComputedColumns,
                 rightZoneComputedColumns,
                 zoneDomCollection,

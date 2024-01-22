@@ -5,9 +5,9 @@ import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { getWidgetByID } from "sagas/selectors";
-import { getDefaultSpaceDistributed } from "./spaceRedistributionUtils";
+import { getDefaultSpaceDistributed } from "./utils/spaceRedistributionSagaUtils";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { getAnvilZoneBoundaryOffset } from "./utils/spaceDistributionEditorUtils";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;
@@ -17,26 +17,6 @@ interface SectionSpaceDistributorProps {
 
 export interface SectionSpaceDistributorHandlesProps
   extends SectionSpaceDistributorProps {}
-
-const convertPixelValuesToNumber = (value: string) => {
-  return parseFloat(value.replace("px", ""));
-};
-
-const getElementsBoundingBoxValue = (ele: HTMLElement) => {
-  const computedStyle = getComputedStyle(ele);
-  const paddingValue = convertPixelValuesToNumber(computedStyle.padding);
-  const borderValue = convertPixelValuesToNumber(computedStyle.border);
-  const marginValue = convertPixelValuesToNumber(computedStyle.margin);
-  return 2 * (paddingValue + borderValue + marginValue);
-};
-
-const getAnvilZoneOffset = (zoneId: string) => {
-  const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
-  if (zoneDom) {
-    return getElementsBoundingBoxValue(zoneDom) + 2;
-  }
-  return 0;
-};
 
 const SectionSpaceDistributorHandles = (
   props: SectionSpaceDistributorHandlesProps,
@@ -53,7 +33,8 @@ const SectionSpaceDistributorHandles = (
 
   // Destructure spaceDistributed property from sectionWidget or use default
   const { spaceDistributed = defaultSpaceDistributed } = sectionWidget;
-  const zoneOffset = getAnvilZoneOffset(zones[0].widgetId);
+  // Get the zone boundary offset(margin + padding + border) for the any one zone in the section.(because all zones have same offset)
+  const zoneOffset = getAnvilZoneBoundaryOffset(zones[0].widgetId);
   // Initialize variables for tracking zone positions and space to work with
   let previousZonePosition: LayoutElementPosition;
   let previousZoneColumn = 0;
@@ -80,14 +61,13 @@ const SectionSpaceDistributorHandles = (
 
         nodesArray.push({
           parentZones: [zones[index - 1].widgetId, each.widgetId],
-          spaceBetweenZones,
           columnPosition: previousZoneColumn,
           position: {
             left: widgetPosition.offsetLeft - spaceBetweenZones * 0.5,
           },
         });
 
-        // Update variables for the next iteration
+        // Update zone column position and previous zone position
         previousZoneColumn += spaceDistributed[each.widgetId];
         previousZonePosition = widgetPosition;
       }
@@ -99,26 +79,27 @@ const SectionSpaceDistributorHandles = (
         left: number;
       };
       parentZones: string[];
-      spaceBetweenZones: number;
       columnPosition: number;
     }[],
   );
 
   return (
     <>
-      {SectionSpaceDistributorNodes.map((each, index) => (
-        <SpaceDistributionHandle
-          columnPosition={each.columnPosition}
-          key={index}
-          left={each.position.left}
-          parentZones={each.parentZones}
-          sectionLayoutId={sectionLayoutId}
-          sectionWidgetId={sectionWidgetId}
-          spaceDistributed={spaceDistributed}
-          spaceToWorkWith={spaceToWorkWith}
-          zoneIds={zoneIds}
-        />
-      ))}
+      {SectionSpaceDistributorNodes.map(
+        ({ columnPosition, parentZones, position }, index) => (
+          <SpaceDistributionHandle
+            columnPosition={columnPosition}
+            key={index}
+            left={position.left}
+            parentZones={parentZones}
+            sectionLayoutId={sectionLayoutId}
+            sectionWidgetId={sectionWidgetId}
+            spaceDistributed={spaceDistributed}
+            spaceToWorkWith={spaceToWorkWith}
+            zoneIds={zoneIds}
+          />
+        ),
+      )}
     </>
   );
 };
@@ -132,9 +113,11 @@ export const SectionSpaceDistributor = (
     (state) => state.ui.widgetDragResize.isDragging,
   );
   const layoutElementPositions = useSelector(getLayoutElementPositions);
+  // Check if all zone positions are available
   const allZonePositionsAreAvailable = zones.every(
     (each) => !!layoutElementPositions[each.widgetId],
   );
+  // Check if space can be redistributed
   const canRedistributeSpace =
     !isPreviewMode &&
     !isDragging &&

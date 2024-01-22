@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { SectionSplitterComponent } from "layoutSystems/anvil/sectionSpaceDistributor/propertyPane/SectionSplitterComponent";
+import { PropertyPaneSectionSpaceDistributor } from "layoutSystems/anvil/sectionSpaceDistributor/propertyPane/PropertyPaneSectionSpaceDistributor";
 
 export interface SectionSplitterControlProps extends ControlProps {}
 
@@ -11,7 +11,9 @@ export class SectionSplitterControl extends BaseControl<SectionSplitterControlPr
   }
   render() {
     return (
-      <SectionSplitterComponent sectionWidgetId={this.props.propertyValue} />
+      <PropertyPaneSectionSpaceDistributor
+        sectionWidgetId={this.props.propertyValue}
+      />
     );
   }
 }

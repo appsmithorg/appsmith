@@ -4,15 +4,15 @@ import {
   getDistributionHandleId,
   getPropertyPaneDistributionHandleId,
   getPropertyPaneZoneId,
-} from "../spaceDistributionEditorUtils";
-import { PropPaneDistributionHandleCustomEvent } from "../constants";
+} from "../utils/spaceDistributionEditorUtils";
 import { useSelector } from "react-redux";
 import { getWidgetByID } from "sagas/selectors";
 import { getParentWidget } from "selectors/widgetSelectors";
 import type { AppState } from "@appsmith/reducers";
 import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { PropertyPaneSpaceDistributionHandle } from "./PropertyPaneSpaceDistributionHandle";
 
-const FlexBasedSection = styled.div`
+const MockedSection = styled.div`
   background-color: var(--ads-v2-color-bg-emphasis);
   border-radius: 5px;
   display: flex;
@@ -22,7 +22,7 @@ const FlexBasedSection = styled.div`
   border: 2px solid var(--ads-v2-color-bg-emphasis);
 `;
 
-const FlexChild = styled.div<{ flexGrow: number }>`
+const MockedZone = styled.div<{ flexGrow: number }>`
   display: flex;
   border-radius: 3px;
   background-color: var(--ads-v2-color-bg);
@@ -33,70 +33,29 @@ const FlexChild = styled.div<{ flexGrow: number }>`
   flex-grow: ${(props) => props.flexGrow};
 `;
 
-const Splitter = styled.div`
-  display: flex;
-  align-items: center;
-  width: 10px;
-  background-color: var(--ads-v2-color-bg-emphasis-plus);
-  border: 3px solid var(--ads-v2-color-bg-emphasis);
-  border-radius: 5px;
-  cursor: col-resize;
-  user-select: none;
-  -webkit-user-select: none;
-  &:hover,
-  &.active {
-    background: var(--ads-v2-color-bg-brand);
-  }
-`;
-
-const ZoneSplitter = ({
-  distributionHandleId,
-  propPaneHandleId,
-}: {
-  propPaneHandleId: string;
-  distributionHandleId: string;
-}) => {
-  const onMouseDown = (e: any) => {
-    e.stopPropagation();
-    e.preventDefault();
-    const distributionHandle = document.getElementById(distributionHandleId);
-    if (distributionHandle) {
-      distributionHandle.dispatchEvent(
-        new CustomEvent(PropPaneDistributionHandleCustomEvent, {
-          detail: {
-            mouseDownEvent: e,
-          },
-        }),
-      );
-    }
-  };
-  return (
-    <Splitter
-      id={propPaneHandleId}
-      key={propPaneHandleId}
-      onMouseDown={onMouseDown}
-    />
-  );
-};
-
-export const SectionSplitterComponent = ({
+export const PropertyPaneSectionSpaceDistributor = ({
   sectionWidgetId,
 }: {
   sectionWidgetId: string;
 }) => {
+  // Get section widget data from Redux store
   const sectionWidget = useSelector(getWidgetByID(sectionWidgetId));
+
+  // Extract all zone IDs in order from the section widget layout
   const allZoneIdsInOrder: string[] = sectionWidget.layout[0].layout.map(
     (each: WidgetLayoutProps) => each.widgetId,
   );
+
+  // Get the current distributed space from the section widget
   const currentDistributedSpace = sectionWidget.spaceDistributed;
-  if (!sectionWidget) {
+
+  // Check if the section widget is not available or has no zones
+  if (!sectionWidget || allZoneIdsInOrder.length === 0) {
     return null;
   }
-  if (allZoneIdsInOrder.length === 0) {
-    return null;
-  }
+
   return (
-    <FlexBasedSection id={"prop-pane-" + sectionWidgetId}>
+    <MockedSection id={"prop-pane-" + sectionWidgetId}>
       {allZoneIdsInOrder.map((zoneId: string, index: number) => {
         const zoneValue = currentDistributedSpace[zoneId];
         const zoneLabel =
@@ -106,16 +65,17 @@ export const SectionSplitterComponent = ({
         const propPaneZoneId = getPropertyPaneZoneId(zoneId);
         const propPaneHandleId = getPropertyPaneDistributionHandleId(zoneId);
         return (
+          // Render mocked zone and distribution handle for each zone
           <>
-            <FlexChild
+            <MockedZone
               flexGrow={zoneValue}
               id={propPaneZoneId}
               key={propPaneZoneId}
             >
               {zoneLabel}
-            </FlexChild>
+            </MockedZone>
             {isNotLastZone ? (
-              <ZoneSplitter
+              <PropertyPaneSpaceDistributionHandle
                 distributionHandleId={distributionHandleId}
                 propPaneHandleId={propPaneHandleId}
               />
@@ -123,20 +83,29 @@ export const SectionSplitterComponent = ({
           </>
         );
       })}
-    </FlexBasedSection>
+    </MockedSection>
   );
 };
 
-export const ZoneSplitterComponent = ({
+export const PropertyPaneZoneSpaceDistributor = ({
   zoneWidgetId,
 }: {
   zoneWidgetId: string;
 }) => {
+  // Get the section widget containing the specified zone widget
   const sectionWidget = useSelector((state: AppState) =>
     getParentWidget(state, zoneWidgetId),
   );
+
+  // Check if the section widget is not available
   if (!sectionWidget) {
     return null;
   }
-  return <SectionSplitterComponent sectionWidgetId={sectionWidget.widgetId} />;
+
+  // Render the section splitter component for the corresponding section widget
+  return (
+    <PropertyPaneSectionSpaceDistributor
+      sectionWidgetId={sectionWidget.widgetId}
+    />
+  );
 };
