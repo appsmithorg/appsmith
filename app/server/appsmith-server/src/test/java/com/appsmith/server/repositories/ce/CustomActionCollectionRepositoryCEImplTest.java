@@ -3,7 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class CustomActionCollectionRepositoryCEImplTest {
     @Autowired
-    ActionCollectionRepository actionCollectionRepository;
+    ActionCollectionRepositoryCake actionCollectionRepository;
 
     @Test
     public void bulkUpdate_WhenIdMatches_ActionCollectionsUpdated() {

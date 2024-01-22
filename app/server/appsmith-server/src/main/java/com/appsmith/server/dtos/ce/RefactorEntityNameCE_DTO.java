@@ -23,7 +23,7 @@ public class RefactorEntityNameCE_DTO {
     @JsonView(Views.Internal.class)
     EntityType entityType;
 
-    Long actionId;
+    String actionId;
     String actionCollectionId;
     String collectionName;
     ActionCollectionDTO actionCollection;

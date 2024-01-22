@@ -974,13 +974,8 @@ public class ImportApplicationServiceTests {
         final Mono<ApplicationImportDTO> resultMono = workspaceMono.flatMap(
                 workspace -> importApplicationService.extractFileAndSaveApplication(workspace.getId(), filePart));
 
-        List<PermissionGroup> permissionGroups = workspaceMono
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList()
-                .block();
+        Set<PermissionGroup> permissionGroups =
+                workspaceMono.map(Workspace::getDefaultPermissionGroups).block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
@@ -1222,13 +1217,8 @@ public class ImportApplicationServiceTests {
         final Mono<ApplicationImportDTO> resultMono = workspaceMono.flatMap(
                 workspace -> importApplicationService.extractFileAndSaveApplication(workspace.getId(), filePart));
 
-        List<PermissionGroup> permissionGroups = workspaceMono
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList()
-                .block();
+        Set<PermissionGroup> permissionGroups =
+                workspaceMono.map(Workspace::getDefaultPermissionGroups).block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
@@ -1503,13 +1493,8 @@ public class ImportApplicationServiceTests {
         final Mono<ApplicationImportDTO> resultMono = workspaceMono.flatMap(
                 workspace -> importApplicationService.extractFileAndSaveApplication(workspace.getId(), filePart));
 
-        List<PermissionGroup> permissionGroups = workspaceMono
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList()
-                .block();
+        Set<PermissionGroup> permissionGroups =
+                workspaceMono.map(Workspace::getDefaultPermissionGroups).block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
@@ -1760,13 +1745,8 @@ public class ImportApplicationServiceTests {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        List<PermissionGroup> permissionGroups = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
-                })
-                .collectList()
-                .block();
+        Set<PermissionGroup> permissionGroups =
+                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
@@ -1831,7 +1811,6 @@ public class ImportApplicationServiceTests {
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
-                    assertThat(application1.getIsPublic()).isEqualTo(Boolean.TRUE);
                     assertThat(application1.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                 })
                 .verifyComplete();
@@ -3519,7 +3498,6 @@ public class ImportApplicationServiceTests {
         application.setName("Template Application");
         application.setSlug("template-application");
         application.setForkingEnabled(true);
-        application.setIsPublic(true);
         application.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
         applicationJson.setExportedApplication(application);
 
@@ -3578,7 +3556,6 @@ public class ImportApplicationServiceTests {
         Application destApplication = new Application();
         destApplication.setName("App_" + uniqueString);
         destApplication.setSlug("my-slug");
-        destApplication.setIsPublic(false);
         destApplication.setForkingEnabled(false);
         Mono<Application> createAppAndPageMono = applicationPageService
                 .createApplication(destApplication, workspaceId)
@@ -3621,8 +3598,6 @@ public class ImportApplicationServiceTests {
 
                     assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo(destApplication.getName());
                     assertThat(applicationPagesDTO.getApplication().getSlug()).isEqualTo(destApplication.getSlug());
-                    assertThat(applicationPagesDTO.getApplication().getIsPublic())
-                            .isFalse();
                     assertThat(applicationPagesDTO.getApplication().getForkingEnabled())
                             .isFalse();
                     assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);

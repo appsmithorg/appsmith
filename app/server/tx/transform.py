@@ -382,6 +382,7 @@ def main():
     convert("Tenant")
     convert("ApiTemplate")
     convert("Collection")
+    convert("Asset")
 
     print("Format cakes")
     subprocess.check_call(
@@ -393,40 +394,6 @@ def main():
         ],
         cwd=server_root,
     )
-
-    print("Add cakes to git")
-    subprocess.check_call(
-        [
-            "git",
-            "add",
-            "appsmith-server/src/main/java/com/appsmith/server/repositories/cakes",
-        ],
-        cwd=server_root,
-    )
-
-
-# Comment methods from Maven errors
-"""
-def comment_methods_from_maven_errors():
-    logs = set(
-        l[len("[ERROR] "):]
-        for l in (root / "app/server/build-backend.log").read_text().splitlines()
-        if l.startswith("[ERROR] ")
-    )
-    for line in logs:
-        m = re.match(
-            r"(?P<path>[-\w/]+\.java):\[(?P<line>\d+),\d+\] incompatible types: no instance\(s\) of type variable\(s\) . exist"
-            r" so that reactor\.core\.publisher\.(Mono|Flux)<.> conforms to java\.util\.(Optional|List)<.+?>$",
-            line,
-        )
-        if m:
-            path = Path(m["path"])
-            print(path)
-    return logs
-
-
-comment_methods_from_maven_errors()
-"""
 
 
 if __name__ == "__main__":

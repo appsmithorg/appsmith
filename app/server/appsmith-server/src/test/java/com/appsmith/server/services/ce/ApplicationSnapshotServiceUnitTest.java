@@ -13,7 +13,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
-import com.appsmith.server.repositories.ApplicationSnapshotRepository;
+import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
@@ -52,7 +52,7 @@ public class ApplicationSnapshotServiceUnitTest {
     ExportApplicationService exportApplicationService;
 
     @MockBean
-    ApplicationSnapshotRepository applicationSnapshotRepository;
+    ApplicationSnapshotRepositoryCake applicationSnapshotRepository;
 
     @Autowired
     ApplicationSnapshotService applicationSnapshotService;

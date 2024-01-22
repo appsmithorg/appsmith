@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.AssetRepository;
+import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ import static com.appsmith.server.constants.Constraint.THUMBNAIL_PHOTO_DIMENSION
 @RequiredArgsConstructor
 public class AssetServiceCEImpl implements AssetServiceCE {
 
-    private final AssetRepository repository;
+    private final AssetRepositoryCake repository;
 
     private final AnalyticsService analyticsService;
 
@@ -47,7 +47,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     @Override
     public Mono<Asset> getById(String id) {
-        return Mono.justOrEmpty(repository.findById(id));
+        return repository.findById(id);
     }
 
     private Boolean checkImageTypeValidation(DataBuffer dataBuffer, MediaType contentType) throws IOException {

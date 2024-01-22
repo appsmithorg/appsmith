@@ -184,13 +184,8 @@ public class MockDataServiceTest {
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
 
-        List<PermissionGroup> permissionGroups = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
-                })
-                .collectList()
-                .block();
+        Set<PermissionGroup> permissionGroups =
+                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -266,13 +261,8 @@ public class MockDataServiceTest {
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
 
-        List<PermissionGroup> permissionGroups = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
-                })
-                .collectList()
-                .block();
+        Set<PermissionGroup> permissionGroups =
+                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -354,12 +344,10 @@ public class MockDataServiceTest {
                 .createMockDataSet(mockDataSource, defaultEnvironmentId)
                 .flatMap(datasource -> mockDataService.createMockDataSet(mockDataSource, defaultEnvironmentId));
 
-        List<PermissionGroup> permissionGroups = Mono.just(workspace)
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
+        Set<PermissionGroup> permissionGroups = Mono.just(workspace)
+                .map(savedWorkspace -> {
+                    return savedWorkspace.getDefaultPermissionGroups();
                 })
-                .collectList()
                 .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()

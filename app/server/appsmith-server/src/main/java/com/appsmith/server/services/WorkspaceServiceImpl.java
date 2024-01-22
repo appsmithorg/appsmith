@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
-import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
@@ -30,7 +30,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
             AnalyticsService analyticsService,
             PluginRepositoryCake pluginRepository,
             SessionUserService sessionUserService,
-            AssetRepository assetRepository,
+            AssetRepositoryCake assetRepository,
             AssetService assetService,
             ApplicationRepositoryCake applicationRepository,
             PermissionGroupService permissionGroupService,

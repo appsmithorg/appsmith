@@ -25,4 +25,9 @@ public class Endpoint {
     String host;
 
     Long port;
+
+    public Endpoint(String host, Long port) {
+        this.host = host;
+        this.port = port;
+    }
 }

@@ -12,8 +12,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
-import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -66,7 +66,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     private final PluginRepositoryCake pluginRepository;
     private final SessionUserService sessionUserService;
-    private final AssetRepository assetRepository;
+    private final AssetRepositoryCake assetRepository;
     private final AssetService assetService;
     private final ApplicationRepositoryCake applicationRepository;
     protected final PermissionGroupService permissionGroupService;
@@ -86,7 +86,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
             AnalyticsService analyticsService,
             PluginRepositoryCake pluginRepository,
             SessionUserService sessionUserService,
-            AssetRepository assetRepository,
+            AssetRepositoryCake assetRepository,
             AssetService assetService,
             ApplicationRepositoryCake applicationRepository,
             PermissionGroupService permissionGroupService,

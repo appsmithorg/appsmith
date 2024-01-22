@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -39,9 +40,17 @@ public class PermissionGroup extends BaseDomain {
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
-    private Set<User> assignedToUserIds;
+    private Set<User> assignedToUsers;
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     private Set<User> assignedToGroupIds;
+
+    public Set<String> getAssignedToUserIds() {
+        final Set<String> ids = new HashSet<>();
+        for (final User user : assignedToUsers) {
+            ids.add(user.getId());
+        }
+        return ids;
+    }
 }

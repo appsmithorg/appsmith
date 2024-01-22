@@ -30,8 +30,13 @@ import static com.appsmith.server.constants.FieldName.DEFAULT;
 @NoArgsConstructor
 public class UserData extends BaseDomain {
 
+    @Column(name = "user_id", insertable = false, updatable = false)
     @JsonView(Views.Internal.class)
     String userId;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    User user;
 
     // Role of the user in their workspace, example, Designer, Developer, Product Lead etc.
     @JsonView(Views.Public.class)

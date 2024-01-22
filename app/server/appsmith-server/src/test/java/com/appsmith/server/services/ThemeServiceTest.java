@@ -13,11 +13,11 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.themes.base.ThemeService;
@@ -55,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ThemeServiceTest {
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     ApplicationService applicationService;
@@ -75,13 +75,13 @@ public class ThemeServiceTest {
     private ThemeService themeService;
 
     @Autowired
-    private PermissionGroupRepository permissionGroupRepository;
+    private PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     private UserWorkspaceService userWorkspaceService;
 
     @Autowired
-    private ThemeRepository themeRepository;
+    private ThemeRepositoryCake themeRepository;
 
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
@@ -90,7 +90,7 @@ public class ThemeServiceTest {
     ApplicationPermission applicationPermission;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepositoryCake userRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -148,12 +148,10 @@ public class ThemeServiceTest {
     public void replaceApiUserWithAnotherUserInWorkspace() {
 
         String origin = "http://random-origin.test";
-        PermissionGroup adminPermissionGroup = permissionGroupRepository
-                .findAllById(workspace.getDefaultPermissionGroups())
+        PermissionGroup adminPermissionGroup = workspace.getDefaultPermissionGroups().stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .collectList()
-                .block()
-                .get(0);
+                .findFirst()
+                .get();
 
         // invite usertest to the workspace
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
@@ -171,13 +169,10 @@ public class ThemeServiceTest {
     }
 
     public void addApiUserToTheWorkspaceAsAdmin() {
-        String origin = "http://random-origin.test";
-        PermissionGroup adminPermissionGroup = permissionGroupRepository
-                .findAllById(workspace.getDefaultPermissionGroups())
+        PermissionGroup adminPermissionGroup = workspace.getDefaultPermissionGroups().stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .collectList()
-                .block()
-                .get(0);
+                .findFirst()
+                .get();
 
         // add api_user back to the workspace
         User apiUser = userRepository.findByEmail("api_user").block();
@@ -654,7 +649,7 @@ public class ThemeServiceTest {
         Application updateApp = new Application();
         updateApp.setEditModeThemeId("");
         updateApp.setPublishedModeThemeId("");
-        Application appWithoutTheme = applicationRepository
+        applicationRepository
                 .updateById(savedApplication.getId(), updateApp, MANAGE_APPLICATIONS)
                 .block();
 

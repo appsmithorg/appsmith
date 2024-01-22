@@ -22,10 +22,10 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.EmailVerificationTokenRepository;
-import com.appsmith.server.repositories.PasswordResetTokenRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.EmailVerificationTokenRepositoryCake;
+import com.appsmith.server.repositories.cakes.PasswordResetTokenRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +90,7 @@ public class UserServiceTest {
     ApplicationService applicationService;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepositoryCake userRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -102,10 +102,10 @@ public class UserServiceTest {
     UserDataService userDataService;
 
     @MockBean
-    PasswordResetTokenRepository passwordResetTokenRepository;
+    PasswordResetTokenRepositoryCake passwordResetTokenRepository;
 
     @MockBean
-    EmailVerificationTokenRepository emailVerificationTokenRepository;
+    EmailVerificationTokenRepositoryCake emailVerificationTokenRepository;
 
     @Autowired
     TenantService tenantService;
@@ -116,7 +116,7 @@ public class UserServiceTest {
     UserSignup userSignup;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @SpyBean
     CommonConfig commonConfig;
@@ -340,7 +340,8 @@ public class UserServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(workspace1.getDefaultPermissionGroups().stream()
                             .findFirst()
-                            .get());
+                            .get()
+                            .getId());
 
                     return userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
