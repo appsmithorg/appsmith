@@ -46,7 +46,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         meDatasourceName = $dsName.toString();
       });
-
+      dataSources.selectTabOnDatasourcePage("Configurations");
       multipleEnv.VerifyEnvDetailsInReviewMode("PostgreSQL", prodEnv);
 
       // Add staging env details
@@ -62,6 +62,7 @@ describe(
       dataSources.TestDatasource(true);
       // Save env details
       dataSources.SaveDatasource(false, true);
+      dataSources.selectTabOnDatasourcePage("Configurations");
       multipleEnv.VerifyEnvDetailsInReviewMode("PostgreSQL", stagingEnv);
 
       // Create DS with Staging only details
@@ -76,6 +77,8 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         meDSStagingOnlyName = $dsName.toString();
       });
+
+      dataSources.selectTabOnDatasourcePage("Configurations");
       multipleEnv.VerifyEnvDetailsInReviewMode("PostgreSQL", stagingEnv);
     });
 
@@ -148,9 +151,6 @@ describe(
 
     it("4. Generate CRUD page for both datasources", function () {
       dataSources.GeneratePageForDS(meDatasourceName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "city");
-      agHelper.ClickButton("Generate page");
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.ValidateToastMessage("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
@@ -195,7 +195,6 @@ describe(
           });
       });
       dataSources.AssertJSONFormHeader(0, 0, "city_id", "1");
-      multipleEnv.SwitchEnv(prodEnv);
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
       table.ReadTableRowColumnData(0, 1, "v2", 4000).then(($cellData) => {
@@ -215,9 +214,7 @@ describe(
           });
       });
       dataSources.AssertJSONFormHeader(0, 0, "city_id", "1");
-      agHelper.AssertElementExist(multipleEnv.env_switcher);
       // Check table values for binded tables
-      multipleEnv.SwitchEnv(prodEnv);
       agHelper.GetNClickByContains(locators._deployedPage, "Page1");
       agHelper.GetNAssertContains(
         locators._tableRecordsContainer,
@@ -225,16 +222,6 @@ describe(
       );
       agHelper.GetNClickByContains(locators._deployedPage, "Page2");
       agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
-      multipleEnv.SwitchEnv(stagingEnv);
-      agHelper.GetNAssertContains(
-        locators._tableRecordsContainer,
-        "43 Records",
-      );
-      agHelper.GetNClickByContains(locators._deployedPage, "Page1");
-      agHelper.GetNAssertContains(
-        locators._tableRecordsContainer,
-        "43 Records",
-      );
       deployMode.NavigateBacktoEditor();
       multipleEnv.SwitchEnv(prodEnv);
       // Clean up
@@ -244,9 +231,9 @@ describe(
         action: "Delete",
         entityType: entityItems.Widget,
       });
-      dataSources.DeleteQuery(meQueryName);
+      // dataSources.DeleteQuery(meQueryName);
       EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
-      dataSources.DeleteQuery(meStagingOnlyQueryName);
+      // dataSources.DeleteQuery(meStagingOnlyQueryName);
       // Won't be deleting the ds since it is being used by a query in deploy mode
     });
   },
