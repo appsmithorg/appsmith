@@ -87,6 +87,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_MODULE_INSTANCES;
@@ -1078,10 +1079,12 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
         if (added.contains(MANAGE_WORKFLOWS)) {
             sideEffectsClassMap.put(id, Workflow.class);
-            sideEffectsAddedMap.merge(id, List.of(PUBLISH_WORKFLOWS, READ_HISTORY_WORKFLOWS), ListUtils::union);
+            sideEffectsAddedMap.merge(
+                    id, List.of(PUBLISH_WORKFLOWS, READ_HISTORY_WORKFLOWS, EXECUTE_WORKFLOWS), ListUtils::union);
         } else if (removed.contains(MANAGE_WORKFLOWS)) {
             sideEffectsClassMap.put(id, Workflow.class);
-            sideEffectsRemovedMap.merge(id, List.of(PUBLISH_WORKFLOWS, READ_HISTORY_WORKFLOWS), ListUtils::union);
+            sideEffectsRemovedMap.merge(
+                    id, List.of(PUBLISH_WORKFLOWS, READ_HISTORY_WORKFLOWS, EXECUTE_WORKFLOWS), ListUtils::union);
         }
     }
 

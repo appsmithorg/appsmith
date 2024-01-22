@@ -3329,7 +3329,7 @@ public class WorkspaceResourcesTest {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
             if (EXECUTE_WORKFLOWS.getValue().equals(policy.getPermission())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
             if (WORKFLOW_CREATE_ACTIONS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
@@ -3469,6 +3469,8 @@ public class WorkspaceResourcesTest {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             } else if (PUBLISH_WORKFLOWS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            } else if (EXECUTE_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             } else {
                 assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
             }
@@ -3477,11 +3479,12 @@ public class WorkspaceResourcesTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishWorkflow() {
+    public void
+            testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishAndExecuteWorkflow() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
                 .thenReturn(Mono.just(TRUE));
         String testName =
-                "testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishWorkflow";
+                "testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishAndExecuteWorkflow";
         Workspace workspace = new Workspace();
         workspace.setName("Workspace - " + testName);
         Workspace createdWorkspace1 = workspaceService.create(workspace).block();
@@ -3519,6 +3522,9 @@ public class WorkspaceResourcesTest {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
             if (PUBLISH_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_WORKFLOWS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
         });
