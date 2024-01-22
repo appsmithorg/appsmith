@@ -423,6 +423,9 @@ public class Application extends BaseDomain implements ImportableArtifact {
         @JsonView(Views.Public.class)
         Type colorMode;
 
+        @JsonView(Views.Public.class)
+        IconStyle iconStyle;
+
         public ThemeSetting(Type colorMode) {
             this.colorMode = colorMode;
         }
@@ -430,6 +433,11 @@ public class Application extends BaseDomain implements ImportableArtifact {
         public enum Type {
             LIGHT,
             DARK
+        }
+
+        public enum IconStyle {
+            OUTLINED,
+            FILLED
         }
     }
 }

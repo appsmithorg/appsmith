@@ -3,10 +3,11 @@ import { Item as HeadlessItem } from "@design-system/headless";
 import type { ItemProps as HeadlessItemProps } from "@react-types/shared";
 import type { ReactElement } from "react";
 import type { COLORS } from "../../../shared";
+import type { IconProps } from "../../Icon";
 
 interface ItemProps<T> extends HeadlessItemProps<T> {
   color?: keyof typeof COLORS;
-  icon?: React.ComponentType;
+  icon?: IconProps["name"];
   iconPosition?: "start" | "end";
   isLoading?: boolean;
 }
