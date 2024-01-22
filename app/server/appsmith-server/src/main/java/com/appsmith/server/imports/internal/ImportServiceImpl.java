@@ -7,7 +7,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.importable.ImportableService;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -22,7 +22,7 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
             ImportableService<CustomJSLib> customJSLibImportableService,
-            PermissionGroupRepository permissionGroupRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ImportableService<Plugin> pluginImportableService,

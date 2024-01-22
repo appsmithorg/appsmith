@@ -261,7 +261,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
+    public List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
+        return Collections.emptyList(); /*
         List<Criteria> criteria = new ArrayList<>();
 
         Criteria pageCriterion;
@@ -286,6 +287,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                     .is(null);
             criteria.add(deletedCriteria);
         }
-        return queryAll(criteria, permission);
+        return queryAll(criteria, permission);*/
     }
 }

@@ -23,7 +23,7 @@ import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportServiceCE;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.migrations.ArtifactSchemaMigration;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -52,7 +52,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
     private final ImportableService<CustomJSLib> customJSLibImportableService;
-    private final PermissionGroupRepository permissionGroupRepository;
+    private final PermissionGroupRepositoryCake permissionGroupRepository;
     private final TransactionalOperator transactionalOperator;
     private final AnalyticsService analyticsService;
     private final ImportableService<Plugin> pluginImportableService;
@@ -65,7 +65,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
             ImportableService<CustomJSLib> customJSLibImportableService,
-            PermissionGroupRepository permissionGroupRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ImportableService<Plugin> pluginImportableService,

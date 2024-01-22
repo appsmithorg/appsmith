@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.time.Instant;

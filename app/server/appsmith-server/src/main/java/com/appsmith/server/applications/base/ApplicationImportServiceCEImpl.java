@@ -471,7 +471,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     application.setForkWithConfiguration(null);
                     application.setExportWithConfiguration(null);
                     application.setWorkspaceId(importingMetaDTO.getWorkspaceId());
-                    application.setIsPublic(null);
                     application.setPolicies(null);
                     Map<String, List<ApplicationPage>> mapOfApplicationPageList = Map.of(
                             FieldName.PUBLISHED,

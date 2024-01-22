@@ -375,7 +375,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             String branchName,
             Mono<List<NewPage>> existingPages,
             ImportArtifactPermissionProvider permissionProvider) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
