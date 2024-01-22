@@ -12,7 +12,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Validate basic Promises", () => {
+describe("Validate basic Promises", { tags: ["@tag.Binding"] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

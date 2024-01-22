@@ -23,7 +23,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL, widgetListURL } from "@appsmith/RouteBuilder";
 import {
   getExplorerStatus,
   saveExplorerStatus,
@@ -70,11 +70,22 @@ function Pages() {
     }
   }, [pageResizeRef]);
 
+  useEffect(() => {
+    // scroll to the current page
+    const currentPage = document.getElementById("entity-" + currentPageId);
+    if (currentPage) {
+      setTimeout(() => currentPage.scrollIntoView(), 0);
+    }
+  }, [currentPageId]);
+
   const switchPage = useCallback(
     (page: Page) => {
-      const navigateToUrl = builderURL({
-        pageId: page.pageId,
-      });
+      const navigateToUrl =
+        currentPageId === page.pageId
+          ? widgetListURL({})
+          : builderURL({
+              pageId: page.pageId,
+            });
       AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
         name: page.pageName,
         fromUrl: location.pathname,
@@ -86,7 +97,7 @@ function Pages() {
         invokedBy: NavigationMethod.EntityExplorer,
       });
     },
-    [location.pathname],
+    [location.pathname, currentPageId],
   );
 
   const [isMenuOpen, openMenu] = useState(false);

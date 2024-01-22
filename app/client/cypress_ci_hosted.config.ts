@@ -47,6 +47,7 @@ export default defineConfig({
           }
         },
       );
+      require("@cypress/grep/src/plugin")(config);
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: [

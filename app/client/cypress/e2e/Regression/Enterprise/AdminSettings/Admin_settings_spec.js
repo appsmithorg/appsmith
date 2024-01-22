@@ -2,7 +2,7 @@ const EnterpriseAdminSettingsLocators = require("../../../../locators/Enterprise
 import adminsSettings from "../../../../locators/AdminsSettings";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },

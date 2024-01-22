@@ -17,13 +17,12 @@ import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
-import { PagesPane } from "../PagesPane";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import EditorPane from "../EditorPane";
 
 export const LeftPaneContainer = styled.div`
   height: 100%;
-  min-width: 150px;
   border-right: 1px solid var(--ads-v2-color-border);
   background: var(--ads-v2-color-bg);
 `;
@@ -36,7 +35,7 @@ const LeftPane = () => {
   const { path } = useRouteMatch();
   const guidedTourEnabled = useSelector(inGuidedTour);
   if (!isAppSidebarEnabled || guidedTourEnabled) {
-    return isPagesPaneEnabled ? <PagesPane /> : <WidgetsEditorEntityExplorer />;
+    return <WidgetsEditorEntityExplorer />;
   }
   return (
     <LeftPaneContainer>
@@ -62,7 +61,7 @@ const LeftPane = () => {
           path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
         />
         {isPagesPaneEnabled ? (
-          <SentryRoute component={PagesPane} />
+          <SentryRoute component={EditorPane} />
         ) : (
           <SentryRoute component={WidgetsEditorEntityExplorer} />
         )}

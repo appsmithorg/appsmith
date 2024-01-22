@@ -11,14 +11,14 @@ const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
 
-describe("Canvas context Property Pane", function () {
+describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     _.agHelper.AddDsl("editorContextdsl");
     PageList.AddNewPage("New blank page");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     _.apiPage.CreateApi(api1);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
   });
 
   beforeEach(() => {
@@ -105,7 +105,7 @@ describe("Canvas context Property Pane", function () {
       },
       "Table1",
     );
-
+    cy.wait(500);
     cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
@@ -133,6 +133,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
+    cy.wait(500);
     cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
@@ -160,6 +161,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
+    cy.wait(500);
     cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
@@ -246,7 +248,7 @@ function verifyPropertyPaneContext(
 
   //Navigate to API1 Pane and back
   EditorNavigation.SelectEntityByName(api1, EntityType.Api);
-  cy.get(".t--close-editor").click();
+  EditorNavigation.ShowCanvas();
   cy.wait(500);
 
   //assert Callback

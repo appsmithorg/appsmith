@@ -23,6 +23,8 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { get } from "lodash";
+import { useEditorType } from "@appsmith/hooks";
+import history from "utils/history";
 
 interface FetchPreviewData {
   datasourceId: string;
@@ -121,40 +123,27 @@ export const useShowPageGenerationOnHeader = (
 
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
 
-  //   A/B feature flag for datasource view mode preview data.
-  let isEnabledForDSViewModeSchema = useFeatureFlag(
-    FEATURE_FLAG.ab_gsheet_schema_enabled,
-  );
-
-  const isEnabledForMockMongoSchema = useFeatureFlag(
-    FEATURE_FLAG.ab_mock_mongo_schema_enabled,
-  );
-
-  // for mongoDB, the feature flag should be based on ab_mock_mongo_schema_enabled.
-  if (plugin?.name === PluginName.MONGO) {
-    isEnabledForDSViewModeSchema = isEnabledForMockMongoSchema;
-  }
-
-  const isPluginAllowedToPreviewData = isEnabledForDSViewModeSchema
-    ? DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
-      (plugin?.name === PluginName.MONGO &&
-        !!(datasource as Datasource)?.isMock) ||
-      isGoogleSheetPlugin
-    : false;
-
+  const isPluginAllowedToPreviewData =
+    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
+    (plugin?.name === PluginName.MONGO &&
+      !!(datasource as Datasource)?.isMock) ||
+    isGoogleSheetPlugin;
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
+
+  const editorType = useEditorType(history.location.pathname);
 
   const canCreatePages = getHasCreatePagePermission(
     isGACEnabled,
     userAppPermissions,
   );
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isGACEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isGACEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const canGeneratePage = canCreateDatasourceActions && canCreatePages;
 

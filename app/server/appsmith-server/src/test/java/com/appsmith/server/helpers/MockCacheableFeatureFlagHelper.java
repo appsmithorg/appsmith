@@ -15,6 +15,11 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Map;
+
+import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
+import static com.appsmith.server.featureflags.FeatureFlagEnum.TEST_FEATURE_1;
+import static com.appsmith.server.featureflags.FeatureFlagEnum.TEST_FEATURE_2;
 
 @Profile("test")
 @Primary
@@ -26,7 +31,10 @@ public class MockCacheableFeatureFlagHelper implements CacheableFeatureFlagHelpe
     public Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier, User user) {
         CachedFlags cachedFlags = new CachedFlags();
         cachedFlags.setRefreshedAt(Instant.now());
-        cachedFlags.setFlags(new HashMap<>());
+        Map<String, Boolean> flags = new HashMap<>();
+        flags.put(TEST_FEATURE_1.name(), true);
+        flags.put(TEST_FEATURE_2.name(), false);
+        cachedFlags.setFlags(flags);
         return Mono.just(cachedFlags);
     }
 
@@ -68,7 +76,9 @@ public class MockCacheableFeatureFlagHelper implements CacheableFeatureFlagHelpe
     @Override
     public Mono<FeaturesResponseDTO> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
         FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
-        responseDTO.setFeatures(new HashMap<>());
+        Map<String, Boolean> features = new HashMap<>();
+        features.put(TENANT_TEST_FEATURE.name(), true);
+        responseDTO.setFeatures(features);
         return Mono.just(responseDTO);
     }
 }

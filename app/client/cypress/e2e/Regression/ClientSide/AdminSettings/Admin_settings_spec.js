@@ -6,7 +6,7 @@ const {
   GOOGLE_SIGNUP_SETUP_DOC,
 } = require("../../../../../src/constants/ThirdPartyConstants");
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
@@ -30,7 +30,6 @@ describe("Admin settings page", function () {
   });
 
   it("2. Should test that settings page is not accessible to normal users", () => {
-    cy.wait(2000);
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
     cy.get(".admin-settings-menu-option").should("not.exist");
     cy.visit("/settings/general", { timeout: 60000 });
@@ -41,15 +40,14 @@ describe("Admin settings page", function () {
 
   it("3. Should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    //cy.wait(3000);
     cy.visit("/settings", { timeout: 60000 });
     cy.url().should("contain", "/settings/general");
     cy.wait("@getEnvVariables");
   });
 
   it(
-    "excludeForAirgap",
     "4. Should test that settings page tab redirects",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.get(".admin-settings-menu-option").click();
@@ -72,14 +70,11 @@ describe("Admin settings page", function () {
   it(
     "airgap",
     "4. Should test that settings page tab redirects and developer settings doesn't exist - airgap",
+    { tags: ["@tag.airgap"] },
     () => {
       cy.visit("/applications", { timeout: 60000 });
-      if (!Cypress.env("AIRGAPPED")) {
-        cy.wait(3000);
-        cy.wait("@getReleaseItems");
-      } else {
-        cy.wait(2000);
-      }
+      if (!Cypress.env("AIRGAPPED")) cy.wait("@getReleaseItems");
+
       cy.get(".admin-settings-menu-option").click();
       cy.wait("@getEnvVariables");
       cy.get(adminsSettings.generalTab).click();
@@ -97,8 +92,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "5. Should test that authentication page redirects",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -119,6 +114,7 @@ describe("Admin settings page", function () {
   it(
     "airgap",
     "5. Should test that authentication page redirects and google and github auth doesn't exist - airgap",
+    { tags: ["@tag.airgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -131,8 +127,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "6. Should test that configure link redirects to google signup setup doc",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -143,16 +139,15 @@ describe("Admin settings page", function () {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
-          .click()
-          .wait(3000); //for page to load fully;
+          .click();
         cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
       });
     },
   );
 
   it(
-    "excludeForAirgap",
     "7. Should test that configure link redirects to github signup setup doc",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -163,8 +158,7 @@ describe("Admin settings page", function () {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
-          .click()
-          .wait(3000); //for page to load fully;;
+          .click();
         cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
       });
     },
@@ -244,8 +238,6 @@ describe("Admin settings page", function () {
       );
     });
     cy.get(adminsSettings.restartNotice).should("be.visible");
-    cy.wait(3000);
     cy.get(adminsSettings.restartNotice).should("not.exist");
-    cy.wait(3000);
   });
 });

@@ -7,7 +7,7 @@ const locators = {
   errorPageTitle: ".t--error-page-title",
 };
 
-describe("Pages", function () {
+describe("Pages", { tags: ["@tag.IDE"] }, function () {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
   let apiName = "someApi";
 

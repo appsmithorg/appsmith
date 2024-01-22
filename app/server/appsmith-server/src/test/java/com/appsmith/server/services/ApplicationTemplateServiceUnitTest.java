@@ -32,7 +32,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * This test is written based on the inspiration from the tutorial: https://www.baeldung.com/spring-mocking-webclient
+ * This test is written based on the inspiration from the tutorial:
+ * https://www.baeldung.com/spring-mocking-webclient
  */
 @ExtendWith(SpringExtension.class)
 public class ApplicationTemplateServiceUnitTest {
@@ -67,6 +68,9 @@ public class ApplicationTemplateServiceUnitTest {
     @MockBean
     private ResponseUtils responseUtils;
 
+    @MockBean
+    private SessionUserService sessionUserService;
+
     @BeforeAll
     public static void setUp() throws IOException {
         mockCloudServices = new MockWebServer();
@@ -82,7 +86,8 @@ public class ApplicationTemplateServiceUnitTest {
     public void initialize() {
         String baseUrl = String.format("http://localhost:%s", mockCloudServices.getPort());
 
-        // mock the cloud services config so that it returns mock server url as cloud service base url
+        // mock the cloud services config so that it returns mock server url as cloud
+        // service base url
         Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
 
         applicationTemplateService = new ApplicationTemplateServiceImpl(
@@ -95,7 +100,8 @@ public class ApplicationTemplateServiceUnitTest {
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                objectMapper);
+                objectMapper,
+                sessionUserService);
     }
 
     private ApplicationTemplate create(String id, String title) {

@@ -33,115 +33,119 @@ function clearOptionsProperty() {
     });
 }
 
-describe("JSONForm RadioGroup Field", () => {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
+describe(
+  "JSONForm RadioGroup Field",
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  () => {
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
+    });
 
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dslWithoutSchema);
-    // Bind formData to Text1 widget text property
-    cy.openPropertyPane("textwidget");
-    cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
-    cy.closePropertyPane();
-  });
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
+      cy.addDsl(dslWithoutSchema);
+      // Bind formData to Text1 widget text property
+      cy.openPropertyPane("textwidget");
+      cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
+      cy.closePropertyPane();
+    });
 
-  it("1. accepts numeric options value", () => {
-    cy.openPropertyPane("jsonformwidget");
-    const schema = {
-      binary: 1,
-    };
-    const radioFieldInput = `${fieldPrefix}-binary`;
+    it("1. accepts numeric options value", () => {
+      cy.openPropertyPane("jsonformwidget");
+      const schema = {
+        binary: 1,
+      };
+      const radioFieldInput = `${fieldPrefix}-binary`;
 
-    const options = [
-      {
-        label: "Zero",
-        value: 0,
-      },
-      {
-        label: "One",
-        value: 1,
-      },
-    ];
+      const options = [
+        {
+          label: "Zero",
+          value: 0,
+        },
+        {
+          label: "One",
+          value: 1,
+        },
+      ];
 
-    // Apply schema and change the field type to radio group
-    cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+      // Apply schema and change the field type to radio group
+      cy.openPropertyPane("jsonformwidget");
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-    cy.openFieldConfiguration("binary");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
+      cy.openFieldConfiguration("binary");
+      cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 
-    clearOptionsProperty();
-    propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
+      clearOptionsProperty();
+      propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
 
-    cy.wait(2000);
+      cy.wait(2000);
 
-    // Validate initial form data
-    cy.get(`.t--widget-textwidget .bp3-ui-text`).then(($el) => {
-      const formData = JSON.parse($el.text());
-      cy.wrap(formData).should("deep.equal", {
+      // Validate initial form data
+      cy.get(`.t--widget-textwidget .bp3-ui-text`).then(($el) => {
+        const formData = JSON.parse($el.text());
+        cy.wrap(formData).should("deep.equal", {
+          binary: 1,
+        });
+      });
+
+      // Select Zero Option
+      selectAndValidateOption(radioFieldInput, options[0], {
+        binary: 0,
+      });
+
+      // Select One Option
+      selectAndValidateOption(radioFieldInput, options[1], {
         binary: 1,
       });
     });
 
-    // Select Zero Option
-    selectAndValidateOption(radioFieldInput, options[0], {
-      binary: 0,
-    });
+    it("2. accepts string options value", () => {
+      cy.openPropertyPane("jsonformwidget");
+      const schema = {
+        accept: "N",
+      };
 
-    // Select One Option
-    selectAndValidateOption(radioFieldInput, options[1], {
-      binary: 1,
-    });
-  });
+      const radioFieldInput = `${fieldPrefix}-accept`;
 
-  it("2. accepts string options value", () => {
-    cy.openPropertyPane("jsonformwidget");
-    const schema = {
-      accept: "N",
-    };
+      const options = [
+        {
+          label: "Yes",
+          value: "Y",
+        },
+        {
+          label: "No",
+          value: "N",
+        },
+      ];
 
-    const radioFieldInput = `${fieldPrefix}-accept`;
+      // Apply schema and change the field type to radio group
+      cy.openPropertyPane("jsonformwidget");
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-    const options = [
-      {
-        label: "Yes",
-        value: "Y",
-      },
-      {
-        label: "No",
-        value: "N",
-      },
-    ];
+      cy.openFieldConfiguration("accept");
+      cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 
-    // Apply schema and change the field type to radio group
-    cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+      clearOptionsProperty();
+      propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
+      cy.wait(2000);
 
-    cy.openFieldConfiguration("accept");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
+      // Validate initial form data
+      cy.get(`.t--widget-textwidget .bp3-ui-text`).then(($el) => {
+        const formData = JSON.parse($el.text());
+        cy.wrap(formData).should("deep.equal", {
+          accept: "N",
+        });
+      });
 
-    clearOptionsProperty();
-    propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
-    cy.wait(2000);
+      // Select Y Option
+      selectAndValidateOption(radioFieldInput, options[0], {
+        accept: "Y",
+      });
 
-    // Validate initial form data
-    cy.get(`.t--widget-textwidget .bp3-ui-text`).then(($el) => {
-      const formData = JSON.parse($el.text());
-      cy.wrap(formData).should("deep.equal", {
+      // Select N Option
+      selectAndValidateOption(radioFieldInput, options[1], {
         accept: "N",
       });
     });
-
-    // Select Y Option
-    selectAndValidateOption(radioFieldInput, options[0], {
-      accept: "Y",
-    });
-
-    // Select N Option
-    selectAndValidateOption(radioFieldInput, options[1], {
-      accept: "N",
-    });
-  });
-});
+  },
+);

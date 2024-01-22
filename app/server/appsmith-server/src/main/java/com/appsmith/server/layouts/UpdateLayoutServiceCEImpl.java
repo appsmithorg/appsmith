@@ -287,6 +287,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
 
     @Override
     public Mono<String> updatePageLayoutsByPageId(String pageId) {
+        // Mono.just(null) will throw an NPE, if pageId is null.
+        if (!StringUtils.hasLength(pageId)) {
+            return Mono.just("");
+        }
         return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page
                 .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))

@@ -17,13 +17,16 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -35,6 +38,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -67,6 +71,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
+import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
@@ -84,6 +89,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final SessionUserService sessionUserService;
+    private final UserDataService userDataService;
     private static final Integer MAX_RETRIES = 5;
 
     @Autowired
@@ -102,7 +108,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
-            SessionUserService sessionUserService) {
+            SessionUserService sessionUserService,
+            UserDataService userDataService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policySolution = policySolution;
@@ -114,6 +121,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.datasourcePermission = datasourcePermission;
         this.applicationPermission = applicationPermission;
         this.sessionUserService = sessionUserService;
+        this.userDataService = userDataService;
     }
 
     @Override
@@ -177,6 +185,51 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
         return setTransientFields(repository.findByWorkspaceId(workspaceId, permission));
+    }
+
+    /**
+     * This method is used to fetch all the applications for a given workspaceId. It also sorts the applications based
+     * on recently used order.
+     * For git connected applications only default branched application is returned.
+     * @param workspaceId   workspaceId for which applications are to be fetched
+     * @return              Flux of applications
+     */
+    @Override
+    public Flux<Application> findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(String workspaceId) {
+
+        if (!StringUtils.hasLength(workspaceId)) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        Mono<RecentlyUsedEntityDTO> userDataMono = userDataService
+                .getForCurrentUser()
+                .defaultIfEmpty(new UserData())
+                .map(userData -> {
+                    if (userData.getRecentlyUsedEntityIds() == null) {
+                        return new RecentlyUsedEntityDTO();
+                    }
+                    return userData.getRecentlyUsedEntityIds().stream()
+                            .filter(entityDTO -> workspaceId.equals(entityDTO.getWorkspaceId()))
+                            .findFirst()
+                            .orElse(new RecentlyUsedEntityDTO());
+                });
+
+        // Collect all the applications as a map with workspace id as a key
+        return userDataMono.flatMapMany(
+                recentlyUsedEntityDTO -> this.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
+                        // sort transformation
+                        .transform(domainFlux -> sortDomainsBasedOnOrderedDomainIds(
+                                domainFlux, recentlyUsedEntityDTO.getApplicationIds()))
+                        .filter(application -> {
+                            /*
+                             * Filter applications based on the following criteria:
+                             * - Applications that are not connected to Git.
+                             * - Applications that, when connected, revert with default branch only.
+                             */
+                            return !GitUtils.isApplicationConnectedToGit(application)
+                                    || GitUtils.isDefaultBranchedApplication(application);
+                        })
+                        .map(responseUtils::updateApplicationWithDefaultResources));
     }
 
     @Override
@@ -355,41 +408,56 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(branchedApplication -> {
                     application.setPages(null);
                     application.setGitApplicationMetadata(null);
-                    /**
-                     * Retaining the logoAssetId field value while updating NavigationSetting
-                     */
-                    if (application.getUnpublishedApplicationDetail() != null) {
-                        ApplicationDetail presetApplicationDetail = ObjectUtils.defaultIfNull(
-                                branchedApplication.getApplicationDetail(), new ApplicationDetail());
-                        if (branchedApplication.getUnpublishedApplicationDetail() == null) {
-                            branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
-                        }
-                        Application.NavigationSetting requestNavSetting =
-                                application.getUnpublishedApplicationDetail().getNavigationSetting();
-                        if (requestNavSetting != null) {
-                            Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(
-                                    branchedApplication
-                                            .getUnpublishedApplicationDetail()
-                                            .getNavigationSetting(),
-                                    new Application.NavigationSetting());
-                            String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
-                            String requestLogoAssetId =
-                                    ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
-                            requestNavSetting.setLogoAssetId(
-                                    ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
-                            presetApplicationDetail.setNavigationSetting(requestNavSetting);
-                        }
 
-                        Application.AppPositioning requestAppPositioning =
-                                application.getUnpublishedApplicationDetail().getAppPositioning();
-                        if (requestAppPositioning != null) {
-                            presetApplicationDetail.setAppPositioning(requestAppPositioning);
-                        }
-
-                        application.setUnpublishedApplicationDetail(presetApplicationDetail);
-                    }
-                    return this.update(branchedApplication.getId(), application);
+                    return verifyIfForkingIsAllowed(branchedApplication, application)
+                            .then(updateApplication(application, branchedApplication));
                 });
+    }
+
+    private Mono<Application> updateApplication(Application application, Application branchedApplication) {
+        /**
+         * Retaining the logoAssetId field value while updating NavigationSetting
+         */
+        if (application.getUnpublishedApplicationDetail() != null) {
+            ApplicationDetail presetApplicationDetail =
+                    ObjectUtils.defaultIfNull(branchedApplication.getApplicationDetail(), new ApplicationDetail());
+            if (branchedApplication.getUnpublishedApplicationDetail() == null) {
+                branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+            }
+            Application.NavigationSetting requestNavSetting =
+                    application.getUnpublishedApplicationDetail().getNavigationSetting();
+            if (requestNavSetting != null) {
+                Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(
+                        branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
+                        new Application.NavigationSetting());
+                String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
+                String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
+                requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
+                presetApplicationDetail.setNavigationSetting(requestNavSetting);
+            }
+
+            Application.AppPositioning requestAppPositioning =
+                    application.getUnpublishedApplicationDetail().getAppPositioning();
+            if (requestAppPositioning != null) {
+                presetApplicationDetail.setAppPositioning(requestAppPositioning);
+            }
+            Application.ThemeSetting requestThemeSettings =
+                    application.getUnpublishedApplicationDetail().getThemeSetting();
+            if (requestThemeSettings != null) {
+                presetApplicationDetail.setThemeSetting(requestThemeSettings);
+            }
+            application.setUnpublishedApplicationDetail(presetApplicationDetail);
+        }
+        return this.update(branchedApplication.getId(), application);
+    }
+
+    /**
+     * This method is a placeholder in the Community Edition (CE) repository. It is designed to be overridden in
+     * derived classes in the Enterprise Edition (EE) where the actual logic to verify if forking is allowed will be
+     * implemented. In CE, forking is always allowed up to this point, hence the method returns an empty Mono.
+     */
+    protected Mono<Void> verifyIfForkingIsAllowed(Application branchedApplication, Application applicationReq) {
+        return Mono.empty().then();
     }
 
     @Override
@@ -991,10 +1059,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.hasLength(applicationId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        return this.getById(applicationId)
-                .map(application -> application.getGitApplicationMetadata() != null
-                        && StringUtils.hasLength(
-                                application.getGitApplicationMetadata().getRemoteUrl()));
+        return this.getById(applicationId).map(GitUtils::isApplicationConnectedToGit);
     }
 
     @Override

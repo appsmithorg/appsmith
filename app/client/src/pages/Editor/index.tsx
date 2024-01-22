@@ -43,6 +43,8 @@ import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
+import GitSettingsModal from "./gitSync/GitSettingsModal";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -166,7 +168,9 @@ class Editor extends Component<Props> {
           <GlobalHotKeys>
             <IDE />
             <GitSyncModal />
+            <GitSettingsModal />
             <DisconnectGitModal />
+            <DisableAutocommitModal />
             <GuidedTourModal />
             <RepoLimitExceededErrorModal />
             <TemplatesModal />

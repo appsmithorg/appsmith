@@ -4,22 +4,25 @@ import {
   entityExplorer,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
-describe("Tab widget test", function () {
+describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
   const tabname = "UpdatedTab";
   before(() => {
     agHelper.AddDsl("tabdsl");
   });
 
   it("1. Tab Widget Functionality To rename Tabs from entity explorer", function () {
-    PageLeftPane.expandCollapseItem("Widgets");
+    EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
     PageLeftPane.expandCollapseItem("Tabs1");
     entityExplorer.RenameEntityFromExplorer("Tab1", tabname, true);
   });
 
   it("2. Tab Widget Functionality To delete Tabs from entity explorer", function () {
-    PageLeftPane.expandCollapseItem("Widgets");
+    EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
     PageLeftPane.expandCollapseItem("Tabs1");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Tab2",

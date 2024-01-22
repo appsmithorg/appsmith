@@ -20,6 +20,7 @@ import { DatasourceStructureContext } from "entities/Datasource";
 
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import type { SuggestedWidget } from "api/ActionAPI";
+import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 
 interface ApiRightPaneProps {
   additionalSections?: React.ReactNode;
@@ -142,7 +143,7 @@ const DataSourceNameContainer = styled.div`
   }
 `;
 
-const SomeWrapper = styled.div`
+const ActionRightPaneWrapper = styled.div`
   height: 100%;
   padding: 0 var(--ads-v2-spaces-4);
 `;
@@ -209,6 +210,8 @@ function ApiRightPane(props: ApiRightPaneProps) {
   const selectedTab = useSelector(getApiRightPaneSelectedTab);
   const currentEnvironmentId = useSelector(getCurrentEnvironmentId);
 
+  const showSchema = useShowSchema(props.pluginId);
+
   const setSelectedTab = useCallback((selectedIndex: string) => {
     dispatch(setApiRightPaneSelectedTab(selectedIndex));
   }, []);
@@ -229,6 +232,8 @@ function ApiRightPane(props: ApiRightPaneProps) {
       ),
     [props.datasources, props.currentActionDatasourceId],
   );
+
+  if (!props.additionalSections && !props.showTabbedSection) return null;
 
   return (
     <DatasourceContainer>
@@ -334,7 +339,7 @@ function ApiRightPane(props: ApiRightPaneProps) {
               )}
             </TabPanel>
             <TabPanel value={API_RIGHT_PANE_TABS.CONNECTIONS}>
-              <SomeWrapper>
+              <ActionRightPaneWrapper>
                 <ActionRightPane
                   actionName={props.actionName}
                   actionRightPaneBackLink={props.actionRightPaneBackLink}
@@ -343,9 +348,10 @@ function ApiRightPane(props: ApiRightPaneProps) {
                   hasConnections={hasDependencies}
                   hasResponse={props.hasResponse}
                   pluginId={props.pluginId}
+                  showSchema={showSchema}
                   suggestedWidgets={props.suggestedWidgets}
                 />
-              </SomeWrapper>
+              </ActionRightPaneWrapper>
             </TabPanel>
           </Tabs>
         )}

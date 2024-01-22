@@ -6,7 +6,7 @@ import {
 
 let dsName: any;
 
-describe("SQL Autocompletion", () => {
+describe("SQL Autocompletion", { tags: ["@tag.JS"] }, () => {
   it("1. Create DS for SQL autocompletion testing", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

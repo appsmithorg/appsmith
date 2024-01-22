@@ -18,7 +18,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -82,7 +82,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 .zipWith(getImportApplicationPermissions())
                 .flatMap(tuple -> {
                     ApplicationJson applicationJson = tuple.getT1();
-                    ImportApplicationPermissionProvider permissionProvider = tuple.getT2();
+                    ImportArtifactPermissionProvider permissionProvider = tuple.getT2();
                     // Set Application in App JSON, remove the pages other than the one to be imported in
                     // Set the current page in the JSON to be imported
                     // Debug and get the value from getImportApplicationMono method if any difference
@@ -100,8 +100,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             }))
                             .cache();
 
-                    ImportingMetaDTO importingMetaDTO =
-                            new ImportingMetaDTO(workspaceId, applicationId, branchName, false, permissionProvider);
+                    ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
+                            workspaceId, applicationId, branchName, false, permissionProvider, null);
 
                     // Get the Application from DB
                     Mono<Application> importedApplicationMono = applicationService
@@ -147,9 +147,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 }
                                 return newActionImportableService
                                         .updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO)
+                                                application, importingMetaDTO, mappedImportableResourcesDTO, true)
                                         .then(newPageImportableService.updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO))
+                                                application, importingMetaDTO, mappedImportableResourcesDTO, true))
                                         .thenReturn(application);
                             });
                 })
@@ -180,9 +180,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         });
     }
 
-    private Mono<ImportApplicationPermissionProvider> getImportApplicationPermissions() {
+    private Mono<ImportArtifactPermissionProvider> getImportApplicationPermissions() {
         return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
+            ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
                             applicationPermission,
                             pagePermission,
                             actionPermission,
@@ -209,17 +209,19 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         Mono<Void> datasourceMono = datasourceImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         Mono<Void> customJsLibMono = customJSLibImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
+                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson, true);
 
         return pluginMono.then(datasourceMono).then(customJsLibMono).then();
     }
@@ -235,14 +237,16 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         Mono<Void> actionCollectionMono = actionCollectionImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         return actionMono.then(actionCollectionMono).then();
     }
@@ -257,7 +261,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     // update page name reference with newPage
                     Map<String, NewPage> pageNameMap = new HashMap<>();
                     pageNameMap.put(pageName, newPage);
-                    mappedImportableResourcesDTO.setPageNameMap(pageNameMap);
+                    mappedImportableResourcesDTO.setPageOrModuleMap(pageNameMap);
 
                     if (applicationJson.getActionList() == null) {
                         return Mono.just(pageName);
@@ -283,9 +287,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         return Mono.just(pageName);
                     }
                     applicationJson.getActionCollectionList().forEach(actionCollection -> {
-                        actionCollection.getPublishedCollection().setPageId(pageName);
                         actionCollection.getUnpublishedCollection().setPageId(pageName);
-
+                        if (actionCollection.getPublishedCollection() != null) {
+                            actionCollection.getPublishedCollection().setPageId(pageName);
+                        }
                         String collectionName = actionCollection.getId().split("_")[1];
                         actionCollection.setId(pageName + "_" + collectionName);
                         actionCollection.setGitSyncId(null);

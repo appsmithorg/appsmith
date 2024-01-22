@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.domains.ce.AutoDeployment;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.springframework.data.annotation.Transient;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
 @Data
@@ -65,9 +67,36 @@ public class GitApplicationMetadata implements AppsmithDomain {
     @JsonView(Views.Public.class)
     Instant lastCommittedAt;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Metadata.class)
     List<String> branchProtectionRules;
 
-    @JsonView(Views.Public.class)
+    /**
+     * This field is no more used and will be removed in future version.
+     * Please use the branchProtectionRules field to know whether a branch is protected or not.
+     */
+    @Deprecated
+    @JsonView(Views.Internal.class)
     Boolean isProtectedBranch;
+
+    @JsonView(Views.Metadata.class)
+    AutoCommitConfig autoCommitConfig;
+
+    /**
+     * autoDeploymentConfigs field will hold the list of branches that are enabled for auto deployment.
+     * It'll also show the latest deployedAt date for the corresponding branch.
+     * If auto deployment is enabled for 2 branches - main and develop, autoDeploymentConfigs will have two entries
+     * each for one branch. This attribute will be present inside the root application only. The branched applications
+     * will not have this field set.
+     */
+    @JsonView(Views.Metadata.class)
+    Set<AutoDeployment> autoDeploymentConfigs;
+
+    public AutoCommitConfig getAutoCommitConfig() {
+        // by default, the auto commit should be enabled.
+        // new AutoCommitConfig will have enabled=true so we're returning a new object when field is null
+        if (autoCommitConfig == null) {
+            autoCommitConfig = new AutoCommitConfig();
+        }
+        return autoCommitConfig;
+    }
 }

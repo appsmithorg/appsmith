@@ -1,12 +1,9 @@
 import fs from "fs";
-import {
-  TokensAccessor,
-  defaultTokens,
-  getFluidSizing,
-  getFluidSpacing,
-} from "../token";
-import type { TokenSource } from "../token";
+import { TokensAccessor, defaultTokens } from "../token";
 import { cssRule } from "./cssRule";
+import { getFluidSizing, getFluidSpacing } from "../hooks";
+
+import type { TokenSource } from "../token";
 
 const { fluid, ...restDefaultTokens } = defaultTokens;
 const { innerSpacing, maxVw, minVw, outerSpacing, sizing } = fluid;

@@ -1,11 +1,13 @@
 package com.appsmith.server.plugins.imports;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
@@ -33,7 +35,8 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
         return workspaceMono
                 .map(workspace -> workspace.getPlugins().stream()
                         .map(WorkspacePlugin::getPluginId)
@@ -53,5 +56,27 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
                 .elapsed()
                 .doOnNext(tuples -> log.debug("time to get plugin map: {}", tuples.getT1()))
                 .then();
+    }
+
+    @Override
+    public Mono<Void> importEntities(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<? extends ImportableArtifact> importContextMono,
+            ArtifactExchangeJson importableContextJson,
+            boolean isPartialImport,
+            boolean isContextAgnostic) {
+        return importContextMono.flatMap(importableContext -> {
+            Application application = (Application) importableContext;
+            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+            return importEntities(
+                    importingMetaDTO,
+                    mappedImportableResourcesDTO,
+                    workspaceMono,
+                    Mono.just(application),
+                    applicationJson,
+                    isPartialImport);
+        });
     }
 }

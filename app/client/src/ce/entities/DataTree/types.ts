@@ -13,7 +13,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { AppDataState } from "reducers/entityReducers/appReducer";
-import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { AppTheme } from "entities/AppTheming";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
@@ -22,14 +22,17 @@ import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
-export enum ENTITY_TYPE {
-  ACTION = "ACTION",
-  WIDGET = "WIDGET",
-  APPSMITH = "APPSMITH",
-  JSACTION = "JSACTION",
-}
+export const ENTITY_TYPE = {
+  ACTION: "ACTION",
+  WIDGET: "WIDGET",
+  APPSMITH: "APPSMITH",
+  JSACTION: "JSACTION",
+} as const;
 export const JSACTION_TYPE = ENTITY_TYPE.JSACTION;
 export const ACTION_TYPE = ENTITY_TYPE.ACTION;
+
+type ValueOf<T> = T[keyof T];
+export type EntityTypeValue = ValueOf<typeof ENTITY_TYPE>;
 
 export enum EvaluationSubstitutionType {
   TEMPLATE = "TEMPLATE",
@@ -49,7 +52,7 @@ export interface ActionEntity {
     isExecutionSuccess: boolean;
     headers?: unknown;
   };
-  ENTITY_TYPE: ENTITY_TYPE.ACTION;
+  ENTITY_TYPE: typeof ENTITY_TYPE.ACTION;
   config: Partial<ActionConfig>;
   datasourceUrl: string;
 }
@@ -58,7 +61,7 @@ export interface ActionEntityConfig extends EntityConfig {
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
-  ENTITY_TYPE: ENTITY_TYPE.ACTION;
+  ENTITY_TYPE: typeof ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
   logBlackList: Record<string, true>;
   pluginType: PluginType;
@@ -86,14 +89,17 @@ export interface JSActionEntityConfig extends EntityConfig {
   dependencyMap: DependencyMap;
   pluginType: PluginType.JS;
   name: string;
-  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
+  ENTITY_TYPE: typeof ENTITY_TYPE.JSACTION;
   actionId: string;
+  moduleId?: string;
+  moduleInstanceId?: string;
+  isPublic?: boolean;
 }
 
 export interface JSActionEntity {
   [propName: string]: any;
   body: string;
-  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
+  ENTITY_TYPE: typeof ENTITY_TYPE.JSACTION;
   actionId: string;
 }
 export type PagelistEntity = Page[];
@@ -131,7 +137,7 @@ export interface WidgetConfig extends EntityConfig {
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, ValidationConfig>;
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
+  ENTITY_TYPE: typeof ENTITY_TYPE.WIDGET;
   logBlackList: Record<string, true>;
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
@@ -155,7 +161,7 @@ export type UnEvalTreeEntityObject =
 
 export interface WidgetEntity extends WidgetProps {
   meta: Record<string, unknown>;
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
+  ENTITY_TYPE: typeof ENTITY_TYPE.WIDGET;
 }
 export type DataTreeEntityObject =
   | ActionEntity
@@ -174,7 +180,7 @@ export interface WidgetEntityConfig
 }
 
 export interface AppsmithEntity extends Omit<AppDataState, "store"> {
-  ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
+  ENTITY_TYPE: typeof ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
 }
@@ -192,7 +198,7 @@ export interface DataTreeSeed {
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
   moduleInputs: Module["inputsForm"];
-  moduleInstances: Record<string, ModuleInstance>;
+  moduleInstances: Record<string, ModuleInstance> | null;
   moduleInstanceEntities: any;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;

@@ -11,6 +11,7 @@ import { APP_MODE } from "entities/App";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import type { RefObject } from "react";
+import { getAnvilSpaceDistributionStatus } from "../selectors";
 /**
  * In this function,
  * Get the DOM elements for the registered widgets and layouts
@@ -73,7 +74,10 @@ function* readAndUpdateLayoutElementPositions() {
   const isCanvasResizing: boolean = yield select(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
-  if (isCanvasResizing) {
+  const isDistributingSpace: boolean = yield select(
+    getAnvilSpaceDistributionStatus,
+  );
+  if (isCanvasResizing || isDistributingSpace) {
     return;
   }
 

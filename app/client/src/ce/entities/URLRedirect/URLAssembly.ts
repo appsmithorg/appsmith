@@ -21,6 +21,9 @@ export interface URLBuilderParams {
   params?: Record<string, any>;
   pageId?: string | null;
   persistExistingParams?: boolean;
+  // This is used to pass ID if the sender doesn't know the type of the entity
+  parentEntityId?: string;
+  generateEditorPath?: boolean;
 }
 
 export enum URL_TYPE {
@@ -244,7 +247,10 @@ export class URLBuilder {
   }
 
   resolveEntityIdForApp(builderParams: URLBuilderParams) {
-    const pageId = builderParams.pageId || this.currentPageId;
+    const pageId =
+      builderParams.pageId ||
+      builderParams?.parentEntityId ||
+      this.currentPageId;
 
     if (!pageId) {
       throw new URIError(

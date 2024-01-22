@@ -17,7 +17,7 @@ public interface ContextBasedJsLibServiceCE<T extends BaseDomain> {
      * @param isViewMode
      * @return
      */
-    Mono<Set<CustomJSLibContextDTO>> getAllJSLibContextDTOFromContext(
+    Mono<Set<CustomJSLibContextDTO>> getAllVisibleJSLibContextDTOFromContext(
             @NotNull String contextId, String branchName, Boolean isViewMode);
 
     Mono<UpdateResult> updateJsLibsInContext(

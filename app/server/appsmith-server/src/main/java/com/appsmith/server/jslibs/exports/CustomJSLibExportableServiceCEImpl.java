@@ -38,12 +38,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
          * Since we are exporting for git, we only consider unpublished JS libraries
          * Ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1672225134025919
          */
-        return customJSLibService
-                .getAllJSLibsInContext(
-                        exportingMetaDTO.getApplicationId(),
-                        CreatorContextType.APPLICATION,
-                        exportingMetaDTO.getBranchName(),
-                        false)
+        return getAllJSLibsInContext(exportingMetaDTO)
                 .map(jsLibList -> {
                     jsLibList.forEach(CustomJSLib::sanitiseToExportDBObject);
                     return jsLibList;
@@ -80,5 +75,13 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                     return unpublishedCustomJSLibList;
                 })
                 .then();
+    }
+
+    protected Mono<List<CustomJSLib>> getAllJSLibsInContext(ExportingMetaDTO exportingMetaDTO) {
+        return customJSLibService.getAllJSLibsInContext(
+                exportingMetaDTO.getApplicationId(),
+                CreatorContextType.APPLICATION,
+                exportingMetaDTO.getBranchName(),
+                false);
     }
 }

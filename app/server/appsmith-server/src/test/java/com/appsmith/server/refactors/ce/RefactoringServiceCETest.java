@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -569,9 +570,13 @@ class RefactoringServiceCETest {
         duplicateNameCompleteAction.setProviderId(duplicateName.getProviderId());
         duplicateNameCompleteAction.setDocumentation(duplicateName.getDocumentation());
         duplicateNameCompleteAction.setApplicationId(duplicateName.getApplicationId());
+        duplicateNameCompleteAction.setDefaultResources(new DefaultResources());
 
         // Now save this action directly in the repo to create a duplicate action name scenario
-        actionRepository.save(duplicateNameCompleteAction).block();
+        newActionService
+                .validateAction(duplicateNameCompleteAction)
+                .flatMap(validatedAction -> actionRepository.save(validatedAction))
+                .block();
 
         LayoutDTO firstLayout = updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
@@ -790,8 +795,9 @@ class RefactoringServiceCETest {
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
 
-        final ActionCollectionDTO createdActionCollectionDTO1 =
-                layoutCollectionService.createCollection(actionCollectionDTO1).block();
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService
+                .createCollection(actionCollectionDTO1, null)
+                .block();
 
         RefactorEntityNameDTO refactorNameDTO = new RefactorEntityNameDTO();
         refactorNameDTO.setEntityType(EntityType.WIDGET);
@@ -853,7 +859,7 @@ class RefactoringServiceCETest {
         originalActionCollectionDTO.setActions(List.of(action1));
 
         final ActionCollectionDTO dto = layoutCollectionService
-                .createCollection(originalActionCollectionDTO)
+                .createCollection(originalActionCollectionDTO, null)
                 .block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();

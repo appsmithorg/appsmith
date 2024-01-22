@@ -78,7 +78,6 @@ import SharedUserList from "pages/common/SharedUserList";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
-import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
@@ -108,6 +107,7 @@ import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -784,10 +784,7 @@ export function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      <>
-        <GitSyncModal isImport />
-        <DisconnectGitModal />
-      </>
+      <GitSyncModal isImport />
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
@@ -814,6 +811,7 @@ export interface ApplicationProps {
   resetCurrentWorkspace: () => void;
   currentApplicationIdForCreateNewApp?: string;
   resetCurrentApplicationIdForCreateNewApp: () => void;
+  currentWorkspaceId: string;
 }
 
 export interface ApplicationState {
@@ -852,12 +850,16 @@ export class Applications<
 
   public render() {
     return this.props.currentApplicationIdForCreateNewApp ? (
-      <CreateNewAppsOption
-        currentApplicationIdForCreateNewApp={
-          this.props.currentApplicationIdForCreateNewApp
-        }
-        onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
-      />
+      // Workspace id condition is added to ensure that we have workspace id present before we show 3 options
+      // as workspace id is required to fetch plugins
+      !!this.props.currentWorkspaceId ? (
+        <CreateNewAppsOption
+          currentApplicationIdForCreateNewApp={
+            this.props.currentApplicationIdForCreateNewApp
+          }
+          onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
+        />
+      ) : null
     ) : (
       <PageWrapper displayName="Applications">
         <LeftPane />
@@ -892,6 +894,7 @@ export const mapStateToProps = (state: AppState) => ({
   searchKeyword: getApplicationSearchKeyword(state),
   currentApplicationIdForCreateNewApp:
     getCurrentApplicationIdForCreateNewApp(state),
+  currentWorkspaceId: getCurrentWorkspaceId(state),
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({

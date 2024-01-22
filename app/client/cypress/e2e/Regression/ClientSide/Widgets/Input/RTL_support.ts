@@ -6,9 +6,9 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Select Widget", () => {
+describe("Select Widget", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   before(() => {
-    entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
   });
 
   it("1. Test RTL support", () => {

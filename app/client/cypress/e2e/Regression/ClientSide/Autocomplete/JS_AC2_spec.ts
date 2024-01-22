@@ -22,7 +22,7 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Autocomplete tests", () => {
+describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
   it("1. Bug #17059 Autocomplete does not suggest same function name that belongs to a different object", () => {
     // create js object - JSObject1
     jsEditor.CreateJSObject(jsObjectBody, {
@@ -58,7 +58,6 @@ describe("Autocomplete tests", () => {
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "JSObject2");
-    agHelper.Sleep(500);
     agHelper.TypeText(locators._codeMirrorTextArea, ".");
 
     agHelper.GetNAssertElementText(

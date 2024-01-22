@@ -47,6 +47,9 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
+import { useEditorType } from "@appsmith/hooks";
+import history from "utils/history";
+import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 
 interface Props {
   datasource: Datasource;
@@ -73,16 +76,19 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  const editorType = useEditorType(history.location.pathname);
+
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isFeatureEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const applicationId: string = useSelector(getCurrentApplicationId);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
@@ -101,6 +107,8 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   const { failedFetchingPreviewData, fetchPreviewData, isLoading } =
     useDatasourceQuery({ setPreviewData, setPreviewDataError });
+
+  const isGeneratePageLoading = useSelector(getIsGeneratingTemplatePage);
 
   // default table name to first table
   useEffect(() => {
@@ -272,8 +280,9 @@ const DatasourceViewModeSchema = (props: Props) => {
         <ButtonContainer>
           <Button
             className="t--datasource-generate-page"
+            isLoading={isGeneratePageLoading}
             key="datasource-generate-page"
-            kind="secondary"
+            kind="primary"
             onClick={generatePageAction}
             size="md"
           >

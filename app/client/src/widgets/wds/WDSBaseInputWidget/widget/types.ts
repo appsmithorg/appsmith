@@ -3,6 +3,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 export interface BaseInputWidgetProps extends WidgetProps {
   text: string;
   isDisabled?: boolean;
+  isReadOnly?: boolean;
   placeholderText?: string;
   isFocused?: boolean;
   autoFocus?: boolean;

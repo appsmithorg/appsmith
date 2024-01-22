@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
 
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -69,19 +70,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
         this.mongoOperations = mongoOperations;
     }
 
-    private Criteria notDeleted() {
-        return new Criteria()
-                .andOperator(
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED).exists(false),
-                                        where(FieldName.DELETED).is(false)),
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED_AT).exists(false),
-                                        where(FieldName.DELETED_AT).is(null)));
-    }
-
     private Criteria getIdCriteria(Object id) {
         return where(entityInformation.getIdAttribute()).is(id);
     }
@@ -89,22 +77,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     @Override
     public Mono<T> findById(ID id) {
         Assert.notNull(id, "The given id must not be null!");
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
-                    return mongoOperations
-                            .query(entityInformation.getJavaType())
-                            .inCollection(entityInformation.getCollectionName())
-                            .matching(query)
-                            .one();
-                });
-    }
-
-    @Override
-    public Mono<T> retrieveById(ID id) {
         Query query = new Query(getIdCriteria(id));
         query.addCriteria(notDeleted());
 
@@ -162,13 +134,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     @Override
-    public Flux<T> findAll(Example example) {
-
-        Assert.notNull(example, "Example must not be null!");
-        return findAll(example, Sort.unsorted());
-    }
-
-    @Override
     public Mono<T> archive(T entity) {
         Assert.notNull(entity, "The given entity must not be null!");
         Assert.notNull(entity.getId(), "The given entity's id must not be null!");
@@ -177,7 +142,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
             return Mono.just(entity);
         }
 
-        entity.setDeleted(true);
         entity.setDeletedAt(Instant.now());
         return mongoOperations.save(entity, entityInformation.getCollectionName());
     }

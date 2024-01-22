@@ -11,9 +11,11 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Linting of entity properties", () => {
+describe("Linting of entity properties", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
   });
@@ -86,6 +88,7 @@ describe("Linting of entity properties", () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     agHelper.AssertElementAbsence(locators._lintErrorElement);
     // delete JSObject
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",

@@ -9,7 +9,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS to non-JS mode in Action Selector", () => {
+describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   it("1. should not show any fields with a blank JS field", () => {
     agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
@@ -29,7 +29,6 @@ describe("JS to non-JS mode in Action Selector", () => {
       "GETExecute a queryApi1.run",
     );
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
-    agHelper.Sleep(200);
     propPane.AssertSelectValue("Api1.run");
   });
 

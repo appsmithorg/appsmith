@@ -1028,6 +1028,14 @@ public enum AppsmithError {
             "Rate limit blocking failed",
             ErrorType.INTERNAL_ERROR,
             null),
+    TRIGGER_PARAMETERS_EMPTY(
+            400,
+            AppsmithErrorCode.TRIGGER_PARAMETERS_EMPTY.getCode(),
+            "Trigger parameters empty.",
+            AppsmithErrorAction.DEFAULT,
+            "Trigger parameters empty.",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

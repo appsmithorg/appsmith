@@ -30,7 +30,6 @@ export interface INJECTED_CONFIGS {
     licenseKey: string;
   };
   enableMixpanel: boolean;
-  enableTNCPP: boolean;
   cloudHosting: boolean;
   algolia: {
     apiId: string;
@@ -104,9 +103,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         | "debug"
         | "error"
         | undefined) || "error",
-    enableTNCPP: process.env.REACT_APP_TNC_PP
-      ? process.env.REACT_APP_TNC_PP.length > 0
-      : false,
     enableRapidAPI: process.env.REACT_APP_MARKETPLACE_URL
       ? process.env.REACT_APP_MARKETPLACE_URL.length > 0
       : false,
@@ -302,10 +298,20 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       false,
     logLevel:
       ENV_CONFIG.logLevel || APPSMITH_FEATURE_CONFIGS?.logLevel || false,
-    enableTNCPP:
-      ENV_CONFIG.enableTNCPP || APPSMITH_FEATURE_CONFIGS?.enableTNCPP || false,
-    appVersion:
-      ENV_CONFIG.appVersion || APPSMITH_FEATURE_CONFIGS?.appVersion || false,
+    appVersion: {
+      id:
+        APPSMITH_FEATURE_CONFIGS?.appVersion?.id ||
+        ENV_CONFIG.appVersion?.id ||
+        "",
+      releaseDate:
+        APPSMITH_FEATURE_CONFIGS?.appVersion?.releaseDate ||
+        ENV_CONFIG.appVersion?.releaseDate ||
+        "",
+      edition:
+        ENV_CONFIG.appVersion?.edition ||
+        APPSMITH_FEATURE_CONFIGS?.appVersion?.edition ||
+        "",
+    },
     intercomAppID:
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS?.intercomAppID || "",
     mailEnabled:

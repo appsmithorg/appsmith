@@ -36,7 +36,7 @@
     "postcss-modules-values": "*",
     "react-docgen-typescript": "^2.2.2",
     "storybook": "^7.3.1",
-    "vite": "^4.4.9",
+    "vite": "^4.4.12",
     "vite-plugin-svgr": "^3.2.0"
   },
   "dependencies": {

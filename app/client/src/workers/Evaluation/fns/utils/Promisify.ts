@@ -14,6 +14,7 @@ export function promisify<P extends ReadonlyArray<unknown>>(
   return async function (...args: P) {
     const actionDescription = fnDescriptor(...args);
     const metaData = ExecutionMetaData.getExecutionMetaData();
+
     const response = await WorkerMessenger.request({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {

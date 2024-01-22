@@ -30,25 +30,6 @@ public class DSLMigrationUtils {
             .pendingAcquireMaxCount(-1)
             .build());
 
-    /**
-     * This method will be used to check if the page dsl needs to be migrated or not
-     * @param pageDslVersion Version number of the page dsl
-     * @return If the page dsl needs to be migrated or not
-     */
-    private Mono<Boolean> isMigrationRequired(int pageDslVersion) {
-        ParameterizedTypeReference<ResponseDTO<DslVersionDTO>> parameterizedTypeReference =
-                new ParameterizedTypeReference<>() {};
-        return webClient
-                .get()
-                .uri(commonConfig.getRtsBaseUrl() + "/rts-api/v1/dsl/version")
-                .retrieve()
-                .bodyToMono(parameterizedTypeReference)
-                .map(responseDTO -> {
-                    int latestDslVersion = responseDTO.getData().getVersion();
-                    return pageDslVersion < latestDslVersion;
-                });
-    }
-
     public Mono<Integer> getLatestDslVersion() {
         ParameterizedTypeReference<ResponseDTO<DslVersionDTO>> parameterizedTypeReference =
                 new ParameterizedTypeReference<>() {};

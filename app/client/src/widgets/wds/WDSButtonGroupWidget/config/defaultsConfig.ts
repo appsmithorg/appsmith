@@ -1,9 +1,3 @@
-import {
-  BUTTON_GROUP_ORIENTATIONS,
-  BUTTON_VARIANTS,
-  COLORS,
-} from "@design-system/widgets";
-import { IconNames } from "@blueprintjs/icons";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
   BUTTON_MIN_WIDTH,
@@ -14,9 +8,9 @@ export const defaultsConfig = {
   rows: 4,
   columns: 24,
   widgetName: "ButtonGroup",
-  orientation: BUTTON_GROUP_ORIENTATIONS.horizontal,
-  buttonVariant: BUTTON_VARIANTS.filled,
-  buttonColor: COLORS.accent,
+  orientation: "horizontal",
+  buttonVariant: "filled",
+  buttonColor: "accent",
   isDisabled: false,
   isVisible: true,
   version: 1,
@@ -31,7 +25,7 @@ export const defaultsConfig = {
       widgetId: "",
       id: "button1",
       index: 0,
-      iconName: IconNames.HEART,
+      iconName: "heart",
       iconAlign: "start",
       minWidth: BUTTON_MIN_WIDTH,
     },
@@ -42,18 +36,18 @@ export const defaultsConfig = {
       widgetId: "",
       id: "button2",
       index: 1,
-      iconName: IconNames.ADD,
+      iconName: "plus",
       iconAlign: "start",
       minWidth: BUTTON_MIN_WIDTH,
     },
     button3: {
-      label: "More",
+      label: "Bookmark",
       isVisible: true,
       isDisabled: false,
       widgetId: "",
       id: "button3",
       index: 2,
-      iconName: IconNames.MORE,
+      iconName: "bookmark",
       iconAlign: "start",
       minWidth: BUTTON_MIN_WIDTH,
     },

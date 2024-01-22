@@ -92,11 +92,12 @@ export interface NavigationSetting {
 
 export interface ThemeSetting {
   accentColor: string;
-  colorMode: "light" | "dark";
+  colorMode: "LIGHT" | "DARK";
   borderRadius: string;
   density: number;
   sizing: number;
   fontFamily: string;
+  iconStyle: "FILLED" | "OUTLINED";
 }
 
 export type StringsFromNavigationSetting = Omit<
@@ -132,10 +133,11 @@ export const defaultNavigationSetting = {
 export const defaultThemeSetting: ThemeSetting = {
   fontFamily: "System Default",
   accentColor: "#553DE9",
-  colorMode: "light",
+  colorMode: "LIGHT",
   borderRadius: "6px",
   density: 1,
   sizing: 1,
+  iconStyle: "OUTLINED",
 };
 
 export const SIDEBAR_WIDTH = {

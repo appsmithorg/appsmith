@@ -55,6 +55,18 @@ export const resetWidgetMetaProperty = (
   });
 };
 
+export const resetWidgetMetaUpdates = (
+  evalMetaUpdates: EvalMetaUpdates,
+): BatchAction<ResetWidgetMetaPayload> => {
+  return batchAction({
+    type: ReduxActionTypes.RESET_WIDGET_META_UPDATES,
+    payload: {
+      evalMetaUpdates,
+    },
+    postEvalActions: [{ type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED }],
+  });
+};
+
 export const resetChildrenMetaProperty = (
   widgetId: string,
 ): ReduxAction<{ widgetId: string }> => {

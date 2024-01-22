@@ -51,7 +51,6 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INVALID_FORM_CONFIGURATION,
-  NO_DATASOURCE_FOR_QUERY,
   UNEXPECTED_ERROR,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
@@ -91,6 +90,8 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryResponseTabView from "./QueryResponseView";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
+import { isAppsmithAIPlugin } from "utils/editorContextUtils";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -188,20 +189,6 @@ const StyledSpinner = styled(Spinner)`
   align-items: center;
   justify-content: space-between;
   width: 5vw;
-`;
-
-const NoDataSourceContainer = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  margin-top: 62px;
-  flex: 1;
-  .font18 {
-    width: 50%;
-    text-align: center;
-    margin-bottom: 23px;
-    font-size: 18px;
-  }
 `;
 
 const TabContainerView = styled.div`
@@ -331,7 +318,9 @@ export function EditorJSONtoForm(props: Props) {
     actionRightPaneBackLink,
     closeEditorLink,
     moreActionsMenu,
+    notification,
     saveActionName,
+    showSuggestedWidgets = true,
   } = useContext(QueryEditorContext);
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
@@ -364,6 +353,13 @@ export function EditorJSONtoForm(props: Props) {
     isFeatureEnabled,
     userWorkspacePermissions,
   );
+
+  const showSchema = useShowSchema(currentActionConfig?.pluginId || "");
+
+  const showRightPane =
+    showSchema ||
+    showSuggestedWidgets ||
+    Boolean(actionRightPaneAdditionSections);
 
   // get the current action's plugin name
   const currentActionPluginName = useSelector((state: AppState) =>
@@ -621,6 +617,10 @@ export function EditorJSONtoForm(props: Props) {
     ((hasDependencies || !!actionResponse) && !guidedTourEnabled) ||
     currentActionPluginName !== PluginName.SMTP;
 
+  // Datasource selection is hidden for Appsmith AI Plugin
+  // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented
+  const showDatasourceSelector = !isAppsmithAIPlugin(plugin?.packageName);
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -641,26 +641,30 @@ export function EditorJSONtoForm(props: Props) {
           </NameWrapper>
           <ActionsWrapper>
             {moreActionsMenu}
-            <DropdownSelect>
-              <DropdownField
-                className={"t--switch-datasource"}
-                formName={formName}
-                isDisabled={!isChangePermitted}
-                name="datasource.id"
-                options={DATASOURCES_OPTIONS}
-                placeholder="Datasource"
-              >
-                {canCreateDatasource && (
-                  // this additional div is here so that rc-select can render the child with the onClick correctly
-                  <div>
-                    <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-                      <Icon className="createIcon" name="plus" size="md" />
-                      {createMessage(CREATE_NEW_DATASOURCE)}
-                    </CreateDatasource>
-                  </div>
-                )}
-              </DropdownField>
-            </DropdownSelect>
+            {showDatasourceSelector && (
+              <DropdownSelect>
+                <DropdownField
+                  className={"t--switch-datasource"}
+                  formName={formName}
+                  isDisabled={!isChangePermitted}
+                  name="datasource.id"
+                  options={DATASOURCES_OPTIONS}
+                  placeholder="Datasource"
+                >
+                  {canCreateDatasource && (
+                    // this additional div is here so that rc-select can render the child with the onClick correctly
+                    <div>
+                      <CreateDatasource
+                        onClick={() => onCreateDatasourceClick()}
+                      >
+                        <Icon className="createIcon" name="plus" size="md" />
+                        {createMessage(CREATE_NEW_DATASOURCE)}
+                      </CreateDatasource>
+                    </div>
+                  )}
+                </DropdownField>
+              </DropdownSelect>
+            )}
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
@@ -673,6 +677,7 @@ export function EditorJSONtoForm(props: Props) {
             </Button>
           </ActionsWrapper>
         </StyledFormRow>
+        {notification}
         <Wrapper>
           <div className="flex flex-1">
             <SecondaryWrapper>
@@ -719,22 +724,6 @@ export function EditorJSONtoForm(props: Props) {
                             {createMessage(ACTION_EDITOR_REFRESH)}
                           </Tag>
                         </>
-                      )}
-                      {dataSources.length === 0 && (
-                        <NoDataSourceContainer>
-                          <p className="font18">
-                            {createMessage(NO_DATASOURCE_FOR_QUERY)}
-                          </p>
-                          <Button
-                            isDisabled={!canCreateDatasource}
-                            kind="primary"
-                            onClick={() => onCreateDatasourceClick()}
-                            size="sm"
-                            startIcon="plus"
-                          >
-                            Add a Datasource
-                          </Button>
-                        </NoDataSourceContainer>
                       )}
                     </SettingsWrapper>
                   </TabPanelWrapper>
@@ -783,19 +772,23 @@ export function EditorJSONtoForm(props: Props) {
                 )}
             </SecondaryWrapper>
           </div>
-          <SidebarWrapper show={shouldOpenActionPaneByDefault}>
-            <ActionRightPane
-              actionName={actionName}
-              actionRightPaneBackLink={actionRightPaneBackLink}
-              additionalSections={actionRightPaneAdditionSections}
-              context={DatasourceStructureContext.QUERY_EDITOR}
-              datasourceId={props.datasourceId}
-              hasConnections={hasDependencies}
-              hasResponse={!!actionResponse}
-              pluginId={props.pluginId}
-              suggestedWidgets={actionResponse?.suggestedWidgets}
-            />
-          </SidebarWrapper>
+          {showRightPane && (
+            <SidebarWrapper show={shouldOpenActionPaneByDefault}>
+              <ActionRightPane
+                actionName={actionName}
+                actionRightPaneBackLink={actionRightPaneBackLink}
+                additionalSections={actionRightPaneAdditionSections}
+                context={DatasourceStructureContext.QUERY_EDITOR}
+                datasourceId={props.datasourceId}
+                hasConnections={hasDependencies}
+                hasResponse={!!actionResponse}
+                pluginId={props.pluginId}
+                showSchema={showSchema}
+                showSuggestedWidgets={showSuggestedWidgets}
+                suggestedWidgets={actionResponse?.suggestedWidgets}
+              />
+            </SidebarWrapper>
+          )}
         </Wrapper>
       </QueryFormContainer>
     </>

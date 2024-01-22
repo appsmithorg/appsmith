@@ -9,9 +9,10 @@ import {
 import type { ConnectToGitPayload } from "api/GitSyncAPI";
 import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
-import type {
-  GitStatusData,
-  GitRemoteStatusData,
+import {
+  type GitStatusData,
+  type GitRemoteStatusData,
+  GitSettingsTab,
 } from "reducers/uiReducers/gitSyncReducer";
 import type { ResponseMeta } from "api/ApiResponses";
 import { noop } from "lodash";
@@ -485,3 +486,32 @@ export const updateGitProtectedBranchesInit = (payload: {
     payload,
   };
 };
+
+export const toggleAutocommitEnabledInit = () => ({
+  type: ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT,
+});
+
+export const setIsAutocommitModalOpen = (isAutocommitModalOpen: boolean) => ({
+  type: ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_MODAL_OPEN,
+  payload: { isAutocommitModalOpen },
+});
+
+export const startAutocommitProgressPolling = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING,
+});
+
+export const stopAutocommitProgressPolling = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+});
+
+export const getGitMetadataInitAction = () => ({
+  type: ReduxActionTypes.GIT_GET_METADATA_INIT,
+});
+
+export const setGitSettingsModalOpenAction = (payload: {
+  open: boolean;
+  tab?: GitSettingsTab;
+}) => ({
+  type: ReduxActionTypes.GIT_SET_SETTINGS_MODAL_OPEN,
+  payload: { open: payload.open, tab: payload.tab || GitSettingsTab.GENERAL },
+});

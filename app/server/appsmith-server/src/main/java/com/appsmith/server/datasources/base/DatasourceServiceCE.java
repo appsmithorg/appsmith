@@ -36,7 +36,7 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> findById(String id);
 
-    Set<MustacheBindingToken> extractKeysFromDatasource(Datasource datasource);
+    Mono<Set<MustacheBindingToken>> extractKeysFromDatasource(Datasource datasource);
 
     Mono<Datasource> save(Datasource datasource);
 

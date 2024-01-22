@@ -53,10 +53,14 @@ export class JSONtoForm<
     const isSidebarEnabled =
       featureFlags?.release_app_sidebar_enabled === true ||
       featureFlags?.rollout_app_sidebar_enabled === true;
+    const isPagePaneSegmentsEnabled =
+      featureFlags?.release_show_new_sidebar_pages_pane_enabled;
     return (
       // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
-        {isSidebarEnabled || !!this.props.isOnboardingFlow ? null : (
+        {isSidebarEnabled ||
+        isPagePaneSegmentsEnabled ||
+        !!this.props.isOnboardingFlow ? null : (
           <CloseEditor />
         )}
         <FormContainerBody className="t--json-to-form-body">

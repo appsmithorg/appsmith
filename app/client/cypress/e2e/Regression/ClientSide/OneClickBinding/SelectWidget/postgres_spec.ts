@@ -17,86 +17,90 @@ import EditorNavigation, {
 
 const oneClickBinding = new OneClickBinding();
 
-describe("Table widget one click binding feature", () => {
-  it("should check that queries are created and bound to table widget properly", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);
+describe(
+  "Table widget one click binding feature",
+  { tags: ["@tag.Binding"] },
+  () => {
+    it("should check that queries are created and bound to table widget properly", () => {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);
 
-    dataSources.CreateDataSource("Postgres");
+      dataSources.CreateDataSource("Postgres");
 
-    cy.get("@dsName").then((dsName) => {
-      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+      cy.get("@dsName").then((dsName) => {
+        EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
-      oneClickBinding.ChooseAndAssertForm(
-        `${dsName}`,
-        dsName,
-        "public.employees",
-        {
-          label: "first_name",
-          value: "last_name",
-        },
+        oneClickBinding.ChooseAndAssertForm(
+          `${dsName}`,
+          dsName,
+          "public.employees",
+          {
+            label: "first_name",
+            value: "last_name",
+          },
+        );
+      });
+
+      agHelper.GetNClick(oneClickBindingLocator.connectData);
+
+      assertHelper.AssertNetworkStatus("@postExecute");
+
+      agHelper.Sleep(2000);
+
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 450, 500);
+
+      propPane.UpdatePropertyFieldValue(
+        "Text",
+        `{{Select1.selectedOptionLabel}}:{{Select1.selectedOptionValue}}`,
       );
-    });
 
-    agHelper.GetNClick(oneClickBindingLocator.connectData);
+      [
+        {
+          label: "Andrew",
+          text: "Andrew:Fuller",
+        },
+        {
+          label: "Janet",
+          text: "Janet:Leverling",
+        },
+        {
+          label: "Margaret",
+          text: "Margaret:Peacock",
+        },
+      ].forEach((d) => {
+        cy.get(formWidgetsPage.selectWidget)
+          .find(widgetsPage.dropdownSingleSelect)
+          .click({
+            force: true,
+          });
 
-    assertHelper.AssertNetworkStatus("@postExecute");
+        cy.get(commonlocators.singleSelectWidgetMenuItem)
+          .contains(d.label)
+          .click({
+            force: true,
+          });
 
-    agHelper.Sleep(2000);
+        cy.get(commonlocators.TextInside).first().should("have.text", d.text);
+      });
 
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 450, 500);
-
-    propPane.UpdatePropertyFieldValue(
-      "Text",
-      `{{Select1.selectedOptionLabel}}:{{Select1.selectedOptionValue}}`,
-    );
-
-    [
-      {
-        label: "Andrew",
-        text: "Andrew:Fuller",
-      },
-      {
-        label: "Janet",
-        text: "Janet:Leverling",
-      },
-      {
-        label: "Margaret",
-        text: "Margaret:Peacock",
-      },
-    ].forEach((d) => {
       cy.get(formWidgetsPage.selectWidget)
         .find(widgetsPage.dropdownSingleSelect)
         .click({
           force: true,
         });
 
-      cy.get(commonlocators.singleSelectWidgetMenuItem)
-        .contains(d.label)
-        .click({
-          force: true,
-        });
+      cy.get(commonlocators.selectInputSearch).type("Anne");
 
-      cy.get(commonlocators.TextInside).first().should("have.text", d.text);
+      assertHelper.AssertNetworkStatus("@postExecute");
+
+      agHelper.Sleep(2000);
+
+      cy.get(".select-popover-wrapper .menu-item-link")
+        .children()
+        .should("have.length", 1);
+
+      agHelper.AssertElementExist(
+        commonlocators.singleSelectWidgetMenuItem + `:contains(Anne)`,
+      );
     });
-
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetsPage.dropdownSingleSelect)
-      .click({
-        force: true,
-      });
-
-    cy.get(commonlocators.selectInputSearch).type("Anne");
-
-    assertHelper.AssertNetworkStatus("@postExecute");
-
-    agHelper.Sleep(2000);
-
-    cy.get(".select-popover-wrapper .menu-item-link")
-      .children()
-      .should("have.length", 1);
-
-    agHelper.AssertElementExist(
-      commonlocators.singleSelectWidgetMenuItem + `:contains(Anne)`,
-    );
-  });
-});
+  },
+);

@@ -8,26 +8,17 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.WriteModel;
-import com.mongodb.client.result.InsertManyResult;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -61,10 +52,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return queryAll(List.of(applicationCriteria), aclPermission, sort);
     }
 
-    @Override
-    public Flux<ActionCollection> findByApplicationIdAndViewMode(
-            String applicationId, boolean viewMode, AclPermission aclPermission) {
-
+    protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, boolean viewMode) {
         List<Criteria> criteria = new ArrayList<>();
 
         Criteria applicationCriterion = where(fieldName(QActionCollection.actionCollection.applicationId))
@@ -79,18 +67,20 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                     .is(null);
             criteria.add(deletedCriterion);
         }
+        return criteria;
+    }
+
+    @Override
+    public Flux<ActionCollection> findByApplicationIdAndViewMode(
+            String applicationId, boolean viewMode, AclPermission aclPermission) {
+
+        List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
         return queryAll(criteria, aclPermission);
     }
 
-    @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-            String name,
-            List<String> pageIds,
-            boolean viewMode,
-            String branchName,
-            AclPermission aclPermission,
-            Sort sort) {
+    protected List<Criteria> getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+            String branchName, boolean viewMode, String name, List<String> pageIds) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
@@ -150,6 +140,19 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                     .is(null);
             criteriaList.add(deletedCriteria);
         }
+        return criteriaList;
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+            String name,
+            List<String> pageIds,
+            boolean viewMode,
+            String branchName,
+            AclPermission aclPermission,
+            Sort sort) {
+        List<Criteria> criteriaList = this.getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+                branchName, viewMode, name, pageIds);
 
         return queryAll(criteriaList, aclPermission, sort);
     }
@@ -210,7 +213,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
+    public Flux<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         Criteria pageIdCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
                         + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
                 .in(pageIds);
@@ -218,57 +221,11 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+    public Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
         Criteria pageIdCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
                         + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
                 .in(pageIds);
         return queryAll(List.of(pageIdCriteria), permission);
-    }
-
-    @Override
-    public Mono<List<InsertManyResult>> bulkInsert(List<ActionCollection> actionCollectionList) {
-        if (CollectionUtils.isEmpty(actionCollectionList)) {
-            return Mono.just(Collections.emptyList());
-        }
-
-        // convert the list of action collections to a list of DBObjects
-        List<Document> dbObjects = actionCollectionList.stream()
-                .map(actionCollection -> {
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(actionCollection, document);
-                    return document;
-                })
-                .collect(Collectors.toList());
-
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(ActionCollection.class))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
-                .collectList();
-    }
-
-    @Override
-    public Mono<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections) {
-        if (CollectionUtils.isEmpty(actionCollections)) {
-            return Mono.just(Collections.emptyList());
-        }
-
-        // convert the list of new actions to a list of DBObjects
-        List<WriteModel<Document>> dbObjects = actionCollections.stream()
-                .map(actionCollection -> {
-                    assert actionCollection.getId() != null;
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(actionCollection, document);
-                    document.remove("_id");
-                    return (WriteModel<Document>) new UpdateOneModel<Document>(
-                            new Document("_id", new ObjectId(actionCollection.getId())),
-                            new Document("$set", document));
-                })
-                .collect(Collectors.toList());
-
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(ActionCollection.class))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();
     }
 
     @Override
@@ -286,7 +243,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
     }
 
     @Override
@@ -298,6 +255,35 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 + fieldName(QActionCollection.actionCollection.publishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
+    }
+
+    @Override
+    public Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria pageCriterion;
+
+        // Fetch published action collections
+        if (Boolean.TRUE.equals(viewMode)) {
+            pageCriterion = where(completeFieldName(QActionCollection.actionCollection.publishedCollection.pageId))
+                    .is(pageId);
+            criteria.add(pageCriterion);
+        }
+        // Fetch unpublished action collections
+        else {
+            pageCriterion = where(completeFieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
+                    .is(pageId);
+            criteria.add(pageCriterion);
+
+            // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
+            // ActionCollection object
+            // would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriteria = where(
+                            completeFieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
+                    .is(null);
+            criteria.add(deletedCriteria);
+        }
+        return queryAll(criteria, permission);
     }
 }

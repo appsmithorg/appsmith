@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -45,24 +46,28 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     }
 
     @Override
-    public Mono<Boolean> addJSLibToContext(
+    public Mono<Boolean> addJSLibsToContext(
             @NotNull String contextId,
             CreatorContextType contextType,
-            @NotNull CustomJSLib jsLib,
+            @NotNull Set<CustomJSLib> jsLibs,
             String branchName,
             Boolean isForceInstall) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
+
+        Mono<Set<CustomJSLibContextDTO>> persistedJsLibsMono = Flux.fromIterable(jsLibs)
+                .flatMap(jsLib -> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
+                .collect(Collectors.toSet());
         return contextBasedService
-                .getAllJSLibContextDTOFromContext(contextId, branchName, false)
-                .zipWith(persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, false)
+                .zipWith(persistedJsLibsMono)
                 .map(tuple -> {
                     /*
                      TODO: try to convert it into a single update op where reading of list is not required
                      Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
                     */
                     Set<CustomJSLibContextDTO> jsLibDTOsInContext = tuple.getT1();
-                    CustomJSLibContextDTO currentJSLibDTO = tuple.getT2();
-                    jsLibDTOsInContext.add(currentJSLibDTO);
+                    Set<CustomJSLibContextDTO> currentJSLibDTOs = tuple.getT2();
+                    jsLibDTOsInContext.addAll(currentJSLibDTOs);
 
                     return jsLibDTOsInContext;
                 })
@@ -104,7 +109,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
             Boolean isForceRemove) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
-                .getAllJSLibContextDTOFromContext(contextId, branchName, false)
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, false)
                 .map(jsLibDTOSet -> {
                     /*
                      TODO: try to convert it into a single update op where reading of list is not required
@@ -125,19 +130,12 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
             @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
-                .getAllJSLibContextDTOFromContext(contextId, branchName, isViewMode)
-                .map(this::filterAndMapGlobalUidStrings)
-                .flatMapMany(uidStrings -> repository.findCustomJsLibsInContext(uidStrings, null, null))
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .flatMapMany(repository::findCustomJsLibsInContext)
                 .collectList()
                 .map(jsLibList -> {
                     jsLibList.sort(Comparator.comparing(CustomJSLib::getUidString));
                     return jsLibList;
                 });
-    }
-
-    protected Set<String> filterAndMapGlobalUidStrings(Set<CustomJSLibContextDTO> customJSLibContextDTOS) {
-        return customJSLibContextDTOS.stream()
-                .map(CustomJSLibContextDTO::getUidString)
-                .collect(Collectors.toSet());
     }
 }

@@ -1,7 +1,7 @@
 import { PluginType } from "entities/Action";
 import type { ActionEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "../evaluate";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { overrideWebAPIs } from "../fns/overrides";
@@ -103,7 +103,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
         run: {},
         clear: {},
         responseMeta: { isExecutionSuccess: false },
-        ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
+        ENTITY_TYPE: ENTITY_TYPE.ACTION,
         dependencyMap: {},
         logBlackList: {},
       } as ActionEntity,

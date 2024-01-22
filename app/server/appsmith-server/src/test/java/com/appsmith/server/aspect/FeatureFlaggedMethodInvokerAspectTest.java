@@ -4,6 +4,7 @@ import com.appsmith.server.aspect.component.TestComponent;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.FeatureFlagService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -33,6 +34,16 @@ class FeatureFlaggedMethodInvokerAspectTest {
     private static final String EE_RESPONSE = "ee_impl_method";
     private static final String CE_COMPATIBLE_RESPONSE = "ce_compatible_impl_method";
     private static final String CE_RESPONSE = "ce_impl_method";
+
+    @BeforeEach
+    void setUp() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))
+                .thenReturn(Mono.just(false));
+
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.FALSE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+    }
 
     @Test
     void testEEOnlyMethod() {

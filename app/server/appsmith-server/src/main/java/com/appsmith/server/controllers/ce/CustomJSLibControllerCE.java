@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequestMapping(Url.CUSTOM_JS_LIB_URL)
@@ -47,7 +48,7 @@ public class CustomJSLibControllerCE {
                 applicationId,
                 branchName);
         return customJSLibService
-                .addJSLibToContext(applicationId, contextType, customJSLib, branchName, isForceInstall)
+                .addJSLibsToContext(applicationId, contextType, Set.of(customJSLib), branchName, isForceInstall)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 

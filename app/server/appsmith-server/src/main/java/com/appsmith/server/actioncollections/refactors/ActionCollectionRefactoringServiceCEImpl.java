@@ -5,7 +5,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
@@ -17,8 +16,6 @@ import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,7 +34,7 @@ import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_JSOBJECT;
 @RequiredArgsConstructor
 public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactoringServiceCE<ActionCollection> {
 
-    private final ActionCollectionService actionCollectionService;
+    protected final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
     private final AstService astService;
@@ -86,7 +83,7 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
         return astService
                 .replaceValueInMustacheKeys(
                         new HashSet<>(Collections.singletonList(
-                                new MustacheBindingToken(unpublishedCollection.getBody(), 0, true))),
+                                new MustacheBindingToken(unpublishedCollection.getBody(), 0, false))),
                         oldName,
                         newName,
                         evalVersion,
@@ -154,16 +151,13 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
     }
 
     @Override
-    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
-        return getExistingEntities(contextId, contextType, layoutId).map(ActionCollectionDTO::getName);
+    public Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
+        return getExistingEntities(contextId, contextType, layoutId, viewMode).map(ActionCollectionDTO::getName);
     }
 
     protected Flux<ActionCollectionDTO> getExistingEntities(
-            String contextId, CreatorContextType contextType, String layoutId) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        if (StringUtils.hasText(contextId)) {
-            params.add(FieldName.PAGE_ID, contextId);
-        }
-        return actionCollectionService.getActionCollectionsByViewMode(params, false);
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
+        return actionCollectionService.getCollectionsByPageIdAndViewMode(contextId, viewMode, null);
     }
 }

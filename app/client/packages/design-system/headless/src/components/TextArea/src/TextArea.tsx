@@ -21,7 +21,7 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
   // not in stately because this is so we know when to re-measure, which is a spectrum design
   const [inputValue, setInputValue] = useControlledState(
     props.value,
-    props.defaultValue,
+    props.defaultValue ?? "",
     () => {
       //
     },

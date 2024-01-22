@@ -5,7 +5,7 @@ import {
   type ActionEntity,
   type AppsmithEntity,
   type JSActionEntity,
-  ENTITY_TYPE_VALUE,
+  ENTITY_TYPE,
 } from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
@@ -41,7 +41,7 @@ export type EntityDefGeneratorMap = Record<
 >;
 
 export const entityDefGeneratorMap: EntityDefGeneratorMap = {
-  [ENTITY_TYPE_VALUE.ACTION]: (props) => {
+  [ENTITY_TYPE.ACTION]: (props) => {
     const { def, entity, entityMap, entityName, extraDefsToDefine } = props;
     def[entityName] = entityDefinitions.ACTION(
       entity as ActionEntity,
@@ -49,22 +49,22 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
     );
     flattenDef(def, entityName);
     entityMap.set(entityName, {
-      type: ENTITY_TYPE_VALUE.ACTION,
+      type: ENTITY_TYPE.ACTION,
       subType: "ACTION",
     });
   },
-  [ENTITY_TYPE_VALUE.APPSMITH]: (props) => {
+  [ENTITY_TYPE.APPSMITH]: (props) => {
     const { def, entity, entityMap, extraDefsToDefine } = props;
     def.appsmith = entityDefinitions.APPSMITH(
       entity as AppsmithEntity,
       extraDefsToDefine,
     );
     entityMap.set("appsmith", {
-      type: ENTITY_TYPE_VALUE.APPSMITH,
-      subType: ENTITY_TYPE_VALUE.APPSMITH,
+      type: ENTITY_TYPE.APPSMITH,
+      subType: ENTITY_TYPE.APPSMITH,
     });
   },
-  [ENTITY_TYPE_VALUE.JSACTION]: (props) => {
+  [ENTITY_TYPE.JSACTION]: (props) => {
     const {
       configTree,
       def,
@@ -97,11 +97,11 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
 
     def[entityName] = jsPropertiesDef;
     entityMap.set(entityName, {
-      type: ENTITY_TYPE_VALUE.JSACTION,
+      type: ENTITY_TYPE.JSACTION,
       subType: "JSACTION",
     });
   },
-  [ENTITY_TYPE_VALUE.WIDGET]: (props) => {
+  [ENTITY_TYPE.WIDGET]: (props) => {
     const {
       configTree,
       def,
@@ -132,7 +132,7 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
       flattenDef(def, entityName);
 
       entityMap.set(entityName, {
-        type: ENTITY_TYPE_VALUE.WIDGET,
+        type: ENTITY_TYPE.WIDGET,
         subType: widgetType,
       });
     }

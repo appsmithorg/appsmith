@@ -42,6 +42,7 @@ export function CreateApplicationForm(
           data-testid="create-workspace-form__name"
           name="name"
           placeholder="Name"
+          // @ts-expect-error Type mismatch
           validate={noSpaces}
         />
       </FormGroup>

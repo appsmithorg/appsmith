@@ -17,7 +17,7 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
 
-describe("Git discard changes:", function () {
+describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
   let datasourceName;
   let repoName;
   const query1 = "get_employees";
@@ -55,7 +55,7 @@ describe("Git discard changes:", function () {
       "Default value",
       `{{JSObject1.myFun1()}}`,
     );
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     // connect app to git
     gitSync.CreateNConnectToGit();
     gitSync.CreateGitBranch();
@@ -79,17 +79,17 @@ describe("Git discard changes:", function () {
     cy.wait("@getPage");
     // discard changes
     gitSync.DiscardChanges();
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     // verify query2 is not present
     PageLeftPane.assertAbsence(query2);
   });
 
   it("3. Add new JSObject , discard changes verify JSObject is deleted", () => {
     jsEditor.CreateJSObject('return "Success";');
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.assertPresence(jsObject);
     gitSync.DiscardChanges();
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     // verify jsObject2 is deleted after discarding changes
     PageLeftPane.assertAbsence(jsObject);
   });
@@ -123,7 +123,9 @@ describe("Git discard changes:", function () {
     // discard changes
     gitSync.DiscardChanges();
     //verify query1 is recovered
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertPresence(query1);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(".bp3-input").should("have.value", "Nancy");
   });
 
@@ -136,7 +138,9 @@ describe("Git discard changes:", function () {
     //     jsEditor.CreateJSObject('return "Success";');
     // delete jsObject1
     EditorNavigation.SelectEntityByName(jsObject, EntityType.JSObject);
-    agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?", true);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+    });
     PageLeftPane.assertAbsence(jsObject);
     // discard changes
     gitSync.DiscardChanges();
@@ -144,7 +148,9 @@ describe("Git discard changes:", function () {
     cy.wait("@getPage");
     cy.wait(3000);
     //verify JSObject is recovered
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.assertPresence(jsObject);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(".bp3-input").should("have.value", "Success");
   });
 

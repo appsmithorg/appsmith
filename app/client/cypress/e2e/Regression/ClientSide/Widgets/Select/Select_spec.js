@@ -1,12 +1,10 @@
-const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Select widget", () => {
+describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
   it("1. Drag and drop Select/Text widgets", () => {
-    cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
     cy.get(formWidgetsPage.selectWidget).should("exist");
   });

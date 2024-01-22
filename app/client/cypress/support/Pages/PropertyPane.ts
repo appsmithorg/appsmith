@@ -618,6 +618,7 @@ export class PropertyPane {
     this.SelectPlatformFunction(property, "Show modal");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
     this.agHelper.GetNClick(this._createModalButton);
+    this.agHelper.WaitUntilEleAppear(this.locator._modal);
     this.agHelper.AssertAutoSave();
   }
 

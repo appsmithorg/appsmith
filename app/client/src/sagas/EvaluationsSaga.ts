@@ -22,7 +22,7 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import { getMetaWidgets, getWidgets } from "sagas/selectors";
+import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
@@ -58,7 +58,7 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import type { JSAction } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get, isEmpty } from "lodash";
@@ -254,12 +254,13 @@ export function* evaluateTreeSaga(
     yield select(getMetaWidgets);
   const theme: ReturnType<typeof getSelectedAppTheme> =
     yield select(getSelectedAppTheme);
-  const toPrintConfigTree = unEvalAndConfigTree.configTree;
-  log.debug({ unevalTree, configTree: toPrintConfigTree });
+  log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+  const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
+    yield select(getWidgetsMeta);
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
@@ -271,6 +272,7 @@ export function* evaluateTreeSaga(
     forceEvaluation,
     metaWidgets,
     appMode,
+    widgetsMeta,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -397,11 +399,8 @@ interface JSFunctionExecutionResponse {
   logs?: LogObject[];
 }
 
-function* executeAsyncJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
+function* executeAsyncJSFunction(action: JSAction, collection: JSCollection) {
+  const { id: collectionId, name: collectionName } = collection;
   const functionCall = `${collectionName}.${action.name}()`;
   const triggerMeta = {
     source: {
@@ -422,27 +421,17 @@ function* executeAsyncJSFunction(
   return response;
 }
 
-export function* executeJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
+export function* executeJSFunction(action: JSAction, collection: JSCollection) {
   const response: {
     errors: unknown[];
     result: unknown;
     logs?: LogObject[];
-  } = yield call(executeAsyncJSFunction, collectionName, action, collectionId);
+  } = yield call(executeAsyncJSFunction, action, collection);
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
   // After every function execution, log execution errors if present
-  yield call(
-    handleJSFunctionExecutionErrorLog,
-    collectionId,
-    collectionName,
-    action,
-    errors,
-  );
+  yield call(handleJSFunctionExecutionErrorLog, action, collection, errors);
   return { result, isDirty };
 }
 

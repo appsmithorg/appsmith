@@ -8,12 +8,13 @@ import jakarta.validation.constraints.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 public interface CustomJSLibServiceCE extends CrudService<CustomJSLib, String> {
-    Mono<Boolean> addJSLibToContext(
+    Mono<Boolean> addJSLibsToContext(
             @NotNull String contextId,
             CreatorContextType contextType,
-            @NotNull CustomJSLib jsLib,
+            Set<CustomJSLib> jsLibs,
             String branchName,
             Boolean isForceInstall);
 

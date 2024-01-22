@@ -1,9 +1,11 @@
 import API from "api/Api";
 import type { AxiosPromise } from "axios";
 import type { JSCollection } from "entities/JSCollection";
-import type { ApiResponse } from "../../api/ApiResponses";
+import type { ApiResponse } from "api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
 import type { PluginType } from "entities/Action";
+import type { FetchActionsPayload } from "api/ActionAPI";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse & {
   id: string;
@@ -15,11 +17,13 @@ export interface MoveJSCollectionRequest {
   name: string;
 }
 export interface UpdateJSObjectNameRequest {
-  pageId: string;
+  pageId?: string;
   actionCollectionId: string;
-  layoutId: string;
+  layoutId?: string;
   newName: string;
   oldName: string;
+  moduleId?: string;
+  contextType?: ActionParentEntityTypeInterface;
 }
 
 export interface CreateJSCollectionRequest {
@@ -32,6 +36,9 @@ export interface CreateJSCollectionRequest {
   actions: Array<Partial<JSAction>>;
   applicationId: string;
   pluginType: PluginType;
+  workflowId?: string;
+  contextType?: ActionParentEntityTypeInterface;
+  moduleId?: string;
 }
 
 export interface SetFunctionPropertyPayload {
@@ -40,14 +47,16 @@ export interface SetFunctionPropertyPayload {
   value: any;
 }
 export interface RefactorAction {
-  pageId: string;
+  pageId?: string;
   actionId: string;
   newName: string;
   oldName: string;
   collectionName: string;
+  moduleId?: string;
+  contextType?: ActionParentEntityTypeInterface;
 }
 export interface RefactorActionRequest extends RefactorAction {
-  layoutId: string;
+  layoutId?: string;
 }
 
 export interface UpdateCollectionActionNameRequest
@@ -58,9 +67,9 @@ class JSActionAPI extends API {
   static url = "v1/collections/actions";
 
   static async fetchJSCollections(
-    applicationId: string,
+    payload: FetchActionsPayload,
   ): Promise<AxiosPromise<ApiResponse<JSCollection[]>>> {
-    return API.get(JSActionAPI.url, { applicationId });
+    return API.get(JSActionAPI.url, payload);
   }
 
   static async createJSCollection(

@@ -12,8 +12,11 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Text-Table Binding Functionality", function () {
-  const updateData = `[
+describe(
+  "Text-Table Binding Functionality",
+  { tags: ["@tag.Binding"] },
+  function () {
+    const updateData = `[
   {
     "x": "Product1",
     "y": 20000
@@ -27,47 +30,48 @@ describe("Text-Table Binding Functionality", function () {
     "y": 32000
   }
 ]`;
-  before(() => {
-    agHelper.AddDsl("tableAndChart");
-  });
+    before(() => {
+      agHelper.AddDsl("tableAndChart");
+    });
 
-  it("1. Update table data and assert", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    cy.get(widgetLocators.tabedataField).then(($el) => {
-      cy.updateCodeInput($el, updateData);
+    it("1. Update table data and assert", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      cy.get(widgetLocators.tabedataField).then(($el) => {
+        cy.updateCodeInput($el, updateData);
+        cy.readTabledata("1", "0").then((cellData) => {
+          cy.wrap(cellData).should("equal", "Product2");
+        });
+      });
+      //Update chart data and assert
+      EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
+      cy.get(".t--property-control-chart-series-data-control").then(($el) => {
+        cy.updateCodeInput($el, updateData);
+        cy.get(viewWidgetsPage.chartWidget)
+          .find("svg")
+          .find("text")
+          .should("contain.text", "Product1");
+
+        cy.get(viewWidgetsPage.chartWidget)
+          .find("svg")
+          .find("rect")
+          .should("have.length.greaterThan", 0);
+      });
+    });
+
+    it("2. Publish and assert", function () {
+      deployMode.DeployApp(locators._backToEditor, true, false);
       cy.readTabledata("1", "0").then((cellData) => {
         cy.wrap(cellData).should("equal", "Product2");
       });
-    });
-    //Update chart data and assert
-    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
-    cy.get(".t--property-control-chart-series-data-control").then(($el) => {
-      cy.updateCodeInput($el, updateData);
-      cy.get(viewWidgetsPage.chartWidget)
+      cy.get(publish.chartWidget)
         .find("svg")
         .find("text")
-        .should("contain.text", "Product1");
+        .should("contain.text", "Product2");
 
-      cy.get(viewWidgetsPage.chartWidget)
+      cy.get(publish.chartWidget)
         .find("svg")
         .find("rect")
         .should("have.length.greaterThan", 0);
     });
-  });
-
-  it("2. Publish and assert", function () {
-    deployMode.DeployApp(locators._backToEditor, true, false);
-    cy.readTabledata("1", "0").then((cellData) => {
-      cy.wrap(cellData).should("equal", "Product2");
-    });
-    cy.get(publish.chartWidget)
-      .find("svg")
-      .find("text")
-      .should("contain.text", "Product2");
-
-    cy.get(publish.chartWidget)
-      .find("svg")
-      .find("rect")
-      .should("have.length.greaterThan", 0);
-  });
-});
+  },
+);

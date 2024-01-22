@@ -55,6 +55,7 @@ import {
   getHasManageDatasourcePermission,
   hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useEditorType } from "@appsmith/hooks";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -172,16 +173,19 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  const editorType = useEditorType(history.location.pathname);
+
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isFeatureEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const canEditDatasource = getHasManageDatasourcePermission(
     isFeatureEnabled,

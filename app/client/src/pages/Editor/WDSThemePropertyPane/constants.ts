@@ -31,5 +31,10 @@ export const THEME_SETTINGS_SIZING_OPTIONS = [
 export const THEME_SETTINGS_BORDER_RADIUS_OPTIONS = [
   { label: "Sharp", value: "0px" },
   { label: "Rounded", value: "6px" },
-  { label: "Pill", value: "14px" },
+  { label: "Pill", value: "20px" },
+];
+
+export const THEME_SETTINGS_ICON_STYLE_OPTIONS = [
+  { label: "Filled", value: "FILLED" },
+  { label: "Outlined", value: "OUTLINED" },
 ];

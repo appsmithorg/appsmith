@@ -12,6 +12,8 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
@@ -49,6 +52,8 @@ public abstract class BaseService<
     protected final Validator validator;
 
     protected final AnalyticsService analyticsService;
+
+    private static final String ENTITY_FIELDS = "entity_fields";
 
     public BaseService(
             Scheduler scheduler,
@@ -179,5 +184,36 @@ public abstract class BaseService<
     @Override
     public Map<String, Object> getAnalyticsProperties(T savedResource) {
         return null;
+    }
+
+    /**
+     * This function is used to filter the entities based on the entity fields and the search string.
+     * The search is performed with contains operator on the entity fields and is case-insensitive.
+     * @param searchableEntityFields  The list of entity fields to search for. If null or empty, all entities are searched.
+     * @param searchString  The string to search for in the entity fields.
+     * @param pageable      The page number of the results to return.
+     * @param sort          The sort order of the results to return.
+     * @param permission    The permission to check for the entity.
+     * @return  A Flux of entities.
+     */
+    public Flux<T> filterByEntityFields(
+            List<String> searchableEntityFields,
+            String searchString,
+            Pageable pageable,
+            Sort sort,
+            AclPermission permission) {
+
+        if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
+        }
+        List<Criteria> criteriaList = searchableEntityFields.stream()
+                .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
+                .toList();
+        Criteria criteria = new Criteria().orOperator(criteriaList);
+        Flux<T> result = repository.queryAll(List.of(criteria), permission, sort);
+        if (pageable != null) {
+            return result.skip(pageable.getOffset()).take(pageable.getPageSize());
+        }
+        return result;
     }
 }

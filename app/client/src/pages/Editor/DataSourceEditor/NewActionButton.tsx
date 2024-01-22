@@ -99,9 +99,8 @@ function NewActionButton(props: NewActionButtonProps) {
       }
       setIsPageSelectionOpen(true);
     },
-    [pages, createQueryAction],
+    [pages, createQueryAction, disabled, isLoading],
   );
-
   return (
     <Menu onOpenChange={handleOnInteraction} open={isPageSelectionOpen}>
       <MenuTrigger disabled={disabled}>
@@ -123,12 +122,13 @@ function NewActionButton(props: NewActionButtonProps) {
       <MenuContent
         align={"end"}
         data-testId={"t--page-selection"}
+        height={pages.length <= 4 ? "fit-content" : "186px"}
         side={"bottom"}
       >
-        <Text className="pl-2" kind="heading-xs">{`Create a ${
+        <Text className="pl-2" kind="heading-xs">{`Create ${
           pluginType === PluginType.DB || pluginType === PluginType.SAAS
             ? "query"
-            : "api"
+            : "API"
         } in`}</Text>
         {pageMenuItems.map((page, i) => {
           if (page) {

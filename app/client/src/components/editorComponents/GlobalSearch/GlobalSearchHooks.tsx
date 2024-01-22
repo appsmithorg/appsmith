@@ -3,7 +3,7 @@ import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
-import { getPageList, getPagePermissions } from "selectors/editorSelectors";
+import { getPageList } from "selectors/editorSelectors";
 import {
   getActions,
   getAllPageWidgets,
@@ -23,26 +23,38 @@ import {
   generateCreateNewDSOption,
   isMatching,
   SEARCH_ITEM_TYPES,
+  appsmithAIActionOperation,
 } from "./utils";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { createNewQueryAction } from "actions/apiPaneActions";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasCreateActionPermission,
+  getHasCreateDatasourceActionPermission,
   getHasCreateDatasourcePermission,
-  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { createNewQueryBasedOnParentEntity } from "@appsmith/actions/helpers";
 
-export const useFilteredFileOperations = (query = "") => {
+export interface FilterFileOperationsProps {
+  canCreateActions: boolean;
+  query?: string;
+  showModules?: boolean;
+}
+
+export const useFilteredFileOperations = ({
+  canCreateActions,
+  query = "",
+  showModules = true,
+}: FilterFileOperationsProps) => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
   const moduleOptions = useModuleOptions();
+  const showAppsmithAIQuery = useFeatureFlag(FEATURE_FLAG.ab_appsmith_ai_query);
 
   // helper map for sorting based on recent usage
   const recentlyUsedDSMap = useRecentlyUsedDSMap();
@@ -51,14 +63,7 @@ export const useFilteredFileOperations = (query = "") => {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const pagePermissions = useSelector(getPagePermissions);
-
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const canCreateActions = getHasCreateActionPermission(
-    isFeatureEnabled,
-    pagePermissions,
-  );
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
     isFeatureEnabled,
@@ -66,22 +71,23 @@ export const useFilteredFileOperations = (query = "") => {
   );
 
   // get all datasources, app ds listed first
-  const allDatasources = [...appWideDS, ...otherDS].filter((ds) =>
-    hasCreateDSActionPermissionInApp(
-      isFeatureEnabled,
-      ds.userPermissions ?? [],
-      pagePermissions,
-    ),
+  const allDatasources = [...appWideDS, ...otherDS].filter(
+    (ds) =>
+      getHasCreateDatasourceActionPermission(
+        isFeatureEnabled,
+        ds.userPermissions ?? [],
+      ) && canCreateActions,
   );
 
   return useFilteredAndSortedFileOperations({
     allDatasources,
     canCreateActions,
     canCreateDatasource,
-    moduleOptions,
+    moduleOptions: showModules ? moduleOptions : [],
     plugins,
     recentlyUsedDSMap,
     query,
+    showAppsmithAIQuery,
   });
 };
 
@@ -93,6 +99,7 @@ export const useFilteredAndSortedFileOperations = ({
   plugins = [],
   query,
   recentlyUsedDSMap = {},
+  showAppsmithAIQuery = false,
 }: {
   allDatasources?: Datasource[];
   canCreateActions?: boolean;
@@ -101,15 +108,22 @@ export const useFilteredAndSortedFileOperations = ({
   plugins?: Plugin[];
   recentlyUsedDSMap?: Record<string, number>;
   query: string;
+  showAppsmithAIQuery?: boolean;
 }) => {
   const fileOperations: ActionOperation[] = [];
+
   if (!canCreateActions) return fileOperations;
+
+  // Add appsmith AI operation if the feature flag is enabled
+  const allActionOperations = showAppsmithAIQuery
+    ? [...actionOperations, appsmithAIActionOperation]
+    : actionOperations;
 
   /**
    *  Work around to get the rest api cloud image.
    *  We don't have it store as a svg
    */
-  const actionOps = updateActionOperations(plugins, actionOperations);
+  const actionOps = updateActionOperations(plugins, allActionOperations);
 
   // Add JS Object operation
   fileOperations.push(actionOps[2]);
@@ -128,8 +142,13 @@ export const useFilteredAndSortedFileOperations = ({
   const datasources = getSortedDatasources(allDatasources, recentlyUsedDSMap);
 
   const createQueryAction =
-    (dsId: string) => (pageId: string, from: EventLocation) =>
-      createNewQueryAction(pageId, from, dsId);
+    (dsId: string) =>
+    (
+      entityId: string,
+      from: EventLocation,
+      entityType?: ActionParentEntityTypeInterface,
+    ) =>
+      createNewQueryBasedOnParentEntity(entityId, from, dsId, entityType);
 
   // map into operations
   const dsOperations = datasources.map((ds) =>
@@ -152,6 +171,7 @@ export const useFilteredAndSortedFileOperations = ({
       integrationEditorURL({
         pageId,
         selectedTab: INTEGRATION_TABS.NEW,
+        generateEditorPath: true,
       }),
     );
   };

@@ -14,6 +14,11 @@ apply-env-vars() {
   served="$2"
   node -e '
   const fs = require("fs")
+  try {
+    const info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
+    process.env.APPSMITH_VERSION_ID = info.version || ""
+    process.env.APPSMITH_VERSION_RELEASE_DATE = info.imageBuiltAt || ""
+  } catch {}
   const content = fs.readFileSync("'"$original"'", "utf8").replace(
     /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
     (placeholder, name) => (process.env[name] || "")

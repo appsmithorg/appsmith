@@ -18,7 +18,6 @@ import {
   metaConfig,
   methodsConfig,
   propertyPaneContentConfig,
-  propertyPaneStyleConfig,
   settersConfig,
 } from "./config";
 import { validateInput } from "./helpers";
@@ -63,7 +62,7 @@ class WDSRadioGroupWidget extends BaseWidget<
   }
 
   static getPropertyPaneStyleConfig() {
-    return propertyPaneStyleConfig;
+    return [];
   }
 
   static getDerivedPropertiesMap() {

@@ -1,0 +1,1 @@
+export { WDSMenuButtonWidget } from "./widget";

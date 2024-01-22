@@ -1,51 +1,53 @@
-import React from "react";
-import {
-  createGlobalFontStack,
-  createTypographyStringMap,
-} from "../../typography";
-import { css, injectGlobal } from "@emotion/css";
-import { cssRule } from "../../utils/cssRule";
-import { ThemeContext } from "./ThemeContext";
 import clsx from "clsx";
+import React, { useRef } from "react";
+import type { RefObject } from "react";
+import { injectGlobal } from "@emotion/css";
+import { useDebounce } from "@react-hook/debounce";
 
-import type { FontFamily } from "../../typography";
-import type { Theme, ThemeProviderProps } from "./types";
+import { useCssTokens } from "../../hooks";
+import { ThemeContext } from "./ThemeContext";
+import { globalFontStack } from "../../utils/globalFontStack";
+import useResizeObserver from "@react-hook/resize-observer";
 
-const { fontFaces } = createGlobalFontStack();
-injectGlobal(fontFaces);
+import type { ThemeProviderProps } from "./types";
 
-const fontFamilyCss = (fontFamily?: FontFamily) => {
-  const fontFamilyCss =
-    fontFamily && fontFamily !== "System Default"
-      ? `${fontFamily}, sans-serif`
-      : "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu'";
-
-  return `font-family: ${fontFamilyCss}; --font-family: ${fontFamilyCss}`;
-};
-
-const providerCss = ({
-  colorMode,
-  fontFamily,
-  typography,
-  ...theme
-}: Theme) => css`
-  ${fontFamilyCss(fontFamily)};
-  ${createTypographyStringMap(typography, fontFamily)};
-  ${cssRule(theme)};
-  color-scheme: ${colorMode};
-`;
+injectGlobal(globalFontStack());
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children, className, style, theme } = props;
+  const [width, setWidth] = useDebounce<number | null>(null, 100);
+  const providerRef = useRef(null);
+
+  useResizeObserver(providerRef as RefObject<HTMLElement>, (entry) => {
+    setWidth(entry.contentRect.width);
+  });
+
+  const {
+    colorClassName,
+    colorModeClassName,
+    fontFamilyClassName,
+    providerClassName,
+    typographyClassName,
+    widthClassName,
+  } = useCssTokens({ ...theme, width });
 
   return (
     <ThemeContext.Provider value={theme}>
       <div
-        className={clsx(className, providerCss(theme))}
+        className={clsx(
+          className,
+          colorClassName,
+          colorModeClassName,
+          fontFamilyClassName,
+          providerClassName,
+          typographyClassName,
+          widthClassName,
+        )}
         data-theme-provider=""
+        ref={providerRef}
         style={style}
       >
-        {children}
+        {Boolean(width) && children}
       </div>
     </ThemeContext.Provider>
   );

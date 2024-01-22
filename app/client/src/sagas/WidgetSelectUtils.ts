@@ -63,7 +63,7 @@ export type SetSelectionResult = string[] | undefined;
 
 // Main container cannot be a selection, dont honour this request
 export const isInvalidSelectionRequest = (id: unknown) =>
-  typeof id !== "string" || id === MAIN_CONTAINER_WIDGET_ID;
+  typeof id !== "string";
 
 export class WidgetSelectionError extends Error {
   request?: SelectionPayload;

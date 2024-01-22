@@ -21,7 +21,7 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
 
-describe("Git import flow ", function () {
+describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   before(() => {
     homePage.NavigateToHome();
     homePage.CreateNewWorkspace();
@@ -227,7 +227,7 @@ describe("Git import flow ", function () {
   });
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);

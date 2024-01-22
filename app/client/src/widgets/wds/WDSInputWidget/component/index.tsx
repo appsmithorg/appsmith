@@ -1,6 +1,5 @@
 import React from "react";
 import { isNil } from "lodash";
-import { Icon as BIcon } from "@blueprintjs/core";
 import { TextInput } from "@design-system/widgets";
 import { Icon, TextArea } from "@design-system/widgets";
 
@@ -10,11 +9,7 @@ import type { InputComponentProps } from "./types";
 function InputComponent(props: InputComponentProps) {
   const startIcon = (() => {
     if (props.iconName && props.iconAlign === "left") {
-      return (
-        <Icon>
-          <BIcon icon={props.iconName} />
-        </Icon>
-      );
+      return <Icon name={props.iconName} />;
     }
   })();
 
@@ -22,11 +17,7 @@ function InputComponent(props: InputComponentProps) {
     if (props.inputType === "PASSWORD") return undefined;
 
     if (props.iconName && props.iconAlign === "right") {
-      return (
-        <Icon>
-          <BIcon icon={props.iconName} />
-        </Icon>
-      );
+      return <Icon name={props.iconName} />;
     }
   })();
 
@@ -95,6 +86,7 @@ function InputComponent(props: InputComponentProps) {
       endIcon={endIcon}
       errorMessage={props.errorMessage}
       isDisabled={props.isDisabled}
+      isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
       label={props.label}
       max={max}

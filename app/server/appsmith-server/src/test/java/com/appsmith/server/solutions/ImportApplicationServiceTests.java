@@ -77,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -265,6 +266,10 @@ public class ImportApplicationServiceTests {
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
 
+        Application.ThemeSetting themeSettings = getThemeSetting();
+        testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+        testApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
+
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .block();
@@ -309,9 +314,6 @@ public class ImportApplicationServiceTests {
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
         isSetupDone = true;
-
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
-                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
     }
 
     private Flux<ActionDTO> getActionsInApplication(Application application) {
@@ -400,7 +402,6 @@ public class ImportApplicationServiceTests {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication).isNotNull();
                     // Assert that the exported application is NOT public
-                    assertThat(exportedApplication.getDefaultPermissionGroup()).isNull();
                     assertThat(exportedApplication.getPolicies()).isNullOrEmpty();
                 })
                 .verifyComplete();
@@ -563,7 +564,7 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1)
+                            .createCollection(actionCollectionDTO1, null)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(updateLayoutService.updateLayout(
@@ -807,6 +808,45 @@ public class ImportApplicationServiceTests {
                     assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
                     assertThat(exportedApp.getGitApplicationMetadata()).isNull();
 
+                    assertThat(exportedApp.getApplicationDetail()).isNotNull();
+                    assertThat(exportedApp.getApplicationDetail().getThemeSetting())
+                            .isNotNull();
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getSizing())
+                            .isNotNull();
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getAccentColor())
+                            .isEqualTo("#FFFFFF");
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getColorMode())
+                            .isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getDensity())
+                            .isEqualTo(1);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getFontFamily())
+                            .isEqualTo("#000000");
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getSizing())
+                            .isEqualTo(1);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getIconStyle())
+                            .isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
+
                     assertThat(exportedApp.getPolicies()).isNull();
                     assertThat(exportedApp.getUserPermissions()).isNull();
 
@@ -1042,6 +1082,7 @@ public class ImportApplicationServiceTests {
                         ActionDTO actionDTO = newAction.getUnpublishedAction();
                         assertThat(actionDTO.getPageId())
                                 .isNotEqualTo(pageList.get(0).getName());
+
                         if (StringUtils.equals(actionDTO.getName(), "api_wo_auth")) {
                             ActionDTO publishedAction = newAction.getPublishedAction();
                             assertThat(publishedAction).isNotNull();
@@ -1049,6 +1090,8 @@ public class ImportApplicationServiceTests {
                             // Test the fallback page ID from the unpublishedAction is copied to published version when
                             // published version does not have pageId
                             assertThat(actionDTO.getPageId()).isEqualTo(publishedAction.getPageId());
+                            // check that createAt field is getting populated from JSON
+                            assertThat(actionDTO.getCreatedAt()).isEqualTo("2023-12-13T12:10:02Z");
                         }
 
                         if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
@@ -2049,7 +2092,7 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setActions(List.of(action1));
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
-                    return layoutCollectionService.createCollection(actionCollectionDTO1);
+                    return layoutCollectionService.createCollection(actionCollectionDTO1, null);
                 })
                 .flatMap(actionCollectionDTO -> actionCollectionService.getById(actionCollectionDTO.getId()))
                 .flatMap(actionCollection -> applicationRepository.findById(actionCollection.getApplicationId()))
@@ -2404,9 +2447,9 @@ public class ImportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void discardChange_addNavigationSettingAfterImport_addedNavigationSettingRemoved() {
-        Mono<ApplicationJson> applicationJsonMono =
-                createAppJson("test_assets/ImportExportServiceTest/valid-application-without-navigation-setting.json");
+    public void discardChange_addNavigationAndThemeSettingAfterImport_addedNavigationAndThemeSettingRemoved() {
+        Mono<ApplicationJson> applicationJsonMono = createAppJson(
+                "test_assets/ImportExportServiceTest/valid-application-without-navigation-theme-setting.json");
         String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
@@ -2419,6 +2462,10 @@ public class ImportApplicationServiceTests {
                     Application.NavigationSetting navigationSetting = new Application.NavigationSetting();
                     navigationSetting.setOrientation("top");
                     applicationDetail.setNavigationSetting(navigationSetting);
+
+                    Application.ThemeSetting themeSettings = getThemeSetting();
+                    applicationDetail.setThemeSetting(themeSettings);
+
                     application.setUnpublishedApplicationDetail(applicationDetail);
                     application.setPublishedApplicationDetail(applicationDetail);
                     return applicationService.save(application);
@@ -2449,6 +2496,16 @@ public class ImportApplicationServiceTests {
                                     .getNavigationSetting()
                                     .getOrientation())
                             .isEqualTo("top");
+
+                    Application.ThemeSetting themes =
+                            initialApplication.getApplicationDetail().getThemeSetting();
+                    assertThat(themes.getAccentColor()).isEqualTo("#FFFFFF");
+                    assertThat(themes.getBorderRadius()).isEqualTo("#000000");
+                    assertThat(themes.getColorMode()).isEqualTo(Application.ThemeSetting.Type.LIGHT);
+                    assertThat(themes.getDensity()).isEqualTo(1);
+                    assertThat(themes.getFontFamily()).isEqualTo("#000000");
+                    assertThat(themes.getSizing()).isEqualTo(1);
+                    assertThat(themes.getIconStyle()).isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
                 })
                 .verifyComplete();
         // Import the same application again
@@ -2474,6 +2531,18 @@ public class ImportApplicationServiceTests {
                     assertThat(application.getPublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @NotNull private static Application.ThemeSetting getThemeSetting() {
+        Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+        themeSettings.setSizing(1);
+        themeSettings.setDensity(1);
+        themeSettings.setBorderRadius("#000000");
+        themeSettings.setAccentColor("#FFFFFF");
+        themeSettings.setFontFamily("#000000");
+        themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
+        return themeSettings;
     }
 
     /**
@@ -2780,7 +2849,7 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1)
+                            .createCollection(actionCollectionDTO1, null)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(updateLayoutService.updateLayout(
@@ -3647,6 +3716,8 @@ public class ImportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
@@ -4766,7 +4837,7 @@ public class ImportApplicationServiceTests {
     public void createExportAppJsonWithCustomJSLibTest() {
         CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
         Mono<Boolean> addJSLibMonoCached = customJSLibService
-                .addJSLibToContext(testAppId, CreatorContextType.APPLICATION, jsLib, null, false)
+                .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                 .flatMap(isJSLibAdded ->
                         Mono.zip(Mono.just(isJSLibAdded), applicationPageService.publish(testAppId, true)))
                 .map(tuple2 -> {
@@ -4934,7 +5005,7 @@ public class ImportApplicationServiceTests {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
-        return layoutCollectionService.createCollection(actionCollectionDTO1);
+        return layoutCollectionService.createCollection(actionCollectionDTO1, null);
     }
 
     @Test

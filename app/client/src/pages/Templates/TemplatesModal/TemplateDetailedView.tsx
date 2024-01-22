@@ -62,6 +62,7 @@ const TemplateDescriptionWrapper = styled.div`
 `;
 
 interface TemplateDetailedViewProps {
+  isStartWithTemplateFlow: boolean;
   templateId: string;
   onBackPress: () => void;
   onClose: () => void;
@@ -162,6 +163,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
           />
         </div>
         <PageSelection
+          isStartWithTemplateFlow={props.isStartWithTemplateFlow}
           onPageSelection={onPageSelection}
           pages={currentTemplate.pages || []}
           template={currentTemplate}
