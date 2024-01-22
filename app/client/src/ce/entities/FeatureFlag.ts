@@ -27,6 +27,10 @@ export const FEATURE_FLAG = {
     "release_server_dsl_migrations_enabled",
   license_git_branch_protection_enabled:
     "license_git_branch_protection_enabled",
+  license_git_continuous_delivery_enabled:
+    "license_git_continuous_delivery_enabled",
+  release_git_continuous_delivery_enabled:
+    "release_git_continuous_delivery_enabled",
   release_git_autocommit_feature_enabled:
     "release_git_autocommit_feature_enabled",
   license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
@@ -71,6 +75,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_server_dsl_migrations_enabled: false,
   license_git_branch_protection_enabled: false,
   release_git_autocommit_feature_enabled: false,
+  license_git_continuous_delivery_enabled: false,
+  release_git_continuous_delivery_enabled: false,
   license_widget_rtl_support_enabled: false,
   release_custom_widgets_enabled: false,
   ab_create_new_apps_enabled: false,
