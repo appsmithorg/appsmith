@@ -7,7 +7,6 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.configurations.InstanceConfig;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
@@ -24,8 +23,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -154,17 +151,12 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
 
     protected Flux<ActionDTO> getExistingEntities(
             String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        if (contextId != null) {
-            params.add(FieldName.PAGE_ID, contextId);
-        }
 
         if (viewMode) {
             // TODO: Handle this scenario based on use case
             return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         }
-
-        return newActionService.getUnpublishedActions(params).flatMap(actionDTO -> {
+        return newActionService.getUnpublishedActionsByPageId(contextId, null).flatMap(actionDTO -> {
             /*
                This is unexpected. Every action inside a JS collection should have a collectionId.
                But there are a few documents found for plugin type JS inside newAction collection that don't have any collectionId.

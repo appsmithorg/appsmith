@@ -11,9 +11,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
-import net.minidev.json.JSONArray;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import net.minidev.json.writer.CollectionMapper;
@@ -46,6 +48,22 @@ import java.util.stream.Collectors;
 public class DataUtils {
 
     public static String FIELD_API_CONTENT_TYPE = "apiContentType";
+
+    /**
+     * this Gson builder has three parameters for creating a gson instances which is required to maintain the JSON as received
+     * setLenient() : allows parsing of JSONs which don't strictly adhere to RFC4627 (our older implementation is also more permissive)
+     * setObjectToNumberStrategy(): How to parse numbers which comes as a part of JSON objects
+     * i.e. [4, 5.5, 7] --> [4, 5.5, 7] (with lazily parsed numbers), default was [4.0, 5.5, 7.0]
+     * setNumberToNumberStrategy() : same as above but only applies to number json
+     * 4 -> 4,  4.7 --> 4.7
+     */
+    private static final Gson gson = new GsonBuilder()
+            .setLenient()
+            .setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
+            .setNumberToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
+            .create();
+
+    private static final JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     private final ObjectMapper objectMapper;
 
@@ -304,24 +322,44 @@ public class DataUtils {
             return null;
         }
 
-        JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-
-        Object parsedJson;
+        // For both list and Map type we have used fallback parsing strategies, First GSON tries to parse
+        // the jsonString (we've used gson because the native jsonObject gson uses to parse JSON is implemented on top
+        // of linkedHashMaps, which preserves the order of attributes),
+        // however if gson encounters any errors, which could arise due to a lenient jsonString
+        // i.e. { "a" : "one", "b" : "two",} (Notice the comma at the end), this is not a valid json according to
+        // RFC4627. GSON would fail here, however JsonParser from net.minidev would parse this in permissive mode.
 
         if (type.equals(List.class)) {
-            parsedJson = (JSONArray) jsonParser.parse(jsonString);
+            return parseJsonIntoListWithOrderedObjects(jsonString, gson, jsonParser);
         } else {
             // We learned from issue #23456 that some use-cases require the order of keys to be preserved
             //  i.e. for AWS authorisation, one signature header is required whose value holds the hash
             // of the body.
+            return parseJsonIntoOrderedObject(jsonString, gson, jsonParser);
+        }
+    }
+
+    private static Object parseJsonIntoListWithOrderedObjects(String jsonString, Gson gson, JSONParser jsonParser)
+            throws ParseException {
+        TypeToken<List<Object>> listTypeToken = new TypeToken<>() {};
+        try {
+            return gson.fromJson(jsonString, listTypeToken.getType());
+        } catch (JsonSyntaxException jsonSyntaxException) {
+            return jsonParser.parse(jsonString);
+        }
+    }
+
+    private static Object parseJsonIntoOrderedObject(String jsonString, Gson gson, JSONParser jsonParser)
+            throws ParseException {
+        TypeToken<LinkedHashMap<String, Object>> linkedHashMapTypeToken = new TypeToken<>() {};
+        try {
+            return gson.fromJson(jsonString, linkedHashMapTypeToken.getType());
+        } catch (JsonSyntaxException jsonSyntaxException) {
             JsonReader jsonReader = new JsonReader();
-            TypeToken<LinkedHashMap<String, Object>> linkedHashMapTypeToken = new TypeToken<>() {};
             CollectionMapper.MapClass<LinkedHashMap<String, Object>> collectionMapper =
                     new CollectionMapper.MapClass<>(jsonReader, linkedHashMapTypeToken.getRawType());
-            parsedJson = jsonParser.parse(jsonString, collectionMapper);
+            return jsonParser.parse(jsonString, collectionMapper);
         }
-
-        return parsedJson;
     }
 
     public Object getRequestBodyObject(

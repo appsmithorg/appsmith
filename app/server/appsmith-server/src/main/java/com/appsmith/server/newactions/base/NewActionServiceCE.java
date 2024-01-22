@@ -91,6 +91,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
 
+    Flux<ActionDTO> getUnpublishedActionsByPageId(String pageId, AclPermission permission);
+
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName);
 
     Mono<ActionDTO> populateHintMessages(ActionDTO action);

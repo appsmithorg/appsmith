@@ -20,8 +20,6 @@ import type { Color } from "constants/Colors";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -267,11 +265,10 @@ export const mapStateToProps = (
   ownProps: CustomComponentProps,
 ) => {
   const isPreviewMode = combinedPreviewModeSelector(state);
-  const appMode = getAppMode(state);
 
   return {
     needsOverlay:
-      appMode == APP_MODE.EDIT &&
+      ownProps.renderMode === "EDITOR" &&
       !isPreviewMode &&
       ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId,
   };

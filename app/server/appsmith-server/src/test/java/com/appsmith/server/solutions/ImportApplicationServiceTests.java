@@ -841,6 +841,11 @@ public class ImportApplicationServiceTests {
                                     .getThemeSetting()
                                     .getSizing())
                             .isEqualTo(1);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getIconStyle())
+                            .isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
 
                     assertThat(exportedApp.getPolicies()).isNull();
                     assertThat(exportedApp.getUserPermissions()).isNull();
@@ -2500,6 +2505,7 @@ public class ImportApplicationServiceTests {
                     assertThat(themes.getDensity()).isEqualTo(1);
                     assertThat(themes.getFontFamily()).isEqualTo("#000000");
                     assertThat(themes.getSizing()).isEqualTo(1);
+                    assertThat(themes.getIconStyle()).isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
                 })
                 .verifyComplete();
         // Import the same application again
@@ -2535,6 +2541,7 @@ public class ImportApplicationServiceTests {
         themeSettings.setAccentColor("#FFFFFF");
         themeSettings.setFontFamily("#000000");
         themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
         return themeSettings;
     }
 
