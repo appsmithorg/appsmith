@@ -110,15 +110,6 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
                     return actionCollectionService
                             .create(toBeClonedActionCollection)
                             .flatMap(clonedActionCollection -> {
-                                clonePageMetaDTO
-                                        .getOldToNewActionCollectionIdMap()
-                                        .put(toBeClonedActionCollection.getId(), clonedActionCollection.getId());
-                                clonePageMetaDTO
-                                        .getClonedIdToOldActionCollectionIdMap()
-                                        .put(clonedActionCollection.getId(), toBeClonedActionCollection.getId());
-                                clonePageMetaDTO
-                                        .getClonedIdToActionCollectionMap()
-                                        .put(clonedActionCollection.getId(), clonedActionCollection);
                                 if (!StringUtils.hasLength(clonedActionCollection
                                         .getDefaultResources()
                                         .getCollectionId())) {

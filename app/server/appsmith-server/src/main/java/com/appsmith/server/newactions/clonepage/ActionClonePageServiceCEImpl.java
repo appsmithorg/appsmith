@@ -33,7 +33,6 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
         return getCloneableActions(clonePageMetaDTO.getSourcePageId())
                 .flatMap(action -> {
                     String originalActionId = action.getId();
-                    clonePageMetaDTO.getOldIdToOldActionMap().put(originalActionId, action);
                     // Set new page id in the actionDTO
                     final DefaultResources clonedPageDefaultResources =
                             clonePageMetaDTO.getClonedPageDTO().getDefaultResources();
@@ -65,7 +64,6 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                     clonePageMetaDTO.setOldToNewActionIdMap(oldToClonedActionIdMap);
                     Map<String, String> clonedIdToOldActionIdMap = oldToClonedActionIdMap.entrySet().stream()
                             .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-                    clonePageMetaDTO.setClonedIdToOldActionIdMap(clonedIdToOldActionIdMap);
                     return Mono.empty().then();
                 });
     }
