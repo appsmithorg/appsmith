@@ -125,7 +125,6 @@ import {
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
-import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchWorkspaceEntities } from "@appsmith/utils/workspaceHelpers";
 
@@ -348,6 +347,17 @@ export function WorkspaceMenuItem({
   selected,
   workspace,
 }: any) {
+  const history = useHistory();
+  const location = useLocation();
+
+  const handleWorkspaceClick = () => {
+    const workspaceId = workspace?.id;
+    if (workspaceId) {
+      const newUrl = `${location.pathname}?workspaceId=${workspaceId}`;
+      history.push(newUrl);
+    }
+  };
+
   if (!workspace.id) return null;
   return (
     <ListItem
@@ -356,9 +366,9 @@ export function WorkspaceMenuItem({
       ellipsize={
         isFetchingWorkspaces ? 100 : 22
       } /* this is to avoid showing tooltip for loaders */
-      href={`${window.location.pathname}#${workspace?.id}`}
       icon="group-2-line"
       key={workspace?.id}
+      onSelect={handleWorkspaceClick}
       selected={selected}
       text={workspace?.name}
       tooltipPos={Position.BOTTOM_LEFT}
@@ -833,7 +843,8 @@ export function ApplicationsSection(props: any) {
 export const ApplictionsMainPage = (props: any) => {
   const { searchApplications, searchKeyword } = props;
   const location = useLocation();
-  const urlHash = location.hash.slice(1);
+  const urlParams = new URLSearchParams(location.search);
+  const workspaceIdFromQueryParams = urlParams.get("workspaceId");
   const dispatch = useDispatch();
   const history = useHistory();
   const isFetchingWorkspaces = useSelector(getIsFetchingWorkspaces);
@@ -858,10 +869,16 @@ export const ApplictionsMainPage = (props: any) => {
 
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<
     string | undefined
-  >(urlHash ? urlHash : workspaces[0]?.id);
+  >(
+    workspaceIdFromQueryParams ? workspaceIdFromQueryParams : workspaces[0]?.id,
+  );
 
   useEffect(() => {
-    setActiveWorkspaceId(urlHash ? urlHash : workspaces[0]?.id);
+    setActiveWorkspaceId(
+      workspaceIdFromQueryParams
+        ? workspaceIdFromQueryParams
+        : workspaces[0]?.id,
+    );
     if (
       activeWorkspaceId &&
       fetchedWorkspaceId &&
@@ -878,7 +895,7 @@ export const ApplictionsMainPage = (props: any) => {
         fetchWorkspaceEntities({ dispatch, activeWorkspaceId, featureFlags });
       }
     }
-  }, [urlHash, fetchedWorkspaces, activeWorkspaceId]);
+  }, [workspaceIdFromQueryParams, fetchedWorkspaces, activeWorkspaceId]);
 
   const packagesOfWorkspace = activeWorkspaceId
     ? fetchedPackages.filter((pkg) => pkg.workspaceId === activeWorkspaceId)
@@ -951,7 +968,7 @@ export interface ApplicationProps {
   deletingApplication: boolean;
   getAllWorkspaces: (params: {
     fetchEntities: boolean;
-    workspaceId: string;
+    workspaceId: string | null;
   }) => void;
   workspaces: any;
   currentUser?: User;
@@ -989,9 +1006,10 @@ export class Applications<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    const urlHash = window?.location?.hash?.slice(1);
+    const urlParams = new URLSearchParams(window.location.search);
+    const workspaceIdFromQueryParams = urlParams.get("workspaceId");
     this.props.getAllWorkspaces({
-      workspaceId: urlHash,
+      workspaceId: workspaceIdFromQueryParams,
       fetchEntities: true,
     });
     this.props.setHeaderMetaData(true, true);
@@ -1047,7 +1065,7 @@ export const mapDispatchToProps = (dispatch: any) => ({
     workspaceId,
   }: {
     fetchEntities: boolean;
-    workspaceId: string;
+    workspaceId: string | null;
   }) => {
     dispatch(fetchAllWorkspaces({ workspaceId, fetchEntities }));
   },
