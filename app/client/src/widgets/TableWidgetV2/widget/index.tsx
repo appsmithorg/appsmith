@@ -561,8 +561,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * based on columnType
    */
   getTableColumns = () => {
-    const { columnWidthMap, orderedTableColumns, renderMode, widgetId } =
-      this.props;
+    const {
+      columnWidthMap,
+      isPreviewMode,
+      orderedTableColumns,
+      renderMode,
+      widgetId,
+    } = this.props;
     const { componentWidth } = this.getPaddingAdjustedDimensions();
     const widgetLocalStorageState = getColumnOrderByWidgetIdFromLS(widgetId);
     const memoisdGetColumnsWithLocalStorage =
@@ -573,6 +578,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       orderedTableColumns,
       componentWidth,
       renderMode,
+      isPreviewMode,
     );
   };
 
