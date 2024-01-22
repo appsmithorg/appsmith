@@ -22,8 +22,9 @@ export function* getDestinedParent(
 
   const parentOrder: string[] = [selectedWidget.widgetId];
   let index = parentHierarchy;
+  let currentWidget: FlattenedWidgetProps = selectedWidget;
   while (index >= childHierarchy) {
-    if (!selectedWidget.parentId) {
+    if (!currentWidget.parentId) {
       /**
        * If a parent in the tree doesn't have a parentId,
        * Then add all to MainCanvas.
@@ -36,8 +37,9 @@ export function* getDestinedParent(
      * tracking all parentIds, until we reach a hierarchy where the copied widgets can be added.
      * MainCanvas > Section > Zone > Widgets.
      */
-    const parent: FlattenedWidgetProps = allWidgets[selectedWidget?.parentId];
+    const parent: FlattenedWidgetProps = allWidgets[currentWidget?.parentId];
     index = getWidgetHierarchy(parent.type, parent.widgetId);
+    currentWidget = parent;
     parentOrder.push(parent.widgetId);
   }
 

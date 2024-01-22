@@ -26,14 +26,47 @@ export function* pasteWidgetsInSection(
   let map: Record<string, string> = { ...widgetIdMap };
   let reverseMap: Record<string, string> = { ...reverseWidgetIdMap };
   const { alignment, layoutOrder, parentOrder, rowIndex } = destinationInfo;
+  // console.log("####", { destinationInfo, copiedWidgets, allWidgets });
   const parent: FlattenedWidgetProps =
     allWidgets[parentOrder[parentOrder.length - 1]];
+
+  /**
+   * Split copied widgets into zones and non-zones.
+   */
+  const [zones, nonZones] = splitWidgets(copiedWidgets);
+
+  /**
+   * Check for maxChildLimit of Section.
+   * If maxChildLimit is reached, then paste extra widgets in a new section.
+   */
+  const parentLayout: LayoutProps = layoutOrder[layoutOrder.length - 1];
+  const availableSlots: number =
+    parentLayout.maxChildLimit !== undefined && parentLayout.maxChildLimit > 0
+      ? parentLayout.maxChildLimit - parentLayout.layout.length
+      : -1;
+
+  // Copied widgets can either be zones or non-zones. Not both.
+  const areZones: boolean = zones.length > 0;
+
+  const children: CopiedWidgetData[] = [],
+    foreignChildren: CopiedWidgetData[] = [];
+
+  if (availableSlots <= 0) {
+    foreignChildren.push(...(areZones ? zones : nonZones));
+  } else {
+    if (areZones) {
+      children.push(...zones.slice(0, availableSlots));
+      foreignChildren.push(...zones.slice(availableSlots));
+    } else {
+      children.push(...nonZones);
+    }
+  }
 
   /**
    * Create copies of all widgets.
    */
   yield all(
-    copiedWidgets.map((each: CopiedWidgetData) =>
+    children.map((each: CopiedWidgetData) =>
       call(function* () {
         /**
          * Create a new version of copied widget.
@@ -57,23 +90,21 @@ export function* pasteWidgetsInSection(
     ),
   );
 
-  /**
-   * Split copied widgets into zones and non-zones.
-   */
-  const [zones, nonZones] = splitWidgets(copiedWidgets);
-
-  /**
-   * Check for maxChildLimit of Section.
-   * If maxChildLimit is reached, then paste extra widgets in a new section.
-   */
   const layoutIndex = layoutOrder.length - 1;
   const targetLayout: LayoutProps = layoutOrder[layoutIndex];
-  const targetRowIndex = rowIndex[layoutIndex] ?? 0;
+  const targetRowIndex = rowIndex[rowIndex.length - 1] ?? 0;
   let count = targetLayout.layout.length;
   let zoneCount = 0;
+  // console.log("####", {
+  //   zones,
+  //   nonZones,
+  //   targetLayout,
+  //   targetRowIndex,
+  //   zoneCount,
+  // });
   while (count < (targetLayout.maxChildLimit ?? 0)) {
-    if (zones.length) {
-      const zone = zones.shift();
+    if (areZones) {
+      const zone = children.shift();
       if (!zone) break;
       widgets = yield call(
         handleWidgetMovement,
@@ -94,11 +125,11 @@ export function* pasteWidgetsInSection(
       );
       count += 1;
       zoneCount += 1;
-    } else if (nonZones.length) {
+    } else {
       widgets = yield call(
         handleWidgetMovement,
         widgets,
-        nonZones.map((each: CopiedWidgetData) => map[each.widgetId]),
+        children.map((each: CopiedWidgetData) => map[each.widgetId]),
         {
           ...defaultHighlightRenderInfo,
           alignment,
@@ -112,25 +143,23 @@ export function* pasteWidgetsInSection(
         false,
         true,
       );
-      nonZones.splice(0, nonZones.length);
       count += 1;
-    } else {
       break;
     }
   }
 
-  if (zones.length || nonZones.length) {
+  if (foreignChildren.length) {
     const info: PasteDestinationInfo = yield call(
       getDestinedParent,
       widgets,
-      [...zones, ...nonZones],
+      foreignChildren,
       parent,
       parent.parentId ?? MAIN_CONTAINER_WIDGET_ID,
     );
     const res: PastePayload = yield call(
       pasteWidgetsIntoMainCanvas,
       widgets,
-      [...zones, ...nonZones],
+      foreignChildren,
       info,
       map,
       reverseMap,
