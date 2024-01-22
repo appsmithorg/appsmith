@@ -121,7 +121,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 Layout layout =
                                         page.getUnpublishedPage().getLayouts().get(0);
                                 return refactoringService.getAllExistingEntitiesMono(
-                                        page.getId(), CreatorContextType.PAGE, layout.getId(), true);
+                                        page.getId(), CreatorContextType.PAGE, layout.getId(), false);
                             })
                             .flatMap(nameSet -> {
                                 // Fetch name of the existing resources in the page to avoid name clashing
