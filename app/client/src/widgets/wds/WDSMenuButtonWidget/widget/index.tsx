@@ -18,7 +18,6 @@ import {
   EventType,
   type ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Icon as BIcon } from "@blueprintjs/core";
 import { Text } from "@design-system/widgets";
 
 class WDSMenuButtonWidget extends BaseWidget<
@@ -162,11 +161,6 @@ class WDSMenuButtonWidget extends BaseWidget<
     const disabledKeys = visibleItems
       .filter((item) => item.isDisabled === true)
       .map((item) => item.id);
-    const triggerButtonIcon =
-      triggerButtonIconName &&
-      (() => {
-        return <BIcon icon={triggerButtonIconName} />;
-      });
 
     return (
       <Menu
@@ -186,7 +180,7 @@ class WDSMenuButtonWidget extends BaseWidget<
       >
         <Button
           color={triggerButtonColor}
-          icon={triggerButtonIcon}
+          icon={triggerButtonIconName}
           iconPosition={triggerButtonIconAlign}
           isDisabled={isDisabled}
           variant={triggerButtonVariant}

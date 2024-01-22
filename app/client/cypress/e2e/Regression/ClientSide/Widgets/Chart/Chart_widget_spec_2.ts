@@ -85,7 +85,10 @@ describe("", { tags: ["@tag.Widget", "@tag.Chart"] }, () => {
     agHelper.AssertElementAbsence(
       propPane._selectPropDropdown("x-axis label orientation"),
     );
-    propPane.SelectPropertiesDropDown("Chart Type", "Custom Fusion Charts");
+    propPane.SelectPropertiesDropDown(
+      "Chart Type",
+      "Custom Fusion Charts (deprecated)",
+    );
     agHelper.AssertElementAbsence(
       propPane._selectPropDropdown("x-axis label orientation"),
     );

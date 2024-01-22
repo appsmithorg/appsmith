@@ -16,6 +16,7 @@ export type getColumns = (
   orderedTableColumns: any,
   componentWidth: number,
   renderMode: RenderMode,
+  isPreviewMode: boolean,
 ) => ReactTableColumnProps[];
 
 //TODO: (Vamsi) need to unit test this function
@@ -26,6 +27,7 @@ export const getColumnsPureFn: getColumns = (
   orderedTableColumns = [],
   componentWidth,
   renderMode,
+  isPreviewMode,
 ) => {
   let columns: ReactTableColumnProps[] = [];
   const hiddenColumns: ReactTableColumnProps[] = [];
@@ -127,7 +129,15 @@ export const getColumnsPureFn: getColumns = (
     }
   }
 
-  if (hiddenColumns.length && renderMode === RenderModes.CANVAS) {
+  /*
+   * In canvas render mode, hidden columns are rendered at the end of the table, so users can
+   * edit the hidden columns without having to make them visible first.
+   */
+  if (
+    hiddenColumns.length &&
+    renderMode === RenderModes.CANVAS &&
+    !isPreviewMode
+  ) {
     // Get the index of the first column that is frozen to right
     const rightFrozenColumnIdx = findIndex(
       columns,
