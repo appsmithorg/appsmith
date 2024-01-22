@@ -1814,6 +1814,7 @@ export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
 export const APP_SETTINGS_PANE_HEADER = () => "Settings";
 export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
+export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
 export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
   "App name, icon and share";
