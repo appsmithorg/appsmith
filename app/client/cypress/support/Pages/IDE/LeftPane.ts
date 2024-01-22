@@ -10,11 +10,18 @@ export class LeftPane {
       "//div[text()='" +
       name +
       "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
+    addItem: () => "//button[contains(@class, 't--add-item')]",
+    selector: "",
   };
 
-  constructor(listItemSelector: (name: string) => string, segments?: string[]) {
+  constructor(
+    listItemSelector: (name: string) => string,
+    selector: string,
+    segments?: string[],
+  ) {
     this.listItemSelector = listItemSelector;
     this.segments = segments;
+    this.locators.selector = selector;
   }
 
   public assertAbsence(name: string) {
@@ -42,14 +49,7 @@ export class LeftPane {
     if (!this.segments) {
       throw Error("No Segments configured");
     }
-    ObjectsRegistry.AggregateHelper.GetAttribute(
-      this.locators.segment(name),
-      "data-selected",
-    ).then(($value) => {
-      if ($value === "true") return;
-      else
-        ObjectsRegistry.AggregateHelper.GetNClick(this.locators.segment(name));
-    });
+    ObjectsRegistry.AggregateHelper.GetNClick(this.locators.segment(name));
   }
 
   public selectItem(
@@ -85,5 +85,10 @@ export class LeftPane {
 
   public assertSelected(name: string) {
     // TODO
+  }
+
+  public switchToAddNew() {
+    // for js it will directly add a new file
+    cy.xpath(this.locators.addItem()).click();
   }
 }

@@ -5,6 +5,8 @@ import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { NavigationMethod } from "utils/history";
+import { builderURL } from "@appsmith/RouteBuilder";
+import history from "utils/history";
 
 export const useWidgetSelection = () => {
   const dispatch = useDispatch();
@@ -35,5 +37,6 @@ export const useWidgetSelection = () => {
         ),
       [dispatch],
     ),
+    goToWidgetAdd: useCallback(() => history.push(builderURL({})), []),
   };
 };

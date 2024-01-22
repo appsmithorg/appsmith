@@ -1,6 +1,4 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-const explorer = require("../../../../../locators/explorerlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
@@ -15,7 +13,6 @@ describe(
       cy.wait(2000);
     });
     it("Add new Select widget", () => {
-      _.agHelper.GetNClick(explorer.addWidget);
       _.entityExplorer.DragDropWidgetNVerify(
         _.draggableWidgets.MULTISELECT,
         450,

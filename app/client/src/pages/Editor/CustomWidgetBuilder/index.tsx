@@ -22,6 +22,8 @@ import {
 } from "./types";
 import { compileSrcDoc } from "./utility";
 import ConnectionLost from "./connectionLost";
+import Helmet from "react-helmet";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const CustomWidgetBuilderContext = React.createContext<
   Partial<CustomWidgetBuilderContextType>
@@ -56,7 +58,7 @@ export default function CustomWidgetBuilder() {
     });
 
     if (contextValue.lastSaved) {
-      window.opener.postMessage(
+      window.opener?.postMessage(
         {
           type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC,
           srcDoc: result.code,
@@ -106,7 +108,7 @@ export default function CustomWidgetBuilder() {
         setSelectedLayout(layout);
       },
       close: () => {
-        window.opener.focus();
+        window.opener?.focus();
         window.close();
       },
       bulkUpdate: (uncompiledSrcDoc: SrcDoc) => {
@@ -128,6 +130,11 @@ export default function CustomWidgetBuilder() {
             },
             lastSaved: Date.now(),
           };
+        });
+
+        AnalyticsUtil.logEvent("CUSTOM_WIDGET_BUILDER_SRCDOC_UPDATE", {
+          widgetId: contextValue.widgetId,
+          srcDocFile: editor,
         });
       },
       updateModel: (model: Record<string, unknown>) => {
@@ -187,6 +194,7 @@ export default function CustomWidgetBuilder() {
             return {
               ...prev,
               name: event.data.name,
+              widgetId: event.data.widgetId,
               srcDoc: event.data.srcDoc,
               uncompiledSrcDoc: event.data.uncompiledSrcDoc,
               initialSrcDoc: event.data.uncompiledSrcDoc,
@@ -222,13 +230,21 @@ export default function CustomWidgetBuilder() {
             return {
               ...prev,
               showConnectionLostMessage: false,
+              name: event.data.name,
+              widgetId: event.data.widgetId,
+              srcDoc: event.data.srcDoc,
+              uncompiledSrcDoc: event.data.uncompiledSrcDoc,
+              initialSrcDoc: event.data.uncompiledSrcDoc,
+              model: event.data.model,
+              events: event.data.events,
+              theme: event.data.theme,
             };
           });
           break;
       }
     });
 
-    window.opener.postMessage(
+    window.opener?.postMessage(
       {
         type: CUSTOM_WIDGET_BUILDER_EVENTS.READY,
       },
@@ -236,7 +252,7 @@ export default function CustomWidgetBuilder() {
     );
 
     window.addEventListener("beforeunload", () => {
-      window.opener.postMessage(
+      window.opener?.postMessage(
         {
           type: CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED,
         },
@@ -252,6 +268,10 @@ export default function CustomWidgetBuilder() {
 
   return (
     <CustomWidgetBuilderContext.Provider value={context}>
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>{`${contextValue.name} | Builder | Appsmith`}</title>
+      </Helmet>
       <Header />
       {loading ? (
         <Spinner className={styles.loader} size="lg" />

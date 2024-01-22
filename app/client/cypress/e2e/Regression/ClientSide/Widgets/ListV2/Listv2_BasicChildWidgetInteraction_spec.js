@@ -1,3 +1,5 @@
+import { PageLeftPane } from "../../../../../support/Pages/EditorNavigation";
+
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -76,6 +78,7 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Select widget
+      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("selectwidget", "containerwidget", {
         x: 250,
         y: 50,
@@ -112,6 +115,7 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Checkbox widget
+      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("checkboxgroupwidget", "containerwidget", {
         x: 250,
         y: 50,
@@ -154,6 +158,7 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Switch widget
+      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("switchwidget", "containerwidget", {
         x: 250,
         y: 50,
@@ -198,6 +203,7 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Radio widget
+      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("radiogroupwidget", "containerwidget", {
         x: 250,
         y: 50,

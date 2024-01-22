@@ -243,7 +243,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
     }
 
     @Override
@@ -255,6 +255,35 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 + fieldName(QActionCollection.actionCollection.publishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
+    }
+
+    @Override
+    public Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria pageCriterion;
+
+        // Fetch published action collections
+        if (Boolean.TRUE.equals(viewMode)) {
+            pageCriterion = where(completeFieldName(QActionCollection.actionCollection.publishedCollection.pageId))
+                    .is(pageId);
+            criteria.add(pageCriterion);
+        }
+        // Fetch unpublished action collections
+        else {
+            pageCriterion = where(completeFieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
+                    .is(pageId);
+            criteria.add(pageCriterion);
+
+            // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
+            // ActionCollection object
+            // would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriteria = where(
+                            completeFieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
+                    .is(null);
+            criteria.add(deletedCriteria);
+        }
+        return queryAll(criteria, permission);
     }
 }

@@ -5,16 +5,11 @@ import {
   EditorEntityTab,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import history, { NavigationMethod } from "utils/history";
-import {
-  globalAddURL,
-  jsCollectionListURL,
-  queryListURL,
-  widgetListURL,
-} from "@appsmith/RouteBuilder";
+import history from "utils/history";
+import { globalAddURL } from "@appsmith/RouteBuilder";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import { useCurrentEditorState } from "../../hooks";
+import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -40,32 +35,8 @@ const SegmentedHeader = () => {
     history.push(globalAddURL({ pageId }));
   };
   const { segment } = useCurrentEditorState();
-  /**
-   * Callback to handle the segment change
-   *
-   * @param value
-   * @returns
-   *
-   */
-  const onSegmentChange = (value: string) => {
-    switch (value) {
-      case EditorEntityTab.QUERIES:
-        history.push(queryListURL({ pageId }), {
-          invokedBy: NavigationMethod.SegmentControl,
-        });
-        break;
-      case EditorEntityTab.JS:
-        history.push(jsCollectionListURL({ pageId }), {
-          invokedBy: NavigationMethod.SegmentControl,
-        });
-        break;
-      case EditorEntityTab.UI:
-        history.push(widgetListURL({ pageId }), {
-          invokedBy: NavigationMethod.SegmentControl,
-        });
-        break;
-    }
-  };
+  const { onSegmentChange } = useSegmentNavigation();
+
   return (
     <Container
       alignItems="center"

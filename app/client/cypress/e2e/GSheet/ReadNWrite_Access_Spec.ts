@@ -17,7 +17,7 @@ describe(
   function () {
     const workspaceName = "gsheet apps";
     const dataSourceName = {
-      allAccess: "gsheet",
+      allAccess: "gsheet-all",
       readNWrite: "gsheet-read-write",
     };
     let appName = "gsheet-app";

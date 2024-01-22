@@ -14,6 +14,14 @@ import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
 import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
 import type { AppThemeProperties } from "entities/AppTheming";
+import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { Color } from "constants/Colors";
+import { connect } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledIframe = styled.iframe<{ width: number; height: number }>`
   width: ${(props) => props.width - 8}px;
@@ -92,6 +100,16 @@ function CustomComponent(props: CustomComponentProps) {
               },
               "*",
             );
+
+            if (
+              props.renderMode === "DEPLOYED" ||
+              props.renderMode === "EDITOR"
+            ) {
+              AnalyticsUtil.logEvent("CUSTOM_WIDGET_LOAD_INIT", {
+                widgetId: props.widgetId,
+                renderMode: props.renderMode,
+              });
+            }
             break;
           case EVENTS.CUSTOM_WIDGET_UPDATE_MODEL:
             props.update(message.data);
@@ -191,16 +209,26 @@ function CustomComponent(props: CustomComponentProps) {
       })}
     >
       {props.needsOverlay && <OverlayDiv data-testid="iframe-overlay" />}
-      <StyledIframe
-        height={props.height}
-        onLoad={() => {
-          setLoading(false);
-        }}
-        ref={iframe}
-        sandbox="allow-scripts allow-downloads"
-        srcDoc={srcDoc}
-        width={props.width}
-      />
+      <WidgetStyleContainer
+        backgroundColor={props.backgroundColor}
+        borderColor={props.borderColor}
+        borderRadius={props.borderRadius}
+        borderWidth={props.borderWidth}
+        boxShadow={props.boxShadow}
+        widgetId={props.widgetId}
+      >
+        <StyledIframe
+          height={props.height}
+          loading="lazy"
+          onLoad={() => {
+            setLoading(false);
+          }}
+          ref={iframe}
+          sandbox="allow-scripts allow-downloads"
+          srcDoc={srcDoc}
+          width={props.width}
+        />
+      </WidgetStyleContainer>
     </div>
   );
 }
@@ -221,6 +249,29 @@ export interface CustomComponentProps {
   onConsole?: (type: string, message: string) => void;
   renderMode: "EDITOR" | "DEPLOYED" | "BUILDER";
   theme: AppThemeProperties;
+  borderColor?: Color;
+  backgroundColor?: Color;
+  borderWidth?: number;
+  borderRadius?: number;
+  boxShadow?: BoxShadow;
+  widgetId: string;
 }
 
-export default CustomComponent;
+/**
+ * TODO: Balaji soundararajan - to refactor code to move out selected widget details to platform
+ */
+export const mapStateToProps = (
+  state: AppState,
+  ownProps: CustomComponentProps,
+) => {
+  const isPreviewMode = combinedPreviewModeSelector(state);
+
+  return {
+    needsOverlay:
+      ownProps.renderMode === "EDITOR" &&
+      !isPreviewMode &&
+      ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId,
+  };
+};
+
+export default connect(mapStateToProps)(CustomComponent);

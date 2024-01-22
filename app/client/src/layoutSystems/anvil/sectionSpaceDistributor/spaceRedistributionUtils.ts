@@ -149,68 +149,81 @@ export function* updateSectionsDistributedSpace(
   const commonSpace = SectionColumns / childrenToUpdate.length;
 
   // Extracting the order of zones before and after the update
-  const previousZoneOrder: string[] = widgetsBeforeUpdate[
-    sectionWidgetId
-  ].layout[0].layout.map((each: WidgetLayoutProps) => each.widgetId);
+  const previousZoneOrder: string[] =
+    widgetsBeforeUpdate[sectionWidgetId]?.layout[0]?.layout?.map(
+      (each: WidgetLayoutProps) => each.widgetId,
+    ) ?? [];
   const currentDistributedSpace =
     sectionWidget.spaceDistributed ||
     getDefaultSpaceDistributed(previousZoneOrder);
-  const updatedZoneOrder: string[] = sectionWidget.layout[0].layout.map(
+  const currentZoneOrder: string[] = sectionWidget.layout[0].layout.map(
     (each: WidgetLayoutProps) => each.widgetId,
   );
 
   // Identifying zones to add or remove
-  const zonesToAdd = updatedZoneOrder.filter(
+  const zonesToAdd = currentZoneOrder.filter(
     (each) => !previousZoneOrder.includes(each),
   );
   const zonesToRemove = previousZoneOrder.filter(
-    (each) => !updatedZoneOrder.includes(each),
+    (each) => !currentZoneOrder.includes(each),
   );
 
   // Initializing the object to store the updated distributed space
-  let updatedDistributedSpace: { [key: string]: number } = {};
+  let updatedDistributedSpace: { [key: string]: number } =
+    currentDistributedSpace;
+  let updatedZoneOrder = previousZoneOrder;
 
-  // Handling removal of zones and updating distributed space
-  zonesToRemove.forEach((eachZone) => {
-    const zoneProps = widgetsBeforeUpdate[eachZone];
-    const index = previousZoneOrder.indexOf(eachZone);
-    const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
-      currentDistributedSpace,
-      previousZoneOrder,
-      -zoneProps.flexGrow || commonSpace,
-      index,
-    );
-    updatedDistributedSpace = updatedZoneOrder.reduce(
-      (result, each, index) => {
-        return {
-          ...result,
-          [each]: updatedDistributedSpaceArray[index],
-        };
-      },
-      {} as { [key: string]: number },
-    );
-  });
+  if (zonesToRemove.length) {
+    // Handling removal of zones and updating distributed space
+    zonesToRemove.forEach((eachZone) => {
+      const zoneProps = widgetsBeforeUpdate[eachZone];
+      const index = updatedZoneOrder.indexOf(eachZone);
+      const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
+        updatedDistributedSpace,
+        updatedZoneOrder,
+        -zoneProps.flexGrow || commonSpace,
+        index,
+      );
+      updatedZoneOrder = updatedZoneOrder.filter((_, i) => i !== index);
+      updatedDistributedSpace = updatedZoneOrder.reduce(
+        (result, each, index) => {
+          return {
+            ...result,
+            ...(updatedDistributedSpaceArray[index]
+              ? { [each]: updatedDistributedSpaceArray[index] }
+              : {}),
+          };
+        },
+        {} as { [key: string]: number },
+      );
+    });
+  }
 
-  // Handling addition of zones and updating distributed space
-  zonesToAdd.forEach((eachZone) => {
-    const zoneProps = widgetsAfterUpdate[eachZone];
-    const index = updatedZoneOrder.indexOf(eachZone);
-    const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
-      currentDistributedSpace,
-      previousZoneOrder,
-      zoneProps.flexGrow || commonSpace,
-      index,
-    );
-    updatedDistributedSpace = updatedZoneOrder.reduce(
-      (result, each, index) => {
-        return {
-          ...result,
-          [each]: updatedDistributedSpaceArray[index],
-        };
-      },
-      {} as { [key: string]: number },
-    );
-  });
+  if (zonesToAdd.length) {
+    // Handling addition of zones and updating distributed space
+    zonesToAdd.forEach((eachZone) => {
+      const zoneProps = widgetsAfterUpdate[eachZone];
+      const index = currentZoneOrder.indexOf(eachZone);
+      const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
+        updatedDistributedSpace,
+        updatedZoneOrder,
+        zoneProps.flexGrow || commonSpace,
+        index,
+      );
+      updatedZoneOrder.splice(index, 0, eachZone);
+      updatedDistributedSpace = updatedZoneOrder.reduce(
+        (result, each, index) => {
+          return {
+            ...result,
+            ...(updatedDistributedSpaceArray[index]
+              ? { [each]: updatedDistributedSpaceArray[index] }
+              : {}),
+          };
+        },
+        {} as { [key: string]: number },
+      );
+    });
+  }
 
   // updating individual zones new distributed space
   childrenToUpdate.forEach((eachChild: string) => {

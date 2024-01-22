@@ -1,5 +1,9 @@
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  PageLeftPane,
+} from "../../../../../support/Pages/EditorNavigation";
 
 let guid: any;
 let repoName: any;
@@ -29,7 +33,11 @@ describe("Git Branch Protection", { tags: ["@tag.Git"] }, function () {
         cy.wait("@gitProtectApi").then((res1) => {
           expect(res1.response).to.have.property("statusCode", 200);
           _.agHelper.AssertElementVisibility(
-            _.entityExplorer._entityExplorerWrapper,
+            AppSidebar.locators.sidebar,
+            false,
+          );
+          _.agHelper.AssertElementVisibility(
+            PageLeftPane.locators.selector,
             false,
           );
           _.agHelper.AssertElementVisibility(

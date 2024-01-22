@@ -36,7 +36,6 @@ import {
   getSettingConfig,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
-  getActions,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -86,8 +85,6 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { ChangeQueryPayload } from "actions/queryPaneActions";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
@@ -292,6 +289,13 @@ function* formValueChangeSaga(
     ) {
       currentEnvironment = Object.keys(datasourceStorages)[0];
     }
+    let dsConfig = {
+      url: "",
+    };
+
+    if (plugin?.requiresDatasource) {
+      dsConfig = datasourceStorages[currentEnvironment].datasourceConfiguration;
+    }
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
         ? [
@@ -302,7 +306,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasourceStorages[currentEnvironment].datasourceConfiguration,
+              dsConfig,
             ),
           ]
         : [];
@@ -349,7 +353,14 @@ function* formValueChangeSaga(
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const { actionConfiguration, id, pageId, pluginId, pluginType } =
     actionPayload.payload;
-  if (![PluginType.DB, PluginType.REMOTE, PluginType.AI].includes(pluginType))
+  if (
+    ![
+      PluginType.DB,
+      PluginType.REMOTE,
+      PluginType.AI,
+      PluginType.INTERNAL,
+    ].includes(pluginType)
+  )
     return;
   const pluginTemplates: Record<string, unknown> =
     yield select(getPluginTemplates);
@@ -497,25 +508,18 @@ function* createNewQueryForDatasourceSaga(
     pageId: string;
     datasourceId: string;
     from: EventLocation;
+    queryDefaultTableName?: string;
   }>,
 ) {
-  const { datasourceId, from, pageId } = action.payload;
+  const { datasourceId, from, queryDefaultTableName } = action.payload;
   if (!datasourceId) return;
-
-  const actions: ActionDataState = yield select(getActions);
-  const datasource: Datasource = yield select(getDatasource, datasourceId);
-  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
-  const newActionName =
-    plugin?.type === PluginType.DB
-      ? createNewQueryName(actions, pageId || "")
-      : createNewApiName(actions, pageId || "");
 
   const createActionPayload: Partial<Action> = yield call(
     createDefaultActionPayloadWithPluginDefaults,
     {
       datasourceId,
       from,
-      newActionName,
+      queryDefaultTableName,
     },
   );
 

@@ -14,17 +14,18 @@ import {
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import history from "utils/history";
-import type { CopiedWidgetData } from "../../utils/paste/types";
-import {
-  getNewParentId,
-  splitWidgetsByHierarchy,
-  splitWidgetsOnResidenceStatus,
-} from "../../utils/paste/utils";
-import { pasteMigrantWidgets } from "../../utils/paste/migrantUtils";
-import { pasteResidentWidgets } from "../../utils/paste/residentUtils";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+  PastePayload,
+} from "../../utils/paste/types";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getCopiedWidgets } from "utils/storage";
+import { getDestinedParent } from "layoutSystems/anvil/utils/paste/destinationUtils";
+import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import WidgetFactory from "WidgetProvider/factory";
 
 function* pasteWidgetSagas() {
   try {
@@ -42,35 +43,12 @@ function* pasteWidgetSagas() {
 
     let allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-    /**
-     * Order widgets based on hierarchy.
-     * MainCanvas > Section > Zone > Others.
-     */
-    const order: CopiedWidgetData[][] = splitWidgetsByHierarchy(copiedWidgets);
-
-    /**
-     * Get new parentId to paste widgets into.
-     */
-
-    const newParentId: string | null = getNewParentId(
+    const destinationInfo: PasteDestinationInfo = yield call(
+      getDestinedParent,
       allWidgets,
+      copiedWidgets,
       selectedWidget,
-      originalWidgets,
-      order,
     );
-
-    if (!newParentId) {
-      return;
-    }
-
-    /**
-     * Split copied widgets based on whether their parent has changed.
-     */
-    const {
-      migrants,
-      residents,
-    }: { migrants: CopiedWidgetData[]; residents: CopiedWidgetData[] } =
-      splitWidgetsOnResidenceStatus(originalWidgets, newParentId);
 
     /**
      * Track mapping between original and new widgetIds.
@@ -78,61 +56,35 @@ function* pasteWidgetSagas() {
     let widgetIdMap: Record<string, string> = {};
     let reverseWidgetIdMap: Record<string, string> = {};
 
-    /**
-     * For each resident, add them next to the original copied widget.
-     */
-    if (residents.length) {
-      const res: {
-        map: Record<string, string>;
-        reverseMap: Record<string, string>;
-        widgets: CanvasWidgetsReduxState;
-      } = yield call(
-        pasteResidentWidgets,
+    const parent: FlattenedWidgetProps =
+      allWidgets[
+        destinationInfo.parentOrder[destinationInfo.parentOrder.length - 1]
+      ];
+
+    if (parent.widgetId === MAIN_CONTAINER_WIDGET_ID) {
+      const res: PastePayload = yield call(
+        pasteWidgetsIntoMainCanvas,
         allWidgets,
+        originalWidgets,
+        destinationInfo,
         widgetIdMap,
         reverseWidgetIdMap,
-        residents,
-        newParentId,
       );
       allWidgets = res.widgets;
-      widgetIdMap = res.map;
-      reverseWidgetIdMap = res.reverseMap;
-    }
-
-    /**
-     * For each migrant, add them at the end of the new parent.
-     * Order of migration should be maintained.
-     */
-    if (migrants.length) {
-      /**
-       * For each migrant,
-       * 1. Create new widget.
-       * 2. Update properties.
-       * 3. Get original containing layouts.
-       * 4. If newParent.childTemplate?.layoutType matches originalLayout.layoutType,
-       *  4.1. true => Check if required layout already exists.
-       *   a) true => add to the layout.
-       *   b) false => add a new layout at the end of the parent.
-       *  4.2. false => create new child template layout and add widget to it.
-       *  4.3. newParent.childTemplate === null,
-       *    => add all widgets to the end of the new parent.
-       */
-
-      const res: {
-        map: Record<string, string>;
-        reverseMap: Record<string, string>;
-        widgets: CanvasWidgetsReduxState;
-      } = yield call(
-        pasteMigrantWidgets,
+      widgetIdMap = res.widgetIdMap;
+      reverseWidgetIdMap = res.reverseWidgetIdMap;
+    } else {
+      const res: PastePayload = yield call(
+        WidgetFactory.performPasteOperation,
         allWidgets,
+        originalWidgets,
+        destinationInfo,
         widgetIdMap,
         reverseWidgetIdMap,
-        newParentId,
-        order,
       );
       allWidgets = res.widgets;
-      widgetIdMap = res.map;
-      reverseWidgetIdMap = res.reverseMap;
+      widgetIdMap = res.widgetIdMap;
+      reverseWidgetIdMap = res.reverseWidgetIdMap;
     }
 
     /**

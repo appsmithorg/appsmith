@@ -14,18 +14,17 @@ import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import WidgetFactory from "WidgetProvider/factory";
 import { widgetHierarchy } from "../constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { prePasteValidations } from "./valiationUtils";
 
 export function* addPastedWidgets(
   arr: CopiedWidgetData,
   allWidgets: CanvasWidgetsReduxState,
-  widgetIdMap: { [key: string]: string },
-  reverseWidgetIdMap: { [key: string]: string },
+  widgetIdMap: Record<string, string>,
+  reverseWidgetIdMap: Record<string, string>,
   newParentId: string,
 ) {
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
-  const map: { [key: string]: string } = { ...widgetIdMap };
-  const reverseMap: { [key: string]: string } = { ...reverseWidgetIdMap };
+  const map: Record<string, string> = { ...widgetIdMap };
+  const reverseMap: Record<string, string> = { ...reverseWidgetIdMap };
   const { list, widgetId } = arr;
   const newList: FlattenedWidgetProps[] = [];
   const oldWidgetMap: Record<string, FlattenedWidgetProps> = {};
@@ -78,6 +77,9 @@ export function* addPastedWidgets(
       widget.layout = [updateLayoutProps(cloneDeep(widget.layout[0]), map)];
     }
 
+    /**
+     * Perform widget specific tasks for paste operation.
+     */
     widget = WidgetFactory.performPasteOperationChecks(
       {
         ...widgets,
@@ -112,9 +114,17 @@ export function* addPastedWidgets(
   return { widgets, map, reverseMap };
 }
 
+/**
+ * Update layout props.
+ * 1. Generate new layoutId.
+ * 2. Replace widgetIds with new widgetIds.
+ * @param layout | LayoutProps - Layout of pasted widget
+ * @param widgetIdMap | Record<string, string> - Map of old widgetId to new widgetId
+ * @returns
+ */
 function updateLayoutProps(
   layout: LayoutProps,
-  widgetIdMap: { [key: string]: string },
+  widgetIdMap: Record<string, string>,
 ): LayoutProps {
   // Replace layoutId with a new value
   layout.layoutId = generateReactKey();
@@ -139,89 +149,6 @@ function updateLayoutProps(
   return layout;
 }
 
-export function getContainingLayoutMapping(
-  allWidgets: CanvasWidgetsReduxState,
-  copiedWidgets: CopiedWidgetData[],
-): WidgetLayoutProps[][] {
-  let widgetGrouping: WidgetLayoutProps[][] = [];
-  const parentMap: { [key: string]: string[] } = {};
-  const layoutOrderMap: Record<string, WidgetLayoutProps[]> = {};
-
-  /**
-   * Group widgets by similar parents.
-   */
-  copiedWidgets.forEach((copiedWidget: CopiedWidgetData) => {
-    const { widgetPositionInfo } = copiedWidget;
-    if (!!widgetPositionInfo) {
-      const { layoutOrder, widgetLayoutProps } = widgetPositionInfo;
-      const str = layoutOrder.join("");
-      if (layoutOrderMap[str]) {
-        layoutOrderMap[str].push(widgetLayoutProps);
-      } else {
-        layoutOrderMap[str] = [widgetLayoutProps];
-      }
-    } else if (parentMap[copiedWidget.parentId]) {
-      parentMap[copiedWidget.parentId].push(copiedWidget.widgetId);
-    } else {
-      parentMap[copiedWidget.parentId] = [copiedWidget.widgetId];
-    }
-  });
-
-  widgetGrouping = Object.values(layoutOrderMap);
-
-  Object.keys(parentMap).forEach((key: string) => {
-    const parent: FlattenedWidgetProps = allWidgets[key];
-    if (!parent || !parent.layout) return;
-
-    const containingLayouts: WidgetLayoutProps[][] = extractContainingLayouts(
-      parent.layout[0],
-      parentMap[key],
-    );
-    widgetGrouping = [...widgetGrouping, ...containingLayouts];
-  });
-
-  return widgetGrouping;
-}
-
-function extractContainingLayouts(
-  layout: LayoutProps,
-  widgetIds: string[],
-  res: WidgetLayoutProps[][] = [],
-): WidgetLayoutProps[][] {
-  if (!widgetIds?.length) return res;
-  const arr: WidgetLayoutProps[] = [];
-  const indices: number[] = [];
-  const widgets: string[] = [...widgetIds];
-  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layout.layoutType);
-
-  if (Comp.rendersWidgets) {
-    const childWidgets: string[] = (layout.layout as WidgetLayoutProps[]).map(
-      (each: WidgetLayoutProps) => each.widgetId,
-    );
-    widgets.forEach((each: string, index: number) => {
-      const childIndex: number = childWidgets.indexOf(each);
-      if (childIndex !== -1) {
-        arr.push(layout.layout[childIndex] as WidgetLayoutProps);
-        indices.push(index);
-      }
-    });
-    if (arr.length) {
-      res.push(arr);
-    }
-  } else {
-    (layout.layout as LayoutProps[]).forEach((each: LayoutProps) => {
-      extractContainingLayouts(
-        each,
-        widgets.filter(
-          (each: string, index: number) => !indices.includes(index),
-        ),
-        res,
-      );
-    });
-  }
-  return res;
-}
-
 export function getParentLayout(
   parent: FlattenedWidgetProps,
 ): LayoutProps | null {
@@ -244,66 +171,4 @@ export function splitWidgetsByHierarchy(
     widgetOrders[widget.hierarchy].push(widget);
   });
   return widgetOrders;
-}
-
-export function getNewParentId(
-  allWidgets: CanvasWidgetsReduxState,
-  selectedWidget: FlattenedWidgetProps,
-  copiedWidgets: CopiedWidgetData[],
-  order: CopiedWidgetData[][],
-): string | null {
-  /**
-   * Return selectedWidget if it is the MainCanvas.
-   */
-  if (selectedWidget.widgetId === MAIN_CONTAINER_WIDGET_ID)
-    return selectedWidget.widgetId;
-
-  /**
-   * Return selectedWidget if it has a layout property.
-   * => it is a container widget (Section / Zone / Modal).
-   */
-  if (!!selectedWidget.layout) {
-    if (!prePasteValidations(selectedWidget, copiedWidgets, order)) return null;
-    return selectedWidget.widgetId;
-  } else {
-    /**
-     * Selected widget is a non-layout widget.
-     *
-     * If the widget doesn't have a valid parent, return null.
-     */
-    if (!selectedWidget.parentId || !allWidgets[selectedWidget.parentId])
-      return null;
-    /**
-     * Recursively check if the parent is a valid layout widget.
-     */
-    const parentId: string | null = getNewParentId(
-      allWidgets,
-      allWidgets[selectedWidget.parentId],
-      copiedWidgets,
-      order,
-    );
-    return parentId;
-  }
-}
-
-/**
- * Split copied widgets based on migration status.
- * migrants => parentId has changed.
- * residents => parentId has not changed.
- * @param copiedWidgets | CopiedWidgetData[] : list of copied widgets.
- * @param newParentId | string : new parent id to paste widgets into.
- */
-export function splitWidgetsOnResidenceStatus(
-  copiedWidgets: CopiedWidgetData[],
-  newParentId: string,
-): { migrants: CopiedWidgetData[]; residents: CopiedWidgetData[] } {
-  const migrants: CopiedWidgetData[] = [];
-  const residents: CopiedWidgetData[] = [];
-
-  copiedWidgets.forEach((copiedWidget: CopiedWidgetData) => {
-    if (copiedWidget.parentId === newParentId) residents.push(copiedWidget);
-    else migrants.push(copiedWidget);
-  });
-
-  return { migrants, residents };
 }

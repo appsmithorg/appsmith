@@ -217,7 +217,6 @@ export const USER_RESET_PASSWORD = () => "Reset password";
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
-export const DELETING_APPLICATION = () => `Deleting application...`;
 export const DELETING_MULTIPLE_APPLICATION = () =>
   `Deleting multiple applications...`;
 export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
@@ -1110,6 +1109,9 @@ export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
   `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
 export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
+
+export const GENERAL = () => "General";
+export const BRANCH = () => "Branch";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
@@ -2229,9 +2231,9 @@ export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
 export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   header: () => "Choose a template",
   layouts: {
-    dashboard: {
-      name: () => "Visualize your data",
-      description: () => "Use to see your data in charts",
+    sortFilterTable: {
+      name: () => "Filter your data",
+      description: () => "Use to filter and sort your data",
     },
     form: {
       name: () => "Form",
@@ -2289,8 +2291,8 @@ export const EDITOR_PANE_TEXTS = {
   widget_blank_state_description: () =>
     "Drag & drop widgets to create your app",
   query_add_button: () => "New query / API",
-  js_add_button: () => "New JS Object",
-  widget_add_button: () => "New Widget",
+  js_add_button: () => "New JS object",
+  widget_add_button: () => "New widget",
   query_create_tab_title: () => "Create new query / API",
   widgets_create_tab_title: () => "Drag & drop a widget",
   queries_create_from_existing: () => "From existing datasource",
@@ -2356,6 +2358,7 @@ export const CUSTOM_WIDGET_FEATURE = {
   },
   templateKey: {
     blank: () => "Blank",
+    vanillaJs: () => "Vanilla JS",
     react: () => "React",
     vue: () => "Vue",
   },
@@ -2375,7 +2378,7 @@ export const CUSTOM_WIDGET_FEATURE = {
     split: () => "Splits",
   },
   referrences: {
-    title: () => "Referrences",
+    title: () => "References",
     tooltip: {
       open: () => "Open references",
       close: () => "Close references",
@@ -2411,6 +2414,8 @@ export const CUSTOM_WIDGET_FEATURE = {
     helpDropdown: {
       stackoverflow: () => "Search StackOverflow",
     },
+    noOnReadyWarning: (url: string) =>
+      `Missing appsmith.onReady() function call. Initiate your component inside 'appsmith.onReady()' for your custom widget to work as expected. For more information - ${url}`,
   },
   preview: {
     eventFired: () => "Event fired:",

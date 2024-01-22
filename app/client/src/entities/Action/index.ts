@@ -14,6 +14,7 @@ export enum PluginType {
   JS = "JS",
   REMOTE = "REMOTE",
   AI = "AI",
+  INTERNAL = "INTERNAL",
 }
 
 export enum PluginPackageName {
@@ -29,6 +30,8 @@ export enum PluginPackageName {
   MY_SQL = "mysql-plugin",
   MS_SQL = "mssql-plugin",
   SNOWFLAKE = "snowflake-plugin",
+  APPSMITH_AI = "appsmithai-plugin",
+  WORKFLOW = "workflow-plugin",
 }
 
 // more can be added subsequently.
@@ -52,6 +55,7 @@ export enum PluginName {
   ELASTIC_SEARCH = "Elasticsearch",
   GRAPHQL = "Authenticated GraphQL API",
   OPEN_AI = "Open AI",
+  APPSMITH_AI = "Appsmith AI",
 }
 
 export enum PaginationType {
@@ -189,6 +193,11 @@ export interface AIAction extends BaseAction {
   actionConfiguration: any;
   datasource: StoredDatasource;
 }
+export interface InternalAction extends BaseAction {
+  pluginType: PluginType.INTERNAL;
+  actionConfiguration: any;
+  datasource: StoredDatasource;
+}
 
 export interface EmbeddedApiAction extends BaseApiAction {
   datasource: EmbeddedRestDatasource;
@@ -229,7 +238,8 @@ export type Action =
   | QueryAction
   | SaaSAction
   | RemoteAction
-  | AIAction;
+  | AIAction
+  | InternalAction;
 
 export enum SlashCommand {
   NEW_API,
@@ -256,8 +266,16 @@ export function isSaaSAction(action: Action): action is SaaSAction {
   return action.pluginType === PluginType.SAAS;
 }
 
+export function isAIAction(action: Action): action is SaaSAction {
+  return action.pluginType === PluginType.AI;
+}
+
 export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
   return plugins.find((p) => p.packageName === PluginPackageName.GRAPHQL);
+}
+
+export function getAppsmithAIPlugin(plugins: Plugin[]): Plugin | undefined {
+  return plugins.find((p) => p.packageName === PluginPackageName.APPSMITH_AI);
 }
 
 export function isGraphqlPlugin(plugin: Plugin | undefined) {
@@ -273,11 +291,12 @@ export const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
 export interface CreateApiActionDefaultsParams {
   apiType: string;
   from?: EventLocation;
-  newActionName: string;
+  newActionName?: string;
 }
 
 export interface CreateActionDefaultsParams {
   datasourceId: string;
   from?: EventLocation;
-  newActionName: string;
+  newActionName?: string;
+  queryDefaultTableName?: string;
 }

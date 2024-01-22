@@ -55,4 +55,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
 
     Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission);
+
+    Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission);
 }
