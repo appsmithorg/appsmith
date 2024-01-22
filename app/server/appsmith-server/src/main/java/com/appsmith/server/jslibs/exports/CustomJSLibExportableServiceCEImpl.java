@@ -5,7 +5,9 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableServiceCE;
@@ -75,6 +77,21 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                     return unpublishedCustomJSLibList;
                 })
                 .then();
+    }
+
+    @Override
+    public Mono<Void> getExportableEntities(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson,
+            Boolean isContextAgnostic) {
+        return transactionalArtifactMono.flatMap(transactionalArtifact -> {
+            Mono<Application> applicationMono = Mono.just((Application) transactionalArtifact);
+            ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+            return getExportableEntities(
+                    exportingMetaDTO, mappedExportableResourcesDTO, applicationMono, applicationJson);
+        });
     }
 
     protected Mono<List<CustomJSLib>> getAllJSLibsInContext(ExportingMetaDTO exportingMetaDTO) {

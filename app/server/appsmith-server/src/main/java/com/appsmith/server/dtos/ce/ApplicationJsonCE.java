@@ -13,6 +13,7 @@ import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -122,6 +123,11 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
 
     @Override
     public ImportableArtifact getImportableArtifact() {
+        return this.getExportedApplication();
+    }
+
+    @Override
+    public TransactionalArtifact getTransactionalArtifact() {
         return this.getExportedApplication();
     }
 

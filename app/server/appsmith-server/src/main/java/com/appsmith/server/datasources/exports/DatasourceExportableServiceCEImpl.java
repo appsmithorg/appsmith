@@ -13,7 +13,9 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableServiceCE;
@@ -102,6 +104,21 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
                 .then();
     }
 
+    @Override
+    public Mono<Void> getExportableEntities(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson,
+            Boolean isContextAgnostic) {
+        return transactionalArtifactMono.flatMap(transactionalArtifact -> {
+            Mono<Application> applicationMono = Mono.just((Application) transactionalArtifact);
+            ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+            return getExportableEntities(
+                    exportingMetaDTO, mappedExportableResourcesDTO, applicationMono, applicationJson);
+        });
+    }
+
     private void removeSensitiveFields(DatasourceStorage datasourceStorage) {
         if (datasourceStorage.getDatasourceConfiguration() != null) {
             datasourceStorage.getDatasourceConfiguration().setAuthentication(null);
@@ -121,6 +138,17 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
                     .put(datasource.getName(), datasource.getUpdatedAt());
         });
         return new HashSet<>();
+    }
+
+    @Override
+    public void sanitizeEntities(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            ArtifactExchangeJson artifactExchangeJson,
+            SerialiseApplicationObjective serialiseFor,
+            Boolean isContextAgnositc) {
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+        sanitizeEntities(exportingMetaDTO, mappedExportableResourcesDTO, applicationJson, serialiseFor);
     }
 
     @Override
