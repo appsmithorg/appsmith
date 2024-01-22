@@ -1,5 +1,10 @@
 import { transform } from "@babel/standalone/";
 import type { DebuggerLogItem, SrcDoc } from "./types";
+import {
+  CUSTOM_WIDGET_FEATURE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_ONREADY_DOC_URL } from "./constants";
 
 interface CompiledResult {
   code: SrcDoc;
@@ -13,6 +18,8 @@ export const compileSrcDoc = (srcDoc: SrcDoc): CompiledResult => {
     warnings: [],
     errors: [],
   };
+
+  checkForWarnings(compiledResult);
 
   try {
     const result = transform(srcDoc.js, {
@@ -33,6 +40,24 @@ export const compileSrcDoc = (srcDoc: SrcDoc): CompiledResult => {
 
   return compiledResult;
 };
+
+function checkForWarnings(compiledResult: CompiledResult) {
+  const code = compiledResult.code.js;
+
+  if (code?.length > 0) {
+    /*
+     * We are keeping this check as a simple string check instead of using AST
+     * because we want to keep the custom widget compile process as simple as possible.
+     */
+    !code.includes("appsmith.onReady(") &&
+      compiledResult.warnings.push({
+        message: createMessage(
+          CUSTOM_WIDGET_FEATURE.debugger.noOnReadyWarning,
+          CUSTOM_WIDGET_ONREADY_DOC_URL,
+        ),
+      });
+  }
+}
 
 export interface BabelError {
   reasonCode: string;

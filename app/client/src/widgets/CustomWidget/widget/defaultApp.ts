@@ -1,3 +1,5 @@
+import { CUSTOM_WIDGET_ONREADY_DOC_URL } from "pages/Editor/CustomWidgetBuilder/constants";
+
 export default {
   uncompiledSrcDoc: {
     html: `<!-- no need to write html, head, body tags, it is handled by the widget -->
@@ -82,6 +84,11 @@ function App() {
 }
 
 appsmith.onReady(() => {
+	/*
+	 * This handler function will get called when parent application is ready.
+	 * Initialize your component here
+	 * more info - ${CUSTOM_WIDGET_ONREADY_DOC_URL}
+	 */
 	reactDom.render(<App />, document.getElementById("root"));
 });`,
   },

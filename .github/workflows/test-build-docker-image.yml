@@ -403,10 +403,10 @@ jobs:
           merged_upto_sha='${{ steps.merge.outputs.merged_upto_sha }}'
           merged_upto_sha_short="$(echo "$merged_upto_sha" | grep -o '^.\{8\}' || true)"
 
-          details="🚨 TBP workflow failed in <$run_url|${{ github.run_id }}/attempts/${{ github.run_attempt }}>.
+          details="🚨 TBP workflow failed in <$run_url|${{ github.run_id }}/attempts/${{ github.run_attempt }}>."
 
-          # This unweildy horror of a sed command, converts standard Markdown links to Slack's unweildy link syntax.
-          slack_message="$(echo "$details" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
+          # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
+          slack_message=$(echo "$details" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')
 
           # This is the ChannelId of the tech channel.
           body="$(jq -nc \

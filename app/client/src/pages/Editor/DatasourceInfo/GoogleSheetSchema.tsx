@@ -50,6 +50,7 @@ import { setEntityCollapsibleState } from "actions/editorContextActions";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
+import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 
 interface Props {
   datasourceId: string;
@@ -81,6 +82,8 @@ function GoogleSheetSchema(props: Props) {
     selectedSheet?: string;
     selectedSpreadSheet?: string;
   }>({});
+
+  const isGeneratePageLoading = useSelector(getIsGeneratingTemplatePage);
 
   const handleSearch = (value: string) => {
     setSearchString(value.toLowerCase());
@@ -498,6 +501,7 @@ function GoogleSheetSchema(props: Props) {
         <ButtonContainer>
           <Button
             className="t--datasource-generate-page"
+            isLoading={isGeneratePageLoading}
             key="datasource-generate-page"
             kind="primary"
             onClick={onGsheetGeneratePage}

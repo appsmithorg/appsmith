@@ -33,6 +33,7 @@ export interface TokenSource {
   sizing?: TokenObj;
   outerSpacing?: TokenObj;
   innerSpacing?: TokenObj;
+  iconStyle?: IconStyle;
 }
 
 export interface TokenObj {
@@ -111,3 +112,5 @@ export interface TypographyVariantMetric {
 export type Typography = {
   [key in keyof typeof TYPOGRAPHY_VARIANTS]: TypographyVariantMetric;
 };
+
+export type IconStyle = "outlined" | "filled";

@@ -1,0 +1,16 @@
+.icon {
+  &[data-size="small"] {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
+  &[data-size="medium"] {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+  }
+
+  &[data-size="large"] {
+    inline-size: 2rem;
+    block-size: 2rem;
+  }
+}
