@@ -4,6 +4,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -15,6 +16,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.PartialImportService;
@@ -315,9 +317,130 @@ public class PartialImportServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testPartialImport_gitConnectedAppDefaultBranch_success() {}
+    public void testPartialImport_gitConnectedAppDefaultBranch_success() {
+        Application application = createGitConnectedApp("testPartialImport_gitConnectedAppDefaultBranch_success");
+
+        // update git branch name for page
+        PageDTO savedPage = new PageDTO();
+        savedPage.setName("Page 2");
+        savedPage.setApplicationId(application.getId());
+        DefaultResources defaultResources = new DefaultResources();
+        defaultResources.setApplicationId(application.getId());
+        defaultResources.setBranchName("master");
+        savedPage.setDefaultResources(defaultResources);
+        savedPage = applicationPageService
+                .createPageWithBranchName(savedPage, "master")
+                .block();
+
+        Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-valid-without-widget.json");
+
+        PageDTO finalSavedPage = savedPage;
+        Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
+                .importResourceInPage(workspaceId, application.getId(), savedPage.getId(), "master", filePart)
+                .flatMap(application1 -> {
+                    Mono<List<NewAction>> actionList = newActionService
+                            .findByPageId(finalSavedPage.getId(), Optional.empty())
+                            .collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService
+                            .findByPageId(finalSavedPage.getId())
+                            .collectList();
+                    return Mono.zip(Mono.just(application1), actionList, actionCollectionList);
+                });
+
+        StepVerifier.create(result)
+                .assertNext(object -> {
+                    Application application1 = object.getT1();
+                    List<NewAction> actionList = object.getT2();
+                    List<ActionCollection> actionCollectionList = object.getT3();
+
+                    // Verify that the application has the imported resource
+                    assertThat(application1.getPages().size()).isEqualTo(2);
+
+                    assertThat(application1.getUnpublishedCustomJSLibs().size()).isEqualTo(1);
+
+                    assertThat(actionCollectionList.size()).isEqualTo(1);
+                    assertThat(actionCollectionList
+                                    .get(0)
+                                    .getUnpublishedCollection()
+                                    .getName())
+                            .isEqualTo("utils");
+                    assertThat(actionList.size()).isEqualTo(1);
+                    Set<String> actionNames = Set.of("get_force_roster");
+                    actionList.forEach(action -> {
+                        assertThat(actionNames.contains(
+                                        action.getUnpublishedAction().getName()))
+                                .isTrue();
+                    });
+                })
+                .verifyComplete();
+    }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testPartialImport_nonGitConnectedApp_successWithNoNameDuplicates() {}
+    public void testPartialImport_nameClashInAction_successWithNoNameDuplicates() {
+
+        // Create an application with all resources
+        Application testApplication = new Application();
+        testApplication.setName("testPartialImport_nameClashInAction_successWithNoNameDuplicates");
+        testApplication.setWorkspaceId(workspaceId);
+
+        testApplication = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .block();
+
+        String pageId = newPageService
+                .findById(testApplication.getPages().get(0).getId(), Optional.empty())
+                .block()
+                .getId();
+
+        Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-resource.json");
+
+        Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
+                .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, filePart)
+                .then(partialImportService.importResourceInPage(
+                        workspaceId, testApplication.getId(), pageId, null, filePart))
+                .flatMap(application -> {
+                    Mono<List<NewAction>> actionList = newActionService
+                            .findByPageId(pageId, Optional.empty())
+                            .collectList();
+                    Mono<List<ActionCollection>> actionCollectionList =
+                            actionCollectionService.findByPageId(pageId).collectList();
+
+                    return Mono.zip(Mono.just(application), actionList, actionCollectionList);
+                });
+
+        StepVerifier.create(result)
+                .assertNext(object -> {
+                    Application application = object.getT1();
+                    List<NewAction> actionList = object.getT2();
+                    List<ActionCollection> actionCollectionList = object.getT3();
+
+                    // Verify that the application has the imported resource
+                    assertThat(application.getPages().size()).isEqualTo(1);
+
+                    assertThat(actionCollectionList.size()).isEqualTo(2);
+                    Set<String> nameList = Set.of("utils", "utils1");
+                    actionCollectionList.forEach(collection -> {
+                        assertThat(nameList.contains(
+                                        collection.getUnpublishedCollection().getName()))
+                                .isTrue();
+                    });
+                    assertThat(actionList.size()).isEqualTo(8);
+                    Set<String> actionNames = Set.of(
+                            "DeleteQuery",
+                            "UpdateQuery",
+                            "SelectQuery",
+                            "InsertQuery",
+                            "DeleteQuery1",
+                            "UpdateQuery1",
+                            "SelectQuery1",
+                            "InsertQuery1");
+                    actionList.forEach(action -> {
+                        assertThat(actionNames.contains(
+                                        action.getUnpublishedAction().getName()))
+                                .isTrue();
+                    });
+                })
+                .verifyComplete();
+    }
 }
