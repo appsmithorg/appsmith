@@ -53,6 +53,9 @@ export function* pasteWidgetsInZone(
     ),
   );
 
+  /**
+   * Split large and small widgets.
+   */
   const { largeWidgets, smallWidgets } = splitWidgets(copiedWidgets);
 
   /**
@@ -68,6 +71,10 @@ export function* pasteWidgetsInZone(
     targetLayout.layout.length >= targetLayout.maxChildLimit;
 
   if (maxChildLimitMet) {
+    /**
+     * If maxChildLimit of current layout has been reached.
+     * => Add to the next layout higher up in hierarchy.
+     */
     layoutIndex -= 1;
     targetRowIndex -= 1;
     targetLayout = layoutOrder[layoutIndex];
@@ -75,6 +82,9 @@ export function* pasteWidgetsInZone(
   }
 
   if (smallWidgets.length) {
+    /**
+     * All small widgets can be added together.
+     */
     widgets = yield call(
       handleWidgetMovement,
       widgets,
@@ -95,6 +105,10 @@ export function* pasteWidgetsInZone(
   }
 
   if (largeWidgets.length) {
+    /**
+     * There can only be one large widget per row.
+     * So each of them are added in new rows.
+     */
     if (targetLayout.allowedWidgetTypes?.includes("SMALL_WIDGETS")) {
       layoutIndex -= 1;
       targetRowIndex -= 1;

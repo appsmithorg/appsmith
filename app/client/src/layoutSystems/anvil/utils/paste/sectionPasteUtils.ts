@@ -47,6 +47,11 @@ export function* pasteWidgetsInSection(
   // Copied widgets can either be zones or non-zones. Not both.
   const areZones: boolean = zones.length > 0;
 
+  /**
+   * Split copied widgets into children and foreign children.
+   * 1. children will be added to current section.
+   * 2. foreign children will be added to a new section.
+   */
   const children: CopiedWidgetData[] = [],
     foreignChildren: CopiedWidgetData[] = [];
 
@@ -119,6 +124,9 @@ export function* pasteWidgetsInSection(
       count += 1;
       zoneCount += 1;
     } else {
+      /**
+       * All non zone widgets can be added together in a single zone.
+       */
       widgets = yield call(
         handleWidgetMovement,
         widgets,
@@ -141,6 +149,10 @@ export function* pasteWidgetsInSection(
     }
   }
 
+  /**
+   * Add foreignChildren to the MainCanvas,
+   * which will automatically create a new Section.
+   */
   if (foreignChildren.length) {
     const info: PasteDestinationInfo = yield call(
       getDestinedParent,

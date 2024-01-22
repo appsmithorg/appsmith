@@ -18,13 +18,13 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 export function* addPastedWidgets(
   arr: CopiedWidgetData,
   allWidgets: CanvasWidgetsReduxState,
-  widgetIdMap: { [key: string]: string },
-  reverseWidgetIdMap: { [key: string]: string },
+  widgetIdMap: Record<string, string>,
+  reverseWidgetIdMap: Record<string, string>,
   newParentId: string,
 ) {
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
-  const map: { [key: string]: string } = { ...widgetIdMap };
-  const reverseMap: { [key: string]: string } = { ...reverseWidgetIdMap };
+  const map: Record<string, string> = { ...widgetIdMap };
+  const reverseMap: Record<string, string> = { ...reverseWidgetIdMap };
   const { list, widgetId } = arr;
   const newList: FlattenedWidgetProps[] = [];
   const oldWidgetMap: Record<string, FlattenedWidgetProps> = {};
@@ -77,6 +77,9 @@ export function* addPastedWidgets(
       widget.layout = [updateLayoutProps(cloneDeep(widget.layout[0]), map)];
     }
 
+    /**
+     * Perform widget specific tasks for paste operation.
+     */
     widget = WidgetFactory.performPasteOperationChecks(
       {
         ...widgets,
@@ -111,9 +114,17 @@ export function* addPastedWidgets(
   return { widgets, map, reverseMap };
 }
 
+/**
+ * Update layout props.
+ * 1. Generate new layoutId.
+ * 2. Replace widgetIds with new widgetIds.
+ * @param layout | LayoutProps - Layout of pasted widget
+ * @param widgetIdMap | Record<string, string> - Map of old widgetId to new widgetId
+ * @returns
+ */
 function updateLayoutProps(
   layout: LayoutProps,
-  widgetIdMap: { [key: string]: string },
+  widgetIdMap: Record<string, string>,
 ): LayoutProps {
   // Replace layoutId with a new value
   layout.layoutId = generateReactKey();
@@ -136,89 +147,6 @@ function updateLayoutProps(
   }
 
   return layout;
-}
-
-export function getContainingLayoutMapping(
-  allWidgets: CanvasWidgetsReduxState,
-  copiedWidgets: CopiedWidgetData[],
-): WidgetLayoutProps[][] {
-  let widgetGrouping: WidgetLayoutProps[][] = [];
-  const parentMap: { [key: string]: string[] } = {};
-  const layoutOrderMap: Record<string, WidgetLayoutProps[]> = {};
-
-  /**
-   * Group widgets by similar parents.
-   */
-  copiedWidgets.forEach((copiedWidget: CopiedWidgetData) => {
-    const { widgetPositionInfo } = copiedWidget;
-    if (!!widgetPositionInfo) {
-      const { layoutOrder, widgetLayoutProps } = widgetPositionInfo;
-      const str = layoutOrder.join("");
-      if (layoutOrderMap[str]) {
-        layoutOrderMap[str].push(widgetLayoutProps);
-      } else {
-        layoutOrderMap[str] = [widgetLayoutProps];
-      }
-    } else if (parentMap[copiedWidget.parentId]) {
-      parentMap[copiedWidget.parentId].push(copiedWidget.widgetId);
-    } else {
-      parentMap[copiedWidget.parentId] = [copiedWidget.widgetId];
-    }
-  });
-
-  widgetGrouping = Object.values(layoutOrderMap);
-
-  Object.keys(parentMap).forEach((key: string) => {
-    const parent: FlattenedWidgetProps = allWidgets[key];
-    if (!parent || !parent.layout) return;
-
-    const containingLayouts: WidgetLayoutProps[][] = extractContainingLayouts(
-      parent.layout[0],
-      parentMap[key],
-    );
-    widgetGrouping = [...widgetGrouping, ...containingLayouts];
-  });
-
-  return widgetGrouping;
-}
-
-function extractContainingLayouts(
-  layout: LayoutProps,
-  widgetIds: string[],
-  res: WidgetLayoutProps[][] = [],
-): WidgetLayoutProps[][] {
-  if (!widgetIds?.length) return res;
-  const arr: WidgetLayoutProps[] = [];
-  const indices: number[] = [];
-  const widgets: string[] = [...widgetIds];
-  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layout.layoutType);
-
-  if (Comp.rendersWidgets) {
-    const childWidgets: string[] = (layout.layout as WidgetLayoutProps[]).map(
-      (each: WidgetLayoutProps) => each.widgetId,
-    );
-    widgets.forEach((each: string, index: number) => {
-      const childIndex: number = childWidgets.indexOf(each);
-      if (childIndex !== -1) {
-        arr.push(layout.layout[childIndex] as WidgetLayoutProps);
-        indices.push(index);
-      }
-    });
-    if (arr.length) {
-      res.push(arr);
-    }
-  } else {
-    (layout.layout as LayoutProps[]).forEach((each: LayoutProps) => {
-      extractContainingLayouts(
-        each,
-        widgets.filter(
-          (each: string, index: number) => !indices.includes(index),
-        ),
-        res,
-      );
-    });
-  }
-  return res;
 }
 
 export function getParentLayout(
