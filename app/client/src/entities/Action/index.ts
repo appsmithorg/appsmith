@@ -290,4 +290,5 @@ export interface CreateActionDefaultsParams {
   datasourceId: string;
   from?: EventLocation;
   newActionName?: string;
+  queryDefaultTableName?: string;
 }

@@ -1504,3 +1504,6 @@ export const getJSSegmentItems = createSelector(
     return items;
   },
 );
+
+export const getSelectedTableName = (state: AppState) =>
+  state.ui.datasourcePane.selectedTableName;
