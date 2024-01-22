@@ -278,6 +278,8 @@ export class HomePage {
       cy.wrap(interception.response.body.data.name).as("appName");
       cy.wrap(interception.response.body.data.id).as("applicationId");
     });
+    // should resolve auditlog test case
+    cy.wait("@getConsolidatedData");
     this.agHelper.AssertElementAbsence(this.locator._loading);
   }
 

@@ -74,7 +74,7 @@ import {
   fetchFeatureFlagsInit,
   fetchProductAlertInit,
 } from "actions/userActions";
-import { validateResponse } from "./ErrorSagas";
+import { embedRedirectURL, validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ProductAlert } from "reducers/uiReducers/usersReducer";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -257,12 +257,19 @@ export function* getInitResponses({
         // its only invalid when there is a axios related error
         throw new Error("Error occured " + axiosConnectionAbortedCode);
       }
-    } catch (e) {
+    } catch (e: any) {
+      // when the user is an anonymous user we embed the url with the attempted route
+      // this is taken care in ce code repo but not on ee
+      if (e?.response?.status === 401) {
+        embedRedirectURL();
+      }
+
       yield call(
         executeActionDuringUserDetailsInitialisation,
         ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
         shouldInitialiseUserDetails,
       );
+
       Sentry.captureMessage(
         `consolidated api failure for ${JSON.stringify(
           params,
@@ -416,11 +423,11 @@ function* eagerPageInitSaga() {
   const url = window.location.pathname;
   const search = window.location.search;
   if (isEditorPath(url)) {
-    const matchedUrl = matchEditorPath(url);
-    if (matchedUrl) {
+    const matchedEditorParams = matchEditorPath(url);
+    if (matchedEditorParams) {
       const {
         params: { applicationId, pageId },
-      } = matchedUrl;
+      } = matchedEditorParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
       if (pageId) {
         yield put(
@@ -436,11 +443,11 @@ function* eagerPageInitSaga() {
       }
     }
   } else if (isViewerPath(url)) {
-    const matchObj = matchViewerPath(url);
-    if (matchObj) {
+    const matchedViewerParams = matchViewerPath(url);
+    if (matchedViewerParams) {
       const {
         params: { applicationId, pageId },
-      } = matchObj;
+      } = matchedViewerParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
       if (applicationId || pageId) {
         yield put(
