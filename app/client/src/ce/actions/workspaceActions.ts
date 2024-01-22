@@ -6,7 +6,7 @@ import type {
 
 interface FetchAllWorkspacesParams {
   fetchEntities?: boolean;
-  workspaceId?: string;
+  workspaceId?: string | null;
 }
 
 export const fetchAllWorkspaces = (params?: FetchAllWorkspacesParams) => {
