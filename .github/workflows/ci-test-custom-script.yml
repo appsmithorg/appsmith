@@ -28,7 +28,7 @@ jobs:
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'repository_dispatch' ||
-      github.event_name == 'schedule' 
+      github.event_name == 'schedule'
     defaults:
       run:
         shell: bash
@@ -175,7 +175,7 @@ jobs:
             -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
             appsmith/cloud-services:release
           cd cicontainerlocal
-          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
+          docker run -d --name appsmith -p 80:80 \
             -v "$PWD/stacks:/appsmith-stacks" \
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
@@ -212,7 +212,7 @@ jobs:
         run: |
             echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
             echo "CYPRESS_grepTags=${{ inputs.tags }}" >> $GITHUB_ENV
-        
+
       - name: Print the tags
         run: |
           echo "tags_to_exclude: ${{ env.tags_to_exclude }}"
