@@ -230,7 +230,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
          */
         return Mono.just(application)
                 .flatMap(importedApplication -> {
-                    Flux<NewAction> existingActionInCurrentAppFlux = getActionsInCurrentAppMono(importedApplication);
+                    Mono<Map<String, NewAction>> actionsInCurrentAppMono =
+                            getActionsInCurrentAppMono(importedApplication).collectMap(NewAction::getGitSyncId);
 
                     // find existing actions in all the branches of this application and put them in a map
                     Mono<Map<String, NewAction>> actionsInOtherBranchesMono;
@@ -244,20 +245,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         actionsInOtherBranchesMono = Mono.just(Collections.emptyMap());
                     }
 
-                    return existingActionInCurrentAppFlux
-                            .collectList()
-                            .flatMap(newActionList -> {
-                                if (isPartialImport) {
-                                    // update the action name in the json to avoid duplicate names for the partial
-                                    // import
-                                    // It is page level action and hence the action name should be unique
-                                    updateActionNameBeforeMerge(importedNewActionList, newActionList);
-                                }
+                    // update the action name in the json to avoid duplicate names for the partial import
+                    // It is page level action and hence the action name should be unique
+                    if (isPartialImport && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
+                        updateActionNameBeforeMerge(
+                                importedNewActionList, mappedImportableResourcesDTO.getRefactoringNameReference());
+                    }
 
-                                return Mono.zip(
-                                        Flux.fromIterable(newActionList).collectMap(NewAction::getGitSyncId),
-                                        actionsInOtherBranchesMono);
-                            })
+                    return Mono.zip(actionsInCurrentAppMono, actionsInOtherBranchesMono)
                             .flatMap(objects -> {
                                 Map<String, NewAction> actionsInCurrentApp = objects.getT1();
                                 Map<String, NewAction> actionsInOtherBranches = objects.getT2();
@@ -439,19 +434,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 });
     }
 
-    private void updateActionNameBeforeMerge(List<NewAction> importedNewActionList, List<NewAction> newActionList) {
-        List<String> newNewActionListNames = newActionList.stream()
-                .map(newAction -> newAction.getUnpublishedAction().getName())
-                .toList();
+    private void updateActionNameBeforeMerge(List<NewAction> importedNewActionList, Set<String> refactoringNames) {
 
         for (NewAction newAction : importedNewActionList) {
-
             String oldNameAction = newAction.getUnpublishedAction().getName(),
                     newNameAction = newAction.getUnpublishedAction().getName();
             int i = 1;
-            while (newNewActionListNames.contains(newNameAction)) {
-                newNameAction = oldNameAction + i;
-                i++;
+            while (refactoringNames.contains(newNameAction)) {
+                newNameAction = oldNameAction + i++;
             }
             String oldId = newAction.getId().split("_")[1];
             newAction.setId(newNameAction + "_" + oldId);

@@ -150,8 +150,10 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     final String workspaceId = importedApplication.getWorkspaceId();
 
                     // Map of gitSyncId to actionCollection of the existing records in DB
-                    Flux<ActionCollection> existingActionCollectionFlux =
-                            getCollectionsInCurrentAppFlux(importedApplication);
+                    Mono<Map<String, ActionCollection>> actionCollectionsInCurrentAppMono =
+                            getCollectionsInCurrentAppFlux(importedApplication)
+                                    .filter(collection -> collection.getGitSyncId() != null)
+                                    .collectMap(ActionCollection::getGitSyncId);
 
                     Mono<Map<String, ActionCollection>> actionCollectionsInBranchesMono;
                     if (importedApplication.getGitApplicationMetadata() != null) {
@@ -166,19 +168,13 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
                     // update the action name in the json to avoid duplicate names for the partial import
                     // It is page level action and hence the action name should be unique
-                    return existingActionCollectionFlux
-                            .collectList()
-                            .flatMap(actionCollectionList -> {
-                                if (isPartialImport) {
-                                    updateActionCollectionNameBeforeMerge(
-                                            importedActionCollectionList, actionCollectionList);
-                                }
-                                Mono<Map<String, ActionCollection>> actionCollectionsInCurrentAppMono =
-                                        Flux.fromIterable(actionCollectionList)
-                                                .filter(collection -> collection.getGitSyncId() != null)
-                                                .collectMap(ActionCollection::getGitSyncId);
-                                return Mono.zip(actionCollectionsInCurrentAppMono, actionCollectionsInBranchesMono);
-                            })
+                    if (isPartialImport && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
+                        updateActionCollectionNameBeforeMerge(
+                                importedActionCollectionList,
+                                mappedImportableResourcesDTO.getRefactoringNameReference());
+                    }
+
+                    return Mono.zip(actionCollectionsInCurrentAppMono, actionCollectionsInBranchesMono)
                             .flatMap(objects -> {
                                 Map<String, ActionCollection> actionsCollectionsInCurrentApp = objects.getT1();
                                 Map<String, ActionCollection> actionsCollectionsInBranches = objects.getT2();
@@ -346,23 +342,17 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
     }
 
     private void updateActionCollectionNameBeforeMerge(
-            List<ActionCollection> importedNewActionCollectionList, List<ActionCollection> newActionCollectionList) {
-        List<String> newNewActionCollectionListNames = newActionCollectionList.stream()
-                .map(actionCollection ->
-                        actionCollection.getUnpublishedCollection().getName())
-                .toList();
+            List<ActionCollection> importedNewActionCollectionList, Set<String> refactoringNameSet) {
 
         for (ActionCollection actionCollection : importedNewActionCollectionList) {
-
             String
                     oldNameActionCollection =
                             actionCollection.getUnpublishedCollection().getName(),
                     newNameActionCollection =
                             actionCollection.getUnpublishedCollection().getName();
             int i = 1;
-            while (newNewActionCollectionListNames.contains(newNameActionCollection)) {
-                newNameActionCollection = oldNameActionCollection + i;
-                i++;
+            while (refactoringNameSet.contains(newNameActionCollection)) {
+                newNameActionCollection = oldNameActionCollection + i++;
             }
             String oldId = actionCollection.getId().split("_")[1];
             actionCollection.setId(newNameActionCollection + "_" + oldId);
