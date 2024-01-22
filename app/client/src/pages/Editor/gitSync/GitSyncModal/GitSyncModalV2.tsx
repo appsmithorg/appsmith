@@ -20,7 +20,6 @@ import {
   createMessage,
   DEPLOY,
   MERGE,
-  SETTINGS_GIT,
   IMPORT_APP,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -65,10 +64,6 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
       key: GitSyncModalTab.MERGE,
       title: createMessage(MERGE),
       disabled: isProtectedMode,
-    },
-    {
-      key: GitSyncModalTab.SETTINGS,
-      title: createMessage(SETTINGS_GIT),
     },
   ];
   const possibleMenuOptions = menuOptions.map((option) => option.key);
