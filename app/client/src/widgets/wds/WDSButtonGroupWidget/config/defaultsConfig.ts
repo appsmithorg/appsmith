@@ -1,4 +1,3 @@
-import { IconNames } from "@blueprintjs/icons";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
   BUTTON_MIN_WIDTH,
@@ -26,7 +25,7 @@ export const defaultsConfig = {
       widgetId: "",
       id: "button1",
       index: 0,
-      iconName: IconNames.HEART,
+      iconName: "heart",
       iconAlign: "start",
       minWidth: BUTTON_MIN_WIDTH,
     },
@@ -37,7 +36,7 @@ export const defaultsConfig = {
       widgetId: "",
       id: "button2",
       index: 1,
-      iconName: IconNames.ADD,
+      iconName: "plus",
       iconAlign: "start",
       minWidth: BUTTON_MIN_WIDTH,
     },
@@ -48,7 +47,7 @@ export const defaultsConfig = {
       widgetId: "",
       id: "button3",
       index: 2,
-      iconName: IconNames.BOOKMARK,
+      iconName: "bookmark",
       iconAlign: "start",
       minWidth: BUTTON_MIN_WIDTH,
     },
