@@ -51,9 +51,9 @@ class InteractWorkflowServiceCECompatibleTest {
 
     @Test
     void triggerWorkflow() {
-        AppsmithException unsupportedException = assertThrows(
-                AppsmithException.class,
-                () -> interactWorkflowService.triggerWorkflow("", null, null).block());
+        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> interactWorkflowService
+                .triggerWorkflow("", null, null, null)
+                .block());
         assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
     }
 }

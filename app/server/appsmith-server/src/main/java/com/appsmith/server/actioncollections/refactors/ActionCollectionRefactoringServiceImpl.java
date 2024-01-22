@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
+import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
 
 @Service
 public class ActionCollectionRefactoringServiceImpl extends ActionCollectionRefactoringServiceCEImpl
@@ -64,7 +65,7 @@ public class ActionCollectionRefactoringServiceImpl extends ActionCollectionRefa
     @Override
     protected Flux<ActionCollectionDTO> getExistingEntities(
             String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
-        if (isModuleContext(contextType)) {
+        if (isModuleContext(contextType) || isWorkflowContext(contextType)) {
             return actionCollectionService
                     .findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
                             contextId, contextType, null, viewMode)

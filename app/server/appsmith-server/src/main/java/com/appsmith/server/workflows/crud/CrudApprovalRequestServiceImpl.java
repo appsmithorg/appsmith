@@ -158,7 +158,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
 
         if (!ValidationUtils.isEmptyParam(approvalRequestCreationDTO.getRequestToGroups())) {
             userGroupsMono = userGroupRepository
-                    .findAllById(approvalRequestCreationDTO.getRequestToGroups())
+                    .findAllByNameIn(approvalRequestCreationDTO.getRequestToGroups())
                     .collectList();
         }
         return Mono.zip(usersMono, userGroupsMono);

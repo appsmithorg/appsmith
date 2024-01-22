@@ -3058,66 +3058,51 @@ public class WorkspaceResourcesTest {
         String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
         String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
         String createdWorkspaceDelete = createdWorkspace1.getId() + "_Delete";
-        String createdWorkspaceViewHistory = createdWorkspace1.getId() + "_View History";
 
         String createdWorkflowCreate = createdWorkflow.getId() + "_Create";
         String createdWorkflowEdit = createdWorkflow.getId() + "_Edit";
         String createdWorkflowDelete = createdWorkflow.getId() + "_Delete";
-        String createdWorkflowViewHistory = createdWorkflow.getId() + "_View History";
 
         assertThat(workflowRoleTabDTOHoverMap)
                 .containsKeys(
                         createdWorkspaceCreate,
                         createdWorkspaceEdit,
                         createdWorkspaceDelete,
-                        createdWorkspaceViewHistory,
                         createdWorkflowCreate,
                         createdWorkflowEdit,
                         createdWorkflowDelete);
-        assertThat(workflowRoleTabDTOHoverMap).doesNotContainKeys(createdWorkflowViewHistory);
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceCreate)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceCreate))
                 .containsExactlyInAnyOrderElementsOf(Set.of(
                         new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EDIT),
                         new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.DELETE),
-                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY),
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.CREATE)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceEdit)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceEdit))
-                .containsExactlyInAnyOrderElementsOf(Set.of(
-                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY),
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.EDIT)));
+                .containsExactlyInAnyOrderElementsOf(
+                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.EDIT)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceDelete)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceDelete))
-                .containsExactlyInAnyOrderElementsOf(Set.of(
-                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY),
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.DELETE)));
-
-        assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceViewHistory)).isNotEmpty();
-        assertThat(workflowRoleTabDTOHoverMap.get(createdWorkspaceViewHistory))
                 .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
+                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.DELETE)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowCreate)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowCreate))
                 .containsExactlyInAnyOrderElementsOf(Set.of(
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.DELETE),
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.EDIT),
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
+                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.EDIT)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowEdit)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowEdit))
-                .containsExactlyInAnyOrderElementsOf(Set.of(
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY),
-                        new IdPermissionDTO(createdWorkflow.getMainJsObjectId(), PermissionViewableName.EDIT)));
+                .containsExactlyInAnyOrderElementsOf(
+                        Set.of(new IdPermissionDTO(createdWorkflow.getMainJsObjectId(), PermissionViewableName.EDIT)));
 
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowDelete)).isNotEmpty();
         assertThat(workflowRoleTabDTOHoverMap.get(createdWorkflowDelete))
                 .containsExactlyInAnyOrderElementsOf(Set.of(
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY),
                         new IdPermissionDTO(createdWorkflow.getMainJsObjectId(), PermissionViewableName.DELETE)));
     }
 
@@ -3150,63 +3135,24 @@ public class WorkspaceResourcesTest {
         Map<String, Set<IdPermissionDTO>> workflowRoleTabDTODisableHelperMap = workflowRoleTabDTO.getDisableHelperMap();
 
         String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
-        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
-        String createdWorkspaceDelete = createdWorkspace1.getId() + "_Delete";
-        String createdWorkspaceViewHistory = createdWorkspace1.getId() + "_View History";
 
         String createdWorkflowCreate = createdWorkflow.getId() + "_Create";
-        String createdWorkflowEdit = createdWorkflow.getId() + "_Edit";
-        String createdWorkflowDelete = createdWorkflow.getId() + "_Delete";
-        String createdWorkflowViewHistory = createdWorkflow.getId() + "_View History";
 
-        assertThat(workflowRoleTabDTODisableHelperMap)
-                .containsKeys(
-                        createdWorkspaceCreate,
-                        createdWorkspaceEdit,
-                        createdWorkspaceDelete,
-                        createdWorkflowCreate,
-                        createdWorkflowEdit,
-                        createdWorkflowDelete);
-        assertThat(workflowRoleTabDTODisableHelperMap)
-                .doesNotContainKeys(createdWorkspaceViewHistory, createdWorkflowViewHistory);
+        assertThat(workflowRoleTabDTODisableHelperMap).containsKeys(createdWorkspaceCreate, createdWorkflowCreate);
 
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceCreate))
                 .isNotEmpty();
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceCreate))
                 .containsExactlyInAnyOrderElementsOf(Set.of(
                         new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EDIT),
-                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.DELETE),
-                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY)));
-
-        assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceEdit)).isNotEmpty();
-        assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceEdit))
-                .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY)));
-
-        assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceDelete))
-                .isNotEmpty();
-        assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkspaceDelete))
-                .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW_HISTORY)));
+                        new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.DELETE)));
 
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowCreate))
                 .isNotEmpty();
         assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowCreate))
                 .containsExactlyInAnyOrderElementsOf(Set.of(
                         new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.DELETE),
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.EDIT),
-                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
-
-        assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowEdit)).isNotEmpty();
-        assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowEdit))
-                .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
-
-        assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowDelete))
-                .isNotEmpty();
-        assertThat(workflowRoleTabDTODisableHelperMap.get(createdWorkflowDelete))
-                .containsExactlyInAnyOrderElementsOf(
-                        Set.of(new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.VIEW_HISTORY)));
+                        new IdPermissionDTO(createdWorkflow.getId(), PermissionViewableName.EDIT)));
     }
 
     @Test
@@ -3283,22 +3229,19 @@ public class WorkspaceResourcesTest {
         UpdateRoleEntityDTO createdWorkspace1UpdateRoleEntityDTO = new UpdateRoleEntityDTO(
                 Workspace.class.getSimpleName(),
                 createdWorkspace1.getId(),
-                List.of(1, 1, 1, 1),
+                List.of(1, 1, 1),
                 createdWorkspace1.getName());
 
         UpdateRoleEntityDTO createdWorkflowUpdateRoleEntityDTO = new UpdateRoleEntityDTO(
-                Workflow.class.getSimpleName(),
-                createdWorkflow.getId(),
-                List.of(1, 1, 1, 1),
-                createdWorkflow.getName());
+                Workflow.class.getSimpleName(), createdWorkflow.getId(), List.of(1, 1, 1), createdWorkflow.getName());
 
         UpdateRoleEntityDTO createdActionUpdateRoleEntityDTO = new UpdateRoleEntityDTO(
-                NewAction.class.getSimpleName(), createdAction.getId(), List.of(-1, 1, 1, -1), createdAction.getName());
+                NewAction.class.getSimpleName(), createdAction.getId(), List.of(-1, 1, 1), createdAction.getName());
 
         UpdateRoleEntityDTO createdActionCollectionUpdateRoleEntityDTO = new UpdateRoleEntityDTO(
                 ActionCollection.class.getSimpleName(),
                 createdActionCollection.getId(),
-                List.of(-1, 1, 1, -1),
+                List.of(-1, 1, 1),
                 createdActionCollection.getName());
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
@@ -3326,11 +3269,11 @@ public class WorkspaceResourcesTest {
         assertThat(optionalWorkspaceIndividualBaseViewEntity.isPresent()).isTrue();
 
         BaseView workspaceIndividualBaseViewEntity = optionalWorkspaceIndividualBaseViewEntity.get();
-        // Enabled to CREATE, EDIT, DELETE and VIEW.
-        assertThat(workspaceIndividualBaseViewEntity.getEnabled()).isEqualTo(List.of(1, 1, 1, 1));
-        // Allowed to update CREATE only, because we gave CREATE permission above. Can't edit EDIT, DELETE or VIEW, till
+        // Enabled to CREATE, EDIT, DELETE.
+        assertThat(workspaceIndividualBaseViewEntity.getEnabled()).isEqualTo(List.of(1, 1, 1));
+        // Allowed to update CREATE only, because we gave CREATE permission above. Can't EDIT or DELETE, till
         // CREATE is checked.
-        assertThat(workspaceIndividualBaseViewEntity.getEditable()).isEqualTo(List.of(1, 0, 0, 0));
+        assertThat(workspaceIndividualBaseViewEntity.getEditable()).isEqualTo(List.of(1, 0, 0));
         // Workflow Tab only has 1 relationship. Workspace(parent) -> Workflow(child)
         assertThat(workspaceIndividualBaseViewEntity.getChildren()).hasSize(1);
 
@@ -3347,11 +3290,11 @@ public class WorkspaceResourcesTest {
                 .findAny();
         assertThat(optionalCreatedWorkflowBaseViewEntity.isPresent()).isTrue();
         BaseView createdWorkflowBaseViewEntity = optionalCreatedWorkflowBaseViewEntity.get();
-        // Enabled to CREATE, EDIT, DELETE and VIEW.
-        assertThat(createdWorkflowBaseViewEntity.getEnabled()).isEqualTo(List.of(1, 1, 1, 1));
-        // Allowed to update CREATE only, because we gave CREATE permission above. Can't edit EDIT, DELETE or VIEW, till
+        // Enabled to CREATE, EDIT, DELETE.
+        assertThat(createdWorkflowBaseViewEntity.getEnabled()).isEqualTo(List.of(1, 1, 1));
+        // Allowed to update CREATE only, because we gave CREATE permission above. Can't EDIT or DELETE, till
         // CREATE is checked.
-        assertThat(createdWorkflowBaseViewEntity.getEditable()).isEqualTo(List.of(1, 0, 0, 0));
+        assertThat(createdWorkflowBaseViewEntity.getEditable()).isEqualTo(List.of(1, 0, 0));
 
         Workspace updatedWorkspace1 =
                 workspaceRepository.findById(createdWorkspace1.getId()).block();
@@ -3386,7 +3329,7 @@ public class WorkspaceResourcesTest {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
             if (EXECUTE_WORKFLOWS.getValue().equals(policy.getPermission())) {
-                assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
             if (WORKFLOW_CREATE_ACTIONS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
@@ -3497,10 +3440,7 @@ public class WorkspaceResourcesTest {
         assert sampleRoleViewDTO != null;
 
         UpdateRoleEntityDTO createdWorkflowUpdateRoleEntityDTOWithReadPermission = new UpdateRoleEntityDTO(
-                Workflow.class.getSimpleName(),
-                createdWorkflow.getId(),
-                List.of(0, 0, 0, 1),
-                createdWorkflow.getName());
+                Workflow.class.getSimpleName(), createdWorkflow.getId(), List.of(0, 1, 0), createdWorkflow.getName());
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
         updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
@@ -3525,6 +3465,12 @@ public class WorkspaceResourcesTest {
         updatedWorkflow.getPolicies().forEach(policy -> {
             if (READ_HISTORY_WORKFLOWS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            } else if (MANAGE_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            } else if (PUBLISH_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            } else if (EXECUTE_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             } else {
                 assertThat(policy.getPermissionGroups()).doesNotContain(sampleRoleViewDTO.getId());
             }
@@ -3533,11 +3479,12 @@ public class WorkspaceResourcesTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishWorkflow() {
+    public void
+            testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishAndExecuteWorkflow() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
                 .thenReturn(Mono.just(TRUE));
         String testName =
-                "testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishWorkflow";
+                "testSaveRoleConfiguration_workflowResourcesTab_editWorkflowPermissionShouldGivePublishAndExecuteWorkflow";
         Workspace workspace = new Workspace();
         workspace.setName("Workspace - " + testName);
         Workspace createdWorkspace1 = workspaceService.create(workspace).block();
@@ -3558,10 +3505,7 @@ public class WorkspaceResourcesTest {
         assert sampleRoleViewDTO != null;
 
         UpdateRoleEntityDTO createdWorkflowUpdateRoleEntityDTOWithEditPermission = new UpdateRoleEntityDTO(
-                Workflow.class.getSimpleName(),
-                createdWorkflow.getId(),
-                List.of(0, 1, 0, 0),
-                createdWorkflow.getName());
+                Workflow.class.getSimpleName(), createdWorkflow.getId(), List.of(0, 1, 0), createdWorkflow.getName());
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
         updateRoleConfigDTO.setTabName(WORKFLOWS.getName());
@@ -3578,6 +3522,9 @@ public class WorkspaceResourcesTest {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
             if (PUBLISH_WORKFLOWS.getValue().equals(policy.getPermission())) {
+                assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
+            }
+            if (EXECUTE_WORKFLOWS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).contains(sampleRoleViewDTO.getId());
             }
         });
@@ -3613,7 +3560,7 @@ public class WorkspaceResourcesTest {
         UpdateRoleEntityDTO createdWorkspaceUpdateRoleEntityDTOWithEditPermission = new UpdateRoleEntityDTO(
                 Workspace.class.getSimpleName(),
                 createdWorkspace1.getId(),
-                List.of(0, 1, 0, 0),
+                List.of(0, 1, 0),
                 createdWorkspace1.getName());
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();

@@ -16,6 +16,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.regex.Pattern;
 
+import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
+
 @Service
 public class WidgetRefactoringServiceImpl extends WidgetRefactoringServiceCEImpl
         implements EntityRefactoringService<Layout> {
@@ -47,5 +49,14 @@ public class WidgetRefactoringServiceImpl extends WidgetRefactoringServiceCEImpl
                     this.sanitizeRefactorEntityDTO(refactorEntityNameDTO);
                     return refactorEntityNameDTO;
                 });
+    }
+
+    @Override
+    public Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
+        if (isWorkflowContext(contextType)) {
+            return Flux.empty();
+        }
+        return super.getExistingEntityNames(contextId, contextType, layoutId, viewMode);
     }
 }

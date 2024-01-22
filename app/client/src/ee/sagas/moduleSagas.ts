@@ -68,6 +68,10 @@ import type {
 } from "@appsmith/api/JSActionAPI";
 import type { JSCollection } from "entities/JSCollection";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
+import {
+  UPDATE_MODULE_INPUT_ERROR,
+  createMessage,
+} from "@appsmith/constants/messages";
 import analytics from "@appsmith/utils/Packages/analytics";
 
 export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
@@ -185,7 +189,9 @@ export function* updateModuleInputsSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_MODULE_INPUTS_ERROR,
-      payload: { error },
+      payload: {
+        error: { message: createMessage(UPDATE_MODULE_INPUT_ERROR) },
+      },
     });
   }
 }

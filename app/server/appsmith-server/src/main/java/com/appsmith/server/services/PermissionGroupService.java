@@ -32,4 +32,7 @@ public interface PermissionGroupService extends PermissionGroupServiceCECompatib
             PermissionGroup permissionGroup, Set<String> userGroupIds);
 
     Flux<String> getRoleNamesAssignedDirectlyOrIndirectlyToUserIds(Set<String> userIds);
+
+    Flux<PermissionGroup> findAllByAssignedToGroupIds(
+            Set<String> groupIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission);
 }

@@ -14,6 +14,7 @@ import lombok.Setter;
 public class RefactorEntityNameDTO extends RefactorEntityNameCE_DTO {
     String moduleId;
     String moduleInstanceId;
+    String workflowId;
 
     public RefactorEntityNameDTO(
             String pageId,
@@ -30,6 +31,7 @@ public class RefactorEntityNameDTO extends RefactorEntityNameCE_DTO {
             String moduleId,
             String moduleInstanceId,
             Boolean isInternal,
+            String workflowId,
             CreatorContextType contextType) {
         super(
                 pageId,
@@ -47,5 +49,6 @@ public class RefactorEntityNameDTO extends RefactorEntityNameCE_DTO {
                 contextType);
         this.moduleId = moduleId;
         this.moduleInstanceId = moduleInstanceId;
+        this.workflowId = workflowId;
     }
 }

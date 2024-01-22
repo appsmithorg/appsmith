@@ -25,6 +25,7 @@ import static com.appsmith.server.acl.AclPermission.MODULE_CREATE_MODULE_INSTANC
 import static com.appsmith.server.acl.AclPermission.MODULE_READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.PACKAGE_CREATE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.PACKAGE_READ_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_TENANT_AUDIT_LOGS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
@@ -171,6 +172,17 @@ public enum AppsmithRole {
             FieldName.WORKFLOW_EXECUTOR,
             FieldName.WORKFLOW_EXECUTOR_DESCRIPTION,
             Set.of(EXECUTE_WORKFLOWS, EXECUTE_DATASOURCES, EXECUTE_ENVIRONMENTS, EXECUTE_ACTIONS)),
+
+    GIT_WEB_HOOK_EXECUTOR(
+            FieldName.GIT_WEB_HOOK_EXECUTOR,
+            FieldName.GIT_WEB_HOOK_EXECUTOR_DESCRIPTION,
+            Set.of(
+                    MANAGE_APPLICATIONS,
+                    PUBLISH_APPLICATIONS,
+                    WORKSPACE_CREATE_DATASOURCE,
+                    WORKSPACE_READ_PACKAGE_INSTANCES,
+                    PACKAGE_READ_MODULE_INSTANCES,
+                    MODULE_READ_MODULE_INSTANCES)),
     ;
 
     private Set<AclPermission> permissions;

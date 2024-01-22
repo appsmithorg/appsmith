@@ -6,6 +6,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -14,11 +15,14 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.EntityType;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -40,10 +44,13 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.models.CreatorContextType.WORKFLOW;
@@ -51,8 +58,10 @@ import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.constants.FieldName.WORKFLOW_ID;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -96,6 +105,12 @@ class CrudWorkflowEntityServiceTest {
 
     @Autowired
     private LayoutActionService layoutActionService;
+
+    @Autowired
+    private RefactoringService refactoringService;
+
+    @Autowired
+    private ActionCollectionService actionCollectionService;
 
     Workspace workspace;
     String defaultEnvironmentId;
@@ -186,6 +201,40 @@ class CrudWorkflowEntityServiceTest {
     }
 
     @Test
+    @WithUserDetails("api_user")
+    void testRenameWorkflowAction() {
+        String testName = "testRenameWorkflowAction";
+        String updatedName = testName + "_updated";
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setWorkflowId(workflow.getId());
+        actionDTO.setName(testName);
+        actionDTO.setDatasource(datasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionDTO.setActionConfiguration(actionConfiguration);
+        actionDTO.setWorkspaceId(workspace.getId());
+        actionDTO.setContextType(WORKFLOW);
+
+        ActionDTO workflowActionDTO = layoutActionService
+                .createSingleActionWithBranch(actionDTO, null)
+                .block();
+
+        RefactorEntityNameDTO refactorEntityNameDTO = new RefactorEntityNameDTO();
+        refactorEntityNameDTO.setEntityType(EntityType.ACTION);
+        refactorEntityNameDTO.setActionId(workflowActionDTO.getId());
+        refactorEntityNameDTO.setWorkflowId(workflow.getId());
+        refactorEntityNameDTO.setOldName(testName);
+        refactorEntityNameDTO.setNewName(updatedName);
+        refactorEntityNameDTO.setContextType(WORKFLOW);
+
+        refactoringService.refactorEntityName(refactorEntityNameDTO, null).block();
+
+        NewAction updatedWorkflowAction =
+                newActionRepository.findById(workflowActionDTO.getId()).block();
+        assertThat(updatedWorkflowAction.getUnpublishedAction().getName()).isEqualTo(updatedName);
+    }
+
+    @Test
     @WithUserDetails(value = "api_user")
     void testInvalid_createWorkflowAction_noWorkflowId() {
         ActionDTO actionDTO = new ActionDTO();
@@ -194,7 +243,7 @@ class CrudWorkflowEntityServiceTest {
                         .createWorkflowAction(actionDTO, null)
                         .block());
         assertThat(validParameterNameException.getMessage())
-                .isEqualTo(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKFLOW_ID));
+                .isEqualTo(AppsmithError.INVALID_PARAMETER.getMessage(WORKFLOW_ID));
     }
 
     @Test
@@ -364,6 +413,132 @@ class CrudWorkflowEntityServiceTest {
                         .createWorkflowActionCollection(actionCollectionDTO, null)
                         .block());
         assertThat(validParameterNameException.getMessage())
-                .isEqualTo(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKFLOW_ID));
+                .isEqualTo(AppsmithError.INVALID_PARAMETER.getMessage(WORKFLOW_ID));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testRenameWorkflowActionCollection() {
+        String testName = "testRenameWorkflowActionCollection";
+        String updatedName = testName + "_updated";
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName(testName);
+        actionCollectionDTO.setWorkflowId(workflow.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
+        actionCollectionDTO.setContextType(WORKFLOW);
+
+        ActionCollectionDTO workflowActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
+
+        RefactorEntityNameDTO refactorEntityNameDTO = new RefactorEntityNameDTO();
+        refactorEntityNameDTO.setEntityType(EntityType.JS_OBJECT);
+        refactorEntityNameDTO.setActionCollectionId(workflowActionCollectionDTO.getId());
+        refactorEntityNameDTO.setWorkflowId(workflow.getId());
+        refactorEntityNameDTO.setOldName(testName);
+        refactorEntityNameDTO.setNewName(updatedName);
+        refactorEntityNameDTO.setContextType(WORKFLOW);
+
+        refactoringService.refactorEntityName(refactorEntityNameDTO, null).block();
+
+        ActionCollection updatedWorkflowActionCollection = actionCollectionRepository
+                .findById(workflowActionCollectionDTO.getId())
+                .block();
+
+        assertThat(updatedWorkflowActionCollection.getUnpublishedCollection().getName())
+                .isEqualTo(updatedName);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testRenameJSActionInWorkflowActionCollection() {
+        Plugin installedJsPlugin =
+                pluginRepository.findByPackageName("installed-js-plugin").block();
+
+        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+        actionCollectionDTO1.setName("testCollection1");
+        actionCollectionDTO1.setContextType(WORKFLOW);
+        actionCollectionDTO1.setWorkflowId(workflow.getId());
+        actionCollectionDTO1.setPluginId(installedJsPlugin.getId());
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO1.setActions(List.of(action1));
+        actionCollectionDTO1.setPluginType(PluginType.JS);
+        actionCollectionDTO1.setBody("export default { x: 1 }");
+
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService
+                .createCollection(actionCollectionDTO1, null)
+                .block();
+
+        ActionCollectionDTO actionCollectionDTO2 = new ActionCollectionDTO();
+        actionCollectionDTO2.setName("testCollection2");
+        actionCollectionDTO2.setContextType(WORKFLOW);
+        actionCollectionDTO2.setWorkflowId(workflow.getId());
+        actionCollectionDTO2.setPluginId(installedJsPlugin.getId());
+        ActionDTO action2 = new ActionDTO();
+        action2.setActionConfiguration(new ActionConfiguration());
+        action2.setName("testAction2");
+        action2.getActionConfiguration().setBody("testCollection1.testAction1()");
+        actionCollectionDTO2.setActions(List.of(action2));
+        actionCollectionDTO2.setPluginType(PluginType.JS);
+        actionCollectionDTO2.setBody("export default { x: testCollection1.testAction1() }");
+
+        final ActionCollectionDTO createdActionCollectionDTO2 = layoutCollectionService
+                .createCollection(actionCollectionDTO2, null)
+                .block();
+
+        ActionDTO jsActionInWorkflowActionCollection =
+                createdActionCollectionDTO1.getActions().get(0);
+
+        RefactorEntityNameDTO refactorEntityNameDTO = new RefactorEntityNameDTO();
+        refactorEntityNameDTO.setEntityType(EntityType.JS_ACTION);
+        refactorEntityNameDTO.setActionCollection(createdActionCollectionDTO1);
+        refactorEntityNameDTO.setActionId(jsActionInWorkflowActionCollection.getId());
+        refactorEntityNameDTO.setWorkflowId(workflow.getId());
+        refactorEntityNameDTO.setOldName("testAction1");
+        refactorEntityNameDTO.setNewName("newTestAction1");
+        refactorEntityNameDTO.setContextType(WORKFLOW);
+        refactorEntityNameDTO.setCollectionName(createdActionCollectionDTO1.getName());
+
+        refactoringService.refactorEntityName(refactorEntityNameDTO, null).block();
+        LinkedMultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+        queryParams.add(WORKFLOW_ID, workflow.getId());
+        List<ActionCollectionDTO> actionCollectionDTOList = actionCollectionService
+                .getPopulatedActionCollectionsByViewMode(queryParams, false, null)
+                .collectList()
+                .block();
+
+        // 3 JS Objects
+        // 1. One Main JS Object
+        // 2. Two Additional JS Objects
+        assertThat(actionCollectionDTOList).hasSize(3);
+        Optional<ActionCollectionDTO> optionalWorkflowActionCollectionDTO = actionCollectionDTOList.stream()
+                .filter(actionCollectionViewDTO ->
+                        actionCollectionViewDTO.getId().equals(createdActionCollectionDTO1.getId()))
+                .findFirst();
+        assertThat(optionalWorkflowActionCollectionDTO.isPresent()).isTrue();
+
+        List<ActionDTO> renamedActionsInWorkflowActionCollection =
+                optionalWorkflowActionCollectionDTO.get().getActions();
+        assertThat(renamedActionsInWorkflowActionCollection).hasSize(1);
+
+        // Assert that name has been changed
+        assertThat(renamedActionsInWorkflowActionCollection.get(0).getName()).isEqualTo("newTestAction1");
+        assertThat(renamedActionsInWorkflowActionCollection.get(0).getFullyQualifiedName())
+                .isEqualTo(createdActionCollectionDTO1.getName() + ".newTestAction1");
+
+        final Mono<ActionCollection> actionCollectionMono =
+                actionCollectionService.getById(createdActionCollectionDTO2.getId());
+
+        // Assert that name is refactored in mentioned JS Objects
+        StepVerifier.create(actionCollectionMono)
+                .assertNext(actionCollection -> assertEquals(
+                        "export default { x: testCollection1.newTestAction1() }",
+                        actionCollection.getUnpublishedCollection().getBody()))
+                .verifyComplete();
     }
 }

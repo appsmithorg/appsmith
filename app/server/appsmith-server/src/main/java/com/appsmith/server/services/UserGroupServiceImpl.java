@@ -68,6 +68,7 @@ import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
@@ -267,7 +268,8 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
 
     private Mono<List<PermissionGroupInfoDTO>> getRoleDTOsForTheGroup(String userGroupId) {
         return permissionGroupHelper
-                .mapToPermissionGroupInfoDto(permissionGroupService.findAllByAssignedToGroupIdsIn(Set.of(userGroupId)))
+                .mapToPermissionGroupInfoDto(permissionGroupService.findAllByAssignedToGroupIds(
+                        Set.of(userGroupId), Optional.empty(), Optional.of(READ_PERMISSION_GROUPS)))
                 .collectList();
     }
 

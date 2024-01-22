@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
+import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
 @Service
@@ -316,6 +317,9 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
         if (isModuleContext(refactorEntityNameDTO.getContextType())) {
             // TODO: How to fetch eval version for modules
             return Mono.just(EVALUATION_VERSION);
+        } else if (isWorkflowContext(refactorEntityNameDTO.getContextType())) {
+            // TODO: How to fetch eval version for workflows
+            return Mono.just(EVALUATION_VERSION);
         }
         return super.getContextBasedEvalVersionMono(contextId, refactorEntityNameDTO, refactoringMetaDTO);
     }
@@ -332,6 +336,13 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
                             refactorEntityNameDTO.getLayoutId(),
                             refactorEntityNameDTO.getNewFullyQualifiedName())
                     .thenReturn(analyticsProperties);
+        } else if (isWorkflowContext(refactorEntityNameDTO.getContextType())) {
+            return isNameAllowed(
+                            refactorEntityNameDTO.getWorkflowId(),
+                            CreatorContextType.WORKFLOW,
+                            refactorEntityNameDTO.getLayoutId(),
+                            refactorEntityNameDTO.getNewFullyQualifiedName())
+                    .thenReturn(analyticsProperties);
         }
         return super.validateAndPrepareAnalyticsForRefactor(refactorEntityNameDTO, contextIdMono, analyticsProperties);
     }
@@ -340,6 +351,8 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
     protected Mono<String> getBranchedContextIdMono(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
         if (isModuleContext(refactorEntityNameDTO.getContextType())) {
             return Mono.just(refactorEntityNameDTO.getModuleId());
+        } else if (isWorkflowContext(refactorEntityNameDTO.getContextType())) {
+            return Mono.just(refactorEntityNameDTO.getWorkflowId());
         }
         return super.getBranchedContextIdMono(refactorEntityNameDTO, branchName);
     }

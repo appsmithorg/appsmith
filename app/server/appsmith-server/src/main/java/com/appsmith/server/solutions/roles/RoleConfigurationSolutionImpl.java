@@ -87,6 +87,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_MODULE_INSTANCES;
@@ -101,6 +102,7 @@ import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
@@ -109,6 +111,7 @@ import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_HISTORY_WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGE_INSTANCES;
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
 import static com.appsmith.server.constants.FieldName.ENTITY_UPDATED_PERMISSIONS;
@@ -1041,10 +1044,12 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         // respectively
         if (added.contains(WORKSPACE_MANAGE_WORKFLOWS)) {
             sideEffectsClassMap.put(id, Workspace.class);
-            sideEffectsAddedMap.merge(id, List.of(WORKSPACE_PUBLISH_WORKFLOWS), ListUtils::union);
+            sideEffectsAddedMap.merge(
+                    id, List.of(WORKSPACE_PUBLISH_WORKFLOWS, WORKSPACE_READ_HISTORY_WORKFLOW), ListUtils::union);
         } else if (removed.contains(WORKSPACE_MANAGE_WORKFLOWS)) {
             sideEffectsClassMap.put(id, Workspace.class);
-            sideEffectsRemovedMap.merge(id, List.of(WORKSPACE_PUBLISH_WORKFLOWS), ListUtils::union);
+            sideEffectsRemovedMap.merge(
+                    id, List.of(WORKSPACE_PUBLISH_WORKFLOWS, WORKSPACE_READ_HISTORY_WORKFLOW), ListUtils::union);
         }
     }
 
@@ -1074,10 +1079,12 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
         if (added.contains(MANAGE_WORKFLOWS)) {
             sideEffectsClassMap.put(id, Workflow.class);
-            sideEffectsAddedMap.merge(id, List.of(PUBLISH_WORKFLOWS), ListUtils::union);
+            sideEffectsAddedMap.merge(
+                    id, List.of(PUBLISH_WORKFLOWS, READ_HISTORY_WORKFLOWS, EXECUTE_WORKFLOWS), ListUtils::union);
         } else if (removed.contains(MANAGE_WORKFLOWS)) {
             sideEffectsClassMap.put(id, Workflow.class);
-            sideEffectsRemovedMap.merge(id, List.of(PUBLISH_WORKFLOWS), ListUtils::union);
+            sideEffectsRemovedMap.merge(
+                    id, List.of(PUBLISH_WORKFLOWS, READ_HISTORY_WORKFLOWS, EXECUTE_WORKFLOWS), ListUtils::union);
         }
     }
 

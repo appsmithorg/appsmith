@@ -12,7 +12,6 @@ import type { StyledComponent } from "styled-components";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import "./styles.css";
 
 const getSnappedValues = (
   x: number,

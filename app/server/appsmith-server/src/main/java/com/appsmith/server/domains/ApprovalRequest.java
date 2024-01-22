@@ -5,6 +5,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ApprovalRequestStatus;
 import com.appsmith.server.dtos.ApprovalRequestUserInfo;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.querydsl.core.annotations.QueryEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,6 +53,9 @@ public class ApprovalRequest extends BaseDomain {
 
     @JsonView(Views.Public.class)
     String resolution;
+
+    @JsonView(Views.Public.class)
+    JsonNode resolutionMetadata;
 
     @JsonView(Views.Public.class)
     public Instant getCreationTime() {

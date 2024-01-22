@@ -65,7 +65,8 @@ export const handlers = {
     draftState.actions = actions;
     draftState.jsCollections = jsCollections;
   },
-  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_SUCCESS]: (
+  // Eager update settings to avoid race condition
+  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_INIT]: (
     draftState: ModuleInstanceEntitiesReducerState,
     action: ReduxAction<UpdateModuleInstanceSettingsResponse>,
   ) => {
@@ -209,7 +210,7 @@ export const handlers = {
       (a) => a.config.moduleInstanceId !== action.payload.id,
     );
     draftState.jsCollections = draftState.jsCollections.filter(
-      (a) => a.config.id === action.payload.id,
+      (a) => a.config.moduleInstanceId !== action.payload.id,
     );
   },
 

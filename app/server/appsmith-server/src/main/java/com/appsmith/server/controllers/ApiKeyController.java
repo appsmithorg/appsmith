@@ -5,6 +5,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApiKeyRequestDto;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApiKeyService;
+import com.appsmith.server.services.GitService;
 import com.appsmith.server.services.ProvisionService;
 import com.appsmith.server.workflows.interact.InteractWorkflowService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -26,14 +27,17 @@ public class ApiKeyController {
     private final ApiKeyService apiKeyService;
     private final ProvisionService provisionService;
     private final InteractWorkflowService interactWorkflowService;
+    private final GitService gitService;
 
     public ApiKeyController(
             ApiKeyService apiKeyService,
             ProvisionService provisionService,
-            InteractWorkflowService interactWorkflowService) {
+            InteractWorkflowService interactWorkflowService,
+            GitService gitService) {
         this.apiKeyService = apiKeyService;
         this.provisionService = provisionService;
         this.interactWorkflowService = interactWorkflowService;
+        this.gitService = gitService;
     }
 
     @PostMapping("")
@@ -59,6 +63,16 @@ public class ApiKeyController {
         log.debug("Generating Bearer Token for Workflow with id: {}", id);
         return interactWorkflowService
                 .generateBearerTokenForWebhook(id)
+                .map(createdBearerToken -> new ResponseDTO<>(HttpStatus.CREATED.value(), createdBearerToken, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/git/{id}")
+    public Mono<ResponseDTO<String>> generateGitToken(@PathVariable String id) {
+        log.debug("Generating Bearer Token for Git application with id: {}", id);
+        return gitService
+                .generateBearerTokenForApplication(id)
                 .map(createdBearerToken -> new ResponseDTO<>(HttpStatus.CREATED.value(), createdBearerToken, null));
     }
 }

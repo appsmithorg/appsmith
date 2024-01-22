@@ -643,7 +643,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     /**
      * The method will get all the roles assigned to group.
      **/
-    private Flux<PermissionGroup> getRolesAssignedToGroupIds(Set<String> groupIds) {
+    private Flux<PermissionGroup> getRolesAssignedToGroupIdsWithoutPermission(Set<String> groupIds) {
         List<String> includeFields = List.of(
                 fieldName(QPermissionGroup.permissionGroup.id), fieldName(QPermissionGroup.permissionGroup.name));
         return repository.findAllByAssignedToGroupIds(groupIds, Optional.of(includeFields), Optional.empty());
@@ -655,7 +655,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                 .findAllByUsersIn(userIds, Optional.empty(), Optional.of(includeFields))
                 .mapNotNull(UserGroup::getId)
                 .collect(Collectors.toSet())
-                .flatMapMany(this::getRolesAssignedToGroupIds);
+                .flatMapMany(this::getRolesAssignedToGroupIdsWithoutPermission);
     }
 
     @Override
@@ -834,5 +834,11 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
         return Flux.concat(rolesAssignedToUserIdsFlux, rolesAssignedToUserIdsViaGroupsFlux)
                 .distinct(PermissionGroup::getId)
                 .map(PermissionGroup::getName);
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToGroupIds(
+            Set<String> groupIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission) {
+        return repository.findAllByAssignedToGroupIds(groupIds, listIncludeFields, aclPermission);
     }
 }

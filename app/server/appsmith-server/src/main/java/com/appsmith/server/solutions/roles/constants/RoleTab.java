@@ -48,7 +48,6 @@ import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
@@ -84,7 +83,6 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_ENVIRONMENTS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_HISTORY_WORKFLOW;
 import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
 import static com.appsmith.server.constants.FieldName.ROLE_TAB_DATASOURCES;
 import static com.appsmith.server.constants.FieldName.ROLE_TAB_ENVIRONMENTS;
@@ -98,7 +96,6 @@ import static com.appsmith.server.solutions.roles.constants.PermissionViewableNa
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.MAKE_PUBLIC;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.REMOVE_USER;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.VIEW;
-import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.VIEW_HISTORY;
 
 /**
  * This enum represents all the tabs in edit role screen
@@ -201,19 +198,17 @@ public enum RoleTab {
                     // Workspace level permissions
                     WORKSPACE_CREATE_WORKFLOW,
                     WORKSPACE_MANAGE_WORKFLOWS,
-                    WORKSPACE_READ_HISTORY_WORKFLOW,
                     WORKSPACE_DELETE_WORKFLOWS,
 
                     // Workflow level permissions
                     WORKFLOW_CREATE_ACTIONS,
                     MANAGE_WORKFLOWS,
                     DELETE_WORKFLOWS,
-                    READ_HISTORY_WORKFLOWS,
 
                     // Action level permissions
                     MANAGE_ACTIONS,
                     DELETE_ACTIONS),
-            List.of(CREATE, EDIT, DELETE, VIEW_HISTORY),
+            List.of(CREATE, EDIT, DELETE),
             null),
     GROUPS_ROLES(
             "Groups & Roles",

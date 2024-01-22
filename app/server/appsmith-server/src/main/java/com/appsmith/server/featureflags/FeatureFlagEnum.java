@@ -103,4 +103,9 @@ public enum FeatureFlagEnum {
      * Feature flag to detect if scheduled backup is supported for the tenant
      */
     license_scheduled_backup_enabled,
+
+    /**
+     * Feature flag to detect if git continuous delivery feature is enabled for the tenant
+     */
+    license_git_continuous_delivery_enabled,
 }

@@ -9,6 +9,7 @@ public class FieldNames {
     public static final String REQUEST_NAME = "requestName";
     public static final String RESOLUTION = "requestResolution";
     public static final String RESOLUTION_REASON = "requestResolutionReason";
+    public static final String RESOLUTION_METADATA = "requestResolutionMetadata";
     public static final String COUNT = "count";
     public static final String SKIP = "skip";
     public static final String START_INDEX = "startIndex";

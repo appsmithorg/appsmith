@@ -12,6 +12,7 @@ import {
   isAPathDynamicBindingPath as CE_isAPathDynamicBindingPath,
   isAnyJSAction as CE_isAnyJSAction,
   isNotEntity as CE_isNotEntity,
+  isEntityAction as CE_isEntityAction,
 } from "ce/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
@@ -94,4 +95,8 @@ export const isNotEntity = (entity: DataTreeEntity) => {
     !isModuleInput(entity) &&
     !isModuleInstance(entity)
   );
+};
+
+export const isEntityAction = (entity: DataTreeEntity) => {
+  return CE_isEntityAction(entity) || isQueryModuleInstance(entity);
 };
