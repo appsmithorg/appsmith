@@ -11,11 +11,6 @@ import type {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { importSvg } from "design-system-old";
-
-const FilterIcon = importSvg(
-  async () => import("assets/icons/control/filter-icon.svg"),
-);
 
 export interface DropdownOption {
   label: string;
@@ -75,7 +70,7 @@ export const TableFilters = (props: TableFilterProps) => {
         data-testid={`t--table-filter-toggle-btn ${generateClassName(
           widgetId,
         )}`}
-        icon={FilterIcon}
+        icon="filter"
         isDisabled={columns.length === 0}
         onPress={() => toggleFilterPane(!isTableFilterPaneVisible)}
         ref={actionItemRef}
