@@ -1,8 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.helpers.AppsmithEventContext;
-import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DefaultResources;
@@ -12,6 +10,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.clonepage.ClonePageService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -29,6 +28,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -90,7 +90,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
@@ -131,6 +130,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
     private final GitAutoCommitHelper gitAutoCommitHelper;
+    private final ClonePageService<NewAction> actionClonePageService;
+    private final ClonePageService<ActionCollection> actionCollectionClonePageService;
 
     public static final Integer EVALUATION_VERSION = 2;
 
@@ -606,26 +607,30 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<PageDTO> clonePage(String pageId) {
-
+    public Mono<PageDTO> clonePage(String pageId, ClonePageMetaDTO clonePageMetaDTO) {
         return newPageService
                 .findById(pageId, pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Page")))
                 .flatMap(page -> applicationService
                         .saveLastEditInformation(page.getApplicationId())
-                        .then(clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy")));
+                        .then(clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy", clonePageMetaDTO)));
     }
 
     @Override
     public Mono<PageDTO> clonePageByDefaultPageIdAndBranch(String defaultPageId, String branchName) {
+        final ClonePageMetaDTO clonePageMetaDTO = new ClonePageMetaDTO();
+        clonePageMetaDTO.setBranchName(branchName);
         return newPageService
                 .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(newPage -> clonePage(newPage.getId()))
+                .flatMap(newPage -> clonePage(newPage.getId(), clonePageMetaDTO))
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
-    private Mono<PageDTO> clonePageGivenApplicationId(
-            String pageId, String applicationId, @Nullable String newPageNameSuffix) {
+    protected Mono<PageDTO> clonePageGivenApplicationId(
+            String pageId,
+            String applicationId,
+            @Nullable String newPageNameSuffix,
+            ClonePageMetaDTO clonePageMetaDTO) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
         Mono<PageDTO> sourcePageMono = newPageService
@@ -647,22 +652,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             return page;
                         }));
 
-        final Flux<ActionCollection> sourceActionCollectionsFlux = actionCollectionService.findByPageId(pageId);
-
-        Flux<NewAction> sourceActionFlux = newActionService
-                .findByPageId(pageId, actionPermission.getEditPermission())
-                // Set collection reference in actions to null to reset to the new application's collections later
-                .map(newAction -> {
-                    if (newAction.getUnpublishedAction() != null) {
-                        newAction.getUnpublishedAction().setCollectionId(null);
-                    }
-                    return newAction;
-                })
-                // In case there are no actions in the page being cloned, return empty
-                .switchIfEmpty(Flux.empty());
-
         return sourcePageMono
                 .flatMap(page -> {
+                    clonePageMetaDTO.setSourcePageId(page.getId());
                     Mono<ApplicationPagesDTO> pageNamesMono =
                             newPageService.findApplicationPagesByApplicationIdViewMode(
                                     page.getApplicationId(), false, false);
@@ -712,179 +704,54 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             });
                 })
                 .flatMap(clonedPage -> {
-                    String newPageId = clonedPage.getId();
-                    final DefaultResources clonedPageDefaultResources = clonedPage.getDefaultResources();
-                    return sourceActionFlux
-                            .flatMap(action -> {
-                                String originalActionId = action.getId();
-                                // Set new page id in the actionDTO
-                                action.getUnpublishedAction().setPageId(newPageId);
-                                action.getUnpublishedAction().setDefaultResources(clonedPageDefaultResources);
-                                /*
-                                 * - Now create the new action from the template of the source action.
-                                 * - Use CLONE_PAGE context to make sure that page / application clone quirks are
-                                 *   taken care of - e.g. onPageLoad setting is copied from action setting instead of
-                                 *   being set to off by default.
-                                 */
-                                AppsmithEventContext eventContext =
-                                        new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
-                                return Mono.zip(
-                                        layoutActionService
-                                                .createAction(
-                                                        action.getUnpublishedAction(), eventContext, Boolean.FALSE)
-                                                .map(ActionDTO::getId),
-                                        Mono.justOrEmpty(originalActionId));
-                            })
-                            .collect(
-                                    HashMap<String, String>::new,
-                                    (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
-                            .flatMap(actionIdsMap -> {
-                                // Pick all action collections
-                                return sourceActionCollectionsFlux
-                                        .flatMap(actionCollection -> {
-                                            final ActionCollectionDTO unpublishedCollection =
-                                                    actionCollection.getUnpublishedCollection();
-                                            unpublishedCollection.setPageId(newPageId);
-                                            actionCollection.setApplicationId(clonedPage.getApplicationId());
-
-                                            DefaultResources defaultResources = new DefaultResources();
-                                            copyNestedNonNullProperties(clonedPageDefaultResources, defaultResources);
-                                            actionCollection.setDefaultResources(defaultResources);
-
-                                            DefaultResources defaultResourcesForDTO = new DefaultResources();
-                                            defaultResourcesForDTO.setPageId(clonedPageDefaultResources.getPageId());
-                                            actionCollection
-                                                    .getUnpublishedCollection()
-                                                    .setDefaultResources(defaultResourcesForDTO);
-
-                                            // Replace all action Ids from map
-                                            Map<String, String> updatedDefaultToBranchedActionId = new HashMap<>();
-                                            // Check if the application is connected with git and update
-                                            // defaultActionIds accordingly
-                                            //
-                                            // 1. If the app is connected with git keep the actionDefaultId as it is and
-                                            // update branchedActionId only
-                                            //
-                                            // 2. If app is not connected then both default and branchedActionId will be
-                                            // same as newly created action Id
-
-                                            if (StringUtils.isEmpty(clonedPageDefaultResources.getBranchName())) {
-                                                unpublishedCollection
-                                                        .getDefaultToBranchedActionIdsMap()
-                                                        .forEach((defaultId, oldActionId) -> {
-                                                            // Filter out the actionIds for which the reference is not
-                                                            // present in cloned actions, this happens when we have
-                                                            // deleted action in unpublished mode
-                                                            if (StringUtils.hasLength(oldActionId)
-                                                                    && StringUtils.hasLength(
-                                                                            actionIdsMap.get(oldActionId))) {
-                                                                updatedDefaultToBranchedActionId.put(
-                                                                        actionIdsMap.get(oldActionId),
-                                                                        actionIdsMap.get(oldActionId));
-                                                            }
-                                                        });
-                                            } else {
-                                                unpublishedCollection
-                                                        .getDefaultToBranchedActionIdsMap()
-                                                        .forEach((defaultId, oldActionId) -> {
-                                                            // Filter out the actionIds for which the reference is not
-                                                            // present in cloned actions, this happens when we have
-                                                            // deleted action in unpublished mode
-                                                            if (StringUtils.hasLength(defaultId)
-                                                                    && StringUtils.hasLength(
-                                                                            actionIdsMap.get(oldActionId))) {
-                                                                updatedDefaultToBranchedActionId.put(
-                                                                        defaultId, actionIdsMap.get(oldActionId));
-                                                            }
-                                                        });
-                                            }
-                                            unpublishedCollection.setDefaultToBranchedActionIdsMap(
-                                                    updatedDefaultToBranchedActionId);
-
-                                            // Set id as null, otherwise create (which is using under the hood save)
-                                            // will try to overwrite same resource instead of creating a new resource
-                                            actionCollection.setId(null);
-                                            // Set published version to null as the published version of the page does
-                                            // not exists when we clone the page.
-                                            actionCollection.setPublishedCollection(null);
-                                            actionCollection
-                                                    .getDefaultResources()
-                                                    .setPageId(null);
-                                            // Assign new gitSyncId for cloned actionCollection
-                                            actionCollection.setGitSyncId(
-                                                    actionCollection.getApplicationId() + "_" + new ObjectId());
-                                            return actionCollectionService
-                                                    .create(actionCollection)
-                                                    .flatMap(savedActionCollection -> {
-                                                        if (!StringUtils.hasLength(savedActionCollection
-                                                                .getDefaultResources()
-                                                                .getCollectionId())) {
-                                                            savedActionCollection
-                                                                    .getDefaultResources()
-                                                                    .setCollectionId(savedActionCollection.getId());
-                                                            return actionCollectionService.update(
-                                                                    savedActionCollection.getId(),
-                                                                    savedActionCollection);
-                                                        }
-                                                        return Mono.just(savedActionCollection);
-                                                    })
-                                                    .flatMap(newlyCreatedActionCollection -> Flux.fromIterable(
-                                                                    updatedDefaultToBranchedActionId.values())
-                                                            .flatMap(newActionService::findById)
-                                                            .flatMap(newlyCreatedAction -> {
-                                                                newlyCreatedAction
-                                                                        .getUnpublishedAction()
-                                                                        .setCollectionId(
-                                                                                newlyCreatedActionCollection.getId());
-                                                                newlyCreatedAction
-                                                                        .getUnpublishedAction()
-                                                                        .getDefaultResources()
-                                                                        .setCollectionId(newlyCreatedActionCollection
-                                                                                .getDefaultResources()
-                                                                                .getCollectionId());
-                                                                return newActionService.update(
-                                                                        newlyCreatedAction.getId(), newlyCreatedAction);
-                                                            })
-                                                            .collectList());
-                                        })
-                                        .collectList();
-                            })
-                            .thenReturn(clonedPage);
-                })
-                // Calculate the on load actions for this page now that the page and actions have been created
-                .flatMap(savedPage -> {
-                    List<Layout> layouts = savedPage.getLayouts();
-
-                    return Flux.fromIterable(layouts)
-                            .flatMap(layout -> {
-                                layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
-                                return updateLayoutService.updateLayout(
-                                        savedPage.getId(), savedPage.getApplicationId(), layout.getId(), layout);
-                            })
-                            .collectList()
-                            .thenReturn(savedPage);
-                })
-                .flatMap(page -> {
-                    Mono<Application> applicationMono = applicationService.findById(
-                            page.getApplicationId(), applicationPermission.getEditPermission());
-                    return applicationMono.flatMap(application -> {
-                        ApplicationPage applicationPage = new ApplicationPage();
-                        applicationPage.setId(page.getId());
-                        applicationPage.setIsDefault(false);
-                        if (StringUtils.isEmpty(page.getDefaultResources().getPageId())) {
-                            applicationPage.setDefaultPageId(page.getId());
-                        } else {
-                            applicationPage.setDefaultPageId(
-                                    page.getDefaultResources().getPageId());
-                        }
-                        application.getPages().add(applicationPage);
-                        return applicationService.save(application).thenReturn(page);
-                    });
+                    clonePageMetaDTO.setClonedPageDTO(clonedPage);
+                    return clonePageDependentEntities(clonePageMetaDTO).then(updateClonedPageLayout(clonedPage));
                 });
     }
 
+    protected Mono<Void> clonePageDependentEntities(ClonePageMetaDTO clonePageMetaDTO) {
+        return actionClonePageService
+                .cloneEntities(clonePageMetaDTO)
+                .then(Mono.defer(() -> actionCollectionClonePageService.cloneEntities(clonePageMetaDTO)));
+    }
+
+    protected Mono<PageDTO> updateClonedPageLayout(PageDTO savedPage) {
+        List<Layout> layouts = savedPage.getLayouts();
+
+        // Use parallel processing for layout updates
+        return Flux.fromIterable(layouts)
+                .flatMap(layout -> {
+                    layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                    return updateLayoutService.updateLayout(
+                            savedPage.getId(), savedPage.getApplicationId(), layout.getId(), layout);
+                })
+                .collectList()
+                .then(Mono.defer(() -> {
+                    // Use Mono.defer to delay the execution of findById until it's actually subscribed
+                    return applicationService
+                            .findById(savedPage.getApplicationId(), applicationPermission.getEditPermission())
+                            .flatMap(application -> {
+                                ApplicationPage applicationPage = new ApplicationPage();
+                                applicationPage.setId(savedPage.getId());
+                                applicationPage.setIsDefault(false);
+
+                                String defaultPageId = StringUtils.isEmpty(
+                                                savedPage.getDefaultResources().getPageId())
+                                        ? savedPage.getId()
+                                        : savedPage.getDefaultResources().getPageId();
+
+                                applicationPage.setDefaultPageId(defaultPageId);
+                                application.getPages().add(applicationPage);
+
+                                return applicationService.save(application);
+                            })
+                            .thenReturn(savedPage);
+                }));
+    }
+
     private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId) {
-        return clonePageGivenApplicationId(pageId, applicationId, null);
+        final ClonePageMetaDTO clonePageMetaDTO = new ClonePageMetaDTO();
+        return clonePageGivenApplicationId(pageId, applicationId, null, clonePageMetaDTO);
     }
 
     @Override
