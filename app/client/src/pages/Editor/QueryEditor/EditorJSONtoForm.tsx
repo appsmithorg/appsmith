@@ -92,6 +92,7 @@ import QueryResponseTabView from "./QueryResponseView";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import { isAppsmithAIPlugin } from "utils/editorContextUtils";
+import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -354,9 +355,11 @@ export function EditorJSONtoForm(props: Props) {
     userWorkspacePermissions,
   );
 
+  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
+
   const showSchema =
     useShowSchema(currentActionConfig?.pluginId || "") &&
-    !!plugin?.requiresDatasource;
+    pluginRequireDatasource;
 
   const showRightPane =
     showSchema ||
@@ -622,7 +625,7 @@ export function EditorJSONtoForm(props: Props) {
   // Datasource selection is hidden for Appsmith AI Plugin and for plugins that don't require datasource
   // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented (Only remove the AI Condition)
   const showDatasourceSelector =
-    !isAppsmithAIPlugin(plugin?.packageName) && !!plugin?.requiresDatasource;
+    !isAppsmithAIPlugin(plugin?.packageName) && pluginRequireDatasource;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.

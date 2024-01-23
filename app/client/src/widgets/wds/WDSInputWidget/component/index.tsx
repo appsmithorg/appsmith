@@ -5,8 +5,19 @@ import { Icon, TextArea } from "@design-system/widgets";
 
 import { INPUT_TYPES } from "../constants";
 import type { InputComponentProps } from "./types";
+import { useDebouncedValue } from "@mantine/hooks";
+
+const DEBOUNCE_TIME = 300;
 
 function InputComponent(props: InputComponentProps) {
+  // Note: because of how derived props are handled by MetaHoc, the isValid shows wrong
+  // values for some milliseconds. To avoid that, we are using debounced value.
+  const [validationStatus] = useDebouncedValue(
+    props.validationStatus,
+    DEBOUNCE_TIME,
+  );
+  const [errorMessage] = useDebouncedValue(props.errorMessage, DEBOUNCE_TIME);
+
   const startIcon = (() => {
     if (props.iconName && props.iconAlign === "left") {
       return <Icon name={props.iconName} />;
@@ -84,7 +95,7 @@ function InputComponent(props: InputComponentProps) {
       contextualHelp={props.tooltip}
       defaultValue={props.defaultValue}
       endIcon={endIcon}
-      errorMessage={props.errorMessage}
+      errorMessage={props.validationStatus === "invalid" ? errorMessage : ""}
       isDisabled={props.isDisabled}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
@@ -99,7 +110,7 @@ function InputComponent(props: InputComponentProps) {
       spellCheck={props.spellCheck}
       startIcon={startIcon}
       type={type}
-      validationState={props.validationStatus}
+      validationState={validationStatus}
       value={props.value}
     />
   );

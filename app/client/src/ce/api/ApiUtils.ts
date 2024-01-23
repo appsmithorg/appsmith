@@ -35,7 +35,6 @@ const appsmithConfig = getAppsmithConfigs();
 
 export const BLOCKED_ROUTES = [
   "v1/app-templates",
-  "v1/marketplace",
   "v1/datasources/mocks",
   "v1/usage-pulse",
   "v1/applications/releaseItems",
