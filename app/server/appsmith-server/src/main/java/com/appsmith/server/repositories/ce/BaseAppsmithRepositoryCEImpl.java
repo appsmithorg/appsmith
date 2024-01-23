@@ -190,18 +190,18 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     @Deprecated
-    public Mono<T> updateById(Long id, T resource, AclPermission permission) {
+    public Optional<T> updateById(Long id, T resource, AclPermission permission) {
         if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
         if (resource == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
         return updateById(id, resource, Optional.ofNullable(permission));
     }
 
-    public Mono<T> updateById(Long id, T resource, Optional<AclPermission> permission) {
-        return Mono.empty(); /*
+    public Optional<T> updateById(Long id, T resource, Optional<AclPermission> permission) {
+        return Optional.empty(); /*
         Query query = new Query(Criteria.where("id").is(id));
 
         // Set policies to null in the update object

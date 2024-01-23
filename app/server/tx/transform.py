@@ -376,11 +376,9 @@ def main():
     convert("Theme")
     convert("EmailVerificationToken")
     convert("Config")
-    convert("Provider")
     convert("PasswordResetToken")
     convert("DatasourceStorage")
     convert("Tenant")
-    convert("ApiTemplate")
     convert("Collection")
     convert("Asset")
 

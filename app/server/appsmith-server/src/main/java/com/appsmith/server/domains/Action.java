@@ -1,6 +1,5 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
