@@ -92,7 +92,7 @@ export const propertyPaneContentConfig = [
                   propertyName: "iconName",
                   label: "Icon",
                   helpText: "Sets the icon to be used for a button",
-                  controlType: "ICON_SELECT",
+                  controlType: "ICON_SELECT_V2",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,

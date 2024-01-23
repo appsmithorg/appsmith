@@ -67,10 +67,6 @@
     color: inherit !important;
   }
 
-  &[data-button] [data-icon] path {
-    fill: currentColor;
-  }
-
   /**
   * ----------------------------------------------------------------------------
   * CONTENT

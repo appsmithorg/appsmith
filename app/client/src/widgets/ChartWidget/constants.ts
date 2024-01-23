@@ -1,5 +1,4 @@
 import { Colors } from "constants/Colors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export type ChartType =
   | "LINE_CHART"
@@ -84,12 +83,6 @@ export const messages = {
       : "Custom Fusion Charts";
   },
 };
-
-export const CUSTOM_ECHART_FEATURE_FLAG =
-  FEATURE_FLAG["release_custom_echarts_enabled"];
-
-export const FUSION_CHART_DEPRECATION_FLAG =
-  FEATURE_FLAG["deprecate_custom_fusioncharts_enabled"];
 
 export const CUSTOM_CHART_TYPES = [
   "area2d",

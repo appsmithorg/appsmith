@@ -15,7 +15,6 @@ import batchSagas from "sagas/BatchSagas";
 import autoLayoutDraggingSagas from "sagas/CanvasSagas/AutoLayoutDraggingSagas";
 import draggingCanvasSagas from "sagas/CanvasSagas/DraggingCanvasSagas";
 import selectionCanvasSagas from "sagas/CanvasSagas/SelectionCanvasSagas";
-import importedCollectionsSagas from "sagas/CollectionSagas";
 import curlImportSagas from "sagas/CurlImportSagas";
 import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
 import debuggerSagas from "sagas/DebuggerSagas";
@@ -36,7 +35,6 @@ import onboardingSagas from "sagas/OnboardingSagas";
 import pageSagas from "@appsmith/sagas/PageSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import pluginSagas from "sagas/PluginSagas";
-import providersSagas from "sagas/ProvidersSaga";
 import queryPaneSagas from "sagas/QueryPaneSagas";
 import replaySaga from "sagas/ReplaySaga";
 import saaSPaneSagas from "sagas/SaaSPaneSagas";
@@ -73,8 +71,6 @@ export const sagas = [
   templateSagas,
   pluginSagas,
   workspaceSagas,
-  importedCollectionsSagas,
-  providersSagas,
   curlImportSagas,
   snipingModeSagas,
   queryPaneSagas,

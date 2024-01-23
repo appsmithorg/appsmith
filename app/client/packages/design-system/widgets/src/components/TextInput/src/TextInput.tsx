@@ -8,11 +8,10 @@ import { getTypographyClassName } from "@design-system/theming";
 import { TextInput as HeadlessTextInput } from "@design-system/headless";
 
 import { Spinner } from "../../Spinner";
-import { EyeIcon } from "./icons/EyeIcon";
 import { IconButton } from "../../IconButton";
-import { EyeOffIcon } from "./icons/EyeOffIcon";
 import { ContextualHelp } from "./ContextualHelp";
 import { textInputStyles, fieldStyles } from "../../../styles";
+import type { IconProps } from "../../Icon";
 
 export interface TextInputProps extends HeadlessTextInputProps {
   /** position for the laoding icon */
@@ -58,12 +57,12 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
 
   const renderEndIcon = () => {
     if (type === "password") {
-      const Icon = showPassword ? EyeOffIcon : EyeIcon;
+      const icon: IconProps["name"] = showPassword ? "eye-off" : "eye";
 
       return (
         <IconButton
           color="neutral"
-          icon={Icon}
+          icon={icon}
           onPress={onPressEyeIcon}
           variant="ghost"
         />
