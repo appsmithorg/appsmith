@@ -6,7 +6,6 @@ import IntegrationEditor from "pages/Editor/IntegrationEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
 import JSEditor from "pages/Editor/JSEditor";
 import GeneratePage from "pages/Editor/GeneratePage";
-import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_PATH,
   BUILDER_CHECKLIST_PATH,
@@ -14,7 +13,6 @@ import {
   GENERATE_TEMPLATE_FORM_PATH,
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
-  PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import PerformanceTracker, {
@@ -95,11 +93,6 @@ function EditorRoutes() {
           path={`${path}${childPath}`}
         />
       ))}
-      <SentryRoute
-        component={ProviderTemplates}
-        exact
-        path={`${path}${PROVIDER_TEMPLATE_PATH}`}
-      />
       <SentryRoute
         component={GeneratePage}
         exact

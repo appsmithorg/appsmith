@@ -6,7 +6,6 @@ import {
   NetworkOnly,
   StaleWhileRevalidate,
 } from "workbox-strategies";
-import { ExpirationPlugin } from "workbox-expiration";
 
 setCacheNameDetails({
   prefix: "appsmith",
@@ -23,7 +22,6 @@ const regexMap = {
   ),
   shims: new RegExp(/shims\/.*.js/),
   profile: new RegExp(/v1\/(users\/profile|workspaces)/),
-  providers: new RegExp(/v1\/marketplace\/(providers|templates)/),
 };
 
 /* eslint-disable no-restricted-globals */
@@ -52,17 +50,6 @@ registerRoute(({ url }) => {
 registerRoute(({ url }) => {
   return regexMap.appViewPage.test(url.pathname);
 }, new StaleWhileRevalidate());
-
-registerRoute(
-  ({ url }) => regexMap.providers.test(url.pathname),
-  new CacheFirst({
-    plugins: [
-      new ExpirationPlugin({
-        maxAgeSeconds: 1 * 60 * 60,
-      }),
-    ],
-  }),
-);
 
 registerRoute(
   new Route(({ request, sameOrigin }) => {
