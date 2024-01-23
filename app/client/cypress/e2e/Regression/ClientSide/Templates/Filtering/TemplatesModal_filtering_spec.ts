@@ -45,20 +45,18 @@ describe(
       PageList.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(templates.locators._templateDialogBox);
 
-      cy.xpath("//h1[text()='Customer Messaging Tool']")
-        .scrollIntoView()
-        .wait(500)
-        .click();
+      agHelper.GetNClick("//h1[text()='Customer Messaging Tool']");
+
       agHelper.GetNClick(templateLocators.templateViewForkButton);
 
-      cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
-      cy.get(reconnectDatasourceLocators.DatasourceList)
+      agHelper.AssertElementVisibility(reconnectDatasourceLocators.Modal, true);
+      agHelper
+        .GetElement(reconnectDatasourceLocators.DatasourceList)
         .find(reconnectDatasourceLocators.ListItemIcon)
         .should("be.visible");
-      cy.get(reconnectDatasourceLocators.DatasourceList)
-        .find(reconnectDatasourceLocators.DatasourceTitle, {
-          withinSubject: null,
-        })
+      agHelper
+        .GetElement(reconnectDatasourceLocators.DatasourceList)
+        .find(reconnectDatasourceLocators.DatasourceTitle)
         .first()
         .trigger("mouseover");
       cy.get(".ads-v2-tooltip").should("be.visible");
