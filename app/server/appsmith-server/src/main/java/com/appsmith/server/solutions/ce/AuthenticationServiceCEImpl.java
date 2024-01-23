@@ -138,8 +138,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
                     final String state = StringUtils.hasText(branchName)
                             ? String.join(
-                                    ",", pageId, datasourceId, trueEnvironmentId, workspaceId, redirectUri, branchName)
-                            : String.join(",", pageId, datasourceId, trueEnvironmentId, workspaceId, redirectUri);
+                                    ",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId, branchName)
+                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(
                                     oAuth2.getAuthorizationUrl())
@@ -334,8 +334,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         final String pageId = splitState[0];
         final String datasourceId = splitState[1];
         final String environmentId = splitState[2];
-        final String workspaceId = splitState[3];
-        final String redirectOrigin = splitState[4];
+        final String redirectOrigin = splitState[3];
+        final String workspaceId = splitState[4];
         final String branchName = splitState.length == 6 ? splitState[5] : null;
         String response = SUCCESS;
         if (error != null) {
