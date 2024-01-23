@@ -12,7 +12,6 @@ export interface INJECTED_CONFIGS {
   smartLook: {
     id: string;
   };
-  enableRapidAPI: boolean;
   segment: {
     apiKey: string;
     ceKey: string;
@@ -103,9 +102,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         | "debug"
         | "error"
         | undefined) || "error",
-    enableRapidAPI: process.env.REACT_APP_MARKETPLACE_URL
-      ? process.env.REACT_APP_MARKETPLACE_URL.length > 0
-      : false,
     cloudHosting: process.env.REACT_APP_CLOUD_HOSTING
       ? process.env.REACT_APP_CLOUD_HOSTING.length > 0
       : false,
@@ -284,10 +280,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       enabled: googleRecaptchaSiteKey.enabled,
       apiKey: googleRecaptchaSiteKey.value,
     },
-    enableRapidAPI:
-      ENV_CONFIG.enableRapidAPI ||
-      APPSMITH_FEATURE_CONFIGS?.enableRapidAPI ||
-      false,
     enableMixpanel:
       ENV_CONFIG.enableMixpanel ||
       APPSMITH_FEATURE_CONFIGS?.enableMixpanel ||
