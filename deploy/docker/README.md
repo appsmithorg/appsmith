@@ -45,7 +45,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "9001:9001"
     volumes:
       - ./stacks:/appsmith-stacks
     restart: unless-stopped
@@ -96,7 +95,7 @@ To make Appsmith available on a custom domain, please update your domain's DNS r
 ## Custom SSL Certificate
 
 In our container, we support to generate a free SSL certificate If you have your owned certificate, please follow these steps to use it inside the container.
-- Firstly, please rename your certificate file as `fullchain.pem` and key file as `privkey.pem` 
+- Firstly, please rename your certificate file as `fullchain.pem` and key file as `privkey.pem`
 - Then, copy these files into the sub-directory `<mounting-directory>/ssl/` (*Note: Please change `<mounting-directory>` by the mounting volume directory in the `docker-compose.yml`. Default is `./stacks`*)
 - Restart the container using `docker restart appsmith`
 

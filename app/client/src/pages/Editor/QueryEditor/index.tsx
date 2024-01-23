@@ -36,6 +36,7 @@ import Disabler from "pages/common/Disabler";
 import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
+import { PluginType } from "entities/Action";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -83,12 +84,15 @@ function QueryEditor(props: QueryEditorProps) {
           name={action?.name || ""}
           pageId={pageId}
         />
-        <ConvertToModuleInstanceCTA
-          canCreateModuleInstance={isCreatePermitted}
-          canDeleteEntity={isDeletePermitted}
-          entityId={action?.id || ""}
-          moduleType={MODULE_TYPE.QUERY}
-        />
+        {action?.pluginType !== PluginType.INTERNAL && (
+          // Need to remove this check once workflow query is supported in module
+          <ConvertToModuleInstanceCTA
+            canCreateModuleInstance={isCreatePermitted}
+            canDeleteEntity={isDeletePermitted}
+            entityId={action?.id || ""}
+            moduleType={MODULE_TYPE.QUERY}
+          />
+        )}
       </>
     ),
     [

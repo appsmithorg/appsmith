@@ -34,7 +34,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @NoArgsConstructor
 @QueryEntity
 @Document
-public class Application extends BaseDomain {
+public class Application extends BaseDomain implements ImportableArtifact {
 
     @NotNull @JsonView(Views.Public.class)
     String name;
@@ -423,6 +423,9 @@ public class Application extends BaseDomain {
         @JsonView(Views.Public.class)
         Type colorMode;
 
+        @JsonView(Views.Public.class)
+        IconStyle iconStyle;
+
         public ThemeSetting(Type colorMode) {
             this.colorMode = colorMode;
         }
@@ -430,6 +433,11 @@ public class Application extends BaseDomain {
         public enum Type {
             LIGHT,
             DARK
+        }
+
+        public enum IconStyle {
+            OUTLINED,
+            FILLED
         }
     }
 }

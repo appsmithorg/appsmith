@@ -40,7 +40,6 @@ public class FieldNameCE {
     public static String CHILDREN = "children";
     public static String ORIGIN = "origin";
     public static String USER = "user";
-    public static String PROVIDER_ID = "providerId";
     public static String CATEGORY = "category";
     public static String PAGE = "page";
     public static String PAGES = "pages";
@@ -196,4 +195,7 @@ public class FieldNameCE {
     public static final String INSTANCE_ID = "instanceId";
     public static final String IP_ADDRESS = "ipAddress";
     public static final String VERSION = "version";
+    public static final String PUBLISHED = "published";
+    public static final String UNPUBLISHED = "unpublished";
+    public static final String ARTIFACT_CONTEXT = "artifactContext";
 }

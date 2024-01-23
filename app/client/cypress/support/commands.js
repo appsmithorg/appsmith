@@ -923,10 +923,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "getAppPageEdit",
   );
   cy.intercept("GET", "/api/v1/actions*").as("getActions");
-  cy.intercept("GET", "api/v1/providers/categories").as("getCategories");
-  cy.intercept("GET", "api/v1/import/templateCollections").as(
-    "getTemplateCollections",
-  );
   cy.intercept("PUT", "/api/v1/pages/*").as("updatePage");
   cy.intercept("PUT", "api/v1/applications/*/page/*/makeDefault").as(
     "makePageDefault",
@@ -966,14 +962,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "curlImport",
   );
   cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
-  cy.intercept(
-    "GET",
-    "/api/v1/marketplace/providers?category=*&page=*&size=*",
-  ).as("get3PProviders");
-  cy.intercept("GET", "/api/v1/marketplace/templates?providerId=*").as(
-    "get3PProviderTemplates",
-  );
-  cy.intercept("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
 
   cy.intercept("GET", "/api/v1/plugins/*/form").as("getPluginForm");
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApplication");

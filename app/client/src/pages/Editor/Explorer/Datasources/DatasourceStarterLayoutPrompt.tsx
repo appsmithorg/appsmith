@@ -109,7 +109,10 @@ function DatasourceStarterLayoutPrompt() {
         </PopoverBody>
 
         <BtnContainer>
-          <Button onClick={onClickConnect}>
+          <Button
+            data-testid="t--datasource-connect-prompt-submit-btn"
+            onClick={onClickConnect}
+          >
             {createMessage(
               STARTER_TEMPLATE_PAGE_LAYOUTS.datasourceConnectPrompt.buttonText,
             )}

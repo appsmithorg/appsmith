@@ -84,7 +84,7 @@ export class HomePage {
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-testid=t--workspace-import-app]";
-  private _uploadFile = "//div/form/input";
+  public _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
   public _appCard = (applicationName: string) =>
@@ -122,6 +122,10 @@ export class HomePage {
   private _applicationEditedText = (applicationName: string) =>
     this._appCard(applicationName) +
     "//div[contains(@class, 't--application-edited-text')]";
+
+  private _applicationMultiSelectionCheckbox = (applicationName: string) =>
+    this._appCard(applicationName) +
+    "//label[contains(@class, 't--app-multi-select-checkbox')]";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -679,7 +683,9 @@ export class HomePage {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
-    this.agHelper.WaitUntilToastDisappear("Deleting application...");
+    // Toast has been removed
+    // this.agHelper.WaitUntilToastDisappear("Deleting application...");
+    this.assertHelper.AssertNetworkStatus("@deleteApp", 200);
   }
 
   public DeleteAppviaAPI(appId: any) {
@@ -715,13 +721,12 @@ export class HomePage {
   }
 
   public SelectMultipleApplicationToDelete(applicationName: string) {
+    this.agHelper
+      .GetElement(this._appCard(applicationName))
+      .first()
+      .realHover();
     this.agHelper.GetNClick(
-      this._applicationEditedText(applicationName),
-      0,
-      false,
-      500,
-      false,
-      true,
+      this._applicationMultiSelectionCheckbox(applicationName),
     );
   }
 }
