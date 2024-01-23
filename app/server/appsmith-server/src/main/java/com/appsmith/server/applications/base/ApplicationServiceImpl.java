@@ -43,10 +43,12 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -122,6 +124,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             ApplicationPermission applicationPermission,
             SessionUserService sessionUserService,
             UserDataService userDataService,
+            WorkspaceService workspaceService,
+            WorkspacePermission workspacePermission,
             PermissionGroupRepository permissionGroupRepository,
             PermissionGroupPermission permissionGroupPermission,
             RoleConfigurationSolution roleConfigurationSolution,
@@ -148,7 +152,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 datasourcePermission,
                 applicationPermission,
                 sessionUserService,
-                userDataService);
+                userDataService,
+                workspaceService,
+                workspacePermission);
         this.permissionGroupService = permissionGroupService;
         this.policySolution = policySolution;
         this.permissionGroupRepository = permissionGroupRepository;
