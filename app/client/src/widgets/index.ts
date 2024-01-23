@@ -77,6 +77,7 @@ import { SectionWidget } from "./anvil/SectionWidget";
 import { ZoneWidget } from "./anvil/ZoneWidget";
 import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
 import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
+import { WDSIconWidget } from "./wds/WDSIconWidget";
 
 const Widgets = [
   CanvasWidget,
@@ -147,6 +148,7 @@ const Widgets = [
   ZoneWidget,
   WDSParagraphWidget,
   WDSHeadingWidget,
+  WDSIconWidget,
 
   //Deprecated Widgets
   InputWidget,
