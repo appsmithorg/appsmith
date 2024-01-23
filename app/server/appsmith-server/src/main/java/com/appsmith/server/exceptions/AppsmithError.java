@@ -515,14 +515,6 @@ public enum AppsmithError {
             "I/O error",
             ErrorType.INTERNAL_ERROR,
             null),
-    MARKETPLACE_TIMEOUT(
-            504,
-            AppsmithErrorCode.MARKETPLACE_TIMEOUT.getCode(),
-            "Marketplace is responding too slowly. Please try again later",
-            AppsmithErrorAction.DEFAULT,
-            "Timeout in marketplace",
-            ErrorType.CONNECTIVITY_ERROR,
-            null),
     DATASOURCE_HAS_ACTIONS(
             409,
             AppsmithErrorCode.DATASOURCE_HAS_ACTIONS.getCode(),
@@ -554,14 +546,6 @@ public enum AppsmithError {
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Unsupported login method",
             ErrorType.BAD_REQUEST,
-            null),
-    MARKETPLACE_NOT_CONFIGURED(
-            500,
-            AppsmithErrorCode.MARKETPLACE_NOT_CONFIGURED.getCode(),
-            "Marketplace is not configured.",
-            AppsmithErrorAction.DEFAULT,
-            "Marketplace not configured",
-            ErrorType.CONFIGURATION_ERROR,
             null),
     PAYLOAD_TOO_LARGE(
             413,

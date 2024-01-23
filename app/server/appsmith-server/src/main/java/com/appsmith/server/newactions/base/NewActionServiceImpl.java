@@ -37,7 +37,6 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -105,7 +104,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             DatasourceService datasourceService,
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
-            MarketplaceService marketplaceService,
             PolicyGenerator policyGenerator,
             NewPageService newPageService,
             ApplicationService applicationService,
@@ -136,7 +134,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 datasourceService,
                 pluginService,
                 pluginExecutorHelper,
-                marketplaceService,
                 policyGenerator,
                 newPageService,
                 applicationService,

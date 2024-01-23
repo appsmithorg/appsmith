@@ -21,13 +21,7 @@ public class UrlCE {
     public static final String COLLECTION_URL = BASE_URL + VERSION + "/collections";
     public static final String ACTION_COLLECTION_URL = COLLECTION_URL + "/actions";
     public static final String IMPORT_URL = BASE_URL + VERSION + "/import";
-    public static final String PROVIDER_URL = BASE_URL + VERSION + "/providers";
-    public static final String MARKETPLACE_URL = BASE_URL + VERSION + "/marketplace";
-    public static final String API_TEMPLATE_URL = BASE_URL + VERSION + "/templates";
-    public static final String MARKETPLACE_ITEM_URL = BASE_URL + VERSION + "/items";
     public static final String ASSET_URL = BASE_URL + VERSION + "/assets";
-    public static final String COMMENT_URL = BASE_URL + VERSION + "/comments";
-    public static final String NOTIFICATION_URL = BASE_URL + VERSION + "/notifications";
     public static final String INSTANCE_ADMIN_URL = BASE_URL + VERSION + "/admin";
     public static final String GIT_URL = BASE_URL + VERSION + "/git";
     public static final String THEME_URL = BASE_URL + VERSION + "/themes";
