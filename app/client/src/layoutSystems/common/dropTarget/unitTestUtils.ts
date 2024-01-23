@@ -321,6 +321,7 @@ export const unitTestBaseMockStore = {
           },
         ],
       },
+      userWorkspaces: [],
       isFetchingApplications: false,
     },
     templates: {

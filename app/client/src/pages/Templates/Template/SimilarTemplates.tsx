@@ -62,7 +62,7 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
             {createMessage(VIEW_ALL_TEMPLATES)}
           </Link>
         </SimilarTemplatesTitleWrapper>
-        <TemplateGrid>
+        <TemplateGrid data-testid="t--similar-templates-grid">
           {props.similarTemplates.map((template) => {
             if (
               template.functions.includes(
