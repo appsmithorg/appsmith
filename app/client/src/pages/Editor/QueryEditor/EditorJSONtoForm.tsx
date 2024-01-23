@@ -356,7 +356,9 @@ export function EditorJSONtoForm(props: Props) {
 
   const showSchema =
     useShowSchema(currentActionConfig?.pluginId || "") &&
-    !!plugin?.requiresDatasource;
+    (!!plugin && plugin.hasOwnProperty("requiresDatasource")
+      ? plugin.requiresDatasource
+      : true);
 
   const showRightPane =
     showSchema ||
