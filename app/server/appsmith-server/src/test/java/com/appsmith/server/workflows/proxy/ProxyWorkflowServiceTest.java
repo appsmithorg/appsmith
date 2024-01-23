@@ -24,7 +24,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +38,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -48,14 +46,11 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.FieldName.WORKFLOW;
-import static com.appsmith.server.constants.FieldName.WORKFLOW_ID;
-import static com.appsmith.server.constants.QueryParams.FILTER_DELIMITER;
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
 import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
@@ -166,13 +161,13 @@ public class ProxyWorkflowServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void testInvalidGetWorkflowHistoryByWorkflowId() {
-        Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
+    void testInvalidGetWorkflowRunActivities() {
+        Mockito.when(workflowProxyHelper.getWorkflowRunActivities(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(emptyJsonNode()));
-        Mono<JsonNode> workflowHistoryByWorkflowIdMono =
-                proxyWorkflowService.getWorkflowHistoryByWorkflowId("random-workflow-id", new LinkedMultiValueMap<>());
+        Mono<JsonNode> workflowRunActivitiesByWorkflowIdMono =
+                proxyWorkflowService.getWorkflowRunActivities("random-workflow-id", "random-run-id");
 
-        StepVerifier.create(workflowHistoryByWorkflowIdMono)
+        StepVerifier.create(workflowRunActivitiesByWorkflowIdMono)
                 .expectErrorMatches(throwable -> {
                     assertThat(throwable).isInstanceOf(AppsmithException.class);
                     assertThat(throwable.getMessage())
@@ -184,97 +179,20 @@ public class ProxyWorkflowServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void testValidGetWorkflowHistoryByWorkflowId() {
-        Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
+    void testInvalidGetWorkflowRuns() {
+        Mockito.when(workflowProxyHelper.getWorkflowRuns(Mockito.anyString(), Mockito.any()))
                 .thenReturn(Mono.just(emptyJsonNode()));
-        Mono<JsonNode> workflowHistoryByWorkflowIdMono =
-                proxyWorkflowService.getWorkflowHistoryByWorkflowId(workflow.getId(), new LinkedMultiValueMap<>());
+        Mono<JsonNode> workflowRunsByWorkflowIdMono =
+                proxyWorkflowService.getWorkflowRuns("random-workflow-id", new LinkedMultiValueMap<>());
 
-        StepVerifier.create(workflowHistoryByWorkflowIdMono)
-                .assertNext(workflowHistoryByWorkflowId -> {
-                    assertThat(workflowHistoryByWorkflowId).isNotNull();
-                    JSONObject expectedResponse = new JSONObject();
-                    assertThat(workflowHistoryByWorkflowId.toString()).isEqualTo(expectedResponse.toString());
+        StepVerifier.create(workflowRunsByWorkflowIdMono)
+                .expectErrorMatches(throwable -> {
+                    assertThat(throwable).isInstanceOf(AppsmithException.class);
+                    assertThat(throwable.getMessage())
+                            .contains(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(WORKFLOW, "random-workflow-id"));
+                    return true;
                 })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    void testValidGetWorkflowHistory_validWorkflowIdsOnly() {
-        Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
-                .thenReturn(Mono.just(emptyJsonNode()));
-        MultiValueMap<String, String> workflowIdFilter = new LinkedMultiValueMap<>();
-        List<String> validWorkflowIds = List.of(workflow.getId());
-        workflowIdFilter.add(WORKFLOW_ID, String.join(FILTER_DELIMITER, validWorkflowIds));
-        Mono<JsonNode> workflowHistoryByWorkflowIdMono = proxyWorkflowService.getWorkflowHistory(workflowIdFilter);
-
-        StepVerifier.create(workflowHistoryByWorkflowIdMono)
-                .assertNext(workflowHistoryByWorkflowId -> {
-                    assertThat(workflowHistoryByWorkflowId).isNotNull();
-                    JSONObject expectedResponse = new JSONObject();
-                    assertThat(workflowHistoryByWorkflowId.toString()).isEqualTo(expectedResponse.toString());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    void testValidGetWorkflowHistory_validAndInvalidWorkflowIds() {
-        Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
-                .thenReturn(Mono.just(emptyJsonNode()));
-        MultiValueMap<String, String> workflowIdFilter = new LinkedMultiValueMap<>();
-        List<String> validAndInvalidWorkflowIds = List.of(workflow.getId(), "random-workflow-id");
-        workflowIdFilter.add(WORKFLOW_ID, String.join(FILTER_DELIMITER, validAndInvalidWorkflowIds));
-        Mono<JsonNode> workflowHistoryByWorkflowIdMono = proxyWorkflowService.getWorkflowHistory(workflowIdFilter);
-
-        StepVerifier.create(workflowHistoryByWorkflowIdMono)
-                .assertNext(workflowHistoryByWorkflowId -> {
-                    assertThat(workflowHistoryByWorkflowId).isNotNull();
-                    JSONObject expectedResponse = new JSONObject();
-                    assertThat(workflowHistoryByWorkflowId.toString()).isEqualTo(expectedResponse.toString());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    void testValidGetWorkflowHistory_noWorkflowIds() {
-        Mockito.when(workflowProxyHelper.getWorkflowHistoryFromProxySource(any()))
-                .thenReturn(Mono.just(emptyJsonNode()));
-        Mono<JsonNode> workflowHistoryByWorkflowIdMono =
-                proxyWorkflowService.getWorkflowHistory(new LinkedMultiValueMap<>());
-
-        StepVerifier.create(workflowHistoryByWorkflowIdMono)
-                .assertNext(workflowHistoryByWorkflowId -> {
-                    assertThat(workflowHistoryByWorkflowId).isNotNull();
-                    JSONObject expectedResponse = new JSONObject();
-                    assertThat(workflowHistoryByWorkflowId.toString()).isEqualTo(expectedResponse.toString());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    void testValidGetWorkflowHistory_noAccessToAnyWorkflowIds() {
-        // Mocking the workflowProxyHelper.getWorkflowHistoryFromProxySource not required.
-        // As we are not forwarding any request to the Workflow Proxy, if the user has no access to any Workflows.
-
-        String testName = "testValidGetWorkflowHistory_noAccessToAnyWorkflowIds";
-        User user = new User();
-        user.setEmail(testName);
-        user.setPassword(testName);
-        User createdUser = userService.create(user).block();
-        Mono<JsonNode> workflowHistoryByWorkflowIdMono =
-                runAs(proxyWorkflowService.getWorkflowHistory(new LinkedMultiValueMap<>()), createdUser, testName);
-
-        StepVerifier.create(workflowHistoryByWorkflowIdMono)
-                .assertNext(workflowHistoryByWorkflowId -> {
-                    assertThat(workflowHistoryByWorkflowId).isNotNull();
-                    JSONObject expectedResponse = new JSONObject();
-                    assertThat(workflowHistoryByWorkflowId.toString()).isEqualTo(expectedResponse.toString());
-                })
-                .verifyComplete();
+                .verify();
     }
 
     private JsonNode emptyJsonNode() {

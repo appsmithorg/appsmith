@@ -5,7 +5,8 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 public interface ProxyWorkflowServiceCECompatible {
-    Mono<JsonNode> getWorkflowHistory(MultiValueMap<String, String> filters);
 
-    Mono<JsonNode> getWorkflowHistoryByWorkflowId(String id, MultiValueMap<String, String> filters);
+    Mono<JsonNode> getWorkflowRunActivities(String workflowId, String runId);
+
+    Mono<JsonNode> getWorkflowRuns(String workflowId, MultiValueMap<String, String> queryParams);
 }

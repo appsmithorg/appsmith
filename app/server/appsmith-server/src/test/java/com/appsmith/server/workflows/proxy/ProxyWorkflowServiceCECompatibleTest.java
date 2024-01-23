@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,17 +34,17 @@ class ProxyWorkflowServiceCECompatibleTest {
     }
 
     @Test
-    void getWorkflowHistory() {
+    void getWorkflowRunActivities() {
         AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> proxyWorkflowService
-                .getWorkflowHistory(new LinkedMultiValueMap<>())
+                .getWorkflowRunActivities("random-workflow-id", "random-run-id")
                 .block());
         assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
     }
 
     @Test
-    void getWorkflowHistoryByWorkflowId() {
+    void getWorkflowRuns() {
         AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> proxyWorkflowService
-                .getWorkflowHistoryByWorkflowId("random-workflow-id", new LinkedMultiValueMap<>())
+                .getWorkflowRuns("random-workflow-id", null)
                 .block());
         assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
     }

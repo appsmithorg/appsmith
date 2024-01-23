@@ -106,25 +106,6 @@ public class WorkflowController {
 
     @JsonView(Views.Public.class)
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/history")
-    public Mono<ResponseDTO<JsonNode>> getWorkflowHistory(@RequestParam MultiValueMap<String, String> filters) {
-        return proxyWorkflowService
-                .getWorkflowHistory(filters)
-                .map(workflowHistory -> new ResponseDTO<>(HttpStatus.OK.value(), workflowHistory, null));
-    }
-
-    @JsonView(Views.Public.class)
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/history/{id}")
-    public Mono<ResponseDTO<JsonNode>> getWorkflowHistoryForWorkflowId(
-            @PathVariable String id, @RequestParam MultiValueMap<String, String> filters) {
-        return proxyWorkflowService
-                .getWorkflowHistoryByWorkflowId(id, filters)
-                .map(workflowHistory -> new ResponseDTO<>(HttpStatus.OK.value(), workflowHistory, null));
-    }
-
-    @JsonView(Views.Public.class)
-    @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/token/{id}")
     public Mono<ResponseDTO<Boolean>> archiveBearerTokenForWorkflow(@PathVariable String id) {
         log.debug("Archiving Bearer Token for workflow: {}", id);
@@ -154,5 +135,25 @@ public class WorkflowController {
                         serverWebExchange.getRequest().getHeaders(),
                         triggerData)
                 .map(triggeredWorkflow -> new ResponseDTO<>(HttpStatus.OK.value(), triggeredWorkflow, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{workflowId}/runs/{runId}/activities")
+    public Mono<ResponseDTO<JsonNode>> getWorkflowRunActivities(
+            @PathVariable String workflowId, @PathVariable String runId) {
+        log.debug("Getting activities for Workflow {} and Run {}", workflowId, runId);
+        return proxyWorkflowService
+                .getWorkflowRunActivities(workflowId, runId)
+                .map(workflowRunActivity -> new ResponseDTO<>(HttpStatus.OK.value(), workflowRunActivity, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{workflowId}/runs")
+    public Mono<ResponseDTO<JsonNode>> getWorkflowRuns(
+            @PathVariable String workflowId, @RequestParam MultiValueMap<String, String> queryParams) {
+        log.debug("Getting runs for Workflow {}", workflowId);
+        return proxyWorkflowService
+                .getWorkflowRuns(workflowId, queryParams)
+                .map(workflowRunActivity -> new ResponseDTO<>(HttpStatus.OK.value(), workflowRunActivity, null));
     }
 }

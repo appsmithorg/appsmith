@@ -8,10 +8,12 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 public interface WorkflowProxyHelper {
-    Mono<JsonNode> getWorkflowHistoryFromProxySource(MultiValueMap<String, String> filters);
-
     Mono<JsonNode> updateApprovalRequestResolutionOnProxy(
             ApprovalRequestResolutionProxyDTO approvalRequestResolutionProxyDTO);
 
     Mono<JsonNode> triggerWorkflowOnProxy(WorkflowTriggerProxyDTO workflowTriggerProxyDTO, HttpHeaders httpHeaders);
+
+    Mono<JsonNode> getWorkflowRunActivities(String workflowId, String runId);
+
+    Mono<JsonNode> getWorkflowRuns(String workflowId, MultiValueMap<String, String> queryParams);
 }
