@@ -21,7 +21,6 @@ const WHITELISTED_SETTINGS_FOR_CREATOR: Record<PluginType, string[]> = {
   [PluginType.JS]: [],
   [PluginType.REMOTE]: ["actionConfiguration.timeoutInMillisecond"],
   [PluginType.AI]: ["actionConfiguration.timeoutInMillisecond"],
-  [PluginType.INTERNAL]: [],
 };
 const WHITELISTED_SETTINGS_FOR_CONSUMER: Record<PluginType, string[]> = {
   [PluginType.API]: ["executeOnLoad", "confirmBeforeExecute"],
@@ -30,7 +29,6 @@ const WHITELISTED_SETTINGS_FOR_CONSUMER: Record<PluginType, string[]> = {
   [PluginType.JS]: [],
   [PluginType.REMOTE]: ["executeOnLoad", "confirmBeforeExecute"],
   [PluginType.AI]: ["executeOnLoad", "confirmBeforeExecute"],
-  [PluginType.INTERNAL]: [],
 };
 
 function useModuleFallbackSettingsForm({
