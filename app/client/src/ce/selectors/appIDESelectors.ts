@@ -1,10 +1,11 @@
-import { groupBy, sortBy } from "lodash";
+import { groupBy, keyBy, sortBy } from "lodash";
 import { createSelector } from "reselect";
 import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,
 } from "@appsmith/selectors/entitiesSelector";
+import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 
 export type EditorSegmentList = Array<{
   group: string | "NA";
@@ -31,11 +32,6 @@ const groupAndSortEntitySegmentList = (
   );
 };
 
-function recentSortEntitySegmentTabs(items: EntityItem[]) {
-  // TODO Temp implementation
-  return sortBy(items, "title");
-}
-
 export const selectQuerySegmentEditorList = createSelector(
   getQuerySegmentItems,
   (items) => {
@@ -51,14 +47,22 @@ export const selectJSSegmentEditorList = createSelector(
 
 export const selectJSSegmentEditorTabs = createSelector(
   getJSSegmentItems,
-  (items) => {
-    return recentSortEntitySegmentTabs(items);
+  getJSTabs,
+  (items, tabs) => {
+    const keyedItems = keyBy(items, "key");
+    return tabs.map((tab) => {
+      return keyedItems[tab];
+    });
   },
 );
 
 export const selectQuerySegmentEditorTabs = createSelector(
   getQuerySegmentItems,
-  (items) => {
-    return recentSortEntitySegmentTabs(items);
+  getQueryTabs,
+  (items, tabs) => {
+    const keyedItems = keyBy(items, "key");
+    return tabs.map((tab) => {
+      return keyedItems[tab];
+    });
   },
 );

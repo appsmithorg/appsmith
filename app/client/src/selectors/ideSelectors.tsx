@@ -2,6 +2,7 @@ import { createSelector } from "reselect";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { getPageActions } from "@appsmith/selectors/entitiesSelector";
+import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 
 export const getIsAppSidebarEnabled = createSelector(
   selectFeatureFlags,
@@ -37,3 +38,9 @@ export const getWidgetsCount = (state: AppState, pageId: string) =>
   Object.values(state.ui.pageWidgets[pageId].dsl).filter(
     (w) => w.type !== "CANVAS_WIDGET",
   ).length || 0;
+
+export const getJSTabs = (state: AppState) =>
+  state.ui.ide.tabs[EditorEntityTab.JS];
+
+export const getQueryTabs = (state: AppState) =>
+  state.ui.ide.tabs[EditorEntityTab.QUERIES];

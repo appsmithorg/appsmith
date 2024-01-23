@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import { submit } from "redux-form";
 import RestApiEditorForm from "./RestAPIForm";
-import RapidApiEditorForm from "./RapidApiEditorForm";
 import type { AppState } from "@appsmith/reducers";
 import type { RouteComponentProps } from "react-router";
 import type {
@@ -17,7 +16,7 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import type { Plugin } from "api/PluginApi";
-import type { Action, PaginationType, RapidApiAction } from "entities/Action";
+import type { Action, PaginationType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
@@ -53,7 +52,7 @@ interface ReduxStateProps {
   pages: any;
   plugins: Plugin[];
   pluginId: any;
-  apiAction: Action | ActionData | RapidApiAction | undefined;
+  apiAction: Action | ActionData | undefined;
   paginationType: PaginationType;
   applicationId: string;
 }
@@ -200,23 +199,6 @@ class ApiEditor extends React.Component<Props> {
             paginationType={paginationType}
             pluginId={pluginId}
             settingsConfig={this.context.settingsConfig}
-          />
-        )}
-        {formUiComponent === "RapidApiEditorForm" && (
-          <RapidApiEditorForm
-            apiId={this.props.match.params.apiId || ""}
-            apiName={this.props.apiName}
-            appName={
-              this.props.currentApplication
-                ? this.props.currentApplication.name
-                : ""
-            }
-            isDeleting={isDeleting}
-            isRunning={isRunning}
-            location={this.props.location}
-            onDeleteClick={this.context.handleDeleteClick}
-            onRunClick={this.context.handleRunClick}
-            paginationType={paginationType}
           />
         )}
         {formUiComponent === "SaaSEditorForm" &&
