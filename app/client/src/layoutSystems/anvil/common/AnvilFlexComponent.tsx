@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import type { CSSProperties, MouseEvent } from "react";
+import type { CSSProperties } from "react";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
 
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import {
   isCurrentWidgetFocused,
@@ -67,17 +66,20 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const [verticalAlignment, setVerticalAlignment] =
     useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
 
-  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(
-    (e) => {
-      clickToSelectWidget(e);
+    function (e) {
+      if (ref.current) {
+        ref.current.dispatchEvent(
+          new CustomEvent("selectWidget", {
+            bubbles: true,
+            detail: { widgetId: props.widgetId },
+          }),
+        );
+      }
+      !isSnipingMode && e.stopPropagation();
     },
-    [props.widgetId, clickToSelectWidget],
+    [props.widgetId],
   );
-
-  const stopEventPropagation = (e: MouseEvent<HTMLElement>) => {
-    !isSnipingMode && e.stopPropagation();
-  };
 
   useEffect(() => {
     const widgetConfig:
@@ -175,11 +177,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       ref={ref}
       style={styleProps}
     >
-      <div
-        className="w-full h-full"
-        onClick={stopEventPropagation}
-        onClickCapture={onClickFn}
-      >
+      <div className="w-full h-full" onClick={onClickFn}>
         {props.children}
       </div>
     </Flex>

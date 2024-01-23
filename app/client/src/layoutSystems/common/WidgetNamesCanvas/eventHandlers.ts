@@ -6,7 +6,6 @@ import type {
   WidgetNamePositionType,
 } from "./WidgetNameTypes";
 import { throttle } from "lodash";
-import { getMainContainerAnvilCanvasDOMElement } from "./widgetNameRenderUtils";
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
 import { WIDGET_NAME_COMPONENT_BUFFER } from "./WidgetNameConstants";
 
@@ -31,10 +30,9 @@ export function getScrollHandler(
   hasScroll: MutableRefObject<boolean>,
   resetCanvas: () => void,
   scrollTop: MutableRefObject<number>,
+  scrollParent: HTMLDivElement | null,
 ) {
   return function handleScroll() {
-    const scrollParent: HTMLDivElement | null =
-      getMainContainerAnvilCanvasDOMElement();
     if (!scrollParent) return;
 
     if (isScrolling.current === 0) {

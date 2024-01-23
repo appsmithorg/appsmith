@@ -30,7 +30,7 @@ export const ModalHeader = (props: ModalHeaderProps) => {
       <Text id={id} lineClamp={1} title={title} variant="caption">
         {title}
       </Text>
-      <IconButton icon="cross" onPress={closeHandler} variant="ghost" />
+      <IconButton icon="x" onPress={closeHandler} variant="ghost" />
     </Flex>
   );
 };

@@ -6,39 +6,27 @@ import { useObserveDetachedWidget } from "layoutSystems/common/utils/LayoutEleme
 import { generateClassName } from "utils/generators";
 import { useWidgetBorderStyles } from "../common/hooks/useWidgetBorderStyles";
 
-import {
-  // isCurrentWidgetFocused,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
+import // isCurrentWidgetFocused,
+"selectors/widgetSelectors";
 // import throttle from "lodash/throttle";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 function useHandleWidgetFocusAndSelect(widgetId: string) {
-  const { selectWidget } = useWidgetSelection();
-  // const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
-  const isSelected = useSelector(isWidgetSelected(widgetId));
-  // const handleWidgetFocus = () => {
-  //   if (!isFocused && !isPreviewMode) {
-  //     focusWidget(widgetId);
-  //   }
-  // };
-  // const throttledWidgetFocusHandler = throttle(handleWidgetFocus, 1000, {
-  //   leading: true,
-  // });
-
-  const handleWidgetSelect = (e: any) => {
-    if (!isPreviewMode && !isSelected && e.currentTarget === e.target) {
-      selectWidget(SelectionRequestType.One, [widgetId]);
-    }
-  };
   const className = generateClassName(widgetId);
   const element = document.querySelector(`.${className}`);
+  const handleWidgetSelect = () => {
+    element?.dispatchEvent(
+      new CustomEvent("selectWidget", {
+        bubbles: false,
+        detail: { widgetId: widgetId },
+      }),
+    );
+    // e.stopPropagation();
+  };
+
   if (element) {
-    element.addEventListener("click", handleWidgetSelect, { capture: true });
+    element.addEventListener("click", handleWidgetSelect, {
+      passive: true,
+    });
     // element.addEventListener("mouseenter", throttledWidgetFocusHandler, {
     //   capture: true,
     // });

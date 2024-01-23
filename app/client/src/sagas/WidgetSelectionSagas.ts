@@ -48,6 +48,7 @@ import history, { NavigationMethod } from "utils/history";
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
+  getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -290,7 +291,19 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
       modalWidgetToOpen = widgetAncestry[indexOfParentModalWidget];
     }
   }
+  // If widget is modal and modal is already open, skip opening it
+  const modalProps = allWidgets[modalWidgetToOpen];
+  const metaProps: Record<string, unknown> = yield select(
+    getWidgetMetaProps,
+    modalProps,
+  );
 
+  if (
+    (widgetIsModal || widgetIsChildOfModal) &&
+    metaProps?.isVisible === true
+  ) {
+    return;
+  }
   if (widgetIsModal || widgetIsChildOfModal) {
     yield put(showModal(modalWidgetToOpen));
   }

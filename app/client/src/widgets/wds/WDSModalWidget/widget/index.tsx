@@ -21,10 +21,9 @@ const StyledModalBody = styled.div`
     max-height: calc(
       var(--canvas-height) - var(--outer-spacing-4) - var(--outer-spacing-4) - var(
           --outer-spacing-4
-        ) - 60px
+        ) - 100px
     );
     overflow-y: auto;
-    overflow-x: hidden;
   }
 `;
 
@@ -109,7 +108,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       >
         <ModalContent className={this.props.className}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}
-          <StyledModalBody>
+          <StyledModalBody className="appsmith-modal-body">
             <LayoutProvider {...this.props} />
           </StyledModalBody>
           {this.props.showFooter && (
