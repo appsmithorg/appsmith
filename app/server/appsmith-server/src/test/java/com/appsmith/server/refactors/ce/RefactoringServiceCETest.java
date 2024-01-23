@@ -566,8 +566,6 @@ class RefactoringServiceCETest {
         duplicateNameCompleteAction.setWorkspaceId(duplicateName.getWorkspaceId());
         duplicateNameCompleteAction.setPluginType(duplicateName.getPluginType());
         duplicateNameCompleteAction.setPluginId(duplicateName.getPluginId());
-        duplicateNameCompleteAction.setTemplateId(duplicateName.getTemplateId());
-        duplicateNameCompleteAction.setProviderId(duplicateName.getProviderId());
         duplicateNameCompleteAction.setDocumentation(duplicateName.getDocumentation());
         duplicateNameCompleteAction.setApplicationId(duplicateName.getApplicationId());
         duplicateNameCompleteAction.setDefaultResources(new DefaultResources());

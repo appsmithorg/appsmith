@@ -42,12 +42,6 @@ public class NewActionCE extends BranchAwareDomain {
     String pluginId;
 
     @JsonView(Views.Public.class)
-    String templateId; // If action is created via a template, store the id here.
-
-    @JsonView(Views.Public.class)
-    String providerId; // If action is created via a template, store the template's provider id here.
-
-    @JsonView(Views.Public.class)
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     Documentation documentation; // Documentation for the template using which this action was created
@@ -65,10 +59,8 @@ public class NewActionCE extends BranchAwareDomain {
 
     @Override
     public void sanitiseToExportDBObject() {
-        this.setTemplateId(null);
         this.setApplicationId(null);
         this.setWorkspaceId(null);
-        this.setProviderId(null);
         this.setDocumentation(null);
         ActionDTO unpublishedAction = this.getUnpublishedAction();
         if (unpublishedAction != null) {

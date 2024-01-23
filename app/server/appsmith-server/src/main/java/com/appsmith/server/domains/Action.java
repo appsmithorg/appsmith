@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
@@ -80,10 +81,6 @@ public class Action extends BaseDomain {
 
     @JsonView(Views.Public.class)
     String providerId; // If action is created via a template, store the template's provider id here.
-
-    // @Transient
-    // @JsonView(Views.Public.class)
-    // ActionProvider provider;
 
     @Transient
     @JsonView(Views.Public.class)
