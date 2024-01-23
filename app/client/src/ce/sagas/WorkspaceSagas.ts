@@ -64,29 +64,40 @@ export function* fetchAllWorkspacesSaga(
         payload: workspaces,
       });
       if (action?.payload?.workspaceId || action?.payload?.fetchEntities) {
-        const workspaceId = action?.payload?.workspaceId || workspaces[0]?.id;
-        const activeWorkspace = workspaces.find(
-          (workspace) => workspace.id === workspaceId,
-        );
-        const { errorActions, initActions, successActions } =
-          getWorkspaceEntitiesActions(workspaceId);
-        if (workspaceId) {
-          yield call(
-            failFastApiCalls,
-            initActions,
-            successActions,
-            errorActions,
-          );
-        }
-        yield put({
-          type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
-          payload: { ...activeWorkspace },
-        });
+        yield call(fetchEntitiesOfWorkspaceSaga, action);
       }
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchEntitiesOfWorkspaceSaga(
+  action?: ReduxAction<{ workspaceId?: string }>,
+) {
+  try {
+    const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
+    const workspaceId = action?.payload?.workspaceId || allWorkspaces[0]?.id;
+    const activeWorkspace = allWorkspaces.find(
+      (workspace) => workspace.id === workspaceId,
+    );
+    const { errorActions, initActions, successActions } =
+      getWorkspaceEntitiesActions(workspaceId);
+    yield put({
+      type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
+      payload: { ...activeWorkspace },
+    });
+    if (workspaceId) {
+      yield call(failFastApiCalls, initActions, successActions, errorActions);
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_WORKSPACE_ENTITIES_ERROR,
       payload: {
         error,
       },
