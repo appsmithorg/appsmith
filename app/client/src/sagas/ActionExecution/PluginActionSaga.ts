@@ -646,7 +646,15 @@ export default function* executePluginActionTriggerSaga(
       },
     });
   }
-  return [payload.body, params];
+  return [
+    payload.body,
+    params,
+    {
+      isExecutionSuccess: payload.isExecutionSuccess,
+      statusCode: payload.statusCode,
+      headers: payload.headers,
+    },
+  ];
 }
 
 function* runActionShortcutSaga() {
@@ -1609,6 +1617,7 @@ function* softRefreshActionsSaga() {
   toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, currentEnvName), {
     kind: "success",
   });
+  yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
 }
 
 function* handleUpdateActionData(

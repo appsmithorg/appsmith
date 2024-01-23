@@ -75,9 +75,6 @@ spec:
             - name: https
               containerPort: 443
               protocol: TCP
-            - name: supervisord
-              containerPort: 9001
-              protocol: TCP
           {{- $probes := .Values.probes | default dict }}
           startupProbe:
             # The `livenessProbe` and `readinessProbe` will be disabled until the `startupProbe` is successful.

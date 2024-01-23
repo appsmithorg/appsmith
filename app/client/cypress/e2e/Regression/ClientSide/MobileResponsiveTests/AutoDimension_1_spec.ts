@@ -1,10 +1,14 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
   autoLayout,
   draggableWidgets,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Validating use cases for Auto Dimension",
@@ -16,6 +20,9 @@ describe(
 
     beforeEach(() => {
       // Cleanup the canvas before each test
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      PageLeftPane.switchToAddNew();
+      cy.focused().blur();
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
       agHelper.SetCanvasViewportWidth(808);
@@ -59,7 +66,14 @@ describe(
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.LIST_V2, 100, 30);
 
         // Delete existing widgets within list
-        agHelper.SelectAllWidgets(locators._widgetByName("Container1"));
+
+        EditorNavigation.SelectEntityByName(
+          "Container1",
+          EntityType.Widget,
+          {},
+          ["List1"],
+        );
+        agHelper.SelectAllWidgets();
         agHelper.PressDelete();
         agHelper.Sleep(2000);
         autoLayout.DropButtonAndTestForAutoDimension(

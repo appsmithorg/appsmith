@@ -2,6 +2,8 @@
 /* eslint-disable cypress/no-assigning-return-values */
 /* Contains all methods related to Workspace features*/
 
+import { AppSidebar } from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
@@ -292,7 +294,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
       }
     });
   });
-  agHelper.AssertElementVisibility("#sidebar");
+  AppSidebar.assertVisible();
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 

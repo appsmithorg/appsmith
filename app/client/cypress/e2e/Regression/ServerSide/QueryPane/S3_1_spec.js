@@ -382,7 +382,6 @@ describe(
         );
       });
 
-      //cy.selectEntityByName("Query1");
       //cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
 
       //Validating List Files in bucket command after new file is deleted

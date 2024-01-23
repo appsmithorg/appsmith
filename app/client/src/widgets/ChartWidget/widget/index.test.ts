@@ -148,10 +148,6 @@ describe("emptyChartData", () => {
   });
 
   describe("Widget Callouts", () => {
-    ChartWidget.showCustomFusionChartDeprecationMessages = jest
-      .fn()
-      .mockReturnValue(true);
-
     it("returns custom fusion chart deprecation notice when chart type is custom fusion chart", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "CUSTOM_FUSION_CHART";

@@ -18,7 +18,7 @@ import EditorNavigation, {
 } from "../../support/Pages/EditorNavigation";
 
 const workspaceName = "gsheet apps";
-const dataSourceName = "gsheet";
+const dataSourceName = "gsheet-all";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
 describe(
@@ -118,19 +118,15 @@ describe(
 
       // Select the spreadsheet and sheet name
       PageLeftPane.expandCollapseItem(spreadSheetName);
+      agHelper.AssertElementAbsence(
+        locators._btnSpinner,
+        Cypress.config("defaultCommandTimeout"),
+      );
       PageLeftPane.assertPresence("Sheet1");
       PageLeftPane.expandCollapseItem("Sheet1");
       agHelper.ClickButton("Generate new page");
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(
-        dataSources._dropdownOption,
-        spreadSheetName,
-      );
-      agHelper.GetNClick(dataSources._selectSheetNameDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "Sheet1");
 
       // Click on generate page button and verify the page is generated
-      agHelper.GetNClick(dataSources._generatePageBtn);
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page");
       assertHelper.AssertNetworkStatus("@getActions", 200);
@@ -178,11 +174,10 @@ describe(
 
       // Select the datasource, spreadsheet and sheet name
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClick(
-        locators._visibleTextSpan(dataSourceName),
-        1,
-        true,
-        1000,
+      agHelper.GetNClick(locators._visibleTextSpan(dataSourceName), 0, true);
+      agHelper.AssertElementAbsence(
+        locators._btnSpinner,
+        Cypress.config("defaultCommandTimeout"),
       );
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(
@@ -190,7 +185,10 @@ describe(
         spreadSheetName,
         0,
         true,
-        1000,
+      );
+      agHelper.AssertElementAbsence(
+        locators._btnSpinner,
+        Cypress.config("defaultCommandTimeout"),
       );
       agHelper.GetNClick(dataSources._selectSheetNameDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "Sheet1");

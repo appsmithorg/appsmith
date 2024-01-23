@@ -85,7 +85,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
-import { PluginName, PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
@@ -143,7 +143,6 @@ interface ReduxStateProps {
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
   featureFlags?: FeatureFlags;
-  isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
   isAppSidebarEnabled: boolean;
   isPagePaneSegmentsEnabled: boolean;
@@ -830,7 +829,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           formData={formData}
           formName={DATASOURCE_DB_FORM}
           hiddenHeader={isInsideReconnectModal}
-          isEnabledForDSViewModeSchema={this.props.isEnabledForDSViewModeSchema}
           isPluginAllowedToPreviewData={this.props.isPluginAllowedToPreviewData}
           isSaving={isSaving}
           pageId={pageId}
@@ -880,9 +878,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   };
 
   shouldShowTabs = () => {
-    const { isEnabledForDSViewModeSchema, isPluginAllowedToPreviewData } =
-      this.props;
-    return isEnabledForDSViewModeSchema && isPluginAllowedToPreviewData;
+    const { isPluginAllowedToPreviewData } = this.props;
+    return isPluginAllowedToPreviewData;
   };
 
   renderTabsForViewMode = () => {
@@ -1140,20 +1137,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
   );
 
-  //   A/B feature flag for datasource view mode preview data.
-  let isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
-    state,
-    FEATURE_FLAG.ab_gsheet_schema_enabled,
-  );
-
-  // for mongoDB, the feature flag should be based on ab_mock_mongo_schema_enabled.
-  if (plugin?.name === PluginName.MONGO) {
-    isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
-      state,
-      FEATURE_FLAG.ab_mock_mongo_schema_enabled,
-    );
-  }
-
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
     !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
@@ -1181,7 +1164,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource,
-    isEnabledForDSViewModeSchema,
     isPluginAllowedToPreviewData,
     pageId: props.pageId ?? props.match?.params?.pageId,
     viewMode,

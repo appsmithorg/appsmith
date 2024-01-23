@@ -3,6 +3,7 @@ import type {
   AnvilConfig,
   AutoLayoutConfig,
   AutocompletionDefinitions,
+  FlattenedWidgetProps,
   WidgetBaseConfiguration,
   WidgetDefaultProps,
 } from "WidgetProvider/constants";
@@ -22,6 +23,15 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerComponent } from "widgets/anvil/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { Elevations, anvilWidgets } from "widgets/anvil/constants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { SectionColumns } from "layoutSystems/anvil/utils/constants";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+  PastePayload,
+} from "layoutSystems/anvil/utils/paste/types";
+import { call } from "redux-saga/effects";
+import { pasteWidgetsInZone } from "layoutSystems/anvil/utils/paste/zonePasteUtils";
 
 class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   static type = anvilWidgets.ZONE_WIDGET;
@@ -78,6 +88,41 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
+  }
+
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  static pasteOperationChecks(
+    allWidgets: CanvasWidgetsReduxState,
+    oldWidget: FlattenedWidgetProps,
+    newWidget: FlattenedWidgetProps,
+    widgetIdMap: Record<string, string>,
+  ): FlattenedWidgetProps | null {
+    let widget: FlattenedWidgetProps = { ...newWidget };
+
+    if (widget.flexGrow && widget.flexGrow === SectionColumns) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { flexGrow, ...rest } = widget;
+      widget = rest;
+    }
+    return widget;
+  }
+
+  static *performPasteOperation(
+    allWidgets: CanvasWidgetsReduxState,
+    copiedWidgets: CopiedWidgetData[],
+    destinationInfo: PasteDestinationInfo,
+    widgetIdMap: Record<string, string>,
+    reverseWidgetIdMap: Record<string, string>,
+  ) {
+    const res: PastePayload = yield call(
+      pasteWidgetsInZone,
+      allWidgets,
+      copiedWidgets,
+      destinationInfo,
+      widgetIdMap,
+      reverseWidgetIdMap,
+    );
+    return res;
   }
 
   getWidgetView(): ReactNode {

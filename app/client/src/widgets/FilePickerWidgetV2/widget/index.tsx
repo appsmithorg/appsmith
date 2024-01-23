@@ -302,7 +302,7 @@ class FilePickerWidget extends BaseWidget<
               type: ValidationTypes.NUMBER,
               params: {
                 min: 1,
-                max: 100,
+                max: 200,
                 default: 5,
                 passThroughOnZero: false,
               },
