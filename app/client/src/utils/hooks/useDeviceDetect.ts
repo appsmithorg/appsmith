@@ -4,6 +4,7 @@ import {
   TABLET_MIN_WIDTH,
   TABLET_MAX_WIDTH,
   DESKTOP_MIN_WIDTH,
+  DESIGN_BASE_WIDTH,
 } from "constants/AppConstants";
 
 export function useIsMobileDevice() {
@@ -20,5 +21,11 @@ export function useIsTabletDevice() {
 export function useIsDesktopDevice() {
   return useMediaQuery({
     minWidth: DESKTOP_MIN_WIDTH,
+  });
+}
+
+export function useIsBaseDesignWidth() {
+  return useMediaQuery({
+    maxWidth: DESIGN_BASE_WIDTH,
   });
 }

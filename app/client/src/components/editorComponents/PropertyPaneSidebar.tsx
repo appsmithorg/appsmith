@@ -40,9 +40,9 @@ const StyledResizer = styled.div<{ resizing: boolean }>`
 `;
 
 interface Props {
-  width: number;
+  width: string;
   onDragEnd?: () => void;
-  onWidthChange: (width: number) => void;
+  onWidthChange?: (width: number) => void;
 }
 
 export const PropertyPaneSidebar = memo((props: Props) => {

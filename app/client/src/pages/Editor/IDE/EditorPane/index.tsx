@@ -9,7 +9,7 @@ import { SentryRoute } from "@appsmith/AppRouter";
 import { ADD_PATH } from "constants/routes";
 import EditorPaneSegments from "./EditorPaneSegments";
 import GlobalAdd from "./GlobalAdd";
-import { useEditorPaneWidth } from "../hooks";
+import { useIDEWidths } from "../hooks";
 import {
   getIsSideBySideEnabled,
   getPagesActiveStatus,
@@ -19,7 +19,7 @@ import { PagesSection } from "./PagesSection";
 import { MinimalSegment } from "./MinimalSegment";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
-  const width = useEditorPaneWidth();
+  const { editorPaneWidth } = useIDEWidths();
   const pagesActive = useSelector(getPagesActiveStatus);
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
 
@@ -36,12 +36,12 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
 
   return (
     <Flex
-      className="ide-editor-left-pane"
+      className="ide-editor-left-pane transition-[width] ease-linear"
       flexDirection="column"
       gap="spacing-2"
       height="100%"
       overflow="hidden"
-      width={width + "px"}
+      width={editorPaneWidth}
     >
       {/** Entity Properties component is needed to render
         the Bindings popover in the context menu. Will be removed eventually **/}
