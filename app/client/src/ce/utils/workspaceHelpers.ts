@@ -4,24 +4,6 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import type { AnyAction, Dispatch } from "redux";
-
-interface FetchWorkspaceEntitiesParams {
-  activeWorkspaceId: string;
-  dispatch: Dispatch<AnyAction>;
-  featureFlags?: FeatureFlags;
-}
-
-export const fetchWorkspaceEntities = ({
-  activeWorkspaceId,
-  dispatch,
-  // eslint-disable-next-line
-  featureFlags,
-}: FetchWorkspaceEntitiesParams) => {
-  dispatch(fetchAllApplicationsOfWorkspace(activeWorkspaceId));
-  dispatch(fetchUsersForWorkspace(activeWorkspaceId));
-};
 
 export const getWorkspaceEntitiesActions = (workspaceId: string = "") => {
   const initActions = [

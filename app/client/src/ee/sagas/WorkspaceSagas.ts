@@ -12,6 +12,7 @@ import {
   deleteWorkspaceLogoSaga,
   fetchAllWorkspacesSaga,
   searchWorkspaceEntitiesSaga,
+  fetchEntitiesOfWorkspaceSaga,
 } from "ce/sagas/WorkspaceSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
@@ -21,6 +22,10 @@ export default function* workspaceSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
       fetchAllWorkspacesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_ENTITIES_OF_WORKSPACE_INIT,
+      fetchEntitiesOfWorkspaceSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_CURRENT_WORKSPACE, fetchWorkspaceSaga),
     takeLatest(ReduxActionTypes.SAVE_WORKSPACE_INIT, saveWorkspaceSaga),

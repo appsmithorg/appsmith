@@ -57,6 +57,7 @@ import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/appli
 import {
   deleteWorkspace,
   fetchAllWorkspaces,
+  fetchEntitiesOfWorkspace,
   resetCurrentWorkspace,
   saveWorkspace,
 } from "@appsmith/actions/workspaceActions";
@@ -125,8 +126,6 @@ import {
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { fetchWorkspaceEntities } from "@appsmith/utils/workspaceHelpers";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -853,8 +852,6 @@ export const ApplictionsMainPage = (props: any) => {
   const fetchedPackages = useSelector(getPackagesList);
   const fetchedWorkflows = useSelector(getWorkflowsList);
   const fetchedWorkspaceId = useSelector(getCurrentWorkspaceId);
-  const featureFlags = useSelector(selectFeatureFlags);
-
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
@@ -892,7 +889,11 @@ export const ApplictionsMainPage = (props: any) => {
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: { ...activeWorkspace },
         });
-        fetchWorkspaceEntities({ dispatch, activeWorkspaceId, featureFlags });
+        dispatch(
+          fetchEntitiesOfWorkspace({
+            workspaceId: activeWorkspaceId,
+          }),
+        );
       }
     }
   }, [workspaceIdFromQueryParams, fetchedWorkspaces, activeWorkspaceId]);
@@ -924,7 +925,9 @@ export const ApplictionsMainPage = (props: any) => {
             {!isFetchingWorkspaces && matches && (
               <WorkspaceSelectorWrapper>
                 <Select
-                  onSelect={(val) => history.push(`/applications#${val}`)}
+                  onSelect={(val) =>
+                    history.push(`/applications?workspaceId=${val}`)
+                  }
                   value={activeWorkspaceId}
                 >
                   {workspaces.map((workspace: Workspace) => (
