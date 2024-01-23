@@ -21,8 +21,6 @@ import type { WorkspaceReduxState } from "@appsmith/reducers/uiReducers/workspac
 import type { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import type { ThemeState } from "reducers/uiReducers/themeReducer";
 import type { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
-import type { ImportedCollectionsReduxState } from "reducers/uiReducers/importedCollectionsReducer";
-import type { ProvidersReduxState } from "reducers/uiReducers/providerReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { ImportReduxState } from "reducers/uiReducers/importReducer";
 import type { HelpReduxState } from "reducers/uiReducers/helpReducer";
@@ -109,8 +107,6 @@ export interface AppState {
     selectedWorkspace: SelectedWorkspaceReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
-    importedCollections: ImportedCollectionsReduxState;
-    providers: ProvidersReduxState;
     imports: ImportReduxState;
     queryPane: QueryPaneReduxState;
     datasourcePane: DatasourcePaneReduxState;

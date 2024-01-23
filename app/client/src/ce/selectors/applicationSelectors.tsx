@@ -61,17 +61,6 @@ export const getIsSavingAppName = (state: AppState) =>
 export const getIsErroredSavingAppName = (state: AppState) =>
   state.ui.applications.isErrorSavingAppName;
 
-export const getImportedCollections = (state: AppState) =>
-  state.ui.importedCollections.importedCollections;
-
-export const getProviders = (state: AppState) => state.ui.providers.providers;
-export const getProvidersLoadingState = (state: AppState) =>
-  state.ui.providers.isFetchingProviders;
-export const getProviderTemplates = (state: AppState) =>
-  state.ui.providers.providerTemplates;
-export const getProvidersTemplatesLoadingState = (state: AppState) =>
-  state.ui.providers.isFetchingProviderTemplates;
-
 export const getApplicationList = createSelector(
   getApplications,
   getApplicationSearchKeyword,
