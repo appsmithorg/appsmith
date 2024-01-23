@@ -296,7 +296,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
                     ExportFileDTO exportFileDTO = new ExportFileDTO();
-                    exportFileDTO.setApplicationResource(jsonObject);
+                    exportFileDTO.setArtifactResource(jsonObject);
                     exportFileDTO.setHttpHeaders(responseHeaders);
                     return exportFileDTO;
                 });
