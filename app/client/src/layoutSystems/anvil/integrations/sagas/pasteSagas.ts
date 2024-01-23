@@ -98,16 +98,17 @@ function* pasteWidgetSagas() {
       history.push(builderURL({ pageId }));
     }
 
+    const widgetsToSelect = copiedWidgets.map(
+      (each: CopiedWidgetData) => widgetIdMap[each.widgetId],
+    );
+
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: Object.values(widgetIdMap),
     });
 
     yield put(
-      selectWidgetInitAction(
-        SelectionRequestType.Multiple,
-        Object.values(widgetIdMap),
-      ),
+      selectWidgetInitAction(SelectionRequestType.Multiple, widgetsToSelect),
     );
   } catch (error) {
     yield put({
