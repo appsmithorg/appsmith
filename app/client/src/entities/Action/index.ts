@@ -92,14 +92,6 @@ export interface ActionConfig {
   selfReferencingData?: SelfReferencingData;
 }
 
-export interface ActionProvider {
-  name: string;
-  imageUrl: string;
-  url: string;
-  description: string;
-  credentialSteps: string;
-}
-
 export interface Property {
   key: string;
   value: string;
@@ -208,14 +200,6 @@ export interface StoredDatasourceApiAction extends BaseApiAction {
 }
 
 export type ApiAction = EmbeddedApiAction | StoredDatasourceApiAction;
-
-export type RapidApiAction = ApiAction & {
-  templateId: string;
-  proverId: string;
-  provider: ActionProvider;
-  pluginId: string;
-  documentation: { text: string };
-};
 
 export interface QueryAction extends BaseAction {
   pluginType: PluginType.DB;
