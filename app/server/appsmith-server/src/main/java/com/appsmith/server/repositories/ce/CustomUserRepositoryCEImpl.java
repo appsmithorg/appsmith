@@ -100,7 +100,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
             Sort.Direction sortDirection) {
         Sort sortBy = Sort.by(sortDirection, fieldName(sortKey));
         Criteria emailCriteria = where(fieldName(QUser.user.email)).in(emails);
-        return queryAll(List.of(emailCriteria), null, aclPermission, sortBy, limit, skip);
+        return queryAll(List.of(emailCriteria), Optional.empty(), aclPermission, sortBy, limit, skip);
     }
 
     protected Set<String> getSystemGeneratedUserEmails() {
