@@ -105,7 +105,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             .cache();
 
                     ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
-                            workspaceId, applicationId, branchName, false, permissionProvider, null);
+                            workspaceId, applicationId, branchName, false, true, permissionProvider, null);
 
                     // Get the Application from DB
                     Mono<Application> importedApplicationMono = applicationService
@@ -163,9 +163,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 }
                                 return newActionImportableService
                                         .updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO, true)
+                                                application, importingMetaDTO, mappedImportableResourcesDTO)
                                         .then(newPageImportableService.updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO, true))
+                                                application, importingMetaDTO, mappedImportableResourcesDTO))
                                         .thenReturn(application);
                             });
                 })

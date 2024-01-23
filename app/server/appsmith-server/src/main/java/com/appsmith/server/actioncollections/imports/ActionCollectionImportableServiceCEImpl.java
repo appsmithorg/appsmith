@@ -53,19 +53,14 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
         List<ActionCollection> importedActionCollectionList =
                 CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
                         ? new ArrayList<>()
                         : applicationJson.getActionCollectionList();
 
         Mono<ImportActionCollectionResultDTO> importActionCollectionMono = createImportActionCollectionMono(
-                importedActionCollectionList,
-                applicationMono,
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                isPartialImport);
+                importedActionCollectionList, applicationMono, importingMetaDTO, mappedImportableResourcesDTO);
 
         return importActionCollectionMono
                 .doOnNext(mappedImportableResourcesDTO::setActionCollectionResultDTO)
@@ -76,8 +71,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             List<ActionCollection> importedActionCollectionList,
             Mono<Application> importApplicationMono,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            boolean isPartialImport) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         Mono<List<ActionCollection>> importedActionCollectionMono = Mono.just(importedActionCollectionList);
 
         if (importingMetaDTO.getAppendToArtifact()) {
@@ -104,11 +98,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                 .flatMap(objects -> {
                     log.info("Importing action collections");
                     return this.importActionCollections(
-                            objects.getT1(),
-                            objects.getT2(),
-                            importingMetaDTO,
-                            mappedImportableResourcesDTO,
-                            isPartialImport);
+                            objects.getT1(), objects.getT2(), importingMetaDTO, mappedImportableResourcesDTO);
                 })
                 .onErrorResume(throwable -> {
                     log.error("Error importing action collections", throwable);
@@ -138,8 +128,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             Application application,
             List<ActionCollection> importedActionCollectionList,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            boolean isPartialImport) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         /* Mono.just(application) is created to avoid the eagerly fetching of existing actionCollections
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
@@ -168,7 +157,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
                     // update the action name in the json to avoid duplicate names for the partial import
                     // It is page level action and hence the action name should be unique
-                    if (isPartialImport && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
+                    if (Boolean.TRUE.equals(importingMetaDTO.getIsPartialImport())
+                            && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
                         updateActionCollectionNameBeforeMerge(
                                 importedActionCollectionList,
                                 mappedImportableResourcesDTO.getRefactoringNameReference());

@@ -529,7 +529,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         }
 
         ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
-                workspaceId, applicationId, branchName, appendToApp, permissionProvider, permissionGroups);
+                workspaceId, applicationId, branchName, appendToApp, false, permissionProvider, permissionGroups);
 
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
 
@@ -578,9 +578,9 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 .then(importedApplicationMono)
                 .flatMap(application -> {
                     return newActionImportableService
-                            .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO, false)
+                            .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO)
                             .then(newPageImportableService.updateImportedEntities(
-                                    application, importingMetaDTO, mappedImportableResourcesDTO, false))
+                                    application, importingMetaDTO, mappedImportableResourcesDTO))
                             .thenReturn(application);
                 })
                 .flatMap(application -> {

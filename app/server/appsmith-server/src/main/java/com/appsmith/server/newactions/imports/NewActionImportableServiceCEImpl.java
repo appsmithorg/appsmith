@@ -63,8 +63,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
 
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
@@ -90,12 +89,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         }
 
         return Mono.zip(importedNewActionMono, applicationMono)
-                .flatMap(objects -> importActions(
-                        objects.getT1(),
-                        objects.getT2(),
-                        importingMetaDTO,
-                        mappedImportableResourcesDTO,
-                        isPartialImport))
+                .flatMap(objects ->
+                        importActions(objects.getT1(), objects.getT2(), importingMetaDTO, mappedImportableResourcesDTO))
                 .flatMap(importActionResultDTO -> {
                     log.info("Actions imported. result: {}", importActionResultDTO.getGist());
                     // Updating the existing application for git-sync
@@ -108,7 +103,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
                         Set<String> invalidActionIds = new HashSet<>();
-                        if (Boolean.FALSE.equals(isPartialImport)) {
+                        if (Boolean.FALSE.equals(importingMetaDTO.getIsPartialImport())) {
                             for (NewAction action : importActionResultDTO.getExistingActions()) {
                                 if (!importActionResultDTO
                                         .getImportedActionIds()
@@ -143,8 +138,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     public Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            boolean isPartialImport) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
         ImportActionCollectionResultDTO importActionCollectionResultDTO =
@@ -166,7 +160,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // the git flow only
                     if (StringUtils.hasText(importingMetaDTO.getArtifactId())
                             && !TRUE.equals(importingMetaDTO.getAppendToArtifact())
-                            && Boolean.FALSE.equals(isPartialImport)) {
+                            && Boolean.FALSE.equals(importingMetaDTO.getIsPartialImport())) {
                         // Remove unwanted action collections
                         Set<String> invalidCollectionIds = new HashSet<>();
                         for (ActionCollection collection :
@@ -223,8 +217,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             List<NewAction> importedNewActionList,
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            boolean isPartialImport) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         /* Mono.just(application) is created to avoid the eagerly fetching of existing actions
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
          */
@@ -247,7 +240,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
                     // update the action name in the json to avoid duplicate names for the partial import
                     // It is page level action and hence the action name should be unique
-                    if (isPartialImport && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
+                    if (Boolean.TRUE.equals(importingMetaDTO.getIsPartialImport())
+                            && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
                         updateActionNameBeforeMerge(
                                 importedNewActionList, mappedImportableResourcesDTO.getRefactoringNameReference());
                     }

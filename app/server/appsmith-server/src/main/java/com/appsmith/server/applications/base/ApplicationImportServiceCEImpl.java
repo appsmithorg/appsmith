@@ -595,9 +595,9 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             ImportingMetaDTO importingMetaDTO) {
         return Mono.just((Application) importableContext).flatMap(application -> {
             return newActionImportableService
-                    .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO, false)
+                    .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO)
                     .then(newPageImportableService.updateImportedEntities(
-                            application, importingMetaDTO, mappedImportableResourcesDTO, false))
+                            application, importingMetaDTO, mappedImportableResourcesDTO))
                     .thenReturn(application);
         });
     }
@@ -659,7 +659,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     workspaceMono,
                     Mono.just(application),
                     applicationJson,
-                    false,
                     true);
 
             return Flux.merge(List.of(importedPagesMono, importedThemesMono));
