@@ -22,6 +22,7 @@ export const redistributeSectionSpace = (
   zoneChangeFactor: number,
   index: number,
   addedViaStepper?: boolean,
+  maxColumnLimit = SectionColumns,
 ): number[] => {
   const spaceDistributedArray = zoneOrder.map(
     (zone) => spaceDistributedObj[zone],
@@ -34,7 +35,7 @@ export const redistributeSectionSpace = (
 
   // Calculate the maximum space that can be added or removed
   const spaceWelcomed =
-    SectionColumns - ZoneMinColumnWidth * spaceDistributedArray.length;
+    maxColumnLimit - ZoneMinColumnWidth * spaceDistributedArray.length;
 
   // Determine the actual change considering the maximum space and direction of change
   const zoneChange =
@@ -43,7 +44,7 @@ export const redistributeSectionSpace = (
       : zoneChangeFactor;
 
   // Calculate the even distribution space for comparison
-  const evenDistributionSpace = SectionColumns / spaceDistributedArray.length;
+  const evenDistributionSpace = maxColumnLimit / spaceDistributedArray.length;
 
   // Check if the layout is evenly distributed
   const evenlyDistributedLayout =
@@ -63,7 +64,7 @@ export const redistributeSectionSpace = (
   // Check if the layout is still evenly distributed after the change
   if (evenlyDistributedLayout) {
     const updatedEvenDistributionSpace =
-      SectionColumns / spaceDistributedArray.length;
+      maxColumnLimit / spaceDistributedArray.length;
     return new Array(spaceDistributedArray.length).fill(
       updatedEvenDistributionSpace,
     );
@@ -128,6 +129,100 @@ export const getDefaultSpaceDistributed = (zones: string[]) => {
     },
     {} as { [key: string]: number }, // Initializing the accumulator as an object with zone identifiers as keys and distributed space as values
   );
+};
+
+const multiZoneSpaceDistribution = (
+  zonesToAdd: string[],
+  widgetsAfterUpdate: CanvasWidgetsReduxState,
+  commonSpace: number,
+  currentZoneOrder: string[],
+  updatedDistributedSpace: { [key: string]: number },
+  updatedZoneOrder: string[],
+) => {
+  // Calculate the total required space for all zones to be added
+  const requiredSpaceForAllZones = zonesToAdd.reduce((spaceCount, eachZone) => {
+    // Retrieve properties of each zone
+    const zoneProps = widgetsAfterUpdate[eachZone];
+    // Add the flexGrow property or use a common space value
+    spaceCount += zoneProps.flexGrow || commonSpace;
+    return spaceCount;
+  }, 0);
+
+  // Find the index where the first zone in zonesToAdd is currently located
+  const indexToDrop = currentZoneOrder.indexOf(zonesToAdd[0]);
+
+  // Redistribute space considering the newly added zones
+  const distributedSpaceArrayOfExistingZones =
+    redistributeSpaceWithDynamicMinWidth(
+      updatedDistributedSpace,
+      updatedZoneOrder,
+      requiredSpaceForAllZones,
+      indexToDrop,
+    );
+  const distributedSpaceOfExistingZones = updatedZoneOrder.reduce(
+    (result, each, index) => {
+      return {
+        ...result,
+        ...(distributedSpaceArrayOfExistingZones[index]
+          ? { [each]: distributedSpaceArrayOfExistingZones[index] }
+          : {}),
+      };
+    },
+    {} as { [key: string]: number },
+  );
+
+  // Get the maximum allowed space for the newly added zones
+  const maximumAllowedSpace = distributedSpaceArrayOfExistingZones[indexToDrop];
+
+  // Initialize an object to store distributed space for each added zone
+  const zonesToAddDistributedSpace = zonesToAdd.reduce(
+    (distributedSpace, eachZone) => {
+      // Retrieve properties of each zone
+      const zoneProps = widgetsAfterUpdate[eachZone];
+      // Set the distributed space for the zone to its flexGrow property or common space
+      distributedSpace[eachZone] = zoneProps.flexGrow || commonSpace;
+      return distributedSpace;
+    },
+    {} as { [key: string]: number },
+  );
+
+  // Add a special key "spaceToAdjust" to store the space adjustment value
+  zonesToAddDistributedSpace["spaceToAdjust"] = Math.abs(
+    maximumAllowedSpace - requiredSpaceForAllZones,
+  );
+
+  // Handle the addition of zones and update the distributed space
+  zonesToAdd.forEach((eachZone, index) => {
+    updatedZoneOrder.splice(index, 0, eachZone);
+  });
+
+  // Redistribute space considering the space adjustment
+  const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
+    zonesToAddDistributedSpace,
+    [...zonesToAdd, "spaceToAdjust"],
+    -zonesToAddDistributedSpace["spaceToAdjust"],
+    zonesToAdd.length,
+    false,
+    maximumAllowedSpace,
+  );
+
+  // Update the distributed space for each zone based on the redistributed space array
+  const updatedDistributedSpaceOfAddedZones = zonesToAdd.reduce(
+    (result, each, index) => {
+      return {
+        ...result,
+        ...(updatedDistributedSpaceArray[index]
+          ? { [each]: updatedDistributedSpaceArray[index] }
+          : {}),
+      };
+    },
+    {} as { [key: string]: number },
+  );
+  // Merge the updated distributed space with the existing distributed space
+  return {
+    ...distributedSpaceOfExistingZones,
+    ...updatedDistributedSpaceOfAddedZones,
+  };
 };
 
 /**
@@ -200,17 +295,26 @@ export function* updateSectionsDistributedSpace(
   }
 
   if (zonesToAdd.length) {
-    // Handling addition of zones and updating distributed space
-    zonesToAdd.forEach((eachZone) => {
-      const zoneProps = widgetsAfterUpdate[eachZone];
-      const index = currentZoneOrder.indexOf(eachZone);
+    if (zonesToAdd.length > 1) {
+      updatedDistributedSpace = multiZoneSpaceDistribution(
+        zonesToAdd,
+        widgetsAfterUpdate,
+        commonSpace,
+        currentZoneOrder,
+        updatedDistributedSpace,
+        updatedZoneOrder,
+      );
+    } else {
+      // Handling addition of zones and updating distributed space
+      const zoneProps = widgetsAfterUpdate[zonesToAdd[0]];
+      const index = currentZoneOrder.indexOf(zonesToAdd[0]);
       const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
         updatedDistributedSpace,
         updatedZoneOrder,
         zoneProps.flexGrow || commonSpace,
         index,
       );
-      updatedZoneOrder.splice(index, 0, eachZone);
+      updatedZoneOrder.splice(index, 0, zonesToAdd[0]);
       updatedDistributedSpace = updatedZoneOrder.reduce(
         (result, each, index) => {
           return {
@@ -222,7 +326,7 @@ export function* updateSectionsDistributedSpace(
         },
         {} as { [key: string]: number },
       );
-    });
+    }
   }
 
   // updating individual zones new distributed space
@@ -297,28 +401,22 @@ const LARGE_SMALL_ZONE_SHRINK_THRESHOLD = 0.7;
 
 function roundOffSpaceDistributedArray(
   spaceDistributedArray: number[],
-  positionIndex: number,
+  maxColumnLimit = SectionColumns,
 ) {
   // Adjust for rounding errors
   const roundingError =
-    SectionColumns -
+    maxColumnLimit -
     spaceDistributedArray.reduce((sum, value) => sum + value, 0);
-
   // Calculate the rounding error distribution among the zones
   const roundOffForBiggestSpace =
-    roundingError !== 0
-      ? roundingError % (spaceDistributedArray.length - 1)
-      : 0;
+    roundingError !== 0 ? roundingError % spaceDistributedArray.length : 0;
   const evenDistributionSpaceWithRoundingError =
-    (roundingError - roundOffForBiggestSpace) /
-    (spaceDistributedArray.length - 1);
+    (roundingError - roundOffForBiggestSpace) / spaceDistributedArray.length;
 
   // Distribute the rounding error among zones based on index position
-  if (evenDistributionSpaceWithRoundingError > 0) {
+  if (evenDistributionSpaceWithRoundingError !== 0) {
     for (let i = 0; i < spaceDistributedArray.length; i++) {
-      if (i !== positionIndex) {
-        spaceDistributedArray[i] += evenDistributionSpaceWithRoundingError;
-      }
+      spaceDistributedArray[i] += evenDistributionSpaceWithRoundingError;
     }
   }
 
@@ -334,6 +432,7 @@ function roundOffSpaceDistributedArray(
 function getZoneChangeAndRelativeSize(
   spaceDistributedArray: number[],
   zoneChangeFactor: number,
+  maxColumnLimit = SectionColumns,
 ): {
   zoneChange: any;
   isSmallestZoneLargeRelatively: any;
@@ -342,7 +441,7 @@ function getZoneChangeAndRelativeSize(
   // Constants for determining zone sizes and thresholds
   const largestZoneThreshold =
     RELATIVELY_LARGE_ZONE_THRESHOLD *
-    (SectionColumns / spaceDistributedArray.length);
+    (maxColumnLimit / spaceDistributedArray.length);
 
   // Find the index of the largest zone
   const largestZoneIndex = spaceDistributedArray.findIndex(
@@ -358,7 +457,7 @@ function getZoneChangeAndRelativeSize(
     smallestZone > LARGE_SMALL_ZONE_THRESHOLD * largestZoneSpace;
   const spaceWelcomed = isSmallestZoneLargeRelatively
     ? Math.max(smallestZone - 2, ZoneMinColumnWidth)
-    : SectionColumns - ZoneMinColumnWidth * spaceDistributedArray.length;
+    : maxColumnLimit - ZoneMinColumnWidth * spaceDistributedArray.length;
   const zoneChange =
     zoneChangeFactor >= spaceWelcomed && zoneChangeFactor > 0
       ? spaceWelcomed
@@ -412,6 +511,7 @@ export const redistributeSpaceWithDynamicMinWidth = (
   zoneChangeFactor: number,
   index: number,
   addedViaStepper?: boolean,
+  maxColumnLimit = SectionColumns,
 ): number[] => {
   // Extract the current distribution of space into an array
   const spaceDistributedArray = zoneOrder.map(
@@ -427,6 +527,7 @@ export const redistributeSpaceWithDynamicMinWidth = (
       zoneChangeFactor,
       index,
       addedViaStepper,
+      maxColumnLimit,
     );
   }
 
@@ -435,10 +536,14 @@ export const redistributeSpaceWithDynamicMinWidth = (
     return spaceDistributedArray;
 
   const { isSmallestZoneLargeRelatively, largestZoneSpace, zoneChange } =
-    getZoneChangeAndRelativeSize(spaceDistributedArray, zoneChangeFactor);
+    getZoneChangeAndRelativeSize(
+      spaceDistributedArray,
+      zoneChangeFactor,
+      maxColumnLimit,
+    );
 
   // Calculate the space that would result in an even distribution
-  const evenDistributionSpace = SectionColumns / spaceDistributedArray.length;
+  const evenDistributionSpace = maxColumnLimit / spaceDistributedArray.length;
   const evenlyDistributedLayout =
     (addedViaStepper || spaceDistributedArray.length > 1) &&
     spaceDistributedArray.every((each) => each === evenDistributionSpace);
@@ -452,13 +557,13 @@ export const redistributeSpaceWithDynamicMinWidth = (
 
   // Handle the case when there is only one zone left
   if (spaceDistributedArray.length === 1) {
-    return [SectionColumns];
+    return [maxColumnLimit];
   }
 
   // Check if the layout should be evenly distributed
   if (evenlyDistributedLayout) {
     const updatedEvenDistributionSpace =
-      SectionColumns / spaceDistributedArray.length;
+      maxColumnLimit / spaceDistributedArray.length;
 
     // Return an array with evenly distributed space
     return new Array(spaceDistributedArray.length).fill(
@@ -473,7 +578,7 @@ export const redistributeSpaceWithDynamicMinWidth = (
   );
 
   // Calculate the adjustment ratio to distribute space based on existing ratios
-  const adjustmentRatio = SectionColumns / totalExistingSpace;
+  const adjustmentRatio = maxColumnLimit / totalExistingSpace;
 
   // Calculate the newly adjusted values based on the adjustment ratio
   const newlyAdjustedValues = spaceDistributedArray.map(
@@ -486,7 +591,7 @@ export const redistributeSpaceWithDynamicMinWidth = (
     largestZoneSpace,
     newlyAdjustedValues,
   );
-  roundOffSpaceDistributedArray(spaceDistributedArray, index);
+  roundOffSpaceDistributedArray(spaceDistributedArray, maxColumnLimit);
 
   // Return the resulting array after redistribution
   return spaceDistributedArray;
