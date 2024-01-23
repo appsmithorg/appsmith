@@ -713,8 +713,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                false);
+                applicationJson);
 
         // Requires pluginMap to be present in importable resources.
         // Updates datasourceNameToIdMap in importable resources.
@@ -746,8 +745,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                false);
+                applicationJson);
 
         // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable
         // resources.
@@ -758,8 +756,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                false);
+                applicationJson);
 
         Mono<Void> combinedActionImportablesMono = importedNewActionsMono.then(importedActionCollectionsMono);
         return List.of(combinedActionImportablesMono);
@@ -771,7 +768,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         // Persists relevant information and updates mapped resources
         Mono<Void> installedJsLibsMono = customJSLibImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson, false);
+                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
         return installedJsLibsMono;
     }
 

@@ -250,8 +250,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                false);
+                applicationJson);
 
         // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable
         // resources.
@@ -262,8 +261,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                false);
+                applicationJson);
 
         Mono<Void> combinedActionImportablesMono = importedNewActionsMono.then(importedActionCollectionsMono);
         return List.of(combinedActionImportablesMono);
@@ -443,12 +441,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
         // Persists relevant information and updates mapped resources
         return customJSLibImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                null,
-                null,
-                (ApplicationJson) artifactExchangeJson,
-                false);
+                importingMetaDTO, mappedImportableResourcesDTO, null, null, (ApplicationJson) artifactExchangeJson);
     }
 
     @Override
@@ -649,8 +642,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     mappedImportableResourcesDTO,
                     workspaceMono,
                     Mono.just(application),
-                    applicationJson,
-                    false);
+                    applicationJson);
 
             // Directly updates required theme information in DB
             Mono<Void> importedThemesMono = themeImportableService.importEntities(

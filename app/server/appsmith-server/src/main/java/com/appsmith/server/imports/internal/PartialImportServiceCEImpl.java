@@ -237,7 +237,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 true);
 
         Mono<Void> customJsLibMono = customJSLibImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson, true);
+                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
 
         return pluginMono.then(datasourceMono).then(customJsLibMono).then();
     }
@@ -253,16 +253,14 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                true);
+                applicationJson);
 
         Mono<Void> actionCollectionMono = actionCollectionImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                true);
+                applicationJson);
 
         return actionMono.then(actionCollectionMono).then();
     }
