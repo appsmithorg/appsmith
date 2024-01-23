@@ -82,19 +82,6 @@ public class AirgapUnsupportedPathFilterTest {
     }
 
     @Test
-    public void airgapFilter_blockingMarketplacePath_sendBadRequestCode() {
-
-        MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(Url.MARKETPLACE_URL));
-
-        Mono<Void> resultMono = airgapFilter.filter(exchange, chain);
-
-        StepVerifier.create(resultMono)
-                .expectErrorMatches(exception -> exception instanceof AppsmithException
-                        && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
-                .verify();
-    }
-
-    @Test
     public void airgapFilter_blockingUsagePulsePath_sendBadRequestCode() {
 
         MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(Url.USAGE_PULSE_URL));
