@@ -5,7 +5,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Export application as a JSON file",
-  { tags: ["@tag.excludeForAirgap", "@tag.ExportApplication"] },
+  { tags: ["@tag.ExportApplication"] },
   function () {
     let workspaceId, appid;
 
