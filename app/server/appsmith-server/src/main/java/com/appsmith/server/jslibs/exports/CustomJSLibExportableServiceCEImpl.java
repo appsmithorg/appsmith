@@ -96,7 +96,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
 
     protected Mono<List<CustomJSLib>> getAllJSLibsInContext(ExportingMetaDTO exportingMetaDTO) {
         return customJSLibService.getAllJSLibsInContext(
-                exportingMetaDTO.getApplicationId(),
+                exportingMetaDTO.getArtifactId(),
                 CreatorContextType.APPLICATION,
                 exportingMetaDTO.getBranchName(),
                 false);

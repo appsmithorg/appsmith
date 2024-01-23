@@ -86,7 +86,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
         ApplicationJson applicationJson = new ApplicationJson();
         final MappedExportableResourcesDTO mappedResourcesDTO = new MappedExportableResourcesDTO();
         final ExportingMetaDTO exportingMetaDTO = new ExportingMetaDTO();
-        exportingMetaDTO.setApplicationId(applicationId);
+        exportingMetaDTO.setArtifactId(applicationId);
         exportingMetaDTO.setBranchName(null);
 
         if (applicationId == null || applicationId.isEmpty()) {
@@ -134,7 +134,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
                     boolean isServerSchemaMigrated =
                             !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
-                    exportingMetaDTO.setApplicationLastCommittedAt(applicationLastCommittedAt);
+                    exportingMetaDTO.setArtifactLastCommittedAt(applicationLastCommittedAt);
                     exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
                     exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
                     applicationJson.setExportedApplication(application);
@@ -144,7 +144,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             .map(ApplicationPage::getId)
                             .collect(Collectors.toList());
 
-                    exportingMetaDTO.setUnpublishedPages(unpublishedPages);
+                    exportingMetaDTO.setUnpublishedModulesOrPages(unpublishedPages);
 
                     return getExportableEntities(exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
                             .then(Mono.defer(() -> sanitizeEntities(

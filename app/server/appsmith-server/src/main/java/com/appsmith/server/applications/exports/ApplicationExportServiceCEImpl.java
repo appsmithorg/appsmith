@@ -118,7 +118,7 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
         boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
         boolean isServerSchemaMigrated = !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
 
-        exportingMetaDTO.setApplicationLastCommittedAt(applicationLastCommittedAt);
+        exportingMetaDTO.setArtifactLastCommittedAt(applicationLastCommittedAt);
         exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
         exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
         applicationJson.setExportedApplication(application);
@@ -127,7 +127,7 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
         List<String> unpublishedPages =
                 application.getPages().stream().map(ApplicationPage::getId).collect(Collectors.toList());
 
-        exportingMetaDTO.setUnpublishedPages(unpublishedPages);
+        exportingMetaDTO.setUnpublishedModulesOrPages(unpublishedPages);
     }
 
     @Override

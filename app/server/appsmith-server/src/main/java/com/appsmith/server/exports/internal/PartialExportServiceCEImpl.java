@@ -70,7 +70,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
         final MappedExportableResourcesDTO mappedResourcesDTO = new MappedExportableResourcesDTO();
         final ExportingMetaDTO exportingMetaDTO = new ExportingMetaDTO();
 
-        exportingMetaDTO.setApplicationId(applicationId);
+        exportingMetaDTO.setArtifactId(applicationId);
         exportingMetaDTO.setBranchName(null);
         exportingMetaDTO.setIsGitSync(false);
         exportingMetaDTO.setExportWithConfiguration(false);
@@ -266,8 +266,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private Mono<String> updatePageNameInResourceMapDTO(
             String pageId, MappedExportableResourcesDTO mappedResourcesDTO) {
         return newPageService.getNameByPageId(pageId, false).flatMap(pageName -> {
-            mappedResourcesDTO.getPageIdToNameMap().put(pageId + EDIT, pageName);
-            mappedResourcesDTO.getPageIdToNameMap().put(pageId + VIEW, pageName);
+            mappedResourcesDTO.getPageOrModuleIdToNameMap().put(pageId + EDIT, pageName);
+            mappedResourcesDTO.getPageOrModuleIdToNameMap().put(pageId + VIEW, pageName);
             return Mono.just(pageId);
         });
     }

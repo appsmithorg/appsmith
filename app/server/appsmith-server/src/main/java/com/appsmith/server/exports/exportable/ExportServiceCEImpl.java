@@ -67,7 +67,6 @@ public class ExportServiceCEImpl implements ExportServiceCE {
         this.datasourceExportableService = datasourceExportableService;
         this.pluginExportableService = pluginExportableService;
         this.customJSLibExportableService = customJSLibExportableService;
-        // Needs further analysis for requirement of a gson builder
         this.gson = new Gson();
         this.contextBasedExportServiceMap.put(ArtifactJsonType.APPLICATION, this.applicationExportService);
     }
@@ -106,7 +105,6 @@ public class ExportServiceCEImpl implements ExportServiceCE {
          since we are merging the method exportByArtifactIdAndBranchName to one method for performance reasons
          this step is required for test cases and TemplateServices
         */
-        // TODO: change the serialisation class
         SerialiseArtifactObjective serialiseArtifactObjective =
                 objective == null ? SerialiseArtifactObjective.SHARE : objective;
 
@@ -131,7 +129,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 .map(transactionArtifact -> {
                     // Since we have moved the setting of artifactId from the repository, the MetaDTO needs to assigned
                     // from here
-                    exportingMetaDTO.setApplicationId(transactionArtifact.getId());
+                    exportingMetaDTO.setArtifactId(transactionArtifact.getId());
                     exportingMetaDTO.setBranchName(null);
                     exportingMetaDTO.setIsGitSync(isGitSync);
                     exportingMetaDTO.setExportWithConfiguration(exportWithConfiguration);
@@ -178,14 +176,14 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                     final Map<String, Object> data = new HashMap<>();
                     data.put(FieldName.FLOW_NAME, stopwatch.getFlow());
                     data.put("executionTime", stopwatch.getExecutionTime());
-                    data.put(contextConstants.get(FieldName.ID), exportingMetaDTO.getApplicationId());
+                    data.put(contextConstants.get(FieldName.ID), exportingMetaDTO.getArtifactId());
                     data.putAll(contextBasedExportService.getExportRelatedArtifactData(artifactExchangeJson));
                     return analyticsService
                             .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
                             .thenReturn(artifactExchangeJson);
                 })
                 .flatMap(unused -> sendExportArtifactAnalyticsEvent(
-                        contextBasedExportService, exportingMetaDTO.getApplicationId(), AnalyticsEvents.EXPORT))
+                        contextBasedExportService, exportingMetaDTO.getArtifactId(), AnalyticsEvents.EXPORT))
                 .thenReturn(artifactExchangeJson);
     }
 
@@ -204,7 +202,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
         contextBasedExportService.sanitizeArtifactSpecificExportableEntities(
                 exportingMetaDTO, mappedResourcesDTO, artifactExchangeJson, serialiseFor);
 
-        return Mono.empty().then();
+        return Mono.empty();
     }
 
     private Mono<Void> getExportableEntities(
@@ -287,12 +285,12 @@ public class ExportServiceCEImpl implements ExportServiceCE {
         return exportByArtifactIdAndBranchName(artifactId, branchName, artifactJsonType)
                 .map(artifactExchangeJson -> {
                     String stringifiedFile = gson.toJson(artifactExchangeJson);
-                    String applicationName =
+                    String artifactName =
                             artifactExchangeJson.getTransactionalArtifact().getName();
                     Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
                     HttpHeaders responseHeaders = new HttpHeaders();
                     ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                            .filename(applicationName + ".json", StandardCharsets.UTF_8)
+                            .filename(artifactName + ".json", StandardCharsets.UTF_8)
                             .build();
                     responseHeaders.setContentDisposition(contentDisposition);
                     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
