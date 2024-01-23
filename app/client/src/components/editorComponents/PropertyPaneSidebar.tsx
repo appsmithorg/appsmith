@@ -21,6 +21,7 @@ import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import styled from "styled-components";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
 
@@ -40,9 +41,9 @@ const StyledResizer = styled.div<{ resizing: boolean }>`
 `;
 
 interface Props {
-  width: string;
-  onDragEnd?: () => void;
-  onWidthChange?: (width: number) => void;
+  width: string | number;
+  onDragEnd: () => void;
+  onWidthChange: (width: number) => void;
 }
 
 export const PropertyPaneSidebar = memo((props: Props) => {
@@ -57,6 +58,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
   const { isOpened: isWalkthroughOpened, popFeature } =
     useContext(WalkthroughContext) || {};
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget id,
@@ -139,7 +141,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         ref={sidebarRef}
       >
         {/* RESIZER */}
-        {!isAppSettingsPaneOpen && (
+        {!isAppSettingsPaneOpen && !isSideBySideEnabled && (
           <StyledResizer
             className={`absolute top-0 left-0 w-2 h-full -ml-1 group cursor-ew-resize ${tailwindLayers.resizer}`}
             onMouseDown={onMouseDown}
