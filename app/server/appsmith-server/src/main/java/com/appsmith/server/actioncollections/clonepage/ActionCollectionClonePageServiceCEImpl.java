@@ -119,24 +119,35 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
                                     return actionCollectionService.update(
                                             clonedActionCollection.getId(), clonedActionCollection);
                                 }
+                                clonePageMetaDTO.getClonedActionCollections().add(clonedActionCollection);
                                 return Mono.just(clonedActionCollection);
-                            })
-                            .flatMap(newlyCreatedActionCollection -> Flux.fromIterable(
-                                            updatedDefaultToBranchedActionId.values())
-                                    .flatMap(newActionService::findById)
-                                    .flatMap(newlyCreatedAction -> {
-                                        newlyCreatedAction
-                                                .getUnpublishedAction()
-                                                .setCollectionId(newlyCreatedActionCollection.getId());
-                                        newlyCreatedAction
-                                                .getUnpublishedAction()
+                            });
+                })
+                .collectList()
+                .then();
+    }
+
+    @Override
+    public Mono<Void> updateClonedEntities(ClonePageMetaDTO clonePageMetaDTO) {
+        return Flux.fromIterable(clonePageMetaDTO.getClonedActionCollections())
+                .flatMap(clonedActionCollection -> {
+                    return Flux.fromIterable(clonedActionCollection
+                                    .getUnpublishedCollection()
+                                    .getDefaultToBranchedActionIdsMap()
+                                    .values())
+                            .flatMap(newActionService::findById)
+                            .flatMap(newlyCreatedAction -> {
+                                newlyCreatedAction
+                                        .getUnpublishedAction()
+                                        .setCollectionId(clonedActionCollection.getId());
+                                newlyCreatedAction
+                                        .getUnpublishedAction()
+                                        .getDefaultResources()
+                                        .setCollectionId(clonedActionCollection
                                                 .getDefaultResources()
-                                                .setCollectionId(newlyCreatedActionCollection
-                                                        .getDefaultResources()
-                                                        .getCollectionId());
-                                        return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
-                                    })
-                                    .collectList());
+                                                .getCollectionId());
+                                return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
+                            });
                 })
                 .collectList()
                 .then();

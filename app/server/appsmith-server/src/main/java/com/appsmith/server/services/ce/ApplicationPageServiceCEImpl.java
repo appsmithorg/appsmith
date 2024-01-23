@@ -712,7 +712,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     protected Mono<Void> clonePageDependentEntities(ClonePageMetaDTO clonePageMetaDTO) {
         return actionClonePageService
                 .cloneEntities(clonePageMetaDTO)
-                .then(Mono.defer(() -> actionCollectionClonePageService.cloneEntities(clonePageMetaDTO)));
+                .then(Mono.defer(() -> actionCollectionClonePageService.cloneEntities(clonePageMetaDTO)))
+                .then(Mono.defer(() -> actionCollectionClonePageService.updateClonedEntities(clonePageMetaDTO)));
     }
 
     protected Mono<PageDTO> updateClonedPageLayout(PageDTO savedPage) {

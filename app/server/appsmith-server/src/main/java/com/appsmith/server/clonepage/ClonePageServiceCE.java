@@ -6,4 +6,6 @@ import reactor.core.publisher.Mono;
 
 public interface ClonePageServiceCE<T extends BaseDomain> {
     Mono<Void> cloneEntities(ClonePageMetaDTO clonePageMetaDTO);
+
+    Mono<Void> updateClonedEntities(ClonePageMetaDTO clonePageMetaDTO);
 }

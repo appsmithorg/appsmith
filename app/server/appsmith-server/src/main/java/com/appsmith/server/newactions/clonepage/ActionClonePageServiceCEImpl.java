@@ -7,6 +7,8 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.clonepage.ClonePageServiceCE;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -16,8 +18,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
@@ -62,10 +62,13 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                 .collect(HashMap<String, String>::new, (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
                 .flatMap(oldToClonedActionIdMap -> {
                     clonePageMetaDTO.setOldToNewActionIdMap(oldToClonedActionIdMap);
-                    Map<String, String> clonedIdToOldActionIdMap = oldToClonedActionIdMap.entrySet().stream()
-                            .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
                     return Mono.empty().then();
                 });
+    }
+
+    @Override
+    public Mono<Void> updateClonedEntities(ClonePageMetaDTO clonePageMetaDTO) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     protected Flux<NewAction> getCloneableActions(String pageId) {
