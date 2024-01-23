@@ -2292,9 +2292,11 @@ export const EDITOR_PANE_TEXTS = {
     "Drag & drop widgets to create your app",
   query_add_button: () => "New query / API",
   js_add_button: () => "New JS object",
+  js_blank_object_item: () => "Blank JS Object",
   widget_add_button: () => "New widget",
   query_create_tab_title: () => "Create new query / API",
   widgets_create_tab_title: () => "Drag & drop a widget",
+  js_create_tab_title: () => "Create JS object",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
 };

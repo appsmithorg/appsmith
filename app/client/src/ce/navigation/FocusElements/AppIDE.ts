@@ -81,18 +81,10 @@ import {
   setSelectedSegment,
 } from "@appsmith/navigation/FocusSetters";
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
-import type { FocusElementConfig } from "navigation/FocusElements";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
+import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
 
-export const AppIDEFocusElements: Record<FocusEntity, FocusElementConfig[]> = {
-  [FocusEntity.NONE]: [],
-  [FocusEntity.APP_STATE]: [],
-  [FocusEntity.CANVAS]: [],
-  [FocusEntity.QUERY_ADD]: [],
-  [FocusEntity.API]: [],
-  [FocusEntity.LIBRARY]: [],
-  [FocusEntity.SETTINGS]: [],
-  [FocusEntity.DATASOURCE_CREATE]: [],
+export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
     {
       type: FocusElementConfigType.URL,

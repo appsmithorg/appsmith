@@ -107,7 +107,6 @@ function Files() {
               key={entity.id}
               searchKeyword={""}
               step={2}
-              type={type}
             />
           );
         } else if (type === "JS") {
