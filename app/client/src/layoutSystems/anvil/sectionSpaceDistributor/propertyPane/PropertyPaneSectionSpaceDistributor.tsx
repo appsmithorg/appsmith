@@ -18,6 +18,7 @@ const MockedSection = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  height: 34px;
   justify-content: flex-start;
   border: 2px solid var(--ads-v2-color-bg-emphasis);
 `;
@@ -27,7 +28,6 @@ const MockedZone = styled.div<{ flexGrow: number }>`
   border-radius: 3px;
   background-color: var(--ads-v2-color-bg);
   flex-shrink: 1;
-  height: 34px;
   align-items: center;
   justify-content: center;
   flex-grow: ${(props) => props.flexGrow};
