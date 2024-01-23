@@ -1,3 +1,4 @@
+import { useDebouncedValue } from "@mantine/hooks";
 import React from "react";
 import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
@@ -18,75 +19,63 @@ const getInputHTMLType = (inputType: InputTypes) => {
   }
 };
 
-class InputComponent extends React.Component<InputComponentProps> {
-  onTextChange = (
-    event:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>,
-  ) => {
-    this.props.onValueChange(event.target.value);
-  };
+const DEBOUNCE_TIME = 300;
 
-  getIcon(inputType: InputTypes) {
-    switch (inputType) {
-      case "EMAIL":
-        return "envelope";
-      default:
-        return undefined;
-    }
-  }
+const InputComponent = (props: InputComponentProps) => {
+  // Note: because of how derived props are handled by MetaHoc, the isValid shows wrong
+  // values for some milliseconds. To avoid that, we are using debounced value.
+  const [isInvalid] = useDebouncedValue(props.isInvalid, DEBOUNCE_TIME);
+  const [errorMessage] = useDebouncedValue(props.errorMessage, DEBOUNCE_TIME);
 
-  render() {
-    return (
-      <BaseInputComponent
-        accentColor={this.props.accentColor}
-        allowNumericCharactersOnly={this.props.allowNumericCharactersOnly}
-        autoComplete={this.props.autoComplete}
-        autoFocus={this.props.autoFocus}
-        borderRadius={this.props.borderRadius}
-        boxShadow={this.props.boxShadow}
-        buttonPosition={this.props.buttonPosition}
-        compactMode={this.props.compactMode}
-        defaultValue={this.props.defaultValue}
-        disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
-        disabled={this.props.disabled}
-        errorMessage={this.props.errorMessage}
-        fill={this.props.fill}
-        iconAlign={this.props.iconAlign}
-        iconName={this.props.iconName}
-        inputHTMLType={getInputHTMLType(this.props.inputType)}
-        inputRef={this.props.inputRef}
-        inputType={this.props.inputType}
-        intent={this.props.intent}
-        isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
-        isInvalid={this.props.isInvalid}
-        isLoading={this.props.isLoading}
-        label={this.props.label}
-        labelAlignment={this.props.labelAlignment}
-        labelPosition={this.props.labelPosition}
-        labelStyle={this.props.labelStyle}
-        labelTextColor={this.props.labelTextColor}
-        labelTextSize={this.props.labelTextSize}
-        labelWidth={this.props.labelWidth}
-        maxChars={this.props.maxChars}
-        maxNum={this.props.maxNum}
-        minNum={this.props.minNum}
-        multiline={this.props.multiline}
-        onFocusChange={this.props.onFocusChange}
-        onKeyDown={this.props.onKeyDown}
-        onValueChange={this.props.onValueChange}
-        placeholder={this.props.placeholder}
-        rtl={this.props.rtl}
-        showError={this.props.showError}
-        spellCheck={this.props.spellCheck}
-        stepSize={1}
-        tooltip={this.props.tooltip}
-        value={this.props.value}
-        widgetId={this.props.widgetId}
-      />
-    );
-  }
-}
+  return (
+    <BaseInputComponent
+      accentColor={props.accentColor}
+      allowNumericCharactersOnly={props.allowNumericCharactersOnly}
+      autoComplete={props.autoComplete}
+      autoFocus={props.autoFocus}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      buttonPosition={props.buttonPosition}
+      compactMode={props.compactMode}
+      defaultValue={props.defaultValue}
+      disableNewLineOnPressEnterKey={props.disableNewLineOnPressEnterKey}
+      disabled={props.disabled}
+      errorMessage={props.isInvalid ? errorMessage : ""}
+      fill={props.fill}
+      iconAlign={props.iconAlign}
+      iconName={props.iconName}
+      inputHTMLType={getInputHTMLType(props.inputType)}
+      inputRef={props.inputRef}
+      inputType={props.inputType}
+      intent={props.intent}
+      isDynamicHeightEnabled={props.isDynamicHeightEnabled}
+      isInvalid={isInvalid}
+      isLoading={props.isLoading}
+      label={props.label}
+      labelAlignment={props.labelAlignment}
+      labelPosition={props.labelPosition}
+      labelStyle={props.labelStyle}
+      labelTextColor={props.labelTextColor}
+      labelTextSize={props.labelTextSize}
+      labelWidth={props.labelWidth}
+      maxChars={props.maxChars}
+      maxNum={props.maxNum}
+      minNum={props.minNum}
+      multiline={props.multiline}
+      onFocusChange={props.onFocusChange}
+      onKeyDown={props.onKeyDown}
+      onValueChange={props.onValueChange}
+      placeholder={props.placeholder}
+      rtl={props.rtl}
+      showError={props.showError}
+      spellCheck={props.spellCheck}
+      stepSize={1}
+      tooltip={props.tooltip}
+      value={props.value}
+      widgetId={props.widgetId}
+    />
+  );
+};
 export interface InputComponentProps extends BaseInputComponentProps {
   inputType: InputTypes;
   maxChars?: number;

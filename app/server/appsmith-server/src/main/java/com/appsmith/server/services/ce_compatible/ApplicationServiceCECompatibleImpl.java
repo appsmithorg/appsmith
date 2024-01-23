@@ -10,9 +10,11 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -38,7 +40,9 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             SessionUserService sessionUserService,
-            UserDataService userDataService) {
+            UserDataService userDataService,
+            WorkspaceService workspaceService,
+            WorkspacePermission workspacePermission) {
         super(
                 scheduler,
                 validator,
@@ -55,6 +59,8 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
                 datasourcePermission,
                 applicationPermission,
                 sessionUserService,
-                userDataService);
+                userDataService,
+                workspaceService,
+                workspacePermission);
     }
 }

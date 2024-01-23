@@ -13,6 +13,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
@@ -31,9 +32,11 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +84,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
     private final ApplicationPermission applicationPermission;
     private final SessionUserService sessionUserService;
     private final UserDataService userDataService;
+    private final WorkspaceService workspaceService;
+    private final WorkspacePermission workspacePermission;
+
     private static final Integer MAX_RETRIES = 5;
 
     @Autowired
@@ -100,7 +106,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             SessionUserService sessionUserService,
-            UserDataService userDataService) {
+            UserDataService userDataService,
+            WorkspaceService workspaceService,
+            WorkspacePermission workspacePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policySolution = policySolution;
@@ -113,6 +121,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
         this.applicationPermission = applicationPermission;
         this.sessionUserService = sessionUserService;
         this.userDataService = userDataService;
+        this.workspaceService = workspaceService;
+        this.workspacePermission = workspacePermission;
     }
 
     @Override
@@ -193,6 +203,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
+        // Read the workspace
+        Mono<Workspace> workspaceMono = workspaceService
+                .findById(workspaceId, workspacePermission.getReadPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
+
         Mono<RecentlyUsedEntityDTO> userDataMono = userDataService
                 .getForCurrentUser()
                 .defaultIfEmpty(new UserData())
@@ -207,7 +223,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                 });
 
         // Collect all the applications as a map with workspace id as a key
-        return userDataMono.flatMapMany(
+        return workspaceMono.thenMany(userDataMono.flatMapMany(
                 recentlyUsedEntityDTO -> this.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
                         // sort transformation
                         .transform(domainFlux -> sortDomainsBasedOnOrderedDomainIds(
@@ -221,7 +237,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                             return !GitUtils.isApplicationConnectedToGit(application)
                                     || GitUtils.isDefaultBranchedApplication(application);
                         })
-                        .map(responseUtils::updateApplicationWithDefaultResources));
+                        .map(responseUtils::updateApplicationWithDefaultResources)));
     }
 
     @Override
