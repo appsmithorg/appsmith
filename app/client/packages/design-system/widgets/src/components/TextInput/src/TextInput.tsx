@@ -18,6 +18,8 @@ export interface TextInputProps extends HeadlessTextInputProps {
   loaderPosition?: "auto" | "start" | "end";
   /** loading state for the input */
   isLoading?: boolean;
+  /** size of the input */
+  size?: "small" | "medium" | "large";
 }
 
 const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
@@ -30,6 +32,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     isRequired,
     label,
     loaderPosition = "auto",
+    size = "medium",
     startIcon,
     type,
     ...rest
@@ -82,6 +85,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
   return (
     <HeadlessTextInput
       contextualHelp={contextualHelp}
+      data-size={Boolean(size) ? size : undefined}
       description={description}
       endIcon={renderEndIcon()}
       errorMessage={errorMessage}

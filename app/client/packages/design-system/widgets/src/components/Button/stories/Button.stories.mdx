@@ -70,6 +70,20 @@ There are 3 variants of the button component.
   </div>
 </Story>
 
+## Size
+
+There are 3 sizes of the button component. Default size is `medium`.
+
+<Story name="Size">
+  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+    {["small", "medium", "large"].map((size) => (
+      <div key={size} style={{ marginBottom: 10 }}>
+        <Button size={size} icon="star" children={size} />
+      </div>
+    ))}
+  </div>
+</Story>
+
 ## Disabled
 
 <Story

@@ -6,7 +6,7 @@ import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
   title="Design-system/Widgets/IconButton"
   component={IconButton}
   args={{
-    icon: EmotionHappyLineIcon,
+    icon: "plus",
   }}
 />
 
@@ -55,11 +55,7 @@ Just like Button component, There are 3 variants of the icon button component.
     {["filled", "outlined", "ghost"].map((variant) =>
       ["accent", "neutral", "positive", "negative", "warning"].map((color) => (
         <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
-          <IconButton
-            variant={variant}
-            color={color}
-            icon={EmotionHappyLineIcon}
-          />
+          <IconButton variant={variant} color={color} icon="plus" />
         </div>
       )),
     )}
@@ -74,7 +70,7 @@ Just like Button component, There are 3 variants of the icon button component.
   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
     {["small", "medium", "large"].map((size) => (
       <div key={size} style={{ marginBottom: 10 }}>
-        <IconButton size={size} icon={EmotionHappyLineIcon} />
+        <IconButton size={size} icon="plus" />
       </div>
     ))}
   </div>

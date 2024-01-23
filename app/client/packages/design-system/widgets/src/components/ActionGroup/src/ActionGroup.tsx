@@ -78,12 +78,7 @@ const _ActionGroup = <T extends object>(
           })}
           {menuChildren?.length > 0 && (
             <Menu onAction={onAction}>
-              <IconButton
-                color={color}
-                icon="dots"
-                size="large"
-                variant={variant}
-              />
+              <IconButton color={color} icon="dots" variant={variant} />
               <MenuList>
                 {menuChildren.map((item) => (
                   <Item

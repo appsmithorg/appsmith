@@ -38,4 +38,8 @@ export interface ButtonProps extends HeadlessButtonProps {
    * @default Loading...
    */
   loadingText?: string;
+  /** Size of the button
+   * @default medium
+   */
+  size?: "small" | "medium" | "large";
 }
