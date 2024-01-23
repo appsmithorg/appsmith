@@ -21,6 +21,7 @@ import type { NavigationMethod } from "utils/history";
 import UsagePulse from "usagePulse";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
 
 let previousPath: string;
 
@@ -47,6 +48,7 @@ export function* handleRouteChange(
         yield fork(appBackgroundHandler);
         const entityInfo = identifyEntityFromPath(pathname);
         yield fork(updateRecentEntitySaga, entityInfo);
+        yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
         yield fork(setSelectedWidgetsSaga, state?.invokedBy);
       }
     }

@@ -2,7 +2,7 @@ import { InputTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import type { InputWidgetProps } from "../types";
-import { ICON_NAMES } from "WidgetProvider/constants";
+import { ICONS } from "@design-system/widgets";
 
 export const propertyPaneStyleConfig = [
   {
@@ -12,14 +12,14 @@ export const propertyPaneStyleConfig = [
         propertyName: "iconName",
         label: "Icon",
         helpText: "Sets the icon to be used in input field",
-        controlType: "ICON_SELECT",
+        controlType: "ICON_SELECT_V2",
         isBindProperty: true,
         isTriggerProperty: false,
         isJSConvertible: true,
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: ICON_NAMES,
+            allowedValues: Object.keys(ICONS),
           },
         },
         hidden: (props: InputWidgetProps) => {
