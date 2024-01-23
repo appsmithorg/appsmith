@@ -1047,6 +1047,9 @@ export const selectFilesForExplorer = createSelector(
         group = isEmbeddedAIDataSource(file.config.datasource)
           ? "AI Queries"
           : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
+      } else if (file.config.pluginType === PluginType.INTERNAL) {
+        // TODO: Add a group for internal actions, currently only Workflow actions are internal
+        group = "Workflows";
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
@@ -1059,7 +1062,6 @@ export const selectFilesForExplorer = createSelector(
     }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
-      (file) => file.entity.config?.isMainJSCollection,
       (file) => file.group?.toLowerCase(),
       (file) => file.entity.config?.name?.toLowerCase(),
     ]);
@@ -1458,3 +1460,52 @@ export const getNewEntityName = createSelector(
     return getNextEntityName(prefix, actionNames.concat(jsActionNames));
   },
 );
+
+export interface EntityItem {
+  title: string;
+  type: PluginType;
+  key: string;
+  group?: string;
+}
+
+export const getQuerySegmentItems = createSelector(
+  getCurrentActions,
+  selectDatasourceIdToNameMap,
+  (actions, datasourceIdToNameMap) => {
+    const items: EntityItem[] = actions.map((action) => {
+      let group;
+      if (action.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(action.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
+      } else if (action.config.pluginType === PluginType.AI) {
+        group = isEmbeddedAIDataSource(action.config.datasource)
+          ? "AI Queries"
+          : datasourceIdToNameMap[action.config.datasource.id] ?? "AI Queries";
+      } else {
+        group = datasourceIdToNameMap[action.config.datasource.id];
+      }
+      return {
+        title: action.config.name,
+        key: action.config.id,
+        type: action.config.pluginType,
+        group,
+      };
+    });
+    return items;
+  },
+);
+export const getJSSegmentItems = createSelector(
+  getCurrentJSCollections,
+  (jsActions) => {
+    const items: EntityItem[] = jsActions.map((js) => ({
+      title: js.config.name,
+      key: js.config.id,
+      type: PluginType.JS,
+    }));
+    return items;
+  },
+);
+
+export const getSelectedTableName = (state: AppState) =>
+  state.ui.datasourcePane.selectedTableName;

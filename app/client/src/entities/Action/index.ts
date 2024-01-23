@@ -14,6 +14,7 @@ export enum PluginType {
   JS = "JS",
   REMOTE = "REMOTE",
   AI = "AI",
+  INTERNAL = "INTERNAL",
 }
 
 export enum PluginPackageName {
@@ -30,6 +31,7 @@ export enum PluginPackageName {
   MS_SQL = "mssql-plugin",
   SNOWFLAKE = "snowflake-plugin",
   APPSMITH_AI = "appsmithai-plugin",
+  WORKFLOW = "workflow-plugin",
 }
 
 // more can be added subsequently.
@@ -88,14 +90,6 @@ export interface ActionConfig {
   path?: string;
   queryParameters?: KeyValuePair[];
   selfReferencingData?: SelfReferencingData;
-}
-
-export interface ActionProvider {
-  name: string;
-  imageUrl: string;
-  url: string;
-  description: string;
-  credentialSteps: string;
 }
 
 export interface Property {
@@ -191,6 +185,11 @@ export interface AIAction extends BaseAction {
   actionConfiguration: any;
   datasource: StoredDatasource;
 }
+export interface InternalAction extends BaseAction {
+  pluginType: PluginType.INTERNAL;
+  actionConfiguration: any;
+  datasource: StoredDatasource;
+}
 
 export interface EmbeddedApiAction extends BaseApiAction {
   datasource: EmbeddedRestDatasource;
@@ -201,14 +200,6 @@ export interface StoredDatasourceApiAction extends BaseApiAction {
 }
 
 export type ApiAction = EmbeddedApiAction | StoredDatasourceApiAction;
-
-export type RapidApiAction = ApiAction & {
-  templateId: string;
-  proverId: string;
-  provider: ActionProvider;
-  pluginId: string;
-  documentation: { text: string };
-};
 
 export interface QueryAction extends BaseAction {
   pluginType: PluginType.DB;
@@ -231,7 +222,8 @@ export type Action =
   | QueryAction
   | SaaSAction
   | RemoteAction
-  | AIAction;
+  | AIAction
+  | InternalAction;
 
 export enum SlashCommand {
   NEW_API,
@@ -290,4 +282,5 @@ export interface CreateActionDefaultsParams {
   datasourceId: string;
   from?: EventLocation;
   newActionName?: string;
+  queryDefaultTableName?: string;
 }

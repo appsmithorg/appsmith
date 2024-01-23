@@ -78,7 +78,6 @@ import SharedUserList from "pages/common/SharedUserList";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
-import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
@@ -108,7 +107,6 @@ import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
-import DisableAutocommitModal from "pages/Editor/gitSync/DisableAutocommitModal";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
@@ -786,11 +784,7 @@ export function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      <>
-        <GitSyncModal isImport />
-        <DisableAutocommitModal />
-        <DisconnectGitModal />
-      </>
+      <GitSyncModal isImport />
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );

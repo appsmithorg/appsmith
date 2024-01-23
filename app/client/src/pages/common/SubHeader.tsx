@@ -48,6 +48,7 @@ const SubHeaderWrapper = styled.div<{
 `;
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
+  margin: 4px 0;
 `;
 
 const MultipleDeleteWrapper = styled.div`
@@ -130,16 +131,18 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
         <MultipleDeleteWrapper>
           <Button
             isLoading={deleteMultipleApplicationObject.isDeleting}
+            kind="error"
             onClick={() => setShowConfirmationModal(true)}
-            size="sm"
+            size="md"
             startIcon="delete-bin-line"
           >
-            Delete
+            Delete {deleteMultipleApplicationObject.list?.length} apps
           </Button>
           <Button
             kind="secondary"
             onClick={handleCancelMultipleDelete}
-            size="sm"
+            size="md"
+            startIcon="close"
           >
             Cancel
           </Button>

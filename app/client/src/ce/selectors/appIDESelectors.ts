@@ -1,27 +1,16 @@
-import { groupBy, sortBy } from "lodash";
+import { groupBy, keyBy, sortBy } from "lodash";
 import { createSelector } from "reselect";
-import { PluginType } from "entities/Action";
+import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
 import {
-  isEmbeddedAIDataSource,
-  isEmbeddedRestDatasource,
-} from "entities/Datasource";
-import {
-  getCurrentActions,
-  getCurrentJSCollections,
-  selectDatasourceIdToNameMap,
-} from "./entitiesSelector";
+  getJSSegmentItems,
+  getQuerySegmentItems,
+} from "@appsmith/selectors/entitiesSelector";
+import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 
 export type EditorSegmentList = Array<{
   group: string | "NA";
   items: EntityItem[];
 }>;
-
-export interface EntityItem {
-  title: string;
-  type: PluginType;
-  key: string;
-  group?: string;
-}
 
 const groupAndSortEntitySegmentList = (
   items: EntityItem[],
@@ -43,53 +32,10 @@ const groupAndSortEntitySegmentList = (
   );
 };
 
-function recentSortEntitySegmentTabs(items: EntityItem[]) {
-  // TODO Temp implementation
-  return sortBy(items, "title");
-}
-
-export const getQuerySegmentItems = createSelector(
-  getCurrentActions,
-  selectDatasourceIdToNameMap,
-  (actions, datasourceIdToNameMap) => {
-    const items: EntityItem[] = actions.map((action) => {
-      let group;
-      if (action.config.pluginType === PluginType.API) {
-        group = isEmbeddedRestDatasource(action.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
-      } else if (action.config.pluginType === PluginType.AI) {
-        group = isEmbeddedAIDataSource(action.config.datasource)
-          ? "AI Queries"
-          : datasourceIdToNameMap[action.config.datasource.id] ?? "AI Queries";
-      } else {
-        group = datasourceIdToNameMap[action.config.datasource.id];
-      }
-      return {
-        title: action.config.name,
-        key: action.config.id,
-        type: action.config.pluginType,
-        group,
-      };
-    });
-    return items;
-  },
-);
 export const selectQuerySegmentEditorList = createSelector(
   getQuerySegmentItems,
   (items) => {
     return groupAndSortEntitySegmentList(items);
-  },
-);
-export const getJSSegmentItems = createSelector(
-  getCurrentJSCollections,
-  (jsActions) => {
-    const items: EntityItem[] = jsActions.map((js) => ({
-      title: js.config.name,
-      key: js.config.id,
-      type: PluginType.JS,
-    }));
-    return items;
   },
 );
 export const selectJSSegmentEditorList = createSelector(
@@ -101,14 +47,22 @@ export const selectJSSegmentEditorList = createSelector(
 
 export const selectJSSegmentEditorTabs = createSelector(
   getJSSegmentItems,
-  (items) => {
-    return recentSortEntitySegmentTabs(items);
+  getJSTabs,
+  (items, tabs) => {
+    const keyedItems = keyBy(items, "key");
+    return tabs.map((tab) => {
+      return keyedItems[tab];
+    });
   },
 );
 
 export const selectQuerySegmentEditorTabs = createSelector(
   getQuerySegmentItems,
-  (items) => {
-    return recentSortEntitySegmentTabs(items);
+  getQueryTabs,
+  (items, tabs) => {
+    const keyedItems = keyBy(items, "key");
+    return tabs.map((tab) => {
+      return keyedItems[tab];
+    });
   },
 );

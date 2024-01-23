@@ -9,9 +9,10 @@ import {
 import type { ConnectToGitPayload } from "api/GitSyncAPI";
 import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
-import type {
-  GitStatusData,
-  GitRemoteStatusData,
+import {
+  type GitStatusData,
+  type GitRemoteStatusData,
+  GitSettingsTab,
 } from "reducers/uiReducers/gitSyncReducer";
 import type { ResponseMeta } from "api/ApiResponses";
 import { noop } from "lodash";
@@ -505,4 +506,12 @@ export const stopAutocommitProgressPolling = () => ({
 
 export const getGitMetadataInitAction = () => ({
   type: ReduxActionTypes.GIT_GET_METADATA_INIT,
+});
+
+export const setGitSettingsModalOpenAction = (payload: {
+  open: boolean;
+  tab?: GitSettingsTab;
+}) => ({
+  type: ReduxActionTypes.GIT_SET_SETTINGS_MODAL_OPEN,
+  payload: { open: payload.open, tab: payload.tab || GitSettingsTab.GENERAL },
 });

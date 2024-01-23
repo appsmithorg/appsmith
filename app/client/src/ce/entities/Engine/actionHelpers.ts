@@ -7,6 +7,7 @@ import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors"
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";
+import type { Plugin } from "api/PluginApi";
 
 export const CreateNewActionKey = {
   PAGE: "pageId",
@@ -39,4 +40,10 @@ export const getPageDependencyActions = (
     successActions,
     errorActions,
   };
+};
+
+export const doesPluginRequireDatasource = (plugin: Plugin | undefined) => {
+  return !!plugin && plugin.hasOwnProperty("requiresDatasource")
+    ? plugin.requiresDatasource
+    : true;
 };

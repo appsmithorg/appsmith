@@ -41,6 +41,7 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -114,6 +115,8 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     pagePermissions,
   );
 
+  const showWorkflows = useSelector(getShowWorkflowFeature);
+
   const closeWalkthrough = useCallback(() => {
     if (isWalkthroughOpened && popFeature) {
       popFeature("EXPLORER_DATASOURCE_ADD");
@@ -165,6 +168,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
         editorId={applicationId}
         parentEntityId={pageId}
         parentEntityType={ActionParentEntityType.PAGE}
+        showWorkflows={showWorkflows}
       >
         <Files />
       </FilesContextProvider>
