@@ -34,7 +34,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +98,7 @@ public class DatasourceServiceTest {
     WorkspaceService workspaceService;
 
     @Autowired
-    WorkspaceRepository workspaceRepository;
+    WorkspaceRepositoryCake workspaceRepository;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -372,13 +372,8 @@ public class DatasourceServiceTest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        List<PermissionGroup> permissionGroups = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
-                })
-                .collectList()
-                .block();
+        Set<PermissionGroup> permissionGroups =
+                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -923,7 +918,6 @@ public class DatasourceServiceTest {
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
-                                                .users(Set.of("api_user"))
                                                 .build())));
                                         return applicationPageService.createPage(page);
                                     }));
@@ -1005,7 +999,6 @@ public class DatasourceServiceTest {
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
-                                                .users(Set.of("api_user"))
                                                 .build())));
                                         return applicationPageService.createPage(page);
                                     }));
@@ -1319,13 +1312,8 @@ public class DatasourceServiceTest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        List<PermissionGroup> permissionGroups = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
-                })
-                .collectList()
-                .block();
+        Set<PermissionGroup> permissionGroups =
+                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))

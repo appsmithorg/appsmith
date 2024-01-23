@@ -8,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +18,6 @@ import org.hibernate.annotations.Type;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 public class PEMCertificate implements AppsmithDomain {
 
@@ -33,4 +31,9 @@ public class PEMCertificate implements AppsmithDomain {
 
     @Encrypted @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String password;
+
+    public PEMCertificate(UploadedFile file, String password) {
+        this.file = file;
+        this.password = password;
+    }
 }

@@ -7,7 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,7 +16,6 @@ import org.hibernate.annotations.Type;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class SSLDetails implements AppsmithDomain {
@@ -87,4 +85,21 @@ public class SSLDetails implements AppsmithDomain {
     @OneToOne
     @Type(JsonBinaryType.class)
     PEMCertificate pemCertificate;
+
+    public SSLDetails(
+            AuthType authType,
+            CACertificateType caCertificateType,
+            UploadedFile keyFile,
+            UploadedFile certificateFile,
+            UploadedFile caCertificateFile,
+            Boolean usePemCertificate,
+            PEMCertificate pemCertificate) {
+        this.authType = authType;
+        this.caCertificateType = caCertificateType;
+        this.keyFile = keyFile;
+        this.certificateFile = certificateFile;
+        this.caCertificateFile = caCertificateFile;
+        this.usePemCertificate = usePemCertificate;
+        this.pemCertificate = pemCertificate;
+    }
 }

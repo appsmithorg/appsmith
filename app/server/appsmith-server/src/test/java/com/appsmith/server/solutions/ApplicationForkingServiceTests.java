@@ -1430,7 +1430,6 @@ public class ApplicationForkingServiceTests {
                     app1.setName("that great app");
                     app1.setForkWithConfiguration(Boolean.TRUE);
                     app1.setWorkspaceId(workspace.getId());
-                    app1.setIsPublic(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -1658,7 +1657,6 @@ public class ApplicationForkingServiceTests {
                     app1.setName("that great app");
                     app1.setForkWithConfiguration(Boolean.FALSE);
                     app1.setWorkspaceId(workspace.getId());
-                    app1.setIsPublic(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
