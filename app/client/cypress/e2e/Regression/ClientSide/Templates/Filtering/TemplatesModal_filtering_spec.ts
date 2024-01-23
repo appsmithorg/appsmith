@@ -3,6 +3,8 @@ import {
   templates,
 } from "../../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../../support/Pages/PageList";
+const templateLocators = require("../../../../../locators/TemplatesLocators.json");
+import reconnectDatasourceLocators from "../../../../../locators/ReconnectLocators.js";
 
 describe(
   "Bug 17276 - Templates modal filtering",
@@ -38,6 +40,28 @@ describe(
       templates
         .GetTemplatesCardsList()
         .should((cards) => expect(cards.length).to.be.equal(TEMPLATES_COUNT));
+    });
+    it("2. Check if tooltip is working in 'Reconnect Datasources", () => {
+      PageList.AddNewPage("Add page from template");
+      agHelper.AssertElementVisibility(templates.locators._templateDialogBox);
+
+      cy.xpath("//h1[text()='Customer Messaging Tool']")
+        .scrollIntoView()
+        .wait(500)
+        .click();
+      agHelper.GetNClick(templateLocators.templateViewForkButton);
+
+      cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
+      cy.get(reconnectDatasourceLocators.DatasourceList)
+        .find(reconnectDatasourceLocators.ListItemIcon)
+        .should("be.visible");
+      cy.get(reconnectDatasourceLocators.DatasourceList)
+        .find(reconnectDatasourceLocators.DatasourceTitle, {
+          withinSubject: null,
+        })
+        .first()
+        .trigger("mouseover");
+      cy.get(".ads-v2-tooltip").should("be.visible");
     });
   },
 );
