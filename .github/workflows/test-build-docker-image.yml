@@ -47,7 +47,13 @@ jobs:
       - name: Print cwd 
         run: |
           echo "Current working directory is $PWD"
-            
+      - name: Check if app/client/cypress/tags.js is present in cwd 
+        run: |
+          if [[ ! -f app/client/cypress/tags.js ]]; then
+            echo "app/client/cypress/tags.js is not present in $PWD"
+            exit 1
+          fi
+
       - name: Check the given tags if available in tags.js
         run: |
           if [[ "${{inputs.tags}}" != "" && "${{inputs.tags}}" != *"@tag.All"* ]]; then
