@@ -45,6 +45,7 @@ import {
   setupModuleInstanceForViewSaga,
   setupModuleInstanceSaga,
 } from "./moduleInstanceSagas";
+import { fetchPage, fetchPublishedPage } from "actions/pageActions";
 
 export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
   try {
@@ -64,10 +65,7 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
       });
     }
 
-    yield call(fetchPageSaga, {
-      type: ReduxActionTypes.FETCH_PAGE_INIT,
-      payload: { id, isFirstLoad },
-    });
+    yield put(fetchPage(id, isFirstLoad));
 
     yield put({
       type: ReduxActionTypes.SETUP_PAGE_SUCCESS,
@@ -103,10 +101,7 @@ export function* setupPublishedPageSaga(
         },
       });
     }
-    yield call(fetchPublishedPageSaga, {
-      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      payload: { bustCache, firstLoad, pageId },
-    });
+    yield put(fetchPublishedPage(pageId, bustCache, firstLoad));
 
     yield put({
       type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,
