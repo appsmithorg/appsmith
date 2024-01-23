@@ -30,7 +30,6 @@ import {
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
 import type { Plugin } from "api/PluginApi";
-import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface FormEvalActionPayload {
   formId: string;
@@ -172,7 +171,7 @@ function* fetchDynamicValueSaga(
 
     let url = PluginsApi.defaultDynamicTriggerURL(datasourceId);
 
-    if (!doesPluginRequireDatasource(plugin)) {
+    if (!!plugin && !plugin.requiresDatasource) {
       url = PluginsApi.dynamicTriggerURLForInternalPlugins(pluginId);
     }
 
