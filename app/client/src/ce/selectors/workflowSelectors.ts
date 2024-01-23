@@ -28,3 +28,5 @@ export const getCurrentWorkflowJSActions = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   state: AppState,
 ): JSCollectionData[] => [];
+
+export const getShowWorkflowFeature = () => false;

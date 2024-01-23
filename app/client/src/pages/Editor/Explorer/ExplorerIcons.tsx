@@ -286,6 +286,15 @@ export function CurlIconV2() {
   );
 }
 
+// TODO (workflows): replace with actual workflow icon
+export function WorkflowIcon() {
+  return (
+    <EntityIcon>
+      <Icon name="fork" size="lg" />
+    </EntityIcon>
+  );
+}
+
 // height and width are set to 18px by default. This is to maintain the current icon sizes.
 // fontSize is set to 56% by default.
 export function JsFileIconV2(

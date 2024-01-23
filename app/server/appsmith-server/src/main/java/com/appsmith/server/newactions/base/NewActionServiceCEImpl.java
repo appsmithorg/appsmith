@@ -6,7 +6,6 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -16,7 +15,6 @@ import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -51,7 +49,6 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -119,7 +116,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
-    private final MarketplaceService marketplaceService;
     private final PolicyGenerator policyGenerator;
     private final NewPageService newPageService;
     private final ApplicationService applicationService;
@@ -150,7 +146,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             DatasourceService datasourceService,
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
-            MarketplaceService marketplaceService,
             PolicyGenerator policyGenerator,
             NewPageService newPageService,
             ApplicationService applicationService,
@@ -173,7 +168,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
-        this.marketplaceService = marketplaceService;
         this.policyGenerator = policyGenerator;
         this.newPageService = newPageService;
         this.applicationService = applicationService;
@@ -199,8 +193,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         action.setApplicationId(newAction.getApplicationId());
         action.setPluginType(newAction.getPluginType());
         action.setPluginId(newAction.getPluginId());
-        action.setTemplateId(newAction.getTemplateId());
-        action.setProviderId(newAction.getProviderId());
         action.setDocumentation(newAction.getDocumentation());
 
         action.setId(newAction.getId());
@@ -224,8 +216,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         newAction.setWorkspaceId(action.getWorkspaceId());
         newAction.setPluginType(action.getPluginType());
         newAction.setPluginId(action.getPluginId());
-        newAction.setTemplateId(action.getTemplateId());
-        newAction.setProviderId(action.getProviderId());
         newAction.setDocumentation(action.getDocumentation());
         newAction.setApplicationId(action.getApplicationId());
     }
@@ -573,30 +563,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Mono.empty();
         }
 
-        // In case of an action which was imported from a 3P API, fill in the extra information of the provider required
-        // by the front end UI.
-        Mono<ActionDTO> providerUpdateMono;
-        if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
-
-            providerUpdateMono = marketplaceService
-                    .getProviderById(action.getProviderId())
-                    .switchIfEmpty(Mono.just(new Provider()))
-                    .map(provider -> {
-                        ActionProvider actionProvider = new ActionProvider();
-                        actionProvider.setName(provider.getName());
-                        actionProvider.setCredentialSteps(provider.getCredentialSteps());
-                        actionProvider.setDescription(provider.getDescription());
-                        actionProvider.setImageUrl(provider.getImageUrl());
-                        actionProvider.setUrl(provider.getUrl());
-
-                        action.setProvider(actionProvider);
-                        return action;
-                    });
-        } else {
-            providerUpdateMono = Mono.just(action);
-        }
-
-        return providerUpdateMono
+        return Mono.just(action)
                 .map(actionDTO -> {
                     DefaultResources defaults = newAction.getDefaultResources();
                     if (defaults == null) {
