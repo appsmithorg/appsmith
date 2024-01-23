@@ -59,7 +59,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, delay, put, select } from "redux-saga/effects";
+import { all, call, delay, put, select, take } from "redux-saga/effects";
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -1433,7 +1433,12 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
   try {
     const { id, isFirstLoad } = action.payload;
 
+    /*
+      Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
+      Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
+    */
     yield put(fetchPage(id, isFirstLoad));
+    yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
 
     yield put({
       type: ReduxActionTypes.SETUP_PAGE_SUCCESS,
@@ -1456,7 +1461,12 @@ export function* setupPublishedPageSaga(
   try {
     const { bustCache, firstLoad, pageId } = action.payload;
 
+    /*
+      Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
+      Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
+    */
     yield put(fetchPublishedPage(pageId, bustCache, firstLoad));
+    yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
 
     yield put({
       type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,
