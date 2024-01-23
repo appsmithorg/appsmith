@@ -363,7 +363,7 @@ public class PartialImportServiceTest {
                                     .get(0)
                                     .getUnpublishedCollection()
                                     .getName())
-                            .isEqualTo("utils");
+                            .isEqualTo("Github_Transformer");
                     assertThat(actionList.size()).isEqualTo(1);
                     Set<String> actionNames = Set.of("get_force_roster");
                     actionList.forEach(action -> {
