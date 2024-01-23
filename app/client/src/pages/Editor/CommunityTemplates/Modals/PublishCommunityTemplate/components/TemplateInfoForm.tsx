@@ -82,6 +82,7 @@ const TemplateInfoForm = ({
       </TemplateInfoFormFieldWrapper>
       <TemplateInfoFormFieldWrapper>
         <Input
+          data-testid="t--community-template-description-input"
           label={createMessage(
             COMMUNITY_TEMPLATES.publishFormPage.templateForm
               .descriptionInputLabel,

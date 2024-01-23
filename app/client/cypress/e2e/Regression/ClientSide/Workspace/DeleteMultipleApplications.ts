@@ -86,7 +86,7 @@ describe(
       homePage.SelectMultipleApplicationToDelete(
         MultipleDeleteSecondWorkspace.applicationName,
       );
-      agHelper.ClickButton("Delete");
+      agHelper.ContainsNClick("Delete");
       agHelper.ClickButton("Yes");
       assertHelper.WaitForNetworkCall("@deleteMultipleApp").then((response) => {
         expect(response?.body?.data?.length).to.be.equal(2);
