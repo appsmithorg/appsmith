@@ -194,7 +194,7 @@ public enum AppsmithPluginError implements BasePluginError {
     PLUGIN_DATASOURCE_RATE_LIMIT_ERROR(
             429,
             AppsmithPluginErrorCode.PLUGIN_RATE_LIMIT_ERROR.getCode(),
-            "Rate limit reached for Appsmith AI. Please contact Appsmith.",
+            "Rate limit reached for Appsmith AI. Please contact support@appsmith.com to increase this limit.",
             AppsmithErrorAction.DEFAULT,
             "Datasource rate limit error",
             ErrorType.RATE_LIMIT_ERROR,
