@@ -32,18 +32,7 @@ describe(
             Cypress.env("TESTUSERNAME1"),
             Cypress.env("TESTPASSWORD1"),
           );
-          agHelper.WaitUntilEleAppear(homePageLocators.searchInput);
-          agHelper.TypeText(homePageLocators.searchInput, workspaceId);
-          agHelper.WaitUntilEleAppear(
-            homePage._searchWorkspaceLocator(workspaceId),
-          );
-          agHelper.GetNClick(
-            homePage._searchWorkspaceLocator(workspaceId),
-            0,
-            true,
-          );
-          // eslint-disable-next-line cypress/no-unnecessary-waiting
-          cy.wait(2000);
+          homePage.SelectWorkspace(workspaceId);
 
           cy.get(homePageLocators.appMoreIcon).first().click({ force: true });
           cy.get(homePageLocators.exportAppFromMenu).should("be.visible");
