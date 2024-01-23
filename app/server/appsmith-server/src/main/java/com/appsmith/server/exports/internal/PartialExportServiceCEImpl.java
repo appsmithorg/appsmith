@@ -8,7 +8,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
@@ -164,7 +164,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                 exportingMetaDTO,
                                 mappedResourcesDTO,
                                 applicationJson,
-                                SerialiseApplicationObjective.SHARE);
+                                SerialiseArtifactObjective.SHARE);
                     }
                     return Mono.just(applicationJson).zipWith(sessionUserService.getCurrentUser());
                 })

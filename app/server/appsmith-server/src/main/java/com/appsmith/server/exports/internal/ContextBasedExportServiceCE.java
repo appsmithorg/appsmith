@@ -1,7 +1,7 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -34,7 +34,7 @@ public interface ContextBasedExportServiceCE<T extends TransactionalArtifact, U 
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ArtifactExchangeJson artifactExchangeJson,
-            SerialiseApplicationObjective serialiseApplicationObjective);
+            SerialiseArtifactObjective serialiseArtifactObjective);
 
     Flux<Void> generateArtifactSpecificExportables(
             ExportingMetaDTO exportingMetaDTO,

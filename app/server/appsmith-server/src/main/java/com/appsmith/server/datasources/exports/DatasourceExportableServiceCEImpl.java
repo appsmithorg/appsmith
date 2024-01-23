@@ -9,7 +9,7 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
@@ -145,7 +145,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ArtifactExchangeJson artifactExchangeJson,
-            SerialiseApplicationObjective serialiseFor,
+            SerialiseArtifactObjective serialiseFor,
             Boolean isContextAgnositc) {
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         sanitizeEntities(exportingMetaDTO, mappedExportableResourcesDTO, applicationJson, serialiseFor);
@@ -156,11 +156,11 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ApplicationJson applicationJson,
-            SerialiseApplicationObjective serialiseFor) {
+            SerialiseArtifactObjective serialiseFor) {
         // Save decrypted fields for datasources for internally used sample apps and templates
         // only when serialising for file sharing
         if (TRUE.equals(exportingMetaDTO.getExportWithConfiguration())
-                && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
+                && SerialiseArtifactObjective.SHARE.equals(serialiseFor)) {
             // Save decrypted fields for datasources
             Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
             applicationJson.getDatasourceList().forEach(datasourceStorage -> {

@@ -3,7 +3,7 @@ package com.appsmith.server.applications.exports;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -140,10 +140,10 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ArtifactExchangeJson artifactExchangeJson,
-            SerialiseApplicationObjective serialiseApplicationObjective) {
+            SerialiseArtifactObjective serialiseArtifactObjective) {
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         newPageExportableService.sanitizeEntities(
-                exportingMetaDTO, mappedExportableResourcesDTO, applicationJson, serialiseApplicationObjective);
+                exportingMetaDTO, mappedExportableResourcesDTO, applicationJson, serialiseArtifactObjective);
     }
 
     @Override

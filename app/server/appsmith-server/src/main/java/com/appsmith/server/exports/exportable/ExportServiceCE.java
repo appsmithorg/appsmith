@@ -1,7 +1,7 @@
 package com.appsmith.server.exports.exportable;
 
 import com.appsmith.server.constants.ArtifactJsonType;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.exports.internal.ContextBasedExportService;
@@ -14,7 +14,7 @@ public interface ExportServiceCE {
     Mono<? extends ArtifactExchangeJson> exportByTransactionalArtifactIdAndBranchName(
             String artifactId,
             String branchName,
-            SerialiseApplicationObjective objective,
+            SerialiseArtifactObjective objective,
             ArtifactJsonType artifactJsonType);
 
     /**
@@ -24,14 +24,14 @@ public interface ExportServiceCE {
      * @return application reference from which entire application can be rehydrated
      */
     Mono<? extends ArtifactExchangeJson> exportByArtifactId(
-            String artifactId, SerialiseApplicationObjective objective, ArtifactJsonType artifactJsonType);
+            String artifactId, SerialiseArtifactObjective objective, ArtifactJsonType artifactJsonType);
 
     Mono<? extends ArtifactExchangeJson> exportByArtifactIdAndBranchName(
             String artifactId, String branchName, ArtifactJsonType artifactJsonType);
 
     Mono<ExportFileDTO> getArtifactFile(String artifactId, String branchName, ArtifactJsonType artifactJsonType);
 
-    //    Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor);
+    //    Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseArtifactObjective serialiseFor);
 
     //    Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName);
 

@@ -7,7 +7,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.exports.ApplicationExportService;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.TransactionalArtifact;
@@ -81,7 +81,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     public Mono<? extends ArtifactExchangeJson> exportByTransactionalArtifactIdAndBranchName(
             String artifactId,
             String branchName,
-            SerialiseApplicationObjective objective,
+            SerialiseArtifactObjective objective,
             ArtifactJsonType artifactJsonType) {
 
         // We require this to be present, without this we can't move further ahead
@@ -107,11 +107,11 @@ public class ExportServiceCEImpl implements ExportServiceCE {
          this step is required for test cases and TemplateServices
         */
         // TODO: change the serialisation class
-        SerialiseApplicationObjective serialiseArtifactObjective =
-                objective == null ? SerialiseApplicationObjective.SHARE : objective;
+        SerialiseArtifactObjective serialiseArtifactObjective =
+                objective == null ? SerialiseArtifactObjective.SHARE : objective;
 
-        boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseArtifactObjective)
-                || SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseArtifactObjective);
+        boolean isGitSync = SerialiseArtifactObjective.VERSION_CONTROL.equals(serialiseArtifactObjective)
+                || SerialiseArtifactObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseArtifactObjective);
 
         // We need edit permission for git-related tasks, otherwise export permissions are required
         AclPermission permission =
@@ -190,7 +190,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     }
 
     protected Mono<Void> sanitizeEntities(
-            SerialiseApplicationObjective serialiseFor,
+            SerialiseArtifactObjective serialiseFor,
             ArtifactExchangeJson artifactExchangeJson,
             MappedExportableResourcesDTO mappedResourcesDTO,
             ExportingMetaDTO exportingMetaDTO) {
@@ -264,7 +264,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
      */
     @Override
     public Mono<? extends ArtifactExchangeJson> exportByArtifactId(
-            String artifactId, SerialiseApplicationObjective objective, ArtifactJsonType artifactJsonType) {
+            String artifactId, SerialiseArtifactObjective objective, ArtifactJsonType artifactJsonType) {
         return exportByTransactionalArtifactIdAndBranchName(artifactId, null, objective, artifactJsonType);
     }
 
@@ -279,7 +279,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     public Mono<? extends ArtifactExchangeJson> exportByArtifactIdAndBranchName(
             String artifactId, String branchName, ArtifactJsonType artifactJsonType) {
         return exportByTransactionalArtifactIdAndBranchName(
-                artifactId, branchName, SerialiseApplicationObjective.SHARE, artifactJsonType);
+                artifactId, branchName, SerialiseArtifactObjective.SHARE, artifactJsonType);
     }
 
     public Mono<ExportFileDTO> getArtifactFile(

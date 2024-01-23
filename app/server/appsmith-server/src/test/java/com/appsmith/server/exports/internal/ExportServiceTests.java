@@ -20,7 +20,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -717,7 +717,7 @@ public class ExportServiceTests {
                             .createAction(action)
                             .then(exportService.exportByArtifactId(
                                     testApp.getId(),
-                                    SerialiseApplicationObjective.VERSION_CONTROL,
+                                    SerialiseArtifactObjective.VERSION_CONTROL,
                                     ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
@@ -857,7 +857,7 @@ public class ExportServiceTests {
                 .then(exportService
                         .exportByArtifactId(
                                 savedApplication.getId(),
-                                SerialiseApplicationObjective.VERSION_CONTROL,
+                                SerialiseArtifactObjective.VERSION_CONTROL,
                                 ArtifactJsonType.APPLICATION)
                         .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                         .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
@@ -1271,7 +1271,7 @@ public class ExportServiceTests {
     public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
         Mono<ApplicationJson> exportApplicationMono = exportService
                 .exportByArtifactId(
-                        exportWithConfigurationAppId, SerialiseApplicationObjective.SHARE, ArtifactJsonType.APPLICATION)
+                        exportWithConfigurationAppId, SerialiseArtifactObjective.SHARE, ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(exportApplicationMono)
@@ -1429,7 +1429,7 @@ public class ExportServiceTests {
         Mono<Application> result = exportService
                 .exportByArtifactId(
                         savedApplication.getId(),
-                        SerialiseApplicationObjective.VERSION_CONTROL,
+                        SerialiseArtifactObjective.VERSION_CONTROL,
                         ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> {
@@ -1488,7 +1488,7 @@ public class ExportServiceTests {
         Mono<Application> result = exportService
                 .exportByArtifactId(
                         savedApplication.getId(),
-                        SerialiseApplicationObjective.VERSION_CONTROL,
+                        SerialiseArtifactObjective.VERSION_CONTROL,
                         ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> {
@@ -1961,7 +1961,7 @@ public class ExportServiceTests {
                             // export the application
                             .then(exportService.exportByArtifactId(
                                     application.getId(),
-                                    SerialiseApplicationObjective.VERSION_CONTROL,
+                                    SerialiseArtifactObjective.VERSION_CONTROL,
                                     ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
@@ -2064,7 +2064,7 @@ public class ExportServiceTests {
                             .save(datasource)
                             .then(exportService.exportByArtifactId(
                                     application.getId(),
-                                    SerialiseApplicationObjective.VERSION_CONTROL,
+                                    SerialiseArtifactObjective.VERSION_CONTROL,
                                     ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });

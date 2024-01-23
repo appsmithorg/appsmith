@@ -2,7 +2,7 @@ package com.appsmith.server.newpages.exports;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -122,7 +122,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ApplicationJson applicationJson,
-            SerialiseApplicationObjective serialiseFor) {
+            SerialiseArtifactObjective serialiseFor) {
         // Update ids for layoutOnLoadAction
         for (NewPage newPage : applicationJson.getPageList()) {
             updateIdsForLayoutOnLoadAction(

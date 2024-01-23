@@ -1,7 +1,7 @@
 package com.appsmith.server.exports.exportable;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -35,13 +35,13 @@ public interface ExportableServiceCE<T extends BaseDomain> {
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ApplicationJson applicationJson,
-            SerialiseApplicationObjective serialiseFor) {}
+            SerialiseArtifactObjective serialiseFor) {}
 
     default void sanitizeEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ArtifactExchangeJson artifactExchangeJson,
-            SerialiseApplicationObjective serialiseFor,
+            SerialiseArtifactObjective serialiseFor,
             Boolean isContextAgnositc) {}
 
     default Set<String> mapNameToIdForExportableEntities(
