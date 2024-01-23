@@ -98,16 +98,6 @@ export const curlImportPageURL = (props: URLBuilderParams): string =>
     suffix: "api/curl/curl-import",
   });
 
-export const providerTemplatesURL = (
-  props: URLBuilderParams & {
-    providerId: string;
-  },
-): string =>
-  urlBuilder.build({
-    ...props,
-    suffix: `api/provider/${props.providerId}`,
-  });
-
 export const saasEditorDatasourceIdURL = (
   props: URLBuilderParams & {
     pluginPackageName: string;

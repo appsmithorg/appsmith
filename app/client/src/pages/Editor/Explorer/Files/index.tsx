@@ -48,6 +48,7 @@ function Files() {
     parentEntityType,
     selectFilesForExplorer = default_selectFilesForExplorer,
     showModules = true,
+    showWorkflows = true,
   } = context;
 
   const files = useSelector(selectFilesForExplorer);
@@ -61,6 +62,7 @@ function Files() {
     query,
     canCreateActions,
     showModules,
+    showWorkflows,
   });
 
   const onCreate = useCallback(() => {
