@@ -1,11 +1,21 @@
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import type { AppsmithEntity } from "@appsmith/entities/DataTree/types";
+import {
+  ENTITY_TYPE,
+  type AppsmithEntity,
+} from "@appsmith/entities/DataTree/types";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { Def } from "tern";
-import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type {
+  ActionEntity,
+  ActionEntityConfig,
+  DataTreeEntityConfig,
+  WidgetEntityConfig,
+} from "@appsmith/entities/DataTree/types";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export const entityDefinitions = {
   APPSMITH: (entity: AppsmithEntity, extraDefsToDefine: ExtraDef) => {
@@ -343,3 +353,34 @@ export const ternDocsInfo: Record<string, any> = {
 };
 
 export type EntityDefinitionsOptions = keyof typeof entityDefinitions;
+
+export const getEachEntityInformation = {
+  [ENTITY_TYPE.ACTION]: (
+    entity: DataTreeEntityConfig,
+    entityInformation: FieldEntityInformation,
+  ): FieldEntityInformation => {
+    const actionEntity = entity as ActionEntityConfig;
+    entityInformation.entityId = actionEntity.actionId;
+    return entityInformation;
+  },
+  [ENTITY_TYPE.WIDGET]: (
+    entity: DataTreeEntityConfig,
+    entityInformation: FieldEntityInformation,
+    propertyPath: string,
+  ): FieldEntityInformation => {
+    const widgetEntity = entity as WidgetEntityConfig;
+    const isTriggerPath = widgetEntity.triggerPaths[propertyPath];
+    entityInformation.entityId = widgetEntity.widgetId;
+    if (isTriggerPath)
+      entityInformation.expectedType = AutocompleteDataType.FUNCTION;
+    entityInformation.isTriggerPath = isTriggerPath;
+    entityInformation.widgetType = widgetEntity.type;
+    return entityInformation;
+  },
+  [ENTITY_TYPE.JSACTION]: (
+    entityInformation: FieldEntityInformation,
+  ): FieldEntityInformation => {
+    entityInformation.isTriggerPath = true;
+    return entityInformation;
+  },
+};
