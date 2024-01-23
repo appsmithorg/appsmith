@@ -10,8 +10,6 @@ import workspaceReducer from "@appsmith/reducers/uiReducers/workspaceReducer";
 import templateReducer from "reducers/uiReducers/templateReducer";
 import usersReducer from "reducers/uiReducers/usersReducer";
 import { widgetDraggingReducer } from "reducers/uiReducers/dragResizeReducer";
-import importedCollectionsReducer from "reducers/uiReducers/importedCollectionsReducer";
-import providersReducer from "reducers/uiReducers/providerReducer";
 import importReducer from "reducers/uiReducers/importReducer";
 import queryPaneReducer from "@appsmith/reducers/uiReducers/queryPaneReducer";
 import helpReducer from "reducers/uiReducers/helpReducer";
@@ -64,8 +62,6 @@ export const uiReducerObject = {
   workspaces: workspaceReducer,
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
-  importedCollections: importedCollectionsReducer,
-  providers: providersReducer,
   imports: importReducer,
   queryPane: queryPaneReducer,
   datasourcePane: datasourcePaneReducer,

@@ -289,6 +289,13 @@ function* formValueChangeSaga(
     ) {
       currentEnvironment = Object.keys(datasourceStorages)[0];
     }
+    let dsConfig = {
+      url: "",
+    };
+
+    if (plugin?.requiresDatasource) {
+      dsConfig = datasourceStorages[currentEnvironment].datasourceConfiguration;
+    }
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
         ? [
@@ -299,7 +306,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasourceStorages[currentEnvironment]?.datasourceConfiguration,
+              dsConfig,
             ),
           ]
         : [];
@@ -346,7 +353,14 @@ function* formValueChangeSaga(
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const { actionConfiguration, id, pageId, pluginId, pluginType } =
     actionPayload.payload;
-  if (![PluginType.DB, PluginType.REMOTE, PluginType.AI].includes(pluginType))
+  if (
+    ![
+      PluginType.DB,
+      PluginType.REMOTE,
+      PluginType.AI,
+      PluginType.INTERNAL,
+    ].includes(pluginType)
+  )
     return;
   const pluginTemplates: Record<string, unknown> =
     yield select(getPluginTemplates);
@@ -494,9 +508,10 @@ function* createNewQueryForDatasourceSaga(
     pageId: string;
     datasourceId: string;
     from: EventLocation;
+    queryDefaultTableName?: string;
   }>,
 ) {
-  const { datasourceId, from } = action.payload;
+  const { datasourceId, from, queryDefaultTableName } = action.payload;
   if (!datasourceId) return;
 
   const createActionPayload: Partial<Action> = yield call(
@@ -504,6 +519,7 @@ function* createNewQueryForDatasourceSaga(
     {
       datasourceId,
       from,
+      queryDefaultTableName,
     },
   );
 

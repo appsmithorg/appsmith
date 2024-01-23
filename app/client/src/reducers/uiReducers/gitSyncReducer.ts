@@ -9,6 +9,12 @@ import { GitSyncModalTab } from "entities/GitSync";
 import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
 import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 
+export enum GitSettingsTab {
+  GENERAL = "GENERAL",
+  BRANCH = "BRANCH",
+  CD = "CD",
+}
+
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
   isCommitting: false,
@@ -51,6 +57,9 @@ const initialState: GitSyncReducerState = {
 
   gitMetadata: null,
   gitMetadataLoading: false,
+
+  isGitSettingsModalOpen: false,
+  activeGitSettingsModalTab: GitSettingsTab.GENERAL,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -652,6 +661,14 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     gitMetadataLoading: false,
   }),
+  [ReduxActionTypes.GIT_SET_SETTINGS_MODAL_OPEN]: (
+    state,
+    action: ReduxAction<{ open: boolean; tab?: GitSettingsTab }>,
+  ) => ({
+    ...state,
+    isGitSettingsModalOpen: action.payload.open,
+    activeGitSettingsModalTab: action.payload.tab || GitSettingsTab.GENERAL,
+  }),
 });
 
 export interface GitStatusData {
@@ -813,6 +830,9 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   gitMetadata: GitMetadata | null;
   gitMetadataLoading: boolean;
+
+  isGitSettingsModalOpen: boolean;
+  activeGitSettingsModalTab: GitSettingsTab;
 };
 
 export default gitSyncReducer;

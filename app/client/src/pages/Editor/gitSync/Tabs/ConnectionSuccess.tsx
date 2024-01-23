@@ -1,5 +1,6 @@
 import {
   fetchBranchesInit,
+  setGitSettingsModalOpenAction,
   setIsGitSyncModalOpen,
 } from "actions/gitSyncActions";
 import {
@@ -14,12 +15,12 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { Button, Icon, ModalBody, ModalFooter, Tag, Text } from "design-system";
-import { GitSyncModalTab } from "entities/GitSync";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 
 const Container = styled.div``;
 
@@ -91,9 +92,9 @@ function ConnectionSuccess() {
 
   const handleOpenSettings = () => {
     dispatch(
-      setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: GitSyncModalTab.SETTINGS,
+      setGitSettingsModalOpenAction({
+        open: true,
+        tab: GitSettingsTab.GENERAL,
       }),
     );
     AnalyticsUtil.logEvent("GS_OPEN_GIT_SETTINGS", {

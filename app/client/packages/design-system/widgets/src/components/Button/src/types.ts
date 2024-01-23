@@ -1,5 +1,6 @@
 import type { ButtonProps as HeadlessButtonProps } from "@design-system/headless";
-import type React from "react";
+
+import type { IconProps } from "../../Icon";
 import type { COLORS } from "../../../shared";
 
 export const BUTTON_VARIANTS = {
@@ -25,7 +26,7 @@ export interface ButtonProps extends HeadlessButtonProps {
   /** Indicates the loading state of the button */
   isLoading?: boolean;
   /** Icon to be used in the button of the button */
-  icon?: React.ComponentType;
+  icon?: IconProps["name"];
   /** Indicates the position of icon of the button
    * @default accent
    */
