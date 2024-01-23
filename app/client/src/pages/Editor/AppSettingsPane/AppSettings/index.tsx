@@ -14,7 +14,7 @@ import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
   APP_NAVIGATION_SETTING,
   createMessage,
-  GENERAL,
+  GENERAL_SETTINGS_SECTION_HEADER,
   GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER_DESC,
   IN_APP_EMBED_SETTING,
@@ -127,7 +127,7 @@ function AppSettings() {
       id: "t--general-settings-header",
       icon: "settings-2-line",
       isSelected: selectedTab.type === AppSettingsTabs.General,
-      name: createMessage(GENERAL),
+      name: createMessage(GENERAL_SETTINGS_SECTION_HEADER),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.General });
         AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {

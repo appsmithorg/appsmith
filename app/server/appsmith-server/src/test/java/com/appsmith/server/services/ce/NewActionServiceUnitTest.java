@@ -18,7 +18,6 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
@@ -76,9 +75,6 @@ public class NewActionServiceUnitTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-
-    @MockBean
-    MarketplaceService marketplaceService;
 
     @MockBean
     PolicyGenerator policyGenerator;
@@ -142,7 +138,6 @@ public class NewActionServiceUnitTest {
                 datasourceService,
                 pluginService,
                 pluginExecutorHelper,
-                marketplaceService,
                 policyGenerator,
                 newPageService,
                 applicationService,

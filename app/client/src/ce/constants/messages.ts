@@ -217,7 +217,6 @@ export const USER_RESET_PASSWORD = () => "Reset password";
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
-export const DELETING_APPLICATION = () => `Deleting application...`;
 export const DELETING_MULTIPLE_APPLICATION = () =>
   `Deleting multiple applications...`;
 export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
@@ -1801,6 +1800,7 @@ export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
 export const APP_SETTINGS_PANE_HEADER = () => "Settings";
 export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
+export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
 export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
   "App name, icon and share";

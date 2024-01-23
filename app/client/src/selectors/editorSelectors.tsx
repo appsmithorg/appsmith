@@ -71,9 +71,6 @@ const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
 const getPageListState = (state: AppState) => state.entities.pageList;
 
-export const getProviderCategories = (state: AppState) =>
-  state.ui.providers.providerCategories;
-
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 

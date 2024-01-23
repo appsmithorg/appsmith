@@ -54,12 +54,13 @@ import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
 import { getCurrentUser } from "actions/authActions";
-import Card from "components/common/Card";
+import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";
 import {
   NO_PERMISSION_TO_SELECT_FOR_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { noop } from "lodash";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -101,10 +102,6 @@ export interface ModifiedMenuItemProps extends MenuItemProps {
   key?: string;
   "data-testid"?: string;
 }
-
-const ContextMenuTrigger = styled(Button)<{ isHidden?: boolean }>`
-  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
-`;
 
 export function ApplicationCard(props: ApplicationCardProps) {
   const { isFetchingApplications } = props;
@@ -482,19 +479,19 @@ export function ApplicationCard(props: ApplicationCardProps) {
     dispatch(getCurrentUser());
   }, [props.application.defaultPageId]);
 
-  const handleMultipleSelection = (event: any) => {
-    if ((event as MouseEvent).ctrlKey || (event as MouseEvent).metaKey) {
-      if (!hasDeletePermission) {
-        toast.show(createMessage(NO_PERMISSION_TO_SELECT_FOR_DELETE), {
-          kind: "error",
-        });
-        return;
-      }
-      dispatch({
-        type: ReduxActionTypes.DELETE_MULTIPLE_APPS_TOGGLE,
-        payload: { id: applicationId },
+  const handleMultipleSelection = (event: MouseEvent) => {
+    if (typeof event === "object" && event.stopImmediatePropagation)
+      event.stopImmediatePropagation();
+    if (!hasDeletePermission) {
+      toast.show(createMessage(NO_PERMISSION_TO_SELECT_FOR_DELETE), {
+        kind: "error",
       });
+      return;
     }
+    dispatch({
+      type: ReduxActionTypes.DELETE_MULTIPLE_APPS_TOGGLE,
+      payload: { id: applicationId },
+    });
   };
 
   return (
@@ -502,14 +499,16 @@ export function ApplicationCard(props: ApplicationCardProps) {
       backgroundColor={selectedColor}
       contextMenu={contextMenu}
       editedByText={editedByText}
+      handleMultipleSelection={handleMultipleSelection}
       hasReadPermission={hasReadPermission}
       icon={appIcon}
       isContextMenuOpen={isMenuOpen}
+      isEnabledMultipleSelection={isEnabledMultipleSelection}
       isFetching={isFetchingApplications}
       isMobile={props.isMobile}
       isSelected={!!isApplicationSelected}
       moreActionItems={moreActionItems}
-      primaryAction={props.isMobile ? launchApp : handleMultipleSelection}
+      primaryAction={props.isMobile ? launchApp : noop}
       setShowOverlay={setShowOverlay}
       showGitBadge={Boolean(showGitBadge)}
       showOverlay={showOverlay && !isEnabledMultipleSelection}
