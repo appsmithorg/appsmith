@@ -91,10 +91,6 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
         AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
           source: `${activeTabKey}_TAB`,
         });
-      } else if (tabKey === GitSyncModalTab.SETTINGS) {
-        AnalyticsUtil.logEvent("GS_SETTINGS_GIT_MODAL_TRIGGERED", {
-          source: `${activeTabKey}_TAB`,
-        });
       }
       dispatch(
         setIsGitSyncModalOpen({
