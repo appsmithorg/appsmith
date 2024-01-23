@@ -127,6 +127,8 @@ function CreateNewDatasource({
   active,
   history,
   isCreating,
+  isOnboardingScreen,
+  pageId,
   showMostPopularPlugins,
   showUnsupportedPluginDialog,
 }: any) {
@@ -158,7 +160,7 @@ function CreateNewDatasource({
         history={history}
         isCreating={isCreating}
         location={location}
-        parentEntityId={parentEntityId}
+        parentEntityId={parentEntityId || (isOnboardingScreen && pageId) || ""}
         parentEntityType={parentEntityType}
         showMostPopularPlugins={showMostPopularPlugins}
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
@@ -239,6 +241,7 @@ interface CreateNewDatasourceScreenProps {
   pageId: string;
   isAppSidebarEnabled: boolean;
   isEnabledForCreateNew: boolean;
+  isOnboardingScreen?: boolean;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -271,6 +274,7 @@ class CreateNewDatasourceTab extends React.Component<
       isAppSidebarEnabled,
       isCreating,
       isEnabledForCreateNew,
+      isOnboardingScreen,
       pageId,
     } = this.props;
     if (!canCreateDatasource) return null;
@@ -301,6 +305,7 @@ class CreateNewDatasourceTab extends React.Component<
               active={false}
               history={history}
               isCreating={isCreating}
+              isOnboardingScreen={!!isOnboardingScreen}
               location={location}
               pageId={pageId}
               showMostPopularPlugins

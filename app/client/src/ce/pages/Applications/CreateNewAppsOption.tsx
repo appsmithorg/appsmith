@@ -36,7 +36,7 @@ import { Flex, Link, Text } from "design-system";
 import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import { TemplateView } from "pages/Templates/TemplateView";
-import { default as React, useEffect, useState } from "react";
+import { default as React, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   allTemplatesFiltersSelector,
@@ -227,7 +227,10 @@ const CreateNewAppsOption = ({
   };
 
   const onClickStartWithData = () => {
-    AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA");
+    AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA", {
+      [FEATURE_FLAG.ab_start_with_data_default_enabled]:
+        isEnabledForStartWithDataDefault,
+    });
     // fetch plugins information to show list of all plugins
     dispatch(fetchPlugins());
     dispatch(fetchMockDatasources());
@@ -296,11 +299,19 @@ const CreateNewAppsOption = ({
       if (createNewAppPluginId) {
         AnalyticsUtil.logEvent(
           "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_DATASOURCE_FORM_PAGE",
-          { pluginId: createNewAppPluginId },
+          {
+            pluginId: createNewAppPluginId,
+            [FEATURE_FLAG.ab_start_with_data_default_enabled]:
+              isEnabledForStartWithDataDefault,
+          },
         );
       } else {
         AnalyticsUtil.logEvent(
           "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_START_FROM_DATA_PAGE",
+          {
+            [FEATURE_FLAG.ab_start_with_data_default_enabled]:
+              isEnabledForStartWithDataDefault,
+          },
         );
       }
     }
@@ -373,7 +384,7 @@ const CreateNewAppsOption = ({
     }
   };
 
-  const renderStartWithData = () => {
+  const renderStartWithData = useCallback(() => {
     return (
       <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
         <Header
@@ -398,12 +409,12 @@ const CreateNewAppsOption = ({
               />
             )
           ) : (
-            <CreateNewDatasourceTab />
+            <CreateNewDatasourceTab isOnboardingScreen />
           )}
         </WithDataWrapper>
       </Flex>
     );
-  };
+  }, [createNewAppPluginId, selectedDatasource, selectedPlugin]);
 
   const selectionOptions: CardProps[] = [
     {
@@ -456,9 +467,14 @@ const CreateNewAppsOption = ({
     };
   }, []);
 
+  const isBackButtonHidden =
+    !useType ||
+    (isEnabledForStartWithDataDefault &&
+      (!createNewAppPluginId || !selectedDatasource));
+
   return (
     <SectionWrapper>
-      <BackWrapper hidden={!useType}>
+      <BackWrapper hidden={isBackButtonHidden}>
         <Link
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
