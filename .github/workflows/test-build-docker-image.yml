@@ -48,7 +48,7 @@ jobs:
       - name: Check the given tags if available in tags.js
         run: |
           if [[ "${{inputs.tags}}" != "" && "${{inputs.tags}}" != *"@tag.All"* ]]; then
-            if [[ $(grep -c "${{inputs.tags}}" cypress/support/tags.js) -eq 0 ]]; then
+            if [[ $(grep -c "${{inputs.tags}}" support/tags.js) -eq 0 ]]; then
               echo "The given tag is not available in tags.js"
               exit 1
             fi
