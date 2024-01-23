@@ -242,6 +242,7 @@ public class AuthenticationServiceTest {
                                             pageDto.getId(),
                                             datasourceId1,
                                             defaultEnvironmentId,
+                                            workspace.getId(),
                                             "https://mock.origin.com")
                                     + "&scope=Scope\\d%20Scope\\d"
                                     + "&key=value"));
@@ -335,6 +336,7 @@ public class AuthenticationServiceTest {
                                             pageDTO.getId(),
                                             datasourceId,
                                             defaultEnvironmentId,
+                                            workspaceId,
                                             "https://mock.origin.com",
                                             "testBranch")
                                     + "&scope=Scope\\d%20Scope\\d"

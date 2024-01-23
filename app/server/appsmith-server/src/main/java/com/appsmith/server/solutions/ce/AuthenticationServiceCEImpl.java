@@ -116,6 +116,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap(datasource -> datasourceService.getTrueEnvironmentId(
                         datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null))
                 .cache();
+        Mono<String> workspaceIdMono = datasourceMonoCached.map(Datasource::getWorkspaceId);
 
         return datasourceMonoCached
                 .zipWith(trueEnvironmentIdCached)
@@ -127,16 +128,18 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .zipWith(trueEnvironmentIdCached)
+                .zipWith(Mono.zip(workspaceIdMono, trueEnvironmentIdCached))
                 .flatMap(tuple2 -> {
                     DatasourceStorage datasourceStorage = tuple2.getT1();
-                    String trueEnvironmentId = tuple2.getT2();
+                    String workspaceId = tuple2.getT2().getT1();
+                    String trueEnvironmentId = tuple2.getT2().getT2();
                     OAuth2 oAuth2 = (OAuth2)
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
                     final String state = StringUtils.hasText(branchName)
-                            ? String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, branchName)
-                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri);
+                            ? String.join(
+                                    ",", pageId, datasourceId, trueEnvironmentId, workspaceId, redirectUri, branchName)
+                            : String.join(",", pageId, datasourceId, trueEnvironmentId, workspaceId, redirectUri);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(
                                     oAuth2.getAuthorizationUrl())
