@@ -13,7 +13,7 @@ import type {
   CreatePageActionPayload,
   FetchPageListPayload,
 } from "actions/pageActions";
-import { createPage } from "actions/pageActions";
+import { createPage, fetchPublishedPage } from "actions/pageActions";
 import {
   clonePageSuccess,
   deletePageSuccess,
@@ -68,11 +68,8 @@ import {
   getDefaultPageId,
   getEditorConfigs,
   getWidgets,
-} from "../../sagas/selectors";
-import {
-  IncorrectBindingError,
-  validateResponse,
-} from "../../sagas/ErrorSagas";
+} from "sagas/selectors";
+import { IncorrectBindingError, validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
@@ -118,12 +115,9 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL } from "@appsmith/RouteBuilder";
-import {
-  failFastApiCalls,
-  waitForWidgetConfigBuild,
-} from "../../sagas/InitSagas";
-import { resizePublishedMainCanvasToLowestWidget } from "../../sagas/WidgetOperationUtils";
-import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
+import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
+import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
+import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
@@ -133,7 +127,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { UserCancelledActionExecutionError } from "../../sagas/ActionExecution/errorUtils";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -1439,10 +1433,7 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
   try {
     const { id, isFirstLoad } = action.payload;
 
-    yield call(fetchPageSaga, {
-      type: ReduxActionTypes.FETCH_PAGE_INIT,
-      payload: { id, isFirstLoad },
-    });
+    yield put(fetchPage(id, isFirstLoad));
 
     yield put({
       type: ReduxActionTypes.SETUP_PAGE_SUCCESS,
@@ -1465,10 +1456,7 @@ export function* setupPublishedPageSaga(
   try {
     const { bustCache, firstLoad, pageId } = action.payload;
 
-    yield call(fetchPublishedPageSaga, {
-      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      payload: { bustCache, firstLoad, pageId },
-    });
+    yield put(fetchPublishedPage(pageId, bustCache, firstLoad));
 
     yield put({
       type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,
