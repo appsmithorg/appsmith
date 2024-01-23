@@ -48,8 +48,9 @@ jobs:
         run: |
           echo "Current working directory is $PWD"
 
-      - name: go one step ahead and print the contents of the directory
+      - name: -----
         run: |
+          cd app/client
           ls -la
 
       - name: Check the given tags if available in tags.js
