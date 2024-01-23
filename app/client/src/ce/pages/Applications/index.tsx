@@ -925,7 +925,9 @@ export const ApplictionsMainPage = (props: any) => {
             {!isFetchingWorkspaces && matches && (
               <WorkspaceSelectorWrapper>
                 <Select
-                  onSelect={(val) => history.push(`/applications#${val}`)}
+                  onSelect={(val) =>
+                    history.push(`/applications?workspaceId=${val}`)
+                  }
                   value={activeWorkspaceId}
                 >
                   {workspaces.map((workspace: Workspace) => (

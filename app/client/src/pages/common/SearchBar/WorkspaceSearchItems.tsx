@@ -1,6 +1,7 @@
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { Icon, Text } from "design-system";
 import React from "react";
+import { useHistory } from "react-router";
 import styled from "styled-components";
 
 export const SearchListItem = styled.div`
@@ -21,6 +22,7 @@ interface Props {
 
 const WorkspaceSearchItems = (props: Props) => {
   const { setIsDropdownOpen, workspacesList } = props;
+  const history = useHistory();
   if (!workspacesList || workspacesList?.length === 0) return null;
   return (
     <div className="mb-2">
@@ -33,7 +35,7 @@ const WorkspaceSearchItems = (props: Props) => {
           key={workspace.id}
           onClick={() => {
             setIsDropdownOpen(false);
-            window.location.href = `${window.location.pathname}#${workspace?.id}`;
+            history.push(`/applications?workspaceId=${workspace?.id}`);
           }}
         >
           <Icon
