@@ -48,10 +48,9 @@ jobs:
         run: |
           echo "Current working directory is $PWD"
 
-      - name: go one step back from current working directory and print the files 
+      - name: go one step ahead and print the contents of the directory
         run: |
-          cd ..
-          ls -l
+          ls -la
 
       - name: Check the given tags if available in tags.js
         run: |
