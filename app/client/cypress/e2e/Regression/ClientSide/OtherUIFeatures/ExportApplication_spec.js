@@ -32,7 +32,7 @@ describe(
             Cypress.env("TESTUSERNAME1"),
             Cypress.env("TESTPASSWORD1"),
           );
-          cy.wait(2000);
+          agHelper.WaitUntilEleAppear(homePageLocators.searchInput);
           agHelper.TypeText(homePageLocators.searchInput, workspaceId);
           agHelper.WaitUntilEleAppear(
             homePage._searchWorkspaceLocator(workspaceId),
@@ -83,7 +83,6 @@ describe(
           Cypress.env("TESTUSERNAME1"),
           Cypress.env("TESTPASSWORD1"),
         );
-        cy.wait(2000);
         cy.log({ appid });
 
         homePage.SelectWorkspace(workspaceId);
@@ -125,7 +124,6 @@ describe(
           Cypress.env("TESTUSERNAME1"),
           Cypress.env("TESTPASSWORD1"),
         );
-        cy.wait(2000);
         cy.log({ appid });
 
         homePage.SelectWorkspace(workspaceId);
