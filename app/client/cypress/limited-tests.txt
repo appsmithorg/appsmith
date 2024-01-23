@@ -1,10 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/FormNativeToRawTests/MongoConversion_spec.ts
-cypress/e2e/Regression/ClientSide/Linting/ErrorReporting_spec.ts
-cypress/e2e/Regression/ServerSide/QueryPane/EvaluatedValuePopUp_spec.ts
-cypress/e2e/Regression/ServerSide/QueryPane/Mongo1_spec.ts
-cypress/e2e/Regression/ServerSide/QueryPane/Mongo_Spec.js
-cypress/e2e/Sanity/Datasources/MockDBs_Spec.ts
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 
 
 # For running all specs - uncomment below:
