@@ -45,7 +45,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
@@ -131,7 +131,7 @@ public class ExportServiceTests {
     ExportService exportService;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -860,8 +860,9 @@ public class ExportServiceTests {
                                 SerialiseArtifactObjective.VERSION_CONTROL,
                                 ArtifactJsonType.APPLICATION)
                         .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
-                        .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                                workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName())))
+                        .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
+                                workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .cache();
 
         Mono<List<NewPage>> updatedPagesMono = result.then(newPageService
@@ -969,8 +970,9 @@ public class ExportServiceTests {
         Mono<Application> applicationMono = exportService
                 .exportByArtifactIdAndBranchName(application.getId(), "master", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
-                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspaceId, applicationJson, application.getId(), "master"));
+                .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
+                        workspaceId, application.getId(), applicationJson, "master"))
+                .map(importableArtifact -> (Application) importableArtifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
@@ -1347,8 +1349,9 @@ public class ExportServiceTests {
                 .verifyComplete();
 
         ApplicationJson applicationJson = applicationJsonMono.block();
-        Application application = importApplicationService
-                .importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson)
+        Application application = importService
+                .importNewArtifactInWorkspaceFromJson(workspaceId, applicationJson)
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         // Get the unpublished pages and verify the order
@@ -1435,8 +1438,10 @@ public class ExportServiceTests {
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
                     applicationJson.getExportedApplication().setPublishedApplicationDetail(null);
-                    return importApplicationService.importApplicationInWorkspaceFromGit(
-                            workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName());
+                    return importService
+                            .importArtifactInWorkspaceFromGit(
+                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())
+                            .map(importableArtifact -> (Application) importableArtifact);
                 });
 
         StepVerifier.create(result)
@@ -1494,8 +1499,10 @@ public class ExportServiceTests {
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
                     applicationJson.getExportedApplication().setPublishedAppLayout(null);
-                    return importApplicationService.importApplicationInWorkspaceFromGit(
-                            workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName());
+                    return importService
+                            .importArtifactInWorkspaceFromGit(
+                                    workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())
+                            .map(importableArtifact -> (Application) importableArtifact);
                 });
 
         StepVerifier.create(result)
@@ -1574,8 +1581,9 @@ public class ExportServiceTests {
                 .verifyComplete();
 
         ApplicationJson applicationJson = applicationJsonMono.block();
-        Application application = importApplicationService
-                .importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson)
+        Application application = importService
+                .importNewArtifactInWorkspaceFromJson(workspaceId, applicationJson)
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         // Get the unpublished pages and verify the order
