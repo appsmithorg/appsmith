@@ -27,7 +27,7 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
 
     @Override
     public Mono<Void> cloneEntities(ClonePageMetaDTO clonePageMetaDTO) {
-        return getCloneableActionCollections(clonePageMetaDTO.getSourcePageId())
+        return getCloneableActionCollections(clonePageMetaDTO.getBranchedSourcePageId())
                 .flatMap(sourceActionCollection -> {
                     final DefaultResources clonedPageDefaultResources =
                             clonePageMetaDTO.getClonedPageDTO().getDefaultResources();

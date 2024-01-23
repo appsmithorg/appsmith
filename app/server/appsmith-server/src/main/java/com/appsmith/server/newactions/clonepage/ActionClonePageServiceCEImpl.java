@@ -30,7 +30,7 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
 
     @Override
     public Mono<Void> cloneEntities(ClonePageMetaDTO clonePageMetaDTO) {
-        return getCloneableActions(clonePageMetaDTO.getSourcePageId())
+        return getCloneableActions(clonePageMetaDTO.getBranchedSourcePageId())
                 .flatMap(action -> {
                     String originalActionId = action.getId();
                     // Set new page id in the actionDTO

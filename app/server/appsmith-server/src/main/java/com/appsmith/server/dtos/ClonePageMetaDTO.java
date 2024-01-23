@@ -16,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 public class ClonePageMetaDTO {
-    String sourcePageId;
+    String branchedSourcePageId;
     PageDTO clonedPageDTO;
     String branchName;
     Map<String, String> oldToNewActionIdMap = new HashMap<>();

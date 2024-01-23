@@ -654,7 +654,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         return sourcePageMono
                 .flatMap(page -> {
-                    clonePageMetaDTO.setSourcePageId(page.getId());
+                    clonePageMetaDTO.setBranchedSourcePageId(page.getId());
                     Mono<ApplicationPagesDTO> pageNamesMono =
                             newPageService.findApplicationPagesByApplicationIdViewMode(
                                     page.getApplicationId(), false, false);
