@@ -57,7 +57,6 @@ export const fetchPage = (
   pageId: string,
   isFirstLoad = false,
   pageWithMigratedDsl?: FetchPageResponse,
-
 ): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
@@ -80,7 +79,7 @@ export const fetchPublishedPage = (
     pageId,
     bustCache,
     firstLoad,
-    pageWithMigratedDsl
+    pageWithMigratedDsl,
   },
 });
 
