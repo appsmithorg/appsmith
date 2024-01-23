@@ -218,6 +218,24 @@ jobs:
           echo "tags_to_exclude: ${{ env.tags_to_exclude }}"
           echo "_grepTags: ${{ env.CYPRESS_grepTags }}"
 
+      - name: Print cwd 
+        run: |
+          echo "Current working directory is $PWD"
+
+      - name: -----
+        run: |
+          cd app/client
+          ls -la
+
+      - name: Check the given tags if available in tags.js
+        run: |
+          if [[ "${{inputs.tags}}" != "" && "${{inputs.tags}}" != *"@tag.All"* ]]; then
+            if [[ $(grep -c "${{inputs.tags}}"  support/tags.js) -eq 0 ]]; then
+              echo "The given tag is not available in tags.js"
+              exit 1
+            fi
+          fi
+
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
