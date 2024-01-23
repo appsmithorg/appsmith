@@ -354,11 +354,14 @@ export function EditorJSONtoForm(props: Props) {
     userWorkspacePermissions,
   );
 
+  const doesPluginRequireDatasource =
+    !!plugin && plugin.hasOwnProperty("requiresDatasource")
+      ? plugin.requiresDatasource
+      : true;
+
   const showSchema =
     useShowSchema(currentActionConfig?.pluginId || "") &&
-    (!!plugin && plugin.hasOwnProperty("requiresDatasource")
-      ? plugin.requiresDatasource
-      : true);
+    doesPluginRequireDatasource;
 
   const showRightPane =
     showSchema ||
@@ -624,7 +627,7 @@ export function EditorJSONtoForm(props: Props) {
   // Datasource selection is hidden for Appsmith AI Plugin and for plugins that don't require datasource
   // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented (Only remove the AI Condition)
   const showDatasourceSelector =
-    !isAppsmithAIPlugin(plugin?.packageName) && !!plugin?.requiresDatasource;
+    !isAppsmithAIPlugin(plugin?.packageName) && doesPluginRequireDatasource;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
