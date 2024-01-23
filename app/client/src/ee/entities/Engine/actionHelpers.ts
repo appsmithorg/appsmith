@@ -1,5 +1,6 @@
 export * from "ce/entities/Engine/actionHelpers";
 import { fetchConsumablePackagesInWorkspace } from "@appsmith/actions/packageActions";
+import { fetchAllWorkflowsForWorkspace } from "@appsmith/actions/workflowActions";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -43,6 +44,13 @@ export const getPageDependencyActions = (
           }),
         ]
       : []),
+    ...(featureFlags.showWorkflowFeature
+      ? [
+          fetchAllWorkflowsForWorkspace({
+            workspaceId: currentWorkspaceId,
+          }),
+        ]
+      : []),
   ];
 
   const successActions = [
@@ -50,12 +58,18 @@ export const getPageDependencyActions = (
     ...(featureFlags.showQueryModule
       ? [ReduxActionTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_SUCCESS]
       : []),
+    ...(featureFlags.showWorkflowFeature
+      ? [ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_SUCCESS]
+      : []),
   ];
 
   const errorActions = [
     ...CE.errorActions,
     ...(featureFlags.showQueryModule
       ? [ReduxActionErrorTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_ERROR]
+      : []),
+    ...(featureFlags.showWorkflowFeature
+      ? [ReduxActionErrorTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_ERROR]
       : []),
   ];
 

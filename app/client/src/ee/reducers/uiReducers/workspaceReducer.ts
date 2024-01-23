@@ -401,6 +401,13 @@ const handlers = {
 
     return draftState;
   },
+  [ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_INIT]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingWorkflowsList = true;
+
+    return draftState;
+  },
   [ReduxActionErrorTypes.FETCH_ALL_WORKFLOWS_ERROR]: (
     draftState: WorkspaceReduxState,
   ) => {
@@ -408,7 +415,24 @@ const handlers = {
 
     return draftState;
   },
+  [ReduxActionErrorTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_ERROR]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingWorkflowsList = false;
+
+    return draftState;
+  },
   [ReduxActionTypes.FETCH_ALL_WORKFLOWS_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<WorkflowMetadata[]>,
+  ) => {
+    draftState.loadingStates.isFetchingWorkflowsList = false;
+
+    draftState.workflowsList = action.payload || [];
+
+    return draftState;
+  },
+  [ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_SUCCESS]: (
     draftState: WorkspaceReduxState,
     action: ReduxAction<WorkflowMetadata[]>,
   ) => {

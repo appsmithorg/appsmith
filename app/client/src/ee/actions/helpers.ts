@@ -6,6 +6,7 @@ import {
   createWorkflowAPIAction,
   createWorkflowJSCollection,
   createWorkflowQueryAction,
+  createWorkflowQueryInApp,
 } from "@appsmith/actions/workflowActions";
 import {
   createNewQueryBasedOnParentEntity as CE_createNewQueryBasedOnParentEntity,
@@ -119,5 +120,15 @@ export const createNewApiActionBasedOnEditorType = (
       apiType,
       parentEntityType,
     );
+  }
+};
+
+export const createWorkflowExecutionActionBasedOnEditorType = (
+  entityId: string,
+  location: EventLocation,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
+): any => {
+  if (parentEntityType === ActionParentEntityType.PAGE) {
+    return createWorkflowQueryInApp(entityId, location);
   }
 };

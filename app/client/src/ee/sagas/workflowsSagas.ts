@@ -172,6 +172,46 @@ export function* fetchWorkflowSaga(payload: FetchWorkflowPayload) {
   }
 }
 
+export function* fetchWorkflowsForWorkspaceSaga(
+  action: ReduxAction<{ workspaceId: string }>,
+) {
+  try {
+    const workspaceId = action.payload.workspaceId;
+    const response: FetchWorkflowResponse = yield call(
+      WorkflowApi.fetchWorkflows,
+      { workspaceId },
+    );
+    const isValidResponse: boolean = yield call(validateResponse, response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_ERROR,
+        payload: {
+          error: {
+            message: createMessage(FETCH_WORKFLOW_ERROR),
+          },
+        },
+      });
+    }
+
+    return response;
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_ERROR,
+      payload: {
+        error: {
+          message: createMessage(FETCH_WORKFLOW_ERROR),
+        },
+      },
+    });
+  }
+}
+
 export function* fetchAllWorkflowsSaga() {
   try {
     // TODO (Workflows): Remove and add call without workspaceId
@@ -345,6 +385,10 @@ export default function* workflowsSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
       fetchAllWorkflowsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_INIT,
+      fetchWorkflowsForWorkspaceSaga,
     ),
     takeLatest(
       ReduxActionTypes.CREATE_WORKFLOW_FROM_WORKSPACE_INIT,

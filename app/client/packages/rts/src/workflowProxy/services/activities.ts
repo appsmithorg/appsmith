@@ -4,6 +4,7 @@ import {
   EXECUTE_ENDPOINT,
   INBOX_REQUEST_ENDPOINT,
 } from "@workflowProxy/routes";
+import { log } from "loglevel";
 
 /**
  *  Function to execute activity in workflowProxy, temporal will call this function
@@ -17,6 +18,7 @@ export async function executeActivity(
   actionId: string,
   inputParams: Array<Record<string, any>>,
 ) {
+  log("executeActivity", actionId, inputParams);
   return await fetch(`${RTS_BASE_API_URL}${EXECUTE_ENDPOINT}`, {
     method: "POST",
     headers: reqHeaders,
@@ -36,20 +38,23 @@ export async function executeActivity(
  * @param reqHeaders Headers from the request, to be passed to workflowProxy
  * @param workflowId Workflow id from appsmith editor
  * @param workflowInstanceId Run id of the workflow instance
- * @param inputParams Params passed in workflow definition to the action
+ * @param userParams Params passed in workflow definition to the action
  * @returns Output of the activity
  */
-export async function executeCreateInboxRequest(
+export async function createWorkflowRequest(
   reqHeaders: Record<string, any>,
   workflowId: string,
   workflowInstanceId: string,
-  inputParams: Array<Record<string, any>>,
+  userParams: Record<string, any>,
 ) {
-  const userParams = inputParams[0];
+  log("executeCreateInboxRequest", userParams, workflowInstanceId, workflowId);
   // @ts-expect-error: userParams is has the pending approval details
   const body: InboxCreationRequest = {
     workflowId,
     runId: workflowInstanceId,
+    allowedResolutions: !!userParams.allowedResolutions
+      ? userParams.allowedResolutions
+      : ["Approve", "Reject"],
     ...userParams,
   };
   return await fetch(`${RTS_BASE_API_URL}${INBOX_REQUEST_ENDPOINT}`, {

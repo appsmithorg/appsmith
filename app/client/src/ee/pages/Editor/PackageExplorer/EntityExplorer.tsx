@@ -46,6 +46,8 @@ function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
           parentEntityType={ActionParentEntityType.MODULE}
           selectFilesForExplorer={selectFilesForPackageExplorer}
           showModules={false}
+          // TODO: Add workflows support when it is ready
+          showWorkflows={false}
         >
           <Files />
         </FilesContextProvider>

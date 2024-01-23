@@ -109,7 +109,6 @@ export const selectFilesForExplorer = createSelector(
     const filesSortedByGroupName = sortBy(
       [...filteredCEFiles, ...moduleInstanceFiles],
       [
-        (file) => file.entity?.isMainJSCollection,
         (file) => file.group?.toLowerCase(),
         (file: any) => file.entity?.name?.toLowerCase(),
       ],
