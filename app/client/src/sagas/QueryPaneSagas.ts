@@ -90,6 +90,7 @@ import {
   getCurrentApplicationIdForCreateNewApp,
 } from "@appsmith/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -289,6 +290,13 @@ function* formValueChangeSaga(
     ) {
       currentEnvironment = Object.keys(datasourceStorages)[0];
     }
+    let dsConfig = {
+      url: "",
+    };
+
+    if (doesPluginRequireDatasource(plugin)) {
+      dsConfig = datasourceStorages[currentEnvironment].datasourceConfiguration;
+    }
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
         ? [
@@ -299,7 +307,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasourceStorages[currentEnvironment]?.datasourceConfiguration,
+              dsConfig,
             ),
           ]
         : [];
@@ -346,7 +354,14 @@ function* formValueChangeSaga(
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const { actionConfiguration, id, pageId, pluginId, pluginType } =
     actionPayload.payload;
-  if (![PluginType.DB, PluginType.REMOTE, PluginType.AI].includes(pluginType))
+  if (
+    ![
+      PluginType.DB,
+      PluginType.REMOTE,
+      PluginType.AI,
+      PluginType.INTERNAL,
+    ].includes(pluginType)
+  )
     return;
   const pluginTemplates: Record<string, unknown> =
     yield select(getPluginTemplates);
@@ -494,9 +509,10 @@ function* createNewQueryForDatasourceSaga(
     pageId: string;
     datasourceId: string;
     from: EventLocation;
+    queryDefaultTableName?: string;
   }>,
 ) {
-  const { datasourceId, from } = action.payload;
+  const { datasourceId, from, queryDefaultTableName } = action.payload;
   if (!datasourceId) return;
 
   const createActionPayload: Partial<Action> = yield call(
@@ -504,6 +520,7 @@ function* createNewQueryForDatasourceSaga(
     {
       datasourceId,
       from,
+      queryDefaultTableName,
     },
   );
 
