@@ -84,15 +84,11 @@ const _ActionGroup = <T extends object>(
               <IconButton color={color} icon="dots" variant={variant} />
               <MenuList>
                 {menuChildren.map((item) => (
-                  <Item
-                    color={item.props.color}
-                    iconPosition={item.props.iconPosition}
-                    key={item.key}
-                  >
+                  <Item key={item.key} {...item.props}>
                     {Boolean(item.props.icon) && (
                       <Icon name={item.props.icon} />
                     )}
-                    {item.props.children}
+                    {item.props.iconPosition} {item.props.children}
                   </Item>
                 ))}
               </MenuList>

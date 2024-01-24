@@ -8,8 +8,6 @@ export const MenuItem = <T extends object>(props: MenuItemProps<T>) => {
   const { isDisabled, isFocused, isPressed, isSelected, menuItemProps } =
     useMenuItem({ key: item.key }, state, ref);
 
-  const [icon, text] = item.rendered as [React.ReactNode, React.ReactNode];
-
   return (
     <li
       {...menuItemProps}
@@ -21,8 +19,7 @@ export const MenuItem = <T extends object>(props: MenuItemProps<T>) => {
       data-selected={isSelected ? "" : undefined}
       ref={ref}
     >
-      {icon}
-      <span data-text="">{text}</span>
+      <span data-text="">{item.rendered}</span>
     </li>
   );
 };
