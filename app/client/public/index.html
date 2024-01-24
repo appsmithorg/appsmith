@@ -110,23 +110,23 @@
         window.googleAPIsLoaded = false;
       };
 
-      if (!AIRGAPPED) {
-        // Adding this Library to access google file picker API in case of limiting google sheet access
-        const script2 = document.createElement("script");
-        script2.crossOrigin = "anonymous";
-        script2.async = true;
-        script2.defer = true;
-        script2.src = "https://apis.google.com/js/api.js";
-        script2.id = "googleapis";
-        script2.onload = () => {
-          gapiLoaded();
-        };
-        script2.onerror = () => {
-          onError();
-        };
-        const headElement = document.getElementsByTagName("head")[0];
-        headElement && headElement.appendChild(script2);
-      }
+      // if (!AIRGAPPED) {
+      //   // Adding this Library to access google file picker API in case of limiting google sheet access
+      //   const script2 = document.createElement("script");
+      //   script2.crossOrigin = "anonymous";
+      //   script2.async = true;
+      //   script2.defer = true;
+      //   script2.src = "https://apis.google.com/js/api.js";
+      //   script2.id = "googleapis";
+      //   script2.onload = () => {
+      //     gapiLoaded();
+      //   };
+      //   script2.onerror = () => {
+      //     onError();
+      //   };
+      //   const headElement = document.getElementsByTagName("head")[0];
+      //   headElement && headElement.appendChild(script2);
+      // }
     </script>
   </head>
 
