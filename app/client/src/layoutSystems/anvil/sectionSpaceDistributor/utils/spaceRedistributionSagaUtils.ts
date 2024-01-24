@@ -2,8 +2,8 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SectionColumns, ZoneMinColumnWidth } from "../utils/constants";
-import type { WidgetLayoutProps } from "../utils/anvilTypes";
+import { SectionColumns, ZoneMinColumnWidth } from "../constants";
+import type { WidgetLayoutProps } from "../../utils/anvilTypes";
 import { select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 
