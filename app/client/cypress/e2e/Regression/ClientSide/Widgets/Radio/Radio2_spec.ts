@@ -264,7 +264,6 @@ describe(
       );
       agHelper.GetNClick(locators._alignment("right"));
 
-    
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
 
