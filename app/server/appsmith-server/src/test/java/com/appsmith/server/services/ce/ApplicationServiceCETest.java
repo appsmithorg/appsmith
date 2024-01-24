@@ -130,6 +130,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.CONNECT_TO_GIT;
@@ -157,6 +158,7 @@ import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
@@ -309,7 +311,7 @@ public class ApplicationServiceCETest {
     public void setup() {
 
         User currentUser = sessionUserService.getCurrentUser().block();
-        if (!currentUser.getEmail().equals("api_user")) {
+        if (currentUser == null || !currentUser.getEmail().equals("api_user")) {
             // Don't do any setups
             return;
         }
@@ -404,7 +406,7 @@ public class ApplicationServiceCETest {
     @AfterEach
     public void cleanup() {
         User currentUser = sessionUserService.getCurrentUser().block();
-        if (!currentUser.getEmail().equals("api_user")) {
+        if (currentUser == null || !currentUser.getEmail().equals("api_user")) {
             // Since no setup was done, hence no cleanup needs to happen
             return;
         }
@@ -426,6 +428,18 @@ public class ApplicationServiceCETest {
                         .exists(true));
 
         return mongoOperations.findOne(query, domainClass);
+    }
+
+    private List<String> createDummyApplications(String workspaceId) {
+        List<String> applicationIds = new ArrayList<>();
+        for (int count = 0; count < 4; count++) {
+            Application application = new Application();
+            application.setName("Application " + count);
+            application.setWorkspaceId(workspaceId);
+            application = applicationPageService.createApplication(application).block();
+            applicationIds.add(application.getId());
+        }
+        return applicationIds;
     }
 
     @Test
@@ -4640,15 +4654,19 @@ public class ApplicationServiceCETest {
         workspaceService.archiveById(workspace.getId()).block();
     }
 
-    private List<String> createDummyApplications(String workspaceId) {
-        List<String> applicationIds = new ArrayList<>();
-        for (int count = 0; count < 4; count++) {
-            Application application = new Application();
-            application.setName("Application " + count);
-            application.setWorkspaceId(workspaceId);
-            application = applicationPageService.createApplication(application).block();
-            applicationIds.add(application.getId());
-        }
-        return applicationIds;
+    @Test
+    public void findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder_invalidWorkspaceId_throwException() {
+
+        String invalidWorkspaceId = UUID.randomUUID().toString();
+        Flux<Application> allApplicationsWithinWorkspace =
+                applicationService.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(invalidWorkspaceId);
+
+        StepVerifier.create(allApplicationsWithinWorkspace.collectList())
+                .expectErrorSatisfies(throwable -> {
+                    assertThat(throwable).isInstanceOf(AppsmithException.class);
+                    assertThat(throwable.getMessage())
+                            .isEqualTo(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(WORKSPACE, invalidWorkspaceId));
+                })
+                .verify();
     }
 }

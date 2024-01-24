@@ -90,6 +90,7 @@ import {
   getCurrentApplicationIdForCreateNewApp,
 } from "@appsmith/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -293,8 +294,9 @@ function* formValueChangeSaga(
       url: "",
     };
 
-    if (plugin?.requiresDatasource) {
-      dsConfig = datasourceStorages[currentEnvironment].datasourceConfiguration;
+    if (doesPluginRequireDatasource(plugin)) {
+      dsConfig =
+        datasourceStorages[currentEnvironment]?.datasourceConfiguration;
     }
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
