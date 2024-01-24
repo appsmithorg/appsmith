@@ -2,8 +2,8 @@ import { createGlobalStyle } from "styled-components";
 import { Layers } from "constants/Layers";
 import { Classes } from "@blueprintjs/core";
 import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
-import { Classes as GuidedTourClasses } from "pages/Editor/GuidedTour/constants";
 import { Colors } from "constants/Colors";
+import { GuidedTourClasses } from "components/utils/Indicator";
 
 export const replayHighlightClass = "ur--has-border";
 

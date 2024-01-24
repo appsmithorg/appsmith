@@ -419,15 +419,7 @@ public class ApplicationServiceCETest {
     }
 
     private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
-        Query query = new Query(where("id").is(id));
-
-        final Query actionQuery = query(
-                        where(fieldName(QNewAction.newAction.applicationId)).exists(true))
-                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                + fieldName(QNewAction.newAction.unpublishedAction.archivedAt))
-                        .exists(true));
-
-        return mongoOperations.findOne(query, domainClass);
+        return mongoOperations.findOne(new Query(where("id").is(id)), domainClass);
     }
 
     private List<String> createDummyApplications(String workspaceId) {
