@@ -176,10 +176,13 @@ export function* fetchPageListSaga(
     const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
     const prevPagesState: Page[] = yield select(getPageList);
-    const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
-      acc[page.pageId] = page.userPermissions ?? [];
-      return acc;
-    }, {} as Record<string, string[]>);
+    const pagePermissionsMap = prevPagesState.reduce(
+      (acc, page) => {
+        acc[page.pageId] = page.userPermissions ?? [];
+        return acc;
+      },
+      {} as Record<string, string[]>,
+    );
     if (isValidResponse) {
       const workspaceId = response.data.workspaceId;
       const pages: Page[] = response.data.pages.map((page) => ({
@@ -298,9 +301,8 @@ export function* handleFetchedPage({
   isFirstLoad?: boolean;
 }) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
-  const mainCanvasProps: MainCanvasReduxState = yield select(
-    getMainCanvasProps,
-  );
+  const mainCanvasProps: MainCanvasReduxState =
+    yield select(getMainCanvasProps);
   const dslTransformer = getLayoutSystemDSLTransformer(
     layoutSystemType,
     mainCanvasProps.width,
@@ -735,12 +737,10 @@ export function* createNewPageFromEntity(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
-    const layoutSystemType: LayoutSystemTypes = yield select(
-      getLayoutSystemType,
-    );
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
+    const mainCanvasProps: MainCanvasReduxState =
+      yield select(getMainCanvasProps);
     const dslTransformer = getLayoutSystemDSLTransformer(
       layoutSystemType,
       mainCanvasProps.width,
@@ -792,12 +792,10 @@ export function* createPageSaga(
 ) {
   try {
     const guidedTourEnabled: boolean = yield select(inGuidedTour);
-    const layoutSystemType: LayoutSystemTypes = yield select(
-      getLayoutSystemType,
-    );
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
+    const mainCanvasProps: MainCanvasReduxState =
+      yield select(getMainCanvasProps);
     const dslTransformer = getLayoutSystemDSLTransformer(
       layoutSystemType,
       mainCanvasProps.width,
@@ -1200,12 +1198,10 @@ export function* fetchPageDSLSaga(
   pageDSL?: ApiResponse<FetchPageResponseData>,
 ) {
   try {
-    const layoutSystemType: LayoutSystemTypes = yield select(
-      getLayoutSystemType,
-    );
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
+    const mainCanvasProps: MainCanvasReduxState =
+      yield select(getMainCanvasProps);
     const dslTransformer = getLayoutSystemDSLTransformer(
       layoutSystemType,
       mainCanvasProps.width,
