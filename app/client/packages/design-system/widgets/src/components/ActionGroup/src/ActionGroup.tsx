@@ -10,6 +10,7 @@ import type { ActionGroupProps } from "./types";
 import { useActionGroup } from "./useActionGroup";
 import { IconButton } from "../../IconButton";
 import { ActionGroupItem } from "./ActionGroupItem";
+import { Icon } from "../../Icon";
 
 const _ActionGroup = <T extends object>(
   props: ActionGroupProps<T>,
@@ -22,6 +23,7 @@ const _ActionGroup = <T extends object>(
     onAction,
     orientation = "horizontal",
     overflowMode = "collapse",
+    size = "medium",
     variant = "filled",
     ...others
   } = props;
@@ -62,6 +64,7 @@ const _ActionGroup = <T extends object>(
             return (
               <ActionGroupItem
                 color={color}
+                data-size={Boolean(size) ? size : undefined}
                 icon={item.props.icon}
                 iconPosition={item.props.iconPosition}
                 isDisabled={
@@ -82,12 +85,14 @@ const _ActionGroup = <T extends object>(
               <MenuList>
                 {menuChildren.map((item) => (
                   <Item
-                    data-color={item.props.color}
-                    icon={item.props.icon}
+                    color={item.props.color}
                     iconPosition={item.props.iconPosition}
                     key={item.key}
                   >
-                    {item.rendered}
+                    {Boolean(item.props.icon) && (
+                      <Icon name={item.props.icon} />
+                    )}
+                    {item.props.children}
                   </Item>
                 ))}
               </MenuList>

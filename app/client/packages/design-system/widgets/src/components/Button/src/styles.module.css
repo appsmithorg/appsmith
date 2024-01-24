@@ -183,15 +183,6 @@
       inline-size: var(--sizing-5);
     }
   }
-
-  &[data-size="large"] {
-    min-inline-size: var(--sizing-11);
-    block-size: var(--sizing-11);
-
-    & [data-icon] {
-      inline-size: var(--sizing-7);
-    }
-  }
 }
 
 /**

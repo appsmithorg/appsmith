@@ -32,6 +32,7 @@ export interface ActionGroupProps<T>
     >,
     InheritedActionButtonProps {
   orientation?: keyof typeof ACTION_GROUP_ORIENTATIONS;
+  size?: "small" | "medium";
 }
 
 export interface ActionGroupItemProps<T> extends ButtonProps {
