@@ -43,7 +43,6 @@ function ModuleInstanceNameEditor({
 
   return (
     <NameEditorComponent
-      checkForGuidedTour
       dispatchAction={saveModuleInstanceName}
       id={moduleInstance.id}
       idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
