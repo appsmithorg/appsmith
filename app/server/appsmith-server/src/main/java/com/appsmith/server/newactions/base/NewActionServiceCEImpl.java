@@ -22,13 +22,11 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
@@ -262,7 +260,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
             throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "No page found to copy policies from.");
         }
         Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
+                policyGenerator.getAllChildPolicies(page.getPolicies(), NewPage.class, NewAction.class);
         action.setPolicies(documentPolicies);
     }
 
