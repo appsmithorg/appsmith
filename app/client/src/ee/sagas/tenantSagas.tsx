@@ -56,12 +56,18 @@ import {
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-export function* fetchCurrentTenantConfigSaga(): any {
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
+export function* fetchCurrentTenantConfigSaga(action?: {
+  payload?: { tenantConfig?: ApiResponse<TenantReduxState<License>> };
+}): any {
   try {
+    const license = action?.payload?.tenantConfig;
     const response: ApiResponse<TenantReduxState<License>> = yield call(
-      TenantApi.fetchCurrentTenantConfig,
+      getFromServerWhenNoPrefetchedResult,
+      license,
+      () => call(TenantApi.fetchCurrentTenantConfig),
     );
+
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {

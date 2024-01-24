@@ -1,3 +1,4 @@
+import produce from "immer";
 import LicenseLocators from "../locators/LicenseLocators.json";
 import { ObjectsRegistry } from "./Objects/Registry";
 
@@ -93,34 +94,50 @@ Cypress.Commands.add(
     url = "/api/v1/tenants/current",
     method = "GET",
   }) => {
+    const modifyLicenseResp = (data) => {
+      return {
+        ...data,
+        tenantConfiguration: {
+          ...data.tenantConfiguration,
+          license: {
+            ...data.tenantConfiguration.license,
+            ...(licenseKey && { key: licenseKey }),
+            ...(licenseStatus && { status: licenseStatus }),
+            ...(licenseType && { type: licenseType }),
+            ...(licenseOrigin && { origin: licenseOrigin }),
+            ...(plan && { plan: plan }),
+            ...(productEdition && { productEdition: productEdition }),
+            expiry,
+            active,
+          },
+        },
+      };
+    };
     cy.intercept(method, url, (req) => {
       req.continue((res) => {
         const modifiedResponse = {
           ...res,
           body: {
             ...res.body,
-            data: {
-              ...res.body.data,
-              tenantConfiguration: {
-                ...res.body.data.tenantConfiguration,
-                license: {
-                  ...res.body.data.tenantConfiguration.license,
-                  ...(licenseKey && { key: licenseKey }),
-                  ...(licenseStatus && { status: licenseStatus }),
-                  ...(licenseType && { type: licenseType }),
-                  ...(licenseOrigin && { origin: licenseOrigin }),
-                  ...(plan && { plan: plan }),
-                  ...(productEdition && { productEdition: productEdition }),
-                  expiry,
-                  active,
-                },
-              },
-            },
+            data: modifyLicenseResp(res.body.data),
           },
         };
         res.send(modifiedResponse);
       });
     }).as("licenseApiMock");
+
+    cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+      req.continue((res) => {
+        if (res.statusCode === 200) {
+          const updatedResponse = produce(res, (draft) => {
+            draft.body.data.tenantConfig.data = modifyLicenseResp(
+              draft.body.data.tenantConfig.data,
+            );
+          });
+          return res.send(updatedResponse);
+        }
+      });
+    });
   },
 );
 
