@@ -36,8 +36,6 @@ export const getHighlightPayload = (
     return calculateDistance(a, pos) - calculateDistance(b, pos);
   });
 
-  // console.log("#### arr", arr, highlights);
-
   // Return the closest highlight.
   return arr[0];
 };
