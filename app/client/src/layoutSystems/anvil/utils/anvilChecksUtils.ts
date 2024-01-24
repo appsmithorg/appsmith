@@ -10,7 +10,7 @@ import { anvilWidgets } from "widgets/anvil/constants";
 import {
   updateSectionWithDefaultSpaceDistribution,
   updateSectionsDistributedSpace,
-} from "layoutSystems/anvil/sectionSpaceDistributor/spaceRedistributionUtils";
+} from "layoutSystems/anvil/sectionSpaceDistributor/utils/spaceRedistributionSagaUtils";
 
 export function* updateAndSaveAnvilLayout(
   widgets: CanvasWidgetsReduxState,
