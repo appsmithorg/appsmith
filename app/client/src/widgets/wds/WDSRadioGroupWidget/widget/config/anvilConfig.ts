@@ -3,9 +3,9 @@ import type { AnvilConfig } from "WidgetProvider/constants";
 export const anvilConfig: AnvilConfig = {
   isLargeWidget: false,
   widgetSize: {
-    maxHeight: {},
-    maxWidth: {},
-    minHeight: { base: "70px" },
-    minWidth: { base: "240px" },
+    minWidth: {
+      base: "100%",
+      "180px": "sizing-30",
+    },
   },
 };

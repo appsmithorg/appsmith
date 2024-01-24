@@ -14,7 +14,6 @@ export const anvilConfig: AnvilConfig = {
             ? "unset"
             : "min-content",
       },
-      minHeight: { base: "50px" },
     };
   },
 };

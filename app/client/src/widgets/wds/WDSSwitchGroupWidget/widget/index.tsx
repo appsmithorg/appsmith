@@ -38,10 +38,6 @@ class WDSSwitchGroupWidget extends BaseWidget<
     return defaultsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return anvilConfig;
   }

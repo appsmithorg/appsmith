@@ -83,7 +83,6 @@ import {
 import {
   deleteRecentAppEntities,
   getEnableStartSignposting,
-  setPostWelcomeTourState,
 } from "utils/storage";
 import {
   reconnectAppLevelWebsocket,
@@ -94,7 +93,6 @@ import {
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
 
-import { getCurrentStep, inGuidedTour } from "selectors/onboardingSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import {
   fetchDatasources,
@@ -102,7 +100,6 @@ import {
 } from "actions/datasourceActions";
 import { failFastApiCalls } from "sagas/InitSagas";
 import type { Datasource } from "entities/Datasource";
-import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
@@ -135,6 +132,7 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import equal from "fast-deep-equal";
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -168,16 +166,10 @@ export function* publishApplicationSaga(
 
       const applicationId: string = yield select(getCurrentApplicationId);
       const currentPageId: string = yield select(getCurrentPageId);
-      const guidedTour: boolean = yield select(inGuidedTour);
-      const currentStep: number = yield select(getCurrentStep);
 
-      let appicationViewPageUrl = viewerURL({
+      const appicationViewPageUrl = viewerURL({
         pageId: currentPageId,
       });
-      if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
-        appicationViewPageUrl += "?&guidedTourComplete=true";
-        yield call(setPostWelcomeTourState, true);
-      }
 
       yield put(
         fetchApplication({
@@ -267,18 +259,20 @@ export function* getAllApplicationSaga() {
     });
   }
 }
-
+// v1
 export function* fetchAppAndPagesSaga(
   action: ReduxAction<FetchApplicationPayload>,
 ) {
   try {
-    const params = pickBy(action.payload, identity);
+    const { pages, ...payload } = action.payload;
+    const params = pickBy(payload, identity);
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
     const response: FetchApplicationResponse = yield call(
-      PageApi.fetchAppAndPages,
-      params,
+      getFromServerWhenNoPrefetchedResult,
+      pages,
+      () => call(PageApi.fetchAppAndPages, params),
     );
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
@@ -865,9 +859,6 @@ export function* importApplicationSaga(
             });
           }
           history.push(pageURL);
-          const guidedTour: boolean = yield select(inGuidedTour);
-
-          if (guidedTour) return;
 
           toast.show("Application imported successfully", {
             kind: "success",

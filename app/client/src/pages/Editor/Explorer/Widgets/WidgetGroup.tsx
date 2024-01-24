@@ -15,7 +15,6 @@ import {
   EMPTY_WIDGET_MAIN_TEXT,
 } from "@appsmith/constants/messages";
 import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   getExplorerStatus,
   saveExplorerStatus,
@@ -37,13 +36,9 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(selectWidgetsForCurrentPage);
-  const guidedTour = useSelector(inGuidedTour);
   let isWidgetsOpen = getExplorerStatus(applicationId, "widgets");
   if (isWidgetsOpen === null || isWidgetsOpen === undefined) {
-    isWidgetsOpen = widgets?.children?.length === 0 || guidedTour;
-    saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
-  } else if (guidedTour) {
-    isWidgetsOpen = guidedTour;
+    isWidgetsOpen = widgets?.children?.length === 0;
     saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
   }
 
