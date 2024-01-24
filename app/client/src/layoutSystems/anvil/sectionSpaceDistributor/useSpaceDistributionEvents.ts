@@ -1,8 +1,24 @@
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { type MutableRefObject, useEffect, useRef } from "react";
-import { SectionColumns, ZoneMinColumnWidth } from "../utils/constants";
-import { useDispatch } from "react-redux";
+import { useCallback, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { AnvilReduxActionTypes } from "../integrations/actions/actionTypes";
+import {
+  getMouseSpeedTrackingCallback,
+  getPropertyPaneZoneId,
+  computePropsForSpaceDistribution,
+  resetCSSOnZones,
+  resetDistributionHandleCSS,
+  getPropertyPaneDistributionHandleId,
+} from "./utils/spaceDistributionEditorUtils";
+import { PropPaneDistributionHandleCustomEvent } from "./constants";
+import { getSelectedWidgets } from "selectors/ui";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import {
+  type SpaceDistributionZoneDomCollection,
+  updateWidgetCSSOnHandleMove,
+  updateWidgetCSSOnMinimumLimit,
+} from "./utils/onMouseMoveUtils";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -11,182 +27,11 @@ interface SpaceDistributionEventsProps {
   rightZone: string;
   columnPosition: number;
   sectionLayoutId: string;
+  sectionWidgetId: string;
   isCurrentHandleDistributingSpace: React.MutableRefObject<boolean>;
   spaceToWorkWith: number;
+  zoneIds: string[];
 }
-const shrinkablePixels = 10;
-
-const updatedCSSOfWidgetsOnHittingMinimumLimit = (
-  leftZoneComputedColumns: number,
-  rightZoneComputedColumns: number,
-  leftZoneDom: HTMLElement,
-  rightZoneDom: HTMLElement,
-  minSpacePerBlock: number,
-  currentFlexGrow: { [key: string]: number },
-  currentGrowthFactor: { [key: string]: number },
-  minimumShrinkableSpacePerBlock: number,
-) => {
-  const totalSpace = currentFlexGrow.leftZone + currentFlexGrow.rightZone;
-  const spaceForTheZoneOtherThanShrunkenZone = totalSpace - minSpacePerBlock;
-  // If one or both zones don't have enough space, set them to the minimum shrinkable space
-  if (leftZoneComputedColumns < minimumShrinkableSpacePerBlock) {
-    leftZoneDom.style.flexGrow = `${minimumShrinkableSpacePerBlock}`;
-    rightZoneDom.style.flexGrow = (
-      totalSpace - minimumShrinkableSpacePerBlock
-    ).toString();
-    currentGrowthFactor.leftZone = minSpacePerBlock;
-    currentGrowthFactor.rightZone = spaceForTheZoneOtherThanShrunkenZone;
-  } else if (rightZoneComputedColumns < minimumShrinkableSpacePerBlock) {
-    rightZoneDom.style.flexGrow = `${minimumShrinkableSpacePerBlock}`;
-    leftZoneDom.style.flexGrow = (
-      totalSpace - minimumShrinkableSpacePerBlock
-    ).toString();
-    currentGrowthFactor.leftZone = spaceForTheZoneOtherThanShrunkenZone;
-    currentGrowthFactor.rightZone = minSpacePerBlock;
-  }
-};
-
-const updatedCSSOfWidgetsOnHandleMove = (
-  ref: React.RefObject<HTMLDivElement>,
-  leftZoneComputedColumns: number,
-  rightZoneComputedColumns: number,
-  leftZoneDom: HTMLElement,
-  rightZoneDom: HTMLElement,
-  minSpacePerBlock: number,
-  currentFlexGrow: { [key: string]: number },
-  currentGrowthFactor: { [key: string]: number },
-  leftZoneComputedColumnsRoundOff: number,
-  rightZoneComputedColumnsRoundOff: number,
-  minimumShrinkableSpacePerBlock: number,
-  columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
-  columnPosition: number,
-) => {
-  checkForNeedToAddResistiveForce(
-    leftZoneComputedColumns,
-    rightZoneComputedColumns,
-    leftZoneDom,
-    rightZoneDom,
-    minSpacePerBlock,
-    ref,
-  );
-  // adjust the zones flex grow property to the minimum shrinkable space
-  leftZoneDom.style.flexGrow = Math.max(
-    leftZoneComputedColumns,
-    minimumShrinkableSpacePerBlock,
-  ).toString();
-  rightZoneDom.style.flexGrow = Math.max(
-    rightZoneComputedColumns,
-    minimumShrinkableSpacePerBlock,
-  ).toString();
-  // note down the new growth factor for the zones
-  currentGrowthFactor.leftZone = leftZoneComputedColumnsRoundOff;
-  currentGrowthFactor.rightZone = rightZoneComputedColumnsRoundOff;
-
-  // Update the column indicator text to reflect the new column positions
-  if (columnIndicatorDivRef.current) {
-    columnIndicatorDivRef.current.innerHTML = `${
-      columnPosition -
-      currentFlexGrow.leftZone +
-      leftZoneComputedColumnsRoundOff
-    } / ${SectionColumns}`;
-  }
-};
-
-// Reset CSS styles for the handle when not in use
-const resetHandleCSS = (ref: React.RefObject<HTMLDivElement>) => {
-  if (ref.current) {
-    ref.current.style.transition = "";
-    ref.current.classList.remove("active");
-    ref.current.style.left = "";
-    ref.current.style.display = "none";
-  }
-};
-
-// Reset CSS styles for all zones
-const resetCSSOnZones = (spaceDistributed: { [key: string]: number }) => {
-  Object.keys(spaceDistributed).forEach((zoneId) => {
-    const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
-    if (zoneDom) {
-      zoneDom.style.flexGrow = "";
-      zoneDom.style.transition = "all 0.3s ease";
-      setTimeout(() => {
-        zoneDom.style.transition = "";
-      }, 500);
-    }
-  });
-};
-
-// Create a visual column indicator
-const createColumnIndicator = (
-  columnPosition: number,
-  columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
-) => {
-  const columnIndicatorDiv = document.createElement("div");
-  // Display the current column position and total columns
-  columnIndicatorDiv.innerHTML = `${columnPosition} / ${SectionColumns}`;
-  columnIndicatorDiv.style.position = "absolute";
-  // Styling for the indicator
-  columnIndicatorDiv.style.background = "white";
-  columnIndicatorDiv.style.color = "black";
-  columnIndicatorDiv.style.padding = "2px";
-  columnIndicatorDiv.style.borderRadius = "2px";
-  columnIndicatorDiv.style.boxShadow = "0px 0px 2px 2px black";
-  columnIndicatorDiv.style.zIndex = "1000";
-  columnIndicatorDiv.style.fontSize = "10px";
-  columnIndicatorDiv.style.fontWeight = "bold";
-  document.body.appendChild(columnIndicatorDiv);
-  columnIndicatorDivRef.current = columnIndicatorDiv;
-};
-
-// Remove the visual column indicator
-const removeColumnIndicator = (
-  columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
-) => {
-  if (columnIndicatorDivRef.current) {
-    columnIndicatorDivRef.current.remove();
-    columnIndicatorDivRef.current = undefined;
-  }
-};
-
-// Reposition the column indicator based on mouse movement
-const repositionColumnIndicator = (
-  columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
-  e: MouseEvent,
-) => {
-  if (columnIndicatorDivRef.current) {
-    columnIndicatorDivRef.current.style.left =
-      e.clientX + shrinkablePixels + "px";
-    columnIndicatorDivRef.current.style.top =
-      e.clientY - shrinkablePixels + "px";
-  }
-};
-
-// Check if resistive force is needed for the zones
-const checkForNeedToAddResistiveForce = (
-  leftZoneComputedColumns: number,
-  rightZoneComputedColumns: number,
-  leftZoneDom: HTMLElement,
-  rightZoneDom: HTMLElement,
-  minSpacePerBlock: number,
-  ref: React.RefObject<HTMLDivElement>,
-) => {
-  if (ref.current) {
-    // Check if the zones are below the minimum space
-    const isLeftZoneLessThanMinimum =
-      leftZoneComputedColumns <= minSpacePerBlock;
-    const isRightZoneLessThanMinimum =
-      rightZoneComputedColumns <= minSpacePerBlock;
-
-    // Apply transition if zones are below the minimum space, else remove transition
-    if (isLeftZoneLessThanMinimum || isRightZoneLessThanMinimum) {
-      leftZoneDom.style.transition = "all 0.6s ease";
-      rightZoneDom.style.transition = "all 0.6s ease";
-    } else {
-      leftZoneDom.style.transition = "";
-      rightZoneDom.style.transition = "";
-    }
-  }
-};
 
 export const useSpaceDistributionEvents = ({
   columnPosition,
@@ -195,16 +40,28 @@ export const useSpaceDistributionEvents = ({
   ref,
   rightZone,
   sectionLayoutId,
+  sectionWidgetId,
   spaceDistributed,
   spaceToWorkWith,
+  zoneIds,
 }: SpaceDistributionEventsProps) => {
   const dispatch = useDispatch();
   const columnIndicatorDivRef = useRef<HTMLDivElement>();
-  const minSpacePerBlock = ZoneMinColumnWidth;
-  const columnWidth = spaceToWorkWith / SectionColumns;
-  const minLimitBounceBackThreshold = shrinkablePixels / columnWidth;
-  const minimumShrinkableSpacePerBlock =
-    minSpacePerBlock - minLimitBounceBackThreshold;
+  const currentMouseSpeed = useRef(0);
+  const mouseSpeedTrackingCallback =
+    getMouseSpeedTrackingCallback(currentMouseSpeed);
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const { selectWidget } = useWidgetSelection();
+  const selectCorrespondingSectionWidget = useCallback(() => {
+    if (
+      !(
+        selectedWidgets.includes(sectionWidgetId) ||
+        zoneIds.some((each) => selectedWidgets.includes(each))
+      )
+    ) {
+      selectWidget(SelectionRequestType.One, [sectionWidgetId]);
+    }
+  }, [sectionWidgetId, selectedWidgets, zoneIds]);
   useEffect(() => {
     if (ref.current) {
       // Check if the ref to the DOM element exists
@@ -216,7 +73,8 @@ export const useSpaceDistributionEvents = ({
         leftZone: spaceDistributed[leftZone],
         rightZone: spaceDistributed[rightZone],
       };
-
+      let columnWidth = 0;
+      let minimumShrinkableSpacePerBlock = 0;
       // Retrieve DOM elements for the left and right zones
       const leftZoneDom = document.getElementById(
         getAnvilWidgetDOMId(leftZone),
@@ -224,6 +82,9 @@ export const useSpaceDistributionEvents = ({
       const rightZoneDom = document.getElementById(
         getAnvilWidgetDOMId(rightZone),
       );
+      let leftZonePropPaneDom: HTMLElement | null = null;
+      let rightZonePropPaneDom: HTMLElement | null = null;
+      let propPaneHandle: HTMLElement | null = null;
 
       // Keep track of the growth factors for both zones
       const currentGrowthFactor = {
@@ -240,24 +101,35 @@ export const useSpaceDistributionEvents = ({
         if (ref.current && sectionLayoutDom) {
           ref.current.classList.add("active");
         }
+        if (propPaneHandle) {
+          propPaneHandle.classList.add("active");
+        }
 
         // Update flex-grow values for all distributed zones
         Object.entries(spaceDistributed).forEach(([zoneId, flexGrow]) => {
           const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
+          const zonePropDom = document.getElementById(
+            getPropertyPaneZoneId(zoneId),
+          );
           if (zoneDom) {
             zoneDom.style.flexGrow = flexGrow.toString();
+          }
+          if (zonePropDom) {
+            zonePropDom.style.flexGrow = flexGrow.toString();
           }
         });
 
         // Add event listeners for mouseup and mousemove events
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mousemove", mouseSpeedTrackingCallback);
       };
 
       // Remove mouse move event handlers
       const removeMouseMoveHandlers = () => {
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mousemove", mouseSpeedTrackingCallback);
       };
 
       // Callback when CSS transition ends
@@ -285,13 +157,38 @@ export const useSpaceDistributionEvents = ({
         });
         resetCSSOnZones(spaceDistributed);
         removeMouseMoveHandlers();
+        currentMouseSpeed.current = 0;
+        clearPropPaneDomReferences();
         if (ref.current) {
           ref.current.removeEventListener("transitionend", onCSSTransitionEnd);
         }
       };
+      const onPropPaneHandleMouseDown = ((e: CustomEvent) => {
+        onMouseDown(e.detail.mouseDownEvent, true);
+      }) as EventListener;
 
       // Callback when mouse button is pressed down
-      const onMouseDown = (e: MouseEvent) => {
+      const onMouseDown = (e: MouseEvent, propHandle = false) => {
+        if (!propHandle) {
+          const computedProps =
+            computePropsForSpaceDistribution(spaceToWorkWith);
+          columnWidth = computedProps.columnWidth;
+          minimumShrinkableSpacePerBlock =
+            computedProps.minimumShrinkableSpacePerBlock;
+          selectCorrespondingSectionWidget();
+        } else {
+          const sectionPreviewBlockDom = document.getElementById(
+            "prop-pane-" + sectionWidgetId,
+          );
+          if (sectionPreviewBlockDom) {
+            const computedPropsForHandle = computePropsForSpaceDistribution(
+              sectionPreviewBlockDom.offsetWidth,
+            );
+            columnWidth = computedPropsForHandle.columnWidth;
+            minimumShrinkableSpacePerBlock =
+              computedPropsForHandle.minimumShrinkableSpacePerBlock;
+          }
+        }
         e.stopPropagation();
         e.preventDefault();
         x = e.clientX; // Store the initial mouse position
@@ -300,24 +197,51 @@ export const useSpaceDistributionEvents = ({
           type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START,
         });
         addMouseMoveHandlers();
-        createColumnIndicator(columnPosition, columnIndicatorDivRef);
-        repositionColumnIndicator(columnIndicatorDivRef, e);
       };
 
       // Callback when mouse button is released
       const onMouseUp = (e: MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
+
         if (isCurrentHandleDistributingSpace.current && ref.current) {
-          removeColumnIndicator(columnIndicatorDivRef);
-          resetHandleCSS(ref);
+          resetDistributionHandleCSS(ref, propPaneHandle);
           requestAnimationFrame(onCSSTransitionEnd);
           isCurrentHandleDistributingSpace.current = false;
         }
       };
 
+      const tryFetchingPropPaneDomReferences = () => {
+        // Retrieve DOM elements for the left and right zones on the property pane
+        // Why are we fetching these references here?
+        // Because the property pane is rendered after space distribution is started when no corresponding zone/section is selected before
+        // start of space distribution.
+        // Check SpaceDistributionHandle component's useEffect for more details.
+        leftZonePropPaneDom = document.getElementById(
+          getPropertyPaneZoneId(leftZone),
+        );
+        rightZonePropPaneDom = document.getElementById(
+          getPropertyPaneZoneId(rightZone),
+        );
+        propPaneHandle = document.getElementById(
+          getPropertyPaneDistributionHandleId(leftZone),
+        );
+        if (propPaneHandle) {
+          propPaneHandle.classList.add("active");
+        }
+      };
+
+      const clearPropPaneDomReferences = () => {
+        leftZonePropPaneDom = null;
+        rightZonePropPaneDom = null;
+        propPaneHandle = null;
+      };
+
       // Callback triggered when the mouse moves while the handle is distributing space
       const onMouseMove = (e: MouseEvent) => {
+        if (!(leftZonePropPaneDom && rightZonePropPaneDom)) {
+          tryFetchingPropPaneDomReferences();
+        }
         // Ensure the reference to the handle and the distribution flag are valid
         if (ref.current && isCurrentHandleDistributingSpace.current) {
           const dx = e.clientX - x; // Calculate the horizontal change in mouse position from the initial click
@@ -344,33 +268,34 @@ export const useSpaceDistributionEvents = ({
 
           // Ensure we have references to the DOM elements representing the left and right zones
           if (leftZoneDom && rightZoneDom) {
+            const zoneDomCollection: SpaceDistributionZoneDomCollection = {
+              leftZoneDom,
+              rightZoneDom,
+              leftZonePropPaneDom,
+              rightZonePropPaneDom,
+            };
             // Check if any of the zones is reaching near to the minimum limit of a zone
             if (
               leftZoneComputedColumns >= minimumShrinkableSpacePerBlock &&
               rightZoneComputedColumns >= minimumShrinkableSpacePerBlock
             ) {
-              updatedCSSOfWidgetsOnHandleMove(
-                ref,
+              updateWidgetCSSOnHandleMove(
                 leftZoneComputedColumns,
                 rightZoneComputedColumns,
-                leftZoneDom,
-                rightZoneDom,
-                minSpacePerBlock,
+                zoneDomCollection,
                 currentFlexGrow,
                 currentGrowthFactor,
                 leftZoneComputedColumnsRoundOff,
                 rightZoneComputedColumnsRoundOff,
-                minimumShrinkableSpacePerBlock,
                 columnIndicatorDivRef,
                 columnPosition,
+                currentMouseSpeed.current,
               );
             } else {
-              updatedCSSOfWidgetsOnHittingMinimumLimit(
+              updateWidgetCSSOnMinimumLimit(
                 leftZoneComputedColumns,
                 rightZoneComputedColumns,
-                leftZoneDom,
-                rightZoneDom,
-                minSpacePerBlock,
+                zoneDomCollection,
                 currentFlexGrow,
                 currentGrowthFactor,
                 minimumShrinkableSpacePerBlock,
@@ -378,24 +303,29 @@ export const useSpaceDistributionEvents = ({
             }
           }
         }
-        // Always reposition the column indicator to follow the mouse, even if no other action is taken
-        repositionColumnIndicator(columnIndicatorDivRef, e);
       };
-
       // Attach mouse down event listener to the handle
       ref.current.addEventListener("mousedown", onMouseDown);
-
+      ref.current.addEventListener(
+        PropPaneDistributionHandleCustomEvent,
+        onPropPaneHandleMouseDown,
+      );
       // Cleanup: Remove the mouse down event listener when component is unmounted
       return () => {
         if (ref.current) {
           ref.current.removeEventListener("mousedown", onMouseDown);
+          ref.current.removeEventListener(
+            PropPaneDistributionHandleCustomEvent,
+            onPropPaneHandleMouseDown,
+          );
         }
       };
     }
   }, [
     columnPosition,
-    minimumShrinkableSpacePerBlock,
+    selectCorrespondingSectionWidget,
     sectionLayoutId,
+    sectionWidgetId,
     spaceDistributed,
     spaceToWorkWith,
   ]);

@@ -4,8 +4,6 @@ import type { HighlightPayload, HighlightRenderInfo } from "./anvilTypes";
 export const MOBILE_BREAKPOINT = 480;
 
 export const HIGHLIGHT_SIZE = 4;
-export const SectionColumns = 12;
-export const ZoneMinColumnWidth = 2;
 export const AlignmentIndexMap: { [key: string]: number } = {
   [FlexLayerAlignment.Start]: 0,
   [FlexLayerAlignment.Center]: 1,
