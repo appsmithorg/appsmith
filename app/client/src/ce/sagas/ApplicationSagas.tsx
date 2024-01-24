@@ -65,7 +65,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
-  DELETING_APPLICATION,
   DELETING_MULTIPLE_APPLICATION,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
@@ -136,6 +135,7 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import equal from "fast-deep-equal";
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -268,18 +268,20 @@ export function* getAllApplicationSaga() {
     });
   }
 }
-
+// v1
 export function* fetchAppAndPagesSaga(
   action: ReduxAction<FetchApplicationPayload>,
 ) {
   try {
-    const params = pickBy(action.payload, identity);
+    const { pages, ...payload } = action.payload;
+    const params = pickBy(payload, identity);
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
     const response: FetchApplicationResponse = yield call(
-      PageApi.fetchAppAndPages,
-      params,
+      getFromServerWhenNoPrefetchedResult,
+      pages,
+      () => call(PageApi.fetchAppAndPages, params),
     );
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
@@ -486,7 +488,6 @@ export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    toast.show(createMessage(DELETING_APPLICATION));
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.deleteApplication,

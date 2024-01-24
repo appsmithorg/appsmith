@@ -59,6 +59,7 @@ import {
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1047,6 +1048,9 @@ export const selectFilesForExplorer = createSelector(
         group = isEmbeddedAIDataSource(file.config.datasource)
           ? "AI Queries"
           : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
+      } else if (file.config.pluginType === PluginType.INTERNAL) {
+        // TODO: Add a group for internal actions, currently only Workflow actions are internal
+        group = "Workflows";
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
@@ -1059,7 +1063,6 @@ export const selectFilesForExplorer = createSelector(
     }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
-      (file) => file.entity.config?.isMainJSCollection,
       (file) => file.group?.toLowerCase(),
       (file) => file.entity.config?.name?.toLowerCase(),
     ]);
@@ -1459,13 +1462,6 @@ export const getNewEntityName = createSelector(
   },
 );
 
-export interface EntityItem {
-  title: string;
-  type: PluginType;
-  key: string;
-  group?: string;
-}
-
 export const getQuerySegmentItems = createSelector(
   getCurrentActions,
   selectDatasourceIdToNameMap,
@@ -1504,3 +1500,6 @@ export const getJSSegmentItems = createSelector(
     return items;
   },
 );
+
+export const getSelectedTableName = (state: AppState) =>
+  state.ui.datasourcePane.selectedTableName;

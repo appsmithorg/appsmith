@@ -30,8 +30,7 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
         List<CustomJSLib> customJSLibs = applicationJson.getCustomJSLibList();
         if (customJSLibs == null) {
             customJSLibs = new ArrayList<>();

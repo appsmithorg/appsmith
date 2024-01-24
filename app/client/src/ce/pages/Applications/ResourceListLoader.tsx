@@ -28,6 +28,7 @@ function ResourceListLoader({ isMobile, resources }: ResourcesLoaderProps) {
               hasReadPermission
               icon={DEFAULT_ICON}
               isContextMenuOpen={false}
+              isEnabledMultipleSelection={false}
               isFetching
               isMobile={isMobile}
               moreActionItems={[]}
