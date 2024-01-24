@@ -131,7 +131,7 @@ if (CUSTOM_DOMAIN !== "") {
   // If no custom domain, no extra routing needed.
   // We have to own the http-to-https redirect, since we need to remove the `Server` header from the response.
   parts.push(`
-  https://${CUSTOM_DOMAIN} {
+  https:// {
     import all-config
     ${tlsConfig}
   }
