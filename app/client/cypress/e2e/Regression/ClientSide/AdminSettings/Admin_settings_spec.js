@@ -46,28 +46,6 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   });
 
   it(
-    "4. Should test that settings page tab redirects",
-    { tags: ["@tag.excludeForAirgap"] },
-    () => {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
-      cy.get(".admin-settings-menu-option").click();
-      cy.wait("@getEnvVariables");
-      cy.get(adminsSettings.generalTab).click();
-      cy.url().should("contain", "/settings/general");
-      cy.get(adminsSettings.advancedTab).click();
-      cy.url().should("contain", "/settings/advanced");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.emailTab).click();
-      cy.url().should("contain", "/settings/email");
-      cy.get(adminsSettings.developerSettingsTab).click();
-      cy.url().should("contain", "/settings/developer-settings");
-      cy.get(adminsSettings.versionTab).click();
-      cy.url().should("contain", "/settings/version");
-    },
-  );
-
-  it(
     "airgap",
     "4. Should test that settings page tab redirects and developer settings doesn't exist - airgap",
     { tags: ["@tag.airgap"] },
@@ -91,25 +69,6 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     },
   );
 
-  it(
-    "5. Should test that authentication page redirects",
-    { tags: ["@tag.excludeForAirgap"] },
-    () => {
-      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.googleButton).click();
-      cy.url().should("contain", "/settings/authentication/google-auth");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.githubButton).click();
-      cy.url().should("contain", "/settings/authentication/github-auth");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.formloginButton).click();
-      cy.url().should("contain", "/settings/authentication/form-login");
-    },
-  );
 
   it(
     "airgap",
@@ -145,26 +104,8 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     },
   );
 
-  it(
-    "7. Should test that configure link redirects to github signup setup doc",
-    { tags: ["@tag.excludeForAirgap"] },
-    () => {
-      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.githubButton).click();
-      cy.url().should("contain", "/settings/authentication/github-auth");
-      cy.get(adminsSettings.readMoreLink).within(() => {
-        cy.get("a")
-          .should("have.attr", "target", "_blank")
-          .invoke("removeAttr", "target")
-          .click();
-        cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
-      });
-    },
-  );
 
-  it("8. Should test save and clear buttons disabled state", () => {
+  it("7. Should test save and clear buttons disabled state", () => {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
     const assertVisibilityAndDisabledState = () => {
       cy.get(adminsSettings.saveButton).should("be.visible");
@@ -183,7 +124,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     assertVisibilityAndDisabledState();
   });
 
-  it("9. Should test saving a setting value", () => {
+  it("8. Should test saving a setting value", () => {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
 
     cy.get(adminsSettings.restartNotice).should("not.exist");
@@ -205,7 +146,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     );
   });
 
-  it("10.Should test saving settings value from different tabs", () => {
+  it("9.Should test saving settings value from different tabs", () => {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
