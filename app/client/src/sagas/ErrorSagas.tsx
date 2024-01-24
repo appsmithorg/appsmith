@@ -265,6 +265,22 @@ function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
   if (action.payload) log.error(action.payload.error, action);
 }
 
+export function embedRedirectURL() {
+  const queryParams = new URLSearchParams(window.location.search);
+  const ssoTriggerQueryParam = queryParams.get("ssoTrigger");
+  const ssoLoginUrl = ssoTriggerQueryParam
+    ? getLoginUrl(ssoTriggerQueryParam || "")
+    : null;
+  if (ssoLoginUrl) {
+    window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
+      window.location.href,
+    )}`;
+  } else {
+    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+      window.location.href,
+    )}`;
+  }
+}
 /**
  * this saga do some logic before actually setting safeCrash to true
  */
@@ -278,21 +294,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: ERROR_CODES }>) {
     get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
-    const queryParams = new URLSearchParams(window.location.search);
-    const ssoTriggerQueryParam = queryParams.get("ssoTrigger");
-    const ssoLoginUrl = ssoTriggerQueryParam
-      ? getLoginUrl(ssoTriggerQueryParam || "")
-      : null;
-    if (ssoLoginUrl) {
-      window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
-        window.location.href,
-      )}`;
-    } else {
-      window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
-        window.location.href,
-      )}`;
-    }
-
+    embedRedirectURL();
     return false;
   }
 
