@@ -185,7 +185,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       // has changed after the layout element positions have been computed
       // In the case of layout element positions being recomputed, the actual widget name data
       // will be different from the widget name data we have right now.
-      if (selectedWidgetNameData?.length === 0 && !shouldAllowDrag) {
+      if (selectedWidgetNameData?.length === 0) {
         resetCanvas(widgetNamePositions, stageRef, true);
       } else {
         updateFn();
