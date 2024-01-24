@@ -53,6 +53,7 @@ import { CUSTOMER_PORTAL_PLANS_URL } from "@appsmith/constants/BillingConstants"
 import ShowLicenceModal from "./Modals/ShowLicenseModal";
 import RemoveLicenseModal from "./Modals/RemoveLicenseModal";
 import DowngradeModal from "./Modals/DowngradeModal";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
@@ -85,6 +86,7 @@ export function BillingPagePaid() {
   const isDowngradeModalOpen = useSelector(isDowngradeLicenseModalOpen);
   const licenseRefreshing = useSelector(isLicenseRefreshing);
   const isTrial = useSelector(isTrialLicense);
+  const isAirgappedInstance = isAirgapped();
   const dispatch = useDispatch();
 
   const [actualLicenseKey, setActualLicenseKey] = useState("");
@@ -218,14 +220,16 @@ export function BillingPagePaid() {
             >
               {createMessage(UPDATE)}
             </Button>
-            <Button
-              className="update-license-btn"
-              kind="error"
-              onClick={() => dispatch(showRemoveLicenseModal(true))}
-              size="md"
-            >
-              {createMessage(REMOVE)}
-            </Button>
+            {!isAirgappedInstance && (
+              <Button
+                className="update-license-btn"
+                kind="error"
+                onClick={() => dispatch(showRemoveLicenseModal(true))}
+                size="md"
+              >
+                {createMessage(REMOVE)}
+              </Button>
+            )}
           </div>
         </div>
       }
