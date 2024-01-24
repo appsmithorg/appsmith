@@ -23,6 +23,13 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-tracing-bom</artifactId>
+                <version>1.2.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>io.mongock</groupId>
                 <artifactId>mongock-bom</artifactId>
                 <version>5.1.7</version>
@@ -76,6 +83,16 @@
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-micrometer-1.5</artifactId>
             <version>2.0.0-alpha</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+            <version>1.2.2</version>
         </dependency>
 
         <!--
@@ -244,6 +261,7 @@
             <artifactId>micrometer-tracing-bridge-brave</artifactId>
             <version>1.0.0</version>
         </dependency>
+
         <dependency>
             <groupId>io.zipkin.reporter2</groupId>
             <artifactId>zipkin-reporter-brave</artifactId>
