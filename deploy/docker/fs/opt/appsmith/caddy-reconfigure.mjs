@@ -147,10 +147,6 @@ if (CUSTOM_DOMAIN !== "") {
 
   // We have to own the http-to-https redirect, since we need to remove the `Server` header from the response.
   parts.push(`
-  https:// {
-    import all-config
-    ${tlsConfig}
-  }
   http://${CUSTOM_DOMAIN} {
     redir https://{host}{uri}
     header -Server
