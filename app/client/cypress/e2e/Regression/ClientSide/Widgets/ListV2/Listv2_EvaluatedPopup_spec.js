@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 describe(
   "List widget v2 Evaluated Popup",
   { tags: ["@tag.Widget", "@tag.List"] },
@@ -7,6 +11,7 @@ describe(
         x: 300,
         y: 300,
       });
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
       [["{{null}}", "[]"]].forEach(([input, expected]) => {
         cy.updateCodeInput(".t--property-control-items", input);
         cy.wait(500);

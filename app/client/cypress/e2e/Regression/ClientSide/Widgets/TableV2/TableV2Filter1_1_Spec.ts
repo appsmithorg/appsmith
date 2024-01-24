@@ -7,6 +7,9 @@ import {
   locators,
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Verify various Table_Filter combinations",
@@ -14,6 +17,7 @@ describe(
   function () {
     it("1. Adding Data to Table Widget", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       //propPane.EnterJSContext("Table data", JSON.stringify(this.dataSet.TableInput));
       table.AddSampleTableData();
       //propPane.EnterJSContext("Table Data", JSON.stringify(this.dataSet.TableInput));

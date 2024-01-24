@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
@@ -14,6 +18,7 @@ describe(
     it("1. Single-line text with different heights i.e. Auto height and Fixed", () => {
       const textMsg = "Dynamic panel validation for input widget wrt height";
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       //verify fixed height is selected
       cy.get(commonlocators.generalSectionHeight)
         .scrollIntoView()

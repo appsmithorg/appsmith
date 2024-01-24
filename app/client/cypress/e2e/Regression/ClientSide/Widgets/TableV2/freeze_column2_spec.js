@@ -1,4 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Column freeze & unfreeze in page mode",
@@ -6,6 +9,7 @@ describe(
   () => {
     before(() => {
       cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.table.AddSampleTableData();
       _.deployMode.DeployApp();
     });

@@ -5,10 +5,14 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Select Widget", { tags: ["@tag.Widget", "@tag.Multiselect"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MULTISELECT);
+    EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
   });
 
   it("1. Test RTL support", () => {

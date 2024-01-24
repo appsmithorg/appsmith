@@ -27,6 +27,7 @@ describe(
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.EnterJSContext("Table data", JSON.stringify(data));
       assertHelper.AssertNetworkStatus("@updateLayout");
     });

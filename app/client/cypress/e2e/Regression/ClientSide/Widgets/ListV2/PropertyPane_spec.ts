@@ -16,6 +16,7 @@ describe(
   () => {
     it("1. Validate isVisible", () => {
       entityExplorer.DragDropWidgetNVerify("listwidgetv2", 300, 300);
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
       propPane.TogglePropertyState("Visible", "Off");
       deployMode.DeployApp();
       agHelper.AssertElementAbsence(

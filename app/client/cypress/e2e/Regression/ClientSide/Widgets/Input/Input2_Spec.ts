@@ -35,6 +35,7 @@ describe(
     });
 
     it("1. Data Type - Single Line Text", function () {
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.AssertPropertiesDropDownCurrentValue(
         "Data type",
         "Single-line text",

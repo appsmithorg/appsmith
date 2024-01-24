@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 import {
@@ -13,6 +17,7 @@ describe(
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.VIDEO);
+      EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     });
 
     it("1. Video Widget play functionality validation", function () {

@@ -1,4 +1,5 @@
-import {
+import EditorNavigation, {
+  EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -18,6 +19,7 @@ describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
     );
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 300 });
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     _.propPane.EnterJSContext("Table data", jsContext);
     _.deployMode.DeployApp();
     cy.wait(5000);

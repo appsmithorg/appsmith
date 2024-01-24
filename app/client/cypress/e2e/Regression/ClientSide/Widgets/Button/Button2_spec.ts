@@ -29,6 +29,7 @@ describe(
 
     it("1. On Click Button - execute a query ", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       const codeToSet = `export default {
         async run() {
         const res = await Api1.run();
@@ -58,6 +59,7 @@ describe(
     it("2. Checking form settings - enabled & disabled", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.SelectPropertiesDropDown("Data type", "Email");
       agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
       // assert submit button us disabled
@@ -106,6 +108,7 @@ describe(
     it("3. Checking on click", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
+      EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
       propPane.SelectPropertiesDropDown("Data type", "Email");
       propPane.UpdatePropertyFieldValue(
         "Default value",
@@ -142,6 +145,7 @@ describe(
     it("4. Checking reset on success - enabled and disabled", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
+      EditorNavigation.SelectEntityByName("Input3", EntityType.Widget);
       propPane.SelectPropertiesDropDown("Data type", "Email");
       propPane.UpdatePropertyFieldValue(
         "Default value",

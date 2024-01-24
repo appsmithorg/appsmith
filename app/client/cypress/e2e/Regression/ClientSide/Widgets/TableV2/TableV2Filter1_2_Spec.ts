@@ -8,6 +8,9 @@ import {
   draggableWidgets,
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Verify various Table_Filter combinations",
@@ -15,6 +18,7 @@ describe(
   function () {
     it("1. Verify Table Filter for 'empty'", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       table.AddSampleTableData();
       propPane.UpdatePropertyFieldValue(
         "Table data",

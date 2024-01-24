@@ -7,6 +7,9 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 
 import testdata from "../../../../../fixtures/testdata.json";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Iframe widget Tests",
@@ -14,6 +17,7 @@ describe(
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("iframewidget", 550, 100);
+      EditorNavigation.SelectEntityByName("Iframe1", EntityType.Widget);
     });
 
     const srcDoc = `<!DOCTYPE html>

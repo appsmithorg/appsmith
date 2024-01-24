@@ -18,6 +18,7 @@ describe("Statbox spec", { tags: ["@tag.Widget", "@tag.Statbox"] }, () => {
      * On the canvas we have a Statbox Widget
      */
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.STATBOX, 329, 124);
+    EditorNavigation.SelectEntityByName("Statbox1", EntityType.Widget);
   });
 
   it("1. Validate all the respective properties are present on the Content and Style sections in the property pane", () => {

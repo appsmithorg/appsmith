@@ -12,6 +12,9 @@ import {
   fakerHelper,
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const widgetsToTest = {
   [draggableWidgets.INPUT_V2]: {
@@ -98,6 +101,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         }
         entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 200);
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 400, 400);
+        EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
         //entityExplorer.SelectEntityByName(draggableWidgets.BUTTONNAME("1"));
         // Set onClick action, storing value
         propPane.EnterJSContext(
@@ -106,6 +110,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         );
 
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 300);
+        EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
         //entityExplorer.SelectEntityByName(draggableWidgets.TEXTNAME("1"));
         // Display the bound store value
         propPane.UpdatePropertyFieldValue(

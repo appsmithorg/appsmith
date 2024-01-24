@@ -1,8 +1,8 @@
-import {
-  getWidgetSelector,
-  PROPERTY_SELECTOR,
-} from "../../../../../locators/WidgetLocators";
+import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -13,8 +13,10 @@ describe(
   () => {
     before(() => {
       cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.table.AddSampleTableData();
       cy.dragAndDropToCanvas(_.draggableWidgets.TEXT, { x: 200, y: 600 });
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       _.propPane.UpdatePropertyFieldValue(
         "Text",
         `{{JSON.stringify({

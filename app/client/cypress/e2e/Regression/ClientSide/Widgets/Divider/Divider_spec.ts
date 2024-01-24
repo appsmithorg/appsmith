@@ -20,6 +20,7 @@ describe(
     });
 
     it("1. Divider widget Visiblity property verification", () => {
+      EditorNavigation.SelectEntityByName("Divider1", EntityType.Widget);
       propPane.TogglePropertyState("Visible", "Off");
       // verify in deploy mode
       deployMode.DeployApp();

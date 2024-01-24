@@ -23,6 +23,7 @@ describe(
 
     it("1. Verify properties in Always scan mode", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CODESCANNER);
+      EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
       agHelper.AssertAttribute(
         propPane._mode("Always on"),
         "data-selected",

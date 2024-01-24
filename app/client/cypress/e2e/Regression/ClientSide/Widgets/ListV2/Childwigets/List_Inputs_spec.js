@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../../support/Pages/EditorNavigation";
+
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const dslWithCurrencyWidget = require("../../../../../../fixtures/Listv2/simpleListWithCurrencyWidget.json");
 import {
@@ -31,6 +35,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
       200,
       100,
     );
+    EditorNavigation.SelectEntityByName("CurrencyInput1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "{{currentItem.id}}");
     propPane.TogglePropertyState("Required", "On");
 

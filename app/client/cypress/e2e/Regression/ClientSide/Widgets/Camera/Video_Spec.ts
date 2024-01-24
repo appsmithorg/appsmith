@@ -23,6 +23,7 @@ describe(
 
     it("1. Verify Visible property of video mode in camera widget", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CAMERA);
+      EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
       agHelper.AssertAttribute(
         propPane._mode("Image"),
         "data-selected",

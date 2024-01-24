@@ -4,9 +4,11 @@ import {
   agHelper,
   draggableWidgets,
   deployMode,
-  table,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Modal Widget background color spec",
@@ -21,6 +23,7 @@ describe(
     before(() => {
       // Add a JSON form widget and change field type of one of the fields
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 300, 100);
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       propPane.EnterJSContext(
         "sourcedata",
         JSON.stringify(schema),

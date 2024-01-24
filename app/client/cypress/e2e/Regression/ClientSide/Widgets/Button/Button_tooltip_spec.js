@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -17,6 +21,7 @@ describe(
 
     it("1. Validate show/hide tooltip feature on normal button", function () {
       // Add tooltip
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.UpdatePropertyFieldValue(
         "Tooltip",
         "Lorem Ipsum is simply dummy text of the printing and typesetting industry",

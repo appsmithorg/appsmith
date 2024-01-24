@@ -17,6 +17,7 @@ describe(
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     });
 
     it("1. Validate Required field", function () {

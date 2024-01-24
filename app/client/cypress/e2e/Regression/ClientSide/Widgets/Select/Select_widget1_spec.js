@@ -1,4 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const defaultValue = `
         {
@@ -20,6 +23,7 @@ describe(
     it("Add new Select widget", () => {
       cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
       cy.get(".t--widget-selectwidget").should("exist");
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
       _.propPane.ToggleJSMode("sourcedata");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",

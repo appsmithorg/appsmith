@@ -25,6 +25,7 @@ describe(
 
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);
+      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
     });
 
     it("1. Verify Image Preview for different types of images (png, jpg, gif, svg, webp)", function () {

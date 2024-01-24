@@ -5,6 +5,9 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Select Widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
   before(() => {
@@ -21,7 +24,7 @@ describe("Select Widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
     });
 
     agHelper.Sleep(2000);
-
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     agHelper.AssertElementExist(".t--property-control-enablertl");
 
     propPane.TogglePropertyState("Enable RTL", "On");

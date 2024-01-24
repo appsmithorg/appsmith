@@ -1,4 +1,5 @@
-import {
+import EditorNavigation, {
+  EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../../support/Pages/EditorNavigation";
@@ -12,6 +13,7 @@ describe(
   () => {
     before(() => {
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.table.AddSampleTableData();
     });
 

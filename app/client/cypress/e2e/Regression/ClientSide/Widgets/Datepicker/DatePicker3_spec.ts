@@ -20,6 +20,7 @@ describe(
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.DATEPICKER);
+      EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     });
 
     afterEach(() => {

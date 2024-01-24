@@ -24,6 +24,7 @@ describe(
 
     it("1. Check camera intialization & modes", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CAMERA);
+      EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
       agHelper.AssertAttribute(
         propPane._mode("Image"),
         "data-selected",

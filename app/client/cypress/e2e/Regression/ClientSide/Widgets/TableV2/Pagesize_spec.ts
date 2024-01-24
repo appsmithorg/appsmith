@@ -1,6 +1,9 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import PageList from "../../../../../support/Pages/PageList";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Table widget v2",
@@ -9,6 +12,7 @@ describe(
     it("1. should test that pageSize is computed properly for all the row sizes", function () {
       PageList.AddNewPage();
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 300, 100);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.pageSize}}");
       _.entityExplorer.DragDropWidgetNVerify(
         _.draggableWidgets.TABLE,

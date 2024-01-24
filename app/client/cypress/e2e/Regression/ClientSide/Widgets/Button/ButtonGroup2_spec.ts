@@ -19,6 +19,7 @@ describe(
   function () {
     before("Login to the app and navigate to the workspace", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON_GROUP);
+      EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     });
 
     it("1. Add, Delete more buttons to the group and verify", function () {

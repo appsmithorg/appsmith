@@ -1,4 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
@@ -19,6 +22,7 @@ describe(
         200,
       );
       _.agHelper.AssertElementExist(".t--widget-multiselectwidgetv2");
+      EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
 
       _.propPane.ToggleJSMode("sourcedata");
 

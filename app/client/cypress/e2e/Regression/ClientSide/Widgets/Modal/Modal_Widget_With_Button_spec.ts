@@ -1,4 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Modal Widget with auto-layout usecases",
@@ -25,6 +28,7 @@ describe(
       );
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 20, 30);
       _.agHelper.AssertElementAbsence(_.locators._modal);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.CreateModal("onClick");
       _.agHelper.GetNClick(_.locators._closeModal, 0, true, 0);
       _.agHelper.AssertElementExist(

@@ -18,6 +18,7 @@ describe(
 
     it("1. Verify default table row Data", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+      EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
       table.AddSampleTableData();
       EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
 

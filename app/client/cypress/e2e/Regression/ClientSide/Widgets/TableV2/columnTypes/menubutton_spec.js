@@ -1,4 +1,7 @@
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Custom column alias functionality",
@@ -6,6 +9,7 @@ describe(
   () => {
     before(() => {
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 150, y: 300 });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.table.AddSampleTableData();
     });
 

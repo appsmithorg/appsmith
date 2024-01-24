@@ -7,6 +7,9 @@ import {
   table,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const readTableLocalColumnOrder = (columnOrderKey: string) => {
   const localColumnOrder = window.localStorage.getItem(columnOrderKey) || "";
@@ -112,12 +115,14 @@ describe(
 
     it("1. should test that the number of columns needs to be same when table data changes in depoyed app", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.EnterJSContext(
         "Table data",
         `{{appsmith.store.test === '0' ? ${TABLE_DATA_1} : ${TABLE_DATA_2}}}`,
       );
 
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 500, 500);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Label", "Set table data 1");
       propPane.SelectPlatformFunction("onClick", "Store value");
       agHelper.EnterActionValue("Key", "test");
@@ -129,6 +134,7 @@ describe(
       agHelper.EnterActionValue("Message", "table data 1 set");
 
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 500, 600);
+      EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Label", "Set table data 2");
       propPane.SelectPlatformFunction("onClick", "Store value");
       agHelper.EnterActionValue("Key", "test");

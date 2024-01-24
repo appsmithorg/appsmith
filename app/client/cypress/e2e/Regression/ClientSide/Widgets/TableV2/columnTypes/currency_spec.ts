@@ -1,4 +1,7 @@
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../../support/Pages/EditorNavigation";
 
 const tableData = `{{[
   {
@@ -16,12 +19,14 @@ function updateCellValue(value) {
 describe("Currency column", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 300, 400);
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
       `{{Table1.editableCell.value}}|{{Table1.editableCell.inputValue}}|{{typeof Table1.editableCell.value}}|{{typeof Table1.editableCell.inputValue}}`,
     );
 
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     _.propPane.EnterJSContext("Table data", tableData);
     cy.makeColumnEditable("amount");
   });

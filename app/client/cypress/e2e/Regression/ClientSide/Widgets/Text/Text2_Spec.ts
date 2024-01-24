@@ -26,6 +26,7 @@ describe(
         "be.visible",
         locators._widgetInCanvas(draggableWidgets.TEXT),
       );
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.ValidatePropertyFieldValue(
         "Text",
         "Hello {{appsmith.user.name || appsmith.user.email}}",

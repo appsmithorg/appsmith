@@ -8,9 +8,10 @@ import {
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import {
+import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
+  EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -41,6 +42,7 @@ describe(
         PageList.AddNewPage();
       }
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.NavigateToPage("Page1", "onClick");
       deployMode.DeployApp();
       agHelper.WaitUntilEleAppear(locators._buttonByText("Submit"));

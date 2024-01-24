@@ -7,13 +7,18 @@ import {
   locators,
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Reset widget action", { tags: ["@tag.Widget"] }, () => {
   it("Reset widget to default after setValue has been applied", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "John");
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", `{{Input1.setValue('Hello!')}}`);
     propPane.UpdatePropertyFieldValue("Label", "Set value");
 
@@ -55,11 +60,11 @@ describe("Reset widget action", { tags: ["@tag.Widget"] }, () => {
     const JS_OBJECT_BODY = `export default {
       async resetInputWithoutAwait () {
          resetWidget('Input1')
-         showAlert(Input1.text)	
+         showAlert(Input1.text)
       },
       async resetInputWithAwait () {
       await resetWidget('Input1')
-      showAlert(Input1.text)	
+      showAlert(Input1.text)
       }
     }`;
 

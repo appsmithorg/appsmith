@@ -10,6 +10,7 @@ describe(
   () => {
     it("1. Collapsed field navigation", () => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.AUDIO);
+      EditorNavigation.SelectEntityByName("Audio1", EntityType.Widget);
       _.propPane.EnterJSContext("animateloading", "{{test}}", true, false);
       _.debuggerHelper.AssertErrorCount(1);
       _.propPane.ToggleSection("general");
@@ -24,6 +25,7 @@ describe(
 
     it("2. Navigation to a nested panel", () => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB);
+      EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
       _.propPane.OpenTableColumnSettings("tab2");
       _.propPane.EnterJSContext("visible", "{{test}}", true, false);
       _.debuggerHelper.AssertErrorCount(1);
@@ -39,6 +41,7 @@ describe(
 
     it("3. Navigation to style tab in a nested panel", () => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON_GROUP);
+      EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
       _.propPane.OpenTableColumnSettings("groupButton2");
       _.agHelper.GetNClick(_.propPane._segmentedControl("MENU"));
       _.agHelper.GetNClick(_.propPane._addMenuItem);
@@ -59,6 +62,7 @@ describe(
 
     it("4. Collapsed field navigation for a nested panel", () => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MENUBUTTON);
+      EditorNavigation.SelectEntityByName("MenuButton1", EntityType.Widget);
       _.propPane.OpenTableColumnSettings("menuItem2");
       _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
       _.propPane.ToggleSection("general");
@@ -81,6 +85,7 @@ describe(
         employee_id: 1001,
       };
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.JSONFORM);
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       _.propPane.EnterJSContext(
         "sourcedata",
         JSON.stringify(schema),
@@ -123,6 +128,7 @@ describe(
     it("6. Should switch panels correctly", () => {
       _.agHelper.RefreshPage();
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MENUBUTTON);
+      EditorNavigation.SelectEntityByName("MenuButton1", EntityType.Widget);
       _.propPane.OpenTableColumnSettings("menuItem1");
 
       _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
@@ -144,6 +150,7 @@ describe(
     it("7. Table widget validation regex", () => {
       _.agHelper.RefreshPage();
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.agHelper.GetNClick(OneClickBindingLocator.datasourceDropdownSelector);
       _.agHelper.GetNClick(
         OneClickBindingLocator.datasourceSelector("sample Movies"),

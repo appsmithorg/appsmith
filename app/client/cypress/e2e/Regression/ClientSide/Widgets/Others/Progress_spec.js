@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgets = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
@@ -16,6 +20,7 @@ describe(
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.PROGRESS);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 200);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Text", "");
     });
 

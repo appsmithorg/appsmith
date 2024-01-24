@@ -111,6 +111,7 @@ describe(
     it("6. should check if updatedRowIndex is getting updated for single row update mode", () => {
       cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
       cy.get(".t--widget-textwidget").should("exist");
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{Table1.updatedRowIndex}}`,
@@ -160,6 +161,7 @@ describe(
 
     it("7. should check if updatedRowIndex is getting updated for multi row update mode", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 400, 400);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       cy.get(".t--widget-textwidget").should("exist");
       cy.updateCodeInput(
         ".t--property-control-text",
@@ -167,6 +169,7 @@ describe(
       );
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
       cy.get(".t--widget-buttonwidget").should("exist");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
       cy.updateCodeInput(".t--property-control-label", "Reset");
       cy.updateCodeInput(

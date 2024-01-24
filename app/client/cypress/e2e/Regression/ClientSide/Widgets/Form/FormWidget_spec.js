@@ -1,6 +1,5 @@
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -35,7 +34,6 @@ describe(
         y: 100,
       });
       cy.wait(500);
-      PageLeftPane.switchToAddNew();
       cy.dragAndDropToWidget("inputwidgetv2", "formwidget", { x: 50, y: 200 });
       cy.wait(500);
       cy.get(formWidgetsPage.multiselectwidgetv2).should("be.visible");

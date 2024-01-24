@@ -18,6 +18,7 @@ describe(
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT);
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     });
 
     it("1. Validate Label properties - Text , Position , Alignment , Width(in columns)", function () {
@@ -93,6 +94,7 @@ describe(
       propPane.UpdatePropertyFieldValue("Tooltip", "{{Input1.text}}");
       propPane.UpdatePropertyFieldValue("Placeholder", "{{Input1.text}}");
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 300, 200);
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2),
       );

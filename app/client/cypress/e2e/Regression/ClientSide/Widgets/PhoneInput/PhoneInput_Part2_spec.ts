@@ -151,6 +151,7 @@ describe(
 
     it("3. Verify tooltip", () => {
       entityExplorer.DragDropWidgetNVerify("textwidget", 550, 300);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Text", "1000");
       EditorNavigation.SelectEntityByName("NewPhoneInput", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Tooltip", "{{Text1.text}}");

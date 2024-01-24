@@ -4,6 +4,9 @@ import {
   entityExplorer,
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Chart renders widget errors",
@@ -11,6 +14,7 @@ describe(
   () => {
     it("1. If there are syntax errors, the errors are displayed inside the chart widget", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHART);
+      EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
 
       agHelper.AssertContains(
         "Sales Report",

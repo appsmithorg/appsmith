@@ -38,6 +38,7 @@ describe(
         500,
       );
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 700);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Text",
         "{{SwitchGroup1.selectedValues[0]}}",

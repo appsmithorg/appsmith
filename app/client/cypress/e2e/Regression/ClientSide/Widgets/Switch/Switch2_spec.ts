@@ -32,6 +32,7 @@ describe(
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SWITCH);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 500, 200);
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
       propPane.ToggleJSMode("Source Data", true);
       propPane.UpdatePropertyFieldValue("Source Data", jsonData);
       propPane.UpdatePropertyFieldValue("Default selected value", "no");

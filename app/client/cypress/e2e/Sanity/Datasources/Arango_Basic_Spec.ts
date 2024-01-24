@@ -142,6 +142,7 @@ describe(
 
     it("2. Run Select, Create, Update, Delete & few more queries on the created collection + Widget Binding", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Default value", "Brazil");
       //Create a select query
       dataSources.createQueryWithDatasourceSchemaTemplate(
@@ -310,6 +311,7 @@ describe(
     it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
       agHelper.RefreshPage();
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.AssertPropertiesDropDownCurrentValue(
         "Table data",
         "Connect data",

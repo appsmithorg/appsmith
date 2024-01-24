@@ -33,6 +33,7 @@ describe(
         release_table_serverside_filtering_enabled: true,
       });
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 300);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       // Create SQL data-source
       agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
@@ -133,6 +134,7 @@ describe(
         release_table_serverside_filtering_enabled: false,
       });
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 700, 300);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     });
 
     it("1. should test that server side filtering option and dtable.filters autocomplete should not be visible", () => {

@@ -37,6 +37,7 @@ describe(
         },
       );
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.RADIO_GROUP);
+      EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
       propPane.EnterJSContext("Options", "{{JSObject1.myFun1()}}");
 
       deployMode.DeployApp(

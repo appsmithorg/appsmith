@@ -15,6 +15,7 @@ describe(
   function () {
     it("Validate select widget data - source data , label key , value key, default selected value ", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
       agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
         expect($selectedValue).to.eq("Green");
       });

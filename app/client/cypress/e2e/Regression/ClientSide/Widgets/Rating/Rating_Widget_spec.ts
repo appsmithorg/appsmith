@@ -7,8 +7,10 @@ import {
   entityExplorer,
   deployMode,
   propPane,
-  locators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Rating widet testcases",
@@ -21,6 +23,7 @@ describe(
     it("1. Validate Max rating and Default rating", () => {
       agHelper.AssertElementLength(RATING_WIDGET.star_icon, 10);
       // assert error on decimal value in max rating
+      EditorNavigation.SelectEntityByName("Rating1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Max rating", "1.5");
       agHelper.VerifyEvaluatedErrorMessage(
         "Value should be a positive integer",

@@ -1,16 +1,15 @@
-const explorer = require("../../../../../locators/explorerlocators.json");
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 const { modifierKey } = require("../../../../../support/Constants");
 
 import { draggableWidgets } from "../../../../../support/Objects/ObjectsCore";
 import {
   entityExplorer,
   agHelper,
-  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
-
-import { PropertyPane } from "../../../../../support/Pages/PropertyPane";
 
 const firstButton = ".t--buttongroup-widget > div > button > div";
 const menuButton =
@@ -29,6 +28,7 @@ describe(
     });
 
     it("ButtonGroup Widget Functionality on undo after delete", function () {
+      EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
       // Delete the first Button
       cy.get(".t--property-control-buttons .t--delete-column-btn").eq(0).click({
         force: true,

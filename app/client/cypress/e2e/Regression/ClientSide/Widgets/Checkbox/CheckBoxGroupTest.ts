@@ -186,6 +186,7 @@ describe(
 
     it("5. Verify tooltip", () => {
       entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 550, 300);
+      EditorNavigation.SelectEntityByName("CurrencyInput1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Default value", "1000");
       EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
@@ -320,6 +321,7 @@ describe(
         '[{"label":"Blue","value":"BLUE"},{"label":"Green","value":"GREEN"},{"label":"Red","value":"RED"}]';
 
       entityExplorer.DragDropWidgetNVerify("textwidget", 550, 500);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.isVisible}}");
       agHelper.GetNAssertContains(
         locators._widgetInDeployed("textwidget"),

@@ -89,6 +89,7 @@ describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
   it("4. When modal is open, it should paste inside the modal", () => {
     //add modal widget
     cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 700 });
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     cy.get(".t--modal-widget").should("exist");
 
     //paste
@@ -121,6 +122,7 @@ describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
     //add list widget
     PageLeftPane.switchToAddNew();
     cy.dragAndDropToCanvas("listwidgetv2", { x: 500, y: 700 });
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 
     //copy

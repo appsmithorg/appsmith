@@ -30,6 +30,7 @@ describe(
     before(() => {
       entityExplorer.DragDropWidgetNVerify("filepickerwidgetv2", 400, 900);
       entityExplorer.DragDropWidgetNVerify("documentviewerwidget", 300, 300);
+      EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
       agHelper.AssertElementVisibility(
         propPane._propertyPanePropertyControl("data", "documentlink"),
       );

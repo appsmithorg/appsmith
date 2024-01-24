@@ -1,4 +1,3 @@
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -12,6 +11,7 @@ describe(
     it("1. 3D EChart Custom Chart Widget Functionality", function () {
       _.agHelper.RefreshPage();
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.CHART);
+      EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
 
       _.propPane.SelectPropertiesDropDown("Chart type", "Custom EChart");
 

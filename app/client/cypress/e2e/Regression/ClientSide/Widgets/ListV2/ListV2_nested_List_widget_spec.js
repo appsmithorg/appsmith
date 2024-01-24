@@ -6,7 +6,6 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   assertHelper,
-  entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -96,6 +95,7 @@ describe(
           y: 100,
         },
       );
+      EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
       propPane.TypeTextIntoField("Text", "{{level_1.currentView.");
 
       checkAutosuggestion("Text1", "Object");

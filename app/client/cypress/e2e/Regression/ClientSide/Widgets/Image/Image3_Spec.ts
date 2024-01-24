@@ -18,6 +18,7 @@ describe(
     const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);
+      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Image", jpgImg);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     });

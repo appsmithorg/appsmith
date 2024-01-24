@@ -201,6 +201,7 @@ describe(
           expect(val).to.include("monday").and.to.include("weekday");
         });
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.EnterJSContext("onClick", "{{JSObject1.myFun1()}}"); // By action selector
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
       jsEditor.EditJSObj(`export default {

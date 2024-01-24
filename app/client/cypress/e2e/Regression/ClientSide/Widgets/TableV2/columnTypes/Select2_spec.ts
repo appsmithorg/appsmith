@@ -5,6 +5,9 @@ import {
   draggableWidgets,
   table,
 } from "../../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Table widget v2: select column type test",
@@ -12,6 +15,7 @@ describe(
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       table.AddSampleTableData();
     });
     it("1. should test that select column dropdown has no results found string when select option is {{null}} ", function () {

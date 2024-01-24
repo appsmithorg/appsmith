@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../../support/Pages/EditorNavigation";
+
 const publishPage = require("../../../../../../locators/publishWidgetspage.json");
 const commonLocators = require("../../../../../../locators/commonlocators.json");
 import widgetsJson from "../../../../../../locators/Widgets.json";
@@ -40,6 +44,7 @@ describe(
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.EnterJSContext("Table data", tableData);
       cy.editColumn("completed");
       cy.changeColumnType("Switch");

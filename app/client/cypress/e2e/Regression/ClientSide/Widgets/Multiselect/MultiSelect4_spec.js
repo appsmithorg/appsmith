@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -20,6 +24,7 @@ describe(
     });
     it("1. Add new multiselect widget", () => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MULTISELECT);
+      EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
       _.propPane.ToggleJSMode("sourcedata");
       _.propPane.UpdatePropertyFieldValue(
         "Source Data",

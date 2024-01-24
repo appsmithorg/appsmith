@@ -39,6 +39,7 @@ const widgetsToTest: Record<
       selectTableAndReset();
     },
     setupWidget: () => {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.table.AddSampleTableData();
     },
   },

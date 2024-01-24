@@ -157,6 +157,7 @@ describe(
 
     it("3. Verify Default value", () => {
       entityExplorer.DragDropWidgetNVerify("textwidget", 550, 300);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Text", "1000");
       EditorNavigation.SelectEntityByName(
         "NewCurrencyInput",

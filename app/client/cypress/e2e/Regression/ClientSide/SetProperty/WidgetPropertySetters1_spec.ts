@@ -131,13 +131,14 @@ Object.values(setterMethodsToTest).forEach(
         });
         it(`1. DragDrop Label/Text widgets and Verify the updated value`, () => {
           entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 500, 100);
-
+          EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
           propPane.EnterJSContext(
             PROPERTY_SELECTOR.onClickFieldName,
             actionBinding,
           );
 
           entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 500, 300);
+          EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
 
           propPane.UpdatePropertyFieldValue(
             PROPERTY_SELECTOR.TextFieldName,

@@ -94,6 +94,7 @@ describe(
       );
       // Binding with Text widget
       entityExplorer.DragDropWidgetNVerify("textwidget", 550, 500);
+      EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Text", "Select value");
       EditorNavigation.SelectEntityByName(
         "TreeSelect1",

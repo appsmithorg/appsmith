@@ -1,10 +1,10 @@
 import {
   agHelper,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  deployMode,
-  propPane,
   locators,
+  propPane,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
@@ -21,6 +21,7 @@ describe(
         200,
         200,
       );
+      EditorNavigation.SelectEntityByName("AudioRecorder1", EntityType.Widget);
     });
 
     it("1. Verify properties and sub events are present and js convertible", () => {

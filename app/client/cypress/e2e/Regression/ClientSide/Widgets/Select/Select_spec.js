@@ -2,6 +2,8 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+const EditorNavigation = require("../../../../../support/Pages/EditorNavigation");
+const { EntityType } = require("../../../../../support/Pages/EditorNavigation");
 
 describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
   it("1. Drag and drop Select/Text widgets", () => {
@@ -11,6 +13,7 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
 
   it("2. Check isDirty meta property", () => {
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     cy.updateCodeInput(".t--property-control-text", `{{Select1.isDirty}}`);
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");

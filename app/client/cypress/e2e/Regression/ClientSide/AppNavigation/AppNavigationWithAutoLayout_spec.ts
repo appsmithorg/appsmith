@@ -22,6 +22,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 200);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 10, 20);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 10, 20);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.NavigateToPage("Page1", "onClick");
     });
 
