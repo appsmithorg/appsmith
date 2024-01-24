@@ -1807,7 +1807,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   cy.get(labelAlignmentRightSelector).click();
   // Assert label alignment
   cy.get(labelSelector).first().should("have.css", "text-align", "right");
-  
+
   // Clean up the widget
   cy.deleteWidget(widgetSelector);
 });
