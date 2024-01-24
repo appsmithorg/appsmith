@@ -692,7 +692,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
                         byte[] body = stringResponseEntity.getBody();
 
-                        if (body != null && MediaType.APPLICATION_JSON.equals(contentType)) {
+                        if (body != null && MediaType.APPLICATION_JSON.equalsTypeAndSubtype(contentType)) {
                             String jsonBody = new String(body);
                             try {
                                 TypeReference<Map<String, Object>> tr = new TypeReference<>() {};
