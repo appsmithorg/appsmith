@@ -4,6 +4,7 @@ import LayoutElementPositionsSaga from "./LayoutElementPositionsSaga";
 import anvilSectionSagas from "./sectionSagas";
 import anvilSpaceDistributionSagas from "./anvilSpaceDistributionSagas";
 import anvilWidgetSelectionSaga from "./anvilWidgetSelectionSaga";
+import pasteSagas from "./pasteSagas";
 
 export default function* anvilSagas() {
   yield fork(LayoutElementPositionsSaga);
@@ -11,4 +12,5 @@ export default function* anvilSagas() {
   yield fork(anvilSectionSagas);
   yield fork(anvilSpaceDistributionSagas);
   yield fork(anvilWidgetSelectionSaga);
+  yield fork(pasteSagas);
 }

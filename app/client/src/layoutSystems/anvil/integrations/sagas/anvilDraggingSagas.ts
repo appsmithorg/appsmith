@@ -303,36 +303,24 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
       highlight,
       movedWidgets,
     } = actionPayload.payload;
-    const isMainCanvas = draggedOn === "MAIN_CANVAS";
-    const isSection = draggedOn === "SECTION";
-    const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const parentWidgetWithLayout = allWidgets[highlight.canvasId];
-    let updatedWidgets: CanvasWidgetsReduxState = allWidgets;
+    const isMainCanvas =
+      draggedOn === "MAIN_CANVAS" || !!parentWidgetWithLayout.detachFromLayout;
+    const isSection = draggedOn === "SECTION";
+    const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
 
-    if (isMainCanvas || parentWidgetWithLayout.detachFromLayout) {
-      /**
-       * * Widgets are dropped on to Main Canvas.
-       */
-      updatedWidgets = yield call(
-        moveWidgetsToMainCanvas,
-        allWidgets,
-        movedWidgetIds,
-        highlight,
-      );
-    } else if (isSection) {
-      /**
-       * Widget are dropped into a Section.
-       */
-      updatedWidgets = yield call(
-        moveWidgetsToSection,
-        allWidgets,
-        movedWidgetIds,
-        highlight,
-      );
-    } else {
-      updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
-    }
+    const updatedWidgets: CanvasWidgetsReduxState = yield call<
+      typeof handleWidgetMovement
+    >(
+      handleWidgetMovement,
+      allWidgets,
+      movedWidgetIds,
+      highlight,
+      isMainCanvas,
+      isSection,
+    );
+
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
     log.debug("Anvil : moving widgets took", performance.now() - start, "ms");
   } catch (error) {
@@ -344,6 +332,40 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
       },
     });
   }
+}
+
+export function* handleWidgetMovement(
+  allWidgets: CanvasWidgetsReduxState,
+  movedWidgetIds: string[],
+  highlight: AnvilHighlightInfo,
+  isMainCanvas: boolean,
+  isSection: boolean,
+) {
+  let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+  if (isMainCanvas) {
+    /**
+     * * Widgets are dropped on to Main Canvas.
+     */
+    updatedWidgets = yield call(
+      moveWidgetsToMainCanvas,
+      allWidgets,
+      movedWidgetIds,
+      highlight,
+    );
+  } else if (isSection) {
+    /**
+     * Widget are dropped into a Section.
+     */
+    updatedWidgets = yield call(
+      moveWidgetsToSection,
+      allWidgets,
+      movedWidgetIds,
+      highlight,
+    );
+  } else {
+    updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
+  }
+  return updatedWidgets;
 }
 
 export default function* anvilDraggingSagas() {
