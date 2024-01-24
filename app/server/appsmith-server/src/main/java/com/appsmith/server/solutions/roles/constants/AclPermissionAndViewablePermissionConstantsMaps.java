@@ -1,11 +1,8 @@
 package com.appsmith.server.solutions.roles.constants;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 
 import java.util.List;
 import java.util.Map;
@@ -207,19 +204,12 @@ public class AclPermissionAndViewablePermissionConstantsMaps {
             PermissionViewableName viewableName, Class<?> aClass) {
         return viewableToPermissionsMap.get(viewableName).stream()
                 .filter(aclPermission -> {
-                    Class entityClass = aClass;
-                    if (aClass.equals(NewPage.class)) {
-                        entityClass = Page.class;
-                    } else if (aClass.equals(NewAction.class)) {
-                        entityClass = Action.class;
-                    } else if (aClass.equals(ActionCollection.class)) {
-                        entityClass = Action.class;
+                    Class<?> entityClass = aClass;
+                    if (aClass.equals(ActionCollection.class)) {
+                        entityClass = NewAction.class;
                     }
 
-                    if (aclPermission.getEntity().equals(entityClass)) {
-                        return true;
-                    }
-                    return false;
+                    return aclPermission.getEntity().equals(entityClass);
                 })
                 .collect(Collectors.toList());
     }

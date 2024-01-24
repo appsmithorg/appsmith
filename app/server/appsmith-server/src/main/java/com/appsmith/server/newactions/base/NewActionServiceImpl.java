@@ -15,7 +15,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
@@ -679,8 +678,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             throw new AppsmithException(
                     AppsmithError.INTERNAL_SERVER_ERROR, "No module instance found to copy policies from.");
         }
-        Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(moduleInstance.getPolicies(), ModuleInstance.class, Action.class);
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
+                moduleInstance.getPolicies(), ModuleInstance.class, NewAction.class);
         action.setPolicies(documentPolicies);
     }
 

@@ -8,9 +8,9 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Module;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -64,7 +64,7 @@ public class ActionCollectionModuleEntityServiceImpl implements ModuleEntityServ
                     ActionCollection moduleActionCollection = JSModuleEntityHelper.generateActionCollectionDomain(
                             actionCollectionDTO.getModuleId(), workspaceId, false, actionCollectionDTO);
                     Set<Policy> childActionCollectionPolicies =
-                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
+                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
                     moduleActionCollection.setPolicies(childActionCollectionPolicies);
 
                     return Mono.just(moduleActionCollection);

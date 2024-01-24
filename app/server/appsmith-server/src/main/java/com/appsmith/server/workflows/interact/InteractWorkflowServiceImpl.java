@@ -9,7 +9,6 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -359,7 +358,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
                 .toList();
 
         List<AclPermission> actionPermissions =
-                policyGenerator.getAllChildPermissions(workflowPermissions, Action.class).stream()
+                policyGenerator.getAllChildPermissions(workflowPermissions, NewAction.class).stream()
                         .toList();
 
         return Map.of(

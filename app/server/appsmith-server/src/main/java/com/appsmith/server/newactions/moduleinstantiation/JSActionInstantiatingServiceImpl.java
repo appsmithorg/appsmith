@@ -6,9 +6,8 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
@@ -177,7 +176,7 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
 
     private void setPolicies(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, NewAction toBeInstantiatedAction) {
         Set<Policy> policies = policyGenerator.getAllChildPolicies(
-                moduleInstantiatingMetaDTO.getPage().getPolicies(), Page.class, Action.class);
+                moduleInstantiatingMetaDTO.getPage().getPolicies(), NewPage.class, NewAction.class);
 
         toBeInstantiatedAction.setPolicies(policies);
     }

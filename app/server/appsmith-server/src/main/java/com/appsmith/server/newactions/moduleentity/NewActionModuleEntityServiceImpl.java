@@ -7,7 +7,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -88,7 +87,7 @@ public class NewActionModuleEntityServiceImpl extends NewActionModuleEntityServi
                     NewAction moduleAction = ActionEntityHelper.generateActionDomain(
                             module.getId(), workspaceId, false, moduleActionDTO);
                     Set<Policy> childActionPolicies =
-                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
+                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
                     moduleAction.setPolicies(childActionPolicies);
 
                     newActionService.setCommonFieldsFromActionDTOIntoNewAction(moduleActionDTO, moduleAction);

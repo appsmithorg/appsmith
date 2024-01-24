@@ -7,14 +7,12 @@ import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QModuleInstance;
 import com.appsmith.server.domains.QNewAction;
@@ -398,7 +396,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                                 roleTab,
                                 permissionGroupId,
                                 actionCollection.getPolicies(),
-                                Action.class,
+                                NewAction.class,
                                 policyGenerator);
                         actionCollectionDTO.setEnabled(permissionsTuple.getT1());
                         actionCollectionDTO.setEditable(permissionsTuple.getT2());
@@ -449,7 +447,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                         actionDTO.setName(action.getUnpublishedAction().getName());
                         actionDTO.setPluginId(action.getPluginId());
                         Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
-                                roleTab, permissionGroupId, action.getPolicies(), Action.class, policyGenerator);
+                                roleTab, permissionGroupId, action.getPolicies(), NewAction.class, policyGenerator);
                         actionDTO.setEnabled(permissionsTuple.getT1());
                         actionDTO.setEditable(permissionsTuple.getT2());
                         return actionDTO;
@@ -615,7 +613,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                     pageDTO.setId(page.getId());
                     pageDTO.setName(page.getUnpublishedPage().getName());
                     Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
-                            roleTab, permissionGroupId, page.getPolicies(), Page.class, policyGenerator);
+                            roleTab, permissionGroupId, page.getPolicies(), NewPage.class, policyGenerator);
                     pageDTO.setEnabled(permissionsTuple.getT1());
                     pageDTO.setEditable(permissionsTuple.getT2());
 
@@ -680,13 +678,13 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 getLateralPermMap(applicationPermissions, policyGenerator, roleTab);
 
         Set<AclPermission> pagePermissions = tabPermissions.stream()
-                .filter(permission -> permission.getEntity().equals(Page.class))
+                .filter(permission -> permission.getEntity().equals(NewPage.class))
                 .collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> pageLateralMap =
                 getLateralPermMap(pagePermissions, policyGenerator, roleTab);
 
         Set<AclPermission> actionPermissions = tabPermissions.stream()
-                .filter(permission -> permission.getEntity().equals(Action.class))
+                .filter(permission -> permission.getEntity().equals(NewAction.class))
                 .collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> actionLateralMap =
                 getLateralPermMap(actionPermissions, policyGenerator, roleTab);
@@ -713,7 +711,8 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
 
         Mono<Void> updatePageDisableMapMono = pageFlux.map(page -> {
                     String pageId = page.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(pageLateralMap, disableMap, pageId, pageId, Page.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            pageLateralMap, disableMap, pageId, pageId, NewPage.class);
                     return pageId;
                 })
                 .then();
@@ -722,7 +721,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .map(action -> {
                     String actionId = action.getId();
                     generateLateralPermissionDTOsAndUpdateMap(
-                            actionLateralMap, disableMap, actionId, actionId, Action.class);
+                            actionLateralMap, disableMap, actionId, actionId, NewAction.class);
                     return actionId;
                 })
                 .then();
@@ -731,7 +730,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .map(actionCollection -> {
                     String actionCollectionId = actionCollection.getId();
                     generateLateralPermissionDTOsAndUpdateMap(
-                            actionLateralMap, disableMap, actionCollectionId, actionCollectionId, Action.class);
+                            actionLateralMap, disableMap, actionCollectionId, actionCollectionId, NewAction.class);
                     return actionCollectionId;
                 })
                 .then();
@@ -740,7 +739,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .map(moduleInstance -> {
                     String moduleInstanceId = moduleInstance.getId();
                     generateLateralPermissionDTOsAndUpdateMap(
-                            actionLateralMap, disableMap, moduleInstanceId, moduleInstanceId, Action.class);
+                            actionLateralMap, disableMap, moduleInstanceId, moduleInstanceId, NewAction.class);
                     return moduleInstanceId;
                 })
                 .then();
@@ -783,25 +782,25 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 getHierarchicalLateralPermMap(applicationPermissions, policyGenerator, roleTab);
 
         Set<AclPermission> pagePermissions = tabPermissions.stream()
-                .filter(permission -> permission.getEntity().equals(Page.class))
+                .filter(permission -> permission.getEntity().equals(NewPage.class))
                 .collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> pageHierarchicalLateralMap =
                 getHierarchicalLateralPermMap(pagePermissions, policyGenerator, roleTab);
 
         Set<AclPermission> actionPermissions = tabPermissions.stream()
-                .filter(permission -> permission.getEntity().equals(Action.class))
+                .filter(permission -> permission.getEntity().equals(NewAction.class))
                 .collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> actionHierarchicalLateralMap =
                 getHierarchicalLateralPermMap(actionPermissions, policyGenerator, roleTab);
 
         Set<AclPermission> actionCollectionPermissions = tabPermissions.stream()
-                .filter(permission -> permission.getEntity().equals(Action.class))
+                .filter(permission -> permission.getEntity().equals(NewAction.class))
                 .collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> actionCollectionHierarchicalLateralMap =
                 getHierarchicalLateralPermMap(actionCollectionPermissions, policyGenerator, roleTab);
 
         Set<AclPermission> moduleInstancePermissions = tabPermissions.stream()
-                .filter(permission -> permission.getEntity().equals(Action.class))
+                .filter(permission -> permission.getEntity().equals(NewAction.class))
                 .collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> moduleInstanceHierarchicalLateralMap =
                 getHierarchicalLateralPermMap(moduleInstancePermissions, policyGenerator, roleTab);
@@ -856,9 +855,9 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                                                 hoverMap,
                                                 applicationId,
                                                 pageId,
-                                                Page.class);
+                                                NewPage.class);
                                         generateLateralPermissionDTOsAndUpdateMap(
-                                                pageHierarchicalLateralMap, hoverMap, pageId, pageId, Page.class);
+                                                pageHierarchicalLateralMap, hoverMap, pageId, pageId, NewPage.class);
 
                                         Collection<ActionResourceDTO> actions = pageActionMap.get(page.getId());
                                         if (!CollectionUtils.isEmpty(actions)) {
@@ -870,13 +869,13 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                                                         hoverMap,
                                                         pageId,
                                                         actionId,
-                                                        Action.class);
+                                                        NewAction.class);
                                                 generateLateralPermissionDTOsAndUpdateMap(
                                                         actionHierarchicalLateralMap,
                                                         hoverMap,
                                                         actionId,
                                                         actionId,
-                                                        Action.class);
+                                                        NewAction.class);
                                             });
                                         }
 
@@ -891,13 +890,13 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                                                         hoverMap,
                                                         pageId,
                                                         actionCollectionId,
-                                                        Action.class);
+                                                        NewAction.class);
                                                 generateLateralPermissionDTOsAndUpdateMap(
                                                         actionCollectionHierarchicalLateralMap,
                                                         hoverMap,
                                                         actionCollectionId,
                                                         actionCollectionId,
-                                                        Action.class);
+                                                        NewAction.class);
                                             });
                                         }
 
@@ -908,13 +907,17 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                                                 String id = resourceDTO.getId();
 
                                                 generateLateralPermissionDTOsAndUpdateMap(
-                                                        pageHierarchicalLateralMap, hoverMap, pageId, id, Action.class);
+                                                        pageHierarchicalLateralMap,
+                                                        hoverMap,
+                                                        pageId,
+                                                        id,
+                                                        NewAction.class);
                                                 generateLateralPermissionDTOsAndUpdateMap(
                                                         moduleInstanceHierarchicalLateralMap,
                                                         hoverMap,
                                                         id,
                                                         id,
-                                                        Action.class);
+                                                        NewAction.class);
                                             });
                                         }
                                     });

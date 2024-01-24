@@ -3,7 +3,6 @@ package com.appsmith.server.solutions.roles;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Workflow;
@@ -134,7 +133,7 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                 getHierarchicalLateralPermMap(workflowPermissions, policyGenerator, roleTab);
 
         Set<AclPermission> actionPermissions = tabPermissions.stream()
-                .filter(permission -> permission.getEntity().equals(Action.class))
+                .filter(permission -> permission.getEntity().equals(NewAction.class))
                 .collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> actionHierarchicalLateralMap =
                 getHierarchicalLateralPermMap(actionPermissions, policyGenerator, roleTab);
@@ -184,14 +183,14 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                                                         hoverMap,
                                                         workflowId,
                                                         actionId,
-                                                        Action.class);
+                                                        NewAction.class);
 
                                                 generateLateralPermissionDTOsAndUpdateMap(
                                                         actionHierarchicalLateralMap,
                                                         hoverMap,
                                                         actionId,
                                                         actionId,
-                                                        Action.class);
+                                                        NewAction.class);
                                             });
                                         }
 
@@ -206,14 +205,14 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                                                         hoverMap,
                                                         workflowId,
                                                         actionCollectionId,
-                                                        Action.class);
+                                                        NewAction.class);
 
                                                 generateLateralPermissionDTOsAndUpdateMap(
                                                         actionHierarchicalLateralMap,
                                                         hoverMap,
                                                         actionCollectionId,
                                                         actionCollectionId,
-                                                        Action.class);
+                                                        NewAction.class);
                                             });
                                         }
                                     });
@@ -249,7 +248,7 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                 getLateralPermMap(workflowPermissions, policyGenerator, roleTab);
 
         Set<AclPermission> actionPermissions = tabPermissions.stream()
-                .filter(permission -> permission.getEntity().equals(Action.class))
+                .filter(permission -> permission.getEntity().equals(NewAction.class))
                 .collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> actionLateralMap =
                 getLateralPermMap(actionPermissions, policyGenerator, roleTab);
@@ -280,7 +279,7 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                         actions.forEach(action -> {
                             String actionId = action.getId();
                             generateLateralPermissionDTOsAndUpdateMap(
-                                    actionLateralMap, disableMap, actionId, actionId, Action.class);
+                                    actionLateralMap, disableMap, actionId, actionId, NewAction.class);
                         });
                     });
                     return workflowActionMap;
@@ -293,7 +292,11 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                         actionCollections.forEach(actionCollection -> {
                             String actionCollectionId = actionCollection.getId();
                             generateLateralPermissionDTOsAndUpdateMap(
-                                    actionLateralMap, disableMap, actionCollectionId, actionCollectionId, Action.class);
+                                    actionLateralMap,
+                                    disableMap,
+                                    actionCollectionId,
+                                    actionCollectionId,
+                                    NewAction.class);
                         });
                     });
                     return workflowActionMap;
@@ -387,7 +390,7 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                     actionDTO.setName(action.getUnpublishedAction().getName());
                     actionDTO.setPluginId(action.getPluginId());
                     Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
-                            WORKFLOWS, permissionGroupId, action.getPolicies(), Action.class, policyGenerator);
+                            WORKFLOWS, permissionGroupId, action.getPolicies(), NewAction.class, policyGenerator);
                     actionDTO.setEnabled(permissionsTuple.getT1());
                     actionDTO.setEditable(permissionsTuple.getT2());
                     return actionDTO;
@@ -412,7 +415,7 @@ public class WorkflowResourcesImpl extends WorkflowResourcesCECompatibleImpl imp
                             WORKFLOWS,
                             permissionGroupId,
                             actionCollection.getPolicies(),
-                            Action.class,
+                            NewAction.class,
                             policyGenerator);
                     actionCollectionResourceDTO.setEnabled(permissionsTuple.getT1());
                     actionCollectionResourceDTO.setEditable(permissionsTuple.getT2());

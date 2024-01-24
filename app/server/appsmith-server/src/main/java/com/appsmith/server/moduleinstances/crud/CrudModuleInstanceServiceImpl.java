@@ -19,7 +19,6 @@ import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Package;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
@@ -506,7 +505,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     @Override
     public void generateAndSetModuleInstancePolicies(NewPage page, ModuleInstance moduleInstance) {
         Set<Policy> policies =
-                policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, ModuleInstance.class);
+                policyGenerator.getAllChildPolicies(page.getPolicies(), NewPage.class, ModuleInstance.class);
 
         moduleInstance.setPolicies(policies);
     }

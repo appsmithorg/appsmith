@@ -5,7 +5,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.ResourceModes;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
@@ -45,7 +44,7 @@ public class NewActionModulePublicEntityServiceImpl extends NewActionModulePubli
                     NewAction moduleAction = ActionEntityHelper.generateActionDomain(
                             module.getId(), workspaceId, isPublic, moduleActionDTO);
                     Set<Policy> childActionPolicies =
-                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
+                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
                     moduleAction.setPolicies(childActionPolicies);
 
                     return newActionService.validateAndSaveActionToRepository(moduleAction);

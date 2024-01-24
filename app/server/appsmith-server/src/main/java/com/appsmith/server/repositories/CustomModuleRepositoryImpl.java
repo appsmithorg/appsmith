@@ -1,9 +1,9 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Module;
-import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QModule;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -78,7 +78,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
             layoutsKey = fieldName(QModule.module.unpublishedModule) + "."
                     + fieldName(QModule.module.unpublishedModule.layouts);
         }
-        layoutsIdKey = layoutsKey + "." + fieldName(QLayout.layout.id);
+        layoutsIdKey = layoutsKey + "." + FieldName.ID;
 
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
         criteria.add(layoutCriterion);

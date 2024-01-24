@@ -3,7 +3,6 @@ package com.appsmith.server.moduleinstances.roleconfigs;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
@@ -450,7 +449,7 @@ class ModuleInstanceRoleConfigurationsTest {
         NewAction newAction =
                 newActionRepository.findById(composedActions.get(0).getId()).block();
         assertThat(newAction.getPolicies()).hasSize(4).allMatch(policy -> {
-            return switch (AclPermission.getPermissionByValue(policy.getPermission(), Action.class)) {
+            return switch (AclPermission.getPermissionByValue(policy.getPermission(), NewAction.class)) {
                 case DELETE_ACTIONS:
                     yield !policy.getPermissionGroups().contains(sampleRoleViewDTO.getId());
                 case READ_ACTIONS:

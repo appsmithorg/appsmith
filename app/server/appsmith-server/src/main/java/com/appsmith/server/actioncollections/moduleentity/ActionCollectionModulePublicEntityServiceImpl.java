@@ -5,9 +5,9 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.ResourceModes;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Module;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.modules.moduleentity.ModulePublicEntityService;
 import com.appsmith.server.modules.permissions.ModulePermissionChecker;
@@ -48,7 +48,7 @@ public class ActionCollectionModulePublicEntityServiceImpl extends ActionCollect
                     ActionCollection moduleActionCollection = JSModuleEntityHelper.generateActionCollectionDomain(
                             moduleId, workspaceId, isPublic, actionCollectionDTO);
                     Set<Policy> childActionCollectionPolicies =
-                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
+                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
                     moduleActionCollection.setPolicies(childActionCollectionPolicies);
 
                     return layoutCollectionService.createCollection(moduleActionCollection);
