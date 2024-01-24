@@ -574,8 +574,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
 
                         /**
                          * There are some plugins that allow query to be created without creating a datasource. For
-                         * such datasources, editor config is required to display any queries that may have been
-                         * created or in case user wants to create a query without creating a datasource first.
+                         * such datasources, form config is required by the client at the time of page load.
                          */
                         pluginList.stream()
                                 .filter(this::isPossibleToCreateQueryWithoutDatasource)
