@@ -113,6 +113,7 @@ import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOptio
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 import {
   getFetchedWorkspaces,
+  getIsDeletingWorkspace,
   getIsFetchingWorkspaces,
   getIsSavingWorkspaceInfo,
 } from "@appsmith/selectors/workspaceSelectors";
@@ -169,8 +170,8 @@ export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
   border-right: 1px solid var(--ads-v2-color-border);
   padding: 0px 4px;
   margin: 0px 8px;
-}
 `;
+
 export const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
   ${({ isMobile }) =>
     isMobile &&
@@ -500,6 +501,7 @@ export function ApplicationsSection(props: any) {
   const isSavingWorkspaceInfo = useSelector(getIsSavingWorkspaceInfo);
   const isFetchingWorkspaces = useSelector(getIsFetchingWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isDeletingWorkspace = useSelector(getIsDeletingWorkspace);
   const { isFetchingPackages } = usePackage();
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
@@ -789,40 +791,37 @@ export function ApplicationsSection(props: any) {
               </WorkspaceShareUsers>
             )}
           </WorkspaceDropDown>
-          {isLoadingResources && (
+          {isLoadingResources || isDeletingWorkspace ? (
             <ResourceListLoader isMobile={isMobile} resources={applications} />
-          )}
-          {!isLoadingResources && (
-            <ApplicationCardList
-              applications={applications}
-              canInviteToWorkspace={canInviteToWorkspace}
-              deleteApplication={deleteApplication}
-              enableImportExport={enableImportExport}
-              hasCreateNewApplicationPermission={
-                hasCreateNewApplicationPermission
-              }
-              hasManageWorkspacePermissions={hasManageWorkspacePermissions}
-              isMobile={isMobile}
-              onClickAddNewButton={onClickAddNewAppButton}
-              updateApplicationDispatch={updateApplicationDispatch}
-              workspaceId={activeWorkspace.id}
-            />
-          )}
-          {!isLoadingResources && (
-            <PackageCardList
-              isMobile={isMobile}
-              packages={packages}
-              workspace={activeWorkspace}
-              workspaceId={activeWorkspace.id}
-            />
-          )}
-          {!isLoadingResources && (
-            <WorkflowCardList
-              isMobile={isMobile}
-              workflows={workflows}
-              workspace={activeWorkspace}
-              workspaceId={activeWorkspace.id}
-            />
+          ) : (
+            <>
+              <ApplicationCardList
+                applications={applications}
+                canInviteToWorkspace={canInviteToWorkspace}
+                deleteApplication={deleteApplication}
+                enableImportExport={enableImportExport}
+                hasCreateNewApplicationPermission={
+                  hasCreateNewApplicationPermission
+                }
+                hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                isMobile={isMobile}
+                onClickAddNewButton={onClickAddNewAppButton}
+                updateApplicationDispatch={updateApplicationDispatch}
+                workspaceId={activeWorkspace.id}
+              />
+              <PackageCardList
+                isMobile={isMobile}
+                packages={packages}
+                workspace={activeWorkspace}
+                workspaceId={activeWorkspace.id}
+              />
+              <WorkflowCardList
+                isMobile={isMobile}
+                workflows={workflows}
+                workspace={activeWorkspace}
+                workspaceId={activeWorkspace.id}
+              />
+            </>
           )}
         </WorkspaceSection>
       </React.Fragment>
