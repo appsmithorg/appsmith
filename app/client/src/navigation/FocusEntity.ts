@@ -39,7 +39,9 @@ export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
   [FocusEntity.PROPERTY_PANE]: FocusEntity.WIDGET_LIST,
   [FocusEntity.DATASOURCE]: FocusEntity.DATASOURCE_LIST,
   [FocusEntity.JS_OBJECT]: FocusEntity.JS_OBJECT_LIST,
+  [FocusEntity.JS_MODULE_INSTANCE]: FocusEntity.JS_MODULE_INSTANCE,
   [FocusEntity.QUERY]: FocusEntity.QUERY_LIST,
+  [FocusEntity.QUERY_MODULE_INSTANCE]: FocusEntity.QUERY_LIST,
 };
 
 export interface FocusEntityInfo {
