@@ -997,14 +997,16 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                 this.renderTabsForViewMode()
               ) : (
                 <>
-                  <DSDataFilter
-                    filterId={this.state.filterParams.id}
-                    isInsideReconnectModal={!!isInsideReconnectModal}
-                    pluginName={pluginName}
-                    pluginType={pluginType}
-                    updateFilter={this.updateFilter}
-                    viewMode={viewMode}
-                  />
+                  {!isOnboardingFlow && (
+                    <DSDataFilter
+                      filterId={this.state.filterParams.id}
+                      isInsideReconnectModal={!!isInsideReconnectModal}
+                      pluginName={pluginName}
+                      pluginType={pluginType}
+                      updateFilter={this.updateFilter}
+                      viewMode={viewMode}
+                    />
+                  )}
                   <div className="db-form-content-container">
                     {this.renderToast()}
                     {this.renderForm()}

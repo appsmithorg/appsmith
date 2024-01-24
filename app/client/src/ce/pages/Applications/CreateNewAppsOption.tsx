@@ -87,6 +87,10 @@ const BackWrapper = styled.div<{ hidden?: boolean }>`
   ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
 `;
 
+const LinkWrapper = styled(Link)<{ hidden?: boolean }>`
+  ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
+`;
+
 const OptionWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -472,30 +476,30 @@ const CreateNewAppsOption = ({
   }, []);
 
   const isBackButtonHidden =
-    !useType ||
-    (isEnabledForStartWithDataDefault &&
-      (!createNewAppPluginId || !selectedDatasource));
+    isEnabledForStartWithDataDefault &&
+    (!createNewAppPluginId || !selectedDatasource);
 
   return (
     <SectionWrapper>
-      <BackWrapper hidden={isBackButtonHidden}>
-        <Link
+      <BackWrapper hidden={!useType}>
+        <LinkWrapper
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
+          hidden={isBackButtonHidden}
           onClick={onClickBackButton}
           startIcon="arrow-left-line"
         >
           {createMessage(GO_BACK)}
-        </Link>
+        </LinkWrapper>
 
-        <Link
+        <LinkWrapper
           className="t--create-new-app-option-skip"
           data-testid="t--create-new-app-option-skip"
           endIcon="arrow-right-line"
           onClick={onClickSkipButton}
         >
           {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
-        </Link>
+        </LinkWrapper>
       </BackWrapper>
       {isEnabledForStartWithDataDefault ? (
         renderStartWithData()

@@ -615,14 +615,16 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             }`}
           >
             <DSEditorWrapper>
-              <DSDataFilter
-                filterId={this.state.filterParams.id}
-                isInsideReconnectModal={!!isInsideReconnectModal}
-                pluginName={plugin?.name || ""}
-                pluginType={plugin?.type || ""}
-                updateFilter={this.updateFilter}
-                viewMode={viewMode}
-              />
+              {!isOnboardingFlow && (
+                <DSDataFilter
+                  filterId={this.state.filterParams.id}
+                  isInsideReconnectModal={!!isInsideReconnectModal}
+                  pluginName={plugin?.name || ""}
+                  pluginType={plugin?.type || ""}
+                  updateFilter={this.updateFilter}
+                  viewMode={viewMode}
+                />
+              )}
               <div className="db-form-content-container">
                 <Form
                   onSubmit={(e) => {
