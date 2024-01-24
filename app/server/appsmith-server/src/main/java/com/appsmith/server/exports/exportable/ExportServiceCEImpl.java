@@ -46,7 +46,6 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     private final AnalyticsService analyticsService;
     private final WorkspaceService workspaceService;
     private final ApplicationExportService applicationExportService;
-    private final Map<ArtifactJsonType, ContextBasedExportService<?, ?>> contextBasedExportServiceMap = new HashMap<>();
     private final ExportableService<Datasource> datasourceExportableService;
     private final ExportableService<Plugin> pluginExportableService;
     private final ExportableService<CustomJSLib> customJSLibExportableService;
@@ -57,23 +56,26 @@ public class ExportServiceCEImpl implements ExportServiceCE {
             AnalyticsService analyticsService,
             ApplicationExportService applicationExportService,
             WorkspaceService workspaceService,
+            Gson gson,
             ExportableService<Datasource> datasourceExportableService,
             ExportableService<Plugin> pluginExportableService,
             ExportableService<CustomJSLib> customJSLibExportableService) {
         this.sessionUserService = sessionUserService;
         this.analyticsService = analyticsService;
         this.workspaceService = workspaceService;
+        this.gson = gson;
         this.applicationExportService = applicationExportService;
         this.datasourceExportableService = datasourceExportableService;
         this.pluginExportableService = pluginExportableService;
         this.customJSLibExportableService = customJSLibExportableService;
-        this.gson = new Gson();
-        this.contextBasedExportServiceMap.put(ArtifactJsonType.APPLICATION, this.applicationExportService);
     }
 
     @Override
     public ContextBasedExportService<?, ?> getContextBasedExportService(@NonNull ArtifactJsonType artifactJsonType) {
-        return contextBasedExportServiceMap.get(artifactJsonType);
+        return switch (artifactJsonType) {
+            case APPLICATION -> applicationExportService;
+            default -> applicationExportService;
+        };
     }
 
     @Override
