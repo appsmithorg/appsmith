@@ -7,14 +7,14 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UserData;
@@ -677,9 +677,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         List<Mono<Void>> list = new ArrayList<>();
 
         Map<String, Policy> pagePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
-                applicationPolicyMap, Application.class, Page.class);
-        Map<String, Policy> actionPolicyMap =
-                policySolution.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
+                applicationPolicyMap, Application.class, NewPage.class);
+        Map<String, Policy> actionPolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
+                pagePolicyMap, NewPage.class, NewAction.class);
         Map<String, Policy> themePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class);
 
