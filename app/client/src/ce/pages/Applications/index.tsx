@@ -151,7 +151,7 @@ export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
       ${(props) => (props.isBannerVisible ? "48px" : "0px")}
   );
   border-right: 1px solid var(--ads-v2-color-border);
-  padding: 0 16px;
+  padding: 0 10px;
 `;
 export const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
   ${({ isMobile }) =>
