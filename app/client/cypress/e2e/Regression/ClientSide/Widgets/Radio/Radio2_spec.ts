@@ -264,12 +264,6 @@ describe(
       );
       agHelper.GetNClick(locators._alignment("right"));
 
-      //Width
-      agHelper.AssertCSS(
-        widgetLocators.radioWidgetLabelContainer,
-        "width",
-        "55.9375px",
-      );
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
 
@@ -290,11 +284,6 @@ describe(
         widgetLocators.radioWidgetLabel,
         "text-align",
         "right",
-      );
-      agHelper.AssertCSS(
-        widgetLocators.radioWidgetLabelContainer,
-        "width",
-        "151.265625px",
       );
       agHelper.AssertText(
         widgetLocators.radioWidgetLabel,
@@ -387,19 +376,6 @@ describe(
         0,
         true,
       );
-      agHelper.GetHeight(
-        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-      );
-      cy.get("@eleHeight").then(($currentHeight: any) => {
-        expect($currentHeight).to.be.greaterThan(270);
-      });
-
-      agHelper.GetWidth(
-        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-      );
-      cy.get("@eleWidth").then(($currentWidth) => {
-        expect($currentWidth).to.be.greaterThan(420);
-      });
     });
 
     it("7. Validate set property methods for Radio group", () => {

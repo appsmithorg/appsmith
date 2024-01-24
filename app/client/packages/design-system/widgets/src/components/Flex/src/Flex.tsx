@@ -13,6 +13,8 @@ const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
     id,
     isContainer = false,
     isHidden = false,
+    onClick,
+    onClickCapture,
     style,
     ...rest
   } = props;
@@ -22,6 +24,8 @@ const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
       <div
         className={clsx(className, flexCss({ isHidden, ...rest }))}
         id={id}
+        onClick={onClick}
+        onClickCapture={onClickCapture}
         ref={ref}
         style={style}
       >

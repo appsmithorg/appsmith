@@ -2,7 +2,7 @@ import {
   getDefaultSpaceDistributed,
   redistributeSectionSpace,
   redistributeSpaceWithDynamicMinWidth,
-} from "./spaceRedistributionUtils";
+} from "./spaceRedistributionSagaUtils";
 
 describe("spaceRedistributionUtils", () => {
   describe("redistributeSectionSpace", () => {
