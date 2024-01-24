@@ -7,7 +7,7 @@ import {
 } from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
@@ -17,11 +17,10 @@ import {
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
-import {
-  DEFAULT_EDITOR_PANE_WIDTH,
-  DEFAULT_PROPERTY_PANE_WIDTH,
-} from "constants/AppConstants";
 import { useIsBaseDesignWidth } from "utils/hooks/useDeviceDetect";
+import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
+import { updateExplorerWidthAction } from "actions/explorerActions";
+import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -154,48 +153,42 @@ export const useSegmentNavigation = (): {
 
 export const useIDEWidths = () => {
   // selectors
+  const dispatch = useDispatch();
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
   const isBaseDesignWidth = useIsBaseDesignWidth();
 
   // variables
-  const defaultPropertyPaneWidth: string = DEFAULT_PROPERTY_PANE_WIDTH + "px";
-  const defaultEditorPaneWidth: string = DEFAULT_EDITOR_PANE_WIDTH + "px";
-  const [propertyPaneWidth, setPropertyPaneWidth] = useState<string>(
-    defaultPropertyPaneWidth,
-  );
-  const [editorPaneWidth, setEditorPaneWidth] = useState<string>(
-    defaultEditorPaneWidth,
-  );
+  let propertyPaneWidth = useSelector(getPropertyPaneWidth);
+  const defaultEditorPaneWidth: number = DEFAULT_EDITOR_PANE_WIDTH;
+
+  const viewPortEighteenInPixel = window.innerWidth * 0.18;
 
   useEffect(() => {
     // property pane will be min value or 18% of view port width
-    setPropertyPaneWidth(isBaseDesignWidth ? defaultPropertyPaneWidth : "18vw");
+    if (!isBaseDesignWidth) {
+      propertyPaneWidth = viewPortEighteenInPixel;
+      dispatch(setPropertyPaneWidthAction(viewPortEighteenInPixel));
+    }
 
     // editorPane
     if (editorMode === EditorViewMode.FullScreen) {
       // In fullscreen, entity explorer will be always fixed width
-      setEditorPaneWidth(defaultEditorPaneWidth);
+      dispatch(updateExplorerWidthAction(defaultEditorPaneWidth));
     } else if (
       editorMode === EditorViewMode.SplitScreen &&
       segment !== EditorEntityTab.UI
     ) {
       // In split screen, while JS/Query tab is active
-
-      // 562 is the width required to accomodate 70/65 characters
-      // considering 12px font size
-      // 562 * 100 = 56200
-      const _editorPaneWidth = `calc(${defaultEditorPaneWidth} + ${propertyPaneWidth} + 1px)`;
-      setEditorPaneWidth(_editorPaneWidth);
+      const editorPaneWidthPixels = propertyPaneWidth + defaultEditorPaneWidth;
+      dispatch(updateExplorerWidthAction(editorPaneWidthPixels));
     } else if (
       editorMode === EditorViewMode.SplitScreen &&
       segment === EditorEntityTab.UI
     ) {
       // In split screen, while UI tab is active
-      setEditorPaneWidth(defaultEditorPaneWidth);
+      dispatch(updateExplorerWidthAction(defaultEditorPaneWidth));
     }
   }, [isSideBySideEnabled, editorMode, segment, isBaseDesignWidth]);
-
-  return { propertyPaneWidth, editorPaneWidth };
 };

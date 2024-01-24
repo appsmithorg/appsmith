@@ -41,7 +41,7 @@ const StyledResizer = styled.div<{ resizing: boolean }>`
 `;
 
 interface Props {
-  width: string | number;
+  width: number;
   onDragEnd: () => void;
   onWidthChange: (width: number) => void;
 }

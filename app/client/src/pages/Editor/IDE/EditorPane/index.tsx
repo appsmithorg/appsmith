@@ -13,9 +13,11 @@ import { getPagesActiveStatus } from "selectors/ideSelectors";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 import { MinimalSegment } from "./MinimalSegment";
 import { Pages } from "./components/Pages";
+import { getExplorerWidth } from "selectors/explorerSelector";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
-  const { editorPaneWidth } = useIDEWidths();
+  useIDEWidths();
+  const editorPaneWidth = useSelector(getExplorerWidth);
   const pagesActive = useSelector(getPagesActiveStatus);
 
   return (
@@ -25,7 +27,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       gap="spacing-2"
       height="100%"
       overflow="hidden"
-      width={editorPaneWidth}
+      width={editorPaneWidth + "px"}
     >
       {/** Entity Properties component is needed to render
         the Bindings popover in the context menu. Will be removed eventually **/}

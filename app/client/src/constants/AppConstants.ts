@@ -46,7 +46,7 @@ export const MOBILE_MAX_WIDTH = 767;
 export const TABLET_MIN_WIDTH = 768;
 export const TABLET_MAX_WIDTH = 991;
 export const DESKTOP_MIN_WIDTH = 992;
-export const DESIGN_BASE_WIDTH = 1440;
+export const DESKTOP_BASE_WIDTH = 1440;
 
 export const NAVIGATION_SETTINGS = {
   ORIENTATION: {

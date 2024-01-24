@@ -3,20 +3,13 @@ import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { useIDEWidths } from "pages/Editor/IDE/hooks";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 /**
  * OldName: PropertyPaneContainer
  */
 function PropertyPaneWrapper() {
   const dispatch = useDispatch();
-  const oldPropertyPaneWidth = useSelector(getPropertyPaneWidth);
-  const { propertyPaneWidth: newPropertyPaneWidth } = useIDEWidths();
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
-  const propertyPaneWidth = isSideBySideEnabled
-    ? newPropertyPaneWidth
-    : oldPropertyPaneWidth;
+  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
 
   /**
    * on property pane sidebar drag end
