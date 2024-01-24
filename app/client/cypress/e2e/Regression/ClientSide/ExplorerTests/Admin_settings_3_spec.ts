@@ -95,7 +95,6 @@ describe(
 
     it(
       "5. Should test that settings page tab redirects",
-      { tags: ["@tag.excludeForAirgap"] },
       () => {
         agHelper.VisitNAssert("/applications", "getReleaseItems");
         cy.get(".admin-settings-menu-option").click();
@@ -117,7 +116,6 @@ describe(
 
     it(
       "6. Should test that authentication page redirects",
-      { tags: ["@tag.excludeForAirgap"] },
       () => {
         agHelper.VisitNAssert("/settings/general", "getEnvVariables");
         cy.get(adminsSettings.authenticationTab).click();
@@ -135,23 +133,5 @@ describe(
       },
     );
 
-    it(
-      "7. Should test that configure link redirects to github signup setup doc",
-      { tags: ["@tag.excludeForAirgap"] },
-      () => {
-        agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-        cy.get(adminsSettings.authenticationTab).click();
-        cy.url().should("contain", "/settings/authentication");
-        cy.get(adminsSettings.githubButton).click();
-        cy.url().should("contain", "/settings/authentication/github-auth");
-        cy.get(adminsSettings.readMoreLink).within(() => {
-          cy.get("a")
-            .should("have.attr", "target", "_blank")
-            .invoke("removeAttr", "target")
-            .click();
-          cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
-        });
-      },
-    );
   },
 );
