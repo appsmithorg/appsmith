@@ -33,7 +33,9 @@ interface EntityActionParams {
     | "Move to page"
     | "Hide"
     | "Refresh"
-    | "Set as home page";
+    | "Set as home page"
+    | "Export"
+    | "Import";
   subAction?: string;
   //@ts-expect-error: type mismatch
   entityType?: EntityItems;
@@ -60,12 +62,6 @@ export class EntityExplorer {
     "//span[text()='" + spanText + "']";
   _adsPopup = "div[role='menu']";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
-  _entityExplorer = ".t--entity-explorer";
-  private _overlaySearch = "[data-testId='t--search-file-operation']";
-  _allQueriesforDB = (dbName: string) =>
-    "//span[text()='" +
-    dbName +
-    "']/following-sibling::div[contains(@class, 't--entity') and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
   _widgetTagsList =
     "[data-testid='widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
   _widgetCards = ".t--widget-card-draggable";
@@ -103,6 +99,7 @@ export class EntityExplorer {
 
   public DeleteWidgetFromEntityExplorer(widgetNameinLeftSidebar: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.xpath(this._contextMenu(widgetNameinLeftSidebar))
       .last()
       .click({ force: true });
@@ -118,21 +115,26 @@ export class EntityExplorer {
 
   public DeleteAllQueriesForDB(dsName: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el: any) => {
-      cy.wrap($el)
-        .invoke("text")
-        .then(($query) => {
-          this.ActionContextMenuByEntityName({
-            entityNameinLeftSidebar: $query as string,
-            action: "Delete",
-            entityType: EntityItems.Query,
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    this.agHelper
+      .GetElement(this._visibleTextSpan(dsName))
+      .parent()
+      .siblings()
+      .each(($el: any) => {
+        cy.wrap($el)
+          .find(".t--entity-name")
+          .invoke("text")
+          .then(($query) => {
+            this.ActionContextMenuByEntityName({
+              entityNameinLeftSidebar: $query as string,
+              action: "Delete",
+              entityType: EntityItems.Query,
+            });
           });
-        });
-    });
+      });
   }
 
   public SearchWidgetPane(widgetType: string) {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     this.agHelper.Sleep();
     this.agHelper.ClearTextField(this.locator._entityExplorersearch);
     this.agHelper.TypeText(
@@ -191,7 +193,9 @@ export class EntityExplorer {
     skipWidgetSearch = false,
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
+    cy.focused().blur();
     this.DragNDropWidget(
       widgetType,
       x,
@@ -222,19 +226,14 @@ export class EntityExplorer {
   public CreateNewDsQuery(dsName: string, isQuery = true) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
-    cy.get(this.locator._createNew).last().click();
-    const searchText = isQuery ? dsName + " query" : dsName;
-    this.SearchAndClickOmnibar(searchText);
-  }
-
-  public SearchAndClickOmnibar(searchText: string) {
-    this.agHelper.UpdateInputValue(this._overlaySearch, searchText);
-    let overlayItem = this._visibleTextSpan(searchText);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    PageLeftPane.switchToAddNew();
+    let overlayItem = this._visibleTextSpan(dsName);
     this.agHelper.GetNClick(overlayItem);
   }
 
   public CopyPasteWidget(widgetName: string) {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);
@@ -251,7 +250,7 @@ export class EntityExplorer {
         entityNameinLeftSidebar: entityName,
         action: "Edit name",
       });
-    else cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
+    else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
     cy.xpath(this.locator._entityNameEditing(entityName))
       .type(renameVal)
       .wait(500)

@@ -1,51 +1,27 @@
-import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
-import { importPartialApplicationSuccess } from "@appsmith/actions/applicationActions";
-import ApplicationApi, {
-  type exportApplicationRequest,
-} from "@appsmith/api/ApplicationApi";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import { widgetURL } from "@appsmith/RouteBuilder";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import {
   getAppMode,
   getCanvasWidgets,
 } from "@appsmith/selectors/entitiesSelector";
-import { pasteWidget, showModal } from "actions/widgetActions";
+import { showModal } from "actions/widgetActions";
 import type {
   SetSelectedWidgetsPayload,
   WidgetSelectionRequestPayload,
 } from "actions/widgetSelectionActions";
 import {
-  selectWidgetInitAction,
   setEntityExplorerAncestry,
   setSelectedWidgetAncestry,
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
-import type { ApiResponse } from "api/ApiResponses";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { toast } from "design-system";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
-import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
   SelectionRequestType,
@@ -60,7 +36,6 @@ import {
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
   getIsEditorInitialized,
   getIsFetchingPage,
@@ -70,10 +45,6 @@ import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { quickScrollToWidget } from "utils/helpers";
 import history, { NavigationMethod } from "utils/history";
-import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
-import { validateResponse } from "./ErrorSagas";
-import { postPageAdditionSaga } from "./TemplatesSagas";
-import { createWidgetCopy } from "./WidgetOperationUtils";
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
@@ -119,7 +90,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
 
     switch (selectionRequestType) {
       case SelectionRequestType.Empty: {
-        newSelection = [];
+        newSelection = [MAIN_CONTAINER_WIDGET_ID];
         break;
       }
       case SelectionRequestType.UnsafeSelect: {
@@ -234,9 +205,10 @@ function* appendSelectedWidgetToUrlSaga(
         persistExistingParams: true,
         selectedWidgets,
       })
-    : builderURL({
+    : widgetURL({
         pageId: pageId ?? currentPageId,
         persistExistingParams: true,
+        selectedWidgets: [MAIN_CONTAINER_WIDGET_ID],
       });
   if (currentURL !== newUrl) {
     history.push(newUrl, { invokedBy });
@@ -357,171 +329,4 @@ export function* widgetSelectionSagas() {
       handleWidgetSelectionSaga,
     ),
   ]);
-}
-
-export interface PartialExportParams {
-  jsObjects: string[];
-  datasources: string[];
-  customJSLibs: string[];
-  widgets: string[];
-  queries: string[];
-}
-
-export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
-  try {
-    const canvasWidgets: unknown = yield partialExportWidgetSaga(
-      action.payload.widgets,
-    );
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const currentPageId: string = yield select(getCurrentPageId);
-
-    const body: exportApplicationRequest = {
-      actionList: action.payload.queries,
-      actionCollectionList: action.payload.jsObjects,
-      datasourceList: action.payload.datasources,
-      customJsLib: action.payload.customJSLibs,
-      widget: JSON.stringify(canvasWidgets),
-    };
-
-    const response: unknown = yield call(
-      ApplicationApi.exportPartialApplication,
-      applicationId,
-      currentPageId,
-      body,
-    );
-    const isValid: boolean = yield validateResponse(response);
-    if (isValid) {
-      const application: ApplicationPayload = yield select(
-        getCurrentApplication,
-      );
-
-      (function downloadJSON(response: unknown) {
-        const dataStr =
-          "data:text/json;charset=utf-8," +
-          encodeURIComponent(JSON.stringify(response));
-        const downloadAnchorNode = document.createElement("a");
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", `${application.name}.json`);
-        document.body.appendChild(downloadAnchorNode); // required for firefox
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-      })((response as { data: unknown }).data);
-      yield put({
-        type: ReduxActionTypes.PARTIAL_EXPORT_SUCCESS,
-      });
-    }
-  } catch (e) {
-    toast.show(`Error exporting application. Please try again.`, {
-      kind: "error",
-    });
-    yield put({
-      type: ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR,
-      payload: {
-        error: "Error exporting application",
-      },
-    });
-  }
-}
-
-export function* partialExportWidgetSaga(widgetIds: string[]) {
-  const canvasWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = yield select(getWidgets);
-  const selectedWidgets = widgetIds.map((each) => canvasWidgets[each]);
-
-  if (!selectedWidgets || !selectedWidgets.length) return;
-
-  const widgetListsToStore: {
-    widgetId: string;
-    parentId: string;
-    list: FlattenedWidgetProps[];
-  }[] = yield all(
-    selectedWidgets.map((widget) => call(createWidgetCopy, widget)),
-  );
-
-  const canvasId = selectedWidgets?.[0]?.parentId || "";
-
-  const flexLayers: FlexLayer[] = getFlexLayersForSelectedWidgets(
-    widgetIds,
-    canvasId ? canvasWidgets[canvasId] : undefined,
-  );
-  const widgetsDSL = {
-    widgets: widgetListsToStore,
-    flexLayers,
-  };
-  return widgetsDSL;
-}
-
-async function readJSONFile(file: File) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const json = JSON.parse(reader.result as string);
-        resolve(json);
-      } catch (e) {
-        reject(e);
-      }
-    };
-    reader.readAsText(file);
-  });
-}
-
-function* partialImportWidgetsSaga(file: File) {
-  const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
-  try {
-    // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
-    const userUploadedJSON: { widgets: string } = yield call(
-      readJSONFile,
-      file,
-    );
-    if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
-      yield saveCopiedWidgets(userUploadedJSON.widgets);
-      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(pasteWidget(false, { x: 0, y: 0 }));
-    }
-  } finally {
-    if (existingCopiedWidgets) {
-      yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
-    }
-  }
-}
-
-export function* partialImportSaga(
-  action: ReduxAction<{ applicationFile: File }>,
-) {
-  try {
-    // Step1: Import widgets from file, in parallel
-    yield fork(partialImportWidgetsSaga, action.payload.applicationFile);
-    // Step2: Send backend request to import pending items.
-    const workspaceId: string = yield select(getCurrentWorkspaceId);
-    const pageId: string = yield select(getCurrentPageId);
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.importPartialApplication,
-      {
-        applicationFile: action.payload.applicationFile,
-        workspaceId,
-        pageId,
-        applicationId,
-      },
-    );
-
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (isValidResponse) {
-      yield call(postPageAdditionSaga, applicationId);
-      toast.show("Partial Application imported successfully", {
-        kind: "success",
-      });
-      yield put(importPartialApplicationSuccess());
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.PARTIAL_IMPORT_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
 }

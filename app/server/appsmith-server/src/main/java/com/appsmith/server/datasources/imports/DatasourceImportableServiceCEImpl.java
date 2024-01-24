@@ -13,13 +13,15 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.WorkspaceService;
@@ -28,6 +30,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -52,6 +56,28 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
         this.sequenceService = sequenceService;
     }
 
+    @Override
+    public Mono<Void> importEntities(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<? extends ImportableArtifact> importContextMono,
+            ArtifactExchangeJson importableContextJson,
+            boolean isPartialImport,
+            boolean isContextAgnostic) {
+        return importContextMono.flatMap(importableContext -> {
+            Application application = (Application) importableContext;
+            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+            return importEntities(
+                    importingMetaDTO,
+                    mappedImportableResourcesDTO,
+                    workspaceMono,
+                    Mono.just(application),
+                    applicationJson,
+                    isPartialImport);
+        });
+    }
+
     // Requires pluginMap to be present in importable resources.
     // Updates datasourceNameToIdMap in importable resources.
     // Also directly updates required information in DB
@@ -69,7 +95,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                     .cache();
 
             Mono<List<Datasource>> existingDatasourceMono =
-                    getExistingDatasourceMono(importingMetaDTO.getApplicationId(), existingDatasourceFlux);
+                    getExistingDatasourceMono(importingMetaDTO.getArtifactId(), existingDatasourceFlux);
             Mono<Map<String, String>> datasourceMapMono = importDatasources(
                     applicationJson,
                     existingDatasourceMono,
@@ -178,8 +204,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                     }
                                     datasourceStorage.setId(null);
                                     // Don't update datasource config as the saved datasource is already configured by
-                                    // user
-                                    // for this instance
+                                    // user for this instance
                                     datasourceStorage.setDatasourceConfiguration(null);
                                     datasourceStorage.setPluginId(null);
                                     datasourceStorage.setEnvironmentId(environmentId);
@@ -190,7 +215,10 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                     copyNestedNonNullProperties(newDatasource, existingDatasource);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
-                                    return datasourceService.save(existingDatasource);
+                                    return datasourceService
+                                            .save(existingDatasource)
+                                            .map(createdDatasource ->
+                                                    Tuples.of(createdDatasource.getName(), createdDatasource.getId()));
                                 } else {
                                     // This is explicitly copied over from the map we created before
                                     datasourceStorage.setPluginId(pluginMap.get(datasourceStorage.getPluginId()));
@@ -208,15 +236,17 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                         updateAuthenticationDTO(datasourceStorage, decryptedFields);
                                     }
                                     return createUniqueDatasourceIfNotPresent(
-                                            existingDatasourcesFlux,
-                                            datasourceStorage,
-                                            workspace,
-                                            environmentId,
-                                            importingMetaDTO.getPermissionProvider());
+                                                    existingDatasourcesFlux,
+                                                    datasourceStorage,
+                                                    workspace,
+                                                    environmentId,
+                                                    importingMetaDTO.getPermissionProvider())
+                                            .map(createdDatasource ->
+                                                    Tuples.of(importedDatasourceName, createdDatasource.getId()));
                                 }
                             });
                 })
-                .collectMap(Datasource::getName, Datasource::getId)
+                .collectMap(Tuple2::getT1, Tuple2::getT2)
                 .onErrorResume(error -> {
                     log.error("Error importing datasources", error);
                     return Mono.error(error);
@@ -241,7 +271,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             DatasourceStorage datasourceStorage,
             Workspace workspace,
             String environmentId,
-            ImportApplicationPermissionProvider permissionProvider) {
+            ImportArtifactPermissionProvider permissionProvider) {
         /*
            1. If same datasource is present return
            2. If unable to find the datasource create a new datasource with unique name and return

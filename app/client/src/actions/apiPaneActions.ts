@@ -61,13 +61,15 @@ export const createNewQueryAction = (
   pageId: string,
   from: EventLocation,
   datasourceId: string,
+  queryDefaultTableName?: string,
 ): ReduxAction<{
   pageId: string;
   from: EventLocation;
   datasourceId: string;
+  queryDefaultTableName?: string;
 }> => ({
   type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
-  payload: { pageId, from, datasourceId },
+  payload: { pageId, from, datasourceId, queryDefaultTableName },
 });
 
 export const updateBodyContentType = (

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import {
-  ButtonGroup,
-  ButtonGroupItem,
+  ActionGroup,
+  Item,
   Modal,
   ModalBody,
   ModalContent,
@@ -27,58 +27,26 @@ export const ModalExamples = () => {
   const largeRef = useRef(null);
 
   return (
-    <ButtonGroup>
-      <ButtonGroupItem
-        onPress={() => setSmallOpen(!isSmallOpen)}
-        ref={smallRef}
-      >
-        Small
-      </ButtonGroupItem>
-      <Modal
-        initialFocus={2}
-        isOpen={isSmallOpen}
-        setOpen={setSmallOpen}
-        size="small"
-        triggerRef={smallRef}
-      >
-        <ModalContent>
-          <ModalHeader title="Small modal title" />
-          <ModalBody>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias amet
-            animi corporis laboriosam libero voluptas! A, reiciendis, veniam?
-          </ModalBody>
-          <ModalFooter onSubmit={fakeSubmit} />
-        </ModalContent>
-      </Modal>
+    <>
+      <ActionGroup
+        onAction={(key) => {
+          if (key === "small") {
+            setSmallOpen(!isSmallOpen);
+          }
 
-      <ButtonGroupItem
-        onPress={() => setMediumOpen(!isMediumOpen)}
-        ref={mediumRef}
-      >
-        Medium
-      </ButtonGroupItem>
-      <Modal
-        initialFocus={2}
-        isOpen={isMediumOpen}
-        setOpen={setMediumOpen}
-        triggerRef={mediumRef}
-      >
-        <ModalContent>
-          <ModalHeader title="Medium modal title" />
-          <ModalBody>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias amet
-            animi corporis laboriosam libero voluptas! A, reiciendis, veniam?
-          </ModalBody>
-          <ModalFooter onSubmit={fakeSubmit} />
-        </ModalContent>
-      </Modal>
+          if (key === "medium") {
+            setMediumOpen(!isMediumOpen);
+          }
 
-      <ButtonGroupItem
-        onPress={() => setLargeOpen(!isLargeOpen)}
-        ref={largeRef}
+          if (key === "large") {
+            setLargeOpen(!isLargeOpen);
+          }
+        }}
       >
-        Large
-      </ButtonGroupItem>
+        <Item key="small">Small</Item>
+        <Item key="medium">Medium</Item>
+        <Item key="large">Large</Item>
+      </ActionGroup>
       <Modal
         initialFocus={2}
         isOpen={isLargeOpen}
@@ -128,6 +96,37 @@ export const ModalExamples = () => {
           <ModalFooter onSubmit={fakeSubmit} />
         </ModalContent>
       </Modal>
-    </ButtonGroup>
+      <Modal
+        initialFocus={2}
+        isOpen={isMediumOpen}
+        setOpen={setMediumOpen}
+        triggerRef={mediumRef}
+      >
+        <ModalContent>
+          <ModalHeader title="Medium modal title" />
+          <ModalBody>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias amet
+            animi corporis laboriosam libero voluptas! A, reiciendis, veniam?
+          </ModalBody>
+          <ModalFooter onSubmit={fakeSubmit} />
+        </ModalContent>
+      </Modal>
+      <Modal
+        initialFocus={2}
+        isOpen={isSmallOpen}
+        setOpen={setSmallOpen}
+        size="small"
+        triggerRef={smallRef}
+      >
+        <ModalContent>
+          <ModalHeader title="Small modal title" />
+          <ModalBody>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias amet
+            animi corporis laboriosam libero voluptas! A, reiciendis, veniam?
+          </ModalBody>
+          <ModalFooter onSubmit={fakeSubmit} />
+        </ModalContent>
+      </Modal>
+    </>
   );
 };

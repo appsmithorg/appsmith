@@ -39,8 +39,7 @@ export function SignupSuccess() {
     user?.email && setUserSignedUpFlag(user?.email);
   }, []);
 
-  const isNonInvitedAndNonAdminUser =
-    !user?.isSuperUser && shouldEnableFirstTimeUserOnboarding === "true";
+  const isNonInvitedUser = shouldEnableFirstTimeUserOnboarding === "true";
 
   const redirectUsingQueryParam = useCallback(
     () =>
@@ -50,7 +49,7 @@ export function SignupSuccess() {
         validLicense,
         dispatch,
         showStarterTemplatesInsteadofBlankCanvas,
-        isNonInvitedAndNonAdminUser && isEnabledForCreateNew,
+        isNonInvitedUser && isEnabledForCreateNew,
       ),
     [],
   );

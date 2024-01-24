@@ -21,7 +21,6 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -432,6 +431,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<Application> createApplication(Application application, String workspaceId) {
+
+        if (StringUtils.hasLength(application.getId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
         if (application.getName() == null || application.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
@@ -513,7 +517,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     public void generateAndSetPagePolicies(Application application, PageDTO page) {
         Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
+                policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, NewPage.class);
         page.setPolicies(documentPolicies);
     }
 
@@ -574,8 +578,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return Flux.fromIterable(ids).flatMap(id -> deleteApplication(id)).collectList();
     }
 
+    @Override
     public Mono<Application> deleteApplicationByResource(Application application) {
         log.debug("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
+        return deleteApplicationResources(application)
+                .flatMap(deletedApplication -> sendAppDeleteAnalytics(deletedApplication));
+    }
+
+    protected Mono<Application> deleteApplicationResources(Application application) {
         return actionCollectionService
                 .archiveActionCollectionByApplicationId(application.getId(), actionPermission.getDeletePermission())
                 .then(newActionService.archiveActionsByApplicationId(
@@ -583,17 +593,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(newPageService.archivePagesByApplicationId(
                         application.getId(), pagePermission.getDeletePermission()))
                 .then(themeService.archiveApplicationThemes(application))
-                .flatMap(applicationService::archive)
-                .flatMap(deletedApplication -> {
-                    final Map<String, Object> eventData = Map.of(
-                            FieldName.APP_MODE,
-                            ApplicationMode.EDIT.toString(),
-                            FieldName.APPLICATION,
-                            deletedApplication);
-                    final Map<String, Object> data = Map.of(FieldName.EVENT_DATA, eventData);
+                .flatMap(applicationService::archive);
+    }
 
-                    return analyticsService.sendDeleteEvent(deletedApplication, data);
-                });
+    protected Mono<Application> sendAppDeleteAnalytics(Application deletedApplication) {
+        final Map<String, Object> eventData =
+                Map.of(FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.APPLICATION, deletedApplication);
+        final Map<String, Object> data = Map.of(FieldName.EVENT_DATA, eventData);
+
+        return analyticsService.sendDeleteEvent(deletedApplication, data);
     }
 
     @Override

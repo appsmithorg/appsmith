@@ -9,13 +9,12 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { getStartPosition } from "./highlightUtils";
-import { HIGHLIGHT_SIZE, VERTICAL_DROP_ZONE_MULTIPLIER } from "../../constants";
+import { HIGHLIGHT_SIZE } from "../../constants";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,
 } from "layoutSystems/common/types";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import type { DropZone } from "layoutSystems/common/utils/types";
 
 /**
  *
@@ -302,7 +301,7 @@ export function updateHighlights(
    * Drop zone of this set needs to be updated after the current highlights have been calculated.
    */
   let prevHighlightsIndex = -1;
-  let prevHighlights: AnvilHighlightInfo[] | undefined = arr.length
+  const prevHighlights: AnvilHighlightInfo[] | undefined = arr.length
     ? arr.filter((each: AnvilHighlightInfo, index: number) => {
         if (each.rowIndex === rowIndex - 1 && !each.isVertical) {
           if (prevHighlightsIndex === -1) prevHighlightsIndex = index;
@@ -318,12 +317,10 @@ export function updateHighlights(
     baseHighlight,
     layoutDimension,
     currDimension,
-    nextDimension,
     prevDimension,
     rowIndex,
     isLastHighlight,
     hasAlignments,
-    prevHighlights && prevHighlights.length ? prevHighlights[0] : undefined,
     hasFillWidget,
   );
   /**
@@ -331,12 +328,6 @@ export function updateHighlights(
    * then update their bottom drop zone to match the top drop zone of current highlights.
    */
   if (prevHighlights) {
-    prevHighlights = prevHighlights.map((each: AnvilHighlightInfo) => {
-      return {
-        ...each,
-        dropZone: { ...each.dropZone, bottom: curr[0].dropZone.top },
-      };
-    });
     updatedHighlights = [
       ...updatedHighlights.slice(0, prevHighlightsIndex),
       ...prevHighlights,
@@ -351,12 +342,10 @@ export function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
   layoutDimension: LayoutElementPosition,
   currentDimension: LayoutElementPosition,
-  nextDimension: LayoutElementPosition | undefined,
   prevDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasAlignments: boolean,
-  prevHighlight?: AnvilHighlightInfo,
   hasFillWidget = false,
 ): AnvilHighlightInfo[] {
   /**
@@ -391,11 +380,12 @@ export function generateHighlights(
         currentDimension.top -
         currentDimension.height;
       posY = Math.min(
-        currentDimension.top + currentDimension.height,
+        currentDimension.top + currentDimension.height, // Below the last child.
         layoutDimension.top +
           layoutDimension.height -
           gap / 2 -
-          HIGHLIGHT_SIZE / 2,
+          HIGHLIGHT_SIZE / 2, // In the middle of the gap between the last child and the bottom edge of the layout.
+        layoutDimension.top + layoutDimension.height - HIGHLIGHT_SIZE, // Along the bottom edge of the layout.
       );
     }
   } else {
@@ -408,24 +398,9 @@ export function generateHighlights(
     );
   }
 
-  const dropZone: DropZone = {
-    top: prevHighlight
-      ? (posY - prevHighlight.posY) * VERTICAL_DROP_ZONE_MULTIPLIER
-      : Math.max(posY - layoutDimension.top, HIGHLIGHT_SIZE),
-    bottom: isLastHighlight
-      ? Math.max(layoutDimension.height - posY, HIGHLIGHT_SIZE)
-      : nextDimension
-      ? Math.max(
-          nextDimension.top + nextDimension.height - posY,
-          HIGHLIGHT_SIZE,
-        )
-      : HIGHLIGHT_SIZE,
-  };
-
   return arr.map((alignment: FlexLayerAlignment, index: number) => ({
     ...baseHighlight,
     alignment,
-    dropZone,
     posX: width * index,
     posY,
     rowIndex,

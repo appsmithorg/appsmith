@@ -115,7 +115,7 @@ jobs:
 
       - name: Extract the tests for rerun
         id: failed_tests
-        if: steps.run_result.outputs.run_result == 'failedtest'  && steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
           failed_tests=$(awk '$0 != "" && !seen[$0]++ {printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests.txt)
           echo "$failed_tests"
@@ -145,23 +145,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-      # first 11 characters. This can be used to build images for several branches
-      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
-      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
-      - name: Get the version to tag the Docker image
-        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        id: vars
-        run: |
-          # Since this is an unreleased build, we set the version to incremented version number with a
-          # `-SNAPSHOT` suffix.
-          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
-          echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
-          echo "next_version = $next_version"
-          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
-          echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
-
       # Build the code
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
@@ -176,10 +159,6 @@ jobs:
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
-          mvn --batch-mode versions:set \
-            -DnewVersion=${{ steps.vars.outputs.version }} \
-            -DgenerateBackupPoms=false \
-            -DprocessAllModules=true
           ./build.sh -DskipTests
 
       # Test the code
@@ -246,7 +225,7 @@ jobs:
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
           cd cibuildcache/$repodir/release/server
-          git lfs pull ./server.jar          
+          git lfs pull ./server.jar
           mv ./server.jar ../../../../../server.jar
           cd ../../../../../
           tar -xzvf ./server.jar
@@ -290,7 +269,7 @@ jobs:
           cp ../../../../../server.jar ./
           git lfs track "server.jar"
           git add  server.jar
-          git commit -m "Update Latest Server.jar"
+          git commit --allow-empty -m "Update Latest Server.jar"
           git push
 
       - name: Save the status of the run

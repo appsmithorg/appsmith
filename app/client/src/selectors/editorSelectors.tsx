@@ -71,9 +71,6 @@ const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
 const getPageListState = (state: AppState) => state.entities.pageList;
 
-export const getProviderCategories = (state: AppState) =>
-  state.ui.providers.providerCategories;
-
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
@@ -325,7 +322,8 @@ export const getCurrentPageName = createSelector(
 
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
-  (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
+  (_state: AppState) =>
+    selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
   (isAutoLayout, isWDSEnabled) => {
     const widgetConfigs = WidgetFactory.getConfigs();
 

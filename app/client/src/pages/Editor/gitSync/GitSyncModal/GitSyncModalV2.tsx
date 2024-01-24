@@ -26,12 +26,12 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import GitConnectionV2 from "../Tabs/GitConnectionV2";
-import GitSettings from "../Tabs/GitSettings";
 import { GitSyncModalTab } from "entities/GitSync";
 import ConnectionSuccess from "../Tabs/ConnectionSuccess";
 import styled from "styled-components";
 import ReconnectSSHError from "../components/ReconnectSSHError";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -53,6 +53,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
   const isDeploying = useSelector(getIsDeploying);
+  const appId = useSelector(getCurrentApplicationId);
 
   const menuOptions = [
     {
@@ -113,7 +114,9 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-    dispatch(setWorkspaceIdForImport(""));
+    dispatch(
+      setWorkspaceIdForImport({ editorId: appId || "", workspaceId: "" }),
+    );
   }, [dispatch, setIsGitSyncModalOpen]);
 
   return (
@@ -148,7 +151,6 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
             ))}
           {activeTabKey === GitSyncModalTab.DEPLOY && <Deploy />}
           {activeTabKey === GitSyncModalTab.MERGE && <Merge />}
-          {activeTabKey === GitSyncModalTab.SETTINGS && <GitSettings />}
         </StyledModalContent>
       </Modal>
       <GitErrorPopup />

@@ -15,6 +15,7 @@ import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.services.CrudService;
 import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -35,6 +36,12 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     void generateAndSetActionPolicies(NewPage page, NewAction action);
 
     Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction);
+
+    Mono<NewAction> validateAction(NewAction newAction);
+
+    Mono<List<InsertManyResult>> bulkValidateAndInsertActionInRepository(List<NewAction> newActionList);
+
+    Mono<List<BulkWriteResult>> bulkValidateAndUpdateActionInRepository(List<NewAction> newActionList);
 
     Mono<NewAction> extractAndSetJsonPathKeys(NewAction newAction);
 
@@ -84,6 +91,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
 
+    Flux<ActionDTO> getUnpublishedActionsByPageId(String pageId, AclPermission permission);
+
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName);
 
     Mono<ActionDTO> populateHintMessages(ActionDTO action);
@@ -126,8 +135,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
 
-    void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName);
-
     Mono<ImportedActionAndCollectionMapsDTO> updateActionsWithImportedCollectionIds(
             ImportActionCollectionResultDTO importActionCollectionResultDTO,
             ImportActionResultDTO importActionResultDTO);
@@ -150,4 +157,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     NewAction generateActionDomain(ActionDTO action);
 
     void updateDefaultResourcesInAction(NewAction newAction);
+
+    Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO);
 }

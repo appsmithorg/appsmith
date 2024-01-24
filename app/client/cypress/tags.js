@@ -60,5 +60,6 @@ module.exports = {
     "@tag.Sanity",
     "@tag.Templates",
     "@tag.Authentication",
+    "@tag.MainContainer",
   ],
 };

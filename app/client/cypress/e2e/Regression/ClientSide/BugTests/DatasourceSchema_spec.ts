@@ -19,10 +19,6 @@ describe(
   { tags: ["@tag.Datasource"] },
   function () {
     before(() => {
-      featureFlagIntercept({
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      });
       homePage.CreateNewWorkspace("FetchSchemaOnce", true);
       homePage.CreateAppInWorkspace("FetchSchemaOnce");
     });

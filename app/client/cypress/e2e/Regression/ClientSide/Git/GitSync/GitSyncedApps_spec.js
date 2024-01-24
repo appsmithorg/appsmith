@@ -5,11 +5,9 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const generatePage = require("../../../../../locators/GeneratePage.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import ApiEditor from "../../../../../locators/ApiEditor";
 import homePageLocators from "../../../../../locators/HomePage";
 import datasource from "../../../../../locators/DatasourcesEditor.json";
 
@@ -135,17 +133,10 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       apiPage.RunAPI();
       apiPage.ResponseStatusCheck("200 OK");
       // curl import
-      dataSources.NavigateToDSCreateNew();
-      cy.get(ApiEditor.curlImage).click({ force: true });
-      cy.get("textarea").type(
-        'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +
+      dataSources.FillCurlNImport(
+        `curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '` +
           datasourceFormData["echoApiUrl"],
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
       );
-      cy.importCurl();
       cy.RunAPI();
       apiPage.ResponseStatusCheck("200 OK");
       cy.get("@curlImport").then((response) => {
@@ -306,8 +297,6 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       toastToValidate: "moved to page",
     });
     agHelper.WaitUntilAllToastsDisappear();
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
-    cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
@@ -322,7 +311,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       "Default value",
       "{{get_users.data[0].name}}",
     );
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     EditorNavigation.SelectEntityByName("get_users", EntityType.Query);
     dataSources.RunQuery();
   });

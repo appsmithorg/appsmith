@@ -30,7 +30,6 @@ describe(
         cy.log("Creation of FirstAPI Action successful");
         AppSidebar.navigate(AppSidebarButton.Editor);
         cy.CreateAPI(`SecondAPI_${uid}`);
-        cy.CheckAndUnfoldEntityItem("Queries/JS");
         cy.log("Creation of SecondAPI Action successful");
         PageLeftPane.assertPresence(`FirstAPI_${uid}`);
         PageLeftPane.assertPresence(`SecondAPI_${uid}`);
@@ -60,14 +59,11 @@ describe(
       cy.get(ApiEditor.tableResponseTab).click();
       cy.checkIfApiPaneIsVisible();
     });
+
     it("3. Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function () {
-      cy.generateUUID().then((uid) => {
-        APIName = uid;
-        cy.CreateAPI(APIName);
-      });
-      cy.enterDatasource(testUrl3);
-      cy.SaveAndRunAPI();
-      cy.ResponseStatusCheck("200");
+      apiPage.CreateAndFillApi(testUrl3);
+      apiPage.RunAPI();
+      apiPage.ResponseStatusCheck("200 OK");
     });
   },
 );

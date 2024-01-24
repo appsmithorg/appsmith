@@ -65,7 +65,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
-  DELETING_APPLICATION,
   DELETING_MULTIPLE_APPLICATION,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
@@ -135,6 +134,7 @@ import type { DeletingMultipleApps } from "@appsmith/reducers/uiReducers/applica
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import equal from "fast-deep-equal";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -317,6 +317,7 @@ export function* fetchAppAndPagesSaga(
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
           workspaceId: response.data.workspaceId,
+          editorId: response.data.application?.id,
         },
       });
 
@@ -484,7 +485,6 @@ export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    toast.show(createMessage(DELETING_APPLICATION));
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.deleteApplication,
@@ -735,6 +735,7 @@ export function* forkApplicationSaga(
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
           workspaceId: action.payload.workspaceId,
+          editorId: application.id,
         },
       });
 
@@ -799,7 +800,7 @@ export function* showReconnectDatasourcesModalSaga(
     setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
   );
 
-  yield put(setWorkspaceIdForImport(workspaceId));
+  yield put(setWorkspaceIdForImport({ editorId: application.id, workspaceId }));
   yield put(setPageIdForImport(pageId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
@@ -945,14 +946,8 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
     // if the currentEnvironemnt is not present for use here, take the first key from datasourceStorages
     currentEnvironment = Object.keys(datasource.datasourceStorages)[0];
   }
-  // Added isEmpty instead of ! condition as ! does not account for
-  // datasourceConfiguration being empty
-  if (
-    isEmpty(
-      datasource.datasourceStorages[currentEnvironment]
-        ?.datasourceConfiguration,
-    )
-  ) {
+  const dsStorage = datasource.datasourceStorages[currentEnvironment];
+  if (!dsStorage?.isConfigured) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
       getPluginForm,
@@ -961,28 +956,39 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
     const initialValues: unknown = yield call(
       getConfigInitialValues,
       formConfig,
+      false,
+      false,
     );
-    const payload = merge(
-      initialValues,
-      datasource.datasourceStorages[currentEnvironment],
-    );
+    const payload = merge(initialValues, dsStorage);
     payload.isConfigured = false; // imported datasource as not configured yet
-    const response: ApiResponse =
-      yield DatasourcesApi.updateDatasourceStorage(payload);
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS,
-        payload: response.data,
-      });
+
+    let isDSValueUpdated = false;
+    if (isEmpty(dsStorage.datasourceConfiguration)) {
+      isDSValueUpdated = true;
+    } else {
+      isDSValueUpdated = !equal(payload, dsStorage);
+    }
+    if (isDSValueUpdated) {
+      const response: ApiResponse =
+        yield DatasourcesApi.updateDatasourceStorage(payload);
+      const isValidResponse: boolean = yield validateResponse(response);
+      if (isValidResponse) {
+        yield put({
+          type: ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS,
+          payload: response.data,
+        });
+      }
     }
   }
 }
 
 export function* initDatasourceConnectionDuringImport(
-  action: ReduxAction<string>,
+  action: ReduxAction<{
+    workspaceId: string;
+    isPartialImport?: boolean;
+  }>,
 ) {
-  const workspaceId = action.payload;
+  const workspaceId = action.payload.workspaceId;
 
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
     [fetchPlugins({ workspaceId }), fetchDatasources({ workspaceId })],
@@ -1014,7 +1020,10 @@ export function* initDatasourceConnectionDuringImport(
     ),
   );
 
-  yield put(initDatasourceConnectionDuringImportSuccess());
+  if (!action.payload.isPartialImport) {
+    // This is required for reconnect datasource modal popup
+    yield put(initDatasourceConnectionDuringImportSuccess());
+  }
 }
 
 export function* uploadNavigationLogoSaga(

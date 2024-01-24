@@ -108,6 +108,16 @@ init_env_file() {
 setup_proxy_variables() {
   export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
 
+  # Ensure `localhost` and `127.0.0.1` are in always present in `NO_PROXY`.
+  local no_proxy_lines
+  no_proxy_lines="$(echo "$NO_PROXY" | tr , \\n)"
+  if ! echo "$no_proxy_lines" | grep -q '^localhost$'; then
+    export NO_PROXY="localhost,$NO_PROXY"
+  fi
+  if ! echo "$no_proxy_lines" | grep -q '^127.0.0.1$'; then
+    export NO_PROXY="127.0.0.1,$NO_PROXY"
+  fi
+
   # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
   if [[ -n ${HTTPS_PROXY-} ]]; then
     export https_proxy="$HTTPS_PROXY"
@@ -252,14 +262,6 @@ use-mongodb-key() {
   chmod 600 "$MONGODB_TMP_KEY_PATH"
 }
 
-# Keep Let's Encrypt directory persistent
-mount_letsencrypt_directory() {
-  echo "Mounting Let's encrypt directory"
-  rm -rf /etc/letsencrypt
-  mkdir -p /appsmith-stacks/{letsencrypt,ssl}
-  ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
-}
-
 is_empty_directory() {
   [[ -d $1 && -z "$(ls -A "$1")" ]]
 }
@@ -388,9 +390,13 @@ init_postgres() {
     echo "Checking initialized local postgres"
     POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
 
-    if [ -e "$POSTGRES_DB_PATH/PG_VERSION" ]; then
-        echo "Found existing Postgres, Skipping initialization"
-        chown -R postgres:postgres "$POSTGRES_DB_PATH"
+    mkdir -p "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
+
+    # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
+    chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
+
+    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+      echo "Found existing Postgres, Skipping initialization"
     else
       echo "Initializing local postgresql database"
       mkdir -p "$POSTGRES_DB_PATH"
@@ -400,6 +406,7 @@ init_postgres() {
 
       # Initialize the postgres db file system
       su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+      sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
 
       # Start the postgres server in daemon mode
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
@@ -476,8 +483,6 @@ fi
 check_setup_custom_ca_certificates
 setup-custom-ca-certificates
 
-mount_letsencrypt_directory
-
 check_redis_compatible_page_size
 
 safe_init_postgres
@@ -485,7 +490,7 @@ safe_init_postgres
 configure_supervisord
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
-mkdir -p /appsmith-stacks/data/{backup,restore}
+mkdir -p /appsmith-stacks/data/{backup,restore} /appsmith-stacks/ssl
 
 # Create sub-directory to store services log in the container mounting folder
 mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}

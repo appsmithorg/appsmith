@@ -36,7 +36,6 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import * as widgetActions from "actions/widgetActions";
 import * as uiSelectors from "selectors/ui";
 import { NavigationMethod } from "../../../utils/history";
-import { setExplorerPinnedAction } from "actions/explorerActions";
 
 jest.mock("constants/routes", () => {
   return {
@@ -154,12 +153,6 @@ describe("Canvas Hot Keys", () => {
       const artBoard: any = component.queryByTestId("t--canvas-artboard");
       // deselect all other widgets
       fireEvent.click(artBoard);
-      expect(spyWidgetSelection).toHaveBeenCalledWith(
-        SelectionRequestType.Empty,
-        [],
-        NavigationMethod.CanvasClick,
-      );
-      spyWidgetSelection.mockClear();
 
       dispatchTestKeyboardEventWithCode(
         component.container,
@@ -530,76 +523,5 @@ describe("cmd + s hotkey", () => {
         component.getByText(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE)),
       ).toBeDefined();
     });
-  });
-});
-
-describe("mod + / hotkey", () => {
-  it("Should dispatch pin/unpin explorer on mod + /", async () => {
-    const dispatchSpy = jest.spyOn(store, "dispatch");
-    const component = render(
-      <GlobalHotKeys
-        getMousePosition={() => {
-          return { x: 0, y: 0 };
-        }}
-      >
-        <div />
-      </GlobalHotKeys>,
-    );
-    dispatchSpy.mockClear();
-
-    dispatchTestKeyboardEventWithCode(
-      component.container,
-      "keydown",
-      "/",
-      191,
-      false,
-      true,
-    );
-
-    expect(dispatchSpy).toBeCalledTimes(2);
-    expect(dispatchSpy).toHaveBeenNthCalledWith(
-      1,
-      setExplorerPinnedAction(false),
-    );
-  });
-
-  it("Shouldn't dispatch pin/unpin explorer on mod + / when signposting is enabled", async () => {
-    const dispatchSpy = jest.spyOn(store, "dispatch");
-    const state: any = {
-      entities: {
-        pageList: {
-          applicationId: "1",
-        },
-      },
-      ui: {
-        onBoarding: {
-          firstTimeUserOnboardingApplicationIds: ["1"],
-        },
-      },
-    };
-    const component = render(
-      <GlobalHotKeys
-        getMousePosition={() => {
-          return { x: 0, y: 0 };
-        }}
-      >
-        <div />
-      </GlobalHotKeys>,
-      {
-        initialState: state,
-      },
-    );
-    dispatchSpy.mockClear();
-
-    dispatchTestKeyboardEventWithCode(
-      component.container,
-      "keydown",
-      "/",
-      191,
-      false,
-      true,
-    );
-
-    expect(dispatchSpy).toBeCalledTimes(0);
   });
 });

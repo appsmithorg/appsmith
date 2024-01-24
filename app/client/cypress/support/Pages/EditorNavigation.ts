@@ -3,7 +3,7 @@ import { ObjectsRegistry as _ } from "../Objects/Registry";
 import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
-import PageList from "./PageList";
+
 export enum AppSidebarButton {
   Data = "Data",
   Editor = "Editor",
@@ -13,8 +13,9 @@ export enum AppSidebarButton {
 export const AppSidebar = new Sidebar(Object.values(AppSidebarButton));
 
 export enum PagePaneSegment {
-  Explorer = "Explorer",
-  Widgets = "Widgets",
+  UI = "UI",
+  Queries = "Queries",
+  JS = "JS",
 }
 
 const pagePaneListItemSelector = (name: string) =>
@@ -22,6 +23,7 @@ const pagePaneListItemSelector = (name: string) =>
 
 export const PageLeftPane = new LeftPane(
   pagePaneListItemSelector,
+  ".ide-editor-left-pane",
   Object.values(PagePaneSegment),
 );
 
@@ -43,7 +45,8 @@ class EditorNavigation {
       .should("be.visible")
       .click()
       .parents(datasource.datasourceCard)
-      .should("have.attr", "data-selected", "true");
+      .as("dsCard");
+    cy.get("@dsCard").should("have.attr", "data-selected", "true");
   }
 
   NavigateToWidget(
@@ -52,8 +55,7 @@ class EditorNavigation {
     hierarchy: string[] = [],
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    PageLeftPane.expandCollapseItem("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     hierarchy.forEach((level) => {
       PageLeftPane.expandCollapseItem(level);
     });
@@ -63,16 +65,14 @@ class EditorNavigation {
 
   NavigateToQuery(name: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   NavigateToJSObject(name: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
@@ -114,7 +114,7 @@ class EditorNavigation {
 
   ShowCanvas() {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageList.SelectedPageItem().click();
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
   }
 }
 

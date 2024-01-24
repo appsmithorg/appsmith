@@ -261,3 +261,9 @@ export const getGitMetadataLoadingSelector = (state: AppState) =>
 
 export const getAutocommitEnabledSelector = (state: AppState) =>
   !!state.ui.gitSync.gitMetadata?.autoCommitConfig?.enabled;
+
+export const isGitSettingsModalOpenSelector = (state: AppState) =>
+  state.ui.gitSync.isGitSettingsModalOpen;
+
+export const activeGitSettingsModalTabSelector = (state: AppState) =>
+  state.ui.gitSync.activeGitSettingsModalTab;

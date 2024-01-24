@@ -4,15 +4,17 @@ import {
   assertHelper,
   dataSources,
   deployMode,
+  draggableWidgets,
   entityExplorer,
   entityItems,
   homePage,
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
-import {
+import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
+  EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
@@ -46,7 +48,7 @@ describe(
       );
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -101,19 +103,18 @@ describe(
     });
 
     it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "orders");
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("public.orders");
 
       GenerateCRUDNValidateDeployPage(
         "VINET",
-        "1996-07-04",
-        "1996-08-01",
+        "1996-07-04T00:00:00+00:00",
+        "1996-08-01T00:00:00+00:00",
         "order_id",
       );
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -135,24 +136,26 @@ describe(
       col3Text: string,
       jsonFromHeader: string,
     ) {
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      agHelper.GetNClick(
+        `${dataSources._generatePageBtn}, ${dataSources._datasourceCardGeneratePageBtn}`,
+      );
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 1, "v2", 4000).then(($cellData) => {
         expect($cellData).to.eq(col1Text);
       });
-      table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col2Text);
       });
-      table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 4, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col3Text);
       });
 

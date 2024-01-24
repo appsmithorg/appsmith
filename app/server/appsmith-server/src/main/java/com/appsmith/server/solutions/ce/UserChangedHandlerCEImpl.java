@@ -2,7 +2,6 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.events.UserChangedEvent;
-import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,6 @@ import reactor.core.scheduler.Schedulers;
 public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
 
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final NotificationRepository notificationRepository;
     private final WorkspaceRepository workspaceRepository;
 
     public User publish(User user) {

@@ -132,7 +132,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         }
 
         return validateAndCreateActionCollectionDomain(collectionDTO, branchName)
-                .flatMap(actionCollection -> createCollection(actionCollection))
+                .flatMap(actionCollection -> createCollection(actionCollection)
+                        .flatMap(actionCollectionDTO -> actionCollectionService
+                                .saveLastEditInformationInParent(actionCollectionDTO)
+                                .thenReturn(actionCollectionDTO)))
                 .map(actionCollectionDTO -> responseUtils.updateCollectionDTOWithDefaultResources(actionCollectionDTO));
     }
 
@@ -157,7 +160,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     defaultResources.setBranchName(branchName);
                     collectionDTO.setDefaultResources(defaultResources);
                     actionCollection.setDefaultResources(defaultResources);
-                    actionCollection.setUnpublishedCollection(collectionDTO);
                     actionCollectionService.generateAndSetPolicies(newPage, actionCollection);
                     actionCollection.setUnpublishedCollection(collectionDTO);
                     return Mono.zip(
@@ -501,8 +503,11 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))
                 .flatMap(actionCollection -> actionCollectionService
                         .generateActionCollectionByViewMode(actionCollection, false)
-                        .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
-                                actionCollection.getUnpublishedCollection(), false)))
+                        .flatMap(actionCollectionDTO1 -> actionCollectionService
+                                .populateActionCollectionByViewMode(actionCollection.getUnpublishedCollection(), false)
+                                .flatMap(actionCollectionDTO2 -> actionCollectionService
+                                        .saveLastEditInformationInParent(actionCollectionDTO2)
+                                        .thenReturn(actionCollectionDTO2))))
                 .map(responseUtils::updateCollectionDTOWithDefaultResources)
                 .flatMap(branchedActionCollection -> sendErrorReportsFromPageToCollection(branchedActionCollection));
     }

@@ -6,6 +6,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -17,7 +18,6 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
@@ -77,9 +77,6 @@ public class NewActionServiceUnitTest {
     PluginExecutorHelper pluginExecutorHelper;
 
     @MockBean
-    MarketplaceService marketplaceService;
-
-    @MockBean
     PolicyGenerator policyGenerator;
 
     @MockBean
@@ -123,6 +120,12 @@ public class NewActionServiceUnitTest {
     @MockBean
     ObservationRegistry observationRegistry;
 
+    @MockBean
+    DefaultResourcesService<NewAction> defaultResourcesService;
+
+    @MockBean
+    DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
+
     @BeforeEach
     public void setup() {
         newActionService = new NewActionServiceCEImpl(
@@ -135,7 +138,6 @@ public class NewActionServiceUnitTest {
                 datasourceService,
                 pluginService,
                 pluginExecutorHelper,
-                marketplaceService,
                 policyGenerator,
                 newPageService,
                 applicationService,
@@ -149,7 +151,9 @@ public class NewActionServiceUnitTest {
                 pagePermission,
                 actionPermission,
                 entityValidationService,
-                observationRegistry);
+                observationRegistry,
+                defaultResourcesService,
+                dtoDefaultResourcesService);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);

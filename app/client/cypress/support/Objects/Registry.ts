@@ -29,6 +29,7 @@ import { Tabs } from "../Pages/Tabs";
 import { GsheetHelper } from "../Pages/GSheetHelper";
 import { CommunityTemplates } from "../Pages/CommunityTemplates";
 import { AnvilLayout } from "../Pages/AnvilLayout";
+import PartialImportExport from "../Pages/PartialImportExport";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -277,6 +278,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.communityTemplates__ = new CommunityTemplates();
     }
     return ObjectsRegistry.communityTemplates__;
+  }
+
+  private static partialImportExport__: PartialImportExport;
+  static get PartialImportExport(): PartialImportExport {
+    if (ObjectsRegistry.partialImportExport__ === undefined) {
+      ObjectsRegistry.partialImportExport__ = new PartialImportExport();
+    }
+    return ObjectsRegistry.partialImportExport__;
   }
 }
 

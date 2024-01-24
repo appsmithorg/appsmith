@@ -7,17 +7,18 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -39,9 +40,11 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -90,6 +93,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final ApplicationPermission applicationPermission;
     private final SessionUserService sessionUserService;
     private final UserDataService userDataService;
+    private final WorkspaceService workspaceService;
+    private final WorkspacePermission workspacePermission;
+
     private static final Integer MAX_RETRIES = 5;
 
     @Autowired
@@ -109,7 +115,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             SessionUserService sessionUserService,
-            UserDataService userDataService) {
+            UserDataService userDataService,
+            WorkspaceService workspaceService,
+            WorkspacePermission workspacePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policySolution = policySolution;
@@ -122,6 +130,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.applicationPermission = applicationPermission;
         this.sessionUserService = sessionUserService;
         this.userDataService = userDataService;
+        this.workspaceService = workspaceService;
+        this.workspacePermission = workspacePermission;
     }
 
     @Override
@@ -201,6 +211,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
+        // Read the workspace
+        Mono<Workspace> workspaceMono = workspaceService
+                .findById(workspaceId, workspacePermission.getReadPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
+
         Mono<RecentlyUsedEntityDTO> userDataMono = userDataService
                 .getForCurrentUser()
                 .defaultIfEmpty(new UserData())
@@ -215,7 +231,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
 
         // Collect all the applications as a map with workspace id as a key
-        return userDataMono.flatMapMany(
+        return workspaceMono.thenMany(userDataMono.flatMapMany(
                 recentlyUsedEntityDTO -> this.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
                         // sort transformation
                         .transform(domainFlux -> sortDomainsBasedOnOrderedDomainIds(
@@ -229,7 +245,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             return !GitUtils.isApplicationConnectedToGit(application)
                                     || GitUtils.isDefaultBranchedApplication(application);
                         })
-                        .map(responseUtils::updateApplicationWithDefaultResources));
+                        .map(responseUtils::updateApplicationWithDefaultResources)));
     }
 
     @Override
@@ -408,45 +424,56 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(branchedApplication -> {
                     application.setPages(null);
                     application.setGitApplicationMetadata(null);
-                    /**
-                     * Retaining the logoAssetId field value while updating NavigationSetting
-                     */
-                    if (application.getUnpublishedApplicationDetail() != null) {
-                        ApplicationDetail presetApplicationDetail = ObjectUtils.defaultIfNull(
-                                branchedApplication.getApplicationDetail(), new ApplicationDetail());
-                        if (branchedApplication.getUnpublishedApplicationDetail() == null) {
-                            branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
-                        }
-                        Application.NavigationSetting requestNavSetting =
-                                application.getUnpublishedApplicationDetail().getNavigationSetting();
-                        if (requestNavSetting != null) {
-                            Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(
-                                    branchedApplication
-                                            .getUnpublishedApplicationDetail()
-                                            .getNavigationSetting(),
-                                    new Application.NavigationSetting());
-                            String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
-                            String requestLogoAssetId =
-                                    ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
-                            requestNavSetting.setLogoAssetId(
-                                    ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
-                            presetApplicationDetail.setNavigationSetting(requestNavSetting);
-                        }
 
-                        Application.AppPositioning requestAppPositioning =
-                                application.getUnpublishedApplicationDetail().getAppPositioning();
-                        if (requestAppPositioning != null) {
-                            presetApplicationDetail.setAppPositioning(requestAppPositioning);
-                        }
-                        Application.ThemeSetting requestThemeSettings =
-                                application.getUnpublishedApplicationDetail().getThemeSetting();
-                        if (requestThemeSettings != null) {
-                            presetApplicationDetail.setThemeSetting(requestThemeSettings);
-                        }
-                        application.setUnpublishedApplicationDetail(presetApplicationDetail);
-                    }
-                    return this.update(branchedApplication.getId(), application);
+                    return verifyIfForkingIsAllowed(branchedApplication, application)
+                            .then(updateApplication(application, branchedApplication));
                 });
+    }
+
+    private Mono<Application> updateApplication(Application application, Application branchedApplication) {
+        /**
+         * Retaining the logoAssetId field value while updating NavigationSetting
+         */
+        if (application.getUnpublishedApplicationDetail() != null) {
+            ApplicationDetail presetApplicationDetail =
+                    ObjectUtils.defaultIfNull(branchedApplication.getApplicationDetail(), new ApplicationDetail());
+            if (branchedApplication.getUnpublishedApplicationDetail() == null) {
+                branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+            }
+            Application.NavigationSetting requestNavSetting =
+                    application.getUnpublishedApplicationDetail().getNavigationSetting();
+            if (requestNavSetting != null) {
+                Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(
+                        branchedApplication.getUnpublishedApplicationDetail().getNavigationSetting(),
+                        new Application.NavigationSetting());
+                String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
+                String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
+                requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
+                presetApplicationDetail.setNavigationSetting(requestNavSetting);
+            }
+
+            Application.AppPositioning requestAppPositioning =
+                    application.getUnpublishedApplicationDetail().getAppPositioning();
+            if (requestAppPositioning != null) {
+                presetApplicationDetail.setAppPositioning(requestAppPositioning);
+            }
+            Application.ThemeSetting requestThemeSettings =
+                    application.getUnpublishedApplicationDetail().getThemeSetting();
+            if (requestThemeSettings != null) {
+                presetApplicationDetail.setThemeSetting(requestThemeSettings);
+            }
+            application.setUnpublishedApplicationDetail(presetApplicationDetail);
+        }
+        return this.update(branchedApplication.getId(), application);
+    }
+
+    /**
+     * This method is a placeholder in the Community Edition (CE) repository. It is designed to be overridden in
+     * derived classes in the Enterprise Edition (EE) where the actual logic to verify if forking is allowed will be
+     * implemented. In CE, forking is always allowed up to this point, hence the method returns an empty Mono.
+     */
+    protected Mono<Void> verifyIfForkingIsAllowed(Application branchedApplication, Application applicationReq) {
+        return Mono.empty().then();
     }
 
     @Override
@@ -650,9 +677,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         List<Mono<Void>> list = new ArrayList<>();
 
         Map<String, Policy> pagePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
-                applicationPolicyMap, Application.class, Page.class);
-        Map<String, Policy> actionPolicyMap =
-                policySolution.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
+                applicationPolicyMap, Application.class, NewPage.class);
+        Map<String, Policy> actionPolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
+                pagePolicyMap, NewPage.class, NewAction.class);
         Map<String, Policy> themePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class);
 

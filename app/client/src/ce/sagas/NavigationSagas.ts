@@ -9,17 +9,19 @@ import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import type { BackgroundTheme } from "sagas/ThemeSaga";
 import { changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
-import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   setLastSelectedWidget,
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { contextSwitchingSaga } from "sagas/ContextSwitchingSaga";
+import FocusRetention from "sagas/FocusRetentionSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
 import UsagePulse from "usagePulse";
+import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
 
 let previousPath: string;
 
@@ -30,16 +32,25 @@ export function* handleRouteChange(
   try {
     yield fork(clearErrors);
     yield fork(watchForTrackableUrl, action.payload);
-    const isAnEditorPath = isEditorPath(pathname);
+    const ideType = getIDETypeByUrl(pathname);
+    const isAnEditorPath = ideType !== IDE_TYPE.None;
 
     // handled only on edit mode
     if (isAnEditorPath) {
-      yield fork(logNavigationAnalytics, action.payload);
-      yield fork(contextSwitchingSaga, pathname, previousPath, state);
-      yield fork(appBackgroundHandler);
-      const entityInfo = identifyEntityFromPath(pathname);
-      yield fork(updateRecentEntitySaga, entityInfo);
-      yield fork(setSelectedWidgetsSaga, state?.invokedBy);
+      yield fork(
+        FocusRetention.onRouteChange.bind(FocusRetention),
+        pathname,
+        previousPath,
+        state,
+      );
+      if (ideType === IDE_TYPE.App) {
+        yield fork(logNavigationAnalytics, action.payload);
+        yield fork(appBackgroundHandler);
+        const entityInfo = identifyEntityFromPath(pathname);
+        yield fork(updateRecentEntitySaga, entityInfo);
+        yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
+        yield fork(setSelectedWidgetsSaga, state?.invokedBy);
+      }
     }
   } catch (e) {
     log.error("Error in focus change", e);

@@ -74,6 +74,7 @@ const FilterItem = ({
       {selectedFilter && (
         <Icon
           color="var(--ads-v2-color-bg-brand-secondary-emphasis-plus)"
+          data-testid="t--templates-filter-item-selected-icon"
           name="check-line"
           size="md"
         />
@@ -225,6 +226,7 @@ const StartWithTemplateFilters = (props: FilterWrapperProps) => {
       <SearchWrapper sticky={props.stickySearchBar}>
         <div className="templates-search">
           <SearchInput
+            aria-label={createMessage(SEARCH_TEMPLATES)}
             data-testid={"t--application-search-input"}
             isDisabled={false}
             onChange={onChange}

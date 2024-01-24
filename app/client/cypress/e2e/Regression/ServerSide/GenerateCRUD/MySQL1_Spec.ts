@@ -3,6 +3,7 @@ import {
   assertHelper,
   dataSources,
   deployMode,
+  draggableWidgets,
   entityExplorer,
   entityItems,
   homePage,
@@ -24,12 +25,6 @@ describe(
   "Validate MySQL Generate CRUD with JSON Form",
   { tags: ["@tag.Datasource"] },
   () => {
-    before(() => {
-      featureFlagIntercept({
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      });
-    });
     // beforeEach(function() {
     //   if (INTERCEPT.MYSQL) {
     //     cy.log("MySQL DB is not found. Using intercept");
@@ -58,7 +53,7 @@ describe(
       GenerateCRUDNValidateDeployPage("ABW", "Aruba", "North America", "Code");
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -115,9 +110,8 @@ describe(
     });
 
     it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "employees");
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("employees");
 
       GenerateCRUDNValidateDeployPage(
         "1002",
@@ -127,7 +121,7 @@ describe(
       );
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       PageLeftPane.expandCollapseItem("Pages");
       entityExplorer.ActionContextMenuByEntityName({
@@ -181,39 +175,38 @@ describe(
     });
 
     it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
-      dataSources.GeneratePageForDS(dsName);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "productlines");
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+      dataSources.SelectTableFromPreviewSchemaList("productlines");
+      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
       agHelper.AssertContains("Successfully generated a page");
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       assertHelper.AssertNetworkStatus("@getActions", 200);
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
         expect($cellData).to.eq("Classic Cars");
       });
-      table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(1, 0, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Motorcycles");
       });
-      table.ReadTableRowColumnData(2, 0, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Planes");
       });
-      table.ReadTableRowColumnData(3, 0, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(3, 0, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Ships");
       });
-      table.ReadTableRowColumnData(4, 0, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(4, 0, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Trains");
       });
-      table.ReadTableRowColumnData(5, 0, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(5, 0, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Trucks and Buses");
       });
-      table.ReadTableRowColumnData(6, 0, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(6, 0, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Vintage Cars");
       });
       //Validating loaded JSON form
@@ -273,7 +266,7 @@ describe(
 
     it("8. Validate Deletion of the Newly Created Page - Productlines", () => {
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Productlines",
@@ -320,25 +313,27 @@ describe(
       col3Text: string,
       jsonFromHeader: string,
     ) {
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      agHelper.GetNClick(
+        `${dataSources._generatePageBtn}, ${dataSources._datasourceCardGeneratePageBtn}`,
+      );
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-      deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
-      table.WaitUntilTableLoad();
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
         expect($cellData).to.eq(col1Text);
       });
-      table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col2Text);
       });
-      table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq(col3Text);
       });
 

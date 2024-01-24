@@ -27,6 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   discardChanges,
   gitPullInit,
+  setGitSettingsModalOpenAction,
   setIsGitSyncModalOpen,
 } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
@@ -47,8 +48,9 @@ import { Button, Icon, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { useIsGitAdmin } from "../hooks/useIsGitAdmin";
 import AutocommitStatusbar from "./AutocommitStatusbar";
+import { useHasConnectToGitPermission } from "../hooks/gitPermissionHooks";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 
 interface QuickActionButtonProps {
   className?: string;
@@ -199,7 +201,7 @@ const getQuickActionButtons = ({
       icon: "down-arrow-2",
       onClick: () => !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
-      disabled: pullDisabled,
+      disabled: !showPullLoadingState && pullDisabled,
       loading: showPullLoadingState,
     },
     {
@@ -251,10 +253,11 @@ const CenterDiv = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
-  const isGitAdmin = useIsGitAdmin();
-  const isTooltipEnabled = isInGuidedTour || !isGitAdmin;
+  const isConnectToGitPermitted = useHasConnectToGitPermission();
+
+  const isTooltipEnabled = isInGuidedTour || !isConnectToGitPermitted;
   const tooltipContent = useMemo(() => {
-    if (!isGitAdmin) {
+    if (!isConnectToGitPermitted) {
       return <CenterDiv>{createMessage(CONTACT_ADMIN_FOR_GIT)}</CenterDiv>;
     }
     if (isInGuidedTour) {
@@ -271,7 +274,7 @@ function ConnectGitPlaceholder() {
         <div>{createMessage(COMING_SOON)}</div>
       </>
     );
-  }, [isInGuidedTour, isGitAdmin]);
+  }, [isInGuidedTour, isConnectToGitPermitted]);
 
   const isGitConnectionEnabled = !isInGuidedTour;
 
@@ -287,7 +290,7 @@ function ConnectGitPlaceholder() {
           {isGitConnectionEnabled ? (
             <Button
               className="t--connect-git-bottom-bar"
-              isDisabled={!isGitAdmin}
+              isDisabled={!isConnectToGitPermitted}
               kind="secondary"
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
@@ -353,15 +356,22 @@ export default function QuickGitActions() {
       });
     },
     settings: () => {
-      dispatch(
-        setIsGitSyncModalOpen({
-          isOpen: true,
-          tab: isGitConnectV2Enabled
-            ? GitSyncModalTab.SETTINGS
-            : GitSyncModalTab.GIT_CONNECTION,
-          isDeploying: true,
-        }),
-      );
+      if (isGitConnectV2Enabled) {
+        dispatch(
+          setGitSettingsModalOpenAction({
+            open: true,
+            tab: GitSettingsTab.GENERAL,
+          }),
+        );
+      } else {
+        dispatch(
+          setIsGitSyncModalOpen({
+            isOpen: true,
+            tab: GitSyncModalTab.GIT_CONNECTION,
+            isDeploying: true,
+          }),
+        );
+      }
       AnalyticsUtil.logEvent("GS_SETTING_CLICK", {
         source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
       });

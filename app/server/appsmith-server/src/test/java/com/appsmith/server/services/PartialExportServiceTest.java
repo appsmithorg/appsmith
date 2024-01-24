@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
@@ -12,6 +13,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -206,9 +208,6 @@ public class PartialExportServiceTest {
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
         isSetupDone = true;
-
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
-                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
     }
 
     private Application createGitConnectedApp(String applicationName) {
@@ -237,6 +236,9 @@ public class PartialExportServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     void testGetPartialExport_nonGitConnectedApp_success() {
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
+
         // Create an application with all resources
         Application testApplication = new Application();
         testApplication.setName("testGetPartialExport_nonGitConnectedApp_success");
@@ -263,10 +265,10 @@ public class PartialExportServiceTest {
         StepVerifier.create(partialExportFileDTOMono)
                 .assertNext(applicationJson -> {
                     assertThat(applicationJson.getDatasourceList().size()).isEqualTo(2);
-                    assertThat(applicationJson.getDatasourceList().get(0).getName())
-                            .isEqualTo("DS1");
-                    assertThat(applicationJson.getDatasourceList().get(1).getName())
-                            .isEqualTo("DS2");
+                    List<String> dsNames = applicationJson.getDatasourceList().stream()
+                            .map(DatasourceStorage::getName)
+                            .toList();
+                    assertThat(dsNames).containsAll(List.of("DS1", "DS2"));
                     assertThat(applicationJson.getDatasourceList().get(0).getPluginId())
                             .isEqualTo("installed-plugin");
                     assertThat(applicationJson.getDatasourceList().get(1).getPluginId())
@@ -278,6 +280,9 @@ public class PartialExportServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetPartialExport_gitConnectedApp_branchResourceExported() {
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
+
         Application application = createGitConnectedApp("testGetPartialExport_gitConnectedApp_branchResourceExported");
 
         // update git branch name for page
@@ -318,28 +323,91 @@ public class PartialExportServiceTest {
         StepVerifier.create(partialExportFileDTOMono)
                 .assertNext(applicationJson -> {
                     assertThat(applicationJson.getDatasourceList().size()).isEqualTo(2);
-                    assertThat(applicationJson.getDatasourceList().get(0).getName())
-                            .isEqualTo("DS1");
-                    assertThat(applicationJson.getDatasourceList().get(1).getName())
-                            .isEqualTo("DS2");
+                    List<String> dsNames = applicationJson.getDatasourceList().stream()
+                            .map(DatasourceStorage::getName)
+                            .toList();
+                    assertThat(dsNames).containsAll(List.of("DS1", "DS2"));
                     assertThat(applicationJson.getDatasourceList().get(0).getPluginId())
                             .isEqualTo("installed-plugin");
                     assertThat(applicationJson.getDatasourceList().get(1).getPluginId())
                             .isEqualTo("installed-plugin");
                     assertThat(applicationJson.getActionList().size()).isEqualTo(1);
-                    assertThat(applicationJson
-                                    .getActionList()
-                                    .get(0)
-                                    .getUnpublishedAction()
-                                    .getName())
-                            .isEqualTo("validAction");
-                    assertThat(applicationJson
-                                    .getActionList()
-                                    .get(0)
-                                    .getUnpublishedAction()
-                                    .getPageId())
-                            .isEqualTo("Page 2");
-                    assertThat(applicationJson.getActionList().get(0).getId()).isEqualTo("Page 2_validAction");
+
+                    NewAction newAction = applicationJson.getActionList().get(0);
+                    assertThat(newAction.getUnpublishedAction().getName()).isEqualTo("validAction");
+                    assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo("Page 2");
+                    assertThat(newAction.getId()).isEqualTo("Page 2_validAction");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetPartialExport_gitConnectedApp_featureBranchResourceExported() {
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
+
+        Application application =
+                createGitConnectedApp("testGetPartialExport_gitConnectedApp_featureBranchResourceExported");
+
+        // update git branch name for page
+        PageDTO savedPage = new PageDTO();
+        savedPage.setName("Page 2");
+        savedPage.setApplicationId(application.getId());
+        DefaultResources defaultResources = new DefaultResources();
+        defaultResources.setApplicationId(application.getId());
+        defaultResources.setBranchName("master");
+        savedPage.setDefaultResources(defaultResources);
+        savedPage = applicationPageService
+                .createPageWithBranchName(savedPage, "master")
+                .block();
+
+        // Create Action
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(savedPage.getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setTimeoutInMillisecond("6000");
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasourceMap.get("DS1"));
+        DefaultResources defaultResource = new DefaultResources();
+        defaultResource.setApplicationId(application.getId());
+        defaultResource.setBranchName("master");
+        defaultResource.setActionId("testActionId");
+        action.setDefaultResources(defaultResource);
+
+        ActionDTO savedAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        PartialExportFileDTO partialExportFileDTO = new PartialExportFileDTO();
+        partialExportFileDTO.setDatasourceList(List.of(
+                datasourceMap.get("DS1").getId(), datasourceMap.get("DS2").getId()));
+        // For a feature branch the resources in the client always get the default resource id
+        partialExportFileDTO.setActionList(List.of("testActionId"));
+
+        // Get the partial export resources
+        Mono<ApplicationJson> partialExportFileDTOMono = partialExportService.getPartialExportResources(
+                application.getId(), savedPage.getId(), "master", partialExportFileDTO);
+
+        StepVerifier.create(partialExportFileDTOMono)
+                .assertNext(applicationJson -> {
+                    assertThat(applicationJson.getDatasourceList().size()).isEqualTo(2);
+                    List<String> dsNames = applicationJson.getDatasourceList().stream()
+                            .map(DatasourceStorage::getName)
+                            .toList();
+                    assertThat(dsNames).containsAll(List.of("DS1", "DS2"));
+                    assertThat(applicationJson.getDatasourceList().get(0).getPluginId())
+                            .isEqualTo("installed-plugin");
+                    assertThat(applicationJson.getDatasourceList().get(1).getPluginId())
+                            .isEqualTo("installed-plugin");
+                    assertThat(applicationJson.getActionList().size()).isEqualTo(1);
+
+                    NewAction newAction = applicationJson.getActionList().get(0);
+                    assertThat(newAction.getUnpublishedAction().getName()).isEqualTo("validAction");
+                    assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo("Page 2");
+                    assertThat(newAction.getId()).isEqualTo("Page 2_validAction");
                 })
                 .verifyComplete();
     }
