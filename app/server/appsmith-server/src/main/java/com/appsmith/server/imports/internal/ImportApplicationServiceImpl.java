@@ -123,16 +123,14 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                false);
+                applicationJson);
 
         Mono<Void> importedModuleInstancesMono = moduleInstanceImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                false);
+                applicationJson);
 
         Mono<Void> moduleInstanceMono = importedModulesMono.then(Mono.defer(() -> importedModuleInstancesMono));
 

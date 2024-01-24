@@ -32,8 +32,7 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
         List<ExportableModule> moduleList = CollectionUtils.isEmpty(applicationJson.getModuleList())
                 ? new ArrayList<>()
                 : applicationJson.getModuleList();

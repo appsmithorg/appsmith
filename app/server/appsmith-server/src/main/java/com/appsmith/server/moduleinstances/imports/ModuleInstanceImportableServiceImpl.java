@@ -77,8 +77,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
 
         List<ModuleInstance> moduleInstanceList = applicationJson.getModuleInstanceList();
 
@@ -128,7 +127,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                             && CollectionUtils.isNotEmpty(importModuleInstanceResultDTO.getExistingModuleInstances())) {
                         // Remove unwanted module instances
                         Set<String> invalidModuleInstanceIds = new HashSet<>();
-                        if (Boolean.FALSE.equals(isPartialImport)) {
+                        if (Boolean.FALSE.equals(importingMetaDTO.getIsPartialImport())) {
                             for (ModuleInstance moduleInstance :
                                     importModuleInstanceResultDTO.getExistingModuleInstances()) {
                                 if (!importModuleInstanceResultDTO
