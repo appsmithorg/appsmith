@@ -13,7 +13,7 @@ export const deleteLayoutElementPositions = (elements: string[]) => {
   };
 };
 
-export const selectAnvilWidget = (widgetId: string, evt: PointerEvent) => {
+export const selectAnvilWidget = (widgetId: string, evt: CustomEvent) => {
   return {
     type: AnvilReduxActionTypes.ANVIL_WIDGET_SELECTION_CLICK,
     payload: {

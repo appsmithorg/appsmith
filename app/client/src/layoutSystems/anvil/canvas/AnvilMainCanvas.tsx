@@ -1,11 +1,11 @@
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilCanvas } from "./AnvilCanvas";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useCanvasActivationStates } from "../canvasArenas/hooks/mainCanvas/useCanvasActivationStates";
 import { useCanvasActivation } from "../canvasArenas/hooks/mainCanvas/useCanvasActivation";
 import type { RenderModes } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import { getRenderMode } from "selectors/editorSelectors";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
@@ -13,11 +13,22 @@ import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import type { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
-import { selectAnvilWidget } from "../integrations/actions";
+import { useSelectWidgetListener } from "../common/hooks/useSelectWidgetListener";
 
+/**
+ * This hook computes the list of detached children to render on the Canvas
+ * As the detached widgets are not going to be within any layout, they need to be rendered as siblings to the main container
+ *
+ * The hook takes care of generating the "DSL" format for the detached children, which is used by the layout system to render
+ * @param children
+ * @returns
+ */
 function useDetachedChildren(children: CanvasWidgetStructure[]) {
   const start = performance.now();
+  // Get all widgets
   const widgets = useSelector(getWidgets);
+  // Filter out the detached children and denormalise each of the detached widgets to generate
+  // a DSL like hierarchy
   const detachedChildren = useMemo(() => {
     return children
       .map((child) => widgets[child.widgetId])
@@ -36,7 +47,9 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
   useCanvasActivation(anvilCanvasActivationStates);
   const renderMode: RenderModes = useSelector(getRenderMode);
 
+  // Get the detached children to render on the canvas
   const detachedChildren = useDetachedChildren(props.children);
+
   const renderDetachedChildren = detachedChildren.map((child) =>
     renderChildWidget({
       childWidgetData: child as WidgetProps,
@@ -49,22 +62,7 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
       widgetId: MAIN_CONTAINER_WIDGET_ID,
     }),
   );
-
-  const dispatch = useDispatch();
-  const handleClick = useCallback(
-    (e: any) => {
-      dispatch(selectAnvilWidget(e.detail.widgetId, e));
-    },
-    [selectAnvilWidget],
-  );
-
-  useEffect(() => {
-    document.body.addEventListener("selectWidget", handleClick, true);
-    return () => {
-      document.body.removeEventListener("selectWidget", handleClick);
-    };
-  }, [handleClick]);
-
+  useSelectWidgetListener();
   return (
     <>
       {renderDetachedChildren}

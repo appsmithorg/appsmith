@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import type { CSSProperties } from "react";
+import type { CSSProperties, MouseEventHandler } from "react";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
 
@@ -28,6 +28,7 @@ import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPos
 import { useWidgetBorderStyles } from "./hooks/useWidgetBorderStyles";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { AppState } from "@appsmith/reducers";
+import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "../utils/constants";
 
 /**
  * Adds following functionalities to the widget:
@@ -67,19 +68,23 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
     useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
 
   const onClickFn = useCallback(
-    function (e) {
+    function () {
       if (ref.current) {
         ref.current.dispatchEvent(
-          new CustomEvent("selectWidget", {
+          new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
             bubbles: true,
+            cancelable: true,
             detail: { widgetId: props.widgetId },
           }),
         );
       }
-      !isSnipingMode && e.stopPropagation();
     },
     [props.widgetId],
   );
+
+  const stopPropagation: MouseEventHandler<HTMLDivElement> = (e) => {
+    !isSnipingMode && e.stopPropagation();
+  };
 
   useEffect(() => {
     const widgetConfig:
@@ -177,7 +182,11 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       ref={ref}
       style={styleProps}
     >
-      <div className="w-full h-full" onClick={onClickFn}>
+      <div
+        className="w-full h-full"
+        onClick={stopPropagation}
+        onClickCapture={onClickFn}
+      >
         {props.children}
       </div>
     </Flex>

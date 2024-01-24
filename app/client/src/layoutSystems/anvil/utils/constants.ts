@@ -28,3 +28,6 @@ export const defaultHighlightRenderInfo: HighlightRenderInfo = {
 // Constants for the minimum and maximum zone count
 export const MIN_ZONE_COUNT = 1;
 export const MAX_ZONE_COUNT = 4;
+
+export const SELECT_ANVIL_WIDGET_CUSTOM_EVENT =
+  "SELECT_ANVIL_WIDGET_CUSTOM_EVENT";
