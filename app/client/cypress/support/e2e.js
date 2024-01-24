@@ -91,7 +91,8 @@ before(function () {
     window.indexedDB.deleteDatabase("Appsmith");
   });
   cy.visit("/setup/welcome", { timeout: 60000 });
-  cy.wait("@getMe");
+  cy.wait("@getConsolidatedData");
+
   cy.wait(2000);
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");

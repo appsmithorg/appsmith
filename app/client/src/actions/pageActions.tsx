@@ -16,6 +16,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { WidgetOperation } from "widgets/BaseWidget";
 import type {
   FetchPageRequest,
+  FetchPageResponse,
   PageLayout,
   SavePageResponse,
   UpdatePageRequest,
@@ -55,12 +56,14 @@ export interface updateLayoutOptions {
 export const fetchPage = (
   pageId: string,
   isFirstLoad = false,
+  pageWithMigratedDsl?: FetchPageResponse,
 ): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
       id: pageId,
       isFirstLoad,
+      pageWithMigratedDsl,
     },
   };
 };
@@ -69,12 +72,14 @@ export const fetchPublishedPage = (
   pageId: string,
   bustCache = false,
   firstLoad = false,
+  pageWithMigratedDsl?: FetchPageResponse,
 ) => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
     firstLoad,
+    pageWithMigratedDsl,
   },
 });
 
@@ -548,18 +553,21 @@ export const resetApplicationWidgets = () => ({
   type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
 });
 
-export const fetchPageDSLs = () => ({
+export const fetchPageDSLs = (payload?: any) => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+  payload,
 });
 
 export const setupPage = (
   pageId: string,
   isFirstLoad = false,
+  pageWithMigratedDsl?: FetchPageResponse,
 ): ReduxAction<FetchPageRequest> => ({
   type: ReduxActionTypes.SETUP_PAGE_INIT,
   payload: {
     id: pageId,
     isFirstLoad,
+    pageWithMigratedDsl,
   },
 });
 
@@ -567,11 +575,13 @@ export const setupPublishedPage = (
   pageId: string,
   bustCache = false,
   firstLoad = false,
+  pageWithMigratedDsl?: FetchPageResponse,
 ) => ({
   type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
     firstLoad,
+    pageWithMigratedDsl,
   },
 });
