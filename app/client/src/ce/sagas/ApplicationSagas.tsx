@@ -83,7 +83,6 @@ import {
 import {
   deleteRecentAppEntities,
   getEnableStartSignposting,
-  setPostWelcomeTourState,
 } from "utils/storage";
 import {
   reconnectAppLevelWebsocket,
@@ -94,7 +93,6 @@ import {
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
 
-import { getCurrentStep, inGuidedTour } from "selectors/onboardingSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import {
   fetchDatasources,
@@ -102,7 +100,6 @@ import {
 } from "actions/datasourceActions";
 import { failFastApiCalls } from "sagas/InitSagas";
 import type { Datasource } from "entities/Datasource";
-import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
@@ -169,16 +166,10 @@ export function* publishApplicationSaga(
 
       const applicationId: string = yield select(getCurrentApplicationId);
       const currentPageId: string = yield select(getCurrentPageId);
-      const guidedTour: boolean = yield select(inGuidedTour);
-      const currentStep: number = yield select(getCurrentStep);
 
-      let appicationViewPageUrl = viewerURL({
+      const appicationViewPageUrl = viewerURL({
         pageId: currentPageId,
       });
-      if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
-        appicationViewPageUrl += "?&guidedTourComplete=true";
-        yield call(setPostWelcomeTourState, true);
-      }
 
       yield put(
         fetchApplication({
@@ -868,9 +859,6 @@ export function* importApplicationSaga(
             });
           }
           history.push(pageURL);
-          const guidedTour: boolean = yield select(inGuidedTour);
-
-          if (guidedTour) return;
 
           toast.show("Application imported successfully", {
             kind: "success",
