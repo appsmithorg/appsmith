@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
 import static com.appsmith.server.constants.OtlpSpanNames.ACTIONS_SPAN;
@@ -571,9 +572,13 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                                 .filter(datasource -> !isBlank(datasource.getPluginId()))
                                 .forEach(datasource -> setOfAllPluginIdsToGetFormConfig.add(datasource.getPluginId()));
 
+                        /**
+                         * There are some plugins that allow query to be created without creating a datasource. For
+                         * such datasources, editor config is required to display any queries that may have been
+                         * created or in case user wants to create a query without creating a datasource first.
+                         */
                         pluginList.stream()
-                                .filter(plugin -> REST_API_PLUGIN.equals(plugin.getPackageName())
-                                        || GRAPHQL_PLUGIN.equals(plugin.getPackageName()))
+                                .filter(this::isPossibleToCreateQueryWithoutDatasource)
                                 .forEach(plugin -> setOfAllPluginIdsToGetFormConfig.add(plugin.getId()));
 
                         return setOfAllPluginIdsToGetFormConfig;
@@ -664,5 +669,11 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 return consolidatedAPIResponseDTO;
             });
         }
+    }
+
+    private boolean isPossibleToCreateQueryWithoutDatasource(Plugin plugin) {
+        return REST_API_PLUGIN.equals(plugin.getPackageName())
+                || GRAPHQL_PLUGIN.equals(plugin.getPackageName())
+                || APPSMITH_AI_PLUGIN.equals(plugin.getPackageName());
     }
 }
