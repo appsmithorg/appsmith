@@ -2,7 +2,6 @@ import homePageLocators from "../../../../../locators/HomePage";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const omnibar = require("../../../../../locators/Omnibar.json");
 
@@ -254,7 +253,6 @@ describe.skip(
       // verify user should be able to edit the page
       cy.get(RBAC.newPage).first().click();
       cy.wait(2000);
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
       cy.get(".t--widget-tablewidgetv2").should("exist");
       cy.get(homePageLocators.homeIcon).click({ force: true });

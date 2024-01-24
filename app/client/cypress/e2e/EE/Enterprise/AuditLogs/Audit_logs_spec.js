@@ -10,7 +10,6 @@ import {
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import widgets from "../../../../locators/Widgets.json";
-import explorer from "../../../../locators/explorerlocators.json";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let funcName = "";
@@ -44,7 +43,6 @@ describe("Audit logs", { tags: ["@tag.Auditlogs"] }, () => {
               });
 
               cy.wait(1000);
-              cy.get(explorer.addWidget).click();
 
               cy.dragAndDropToCanvas("buttonwidget", { x: 400, y: 550 });
 
