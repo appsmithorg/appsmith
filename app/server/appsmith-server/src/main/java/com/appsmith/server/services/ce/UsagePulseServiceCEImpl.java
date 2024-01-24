@@ -7,7 +7,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ce.UsagePulseRepositoryCE;
+import com.appsmith.server.repositories.cakes.UsagePulseRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
 
-    private final UsagePulseRepositoryCE repository;
+    private final UsagePulseRepositoryCake repository;
 
     private final SessionUserService sessionUserService;
 
@@ -104,6 +104,6 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
      * @return Mono of UsagePulse
      */
     public Mono<UsagePulse> save(UsagePulse usagePulse) {
-        return Mono.justOrEmpty(repository.save(usagePulse));
+        return repository.save(usagePulse);
     }
 }

@@ -148,10 +148,12 @@ public class ThemeServiceTest {
     public void replaceApiUserWithAnotherUserInWorkspace() {
 
         String origin = "http://random-origin.test";
-        PermissionGroup adminPermissionGroup = workspace.getDefaultPermissionGroups().stream()
+        PermissionGroup adminPermissionGroup = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
+                .collectList()
+                .block()
+                .get(0);
 
         // invite usertest to the workspace
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
@@ -169,10 +171,13 @@ public class ThemeServiceTest {
     }
 
     public void addApiUserToTheWorkspaceAsAdmin() {
-        PermissionGroup adminPermissionGroup = workspace.getDefaultPermissionGroups().stream()
+        String origin = "http://random-origin.test";
+        PermissionGroup adminPermissionGroup = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
+                .collectList()
+                .block()
+                .get(0);
 
         // add api_user back to the workspace
         User apiUser = userRepository.findByEmail("api_user").block();
@@ -649,7 +654,7 @@ public class ThemeServiceTest {
         Application updateApp = new Application();
         updateApp.setEditModeThemeId("");
         updateApp.setPublishedModeThemeId("");
-        applicationRepository
+        Application appWithoutTheme = applicationRepository
                 .updateById(savedApplication.getId(), updateApp, MANAGE_APPLICATIONS)
                 .block();
 
@@ -711,7 +716,7 @@ public class ThemeServiceTest {
                             .get();
 
                     return permissionGroupRepository
-                            .findAllByIdIn(readThemePolicy.getPermissionGroups())
+                            .findAllById(readThemePolicy.getPermissionGroups())
                             .filter(permissionGroup ->
                                     permissionGroup.getAssignedToUserIds().contains(anonymousUser.getId()))
                             .collectList();

@@ -4,7 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.repositories.UsagePulseRepository;
+import com.appsmith.server.repositories.cakes.UsagePulseRepositoryCake;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ public class UsagePulseServiceTest {
     private CommonConfig commonConfig;
 
     @Autowired
-    private UsagePulseRepository repository;
+    private UsagePulseRepositoryCake repository;
 
     @BeforeEach
     public void setup() {

@@ -17,7 +17,7 @@ public interface AppsmithRepository<T> {
 
     // Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
 
-    Optional<T> updateById(Long id, T resource, AclPermission permission);
+    // Optional<T> updateById(String id, T resource, AclPermission permission);
 
     List<T> queryAll(List<Criteria> criterias, AclPermission permission);
 

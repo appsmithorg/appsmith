@@ -112,8 +112,10 @@ def generate_base_cake():
         package com.appsmith.server.repositories.cakes;
 
         import com.appsmith.external.models.BaseDomain;
+        import com.appsmith.server.acl.AclPermission;
         import lombok.RequiredArgsConstructor;
         import org.springframework.data.repository.CrudRepository;
+        import reactor.core.publisher.Flux;
         import reactor.core.publisher.Mono;
         import reactor.core.scheduler.Schedulers;
 
@@ -135,8 +137,22 @@ def generate_base_cake():
                 return {FLUX_WRAPPER % "repository.findAllById(ids)"};
             }}
 
+            public Mono<T> updateById(String id, T entity, AclPermission permission) {{
+                // TODO: Implement this method.
+                return Mono.just(entity);
+            }}
+
+            // TODO: This should be soft delete, not hard delete.
             public Mono<Void> deleteAll() {{
                 return Mono.<Void>fromRunnable(repository::deleteAll).subscribeOn(Schedulers.boundedElastic());
+            }}
+
+            public Mono<Void> deleteById(String id) {{  // hard delete
+                return Mono.<Void>fromRunnable(() -> repository.deleteById(id)).subscribeOn(Schedulers.boundedElastic());
+            }}
+
+            public Mono<Long> count() {{
+                return Mono.fromSupplier(repository::count).subscribeOn(Schedulers.boundedElastic());
             }}
         }}
     """
@@ -291,7 +307,7 @@ def use_cake(domain):
         server_root.glob("**/solutions/ce/*.java"),
         server_root.glob("**/com/appsmith/server/helpers/*.java"),
         server_root.glob("**/com/appsmith/server/helpers/ce/*.java"),
-        server_root.glob("appsmith-server/src/test/**/*.java"),
+        server_root.glob("appsmith-server/src/test/java/**/*.java"),
     ):
         out = re.sub(rf"\b({domain}Repository)\b", r"\1Cake", read_file(path))
         out = re.sub(
@@ -389,6 +405,7 @@ def main():
     convert("Tenant")
     convert("Collection")
     convert("Asset")
+    convert("UsagePulse")
 
     print("Format cakes")
     subprocess.check_call(
