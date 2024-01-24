@@ -45,10 +45,6 @@ class WDSRadioGroupWidget extends BaseWidget<
     return methodsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return anvilConfig;
   }
@@ -88,10 +84,7 @@ class WDSRadioGroupWidget extends BaseWidget<
   }
 
   static getStylesheetConfig(): Stylesheet {
-    return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
-      boxShadow: "none",
-    };
+    return {};
   }
 
   componentDidUpdate(prevProps: RadioGroupWidgetProps): void {
