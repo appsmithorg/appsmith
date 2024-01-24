@@ -266,7 +266,7 @@ jobs:
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
             Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
-            It seems like there are some failures 😔. We are not able to recognize it, please check this manually <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
+            It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
 
       - name: Add a comment on the PR when ci-test is success
         if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
