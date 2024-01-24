@@ -135,8 +135,7 @@ function* readAndUpdateLayoutElementPositions() {
     const parentDropTargetPositions = positions[layoutId];
     let element: HTMLElement | null = document.getElementById(anvilWidgetDOMId);
     if (!element) {
-      const className = anvilWidgetDOMId.replace("anvil", "appsmith");
-      const elements = document.getElementsByClassName(className);
+      const elements = document.getElementsByClassName(anvilWidgetDOMId);
       element = elements[0] as HTMLDivElement;
     }
     const widgetId = extractWidgetIdFromAnvilWidgetDOMId(anvilWidgetDOMId);

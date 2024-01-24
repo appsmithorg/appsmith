@@ -1,4 +1,3 @@
-import { generateClassName } from "utils/generators";
 import { useWidgetBorderStyles } from "./useWidgetBorderStyles";
 import { useDispatch, useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -14,6 +13,7 @@ import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
 import { useMemo } from "react";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 /**
  * This hook is used to select and focus on a detached widget
@@ -25,7 +25,7 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
   const dispatch = useDispatch();
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
-  const className = generateClassName(widgetId);
+  const className = getAnvilWidgetDOMId(widgetId);
   const element = document.querySelector(`.${className}`);
   const { focusWidget } = useWidgetSelection();
 
@@ -87,7 +87,7 @@ export function useAddBordersToDetachedWidgets(widgetId: string) {
   const borderStyled = useWidgetBorderStyles(widgetId);
 
   // Get the element from the DOM
-  const className = generateClassName(widgetId);
+  const className = getAnvilWidgetDOMId(widgetId);
   const element: HTMLDivElement | null = document.querySelector(
     `.${className}`,
   );

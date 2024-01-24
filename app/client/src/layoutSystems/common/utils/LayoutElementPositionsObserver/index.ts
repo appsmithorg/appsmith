@@ -62,7 +62,7 @@ class LayoutElementPositionObserver {
   private resizeObserver = new ResizeObserver(
     (entries: ResizeObserverEntry[]) => {
       for (const entry of entries) {
-        // If the entry's appsmith_widget_ identifier is not present as an id
+        // If the entry's anvil_widget_ identifier is not present as an id
         // Check if it exists as a className
         // If it does, then use that as the identifier
         let DOMIdentifier = entry?.target?.id;
@@ -70,8 +70,8 @@ class LayoutElementPositionObserver {
           const classList: DOMTokenList = entry?.target?.classList;
           if (classList && classList.length > 0) {
             for (let i = 0; i < classList.length; i++) {
-              if (classList[i].indexOf("appsmith_widget_") > -1) {
-                DOMIdentifier = classList[i].replace("appsmith", "anvil");
+              if (classList[i].indexOf(ANVIL_WIDGET) > -1) {
+                DOMIdentifier = classList[i];
                 break;
               }
             }

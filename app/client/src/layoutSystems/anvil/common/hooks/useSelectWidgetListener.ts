@@ -19,7 +19,7 @@ export function useSelectWidgetListener() {
   const dispatch = useDispatch();
 
   // Pick the latest event and dispatch the select action
-  const throttledSelectAnvilWidget = debounce(
+  const debouncedSelectAnvilWidget = debounce(
     function (e: any) {
       dispatch(selectAnvilWidget(e.detail.widgetId, e));
     },
@@ -27,7 +27,7 @@ export function useSelectWidgetListener() {
     { maxWait: 100, trailing: true },
   );
 
-  const handleClick = useCallback(throttledSelectAnvilWidget, [
+  const handleClick = useCallback(debouncedSelectAnvilWidget, [
     selectAnvilWidget,
   ]);
 
