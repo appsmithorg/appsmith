@@ -587,13 +587,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void inValidupdateWorkspaceEmptyName() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .build();
-
-        Policy manageWorkspacePolicy =
-                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
-
         Workspace workspace = new Workspace();
         workspace.setName("Test Update Name");
         workspace.setDomain("example.com");
@@ -615,13 +608,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceValidEmail() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .build();
-
-        Policy manageWorkspacePolicy =
-                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
-
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
         for (String validEmail : validEmails) {
             Workspace workspace = new Workspace();

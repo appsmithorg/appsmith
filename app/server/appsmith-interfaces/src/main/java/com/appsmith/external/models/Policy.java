@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -21,5 +22,6 @@ public class Policy {
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
-    private Set<String> permissionGroups;
+    @Builder.Default
+    private Set<String> permissionGroups = new HashSet<>();
 }
