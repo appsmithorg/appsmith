@@ -167,7 +167,9 @@ export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
       ${(props) => (props.isBannerVisible ? 40 : 0)}px
   );
   border-right: 1px solid var(--ads-v2-color-border);
-  padding: 0 12px;
+  padding: 0px 4px;
+  margin: 0px 8px;
+}
 `;
 export const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
   ${({ isMobile }) =>
@@ -281,7 +283,7 @@ export function LeftPaneSection(props: {
 
   return (
     <LeftPaneDataSection isBannerVisible={props.isBannerVisible}>
-      <div className="flex items-center py-3 justify-between">
+      <div className="flex items-center justify-between py-3">
         <NewText kind="heading-xs">{props.heading}</NewText>
         {canCreateWorkspace && (
           <Tooltip
