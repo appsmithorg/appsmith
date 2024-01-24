@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -8,6 +9,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
@@ -21,6 +23,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -64,6 +67,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final ImportableService<NewAction> newActionImportableService;
     private final ImportableService<ActionCollection> actionCollectionImportableService;
     private final NewPageService newPageService;
+    private final RefactoringService refactoringService;
 
     @Override
     public Mono<Application> importResourceInPage(
@@ -101,7 +105,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             .cache();
 
                     ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
-                            workspaceId, applicationId, branchName, false, permissionProvider, null);
+                            workspaceId, applicationId, branchName, false, true, permissionProvider, null);
 
                     // Get the Application from DB
                     Mono<Application> importedApplicationMono = applicationService
@@ -111,7 +115,19 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                     permissionProvider.getRequiredPermissionOnTargetApplication())
                             .cache();
 
-                    return importedApplicationMono
+                    return newPageService
+                            .findByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
+                            .flatMap(page -> {
+                                Layout layout =
+                                        page.getUnpublishedPage().getLayouts().get(0);
+                                return refactoringService.getAllExistingEntitiesMono(
+                                        page.getId(), CreatorContextType.PAGE, layout.getId(), false);
+                            })
+                            .flatMap(nameSet -> {
+                                // Fetch name of the existing resources in the page to avoid name clashing
+                                mappedImportableResourcesDTO.setRefactoringNameReference(nameSet);
+                                return importedApplicationMono;
+                            })
                             .flatMap(application -> {
                                 applicationJson.setExportedApplication(application);
                                 return Mono.just(applicationJson);
@@ -147,9 +163,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 }
                                 return newActionImportableService
                                         .updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO, true)
+                                                application, importingMetaDTO, mappedImportableResourcesDTO)
                                         .then(newPageImportableService.updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO, true))
+                                                application, importingMetaDTO, mappedImportableResourcesDTO))
                                         .thenReturn(application);
                             });
                 })
@@ -221,7 +237,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 true);
 
         Mono<Void> customJsLibMono = customJSLibImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson, true);
+                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
 
         return pluginMono.then(datasourceMono).then(customJsLibMono).then();
     }
@@ -237,16 +253,14 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                true);
+                applicationJson);
 
         Mono<Void> actionCollectionMono = actionCollectionImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson,
-                true);
+                applicationJson);
 
         return actionMono.then(actionCollectionMono).then();
     }

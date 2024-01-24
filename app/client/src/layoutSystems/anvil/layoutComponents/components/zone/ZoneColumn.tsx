@@ -7,5 +7,9 @@ export const ZoneColumn = (props: FlexLayoutProps) => {
 
   const flexProps = useMemo(() => ({ ...props, minWidth }), [props, minWidth]);
 
-  return <FlexLayout {...flexProps}>{props.children}</FlexLayout>;
+  return (
+    <FlexLayout isContainer {...flexProps}>
+      {props.children}
+    </FlexLayout>
+  );
 };

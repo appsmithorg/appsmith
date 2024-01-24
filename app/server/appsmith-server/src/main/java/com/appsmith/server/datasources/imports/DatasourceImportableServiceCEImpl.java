@@ -53,7 +53,6 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importContextMono,
             ArtifactExchangeJson importableContextJson,
-            boolean isPartialImport,
             boolean isContextAgnostic) {
         return importContextMono.flatMap(importableContext -> {
             Application application = (Application) importableContext;
@@ -63,8 +62,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                     mappedImportableResourcesDTO,
                     workspaceMono,
                     Mono.just(application),
-                    applicationJson,
-                    isPartialImport);
+                    applicationJson);
         });
     }
 
@@ -77,8 +75,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
         return Mono.empty(); /*
         return workspaceMono.flatMap(workspace -> {
             final Flux<Datasource> existingDatasourceFlux = datasourceService

@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -30,8 +30,12 @@ import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
-import com.appsmith.server.solutions.EnvironmentPermission;
-import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -12,6 +12,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
 import { call, put, spawn } from "redux-saga/effects";
+import type { DeployConsolidatedApi } from "sagas/InitSagas";
 import {
   failFastApiCalls,
   reportSWStatus,
@@ -54,11 +55,6 @@ export default class AppViewerEngine extends AppEngine {
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
-    if ("serviceWorker" in navigator) {
-      yield put({
-        type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
-      });
-    }
     yield spawn(reportSWStatus);
   }
 
@@ -78,13 +74,28 @@ export default class AppViewerEngine extends AppEngine {
     );
   }
 
-  *loadAppEntities(toLoadPageId: string, applicationId: string): any {
+  *loadAppEntities(
+    toLoadPageId: string,
+    applicationId: string,
+    allResponses: DeployConsolidatedApi,
+  ): any {
+    const {
+      currentTheme,
+      customJSLibraries,
+      pageWithMigratedDsl,
+      publishedActionCollections,
+      publishedActions,
+      themes,
+    } = allResponses;
     const initActionsCalls: any = [
-      fetchActionsForView({ applicationId }),
-      fetchJSCollectionsForView({ applicationId }),
-      fetchSelectedAppThemeAction(applicationId),
-      fetchAppThemesAction(applicationId),
-      setupPublishedPage(toLoadPageId, true, true),
+      fetchActionsForView({ applicationId, publishedActions }),
+      fetchJSCollectionsForView({
+        applicationId,
+        publishedActionCollections,
+      }),
+      fetchSelectedAppThemeAction(applicationId, currentTheme),
+      fetchAppThemesAction(applicationId, themes),
+      setupPublishedPage(toLoadPageId, true, true, pageWithMigratedDsl),
     ];
 
     const successActionEffects = [
@@ -102,7 +113,7 @@ export default class AppViewerEngine extends AppEngine {
       ReduxActionErrorTypes.SETUP_PUBLISHED_PAGE_ERROR,
     ];
 
-    initActionsCalls.push(fetchJSLibraries(applicationId));
+    initActionsCalls.push(fetchJSLibraries(applicationId, customJSLibraries));
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
     failureActionEffects.push(ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED);
 

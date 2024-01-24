@@ -67,30 +67,39 @@ export function useActionGroup<T>(
       if (ref.current) {
         const listItems = Array.from(ref.current.children) as HTMLLIElement[];
         const containerSize = ref.current.getBoundingClientRect().width;
-
         const isShowingMenu = visibleItems < state.collection.size;
+        const lastItemIndex = isShowingMenu
+          ? listItems.length - 2
+          : listItems.length - 1;
+        const minInlineSize = toNumber(
+          window.getComputedStyle(listItems[lastItemIndex]).minInlineSize,
+        );
+        const gap = toNumber(window.getComputedStyle(ref.current).gap);
         let calculatedSize = 0;
         let newVisibleItems = 0;
 
         if (isShowingMenu) {
-          const item = listItems.pop();
-          if (item) {
-            calculatedSize += outerWidth(
-              item,
-              window.getComputedStyle(ref.current).gap,
-            );
+          const menuItem = listItems.pop();
+          if (menuItem) {
+            calculatedSize += menuItem.getBoundingClientRect().width + gap;
           }
         }
 
         for (const [i, item] of listItems.entries()) {
-          calculatedSize += outerWidth(
-            item,
-            i === 0 ? "0" : window.getComputedStyle(ref.current).gap,
-          );
+          const itemWidth = item.getBoundingClientRect().width;
+          calculatedSize += itemWidth;
 
-          if (Math.round(calculatedSize) <= Math.round(containerSize)) {
+          if (i !== 0) {
+            calculatedSize += gap;
+          }
+
+          if (calculatedSize <= containerSize) {
             newVisibleItems++;
           } else {
+            // check whether the truncated button will fit container
+            if (calculatedSize - itemWidth + minInlineSize <= containerSize) {
+              newVisibleItems++;
+            }
             break;
           }
         }
@@ -152,10 +161,6 @@ export function useActionGroup<T>(
     visibleItems:
       orientation === "vertical" ? state.collection.size : visibleItems,
   };
-}
-
-function outerWidth(element: HTMLElement, gap: string) {
-  return element.getBoundingClientRect().width + toNumber(gap);
 }
 
 function toNumber(value: string) {

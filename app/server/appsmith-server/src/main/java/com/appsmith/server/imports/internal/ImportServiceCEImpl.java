@@ -446,7 +446,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         }
 
         ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
-                workspaceId, artifactId, branchName, appendToArtifact, permissionProvider, permissionGroups);
+                workspaceId, artifactId, branchName, appendToArtifact, false, permissionProvider, permissionGroups);
 
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
         contextBasedImportService.syncClientAndSchemaVersion(importedDoc);
@@ -655,7 +655,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 workspaceMono,
                 importedArtifactMono,
                 artifactExchangeJson,
-                false,
                 true);
 
         // Requires pluginMap to be present in importable resources.
@@ -667,7 +666,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 workspaceMono,
                 importedArtifactMono,
                 artifactExchangeJson,
-                false,
                 true));
 
         // Directly updates required theme information in DB
@@ -677,7 +675,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 workspaceMono,
                 importedArtifactMono,
                 artifactExchangeJson,
-                false,
                 true);
 
         return Flux.merge(List.of(importedDatasourcesMono, importedThemesMono));

@@ -76,6 +76,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap(datasource -> datasourceService.getTrueEnvironmentId(
                         datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null))
                 .cache();
+        Mono<String> workspaceIdMono = datasourceMonoCached.map(Datasource::getWorkspaceId);
 
         return datasourceMonoCached
                 .zipWith(trueEnvironmentIdCached)
@@ -87,16 +88,18 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .zipWith(trueEnvironmentIdCached)
+                .zipWith(Mono.zip(workspaceIdMono, trueEnvironmentIdCached))
                 .flatMap(tuple2 -> {
                     DatasourceStorage datasourceStorage = tuple2.getT1();
-                    String trueEnvironmentId = tuple2.getT2();
+                    String workspaceId = tuple2.getT2().getT1();
+                    String trueEnvironmentId = tuple2.getT2().getT2();
                     OAuth2 oAuth2 = (OAuth2)
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
                     final String state = StringUtils.hasText(branchName)
-                            ? String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, branchName)
-                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri);
+                            ? String.join(
+                                    ",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId, branchName)
+                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(
                                     oAuth2.getAuthorizationUrl())
@@ -294,7 +297,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         final String datasourceId = splitState[1];
         final String environmentId = splitState[2];
         final String redirectOrigin = splitState[3];
-        final String branchName = splitState.length == 5 ? splitState[4] : null;
+        final String workspaceId = splitState[4];
+        final String branchName = splitState.length == 6 ? splitState[5] : null;
         String response = SUCCESS;
         if (error != null) {
             response = error;
@@ -312,6 +316,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         + "?response_status="
                         + responseStatus
                         + "&view_mode=true"
+                        + (StringUtils.hasText(workspaceId) ? "&workspaceId=" + workspaceId : "")
                         + (StringUtils.hasText(branchName) ? "&branch=" + branchName : ""))
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
@@ -378,6 +383,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             integrationDTO.setApplicationId(defaultApplicationId);
                             integrationDTO.setBranch(branchName);
                             integrationDTO.setImportForGit(importForGit);
+                            integrationDTO.setWorkspaceId(datasource.getWorkspaceId());
                             final Plugin plugin = tuple.getT3();
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());

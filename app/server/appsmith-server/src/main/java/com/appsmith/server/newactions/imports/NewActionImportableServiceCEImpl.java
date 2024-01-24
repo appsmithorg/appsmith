@@ -59,8 +59,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
 
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
@@ -100,7 +99,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
                         Set<String> invalidActionIds = new HashSet<>();
-                        if (Boolean.FALSE.equals(isPartialImport)) {
+                        if (Boolean.FALSE.equals(importingMetaDTO.getIsPartialImport())) {
                             for (NewAction action : importActionResultDTO.getExistingActions()) {
                                 if (!importActionResultDTO
                                         .getImportedActionIds()
@@ -135,8 +134,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     public Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            boolean isPartialImport) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
         ImportActionCollectionResultDTO importActionCollectionResultDTO =
@@ -158,7 +156,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // the git flow only
                     if (StringUtils.hasText(importingMetaDTO.getArtifactId())
                             && !TRUE.equals(importingMetaDTO.getAppendToArtifact())
-                            && Boolean.FALSE.equals(isPartialImport)) {
+                            && Boolean.FALSE.equals(importingMetaDTO.getIsPartialImport())) {
                         // Remove unwanted action collections
                         Set<String> invalidCollectionIds = new HashSet<>();
                         for (ActionCollection collection :
@@ -235,6 +233,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                 .collectMap(NewAction::getGitSyncId);
                     } else {
                         actionsInOtherBranchesMono = Mono.just(Collections.emptyMap());
+                    }
+
+                    // update the action name in the json to avoid duplicate names for the partial import
+                    // It is page level action and hence the action name should be unique
+                    if (Boolean.TRUE.equals(importingMetaDTO.getIsPartialImport())
+                            && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
+                        updateActionNameBeforeMerge(
+                                importedNewActionList, mappedImportableResourcesDTO.getRefactoringNameReference());
                     }
 
                     return Mono.zip(actionsInCurrentAppMono, actionsInOtherBranchesMono)
@@ -417,6 +423,26 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             tuple.getT1());
                     return tuple.getT2();
                 });*/
+    }
+
+    private void updateActionNameBeforeMerge(List<NewAction> importedNewActionList, Set<String> refactoringNames) {
+
+        for (NewAction newAction : importedNewActionList) {
+            String oldNameAction = newAction.getUnpublishedAction().getName(),
+                    newNameAction = newAction.getUnpublishedAction().getName();
+            int i = 1;
+            while (refactoringNames.contains(newNameAction)) {
+                newNameAction = oldNameAction + i++;
+            }
+            String oldId = newAction.getId().split("_")[1];
+            newAction.setId(newNameAction + "_" + oldId);
+            newAction.getUnpublishedAction().setName(newNameAction);
+            newAction.getUnpublishedAction().setFullyQualifiedName(newNameAction);
+            if (newAction.getPublishedAction() != null) {
+                newAction.getPublishedAction().setName(newNameAction);
+                newAction.getPublishedAction().setFullyQualifiedName(newNameAction);
+            }
+        }
     }
 
     private void populateNewAction(
