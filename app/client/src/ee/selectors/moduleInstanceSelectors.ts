@@ -1,3 +1,4 @@
+export * from "ce/selectors/moduleInstanceSelectors";
 import type {
   ModuleInstance,
   ModuleInstanceId,
