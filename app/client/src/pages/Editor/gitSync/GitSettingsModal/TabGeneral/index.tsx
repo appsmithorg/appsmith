@@ -2,7 +2,6 @@ import React from "react";
 import GitUserSettings from "./GitUserSettings";
 import DangerZone from "./DangerZone";
 import styled from "styled-components";
-import { ModalBody } from "design-system";
 import {
   useHasConnectToGitPermission,
   useHasManageAutoCommitPermission,
@@ -20,12 +19,10 @@ function TabGeneral() {
   const showDangerZone = isConnectToGitPermitted || isManageAutoCommitPermitted;
 
   return (
-    <ModalBody>
-      <Container>
-        <GitUserSettings />
-        {showDangerZone && <DangerZone />}
-      </Container>
-    </ModalBody>
+    <Container>
+      <GitUserSettings />
+      {showDangerZone && <DangerZone />}
+    </Container>
   );
 }
 

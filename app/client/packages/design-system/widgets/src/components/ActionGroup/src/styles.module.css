@@ -4,6 +4,14 @@
   display: flex;
   width: 100%;
 
+  [data-button]:not(:last-of-type) {
+    min-inline-size: fit-content;
+  }
+
+  &:has([data-icon-button]) [data-button]:nth-last-child(2) {
+    min-inline-size: var(--sizing-14);
+  }
+
   &[data-orientation="vertical"] {
     flex-direction: column;
   }

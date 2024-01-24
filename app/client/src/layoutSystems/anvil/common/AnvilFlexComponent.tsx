@@ -17,10 +17,6 @@ import {
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { AnvilFlexComponentProps } from "../utils/types";
-import {
-  getResponsiveMinWidth,
-  validateResponsiveProp,
-} from "../utils/widgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
@@ -82,7 +78,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
     [props.widgetId],
   );
 
-  const stopPropagation: MouseEventHandler<HTMLDivElement> = (e) => {
+  const stopEventPropagation: MouseEventHandler<HTMLDivElement> = (e) => {
     !isSnipingMode && e.stopPropagation();
   };
 
@@ -133,28 +129,15 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       flexGrow: props.flexGrow ? props.flexGrow : isFillWidget ? 1 : 0,
       flexShrink: isFillWidget ? 1 : 0,
       flexBasis: isFillWidget ? "0%" : "auto",
-      height: "auto",
       padding: "spacing-1",
-      width: "auto",
-      minHeight: { base: "var(--sizing-12)" },
       alignItems: "center",
     };
-    if (props?.widgetSize) {
-      // adding min max limits only if they are available, as WDS Flex doesn't handle undefined values.
-      if (validateResponsiveProp(props.widgetSize?.maxHeight)) {
-        data.maxHeight = props.widgetSize.maxHeight;
-      }
-      if (validateResponsiveProp(props.widgetSize?.maxWidth)) {
-        data.maxWidth = props.widgetSize.maxWidth;
-      }
-
-      if (validateResponsiveProp(props.widgetSize?.minWidth)) {
-        // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
-        data.minWidth = getResponsiveMinWidth(
-          props.widgetSize?.minWidth,
-          isFillWidget,
-        );
-      }
+    if (props.widgetSize) {
+      const { maxHeight, maxWidth, minHeight, minWidth } = props.widgetSize;
+      data.maxHeight = maxHeight;
+      data.maxWidth = maxWidth;
+      data.minHeight = minHeight ?? { base: "sizing-12" };
+      data.minWidth = minWidth;
     }
     return data;
   }, [isFillWidget, props.widgetSize, verticalAlignment, props.flexGrow]);
@@ -179,16 +162,12 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       {...flexProps}
       className={className}
       id={getAnvilWidgetDOMId(props.widgetId)}
+      onClick={stopEventPropagation}
+      onClickCapture={onClickFn}
       ref={ref}
       style={styleProps}
     >
-      <div
-        className="w-full h-full"
-        onClick={stopPropagation}
-        onClickCapture={onClickFn}
-      >
-        {props.children}
-      </div>
+      {props.children}
     </Flex>
   );
 }

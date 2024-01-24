@@ -30,7 +30,7 @@ export const MenuItem = <T extends object>(props: MenuItemProps<T>) => {
           <Icon />
         </HeadlessIcon>
       )}
-      {item.rendered}
+      <span data-text>{item.rendered}</span>
     </li>
   );
 };
