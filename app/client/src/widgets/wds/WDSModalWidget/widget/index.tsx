@@ -15,6 +15,14 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ModalBody } from "@design-system/widgets";
 import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+  PastePayload,
+} from "layoutSystems/anvil/utils/paste/types";
+import { call } from "redux-saga/effects";
+import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 
 const modalBodyStyles: React.CSSProperties = {
   minHeight: "var(--sizing-16)",
@@ -43,6 +51,24 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return config.propertyPaneStyleConfig;
+  }
+
+  static *performPasteOperation(
+    allWidgets: CanvasWidgetsReduxState,
+    copiedWidgets: CopiedWidgetData[],
+    destinationInfo: PasteDestinationInfo,
+    widgetIdMap: Record<string, string>,
+    reverseWidgetIdMap: Record<string, string>,
+  ) {
+    const res: PastePayload = yield call(
+      pasteWidgetsIntoMainCanvas,
+      allWidgets,
+      copiedWidgets,
+      destinationInfo,
+      widgetIdMap,
+      reverseWidgetIdMap,
+    );
+    return res;
   }
 
   onModalClose = () => {

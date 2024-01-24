@@ -33,7 +33,8 @@ export const SELECT_ANVIL_WIDGET_CUSTOM_EVENT =
 
 export const widgetHierarchy: Record<string, number> = {
   MAIN_CANVAS: 0,
-  [anvilWidgets.SECTION_WIDGET]: 1,
-  [anvilWidgets.ZONE_WIDGET]: 2,
-  OTHER: 3,
+  WDS_MODAL_WIDGET: 1,
+  [anvilWidgets.SECTION_WIDGET]: 2,
+  [anvilWidgets.ZONE_WIDGET]: 3,
+  OTHER: 4,
 };
