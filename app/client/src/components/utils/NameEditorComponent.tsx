@@ -3,8 +3,6 @@ import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { isNameValid } from "utils/helpers";
 import type { AppState } from "@appsmith/reducers";
 import log from "loglevel";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import {
   ACTION_INVALID_NAME_ERROR,
@@ -53,7 +51,6 @@ export const IconBox = styled.div`
 `;
 
 interface NameEditorProps {
-  checkForGuidedTour?: boolean;
   children: (params: any) => JSX.Element;
   id?: string;
   name?: string;
@@ -72,7 +69,6 @@ interface NameEditorProps {
 
 function NameEditor(props: NameEditorProps) {
   const {
-    checkForGuidedTour,
     dispatchAction,
     id: entityId,
     idUndefinedErrorMessage,
@@ -87,7 +83,6 @@ function NameEditor(props: NameEditorProps) {
   if (!entityId) {
     log.error(idUndefinedErrorMessage);
   }
-  const guidedTourEnabled = useSelector(inGuidedTour);
 
   const conflictingNames = useSelector(
     (state: AppState) => getUsedActionNames(state, entityId || ""),
@@ -114,15 +109,10 @@ function NameEditor(props: NameEditorProps) {
   const handleNameChange = useCallback(
     (name: string) => {
       if (name !== entityName && !isInvalidNameForEntity(name)) {
-        if (checkForGuidedTour && guidedTourEnabled) {
-          dispatch(toggleShowDeviationDialog(true));
-          return;
-        }
-
         dispatch(dispatchAction({ id: entityId, name }));
       }
     },
-    [dispatch, isInvalidNameForEntity, guidedTourEnabled, entityId, entityName],
+    [dispatch, isInvalidNameForEntity, entityId, entityName],
   );
 
   useEffect(() => {

@@ -5,7 +5,8 @@
   border-radius: var(--border-radius-1);
   z-index: var(--z-index-99);
   box-shadow: var(--box-shadow-1);
-  min-width: var(--sizing-30);
+  min-inline-size: var(--sizing-30);
+  max-inline-size: var(--sizing-80);
 }
 
 .menuList {
@@ -19,6 +20,13 @@
   align-items: center;
   padding-inline: var(--inner-spacing-3);
   padding-block: var(--inner-spacing-3);
+}
+
+.menuList li [data-text] {
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .menuList li:first-of-type {

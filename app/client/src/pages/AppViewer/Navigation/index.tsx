@@ -16,7 +16,6 @@ import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import HtmlTitle from "../AppViewerHtmlTitle";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import PageMenu from "pages/AppViewer/PageMenu";
-import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "@appsmith/RouteBuilder";
 import TopHeader from "./components/TopHeader";
@@ -137,8 +136,6 @@ export function Navigation() {
           setMenuOpen={setMenuOpen}
           url={editorURL}
         />
-
-        <TourCompletionMessage />
       </div>
     </ThemeProvider>
   );

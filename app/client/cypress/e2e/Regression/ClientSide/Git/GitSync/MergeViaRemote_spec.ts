@@ -231,12 +231,13 @@ describe(
       cy.wait(1000);
       let legacyPathname = "";
       let newPathname = "";
+      // question to qa can we remove this assertion
       cy.intercept("GET", "/api/v1/pages?*mode=EDIT", (req) => {
         req.continue();
       }).as("appAndPages");
       cy.reload();
-      cy.wait("@appAndPages").then((intercept2) => {
-        const { application, pages } = intercept2.response.body.data;
+      cy.wait("@getConsolidatedData").then((intercept2) => {
+        const { application, pages } = intercept2.response.body.data.pages.data;
         const defaultPage = pages.find((p) => p.isDefault);
         legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
         newPathname = `/app/${application.slug}/${defaultPage.slug}-${defaultPage.id}`;
