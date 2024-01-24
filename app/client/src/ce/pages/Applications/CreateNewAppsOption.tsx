@@ -232,7 +232,7 @@ const CreateNewAppsOption = ({
         isEnabledForStartWithDataDefault,
     });
     // fetch plugins information to show list of all plugins
-    dispatch(fetchPlugins());
+    dispatch(fetchPlugins({ workspaceId: application?.workspaceId }));
     dispatch(fetchMockDatasources());
     if (application?.workspaceId) {
       dispatch(
@@ -441,10 +441,7 @@ const CreateNewAppsOption = ({
   ];
 
   useEffect(() => {
-    AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {
-      totalOptions: selectionOptions.length,
-    });
-    if (application)
+    if (application) {
       urlBuilder.updateURLParams(
         {
           applicationSlug: application.slug,
@@ -458,9 +455,16 @@ const CreateNewAppsOption = ({
         })),
       );
 
-    if (isEnabledForStartWithDataDefault) {
-      onClickStartWithData();
+      if (isEnabledForStartWithDataDefault) {
+        onClickStartWithData();
+      }
     }
+  }, [application]);
+
+  useEffect(() => {
+    AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {
+      totalOptions: selectionOptions.length,
+    });
 
     return () => {
       resetCreateNewAppFlow();
