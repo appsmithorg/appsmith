@@ -262,6 +262,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      * This is a basic action update, which updates actions related to pages.
      */
     protected Mono<ActionDTO> updateActionBasedOnContextType(NewAction newAction, ActionDTO action) {
+        log.debug("Updating action based on context type");
         String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
@@ -277,6 +278,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                 actionDTO.setErrorReports(
                                         pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
                             }
+                            log.debug("Update action based on context type completed, returning actionDTO");
                             return actionDTO;
                         });
     }
