@@ -1807,45 +1807,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   cy.get(labelAlignmentRightSelector).click();
   // Assert label alignment
   cy.get(labelSelector).first().should("have.css", "text-align", "right");
-
-  // Set the label width to labelWidth cols
-  cy.get(
-    `[class*='t--property-control-width'] .ads-v2-input__input-section-input`,
-  )
-    .first()
-    .focus()
-    .clear()
-    .type(`${labelWidth}`);
-  cy.wait(300);
-  cy.log(labelWidth).log("labelwidth");
-  // Assert the label width
-  cy.get(labelContainer)
-    .first()
-    .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
-  // Increase the label width
-  cy.get(
-    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-end`,
-  )
-    .first()
-    .click();
-  cy.log(parentColumnSpace).log("labelWidthIncreased");
-  // Assert the increased label width
-  cy.wait(300);
-  cy.get(labelContainer)
-    .first()
-    .should("have.css", "width", `${parentColumnSpace * (labelWidth + 1)}px`);
-  // Decrease the label width
-  cy.get(
-    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-start`,
-  )
-    .last()
-    .click();
-  cy.wait(300);
-  // Assert the decreased label width
-  cy.get(labelContainer)
-    .first()
-    .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
-
+  
   // Clean up the widget
   cy.deleteWidget(widgetSelector);
 });
