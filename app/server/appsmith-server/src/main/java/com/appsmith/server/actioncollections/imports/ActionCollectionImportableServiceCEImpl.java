@@ -53,8 +53,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
         List<ActionCollection> importedActionCollectionList =
                 CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
                         ? new ArrayList<>()
@@ -154,6 +153,15 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                 .collectMap(ActionCollection::getGitSyncId);
                     } else {
                         actionCollectionsInBranchesMono = Mono.just(Collections.emptyMap());
+                    }
+
+                    // update the action name in the json to avoid duplicate names for the partial import
+                    // It is page level action and hence the action name should be unique
+                    if (Boolean.TRUE.equals(importingMetaDTO.getIsPartialImport())
+                            && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
+                        updateActionCollectionNameBeforeMerge(
+                                importedActionCollectionList,
+                                mappedImportableResourcesDTO.getRefactoringNameReference());
                     }
 
                     return Mono.zip(actionCollectionsInCurrentAppMono, actionCollectionsInBranchesMono)
@@ -321,6 +329,28 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     log.error("Error saving action collections", e);
                     return Mono.error(e);
                 });
+    }
+
+    private void updateActionCollectionNameBeforeMerge(
+            List<ActionCollection> importedNewActionCollectionList, Set<String> refactoringNameSet) {
+
+        for (ActionCollection actionCollection : importedNewActionCollectionList) {
+            String
+                    oldNameActionCollection =
+                            actionCollection.getUnpublishedCollection().getName(),
+                    newNameActionCollection =
+                            actionCollection.getUnpublishedCollection().getName();
+            int i = 1;
+            while (refactoringNameSet.contains(newNameActionCollection)) {
+                newNameActionCollection = oldNameActionCollection + i++;
+            }
+            String oldId = actionCollection.getId().split("_")[1];
+            actionCollection.setId(newNameActionCollection + "_" + oldId);
+            actionCollection.getUnpublishedCollection().setName(newNameActionCollection);
+            if (actionCollection.getPublishedCollection() != null) {
+                actionCollection.getPublishedCollection().setName(newNameActionCollection);
+            }
+        }
     }
 
     protected Flux<ActionCollection> getCollectionsInCurrentAppFlux(Application importedApplication) {

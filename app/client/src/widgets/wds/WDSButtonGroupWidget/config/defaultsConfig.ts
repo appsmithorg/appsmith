@@ -1,12 +1,7 @@
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import {
-  BUTTON_MIN_WIDTH,
-  FILL_WIDGET_MIN_WIDTH,
-} from "constants/minWidthConstants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
-  rows: 4,
-  columns: 24,
   widgetName: "ButtonGroup",
   orientation: "horizontal",
   buttonVariant: "filled",
@@ -16,7 +11,6 @@ export const defaultsConfig = {
   version: 1,
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
-  minWidth: FILL_WIDGET_MIN_WIDTH,
   buttonsList: {
     button1: {
       label: "Favorite",
@@ -27,7 +21,6 @@ export const defaultsConfig = {
       index: 0,
       iconName: "heart",
       iconAlign: "start",
-      minWidth: BUTTON_MIN_WIDTH,
     },
     button2: {
       label: "Add",
@@ -38,7 +31,6 @@ export const defaultsConfig = {
       index: 1,
       iconName: "plus",
       iconAlign: "start",
-      minWidth: BUTTON_MIN_WIDTH,
     },
     button3: {
       label: "Bookmark",
@@ -49,7 +41,6 @@ export const defaultsConfig = {
       index: 2,
       iconName: "bookmark",
       iconAlign: "start",
-      minWidth: BUTTON_MIN_WIDTH,
     },
   },
-};
+} as unknown as WidgetDefaultProps;

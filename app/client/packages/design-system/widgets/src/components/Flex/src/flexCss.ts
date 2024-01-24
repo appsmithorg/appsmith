@@ -16,8 +16,8 @@ export const flexCss = (props: FlexCssProps) => {
 const flexStyles = (
   cssProp: string,
   value: FlexCssProps[keyof FlexCssProps],
-) => {
-  if (value == null) return;
+): string => {
+  if (value == null) return "";
 
   switch (true) {
     case cssProp === "wrap":
@@ -99,8 +99,11 @@ export const containerDimensionStyles = <T = FlexCssProps[keyof FlexCssProps]>(
           };}}`
         );
       } else {
-        //@ts-expect-error: type mismatch
-        return prev + `${cssProp}: ${value[current]};`;
+        return (
+          prev +
+          //@ts-expect-error: type mismatch
+          `${cssProp}: ${callback ? callback(value[current]) : value[current]};`
+        );
       }
     }, "");
   }
