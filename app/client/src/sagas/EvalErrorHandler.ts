@@ -130,7 +130,7 @@ function logLatestEvalPropertyErrors(
               messages: errorMessages,
               source: {
                 id: payloadInfo.id,
-                name: entityName,
+                name: payloadInfo.entityName || entityName,
                 type: entityType as ENTITY_TYPE,
                 propertyPath: logPropertyPath,
                 pluginType: payloadInfo.pluginType,
