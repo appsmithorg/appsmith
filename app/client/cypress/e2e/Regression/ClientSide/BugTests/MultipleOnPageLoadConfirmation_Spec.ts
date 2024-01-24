@@ -7,7 +7,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
 
 describe(
   "Multiple rejection of confirmation for onPageLoad function execution",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Sanity"] },
   function () {
     before(() => {
       ee.DragDropWidgetNVerify("buttonwidget", 300, 300);

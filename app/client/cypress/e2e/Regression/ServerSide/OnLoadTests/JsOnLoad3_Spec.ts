@@ -22,7 +22,7 @@ let dsName: any, jsName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane", "@tag.JS"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Sanity"] },
   function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

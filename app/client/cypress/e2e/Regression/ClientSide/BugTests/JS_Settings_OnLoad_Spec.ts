@@ -10,8 +10,11 @@ describe("JS Function execution data mutation", function () {
     agHelper.AddDsl("listwidgetData");
   });
 
-  it("1. List widget gets populated on page load", function () {
-    const APIJS = `export default {
+  it(
+    "1. List widget gets populated on page load",
+    { tags: ["@tag.JS", "@tag.Widget", "@tag.Sanity"] },
+    function () {
+      const APIJS = `export default {
 
         async runFetch(dataRequest) {
             return fetch(dataRequest.url, dataRequest.config)
@@ -45,7 +48,7 @@ describe("JS Function execution data mutation", function () {
         },
     
     }`;
-    const PAGE1JS = `export default {
+      const PAGE1JS = `export default {
 
         conditionGroups: [],
         allConditionGroups: [],
@@ -84,31 +87,32 @@ describe("JS Function execution data mutation", function () {
         }
     
     }`;
-    jsEditor.CreateJSObject(APIJS, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-      prettify: false,
-    });
-    jsEditor.RenameJSObjFromPane("ApiJS");
-    cy.wait(5000);
+      jsEditor.CreateJSObject(APIJS, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      });
+      jsEditor.RenameJSObjFromPane("ApiJS");
+      cy.wait(5000);
 
-    jsEditor.CreateJSObject(PAGE1JS, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-      prettify: false,
-    });
-    jsEditor.RenameJSObjFromPane("Page1JS");
-    cy.wait(5000);
-    jsEditor.EnableDisableAsyncFuncSettings(
-      "getAllConditionGroupsData",
-      true,
-      false,
-    );
-    deployMode.DeployApp();
-    agHelper.AssertContains("MK Condition");
-  });
+      jsEditor.CreateJSObject(PAGE1JS, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      });
+      jsEditor.RenameJSObjFromPane("Page1JS");
+      cy.wait(5000);
+      jsEditor.EnableDisableAsyncFuncSettings(
+        "getAllConditionGroupsData",
+        true,
+        false,
+      );
+      deployMode.DeployApp();
+      agHelper.AssertContains("MK Condition");
+    },
+  );
 });

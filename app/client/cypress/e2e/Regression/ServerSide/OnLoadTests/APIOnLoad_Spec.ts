@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "JSObjects OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane", "@tag.JS"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Sanity"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableWidgetDsl");
