@@ -23,9 +23,7 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
-import Guide from "../GuidedTour/Guide";
 import MainContainerWrapper from "./MainContainerWrapper";
 import EmptyCanvasPrompts from "./EmptyCanvasPrompts";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
@@ -56,7 +54,6 @@ function WidgetsEditor() {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const guidedTourEnabled = useSelector(inGuidedTour);
   const isPreviewMode = useSelector(previewModeSelector);
   const isProtectedMode = useSelector(protectedModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
@@ -164,7 +161,7 @@ function WidgetsEditor() {
   );
 
   const showNavigation = () => {
-    if (isPreviewingNavigation && !guidedTourEnabled) {
+    if (isPreviewingNavigation) {
       return (
         <NavigationPreview
           isAppSettingsPaneWithNavigationTabOpen={
@@ -179,7 +176,6 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider renderMode="CANVAS">
-      {guidedTourEnabled && <Guide />}
       <div className="relative flex flex-row w-full overflow-hidden">
         <div
           className={classNames({
