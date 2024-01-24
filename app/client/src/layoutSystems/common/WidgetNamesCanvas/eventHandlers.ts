@@ -10,7 +10,7 @@ import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks"
 import { WIDGET_NAME_COMPONENT_BUFFER } from "./WidgetNameConstants";
 
 /**
- * This returns a callback for scroll event on the MainContainer
+ * This returns a callback for scroll event on the provided scrollparent
  *
  * This callback does the following:
  * 1. Sets the scrolling state to 1 if it is not already set to 0.

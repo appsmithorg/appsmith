@@ -14,7 +14,7 @@ import { AnvilViewerWidgetOnion } from "./AnvilViewerWidgetOnion";
  */
 export const AnvilViewerWrapper = (props: WidgetProps) => {
   const WidgetOnion = useMemo(() => {
-    return props.type === "MODAL_WIDGET"
+    return props.detachFromLayout === true
       ? AnvilViewerDetachedWidgetOnion
       : AnvilViewerWidgetOnion;
   }, [props.type]);

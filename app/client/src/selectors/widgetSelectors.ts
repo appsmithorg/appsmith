@@ -31,13 +31,18 @@ export const getIsResizing = (state: AppState) =>
 
 const getCanvasWidgets = (state: AppState) => state.entities.canvasWidgets;
 
-const getModalWidgetType = createSelector(selectFeatureFlags, (flags) => {
-  let modalWidgetType = "MODAL_WIDGET";
-  if (flags.ab_wds_enabled) {
-    modalWidgetType = "WDS_MODAL_WIDGET";
-  }
-  return modalWidgetType;
-});
+// A selector that gets the modal widget type based on the feature flag
+// This will need to be updated once Anvil and WDS are generally available
+export const getModalWidgetType = createSelector(
+  selectFeatureFlags,
+  (flags) => {
+    let modalWidgetType = "MODAL_WIDGET";
+    if (flags.ab_wds_enabled) {
+      modalWidgetType = "WDS_MODAL_WIDGET";
+    }
+    return modalWidgetType;
+  },
+);
 
 export const getModalWidgets = createSelector(
   getCanvasWidgets,

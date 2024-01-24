@@ -13,19 +13,21 @@ import React from "react";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import styled from "styled-components";
+import { ModalBody } from "@design-system/widgets";
 
-const StyledModalBody = styled.div`
-  & > div {
-    min-height: var(--sizing-16);
-    max-height: calc(
-      var(--canvas-height) - var(--outer-spacing-4) - var(--outer-spacing-4) - var(
-          --outer-spacing-4
-        ) - 100px
-    );
-    overflow-y: auto;
-  }
-`;
+const modalBodyStyles: React.CSSProperties = {
+  minHeight: "var(--sizing-16)",
+  maxHeight:
+    "calc(var(--canvas-height) - var(--outer-spacing-4) - var(--outer-spacing-4) - var(--outer-spacing-4) - 100px)",
+  overflowY: "auto",
+};
+
+const modalStyles: React.CSSProperties = {
+  width: `calc(var(--provider-width) - var(--sizing-6))`,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+};
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
@@ -99,18 +101,13 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         isOpen={this.getModalVisibility()}
         onClose={this.onModalClose}
         size={this.props.size}
-        style={{
-          width: `calc(var(--provider-width) - var(--sizing-6))`,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+        style={modalStyles}
       >
         <ModalContent className={this.props.className}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}
-          <StyledModalBody className="appsmith-modal-body">
+          <ModalBody className="appsmith-modal-body" style={modalBodyStyles}>
             <LayoutProvider {...this.props} />
-          </StyledModalBody>
+          </ModalBody>
           {this.props.showFooter && (
             <ModalFooter
               closeText={closeText}

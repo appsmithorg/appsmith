@@ -15,6 +15,12 @@ import {
 import { NavigationMethod } from "utils/history";
 import type { WidgetProps } from "widgets/BaseWidget";
 
+/**
+ * This saga selects widgets in the Anvil Layout system
+ * It is triggered by a custom event dispatched by all widgets on click
+ * @param action The widgetId and the event object for the click that resulted in the call to this saga
+ * @returns
+ */
 export function* selectAnvilWidget(
   action: ReduxAction<{ widgetId: string; e: PointerEvent }>,
 ) {
@@ -32,6 +38,9 @@ export function* selectAnvilWidget(
 
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
 
+  // The following code has been copied from `useWidgetSelection` hook.
+  // In the event of any changes to the hook, this code needs to be updated as well.
+  // TODO(#30582): Refactor this code to a common function and use it in both places.
   if (shouldIgnoreClicks) return;
   if (
     (!isPropPaneVisible && isWidgetAlreadySelected) ||

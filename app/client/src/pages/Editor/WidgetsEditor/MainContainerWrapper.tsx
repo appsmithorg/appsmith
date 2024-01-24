@@ -53,6 +53,7 @@ const Wrapper = styled.section<{
   navigationHeight?: number;
   $heightWithTopMargin: string;
 }>`
+  /* Create a custom variable that will allow us to measure the height of the canvas down the road */
   --canvas-height: ${(props) => props.$heightWithTopMargin};
   width: ${({ $enableMainCanvasResizer }) =>
     $enableMainCanvasResizer

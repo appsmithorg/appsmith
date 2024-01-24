@@ -18,6 +18,14 @@ import {
   getCreateWidgetPayload,
 } from "../../widgetAdditionUtils";
 
+/**
+ * This function adds a detached widget to the main canvas.
+ * This is a different saga because we don't need to generate sections, zones, etc
+ * As well as the fact that all detached widgets are children of the MainContainer.
+ * @param allWidgets | CanvasWidgetsReduxState : All widgets in the canvas.
+ * @param draggedWidget | { widgetId: string; type: string } : Widget to be added.
+ * @returns CanvasWidgetsReduxState : Updated widgets.
+ */
 export function* addDetachedWidgetToMainCanvas(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidget: { widgetId: string; type: string },

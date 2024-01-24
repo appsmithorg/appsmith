@@ -51,8 +51,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { getModalWidgetType } from "selectors/widgetSelectors";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -253,13 +252,8 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   // Let's assume that the payload widgetId is a modal widget and we need to open the modal as it is selected
   let modalWidgetToOpen: string = action.payload.widgetIds[0];
 
-  // TODO: this should be based on the layout system type?.
-  let modalWidgetType = "MODAL_WIDGET";
-  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+  const modalWidgetType: string = yield select(getModalWidgetType);
 
-  if (featureFlags.ab_wds_enabled) {
-    modalWidgetType = "WDS_MODAL_WIDGET";
-  }
   // Get all modal widget ids
   const modalWidgetIds: string[] = yield select(
     getWidgetIdsByType,
