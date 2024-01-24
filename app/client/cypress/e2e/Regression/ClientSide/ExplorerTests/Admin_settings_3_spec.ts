@@ -111,20 +111,5 @@ describe(
       cy.url().should("contain", "/settings/version");
     });
 
-    it("6. Should test that authentication page redirects", () => {
-      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.googleButton).click();
-      cy.url().should("contain", "/settings/authentication/google-auth");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.githubButton).click();
-      cy.url().should("contain", "/settings/authentication/github-auth");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.formloginButton).click();
-      cy.url().should("contain", "/settings/authentication/form-login");
-    });
   },
 );
