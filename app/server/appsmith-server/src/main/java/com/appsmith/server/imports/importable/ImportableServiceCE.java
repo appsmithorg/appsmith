@@ -17,14 +17,12 @@ public interface ImportableServiceCE<T extends BaseDomain> {
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport);
+            ApplicationJson applicationJson);
 
     default Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            boolean isPartialImport) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return null;
     }
 
@@ -34,7 +32,6 @@ public interface ImportableServiceCE<T extends BaseDomain> {
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importContextMono,
             ArtifactExchangeJson importableContextJson,
-            boolean isPartialImport,
             boolean isContextAgnostic) {
         return null;
     }

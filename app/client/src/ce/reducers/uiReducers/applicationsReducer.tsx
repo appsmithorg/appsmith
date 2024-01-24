@@ -184,8 +184,10 @@ export const handlers = {
       !newState.currentApplication.applicationDetail.navigationSetting ||
       isEmpty(newState.currentApplication.applicationDetail.navigationSetting)
     ) {
-      newState.currentApplication.applicationDetail.navigationSetting =
-        defaultNavigationSetting;
+      newState.currentApplication.applicationDetail = {
+        ...newState.currentApplication.applicationDetail,
+        navigationSetting: defaultNavigationSetting,
+      };
     }
 
     return newState;

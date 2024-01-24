@@ -35,10 +35,6 @@ class WDSButtonGroupWidget extends BaseWidget<
     return defaultsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAutocompleteDefinitions() {
     return autocompleteConfig;
   }

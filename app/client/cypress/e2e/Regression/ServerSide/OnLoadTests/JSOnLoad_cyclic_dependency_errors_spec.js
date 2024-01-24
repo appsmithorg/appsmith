@@ -94,9 +94,9 @@ describe(
       // cy.get(widgetsPage.NavHomePage).click({ force: true });
       cy.reload();
       cy.openPropertyPane("inputwidgetv2");
-      cy.wait("@getPage").should(
+      cy.wait("@getConsolidatedData").should(
         "have.nested.property",
-        "response.body.data.layouts[0].layoutOnLoadActionErrors.length",
+        "response.body.data.pageWithMigratedDsl.data.layouts[0].layoutOnLoadActionErrors.length",
         0,
       );
 

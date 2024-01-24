@@ -278,6 +278,8 @@ export class HomePage {
       cy.wrap(interception.response.body.data.name).as("appName");
       cy.wrap(interception.response.body.data.id).as("applicationId");
     });
+    // should resolve auditlog test case
+    cy.wait("@getConsolidatedData");
     this.agHelper.AssertElementAbsence(this.locator._loading);
   }
 
@@ -389,12 +391,12 @@ export class HomePage {
     this.agHelper.Sleep(); //waiting for window to load
     this.InvokeDispatchOnStore();
     cy.wait("@postLogout");
-    this.agHelper.VisitNAssert("/user/login", "signUpLogin");
+    this.agHelper.VisitNAssert("/user/login", "getConsolidatedData");
     this.agHelper.AssertElementVisibility(this._username);
     this.agHelper.TypeText(this._username, uname);
     this.agHelper.TypeText(this._password, pswd);
     this.agHelper.GetNClick(this._submitBtn);
-    this.assertHelper.AssertNetworkStatus("@getMe");
+    this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
     this.agHelper.Sleep(3000);
     if (role != "App Viewer") {
       this.agHelper.AssertElementVisibility(this._homePageAppCreateBtn);
@@ -407,7 +409,7 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
+    this.agHelper.VisitNAssert("/user/signup", "@getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
     this.agHelper.TypeText(this._password, pswd);
@@ -424,7 +426,7 @@ export class HomePage {
         );
       }
     });
-    this.assertHelper.AssertNetworkStatus("@getMe");
+    this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
     this.agHelper.Sleep(3000);
   }
 
@@ -457,7 +459,7 @@ export class HomePage {
   public LaunchAppFromAppHover() {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
     this.agHelper.AssertElementAbsence(this.locator._loading);
-    this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
+    this.assertHelper.AssertNetworkStatus("getConsolidatedData");
   }
 
   public EditAppFromSearch(appName: string) {

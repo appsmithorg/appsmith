@@ -22,7 +22,6 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   align-items: baseline;
   justify-content: center;
-  flex: 0;
 
   @media screen and (min-width: 1500px) {
     .bp3-card {
