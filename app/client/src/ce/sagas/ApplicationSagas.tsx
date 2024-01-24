@@ -130,6 +130,7 @@ import {
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import equal from "fast-deep-equal";
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -257,18 +258,20 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
     });
   }
 }
-
+// v1
 export function* fetchAppAndPagesSaga(
   action: ReduxAction<FetchApplicationPayload>,
 ) {
   try {
-    const params = pickBy(action.payload, identity);
+    const { pages, ...payload } = action.payload;
+    const params = pickBy(payload, identity);
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
     const response: FetchApplicationResponse = yield call(
-      PageApi.fetchAppAndPages,
-      params,
+      getFromServerWhenNoPrefetchedResult,
+      pages,
+      () => call(PageApi.fetchAppAndPages, params),
     );
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
