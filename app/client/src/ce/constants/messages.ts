@@ -1656,12 +1656,9 @@ export const CONTINUE = () => "Continue";
 export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
 export const PROCEED = () => "Proceed";
 export const COMPLETE = () => "Complete";
-// -- Modal --
-export const DEVIATION = () => "You are deviating from the tutorial";
-export const END_CONFIRMATION = () => "Are you sure you want to end?";
-export const CANCEL_DIALOG = () => "Cancel";
 // -- End Tutorial --
 export const END_TUTORIAL = () => "End tutorial";
+export const CANCEL_DIALOG = () => "Cancel";
 // -- Intro content --
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
@@ -2298,9 +2295,11 @@ export const EDITOR_PANE_TEXTS = {
     "Drag & drop widgets to create your app",
   query_add_button: () => "New query / API",
   js_add_button: () => "New JS object",
+  js_blank_object_item: () => "Blank JS object",
   widget_add_button: () => "New widget",
   query_create_tab_title: () => "Create new query / API",
   widgets_create_tab_title: () => "Drag & drop a widget",
+  js_create_tab_title: () => "Create JS object",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
 };

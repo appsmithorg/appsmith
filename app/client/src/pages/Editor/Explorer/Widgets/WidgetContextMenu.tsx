@@ -8,8 +8,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import WidgetFactory from "WidgetProvider/factory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -32,7 +30,6 @@ export function WidgetContextMenu(props: {
     if (parentId) return state.ui.pageWidgets[props.pageId].dsl[parentId];
     return {};
   });
-  const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const dispatchDelete = useCallback(() => {
     // If the widget is a tab we are updating the `tabs` of the property of the widget
@@ -71,12 +68,8 @@ export function WidgetContextMenu(props: {
   }, []);
 
   const editWidgetName = useCallback(() => {
-    if (guidedTourEnabled) {
-      dispatch(toggleShowDeviationDialog(true));
-      return;
-    }
     dispatch(initExplorerEntityNameEdit(widgetId));
-  }, [dispatch, widgetId, guidedTourEnabled]);
+  }, [dispatch, widgetId]);
 
   const optionTree: TreeDropdownOption[] = [
     {

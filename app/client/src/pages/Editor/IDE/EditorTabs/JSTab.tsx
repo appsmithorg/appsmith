@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "classnames";
 import { useSelector } from "react-redux";
 
-import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";

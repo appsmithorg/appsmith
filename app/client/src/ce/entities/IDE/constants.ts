@@ -19,6 +19,7 @@ import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
+import type { PluginType } from "entities/Action";
 
 export enum EditorState {
   DATA = "DATA",
@@ -120,3 +121,10 @@ export const IDEBasePaths: Readonly<Record<IDEType, string[]>> = {
   [IDE_TYPE.None]: [],
   [IDE_TYPE.App]: [BUILDER_PATH, BUILDER_PATH_DEPRECATED, BUILDER_CUSTOM_PATH],
 };
+
+export interface EntityItem {
+  title: string;
+  type: PluginType;
+  key: string;
+  group?: string;
+}

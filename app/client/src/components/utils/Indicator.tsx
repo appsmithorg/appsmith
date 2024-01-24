@@ -1,15 +1,16 @@
 import type { LazyAnimationItem } from "utils/lazyLottie";
 import lazyLottie from "utils/lazyLottie";
 import indicatorAnimationURL from "assets/lottie/guided-tour-indicator.json.txt";
-import { Classes as GuidedTourClasses } from "pages/Editor/GuidedTour/constants";
-import {
-  setExplorerActiveAction,
-  setExplorerPinnedAction,
-} from "actions/explorerActions";
 import log from "loglevel";
 
 // data-guided-tour-id - used for the rectangular highlight
 // data-guided-tour-iid - iid(indicator id) used for the lottie animation show near an element
+
+export const GuidedTourClasses = {
+  GUIDED_TOUR_BORDER: "guided-tour-border",
+  GUIDED_TOUR_SHOW_BORDER: "guided-tour-show-border",
+  GUIDED_TOUR_INDICATOR: "guided-tour-indicator",
+};
 
 class IndicatorHelper {
   timerId!: ReturnType<typeof setTimeout>;
@@ -261,8 +262,4 @@ export function showIndicator(
 
 export function hideIndicator() {
   indicatorHelperInstance.destroy();
-}
-
-export function closeSidebar() {
-  return [setExplorerPinnedAction(false), setExplorerActiveAction(false)];
 }
