@@ -6,7 +6,6 @@ export interface ModalWidgetProps extends WidgetProps {
   size: "small" | "medium" | "large";
   showSubmitButton: boolean;
   submitButtonText: string;
-  showCancelButton: boolean;
   cancelButtonText: string;
   className: string;
 }

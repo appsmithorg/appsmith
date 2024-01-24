@@ -1,3 +1,4 @@
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
@@ -13,8 +14,6 @@ export const defaultsConfig = {
   children: [],
   widgetName: "Modal",
   version: 1,
-  rows: 0,
-  columns: 0,
   isVisible: false,
   showFooter: true,
   showHeader: true,
@@ -22,7 +21,6 @@ export const defaultsConfig = {
   title: "Modal",
   showSubmitButton: true,
   submitButtonText: "Submit",
-  showCancelButton: true,
   cancelButtonText: "Cancel",
   blueprint: {
     operations: [
@@ -46,4 +44,4 @@ export const defaultsConfig = {
       },
     ],
   },
-};
+} as unknown as WidgetDefaultProps;

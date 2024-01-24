@@ -20,14 +20,6 @@ const modalBodyStyles: React.CSSProperties = {
   minHeight: "var(--sizing-16)",
   maxHeight:
     "calc(var(--canvas-height) - var(--outer-spacing-4) - var(--outer-spacing-4) - var(--outer-spacing-4) - 100px)",
-  overflowY: "auto",
-};
-
-const modalStyles: React.CSSProperties = {
-  width: `calc(var(--provider-width) - var(--sizing-6))`,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
 };
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
@@ -102,7 +94,6 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         isOpen={this.getModalVisibility()}
         onClose={this.onModalClose}
         size={this.props.size}
-        style={modalStyles}
       >
         <ModalContent className={this.props.className}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}
