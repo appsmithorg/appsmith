@@ -31,11 +31,9 @@ import {
   WidgetFeatureProps,
 } from "../../utils/WidgetFeatures";
 import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
-// import { WIDGETS_COUNT } from "widgets";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
 import produce from "immer";
-import { defaultSizeConfig } from "layoutSystems/anvil/utils/widgetUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
@@ -436,6 +434,9 @@ class WidgetFactory {
   @memoize
   @freeze
   static getWidgetAutoLayoutConfig(type: WidgetType): AutoLayoutConfig {
+    // we don't need AutoLayoutConfig config for WDS widgets
+    if (type?.includes("WDS")) return {};
+
     const widget = WidgetFactory.widgetsMap.get(type);
 
     const baseAutoLayoutConfig = widget?.getAutoLayoutConfig();
@@ -483,7 +484,7 @@ class WidgetFactory {
       log.error(`Anvil config is not defined for widget type: ${type}`);
       return {
         isLargeWidget: false,
-        widgetSize: defaultSizeConfig,
+        widgetSize: {},
       };
     }
     return baseAnvilConfig;
