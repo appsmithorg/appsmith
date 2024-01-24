@@ -24,7 +24,6 @@ import { ContainerComponent } from "widgets/anvil/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { Elevations, anvilWidgets } from "widgets/anvil/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SectionColumns } from "layoutSystems/anvil/utils/constants";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
@@ -32,6 +31,7 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
 import { pasteWidgetsInZone } from "layoutSystems/anvil/utils/paste/zonePasteUtils";
+import { SectionColumns } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
 
 class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   static type = anvilWidgets.ZONE_WIDGET;
