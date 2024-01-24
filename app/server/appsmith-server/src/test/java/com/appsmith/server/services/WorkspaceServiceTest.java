@@ -587,13 +587,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void inValidupdateWorkspaceEmptyName() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .build();
-
-        Policy manageWorkspacePolicy =
-                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
-
         Workspace workspace = new Workspace();
         workspace.setName("Test Update Name");
         workspace.setDomain("example.com");
@@ -615,13 +608,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceValidEmail() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .build();
-
-        Policy manageWorkspacePolicy =
-                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
-
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
         for (String validEmail : validEmails) {
             Workspace workspace = new Workspace();
@@ -646,13 +632,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceInvalidEmail() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .build();
-
-        Policy manageWorkspacePolicy =
-                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
-
         String[] invalidEmails = {"invalid@.com", "@invalid.com"};
         for (String invalidEmail : invalidEmails) {
             Workspace workspace = new Workspace();
@@ -677,13 +656,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceValidWebsite() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .build();
-
-        Policy manageWorkspacePolicy =
-                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
-
         String[] validWebsites = {
             "https://www.valid.website.com",
             "http://www.valid.website.com",
@@ -727,13 +699,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceInvalidWebsite() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .build();
-
-        Policy manageWorkspacePolicy =
-                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
-
         String[] invalidWebsites = {
             "htp://www.invalid.website.com", "htp://invalid.website.com", "htp://www", "www", "www."
         };
