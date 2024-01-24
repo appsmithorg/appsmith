@@ -167,7 +167,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       ref={ref}
       style={styleProps}
     >
-      {props.children}
+      <div className="h-full w-full">{props.children}</div>
     </Flex>
   );
 }

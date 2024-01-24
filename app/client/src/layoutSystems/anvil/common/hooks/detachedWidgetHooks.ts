@@ -12,7 +12,7 @@ import { denormalize } from "utils/canvasStructureHelpers";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 /**
@@ -29,47 +29,49 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
   const element = document.querySelector(`.${className}`);
   const { focusWidget } = useWidgetSelection();
 
-  // The select handler sends a custom event that is handled at a singular place in the AnvilMainCanvas
-  // The event listener is actually attached to the body and not the AnvilMainCanvas. This can be changed in the future if necessary.
-  const handleWidgetSelect = (e: any) => {
-    // EventPhase 2 is the Target phase.
-    // This signifies that the event has reached the target element.
-    // And since the target element is the detached widget, we can
-    // be sure that the click happened on the modal widget and not
-    // on any of the children. It is now save to select the detached widget
-    if (e.eventPhase === 2) {
-      element?.dispatchEvent(
-        new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
-          bubbles: true,
-          detail: { widgetId: widgetId },
-        }),
-      );
-    }
-    e.stopPropagation();
-  };
+  useEffect(() => {
+    // The select handler sends a custom event that is handled at a singular place in the AnvilMainCanvas
+    // The event listener is actually attached to the body and not the AnvilMainCanvas. This can be changed in the future if necessary.
+    const handleWidgetSelect = (e: any) => {
+      // EventPhase 2 is the Target phase.
+      // This signifies that the event has reached the target element.
+      // And since the target element is the detached widget, we can
+      // be sure that the click happened on the modal widget and not
+      // on any of the children. It is now save to select the detached widget
+      if (e.eventPhase === 2) {
+        element?.dispatchEvent(
+          new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
+            bubbles: true,
+            detail: { widgetId: widgetId },
+          }),
+        );
+      }
+      e.stopPropagation();
+    };
 
-  // The handler for focusing on a detached widget
-  // It makes sure to check if the app mode is preview or not
-  const handleWidgetFocus = (e: any) => {
-    if (e.eventPhase === 2) {
-      !isPreviewMode && dispatch(focusWidget(widgetId));
-    }
-  };
+    // The handler for focusing on a detached widget
+    // It makes sure to check if the app mode is preview or not
+    const handleWidgetFocus = (e: any) => {
+      if (e.eventPhase === 2) {
+        !isPreviewMode && dispatch(focusWidget(widgetId));
+      }
+    };
 
-  // Registering and unregistering listeners
-  if (element) {
-    element.addEventListener("click", handleWidgetSelect, {
-      passive: false,
-      capture: false,
-    });
-    element.addEventListener("pointerenter", handleWidgetFocus);
-  }
-  return () => {
+    // Registering and unregistering listeners
     if (element) {
-      element.removeEventListener("click", handleWidgetSelect);
-      element.removeEventListener("pointerenter", handleWidgetFocus);
+      element.addEventListener("click", handleWidgetSelect, {
+        passive: false,
+        capture: false,
+      });
+      element.addEventListener("mouseover", handleWidgetFocus);
     }
-  };
+    return () => {
+      if (element) {
+        element.removeEventListener("click", handleWidgetSelect);
+        element.removeEventListener("mouseover", handleWidgetFocus);
+      }
+    };
+  }, [element, focusWidget, isPreviewMode, widgetId]);
 }
 
 /**

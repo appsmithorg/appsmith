@@ -7,7 +7,6 @@ import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
-import { generateClassName } from "utils/generators";
 export type ObservableElementType = "widget" | "layout";
 
 export function useObserveDetachedWidget(widgetId: string) {
@@ -19,7 +18,7 @@ export function useObserveDetachedWidget(widgetId: string) {
   if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
     return;
   }
-  const className = generateClassName(widgetId);
+  const className = getAnvilWidgetDOMId(widgetId);
   const ref = {
     current: document.querySelector(`.${className}`) as HTMLDivElement,
   };
