@@ -110,6 +110,7 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
                     return actionCollectionService
                             .create(toBeClonedActionCollection)
                             .flatMap(clonedActionCollection -> {
+                                clonePageMetaDTO.getClonedActionCollections().add(clonedActionCollection);
                                 if (!StringUtils.hasLength(clonedActionCollection
                                         .getDefaultResources()
                                         .getCollectionId())) {
@@ -119,7 +120,6 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
                                     return actionCollectionService.update(
                                             clonedActionCollection.getId(), clonedActionCollection);
                                 }
-                                clonePageMetaDTO.getClonedActionCollections().add(clonedActionCollection);
                                 return Mono.just(clonedActionCollection);
                             });
                 })
