@@ -83,3 +83,7 @@ export const getSearchedApplications = (state: AppState) =>
 export const getIsFetchingEntities = (state: AppState) => {
   return state.ui.workspaces.loadingStates.isFetchingEntities;
 };
+
+export const getIsDeletingWorkspace = (state: AppState) => {
+  return state.ui.workspaces.loadingStates.isDeletingWorkspace;
+};

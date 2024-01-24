@@ -17,6 +17,7 @@ export interface WorkspaceReduxState {
     isSavingWorkspaceInfo: boolean;
     isFetchingWorkspaces: boolean;
     isFetchingEntities: boolean;
+    isDeletingWorkspace: boolean;
   };
   workspaceRoles: any;
   searchEntities: any;
@@ -28,6 +29,7 @@ export const initialState: WorkspaceReduxState = {
     isSavingWorkspaceInfo: false,
     isFetchingWorkspaces: false,
     isFetchingEntities: false,
+    isDeletingWorkspace: false,
   },
   list: [],
   workspaceRoles: [],
@@ -59,6 +61,11 @@ export const handlers = {
     draftState.loadingStates.isFetchingWorkspaces = false;
     draftState.list = action.payload;
   },
+  [ReduxActionTypes.DELETE_WORKSPACE_INIT]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isDeletingWorkspace = true;
+  },
   [ReduxActionTypes.DELETE_WORKSPACE_SUCCESS]: (
     draftState: WorkspaceReduxState,
     action: ReduxAction<string>,
@@ -66,6 +73,12 @@ export const handlers = {
     draftState.list = draftState.list.filter(
       (workspace: Workspace) => workspace.id !== action.payload,
     );
+    draftState.loadingStates.isDeletingWorkspace = false;
+  },
+  [ReduxActionErrorTypes.DELETE_WORKSPACE_ERROR]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isDeletingWorkspace = false;
   },
   [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (
     draftState: WorkspaceReduxState,
