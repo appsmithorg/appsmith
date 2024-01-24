@@ -340,8 +340,7 @@ public class UserServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(workspace1.getDefaultPermissionGroups().stream()
                             .findFirst()
-                            .get()
-                            .getId());
+                            .get());
 
                     return userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })

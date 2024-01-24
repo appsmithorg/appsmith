@@ -332,8 +332,12 @@ public class ActionServiceCE_Test {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -354,7 +358,7 @@ public class ActionServiceCE_Test {
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
                     assertThat(createdAction.getUserPermissions()).isNotEmpty();
 
-                    Set<PermissionGroup> permissionGroups = tuple.getT2();
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                             .findFirst()
@@ -400,8 +404,12 @@ public class ActionServiceCE_Test {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -426,7 +434,7 @@ public class ActionServiceCE_Test {
                     assertThat(createdAction.getDefaultResources().getApplicationId())
                             .isEqualTo(gitConnectedPage.getApplicationId());
 
-                    Set<PermissionGroup> permissionGroups = tuple.getT2();
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                             .findFirst()
@@ -995,8 +1003,12 @@ public class ActionServiceCE_Test {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         Application createdApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -1051,7 +1063,7 @@ public class ActionServiceCE_Test {
                 .assertNext(tuple -> {
                     Datasource datasourceFromDb = tuple.getT1();
                     NewAction actionFromDb = tuple.getT2();
-                    Set<PermissionGroup> permissionGroups = tuple.getT3();
+                    List<PermissionGroup> permissionGroups = tuple.getT3();
                     PermissionGroup publicAppPermissionGroup = tuple.getT4();
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()

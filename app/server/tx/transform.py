@@ -14,7 +14,7 @@ MONO_WRAPPER = (
 MONO_WRAPPER_NON_OPTIONAL = (
     "Mono.fromSupplier(() -> %s).subscribeOn(Schedulers.boundedElastic())"
 )
-FLUX_WRAPPER = "Mono.fromSupplier(() -> %s).flatMapIterable(o -> o).subscribeOn(Schedulers.boundedElastic())"
+FLUX_WRAPPER = "Mono.fromSupplier(() -> %s).flatMapMany(Flux::fromIterable).subscribeOn(Schedulers.boundedElastic())"
 
 
 def apply(p, tx):
@@ -131,6 +131,13 @@ def generate_base_cake():
                 return {MONO_WRAPPER % "repository.findById(id)"};
             }}
 
+            public Flux<T> findAllById(Iterable<String> ids) {{
+                return {FLUX_WRAPPER % "repository.findAllById(ids)"};
+            }}
+
+            public Mono<Void> deleteAll() {{
+                return Mono.<Void>fromRunnable(repository::deleteAll).subscribeOn(Schedulers.boundedElastic());
+            }}
         }}
     """
 

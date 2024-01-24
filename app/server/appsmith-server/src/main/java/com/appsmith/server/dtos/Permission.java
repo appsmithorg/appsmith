@@ -25,4 +25,9 @@ public class Permission {
     String documentId;
 
     AclPermission aclPermission;
+
+    public Permission(String documentId, AclPermission aclPermission) {
+        this.documentId = documentId;
+        this.aclPermission = aclPermission;
+    }
 }

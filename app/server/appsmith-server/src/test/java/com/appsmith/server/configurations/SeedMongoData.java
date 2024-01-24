@@ -255,7 +255,7 @@ public class SeedMongoData {
                 .find(
                         new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])),
                         Plugin.class)
-                .map(plugin -> new WorkspacePlugin(plugin.getId(), WorkspacePluginStatus.FREE))
+                .map(plugin -> new WorkspacePlugin(plugin, WorkspacePluginStatus.FREE))
                 .collect(Collectors.toSet())
                 .cache()
                 .repeat()

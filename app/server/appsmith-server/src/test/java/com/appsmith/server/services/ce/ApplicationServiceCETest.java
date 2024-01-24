@@ -30,6 +30,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -129,7 +130,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.CONNECT_TO_GIT;
@@ -157,8 +157,8 @@ import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
-import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -419,22 +419,13 @@ public class ApplicationServiceCETest {
     private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
         Query query = new Query(where("id").is(id));
 
-        final Query actionQuery = query(where("applicationId").exists(true))
-                .addCriteria(where("unpublishedAction" + "." + "archivedAt").exists(true));
+        final Query actionQuery = query(
+                        where(fieldName(QNewAction.newAction.applicationId)).exists(true))
+                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                                + fieldName(QNewAction.newAction.unpublishedAction.archivedAt))
+                        .exists(true));
 
         return mongoOperations.findOne(query, domainClass);
-    }
-
-    private List<String> createDummyApplications(String workspaceId) {
-        List<String> applicationIds = new ArrayList<>();
-        for (int count = 0; count < 4; count++) {
-            Application application = new Application();
-            application.setName("Application " + count);
-            application.setWorkspaceId(workspaceId);
-            application = applicationPageService.createApplication(application).block();
-            applicationIds.add(application.getId());
-        }
-        return applicationIds;
     }
 
     @Test
@@ -464,8 +455,12 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         StepVerifier.create(Mono.zip(applicationMono, themeService.getDefaultThemeId(), defaultPermissionGroupsMono))
                 .assertNext(tuple2 -> {
@@ -487,7 +482,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getCollapseInvisibleWidgets()).isEqualTo(TRUE);
 
-                    Set<PermissionGroup> permissionGroups = tuple2.getT3();
+                    List<PermissionGroup> permissionGroups = tuple2.getT3();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                             .findFirst()
@@ -594,11 +589,6 @@ public class ApplicationServiceCETest {
                 .createApplication(testApplication, workspaceId)
                 // Fetch the unpublished pages by applicationId
                 .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
-
-        Policy managePagePolicy =
-                Policy.builder().permission(MANAGE_PAGES.getValue()).build();
-        Policy readPagePolicy =
-                Policy.builder().permission(READ_PAGES.getValue()).build();
 
         StepVerifier.create(pagesFlux)
                 .assertNext(page -> {
@@ -747,8 +737,13 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Set<PermissionGroup> permissionGroups =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -1024,8 +1019,13 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Set<PermissionGroup> permissionGroups =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -1065,6 +1065,8 @@ public class ApplicationServiceCETest {
                     PermissionGroup permissionGroup = tuple.getT3();
 
                     String permissionGroupId = permissionGroup.getId();
+
+                    assertThat(publicApp.getIsPublic()).isTrue();
 
                     Policy manageAppPolicy = Policy.builder()
                             .permission(MANAGE_APPLICATIONS.getValue())
@@ -1110,9 +1112,13 @@ public class ApplicationServiceCETest {
         Application application = new Application();
         application.setName("validMakeApplicationPrivate-Test");
 
-        Set<PermissionGroup> permissionGroups = workspaceService
+        List<PermissionGroup> permissionGroups = workspaceService
                 .findById(workspaceId, READ_WORKSPACES)
-                .map(Workspace::getDefaultPermissionGroups)
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
                 .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -1178,6 +1184,8 @@ public class ApplicationServiceCETest {
                                     viewerPermissionGroup.getId()))
                             .build();
 
+                    assertThat(app.getIsPublic()).isFalse();
+
                     assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
                     // Check the child page's policies
@@ -1192,8 +1200,13 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Set<PermissionGroup> permissionGroups =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -1245,6 +1258,8 @@ public class ApplicationServiceCETest {
                     PermissionGroup permissionGroup = tuple.getT3();
 
                     String permissionGroupId = permissionGroup.getId();
+
+                    assertThat(publicApp.getIsPublic()).isTrue();
 
                     Policy manageAppPolicy = Policy.builder()
                             .permission(MANAGE_APPLICATIONS.getValue())
@@ -1315,8 +1330,13 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Set<PermissionGroup> permissionGroups =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -1386,6 +1406,7 @@ public class ApplicationServiceCETest {
                     Application app = tuple.getT1();
                     PageDTO page = tuple.getT2();
 
+                    assertThat(app.getIsPublic()).isFalse();
                     assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
                     // Check the child page's policies
@@ -1397,6 +1418,7 @@ public class ApplicationServiceCETest {
         Mono<Application> branchApplicationMono = applicationService.findById(application.getId());
         StepVerifier.create(branchApplicationMono)
                 .assertNext(branchApplication -> {
+                    assertThat(branchApplication.getIsPublic()).isFalse();
                     assertThat(branchApplication.getPolicies()).containsAll(Set.of(readAppPolicy, manageAppPolicy));
                 })
                 .verifyComplete();
@@ -1408,8 +1430,13 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Set<PermissionGroup> permissionGroups =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups).block();
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -1707,8 +1734,12 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         Mono<List<PageDTO>> clonedPageListMono = clonedApplicationMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
@@ -1726,7 +1757,7 @@ public class ApplicationServiceCETest {
                     List<PageDTO> clonedPageList = tuple.getT2();
                     List<PageDTO> srcPageList = tuple.getT3();
 
-                    Set<PermissionGroup> permissionGroups = tuple.getT4();
+                    List<PermissionGroup> permissionGroups = tuple.getT4();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                             .findFirst()
@@ -1879,8 +1910,12 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         String pageId = gitConnectedApp.getPages().get(0).getId();
 
@@ -1914,7 +1949,7 @@ public class ApplicationServiceCETest {
                     Application clonedApplication = tuple.getT1(); // cloned application
                     List<NewAction> clonedActionList = tuple.getT2();
                     List<NewAction> srcActionList = tuple.getT3();
-                    Set<PermissionGroup> permissionGroups = tuple.getT4();
+                    List<PermissionGroup> permissionGroups = tuple.getT4();
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -2038,8 +2073,12 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
-                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         Map<String, List<String>> originalResourceIds = new HashMap<>();
         Mono<Application> resultMono = originalApplicationMono
@@ -2166,7 +2205,7 @@ public class ApplicationServiceCETest {
                     List<NewAction> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
-                    Set<PermissionGroup> permissionGroups = tuple.getT2().getT4();
+                    List<PermissionGroup> permissionGroups = tuple.getT2().getT4();
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -2388,8 +2427,12 @@ public class ApplicationServiceCETest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
-                workspaceResponse.map(savedWorkspace -> savedWorkspace.getDefaultPermissionGroups());
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         Map<String, List<String>> originalResourceIds = new HashMap<>();
         Mono<Application> resultMono = originalApplicationMono
@@ -2542,7 +2585,7 @@ public class ApplicationServiceCETest {
                     List<NewAction> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
-                    Set<PermissionGroup> permissionGroups = tuple.getT2().getT4();
+                    List<PermissionGroup> permissionGroups = tuple.getT2().getT4();
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -3610,9 +3653,13 @@ public class ApplicationServiceCETest {
         Mono<Datasource> datasourceMono = applicationFromDbPostViewChange.flatMap(
                 application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES));
 
-        Set<PermissionGroup> permissionGroups = workspaceService
+        List<PermissionGroup> permissionGroups = workspaceService
                 .findById(workspaceId, READ_WORKSPACES)
-                .map(savedWorkspace -> savedWorkspace.getDefaultPermissionGroups())
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
                 .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -3650,6 +3697,7 @@ public class ApplicationServiceCETest {
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(anonymousUser.getId()));
 
                     assertThat(updatedApplication).isNotNull();
+                    assertThat(updatedApplication.getIsPublic()).isTrue();
                     assertThat(updatedApplication.getPolicies().stream()
                                     .filter(policy -> policy.getPermission().equals(READ_APPLICATIONS.getValue()))
                                     .findFirst()
@@ -3691,6 +3739,7 @@ public class ApplicationServiceCETest {
         Application testApplication = new Application();
         testApplication.setName("SaveLastEditInformation TestApp");
         testApplication.setModifiedBy("test-user");
+        testApplication.setIsPublic(true);
 
         Mono<Application> updatedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -3705,6 +3754,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getLastUpdateTime()).isNotNull();
                     assertThat(application.getPolicies()).isNotNull().isNotEmpty();
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getIsPublic()).isTrue();
                     assertThat(application.getIsManualUpdate()).isTrue();
                 })
                 .verifyComplete();
@@ -4046,6 +4096,11 @@ public class ApplicationServiceCETest {
                 .block();
 
         /**
+         * setIsPublic to False, purposely set to prove non-dependency on this field of the output
+         */
+        publicAccessApplication.setIsPublic(false);
+
+        /**
          * Using the Update App method and asserting the response to verify the isPublic field in the response is True
          * which proves it's non-dependency on the deprecated Application collection isPublic field
          * and shows it dependency on the actual app permissions and state of the app which has been set public in this case
@@ -4056,6 +4111,7 @@ public class ApplicationServiceCETest {
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
                     assertThat(t.getId()).isNotNull();
+                    assertThat(t.getIsPublic()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -4089,6 +4145,11 @@ public class ApplicationServiceCETest {
                 .block();
 
         /**
+         * setIsPublic to True, purposely set to prove non-dependency on this field of the output
+         */
+        privateAccessApplication.setIsPublic(true);
+
+        /**
          * Using the Update App method and asserting the response to verify the isPublic field in the response is False
          * which proves it's non-dependency on the deprecated Application collection isPublic field
          * and shows it dependency on the actual app permissions and state of the app which has been set private in this case
@@ -4099,6 +4160,7 @@ public class ApplicationServiceCETest {
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
                     assertThat(t.getId()).isNotNull();
+                    assertThat(t.getIsPublic()).isFalse();
                 })
                 .verifyComplete();
     }
@@ -4569,19 +4631,15 @@ public class ApplicationServiceCETest {
         workspaceService.archiveById(workspace.getId()).block();
     }
 
-    @Test
-    public void findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder_invalidWorkspaceId_throwException() {
-
-        String invalidWorkspaceId = UUID.randomUUID().toString();
-        Flux<Application> allApplicationsWithinWorkspace =
-                applicationService.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(invalidWorkspaceId);
-
-        StepVerifier.create(allApplicationsWithinWorkspace.collectList())
-                .expectErrorSatisfies(throwable -> {
-                    assertThat(throwable).isInstanceOf(AppsmithException.class);
-                    assertThat(throwable.getMessage())
-                            .isEqualTo(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(WORKSPACE, invalidWorkspaceId));
-                })
-                .verify();
+    private List<String> createDummyApplications(String workspaceId) {
+        List<String> applicationIds = new ArrayList<>();
+        for (int count = 0; count < 4; count++) {
+            Application application = new Application();
+            application.setName("Application " + count);
+            application.setWorkspaceId(workspaceId);
+            application = applicationPageService.createApplication(application).block();
+            applicationIds.add(application.getId());
+        }
+        return applicationIds;
     }
 }

@@ -50,6 +50,11 @@ public class Application extends BaseDomain implements ImportableArtifact {
     @Column(name = "workspace_id")
     String workspaceId;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Deprecated(forRemoval = true)
+    @JsonView(Views.Public.class)
+    Boolean isPublic;
+
     @OneToMany
     @JsonView(Views.Public.class)
     @ToString.Exclude
