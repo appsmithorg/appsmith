@@ -15,6 +15,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -88,6 +89,7 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -173,7 +175,13 @@ public class WorkspaceServiceTest {
                 .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
                 .block();
 
-        Mono<Set<PermissionGroup>> defaultPermissionGroupMono = Mono.just(workspace.getDefaultPermissionGroups());
+        Mono<Set<PermissionGroup>> defaultPermissionGroupMono = Mono.just(workspace)
+                .flatMap(workspace1 -> {
+                    Set<String> defaultPermissionGroups = workspace1.getDefaultPermissionGroups();
+                    return permissionGroupRepository
+                            .findAllById(defaultPermissionGroups)
+                            .collect(Collectors.toSet());
+                });
 
         Mono<Set<PermissionGroup>> userPermissionGroupsSetMono = userMono.flatMapMany(
                         user -> permissionGroupRepository.findByAssignedToUserIdsIn(user.getId()))
@@ -270,7 +278,10 @@ public class WorkspaceServiceTest {
                 .cache();
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> Flux.fromIterable(savedWorkspace.getDefaultPermissionGroups()))
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
                 .collectList();
 
         Mono<User> userMono = userRepository.findByEmail("api_user");
@@ -477,7 +488,10 @@ public class WorkspaceServiceTest {
         });
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = createWorkspace
-                .flatMapMany(savedWorkspace -> Flux.fromIterable(savedWorkspace.getDefaultPermissionGroups()))
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
                 .collectList();
 
         StepVerifier.create(Mono.zip(updateWorkspace, defaultPermissionGroupsMono))
@@ -573,6 +587,13 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void inValidupdateWorkspaceEmptyName() {
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                .build();
+
+        Policy manageWorkspacePolicy =
+                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
+
         Workspace workspace = new Workspace();
         workspace.setName("Test Update Name");
         workspace.setDomain("example.com");
@@ -594,6 +615,13 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceValidEmail() {
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                .build();
+
+        Policy manageWorkspacePolicy =
+                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
+
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
         for (String validEmail : validEmails) {
             Workspace workspace = new Workspace();
@@ -767,7 +795,10 @@ public class WorkspaceServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(testWorkspace).block();
 
-        Set<PermissionGroup> permissionGroups = createdWorkspace.getDefaultPermissionGroups();
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(createdWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         String adminPermissionGroupId = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -860,7 +891,10 @@ public class WorkspaceServiceTest {
 
         Workspace workspace = workspaceService.create(toCreate).block();
 
-        Set<PermissionGroup> permissionGroups = workspace.getDefaultPermissionGroups();
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         String adminPermissionGroupId = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -878,7 +912,10 @@ public class WorkspaceServiceTest {
                 .inviteUsers(inviteUsersDTO, origin)
                 .block();
 
-        Set<PermissionGroup> permissionGroupsAfterInvite = workspace.getDefaultPermissionGroups();
+        List<PermissionGroup> permissionGroupsAfterInvite = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         // Do the assertions now
         assertThat(workspace).isNotNull();
@@ -943,7 +980,10 @@ public class WorkspaceServiceTest {
 
         Workspace workspace = workspaceService.create(toCreate).block();
 
-        Set<PermissionGroup> permissionGroups = workspace.getDefaultPermissionGroups();
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         String viewerPermissionGroupId = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
@@ -961,7 +1001,10 @@ public class WorkspaceServiceTest {
                 .inviteUsers(inviteUsersDTO, origin)
                 .block();
 
-        Set<PermissionGroup> permissionGroupsAfterInvite = workspace.getDefaultPermissionGroups();
+        List<PermissionGroup> permissionGroupsAfterInvite = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         // Do the assertions now
         assertThat(workspace).isNotNull();
@@ -1029,7 +1072,8 @@ public class WorkspaceServiceTest {
 
         Workspace workspace1 = workspaceService.create(workspace).block();
 
-        Flux<PermissionGroup> permissionGroupFlux = Flux.fromIterable(workspace1.getDefaultPermissionGroups());
+        Flux<PermissionGroup> permissionGroupFlux =
+                permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups());
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         Mono<PermissionGroup> adminPermissionGroupMono = permissionGroupFlux
@@ -1189,8 +1233,8 @@ public class WorkspaceServiceTest {
 
         Mono<Workspace> workspaceMono = workspaceService.create(workspace).cache();
 
-        Flux<PermissionGroup> permissionGroupFlux =
-                workspaceMono.flatMapMany(workspace1 -> Flux.fromIterable(workspace1.getDefaultPermissionGroups()));
+        Flux<PermissionGroup> permissionGroupFlux = workspaceMono.flatMapMany(
+                workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
 
         Mono<PermissionGroup> viewerPermissionGroupMono = permissionGroupFlux
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
@@ -1306,7 +1350,8 @@ public class WorkspaceServiceTest {
         Mono<Workspace> workspaceMono = workspaceService.create(workspace).cache();
 
         Mono<PermissionGroup> viewerGroupMono = workspaceMono
-                .flatMapMany(workspace1 -> Flux.fromIterable(workspace1.getDefaultPermissionGroups()))
+                .flatMapMany(
+                        workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()))
                 .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
                 .single();
 
@@ -1331,7 +1376,8 @@ public class WorkspaceServiceTest {
 
         Mono<PermissionGroup> viewerGroupMonoAfterInvite = userAddedToWorkspaceMono
                 .then(workspaceMono)
-                .flatMapMany(workspace1 -> Flux.fromIterable(workspace1.getDefaultPermissionGroups()))
+                .flatMapMany(
+                        workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()))
                 .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
                 .single();
 
@@ -1366,8 +1412,8 @@ public class WorkspaceServiceTest {
 
         Mono<Workspace> workspaceMono = workspaceService.create(workspace).cache();
 
-        Flux<PermissionGroup> permissionGroupFlux =
-                workspaceMono.flatMapMany(workspace1 -> Flux.fromIterable(workspace1.getDefaultPermissionGroups()));
+        Flux<PermissionGroup> permissionGroupFlux = workspaceMono.flatMapMany(
+                workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
 
         Mono<PermissionGroup> adminPermissionGroupMono = permissionGroupFlux
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -1618,7 +1664,9 @@ public class WorkspaceServiceTest {
         StepVerifier.create(deleteWorkspaceMono).verifyComplete();
 
         // verify that all the default permision groups are also deleted
-        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono = Mono.just(savedWorkspace.getDefaultPermissionGroups());
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = permissionGroupRepository
+                .findAllById(savedWorkspace.getDefaultPermissionGroups())
+                .collectList();
 
         StepVerifier.create(defaultPermissionGroupsMono)
                 .assertNext(permissionGroups -> {
@@ -1688,13 +1736,15 @@ public class WorkspaceServiceTest {
                 })
                 .cache();
 
-        Mono<Set<PermissionGroup>> permissionGroupsMono =
-                workspaceNameUpdateMono.map(savedWorkspace -> savedWorkspace.getDefaultPermissionGroups());
+        Mono<List<PermissionGroup>> permissionGroupsMono =
+                workspaceNameUpdateMono.flatMap(savedWorkspace -> permissionGroupRepository
+                        .findAllById(savedWorkspace.getDefaultPermissionGroups())
+                        .collectList());
 
         StepVerifier.create(Mono.zip(workspaceNameUpdateMono, permissionGroupsMono))
                 .assertNext(tuple -> {
                     Workspace savedWorkspace = tuple.getT1();
-                    Set<PermissionGroup> permissionGroups = tuple.getT2();
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
                     assertThat(savedWorkspace.getSlug()).isEqualTo(TextUtils.makeSlug(newName));
 
                     for (PermissionGroup permissionGroup : permissionGroups) {
@@ -1721,7 +1771,8 @@ public class WorkspaceServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         Update updateAddAdditionalField = new Update().set(additionalField, true);
-        Query queryWorkspace = new Query(Criteria.where("id").is(createdWorkspace.getId()));
+        Query queryWorkspace =
+                new Query(Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()));
         UpdateResult updateResult =
                 mongoTemplate.updateMulti(queryWorkspace, updateAddAdditionalField, Workspace.class);
 
@@ -1731,7 +1782,7 @@ public class WorkspaceServiceTest {
 
         Criteria criteriaAdditionalField = new Criteria()
                 .andOperator(
-                        Criteria.where("id").is(createdWorkspace.getId()),
+                        Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()),
                         Criteria.where(additionalField).exists(true));
         Query queryWorkspaceWithAdditionalField = new Query(criteriaAdditionalField);
 
@@ -1759,14 +1810,16 @@ public class WorkspaceServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         assertThat(createdWorkspace).isNotNull();
         assertThat(createdWorkspace.getDefaultPermissionGroups()).isNotEmpty();
-        Set<PermissionGroup> defaultWorkspaceRoles = createdWorkspace.getDefaultPermissionGroups();
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupRepository
+                .findAllById(createdWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
         assertThat(defaultWorkspaceRoles)
                 .hasSize(createdWorkspace.getDefaultPermissionGroups().size());
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         inviteUsersDTO.setUsernames(duplicateUsernames);
-        inviteUsersDTO.setPermissionGroupId(
-                defaultWorkspaceRoles.iterator().next().getId());
+        inviteUsersDTO.setPermissionGroupId(defaultWorkspaceRoles.get(0).getId());
 
         // Invited users list contains duplicate users.
         List<User> userList = userAndAccessManagementService

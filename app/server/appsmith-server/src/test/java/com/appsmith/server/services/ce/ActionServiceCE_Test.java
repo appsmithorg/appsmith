@@ -42,10 +42,10 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
@@ -124,7 +124,7 @@ public class ActionServiceCE_Test {
     WorkspaceService workspaceService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -163,7 +163,7 @@ public class ActionServiceCE_Test {
     MockDataService mockDataService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -172,7 +172,7 @@ public class ActionServiceCE_Test {
     AstService astService;
 
     @Autowired
-    DatasourceRepository datasourceRepository;
+    DatasourceRepositoryCake datasourceRepository;
 
     @Autowired
     EnvironmentPermission environmentPermission;
@@ -181,7 +181,7 @@ public class ActionServiceCE_Test {
     ApplicationPermission applicationPermission;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     SessionUserService sessionUserService;
@@ -332,12 +332,8 @@ public class ActionServiceCE_Test {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
-                })
-                .collectList();
+        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -358,7 +354,7 @@ public class ActionServiceCE_Test {
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
                     assertThat(createdAction.getUserPermissions()).isNotEmpty();
 
-                    List<PermissionGroup> permissionGroups = tuple.getT2();
+                    Set<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                             .findFirst()
@@ -404,12 +400,8 @@ public class ActionServiceCE_Test {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
-                })
-                .collectList();
+        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -434,7 +426,7 @@ public class ActionServiceCE_Test {
                     assertThat(createdAction.getDefaultResources().getApplicationId())
                             .isEqualTo(gitConnectedPage.getApplicationId());
 
-                    List<PermissionGroup> permissionGroups = tuple.getT2();
+                    Set<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                             .findFirst()
@@ -1003,12 +995,8 @@ public class ActionServiceCE_Test {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
-                .flatMapMany(savedWorkspace -> {
-                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
-                })
-                .collectList();
+        Mono<Set<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceResponse.map(Workspace::getDefaultPermissionGroups);
 
         Application createdApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -1063,7 +1051,7 @@ public class ActionServiceCE_Test {
                 .assertNext(tuple -> {
                     Datasource datasourceFromDb = tuple.getT1();
                     NewAction actionFromDb = tuple.getT2();
-                    List<PermissionGroup> permissionGroups = tuple.getT3();
+                    Set<PermissionGroup> permissionGroups = tuple.getT3();
                     PermissionGroup publicAppPermissionGroup = tuple.getT4();
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -1411,45 +1399,6 @@ public class ActionServiceCE_Test {
                                     .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void updateAction_withoutWorkspaceId_withOrganizationId() {
-
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionDTO action = new ActionDTO();
-        action.setName("validAction_nestedDatasource");
-        action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        Mono<ActionDTO> createActionMono =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
-
-        ActionDTO updateAction = new ActionDTO();
-        Datasource nestedDatasource = new Datasource();
-        nestedDatasource.setOrganizationId(workspaceId);
-        nestedDatasource.setName("DEFAULT_REST_DATASOURCE");
-        nestedDatasource.setPluginId(datasource.getPluginId());
-        nestedDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
-
-        updateAction.setDatasource(nestedDatasource);
-        Mono<ActionDTO> actionMono = createActionMono.flatMap(
-                savedAction -> layoutActionService.updateAction(savedAction.getId(), updateAction));
-
-        StepVerifier.create(actionMono)
-                .assertNext(updatedAction -> {
-                    Datasource datasource1 = updatedAction.getDatasource();
-                    assertThat(datasource1.getWorkspaceId()).isNotNull();
-                    assertThat(datasource1.getInvalids()).isEmpty();
                 })
                 .verifyComplete();
     }

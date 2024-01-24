@@ -15,8 +15,8 @@ import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,13 +70,13 @@ public class ImportApplicationTransactionServiceTest {
     NewActionService newActionService;
 
     @MockBean
-    NewActionRepository newActionRepository;
+    NewActionRepositoryCake newActionRepository;
 
     @MockBean
     ActionCollectionService actionCollectionService;
 
     @MockBean
-    ActionCollectionRepository actionCollectionRepository;
+    ActionCollectionRepositoryCake actionCollectionRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;

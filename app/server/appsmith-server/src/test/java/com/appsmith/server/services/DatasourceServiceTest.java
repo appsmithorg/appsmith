@@ -32,8 +32,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -113,7 +113,7 @@ public class DatasourceServiceTest {
     UserService userService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -122,7 +122,7 @@ public class DatasourceServiceTest {
     EnvironmentPermission environmentPermission;
 
     @Autowired
-    NewActionRepository newActionRepository;
+    NewActionRepositoryCake newActionRepository;
 
     @Autowired
     ApplicationService applicationService;

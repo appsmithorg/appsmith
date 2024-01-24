@@ -28,8 +28,8 @@ import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -110,10 +110,10 @@ public class ConsolidatedAPIServiceImplTest {
     MockDataService mockMockDataService;
 
     @SpyBean
-    ApplicationRepository spyApplicationRepository;
+    ApplicationRepositoryCake spyApplicationRepository;
 
     @MockBean
-    NewPageRepository mockNewPageRepository;
+    NewPageRepositoryCake mockNewPageRepository;
 
     @Test
     public void testErrorWhenModeIsNullAndPageIdAvailable() {

@@ -5,7 +5,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.solutions.ActionPermission;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CustomNewActionRepositoryCEImplTest {
 
     @Autowired
-    NewActionRepository newActionRepository;
+    NewActionRepositoryCake newActionRepository;
 
     @Autowired
     ActionPermission actionPermission;

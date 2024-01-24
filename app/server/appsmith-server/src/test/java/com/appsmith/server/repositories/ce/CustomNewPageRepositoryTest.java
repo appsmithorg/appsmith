@@ -3,7 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CustomNewPageRepositoryTest {
 
     @Autowired
-    NewPageRepository newPageRepository;
+    NewPageRepositoryCake newPageRepository;
 
     private NewPage createNewPage() {
         String randomString = UUID.randomUUID().toString();

@@ -1,7 +1,7 @@
 package com.appsmith.server.widgets.refactors;
 
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,7 +44,7 @@ class WidgetRefactoringServiceCEImplTest {
     ObjectMapper mapper = new ObjectMapper();
 
     @MockBean
-    ActionCollectionRepository actionCollectionRepository;
+    ActionCollectionRepositoryCake actionCollectionRepository;
 
     WidgetRefactoringServiceCEImpl widgetRefactoringServiceCE;
 

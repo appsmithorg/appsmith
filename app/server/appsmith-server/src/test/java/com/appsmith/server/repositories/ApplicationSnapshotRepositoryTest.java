@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
+import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class ApplicationSnapshotRepositoryTest {
     @Autowired
-    private ApplicationSnapshotRepository applicationSnapshotRepository;
+    private ApplicationSnapshotRepositoryCake applicationSnapshotRepository;
 
     @Autowired
     private Gson gson;

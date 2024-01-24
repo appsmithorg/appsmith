@@ -12,8 +12,8 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.doReturn;
 @Slf4j
 public class UserWorkspaceServiceUnitTest {
     @Autowired
-    UserDataRepository userDataRepository;
+    UserDataRepositoryCake userDataRepository;
 
     @SpyBean
     UserDataService userDataService;
@@ -57,7 +57,7 @@ public class UserWorkspaceServiceUnitTest {
     WorkspaceService workspaceService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     UserWorkspaceService userWorkspaceService;

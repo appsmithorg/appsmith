@@ -9,7 +9,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.AfterEach;
@@ -56,7 +56,7 @@ class TenantServiceCETest {
     EnvManager envManager;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepositoryCake userRepository;
 
     @Autowired
     UserUtils userUtils;

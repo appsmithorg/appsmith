@@ -14,12 +14,12 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.TenantRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.PolicySolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
@@ -58,13 +58,13 @@ public class SeedMongoData {
 
     @Bean
     ApplicationRunner init(
-            UserRepository userRepository,
-            WorkspaceRepository workspaceRepository,
-            ApplicationRepository applicationRepository,
-            PluginRepository pluginRepository,
+            UserRepositoryCake userRepository,
+            WorkspaceRepositoryCake workspaceRepository,
+            ApplicationRepositoryCake applicationRepository,
+            PluginRepositoryCake pluginRepository,
             ReactiveMongoTemplate mongoTemplate,
-            TenantRepository tenantRepository,
-            PermissionGroupRepository permissionGroupRepository,
+            TenantRepositoryCake tenantRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             PolicySolution policySolution) {
 
         log.info("Seeding the data");

@@ -284,6 +284,7 @@ def use_cake(domain):
         server_root.glob("**/solutions/ce/*.java"),
         server_root.glob("**/com/appsmith/server/helpers/*.java"),
         server_root.glob("**/com/appsmith/server/helpers/ce/*.java"),
+        server_root.glob("appsmith-server/src/test/**/*.java"),
     ):
         out = re.sub(rf"\b({domain}Repository)\b", r"\1Cake", read_file(path))
         out = re.sub(

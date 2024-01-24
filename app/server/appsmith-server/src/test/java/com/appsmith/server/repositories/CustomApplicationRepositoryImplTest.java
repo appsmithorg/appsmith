@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class CustomApplicationRepositoryImplTest {
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Test
     public void getAllApplicationId_WhenDataExists_ReturnsList() {
@@ -34,7 +35,9 @@ public class CustomApplicationRepositoryImplTest {
 
         Mono<List<String>> appIds = applicationRepository
                 .saveAll(List.of(application1, application2))
-                .then(applicationRepository.getAllApplicationId(randomWorkspaceId));
+                .then(applicationRepository
+                        .getAllApplicationId(randomWorkspaceId)
+                        .collectList());
 
         StepVerifier.create(appIds)
                 .assertNext(strings -> {
@@ -46,7 +49,8 @@ public class CustomApplicationRepositoryImplTest {
     @Test
     public void getAllApplicationId_WhenNoneExists_ReturnsEmptyList() {
         String randomWorkspaceId = UUID.randomUUID().toString();
-        Mono<List<String>> appIds = applicationRepository.getAllApplicationId(randomWorkspaceId);
+        Mono<List<String>> appIds =
+                applicationRepository.getAllApplicationId(randomWorkspaceId).collectList();
         StepVerifier.create(appIds)
                 .assertNext(strings -> {
                     assertThat(CollectionUtils.isEmpty(strings)).isTrue();

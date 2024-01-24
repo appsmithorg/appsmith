@@ -4,12 +4,14 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 import java.util.Set;
 
@@ -59,10 +61,10 @@ public class Workspace extends BaseDomain {
     @JsonView(Views.Internal.class)
     private Boolean hasEnvironments;
 
-    @OneToMany
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
-    @ToString.Exclude
-    private Set<PermissionGroup> defaultPermissionGroups;
+    private Set<String> defaultPermissionGroups;
 
     public String makeSlug() {
         return toSlug(name);

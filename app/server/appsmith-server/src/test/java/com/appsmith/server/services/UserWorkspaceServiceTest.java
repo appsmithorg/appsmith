@@ -12,9 +12,9 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
@@ -51,7 +51,7 @@ public class UserWorkspaceServiceTest {
     NewPageService newPageService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     SessionUserService sessionUserService;
@@ -63,10 +63,10 @@ public class UserWorkspaceServiceTest {
     private UserWorkspaceService userWorkspaceService;
 
     @Autowired
-    private WorkspaceRepository workspaceRepository;
+    private WorkspaceRepositoryCake workspaceRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryCake userRepository;
 
     @Autowired
     private PolicySolution policySolution;

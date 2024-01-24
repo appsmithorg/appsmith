@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserRepositoryTest {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryCake userRepository;
 
     private final List<User> savedUsers = new ArrayList<>();
 
