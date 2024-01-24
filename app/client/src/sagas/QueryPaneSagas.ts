@@ -295,7 +295,8 @@ function* formValueChangeSaga(
     };
 
     if (doesPluginRequireDatasource(plugin)) {
-      dsConfig = datasourceStorages[currentEnvironment].datasourceConfiguration;
+      dsConfig =
+        datasourceStorages[currentEnvironment]?.datasourceConfiguration;
     }
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
