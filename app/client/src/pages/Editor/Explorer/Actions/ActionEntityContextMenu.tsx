@@ -12,8 +12,6 @@ import history from "utils/history";
 import { useNewActionName } from "./helpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
@@ -49,7 +47,6 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
 
   const { canDeleteAction, canManageAction } = props;
   const nextEntityName = useNewActionName();
-  const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const copyActionToPage = useCallback(
@@ -77,14 +74,9 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   );
   const deleteActionFromPage = useCallback(
     (actionId: string, actionName: string, onSuccess?: () => void) => {
-      if (guidedTourEnabled) {
-        dispatch(toggleShowDeviationDialog(true));
-        return;
-      }
-
       dispatch(deleteAction({ id: actionId, name: actionName, onSuccess }));
     },
-    [dispatch, guidedTourEnabled],
+    [dispatch],
   );
 
   const convertQueryToModuleOption = useConvertToModuleOptions({
@@ -96,12 +88,8 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const menuPages = useSelector(getPageListAsOptions);
 
   const editActionName = useCallback(() => {
-    if (guidedTourEnabled) {
-      dispatch(toggleShowDeviationDialog(true));
-      return;
-    }
     dispatch(initExplorerEntityNameEdit(props.id));
-  }, [dispatch, props.id, guidedTourEnabled]);
+  }, [dispatch, props.id]);
 
   const showBinding = useCallback(
     (actionId, actionName) =>
