@@ -14,7 +14,7 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Widget Name Canvas`, () => {
     // intercept features call for Anvil + WDS tests
     featureFlagIntercept({ release_anvil_enabled: true, ab_wds_enabled: true });
     // Cleanup the canvas before each test
-    agHelper.SelectAllWidgets(`#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`);
+    agHelper.SelectAllWidgets();
     agHelper.PressDelete();
   });
   it("1. Widget Name should not be cut off at the top", () => {
@@ -23,6 +23,7 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Widget Name Canvas`, () => {
       const x = mainCanvas.position().left;
       const y = mainCanvas.position().top;
       const width = mainCanvas.width() || 0;
+      const paddingBetweenZoneAndMainCanvas = 35;
       // start align
       anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSBUTTON, x + 10, y + 20, {
         skipWidgetSearch: true,
@@ -30,9 +31,10 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Widget Name Canvas`, () => {
       // end align
       anvilLayout.DragDropAnvilWidgetNVerify(
         WIDGET.WDSBUTTON,
-        x + width - 20,
-        y + 20,
+        x + (width - 2 * paddingBetweenZoneAndMainCanvas),
+        y + paddingBetweenZoneAndMainCanvas * 0.5,
         {
+          widgetNameToDropInto: "Zone1",
           skipWidgetSearch: true,
         },
       );

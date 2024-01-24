@@ -17,23 +17,41 @@ describe(`${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode
     // intercept features call for Anvil + WDS tests
     featureFlagIntercept({ release_anvil_enabled: true, ab_wds_enabled: true });
     // Cleanup the canvas before each test
-    agHelper.SelectAllWidgets(`#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`);
+    agHelper.SelectAllWidgets();
     agHelper.PressDelete();
   });
   it("1. Change App navigation settings and valdiate the layout settings", () => {
     const mainCanvasId = `#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`;
+    const paddingBetweenZoneAndMainCanvas = 35;
     agHelper.AssertElementExist(mainCanvasId).then((mainCanvas) => {
       const x = mainCanvas.position().left;
       const y = mainCanvas.position().top;
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, x + 5, y + 20, {
-        skipWidgetSearch: true,
-      });
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, x + 5, y + 20, {
-        skipWidgetSearch: true,
-      });
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSBUTTON, x + 5, y + 20, {
-        skipWidgetSearch: true,
-      });
+      anvilLayout.DragDropAnvilWidgetNVerify(
+        WIDGET.WDSINPUT,
+        x + 10,
+        y + paddingBetweenZoneAndMainCanvas,
+        {
+          skipWidgetSearch: true,
+        },
+      );
+      anvilLayout.DragDropAnvilWidgetNVerify(
+        WIDGET.WDSINPUT,
+        x + 10,
+        y + paddingBetweenZoneAndMainCanvas,
+        {
+          skipWidgetSearch: true,
+          widgetNameToDropInto: "Section1",
+        },
+      );
+      anvilLayout.DragDropAnvilWidgetNVerify(
+        WIDGET.WDSBUTTON,
+        x + 10,
+        y + paddingBetweenZoneAndMainCanvas,
+        {
+          skipWidgetSearch: true,
+          widgetNameToDropInto: "Section1",
+        },
+      );
     });
     propPane.NavigateToPage("Page1", "onClick");
     appSettings.OpenAppSettings();

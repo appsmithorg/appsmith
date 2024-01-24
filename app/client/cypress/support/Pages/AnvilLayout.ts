@@ -1,3 +1,4 @@
+import { getWidgetSelector } from "../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../Objects/Registry";
 import {
   AppSidebar,
@@ -8,6 +9,7 @@ import {
 
 type DragDropWidgetOptions = {
   skipWidgetSearch?: boolean;
+  widgetNameToDropInto?: string;
 };
 export class AnvilLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
@@ -24,14 +26,20 @@ export class AnvilLayout {
       this.entityExplorer.SearchWidgetPane(widgetType);
     } else {
       AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      PageLeftPane.switchToAddNew();
+      cy.focused().blur();
     }
 
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
       .trigger("dragstart", { force: true });
-    const dropArea = this.locator._dropHere;
-    cy.get(dropArea)
+    const dropAreaSelector = options.widgetNameToDropInto
+      ? `${getWidgetSelector(
+          options.widgetNameToDropInto.toLowerCase() as any,
+        )} ${this.locator._dropHere}`
+      : this.locator._dropHere;
+    cy.get(dropAreaSelector)
       .first()
       .then((dropAreaDom) => {
         const { left, top } = dropAreaDom[0].getBoundingClientRect();
@@ -44,10 +52,15 @@ export class AnvilLayout {
             force: true,
           });
         this.agHelper.Sleep(200);
-        cy.get(dropArea).first().trigger("mousemove", x, y, {
+        cy.get(dropAreaSelector).first().trigger("mousemove", x, y, {
           eventConstructor: "MouseEvent",
+          force: true,
         });
         this.agHelper.Sleep(200);
+        cy.get(dropAreaSelector).first().trigger("mousemove", x, y, {
+          eventConstructor: "MouseEvent",
+          force: true,
+        });
         cy.get(this.locator._dropHere).first().trigger("mouseup", x, y, {
           eventConstructor: "MouseEvent",
           force: true,
