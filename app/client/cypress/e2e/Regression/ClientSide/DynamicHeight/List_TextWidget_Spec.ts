@@ -88,7 +88,6 @@ describe(
           agHelper.WaitUntilAllToastsDisappear();
           agHelper.Sleep(2000);
           agHelper.GetNClick(locators._canvasBody);
-          cy.focused().blur();
           agHelper.SimulateCopyPaste("paste");
           assertHelper.AssertNetworkStatus("@updateLayout");
           //Widgets when moved out of the list widget have dynamic height in property pane

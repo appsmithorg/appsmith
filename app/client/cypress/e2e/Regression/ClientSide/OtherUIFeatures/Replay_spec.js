@@ -20,8 +20,6 @@ describe("Undo/Redo functionality", function () {
   it("1. checks undo/redo for new widgets", function () {
     cy.dragAndDropToCanvas("checkboxwidget", { x: 200, y: 200 });
 
-    cy.focused().blur();
-
     cy.get(widgetsPage.checkboxWidget).should("exist");
 
     cy.get("body").type(`{${modifierKey}}z`);
