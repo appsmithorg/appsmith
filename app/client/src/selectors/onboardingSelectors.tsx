@@ -9,7 +9,6 @@ import { isBoolean, intersection } from "lodash";
 import { getEvaluationInverseDependencyMap } from "./dataTreeSelectors";
 import { getNestedValue } from "pages/Editor/utils";
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 
 // Signposting selectors
 
