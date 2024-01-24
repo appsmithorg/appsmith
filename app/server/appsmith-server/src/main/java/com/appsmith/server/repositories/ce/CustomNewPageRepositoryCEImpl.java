@@ -4,7 +4,6 @@ import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -96,7 +95,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                     .is(null);
             criteria.add(deletedCriterion);
         }
-        layoutsIdKey = layoutsKey + "." + fieldName(QLayout.layout.id);
+        layoutsIdKey = layoutsKey + "." + FieldName.ID;
 
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
         criteria.add(layoutCriterion);
