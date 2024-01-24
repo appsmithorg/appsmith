@@ -93,45 +93,38 @@ describe(
       cy.get(".ads-v2-modal__content").should("not.exist");
     });
 
-    it(
-      "5. Should test that settings page tab redirects",
-      () => {
-        agHelper.VisitNAssert("/applications", "getReleaseItems");
-        cy.get(".admin-settings-menu-option").click();
-        cy.wait("@getEnvVariables");
-        cy.get(adminsSettings.generalTab).click();
-        cy.url().should("contain", "/settings/general");
-        cy.get(adminsSettings.advancedTab).click();
-        cy.url().should("contain", "/settings/advanced");
-        cy.get(adminsSettings.authenticationTab).click();
-        cy.url().should("contain", "/settings/authentication");
-        cy.get(adminsSettings.emailTab).click();
-        cy.url().should("contain", "/settings/email");
-        cy.get(adminsSettings.developerSettingsTab).click();
-        cy.url().should("contain", "/settings/developer-settings");
-        cy.get(adminsSettings.versionTab).click();
-        cy.url().should("contain", "/settings/version");
-      },
-    );
+    it("5. Should test that settings page tab redirects", () => {
+      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      cy.get(".admin-settings-menu-option").click();
+      cy.wait("@getEnvVariables");
+      cy.get(adminsSettings.generalTab).click();
+      cy.url().should("contain", "/settings/general");
+      cy.get(adminsSettings.advancedTab).click();
+      cy.url().should("contain", "/settings/advanced");
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", "/settings/authentication");
+      cy.get(adminsSettings.emailTab).click();
+      cy.url().should("contain", "/settings/email");
+      cy.get(adminsSettings.developerSettingsTab).click();
+      cy.url().should("contain", "/settings/developer-settings");
+      cy.get(adminsSettings.versionTab).click();
+      cy.url().should("contain", "/settings/version");
+    });
 
-    it(
-      "6. Should test that authentication page redirects",
-      () => {
-        agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-        cy.get(adminsSettings.authenticationTab).click();
-        cy.url().should("contain", "/settings/authentication");
-        cy.get(adminsSettings.googleButton).click();
-        cy.url().should("contain", "/settings/authentication/google-auth");
-        cy.get(adminsSettings.authenticationTab).click();
-        cy.url().should("contain", "/settings/authentication");
-        cy.get(adminsSettings.githubButton).click();
-        cy.url().should("contain", "/settings/authentication/github-auth");
-        cy.get(adminsSettings.authenticationTab).click();
-        cy.url().should("contain", "/settings/authentication");
-        cy.get(adminsSettings.formloginButton).click();
-        cy.url().should("contain", "/settings/authentication/form-login");
-      },
-    );
-
+    it("6. Should test that authentication page redirects", () => {
+      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", "/settings/authentication");
+      cy.get(adminsSettings.googleButton).click();
+      cy.url().should("contain", "/settings/authentication/google-auth");
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", "/settings/authentication");
+      cy.get(adminsSettings.githubButton).click();
+      cy.url().should("contain", "/settings/authentication/github-auth");
+      cy.get(adminsSettings.authenticationTab).click();
+      cy.url().should("contain", "/settings/authentication");
+      cy.get(adminsSettings.formloginButton).click();
+      cy.url().should("contain", "/settings/authentication/form-login");
+    });
   },
 );
