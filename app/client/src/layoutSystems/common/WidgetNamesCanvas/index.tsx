@@ -36,6 +36,7 @@ import {
   getScrollEndHandler,
   getScrollHandler,
 } from "./eventHandlers";
+import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
 
 /**
  * This Component contains logic to draw widget name on canvas
@@ -94,7 +95,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   });
 
   const modalScrollParent: HTMLDivElement | null = document.querySelector(
-    ".appsmith-modal-body > div",
+    `.${WDS_MODAL_WIDGET_CLASSNAME}`,
   ) as HTMLDivElement;
 
   // Used to set canvasPositions, which is used further to calculate the exact positions of widgets

@@ -14,6 +14,7 @@ import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvi
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ModalBody } from "@design-system/widgets";
+import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
 
 const modalBodyStyles: React.CSSProperties = {
   minHeight: "var(--sizing-16)",
@@ -105,7 +106,10 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       >
         <ModalContent className={this.props.className}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}
-          <ModalBody className="appsmith-modal-body" style={modalBodyStyles}>
+          <ModalBody
+            className={WDS_MODAL_WIDGET_CLASSNAME}
+            style={modalBodyStyles}
+          >
             <LayoutProvider {...this.props} />
           </ModalBody>
           {this.props.showFooter && (
