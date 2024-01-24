@@ -34,11 +34,11 @@ import { GitSyncModalTab } from "entities/GitSync";
 import {
   getCountOfChangesToCommit,
   getGitStatus,
+  getIsDiscardInProgress,
   getIsFetchingGitStatus,
   getIsGitConnected,
   getIsPollingAutocommit,
   getPullFailed,
-  getPullInProgress,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
@@ -188,18 +188,18 @@ const getQuickActionButtons = ({
   return [
     {
       className: "t--bottom-bar-commit",
-      disabled: isProtectedMode,
+      disabled: !isFetchingGitStatus && isProtectedMode,
       count: isProtectedMode ? undefined : changesToCommit,
       icon: "plus",
       loading: isFetchingGitStatus,
-      onClick: commit,
+      onClick: () => !isFetchingGitStatus && !isProtectedMode && commit(),
       tooltipText: createMessage(COMMIT_CHANGES),
     },
     {
       className: "t--bottom-bar-pull",
       count: gitStatus?.behindCount,
       icon: "down-arrow-2",
-      onClick: () => !pullDisabled && pull(),
+      onClick: () => !showPullLoadingState && !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
       disabled: !showPullLoadingState && pullDisabled,
       loading: showPullLoadingState,
@@ -329,7 +329,7 @@ export default function QuickGitActions() {
   const { disabled: pullDisabled, message: pullTooltipMessage } =
     getPullBtnStatus(gitStatus, !!pullFailed, isProtectedMode);
 
-  const isPullInProgress = useSelector(getPullInProgress);
+  const isPullInProgress = useSelector(getIsDiscardInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);

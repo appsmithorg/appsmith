@@ -10,8 +10,8 @@ import {
   EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { useJSAdd } from "../EditorPane/JS/hooks";
-import { useQueryAdd } from "../EditorPane/Query/hooks";
+import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);

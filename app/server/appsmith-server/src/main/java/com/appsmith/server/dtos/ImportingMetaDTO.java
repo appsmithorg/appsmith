@@ -27,6 +27,8 @@ public class ImportingMetaDTO {
      */
     Boolean appendToArtifact;
 
+    Boolean isPartialImport;
+
     ImportArtifactPermissionProvider permissionProvider;
     Set<String> currentUserPermissionGroups;
 }

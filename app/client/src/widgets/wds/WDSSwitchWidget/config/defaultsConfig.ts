@@ -1,10 +1,8 @@
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
   label: "Label",
-  rows: 4,
-  columns: 12,
   defaultSwitchState: true,
   widgetName: "Switch",
   labelPosition: "left",
@@ -12,5 +10,4 @@ export const defaultsConfig = {
   isDisabled: false,
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
-  minWidth: FILL_WIDGET_MIN_WIDTH,
-};
+} as unknown as WidgetDefaultProps;

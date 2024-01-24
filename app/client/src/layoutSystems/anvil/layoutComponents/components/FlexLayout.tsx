@@ -27,8 +27,6 @@ import {
 } from "layoutSystems/anvil/integrations/selectors";
 import { Colors } from "constants/Colors";
 
-export const FLEX_LAYOUT_PADDING = 4;
-
 export interface FlexLayoutProps
   extends AlignSelf,
     JustifyContent,
@@ -125,7 +123,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       maxWidth: maxWidth || "none",
       minHeight: minHeight || "unset",
       minWidth: minWidth || "unset",
-      padding: padding || (isDropTarget ? `spacing-0` : "0px"),
+      padding: padding || "spacing-0",
       rowGap: rowGap || "0px",
       width: width || "auto",
       wrap: wrap || "nowrap",
