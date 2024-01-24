@@ -19,6 +19,7 @@ const routes = {
   GITHUBAUTH: "/settings/authentication/github-auth",
   FORMLOGIN: "/settings/authentication/form-login",
   VERSION: "/settings/version",
+  ADVANCED: "/settings/advanced",
 };
 
 describe(
@@ -93,22 +94,22 @@ describe(
       cy.get(".ads-v2-modal__content").should("not.exist");
     });
 
-    it("5. Should test that settings page tab redirects", () => {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+    it("5. should test that settings page tab redirects not airgap", () => {
+      cy.visit(routes.APPLICATIONS, { timeout: 60000 });
+      cy.wait(3000);
       cy.get(".admin-settings-menu-option").click();
-      cy.wait("@getEnvVariables");
       cy.get(adminsSettings.generalTab).click();
-      cy.url().should("contain", "/settings/general");
+      cy.url().should("contain", routes.GENERAL);
       cy.get(adminsSettings.advancedTab).click();
-      cy.url().should("contain", "/settings/advanced");
+      cy.url().should("contain", routes.ADVANCED);
       cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
+      cy.url().should("contain", routes.AUTHENTICATION);
       cy.get(adminsSettings.emailTab).click();
-      cy.url().should("contain", "/settings/email");
+      cy.url().should("contain", routes.EMAIL);
       cy.get(adminsSettings.developerSettingsTab).click();
-      cy.url().should("contain", "/settings/developer-settings");
+      cy.url().should("contain", routes.DEVELOPER_SETTINGS);
       cy.get(adminsSettings.versionTab).click();
-      cy.url().should("contain", "/settings/version");
+      cy.url().should("contain", routes.VERSION);
     });
   },
 );
