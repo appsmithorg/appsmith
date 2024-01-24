@@ -11,7 +11,6 @@ import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import {
   MAX_ZONE_COUNT,
   MIN_ZONE_COUNT,
-  ZoneMinColumnWidth,
 } from "layoutSystems/anvil/utils/constants";
 import {
   addNewZonesToSection,
@@ -21,7 +20,8 @@ import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import {
   getDefaultSpaceDistributed,
   redistributeSpaceWithDynamicMinWidth,
-} from "layoutSystems/anvil/sectionSpaceDistributor/spaceRedistributionUtils";
+} from "layoutSystems/anvil/sectionSpaceDistributor/utils/spaceRedistributionSagaUtils";
+import { ZoneMinColumnWidth } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
 
 // function to update the zone count of a section widget
 function* updateZonesCountOfSectionSaga(
