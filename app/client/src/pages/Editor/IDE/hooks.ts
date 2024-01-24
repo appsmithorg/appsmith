@@ -18,10 +18,8 @@ import {
   widgetListURL,
 } from "@appsmith/RouteBuilder";
 import {
-  DEFAULT_APP_SIDEBAR_WIDTH,
   DEFAULT_EDITOR_PANE_WIDTH,
   DEFAULT_PROPERTY_PANE_WIDTH,
-  DESIGN_BASE_WIDTH,
 } from "constants/AppConstants";
 import { useIsBaseDesignWidth } from "utils/hooks/useDeviceDetect";
 
@@ -188,9 +186,7 @@ export const useIDEWidths = () => {
       // 562 is the width required to accomodate 70/65 characters
       // considering 12px font size
       // 562 * 100 = 56200
-      const _editorPaneWidth =
-        (56200 / (DESIGN_BASE_WIDTH - DEFAULT_APP_SIDEBAR_WIDTH)).toFixed(2) +
-        "vw";
+      const _editorPaneWidth = `calc(${defaultEditorPaneWidth} + ${propertyPaneWidth} + 1px)`;
       setEditorPaneWidth(_editorPaneWidth);
     } else if (
       editorMode === EditorViewMode.SplitScreen &&

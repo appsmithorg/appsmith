@@ -50,14 +50,6 @@ import {
 } from "layoutSystems/common/useLayoutSystemFeatures";
 import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import { useIDEWidths } from "../IDE/hooks";
-import styled from "styled-components";
-
-const StyledDiv = styled.div<{
-  widthOfCanvas: string;
-}>`
-  width: ${({ widthOfCanvas }) => widthOfCanvas};
-`;
 
 function WidgetsEditor() {
   const dispatch = useDispatch();
@@ -80,11 +72,6 @@ function WidgetsEditor() {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const canvasWidth = useSelector(getCanvasWidth);
-  const { editorPaneWidth, propertyPaneWidth } = useIDEWidths();
-  const widthOfCanvas =
-    "calc(100%-(" + propertyPaneWidth + "+(" + editorPaneWidth + "+50px)))";
-  // eslint-disable-next-line no-console
-  console.log(widthOfCanvas, "widthOfCanvas");
 
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
@@ -193,10 +180,7 @@ function WidgetsEditor() {
   return (
     <EditorContextProvider renderMode="CANVAS">
       {guidedTourEnabled && <Guide />}
-      <StyledDiv
-        className="relative flex flex-row overflow-hidden"
-        widthOfCanvas={widthOfCanvas}
-      >
+      <div className="relative flex flex-row w-full overflow-hidden">
         <div
           className={classNames({
             "relative flex flex-col w-full overflow-hidden": true,
@@ -264,7 +248,7 @@ function WidgetsEditor() {
           </div>
           <Debugger />
         </div>
-      </StyledDiv>
+      </div>
     </EditorContextProvider>
   );
 }
