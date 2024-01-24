@@ -69,7 +69,6 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     },
   );
 
-
   it(
     "airgap",
     "5. Should test that authentication page redirects and google and github auth doesn't exist - airgap",
@@ -103,7 +102,6 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       });
     },
   );
-
 
   it("7. Should test save and clear buttons disabled state", () => {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
