@@ -110,6 +110,5 @@ describe(
       cy.get(adminsSettings.versionTab).click();
       cy.url().should("contain", "/settings/version");
     });
-
   },
 );
