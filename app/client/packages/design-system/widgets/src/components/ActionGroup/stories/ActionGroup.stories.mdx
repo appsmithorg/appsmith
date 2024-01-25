@@ -34,6 +34,30 @@ export const Template = (args) => {
 
 <ArgsTable story="Action Group" of={ActionGroup} />
 
+## Size
+
+<Story name="Size">
+  <div
+    style={{
+      display: "flex",
+      gap: "10px",
+      flexWrap: "wrap",
+      flexDirection: "column",
+    }}
+  >
+    {["small", "medium"].map((size) => (
+      <div key={size} style={{ marginBottom: 10 }}>
+        <ActionGroup size={size}>
+          <Item key="option-1">Option 1</Item>
+          <Item key="option-2">Option 2</Item>
+          <Item key="option-3">Option 3</Item>
+          <Item key="option-4">Option 4</Item>
+        </ActionGroup>
+      </div>
+    ))}
+  </div>
+</Story>
+
 ## Orientation
 
 The `ActionGroup` can be oriented horizontally or vertically. By default it is oriented horizontally.
