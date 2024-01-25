@@ -120,6 +120,8 @@
   */
   & [data-field-input] [data-icon-button] {
     block-size: calc(100% - var(--inner-spacing-1));
+    inline-size: calc(100% - var(--inner-spacing-1));
+    min-inline-size: 100%;
   }
 
   /**

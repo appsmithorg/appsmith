@@ -3,12 +3,9 @@ import { Item as HeadlessItem } from "@design-system/headless";
 import type { ItemProps as HeadlessItemProps } from "@react-types/shared";
 
 import type { COLORS } from "../../../shared";
-import type { IconProps } from "../../Icon";
 
 interface ItemProps<T> extends HeadlessItemProps<T> {
   color?: keyof typeof COLORS;
-  icon?: IconProps["name"];
-  iconPosition?: "start" | "end";
   isLoading?: boolean;
 }
 
@@ -19,12 +16,11 @@ function _Item<T>(props: ItemProps<T>): ReactElement | null {
 
 // Add types and decorate the method for the correct props work.
 _Item.getCollectionNode = <T,>(props: ItemProps<T>) => {
-  const { color, iconPosition, ...rest } = props;
+  const { color, ...rest } = props;
   // @ts-expect-error this method is hidden by the types. See the source code of Item from Spectrum for more context.
   return HeadlessItem.getCollectionNode({
-    ["data-color"]: Boolean(color) ? color : undefined,
-    ["data-icon-position"]: Boolean(iconPosition) ? iconPosition : "start",
     ...rest,
+    ["data-color"]: Boolean(color) ? color : undefined,
   });
 };
 

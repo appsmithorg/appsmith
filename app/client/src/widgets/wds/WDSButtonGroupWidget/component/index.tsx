@@ -68,8 +68,6 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
       {sortedButtons.map((button: ButtonGroupItemComponentProps) => {
         return (
           <Item
-            icon={button.iconName}
-            iconPosition={button.iconAlign}
             isLoading={loadingButtonIds.includes(button.id)}
             key={button.id}
           >

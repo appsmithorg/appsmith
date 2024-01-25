@@ -10,7 +10,6 @@ import type { ActionGroupProps } from "./types";
 import { useActionGroup } from "./useActionGroup";
 import { IconButton } from "../../IconButton";
 import { ActionGroupItem } from "./ActionGroupItem";
-import { Icon } from "../../Icon";
 
 const _ActionGroup = <T extends object>(
   props: ActionGroupProps<T>,
@@ -84,12 +83,7 @@ const _ActionGroup = <T extends object>(
               <IconButton color={color} icon="dots" variant={variant} />
               <MenuList>
                 {menuChildren.map((item) => (
-                  <Item key={item.key} {...item.props}>
-                    {Boolean(item.props.icon) && (
-                      <Icon name={item.props.icon} />
-                    )}
-                    {item.props.iconPosition} {item.props.children}
-                  </Item>
+                  <Item key={item.key}>{item.rendered}</Item>
                 ))}
               </MenuList>
             </Menu>

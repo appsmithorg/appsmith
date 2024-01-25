@@ -8,10 +8,10 @@ import { getTypographyClassName } from "@design-system/theming";
 import { TextInput as HeadlessTextInput } from "@design-system/headless";
 
 import { Spinner } from "../../Spinner";
+import type { IconProps } from "../../Icon";
 import { IconButton } from "../../IconButton";
 import { ContextualHelp } from "./ContextualHelp";
 import { textInputStyles, fieldStyles } from "../../../styles";
-import type { IconProps } from "../../Icon";
 
 export interface TextInputProps extends HeadlessTextInputProps {
   /** position for the laoding icon */
