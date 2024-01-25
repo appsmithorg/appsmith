@@ -42,6 +42,14 @@ public class AiServerServiceImpl implements AiServerService {
                         return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR, errorMessage));
                     }
+                    if (HttpStatusCode.valueOf(429).isSameCodeAs(statusCode)) {
+                        String errorMessage = "";
+                        if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
+                            errorMessage = new String(responseEntity.getBody());
+                        }
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_RATE_LIMIT_ERROR, errorMessage));
+                    }
 
                     if (statusCode.is4xxClientError()) {
                         String errorMessage = "";

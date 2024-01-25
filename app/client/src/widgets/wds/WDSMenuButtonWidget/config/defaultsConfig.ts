@@ -1,4 +1,5 @@
 import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
   label: "Open Menu",
@@ -35,8 +36,6 @@ export const defaultsConfig = {
       index: 2,
     },
   },
-  rows: 4,
-  columns: 16,
   widgetName: "MenuButton",
   version: 1,
-};
+} as unknown as WidgetDefaultProps;

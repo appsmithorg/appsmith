@@ -1,9 +1,9 @@
-import { DEFAULT_ACTION_TIMEOUT } from "@appsmith/constants/ApiConstants";
+import { DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import type { ActionConfig } from "entities/Action";
 
 // Appsmith AI Default Config
 export const DEFAULT_APPSMITH_AI_ACTION_CONFIG: ActionConfig = {
-  timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
+  timeoutInMillisecond: DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS,
   formData: {
     usecase: { data: "TEXT_GENERATE" },
   },

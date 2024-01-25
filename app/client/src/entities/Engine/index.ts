@@ -9,6 +9,7 @@ import { getPersistentAppStore } from "constants/AppConstants";
 import type { APP_MODE } from "entities/App";
 import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
+import type { InitConsolidatedApi } from "sagas/InitSagas";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getDefaultPageId } from "sagas/selectors";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
@@ -23,6 +24,7 @@ export interface AppEnginePayload {
   pageId?: string;
   branch?: string;
   mode: APP_MODE;
+  shouldInitialiseUserDetails?: boolean;
 }
 
 export interface IAppEngine {
@@ -48,16 +50,28 @@ export default abstract class AppEngine {
   }
   private _urlRedirect: URLRedirect | null;
 
-  abstract loadAppEntities(toLoadPageId: string, applicationId: string): any;
+  abstract loadAppEntities(
+    toLoadPageId: string,
+    applicationId: string,
+    allResponses: InitConsolidatedApi,
+  ): any;
   abstract loadGit(applicationId: string): any;
   abstract startPerformanceTracking(): any;
   abstract stopPerformanceTracking(): any;
   abstract completeChore(): any;
 
-  *loadAppData(payload: AppEnginePayload) {
+  *loadAppData(payload: AppEnginePayload, allResponses: InitConsolidatedApi) {
     const { applicationId, branch, pageId } = payload;
+    const { pages } = allResponses;
     const apiCalls: boolean = yield failFastApiCalls(
-      [fetchApplication({ applicationId, pageId, mode: this._mode })],
+      [
+        fetchApplication({
+          applicationId,
+          pageId,
+          mode: this._mode,
+          pages,
+        }),
+      ],
       [
         ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,

@@ -70,28 +70,6 @@ describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
   });
 
   it(
-    "5. should test that settings page tab redirects not airgap",
-    { tags: ["@tag.excludeForAirgap"] },
-    () => {
-      cy.visit(routes.APPLICATIONS, { timeout: 60000 });
-      cy.wait(3000);
-      cy.get(".admin-settings-menu-option").click();
-      cy.get(adminsSettings.generalTab).click();
-      cy.url().should("contain", routes.GENERAL);
-      cy.get(adminsSettings.advancedTab).click();
-      cy.url().should("contain", routes.ADVANCED);
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", routes.AUTHENTICATION);
-      cy.get(adminsSettings.emailTab).click();
-      cy.url().should("contain", routes.EMAIL);
-      cy.get(adminsSettings.developerSettingsTab).click();
-      cy.url().should("contain", routes.DEVELOPER_SETTINGS);
-      cy.get(adminsSettings.versionTab).click();
-      cy.url().should("contain", routes.VERSION);
-    },
-  );
-
-  it(
     "airgap",
     "5. should test that settings page tab redirects and google maps doesn't exist - airgap",
     () => {
