@@ -21,9 +21,10 @@ interface Props {
 const GroupedList = (props: Props) => {
   return (
     <Flex
+      flex="1"
       flexDirection="column"
       gap="spaces-4"
-      overflow="scroll"
+      overflowY="auto"
       pr="spaces-2"
       px="spaces-3"
     >

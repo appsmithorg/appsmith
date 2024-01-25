@@ -1,4 +1,3 @@
-import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -10,6 +9,7 @@ import {
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { StartWithTemplateContent } from "./StartWithTemplateContent";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import StartWithTemplateFilters from "./StartWithTemplateFilter";
 
 const FiltersWrapper = styled.div`
