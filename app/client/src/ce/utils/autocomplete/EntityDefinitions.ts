@@ -378,7 +378,11 @@ export const getEachEntityInformation = {
     return entityInformation;
   },
   [ENTITY_TYPE.JSACTION]: (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    entity: DataTreeEntityConfig,
     entityInformation: FieldEntityInformation,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    propertyPath: string,
   ): FieldEntityInformation => {
     entityInformation.isTriggerPath = true;
     return entityInformation;
