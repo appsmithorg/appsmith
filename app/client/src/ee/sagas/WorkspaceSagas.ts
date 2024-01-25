@@ -9,6 +9,9 @@ import {
   deleteWorkspaceSaga,
   uploadWorkspaceLogoSaga,
   deleteWorkspaceLogoSaga,
+  fetchAllWorkspacesSaga,
+  searchWorkspaceEntitiesSaga,
+  fetchEntitiesOfWorkspaceSaga,
 } from "ce/sagas/WorkspaceSagas";
 import type { DeleteWorkspaceUserRequest } from "@appsmith/api/WorkspaceApi";
 import WorkspaceApi from "@appsmith/api/WorkspaceApi";
@@ -95,6 +98,14 @@ export function* deleteWorkspaceUserSaga(
 
 export default function* workspaceSagas() {
   yield all([
+    takeLatest(
+      ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
+      fetchAllWorkspacesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_ENTITIES_OF_WORKSPACE_INIT,
+      fetchEntitiesOfWorkspaceSaga,
+    ),
     takeLatest(ReduxActionTypes.FETCH_CURRENT_WORKSPACE, fetchWorkspaceSaga),
     takeLatest(ReduxActionTypes.SAVE_WORKSPACE_INIT, saveWorkspaceSaga),
     takeLatest(ReduxActionTypes.CREATE_WORKSPACE_INIT, createWorkspaceSaga),
@@ -112,8 +123,8 @@ export default function* workspaceSagas() {
     takeLatest(ReduxActionTypes.UPLOAD_WORKSPACE_LOGO, uploadWorkspaceLogoSaga),
     takeLatest(ReduxActionTypes.REMOVE_WORKSPACE_LOGO, deleteWorkspaceLogoSaga),
     takeLatest(
-      ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
-      fetchInviteGroupsSuggestionsSaga,
+      ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
+      searchWorkspaceEntitiesSaga,
     ),
   ]);
 }

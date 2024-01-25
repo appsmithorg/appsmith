@@ -26,7 +26,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import history from "utils/history";
 import noop from "lodash/noop";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
