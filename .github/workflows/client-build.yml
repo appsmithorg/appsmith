@@ -344,7 +344,7 @@ jobs:
         if: failure()
         uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_CHANNEL: clientbuildfailure-test
+          SLACK_CHANNEL: cypresspushworkflow
           SLACK_ICON: https://app.slack.com/services/B05D17E4QVB
           SLACK_TITLE: "Client build failure:"
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
