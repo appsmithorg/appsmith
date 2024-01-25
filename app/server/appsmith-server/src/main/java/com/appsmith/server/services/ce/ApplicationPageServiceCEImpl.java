@@ -20,7 +20,6 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -519,7 +518,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     public void generateAndSetPagePolicies(Application application, PageDTO page) {
         Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
+                policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, NewPage.class);
         page.setPolicies(documentPolicies);
     }
 

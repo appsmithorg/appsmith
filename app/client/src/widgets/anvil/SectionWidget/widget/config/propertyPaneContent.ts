@@ -2,6 +2,29 @@ import { ValidationTypes } from "constants/WidgetValidation";
 
 export const propertyPaneContent = [
   {
+    sectionName: "Section Split",
+    children: [
+      {
+        propertyName: "widgetId",
+        label: "",
+        controlType: "SECTION_SPLITTER",
+        helpText: "Distribute the 12 column section space between zones",
+        isBindProperty: true,
+        isJSConvertible: false,
+        isTriggerProperty: false,
+      },
+      {
+        propertyName: "widgetId",
+        label: "Zones",
+        controlType: "ZONE_STEPPER",
+        helpText: "Changes the no. of zones in a section",
+        isBindProperty: true,
+        isJSConvertible: false,
+        isTriggerProperty: false,
+      },
+    ],
+  },
+  {
     sectionName: "General",
     children: [
       {
@@ -25,16 +48,6 @@ export const propertyPaneContent = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
-      },
-      {
-        propertyName: "zoneCount",
-        label: "Zones",
-        controlType: "ZONE_STEPPER",
-        helpText: "Changes the no. of zones in a section",
-        isBindProperty: true,
-        isJSConvertible: false,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.NUMBER },
       },
     ],
   },

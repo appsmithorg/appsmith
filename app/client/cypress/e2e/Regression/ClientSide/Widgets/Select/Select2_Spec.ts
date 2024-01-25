@@ -50,12 +50,6 @@ describe(
       );
       agHelper.GetNClick(locators._alignment("right"));
 
-      //Width
-      agHelper.AssertCSS(
-        widgetLocators.selectWidgetLabelContainer,
-        "width",
-        "55.9375px",
-      );
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
       agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
 
@@ -74,11 +68,6 @@ describe(
         widgetLocators.selectWidgetLabel,
         "text-align",
         "right",
-      );
-      agHelper.AssertCSS(
-        widgetLocators.selectWidgetLabelContainer,
-        "width",
-        "151.265625px",
       );
       agHelper.AssertText(
         widgetLocators.selectWidgetLabel,

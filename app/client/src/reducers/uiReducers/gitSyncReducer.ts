@@ -29,6 +29,8 @@ const initialState: GitSyncReducerState = {
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
 
+  isDiscarding: false,
+
   isFetchingLocalGitConfig: false,
   isFetchingGlobalGitConfig: false,
 
@@ -542,6 +544,11 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     deletingBranch: action.payload,
   }),
+  [ReduxActionTypes.GIT_DISCARD_CHANGES]: (state: GitSyncReducerState) => ({
+    ...state,
+    isDiscarding: true,
+    discardError: null,
+  }),
   [ReduxActionTypes.GIT_DISCARD_CHANGES_SUCCESS]: (
     state: GitSyncReducerState,
     action: ReduxAction<any>,
@@ -812,7 +819,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   gitImportError?: any;
 
-  isDiscarding?: boolean;
+  isDiscarding: boolean;
   discard?: GitDiscardResponse;
   discardError?: GitErrorType;
 
