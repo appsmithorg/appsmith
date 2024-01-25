@@ -251,21 +251,25 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>io.micrometer</groupId>-->
+        <!--            <artifactId>micrometer-registry-prometheus</artifactId>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>io.opentelemetry</groupId>-->
+        <!--            <artifactId>opentelemetry-exporter-zipkin</artifactId>-->
+        <!--        </dependency>-->
         <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing-bridge-brave -->
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-brave</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>io.micrometer</groupId>-->
+        <!--            <artifactId>micrometer-tracing-bridge-brave</artifactId>-->
+        <!--            <version>1.0.0</version>-->
+        <!--        </dependency>-->
 
-        <dependency>
-            <groupId>io.zipkin.reporter2</groupId>
-            <artifactId>zipkin-reporter-brave</artifactId>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>io.zipkin.reporter2</groupId>-->
+        <!--            <artifactId>zipkin-reporter-brave</artifactId>-->
+        <!--        </dependency>-->
         <!--        Commented oout Loki dependency for now, since we haven't fixed associating logs to traces-->
         <!--        <dependency>-->
         <!--            <groupId>com.github.loki4j</groupId>-->

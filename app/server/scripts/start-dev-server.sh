@@ -15,4 +15,4 @@ if [ $IS_WSL ]; then
   _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true $_JAVA_OPTIONS"
 fi
 
-(cd dist && exec java -jar server-*.jar)
+(cd dist && exec java -javaagent:/Users/sumitsum/Downloads/opentelemetry-javaagent.jar -jar server-*.jar)

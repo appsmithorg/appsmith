@@ -79,7 +79,7 @@ public class ServerApplication {
         return OpenTelemetrySdk.builder()
                 .setMeterProvider(SdkMeterProvider.builder()
                         .setResource(Resource.getDefault().toBuilder()
-                                .put("service.name", "micrometer-shim-2")
+                                .put("service.name", "micrometer-shim-3")
                                 // Include instrumentation.provider=micrometer to enable micrometer metrics
                                 // experience in New Relic
                                 .put("instrumentation.provider", "micrometer")
