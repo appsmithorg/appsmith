@@ -186,8 +186,8 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
   });
 
   it(
-    "excludeForAirgap",
     "checks branding on dashboard and checks if colorpicker has branding colors",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       if (CURRENT_REPO === REPO.EE) {
         // naivagae to dashboard
