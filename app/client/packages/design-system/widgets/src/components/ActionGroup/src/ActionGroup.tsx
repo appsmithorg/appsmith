@@ -63,7 +63,6 @@ const _ActionGroup = <T extends object>(
             return (
               <ActionGroupItem
                 color={color}
-                data-size={Boolean(size) ? size : undefined}
                 icon={item.props.icon}
                 iconPosition={item.props.iconPosition}
                 isDisabled={
@@ -73,6 +72,7 @@ const _ActionGroup = <T extends object>(
                 item={item}
                 key={item.key}
                 onPress={() => onAction?.(item.key)}
+                size={Boolean(size) ? size : undefined}
                 state={state}
                 variant={variant}
               />
