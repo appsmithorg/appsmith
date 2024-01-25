@@ -66,13 +66,13 @@ Just like Button component, There are 3 variants of the icon button component.
 `IconButton` component has 3 size options. `small`, `medium`, `large`.
 
 <Story name="Size">
-  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+  <Flex gap="spacing-2">
     {Object.keys(SIZES).map((size) => (
       <div key={size} style={{ marginBottom: 10 }}>
         <IconButton size={size} icon="plus" />
       </div>
     ))}
-  </div>
+  </Flex>
 </Story>
 
 ## Disabled
