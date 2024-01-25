@@ -30,10 +30,4 @@ public interface ExportServiceCE {
             String artifactId, String branchName, ArtifactJsonType artifactJsonType);
 
     Mono<ExportFileDTO> getArtifactFile(String artifactId, String branchName, ArtifactJsonType artifactJsonType);
-
-    //    Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseArtifactObjective serialiseFor);
-
-    //    Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName);
-
-    //    Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName);
 }
