@@ -20,7 +20,7 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { hasCreatePackagePermission } from "@appsmith/utils/permissionHelpers";
 import { getIsActionConverting } from "@appsmith/selectors/entitiesSelector";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";

@@ -12,11 +12,10 @@ describe(
   { tags: ["@tag.AccessControl"] },
   function () {
     it("Bug: 21046: Default Role is not given to some users when multiple users are given roles through share modal.", function () {
-      homePage.NavigateToHome();
+      adminSettings.EnableGAC(true, true);
+
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        featureFlagIntercept({ license_gac_enabled: true });
-        agHelper.Sleep(2000);
         workspaceId = uid;
         homePage.CreateNewWorkspace(workspaceId);
         homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);

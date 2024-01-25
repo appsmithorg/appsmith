@@ -364,8 +364,8 @@ export class RBACHelper {
     this.adminSettings.NavigateToAdminSettings();
     this.agHelper.GetNClick(RBAC.groupsTab);
     this.assertHelper.AssertNetworkStatus("@fetchGroups", 200);
-    this.agHelper.TypeText(RBAC.searchBar, this.rolesRow(groupName));
-    this.agHelper.GetNClick(this.rolesRow(groupName));
+    this.agHelper.TypeText(RBAC.searchBar, groupName);
+    this.agHelper.GetNClick(this.rolesRow(groupName), 0, true);
     this.agHelper.GetNClick(this.rolesTabInGroupPage);
     this.agHelper.GetNClick(this.defaultRoleToggle);
     const role = workspaceName

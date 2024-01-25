@@ -7,7 +7,7 @@ import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import { useConvertToModuleOptions } from "./hooks";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import type { Package } from "@appsmith/constants/PackageConstants";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { getIsActionConverting } from "@appsmith/selectors/entitiesSelector";
@@ -22,7 +22,7 @@ import {
 import * as moduleFeatureSelectors from "@appsmith/selectors/moduleFeatureSelectors";
 
 jest.mock("@appsmith/selectors/packageSelectors");
-jest.mock("@appsmith/selectors/workspaceSelectors");
+jest.mock("@appsmith/selectors/selectedWorkspaceSelectors");
 jest.mock("utils/hooks/useFeatureFlag");
 jest.mock("selectors/editorSelectors");
 jest.mock("@appsmith/selectors/entitiesSelector");

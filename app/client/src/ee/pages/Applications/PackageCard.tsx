@@ -33,7 +33,10 @@ import {
 } from "@appsmith/constants/PackageConstants";
 import type { ModifiedMenuItemProps } from "pages/Applications/ApplicationCard";
 import { useDispatch, useSelector } from "react-redux";
-import { hasDeletePackagePermission } from "@appsmith/utils/permissionHelpers";
+import {
+  hasDeletePackagePermission,
+  hasManagePackagePermission,
+} from "@appsmith/utils/permissionHelpers";
 import { deletePackage, updatePackage } from "@appsmith/actions/packageActions";
 import {
   getIsSavingPackageName,
@@ -164,6 +167,7 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
 
   const hasDeletePermission = hasDeletePackagePermission(pkg.userPermissions);
 
+  const hasEditPermission = hasManagePackagePermission(pkg.userPermissions);
   const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
   const isMultipleSelectionMode =
     !!deleteMultipleApplicationObject.list?.length;
@@ -278,6 +282,7 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
       backgroundColor={pkg.color || DEFAULT_PACKAGE_COLOR}
       contextMenu={contextMenu}
       editedByText={editedByText}
+      hasEditPermission={hasEditPermission}
       hasReadPermission
       icon={pkg.icon || DEFAULT_PACKAGE_ICON}
       isContextMenuOpen={false}

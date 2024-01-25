@@ -19,7 +19,10 @@ import history from "utils/history";
 import { generateEditedByText } from "pages/Applications/helpers";
 import type { ModifiedMenuItemProps } from "pages/Applications/ApplicationCard";
 import { useDispatch, useSelector } from "react-redux";
-import { hasDeleteWorkflowPermission } from "@appsmith/utils/permissionHelpers";
+import {
+  hasDeleteWorkflowPermission,
+  hasManageWorkflowPermission,
+} from "@appsmith/utils/permissionHelpers";
 import {
   deleteWorkflow,
   updateWorkflowName,
@@ -148,6 +151,9 @@ function WorkflowCard({
     workflow.userPermissions,
   );
 
+  const hasEditPermission = hasManageWorkflowPermission(
+    workflow.userPermissions,
+  );
   const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
   const isMultipleSelectionMode =
     !!deleteMultipleApplicationObject.list?.length;
@@ -247,6 +253,7 @@ function WorkflowCard({
       backgroundColor={workflow.color || DEFAULT_BACKGROUND_COLOR}
       contextMenu={contextMenu}
       editedByText={editedByText}
+      hasEditPermission={hasEditPermission}
       hasReadPermission
       icon={workflow.icon || DEFAULT_ICON}
       isContextMenuOpen={false}

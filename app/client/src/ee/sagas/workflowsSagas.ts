@@ -30,6 +30,7 @@ import type {
   CreateWorkflowApiKeysResponse,
   CreateWorkflowPayload,
   FetchWorkflowResponse,
+  FetchWorkflowsResponse,
 } from "@appsmith/api/WorkflowApi";
 import WorkflowApi from "@appsmith/api/WorkflowApi";
 import {
@@ -38,11 +39,10 @@ import {
   getWorkflowById,
   getWorkflowsList,
 } from "@appsmith/selectors/workflowSelectors";
-import { getWorkspaces } from "ce/selectors/workspaceSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { workflowEditorURL } from "@appsmith/RouteBuilder";
-import type { Workspaces } from "@appsmith/constants/workspaceConstants";
 import { toast } from "design-system";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 interface CreateWorkflowSagaProps {
   workspaceId: string;
@@ -172,16 +172,23 @@ export function* fetchWorkflowSaga(payload: FetchWorkflowPayload) {
   }
 }
 
-export function* fetchWorkflowsForWorkspaceSaga(
-  action: ReduxAction<{ workspaceId: string }>,
-) {
+export function* fetchWorkflowsForWorkspaceSaga(action?: ReduxAction<string>) {
   try {
-    const workspaceId = action.payload.workspaceId;
-    const response: FetchWorkflowResponse = yield call(
+    const showWorkflowFeature: boolean = yield select(getShowWorkflowFeature);
+    if (!showWorkflowFeature) return;
+    let activeWorkspaceId: string = "";
+    if (!action?.payload) {
+      activeWorkspaceId = yield select(getCurrentWorkspaceId);
+    } else {
+      activeWorkspaceId = action.payload;
+    }
+
+    const response: FetchWorkflowsResponse = yield call(
       WorkflowApi.fetchWorkflows,
-      { workspaceId },
+      { workspaceId: activeWorkspaceId },
     );
-    const isValidResponse: boolean = yield call(validateResponse, response);
+
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
@@ -198,8 +205,6 @@ export function* fetchWorkflowsForWorkspaceSaga(
         },
       });
     }
-
-    return response;
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_ERROR,
@@ -208,44 +213,6 @@ export function* fetchWorkflowsForWorkspaceSaga(
           message: createMessage(FETCH_WORKFLOW_ERROR),
         },
       },
-    });
-  }
-}
-
-export function* fetchAllWorkflowsSaga() {
-  try {
-    // TODO (Workflows): Remove and add call without workspaceId
-    const showWorkflowFeature: boolean = yield select(getShowWorkflowFeature);
-    if (!showWorkflowFeature) return;
-    const workspaces: Workspaces[] = yield select(getWorkspaces);
-
-    const workspaceIds = workspaces.map((w) => w.workspace.id);
-
-    const responses: FetchWorkflowResponse[] = yield all(
-      workspaceIds.map(async (workspaceId) => {
-        return WorkflowApi.fetchWorkflows({ workspaceId });
-      }),
-    );
-
-    // const response: ApiResponse = yield call(WorkflowApi.fetchWorkflows, {
-    //   workspaceId,
-    // });
-    // const isValidResponse: boolean = yield validateResponse(response);
-
-    const data = responses.reduce((acc: any, r: any) => {
-      return acc.concat(r.data);
-    }, []);
-
-    // if (isValidResponse) {
-    yield put({
-      type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_SUCCESS,
-      payload: data,
-    });
-    // }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_ALL_WORKFLOWS_ERROR,
-      payload: { error: { message: createMessage(FETCH_WORKFLOW_ERROR) } },
     });
   }
 }
@@ -377,15 +344,6 @@ export function* toggleWorkflowTokenSaga(
 
 export default function* workflowsSagas() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.FETCH_ALL_WORKFLOWS_INIT,
-      fetchAllWorkflowsSaga,
-    ),
-    // TODO (Workflows):(Change once we get fetchAllWorkflows without dependance on workspaceId)
-    takeLatest(
-      ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
-      fetchAllWorkflowsSaga,
-    ),
     takeLatest(
       ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_INIT,
       fetchWorkflowsForWorkspaceSaga,

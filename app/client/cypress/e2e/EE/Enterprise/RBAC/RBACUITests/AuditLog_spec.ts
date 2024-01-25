@@ -45,11 +45,10 @@ describe(
       agHelper.GenerateUUID();
       // get the guid from the alias and assign it to the workspace name
       cy.get("@guid").then((guid) => {
-        featureFlagIntercept({ license_gac_enabled: true });
-        agHelper.WaitUntilEleAppear(homePage._homeIcon);
+        adminSettings.EnableGAC(true, true, "adminSettings");
         workspaceName = "workspace" + guid;
         appName = "app" + guid;
-        homePage.CreateNewWorkspace(workspaceName, true);
+        homePage.CreateNewWorkspace(workspaceName);
         agHelper.WaitUntilEleAppear(
           homePage._existingWorkspaceCreateNewApp(workspaceName),
         );

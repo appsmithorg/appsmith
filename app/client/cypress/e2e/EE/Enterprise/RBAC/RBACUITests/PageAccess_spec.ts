@@ -98,9 +98,6 @@ describe(
         permissionAtPageLevel,
         Cypress.env("TESTUSERNAME1"),
       );
-      adminSettings.NavigateToAdminSettings();
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
     });
 
     /**
@@ -115,10 +112,13 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
+      homePage.SelectWorkspace(workspaceName);
       featureFlagIntercept({ license_gac_enabled: true });
       assertHelper.AssertDocumentReady();
+      agHelper.AssertElementAbsence(locators._buttonByText("Upgrade"));
+      homePage.SelectWorkspace(workspaceName);
       homePage.EditAppFromAppHover(appName);
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.NavigateToPage("Page1", true);
       agHelper.waitUntilTextVisible("UI");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.switchToAddNew();
@@ -134,9 +134,9 @@ describe(
         true,
       );
       agHelper.AssertElementAbsence(locators._saveStatusError);
-      EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
+      EditorNavigation.NavigateToPage(pageName, true);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      agHelper.AssertElementAbsence(PageLeftPane.locators.addItem());
+      agHelper.AssertElementAbsence(PageLeftPane.locators.addItem);
       EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
       agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
       agHelper.AssertElementAbsence(locators._contextMenuItem("Copy to page"));
@@ -148,9 +148,11 @@ describe(
      */
     it("2. User with 2 roles - Dev and custom page view", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      homePage.SelectWorkspace(workspaceName);
       adminSettings.NavigateToAdminSettings();
       featureFlagIntercept({ license_gac_enabled: true });
       assertHelper.AssertDocumentReady();
+      agHelper.WaitUntilEleAppear(adminSettings._usersTab);
       rbacHelper.AddDefaultRole(
         Cypress.env("TESTUSERNAME1"),
         "Developer",
@@ -161,8 +163,9 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "Developer",
       );
+      homePage.SelectWorkspace(workspaceName);
       homePage.EditAppFromAppHover(appName);
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.NavigateToPage("Page1", true);
       agHelper.waitUntilTextVisible("UI");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       entityExplorer.DragDropWidgetNVerify(
@@ -174,7 +177,7 @@ describe(
         true,
       );
 
-      EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
+      EditorNavigation.NavigateToPage(pageName, true);
       agHelper.waitUntilTextVisible("UI");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       entityExplorer.DragDropWidgetNVerify(
@@ -194,6 +197,7 @@ describe(
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       assertHelper.AssertDocumentReady();
+      // agHelper.AssertElementVisibility(locators._buttonByText("Upgrade"));
       agHelper.WaitUntilEleAppear(adminSettings._adminSettingsBtn);
       adminSettings.NavigateToAdminSettings();
       rbacHelper.AssignRoleToUser(
@@ -213,8 +217,8 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(5000);
-      homePage.SearchAndOpenApp(appName);
-      EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
+      homePage.SearchAndOpenApp(appName, locators._emptyPageTxt);
+      EditorNavigation.NavigateToPage(pageName, true);
       EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
       agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
       agHelper.AssertElementExist(locators._contextMenuItem("Copy to page"));
@@ -228,6 +232,7 @@ describe(
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       assertHelper.AssertDocumentReady();
+      // agHelper.AssertElementVisibility(locators._buttonByText("Upgrade"));
       agHelper.WaitUntilEleAppear(adminSettings._adminSettingsBtn);
       adminSettings.NavigateToAdminSettings();
       rbacHelper.AssignRoleToUser(
@@ -245,8 +250,8 @@ describe(
         Cypress.env("TESTPASSWORD2"),
         "App Viewer",
       );
-      homePage.SearchAndOpenApp(appName);
-      EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
+      homePage.SearchAndOpenApp(appName, locators._emptyPageTxt);
+      EditorNavigation.NavigateToPage(pageName, true);
       EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
       agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
       agHelper.AssertElementExist(locators._contextMenuItem("Delete"));

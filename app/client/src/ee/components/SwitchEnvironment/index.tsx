@@ -26,7 +26,7 @@ import {
   setFeatureWalkthroughShown,
 } from "utils/storage";
 import { setCurrentEnvironment } from "@appsmith/actions/environmentAction";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";

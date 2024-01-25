@@ -161,6 +161,9 @@ export const hasCreatePackagePermission = (permissions: string[] = []) =>
 export const hasDeletePackagePermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.DELETE_PACKAGE);
 
+export const hasManagePackagePermission = (permissions: string[] = []) =>
+  isPermitted(permissions, PERMISSION_TYPE.MANAGE_PACKAGES);
+
 // Package permissions end
 
 // Workflow permissions start
@@ -174,6 +177,9 @@ export const hasCreateWorkflowPermission = (permissions: string[] = []) =>
 
 export const hasDeleteWorkflowPermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.DELETE_WORKFLOWS);
+
+export const hasManageWorkflowPermission = (permissions: string[] = []) =>
+  isPermitted(permissions, PERMISSION_TYPE.MANAGE_WORKFLOWS);
 
 export const hasCreateWorkflowActionsPermission = (
   permissions: string[] = [],

@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
 import "@testing-library/jest-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 
 import LabelField from "./LabelField";
 
@@ -34,9 +35,11 @@ describe("LabelField", () => {
     const defaultValues = { [name]: "InitialValue" };
 
     render(
-      <Wrapper defaultValues={defaultValues}>
-        <LabelField id="test" name={name} onDeleteClick={onDeleteClick} />
-      </Wrapper>,
+      <Router>
+        <Wrapper defaultValues={defaultValues}>
+          <LabelField id="test" name={name} onDeleteClick={onDeleteClick} />
+        </Wrapper>
+      </Router>,
     );
 
     // Check if the component is rendered
@@ -49,9 +52,11 @@ describe("LabelField", () => {
     const name = "testName";
 
     render(
-      <Wrapper>
-        <LabelField id="test" name={name} onDeleteClick={onDeleteClick} />
-      </Wrapper>,
+      <Router>
+        <Wrapper>
+          <LabelField id="test" name={name} onDeleteClick={onDeleteClick} />
+        </Wrapper>
+      </Router>,
     );
 
     // Check if the delete button is rendered

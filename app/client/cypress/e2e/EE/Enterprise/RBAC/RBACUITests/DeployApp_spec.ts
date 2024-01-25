@@ -78,16 +78,18 @@ describe(
      * Asserts the error message
      */
     it("1.Verify deploy app, user shouldn't be able to deploy", function () {
-      adminSettings.NavigateToAdminSettings();
       homePage.LogintoApp(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
+      homePage.SelectWorkspace(workspaceName);
       featureFlagIntercept({
         license_gac_enabled: true,
       });
       cy.wait(2000);
+      agHelper.AssertElementAbsence(locators._buttonByText("Upgrade"));
+      homePage.SelectWorkspace(workspaceName);
       homePage.EditAppFromAppHover(appName);
       agHelper.ClickButton("Deploy");
       agHelper.GetText(locators._toastMsg).then((text) => {

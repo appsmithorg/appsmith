@@ -17,7 +17,7 @@ describe(
 
     before(() => {
       cy.AddIntercepts();
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       cy.get(locators.AdminSettingsEntryLink).should("be.visible");
       cy.get(locators.AdminSettingsEntryLink).click();
       featureFlagIntercept({ license_gac_enabled: true });
@@ -45,6 +45,7 @@ describe(
           force: true,
         });
         homePage.NavigateToHome();
+        homePage.SelectWorkspace(workspaceId);
         homePage.CreateAppInWorkspace(workspaceId, appid);
         homePage.LogOutviaAPI();
       });
@@ -52,9 +53,10 @@ describe(
 
     it("2. Login as Workspace owner and verify redirection for Assign custom role in invite modal dropdown", () => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      homePage.FilterApplication(appid, workspaceId);
+
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      homePage.SelectWorkspace(workspaceId);
       agHelper.AssertElementVisibility(
         ".t--workspace-section:contains(" + workspaceId + ")",
       );
@@ -80,12 +82,10 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-
+      homePage.SelectWorkspace(workspaceId);
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
-
-      homePage.FilterApplication(appid, workspaceId);
-
+      homePage.SelectWorkspace(workspaceId);
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       cy.get(homePage._appHoverIcon("edit")).should("not.exist");
       // verify only viewer role is visible
@@ -103,9 +103,9 @@ describe(
 
     it("4. Login as Workspace owner and Update the Invited group role to Developer", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      homePage.FilterApplication(appid, workspaceId);
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      homePage.SelectWorkspace(workspaceId);
       homePage.UpdateUserRoleInWorkspace(
         workspaceId,
         GroupName,
@@ -121,9 +121,10 @@ describe(
         Cypress.env("TESTPASSWORD2"),
         "Developer",
       );
-      homePage.FilterApplication(appid, workspaceId);
+
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      homePage.SelectWorkspace(workspaceId);
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
 
@@ -141,8 +142,8 @@ describe(
 
     it("6. Login as Workspace owner and Update the Invited user group to Administrator", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      homePage.FilterApplication(appid, workspaceId);
       featureFlagIntercept({ license_gac_enabled: true });
+      homePage.SelectWorkspace(workspaceId);
       cy.wait(2000);
       homePage.UpdateUserRoleInWorkspace(
         workspaceId,
@@ -161,6 +162,8 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      homePage.SelectWorkspace(workspaceId);
+
       homePage.InviteUserToWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME2"),
@@ -168,7 +171,7 @@ describe(
       );
       cy.get(homePageLocators.closeBtn).click();
       cy.wait(2000);
-      homePage.FilterApplication(appid, workspaceId);
+
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
 
@@ -190,16 +193,16 @@ describe(
 
     it("8. Login as Workspace owner and verify all 3 members are present", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      homePage.FilterApplication(appid, workspaceId);
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      homePage.SelectWorkspace(workspaceId);
       homePage.UpdateUserRoleInWorkspace(
         workspaceId,
         GroupName,
         "Administrator",
         "Developer",
       );
-      homePage.FilterApplication(appid, workspaceId);
+      homePage.SelectWorkspace(workspaceId);
       homePage.OpenMembersPageForWorkspace(workspaceId);
       cy.get(homePage._usersEmailList).then(function ($list) {
         expect($list).to.have.length(3);

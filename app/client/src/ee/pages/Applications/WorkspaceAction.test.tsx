@@ -10,6 +10,7 @@ import WorkspaceAction from "./WorkspaceAction";
 import * as moduleFeatureSelectors from "@appsmith/selectors/moduleFeatureSelectors";
 import * as workflowSelectors from "@appsmith/selectors/workflowSelectors";
 import * as applicationSelectors from "@appsmith/selectors/applicationSelectors";
+import * as workspaceSelectors from "@appsmith/selectors/workspaceSelectors";
 import * as packageSelectors from "@appsmith/selectors/packageSelectors";
 import * as packageActions from "@appsmith/actions/packageActions";
 import { createSelector } from "reselect";
@@ -20,51 +21,19 @@ jest.mock("@appsmith/selectors/moduleFeatureSelectors");
 jest.mock("@appsmith/selectors/workflowSelectors");
 jest.mock("@appsmith/selectors/packageSelectors");
 jest.mock("@appsmith/selectors/applicationSelectors");
+jest.mock("@appsmith/selectors/workspaceSelectors");
 jest.mock("@appsmith/actions/packageActions");
 
 const DEFAULT_WORKSPACE_ID = "test-workspace";
 
 const DEFAULT_USER_WORKSPACES = [
   {
-    workspace: {
-      id: DEFAULT_WORKSPACE_ID,
-      name: "Test Workspace",
-      userPermissions: [
-        PERMISSION_TYPE.CREATE_APPLICATION,
-        PERMISSION_TYPE.CREATE_PACKAGE,
-      ] as any,
-    },
-    applications: [
-      {
-        id: "loadingAppId1",
-        userPermissions: [],
-        name: "loadingAppName1",
-        workspaceId: DEFAULT_WORKSPACE_ID,
-        isPublic: false,
-        appIsExample: false,
-        defaultPageId: "5f7c3bc3b295692137139bd7",
-        applicationVersion: 1,
-        pages: [],
-        slug: "app1",
-      },
-    ],
-    users: [],
-    packages: [
-      {
-        id: "pkg",
-        userPermissions: [],
-        name: "Package 1",
-        workspaceId: DEFAULT_WORKSPACE_ID,
-      },
-    ],
-    workflows: [
-      {
-        id: "wf",
-        userPermissions: [],
-        name: "Workflow 1",
-        workspaceId: DEFAULT_WORKSPACE_ID,
-      },
-    ],
+    id: DEFAULT_WORKSPACE_ID,
+    name: "Test Workspace",
+    userPermissions: [
+      PERMISSION_TYPE.CREATE_APPLICATION,
+      PERMISSION_TYPE.CREATE_PACKAGE,
+    ] as any,
   },
 ];
 
@@ -115,17 +84,15 @@ const setIsCreatingWorkflowSelector = (value: boolean) => {
   );
 };
 
-const mockGetUserApplicationsList = (
-  userWorkspaces = DEFAULT_USER_WORKSPACES,
-) => {
-  const applicationSelectorsFactory = applicationSelectors as jest.Mocked<
-    typeof applicationSelectors
+const mockfetchedWorkspacesList = (workspaces = DEFAULT_USER_WORKSPACES) => {
+  const workspacesSelectorsFactory = workspaceSelectors as jest.Mocked<
+    typeof workspaceSelectors
   >;
 
-  applicationSelectorsFactory.getUserApplicationsWorkspacesList.mockImplementation(
+  workspacesSelectorsFactory.getFetchedWorkspaces.mockImplementation(
     // eslint-disable-next-line
     // @ts-ignore
-    () => userWorkspaces,
+    () => workspaces,
   );
 };
 
@@ -136,22 +103,23 @@ describe("WorkspaceAction", () => {
     setIsCreatingPackageSelector(false);
     setIsCreatingWorkflowSelector(false);
     setIsCreatingApplicationSelector(false);
-    mockGetUserApplicationsList();
+    mockfetchedWorkspacesList();
 
     render(
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
       </ThemeProvider>,
     );
-
-    expect(screen.queryByText("New")).toBeInTheDocument();
-    expect(screen.queryByText("Create new")).not.toBeInTheDocument();
+    expect(screen.queryByText("Create new")).toBeInTheDocument();
   });
 
   it("should render the EE action button when only the showQueryModule is enabled", () => {
@@ -165,8 +133,11 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -187,8 +158,11 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -209,8 +183,11 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -234,8 +211,11 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -258,8 +238,11 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -283,8 +266,11 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -322,8 +308,11 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={onCreateNewAppMock}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -358,8 +347,11 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -389,20 +381,21 @@ describe("WorkspaceAction", () => {
     setIsCreatingApplicationSelector(false);
 
     // Add only Create app permission
-    const userWorkspaces = klona(DEFAULT_USER_WORKSPACES);
-    userWorkspaces[0].workspace.userPermissions = [
-      PERMISSION_TYPE.CREATE_APPLICATION,
-    ];
+    const workspaces = klona(DEFAULT_USER_WORKSPACES);
+    workspaces[0].userPermissions = [PERMISSION_TYPE.CREATE_APPLICATION];
 
-    mockGetUserApplicationsList(userWorkspaces);
+    mockfetchedWorkspacesList(workspaces);
 
     render(
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
-            workspaceId={DEFAULT_WORKSPACE_ID}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={workspaces[0]}
+            workspaceId={workspaces[0].id}
           />
         </Provider>
       </ThemeProvider>,
@@ -431,20 +424,21 @@ describe("WorkspaceAction", () => {
     setIsCreatingApplicationSelector(false);
 
     // Add only Create app permission
-    const userWorkspaces = klona(DEFAULT_USER_WORKSPACES);
-    userWorkspaces[0].workspace.userPermissions = [
-      PERMISSION_TYPE.CREATE_PACKAGE,
-    ];
+    const workspaces = klona(DEFAULT_USER_WORKSPACES);
+    workspaces[0].userPermissions = [PERMISSION_TYPE.CREATE_PACKAGE];
 
-    mockGetUserApplicationsList(userWorkspaces);
+    mockfetchedWorkspacesList(workspaces);
 
     render(
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
-            workspaceId={DEFAULT_WORKSPACE_ID}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={workspaces[0]}
+            workspaceId={workspaces[0].id}
           />
         </Provider>
       </ThemeProvider>,
@@ -473,20 +467,21 @@ describe("WorkspaceAction", () => {
     setIsCreatingApplicationSelector(false);
 
     // Add only Create app permission
-    const userWorkspaces = klona(DEFAULT_USER_WORKSPACES);
-    userWorkspaces[0].workspace.userPermissions = [
-      PERMISSION_TYPE.CREATE_PACKAGE,
-    ];
+    const workspaces = klona(DEFAULT_USER_WORKSPACES);
+    workspaces[0].userPermissions = [PERMISSION_TYPE.CREATE_PACKAGE];
 
-    mockGetUserApplicationsList(userWorkspaces);
+    mockfetchedWorkspacesList(workspaces);
 
     render(
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
-            workspaceId={DEFAULT_WORKSPACE_ID}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={workspaces[0]}
+            workspaceId={workspaces[0].id}
           />
         </Provider>
       </ThemeProvider>,
@@ -512,17 +507,20 @@ describe("WorkspaceAction", () => {
     setIsCreatingApplicationSelector(false);
 
     // Add only Create app permission
-    const userWorkspaces = klona(DEFAULT_USER_WORKSPACES);
-    userWorkspaces[0].workspace.userPermissions = [];
+    const workspaces = klona(DEFAULT_USER_WORKSPACES);
+    workspaces[0].userPermissions = [];
 
-    mockGetUserApplicationsList(userWorkspaces);
+    mockfetchedWorkspacesList(workspaces);
 
     render(
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>

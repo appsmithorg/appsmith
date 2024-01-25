@@ -42,19 +42,18 @@ const workflow2: Workflow = {
 const DEFAULT_STATE: WorkspaceReduxState = {
   loadingStates: {
     isFetchAllRoles: false,
-    isFetchAllUsers: false,
-    isFetchingWorkspace: false,
+    isFetchingWorkspaces: false,
     isFetchingPackagesList: false,
+    isSavingWorkspaceInfo: false,
+    isFetchingEntities: false,
     isFetchingWorkflowsList: false,
+    isDeletingWorkspace: false,
     packageCreationRequestMap: {},
     workflowCreationRequestMap: {},
   },
-  workspaceUsers: [],
+  list: [],
   workspaceRoles: [],
-  currentWorkspace: {
-    id: "",
-    name: "",
-  },
+  searchEntities: {},
   packagesList: [],
   workflowsList: [],
   groupSuggestions: [],
@@ -269,7 +268,7 @@ describe("workspaceReducer", () => {
     ).toEqual(expectedState);
   });
 
-  it("FETCH_ALL_WORKFLOWS_INIT - should set isFetchingWorkflowsList to true", () => {
+  it("FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_INIT - should set isFetchingWorkflowsList to true", () => {
     const initialState = DEFAULT_STATE;
 
     const expectedState = klona(DEFAULT_STATE);
@@ -277,7 +276,7 @@ describe("workspaceReducer", () => {
 
     expect(
       reducer(initialState, {
-        type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_INIT,
+        type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_INIT,
         payload: undefined,
       }),
     ).toEqual(expectedState);
@@ -297,7 +296,7 @@ describe("workspaceReducer", () => {
     ).toEqual(expectedState);
   });
 
-  it("FETCH_ALL_WORKFLOWS_SUCCESS - should set isFetchingWorkflowsList to false and sets the payload", () => {
+  it("FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_SUCCESS - should set isFetchingWorkflowsList to false and sets the payload", () => {
     const initialState = klona(DEFAULT_STATE);
     initialState.loadingStates.isFetchingWorkflowsList = true;
 
@@ -309,7 +308,7 @@ describe("workspaceReducer", () => {
 
     expect(
       reducer(initialState, {
-        type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_SUCCESS,
+        type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_SUCCESS,
         payload,
       }),
     ).toEqual(expectedState);

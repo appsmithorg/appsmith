@@ -126,5 +126,9 @@ export default function* workspaceSagas() {
       ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
       searchWorkspaceEntitiesSaga,
     ),
+    takeLatest(
+      ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
+      searchWorkspaceEntitiesSaga,
+    ),
   ]);
 }

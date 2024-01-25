@@ -30,18 +30,10 @@ export interface PublishWorkflowPayload {
   workflowId: string;
 }
 
-export const fetchAllWorkflowsForWorkspace = (payload: {
-  workspaceId: string;
-}) => {
+export const fetchAllWorkflowsForWorkspace = (payload: string) => {
   return {
     type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_INIT,
     payload,
-  };
-};
-
-export const fetchAllWorkflows = () => {
-  return {
-    type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_INIT,
   };
 };
 

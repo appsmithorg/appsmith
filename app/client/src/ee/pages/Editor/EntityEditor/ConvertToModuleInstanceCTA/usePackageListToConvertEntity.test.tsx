@@ -5,7 +5,7 @@ import usePackageListToConvertEntity from "./usePackageListToConvertEntity"; // 
 import store from "store";
 import type { Package } from "@appsmith/constants/PackageConstants";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   CANNOT_CREATE_MODULE_WARN,
   CONVERT_ENTITY_UNPUBLISHED_CHANGES_WARN,
@@ -13,7 +13,7 @@ import {
 } from "@appsmith/constants/messages";
 
 jest.mock("@appsmith/selectors/packageSelectors");
-jest.mock("@appsmith/selectors/workspaceSelectors");
+jest.mock("@appsmith/selectors/selectedWorkspaceSelectors");
 
 const packagesList = [
   {

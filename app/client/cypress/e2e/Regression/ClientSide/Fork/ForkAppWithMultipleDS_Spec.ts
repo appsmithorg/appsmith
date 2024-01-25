@@ -11,6 +11,7 @@ describe(
   "Fork application with multiple datasources",
   { tags: ["@tag.Fork"] },
   function () {
+    let appname: string;
     it("1. Bug Id: 24708  - fork and test the forked application", function () {
       // Create a new workspace and fork application
       agHelper.GenerateUUID();
@@ -39,14 +40,16 @@ describe(
         });
       });
       homePage.NavigateToHome();
-      const appname: string = localStorage.getItem("appName") || "randomApp";
-      agHelper.GenerateUUID();
-      cy.get("@guid").then((uid) => {
-        targetWorkspaceId = "forkApp" + uid;
-        homePage.CreateNewWorkspace(targetWorkspaceId, true);
-        agHelper.PressEscape();
-        homePage.SelectWorkspace(sourceWorkspaceId);
-        homePage.ForkApplication(appname, targetWorkspaceId);
+      cy.get("@appName").then(($appName: any) => {
+        appname = $appName;
+        agHelper.GenerateUUID();
+        cy.get("@guid").then((uid) => {
+          targetWorkspaceId = "forkApp" + uid;
+          homePage.CreateNewWorkspace(targetWorkspaceId, true);
+          agHelper.PressEscape();
+          homePage.SelectWorkspace(sourceWorkspaceId);
+          homePage.ForkApplication(appname, targetWorkspaceId);
+        });
       });
       // In the forked application, reconnect all datasources
       dataSources.ReconnectDSbyType("MongoDBUri");

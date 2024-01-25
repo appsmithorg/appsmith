@@ -51,11 +51,7 @@ export const getPageDependencyActions = (
         ]
       : []),
     ...(featureFlags.showWorkflowFeature
-      ? [
-          fetchAllWorkflowsForWorkspace({
-            workspaceId: currentWorkspaceId,
-          }),
-        ]
+      ? [fetchAllWorkflowsForWorkspace(currentWorkspaceId)]
       : []),
   ];
 
