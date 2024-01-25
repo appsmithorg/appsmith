@@ -336,7 +336,11 @@ function DatasourceAuth({
           floatLeft={!isInsideReconnectModal}
           isLoading={isTesting}
           key={buttonType}
-          kind={isEnabledForTestPrimary ? "primary" : "secondary"}
+          kind={
+            isEnabledForTestPrimary && pluginType === "DB"
+              ? "primary"
+              : "secondary"
+          }
           onClick={handleDatasourceTest}
           size="md"
         >
@@ -383,7 +387,11 @@ function DatasourceAuth({
           }
           isLoading={isSaving}
           key={buttonType}
-          kind={isEnabledForTestPrimary ? "secondary" : "primary"}
+          kind={
+            isEnabledForTestPrimary && pluginType === "DB"
+              ? "secondary"
+              : "primary"
+          }
           onClick={
             authType === AuthType.OAUTH2
               ? handleOauthDatasourceSave
