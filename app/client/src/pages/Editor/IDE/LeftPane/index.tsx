@@ -1,6 +1,5 @@
 import React from "react";
 import WidgetsEditorEntityExplorer from "../../WidgetsEditorEntityExplorer";
-import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
@@ -15,7 +14,6 @@ import {
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -33,8 +31,7 @@ const LeftPane = () => {
     FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
   );
   const { path } = useRouteMatch();
-  const guidedTourEnabled = useSelector(inGuidedTour);
-  if (!isAppSidebarEnabled || guidedTourEnabled) {
+  if (!isAppSidebarEnabled) {
     return <WidgetsEditorEntityExplorer />;
   }
   return (

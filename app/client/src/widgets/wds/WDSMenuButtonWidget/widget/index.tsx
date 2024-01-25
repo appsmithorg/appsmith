@@ -42,18 +42,15 @@ class WDSMenuButtonWidget extends BaseWidget<
     return defaultsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return {
       isLargeWidget: false,
       widgetSize: {
-        maxHeight: {},
-        maxWidth: { base: "360px" },
-        minHeight: { base: "40px" },
-        minWidth: { base: "120px" },
+        maxWidth: {
+          base: "100%",
+          "280px": "sizing-70",
+        },
+        minWidth: "sizing-14",
       },
     };
   }

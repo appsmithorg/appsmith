@@ -7,7 +7,7 @@ import {
   PAGES,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
 import { STARTER_BUILDING_BLOCK_TEMPLATE_NAME } from "constants/TemplatesConstants";

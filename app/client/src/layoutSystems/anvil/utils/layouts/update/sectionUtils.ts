@@ -61,7 +61,9 @@ export function* createSectionAndAddWidget(
  * @param widgets | WidgetLayoutProps[] : List of dragged widgets.
  * @returns WidgetLayoutProps[][] : List of dragged widgets split by type.
  */
-function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
+export function splitWidgets(
+  widgets: WidgetLayoutProps[],
+): WidgetLayoutProps[][] {
   const zones: WidgetLayoutProps[] = [];
   const nonZones: WidgetLayoutProps[] = [];
   widgets.forEach((widget: WidgetLayoutProps) => {

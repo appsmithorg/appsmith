@@ -19,7 +19,6 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { showDebugger } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import {
   interactionAnalyticsEvent,
@@ -106,7 +105,6 @@ const useDependencyList = (name: string) => {
     (state: AppState) => state.evaluations.dependencies.inverseDependencyMap,
     equal,
   );
-  const guidedTour = useSelector(inGuidedTour);
 
   const getEntityId = useCallback(
     (name) => {
@@ -122,9 +120,8 @@ const useDependencyList = (name: string) => {
   );
 
   const entityDependencies = useMemo(() => {
-    if (guidedTour) return null;
     return getDependenciesFromInverseDependencies(inverseDependencyMap, name);
-  }, [name, inverseDependencyMap, guidedTour]);
+  }, [name, inverseDependencyMap]);
 
   const dependencyOptions = useMemo(
     () =>

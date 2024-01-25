@@ -36,18 +36,11 @@ class WDSIconButtonWidget extends BaseWidget<
     return defaultsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return {
       isLargeWidget: false,
       widgetSize: {
-        maxHeight: {},
-        maxWidth: {},
-        minHeight: { base: "40px" },
-        minWidth: { base: "40px" },
+        minWidth: "sizing-10",
       },
     };
   }

@@ -6,7 +6,6 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -16,7 +15,6 @@ import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -24,14 +22,12 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
@@ -51,7 +47,6 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -119,7 +114,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
-    private final MarketplaceService marketplaceService;
     private final PolicyGenerator policyGenerator;
     private final NewPageService newPageService;
     private final ApplicationService applicationService;
@@ -150,7 +144,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             DatasourceService datasourceService,
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
-            MarketplaceService marketplaceService,
             PolicyGenerator policyGenerator,
             NewPageService newPageService,
             ApplicationService applicationService,
@@ -173,7 +166,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
-        this.marketplaceService = marketplaceService;
         this.policyGenerator = policyGenerator;
         this.newPageService = newPageService;
         this.applicationService = applicationService;
@@ -199,8 +191,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         action.setApplicationId(newAction.getApplicationId());
         action.setPluginType(newAction.getPluginType());
         action.setPluginId(newAction.getPluginId());
-        action.setTemplateId(newAction.getTemplateId());
-        action.setProviderId(newAction.getProviderId());
         action.setDocumentation(newAction.getDocumentation());
 
         action.setId(newAction.getId());
@@ -224,8 +214,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         newAction.setWorkspaceId(action.getWorkspaceId());
         newAction.setPluginType(action.getPluginType());
         newAction.setPluginId(action.getPluginId());
-        newAction.setTemplateId(action.getTemplateId());
-        newAction.setProviderId(action.getProviderId());
         newAction.setDocumentation(action.getDocumentation());
         newAction.setApplicationId(action.getApplicationId());
     }
@@ -276,7 +264,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "No page found to copy policies from.");
         }
         Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
+                policyGenerator.getAllChildPolicies(page.getPolicies(), NewPage.class, NewAction.class);
         action.setPolicies(documentPolicies);
     }
 
@@ -573,30 +561,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Mono.empty();
         }
 
-        // In case of an action which was imported from a 3P API, fill in the extra information of the provider required
-        // by the front end UI.
-        Mono<ActionDTO> providerUpdateMono;
-        if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
-
-            providerUpdateMono = marketplaceService
-                    .getProviderById(action.getProviderId())
-                    .switchIfEmpty(Mono.just(new Provider()))
-                    .map(provider -> {
-                        ActionProvider actionProvider = new ActionProvider();
-                        actionProvider.setName(provider.getName());
-                        actionProvider.setCredentialSteps(provider.getCredentialSteps());
-                        actionProvider.setDescription(provider.getDescription());
-                        actionProvider.setImageUrl(provider.getImageUrl());
-                        actionProvider.setUrl(provider.getUrl());
-
-                        action.setProvider(actionProvider);
-                        return action;
-                    });
-        } else {
-            providerUpdateMono = Mono.just(action);
-        }
-
-        return providerUpdateMono
+        return Mono.just(action)
                 .map(actionDTO -> {
                     DefaultResources defaults = newAction.getDefaultResources();
                     if (defaults == null) {
