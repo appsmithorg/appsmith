@@ -1,7 +1,10 @@
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import homePageLocators from "../../../../locators/HomePage";
-import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import {
+  agHelper,
+  homePage,
+  adminSettings,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Export application as a JSON file",
@@ -50,10 +53,7 @@ describe(
 
     it("2. User with developer access,should not be able to export the app", function () {
       cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      agHelper.Sleep(2000);
-
-      homePage.NavigateToHome();
+      adminSettings.EnableGAC(false, true);
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.CreateNewWorkspace("exportApp" + uid);
@@ -91,10 +91,7 @@ describe(
 
     it("3. User with viewer access,should not be able to export the app", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      agHelper.Sleep(2000);
-
-      homePage.NavigateToHome();
+      adminSettings.EnableGAC(false, true);
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.CreateNewWorkspace("exportApp" + uid);
@@ -114,7 +111,6 @@ describe(
           Cypress.env("TESTPASSWORD1"),
         );
         cy.log({ appid });
-
         homePage.SelectWorkspace(workspaceId);
 
         cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
