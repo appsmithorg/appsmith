@@ -30,6 +30,7 @@ type CardProps = PropsWithChildren<{
   title: string;
   titleTestId: string;
   isSelected?: boolean;
+  hasEditPermission?: boolean;
 }>;
 
 interface NameWrapperProps {
@@ -256,7 +257,6 @@ const Wrapper = styled(
   .bp3-card {
     border-radius: var(--ads-v2-border-radius);
   }
-  }
 
   ${({ isMobile }) =>
     isMobile &&
@@ -356,6 +356,7 @@ function Card({
   contextMenu,
   editedByText,
   handleMultipleSelection,
+  hasEditPermission,
   hasReadPermission,
   icon,
   isContextMenuOpen,
@@ -438,13 +439,17 @@ function Card({
               />
             </div>
           )}
-          <ModifiedDataComponent className="t--application-edited-text">
-            {editedByText}
-          </ModifiedDataComponent>
+          {hasEditPermission ? (
+            <ModifiedDataComponent className="t--application-edited-text">
+              {editedByText}
+            </ModifiedDataComponent>
+          ) : (
+            <div />
+          )}
           {Boolean(moreActionItems.length) && !isMobile && contextMenu}
         </CardFooter>
       </NameWrapper>
-      {showGitBadge && <GitConnectedBadge />}
+      {showGitBadge && hasEditPermission && <GitConnectedBadge />}
     </Container>
   );
 }

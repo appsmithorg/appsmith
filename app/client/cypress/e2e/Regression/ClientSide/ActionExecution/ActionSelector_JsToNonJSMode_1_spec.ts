@@ -302,7 +302,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
       0,
     );
 
-    agHelper.GetNClick(propPane._actionCard, 0);
+    agHelper.GetNClick(propPane._actionCard);
     agHelper.AssertElementAbsence(propPane._actionPopupTextLabel, 0);
 
     propPane.EnterJSContext(
@@ -320,7 +320,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
       0,
     );
 
-    agHelper.GetNClick(propPane._actionCard, 0);
+    agHelper.GetNClick(propPane._actionCard);
     agHelper.ValidateCodeEditorContent(propPane._textView, "{{18}}{{26}}");
     agHelper.GetNAssertElementText(
       propPane._actionPopupTextLabel,

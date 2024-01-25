@@ -5,6 +5,7 @@ import {
   onboarding,
   templates,
   dataSources,
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import FirstTimeUserOnboardingLocators from "../../../../locators/FirstTimeUserOnboarding.json";
 import {
@@ -17,13 +18,15 @@ describe(
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   function () {
     beforeEach(() => {
+      homePage.LogOutviaAPI();
       featureFlagIntercept({
         ab_show_templates_instead_of_blank_canvas_enabled: true,
         ab_create_new_apps_enabled: true,
       });
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        (cy as any).Signup(`${uid}@appsmithtest.com`, uid);
+        homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
+        onboarding.closeIntroModal();
       });
       agHelper.GetNClick(onboarding.locators.startFromScratchCard);
 
@@ -32,9 +35,10 @@ describe(
       featureFlagIntercept({
         ab_show_templates_instead_of_blank_canvas_enabled: true,
       });
-      agHelper
-        .GetElement(templates.locators._buildingBlockCardOnCanvas)
-        .should("have.length", 3);
+      agHelper.AssertElementLength(
+        templates.locators._buildingBlockCardOnCanvas,
+        3,
+      );
     });
 
     it("1. onboarding flow - should check page entity selection in explorer", function () {

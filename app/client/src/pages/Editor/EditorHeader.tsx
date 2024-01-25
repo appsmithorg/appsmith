@@ -11,9 +11,9 @@ import {
   getPageSavingError,
 } from "selectors/editorSelectors";
 import {
-  getCurrentAppWorkspace,
   getCurrentWorkspaceId,
-} from "@appsmith/selectors/workspaceSelectors";
+  getCurrentAppWorkspace,
+} from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import {
