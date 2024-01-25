@@ -336,14 +336,7 @@ function DatasourceAuth({
           floatLeft={!isInsideReconnectModal}
           isLoading={isTesting}
           key={buttonType}
-          kind={
-            (pluginName === "PostgreSQL" ||
-              pluginName === "MySQL" ||
-              pluginName === "MongoDB") &&
-            isEnabledForTestPrimary
-              ? "primary"
-              : "secondary"
-          }
+          kind={isEnabledForTestPrimary ? "primary" : "secondary"}
           onClick={handleDatasourceTest}
           size="md"
         >
@@ -390,14 +383,7 @@ function DatasourceAuth({
           }
           isLoading={isSaving}
           key={buttonType}
-          kind={
-            (pluginName === "PostgreSQL" ||
-              pluginName === "MySQL" ||
-              pluginName === "MongoDB") &&
-            isEnabledForTestPrimary
-              ? "secondary"
-              : "primary"
-          }
+          kind={isEnabledForTestPrimary ? "secondary" : "primary"}
           onClick={
             authType === AuthType.OAUTH2
               ? handleOauthDatasourceSave
