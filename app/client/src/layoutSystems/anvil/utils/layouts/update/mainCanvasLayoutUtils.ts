@@ -39,12 +39,12 @@ export function* addWidgetsToMainCanvasLayout(
   /**
    * Step 3: Add section widgets to the MainCanvasLayout.
    */
-  sections.forEach((section: WidgetLayoutProps) => {
+  sections.forEach((section: WidgetLayoutProps, index: number) => {
     const res: { canvas: WidgetProps; canvasLayout: LayoutProps } =
       addSectionToMainCanvasLayout(
         mainCanvasWidget,
         mainCanvasLayout as LayoutProps,
-        highlight,
+        { ...highlight, rowIndex: highlight.rowIndex + index },
         section,
       );
     mainCanvasWidget = res.canvas;

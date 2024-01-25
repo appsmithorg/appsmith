@@ -1,9 +1,7 @@
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
-  rows: 6,
-  columns: 20,
   animateLoading: true,
   label: "Label",
   labelPosition: "right",
@@ -18,5 +16,4 @@ export const defaultsConfig = {
   widgetName: "RadioGroup",
   version: 1,
   responsiveBehavior: ResponsiveBehavior.Fill,
-  minWidth: FILL_WIDGET_MIN_WIDTH,
-};
+} as unknown as WidgetDefaultProps;
