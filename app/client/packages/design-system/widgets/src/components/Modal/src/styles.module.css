@@ -23,7 +23,7 @@
   .body {
     overflow: auto;
     max-height: 100%;
-    padding-inline: var(--outer-spacing-4);
+    padding-inline: var(--outer-spacing-1);
     margin-inline: calc(var(--outer-spacing-4) * -1);
     flex: 1;
   }
