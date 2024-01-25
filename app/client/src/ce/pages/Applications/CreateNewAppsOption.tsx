@@ -15,10 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { AppState } from "@appsmith/reducers";
-import {
-  getApplicationByIdFromWorkspaces,
-  getCurrentPluginIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
+import { getCurrentPluginIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import {
   firstTimeUserOnboardingInit,
@@ -35,6 +32,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { Flex, Link, Text } from "design-system";
 import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { TemplateView } from "pages/Templates/TemplateView";
 import { default as React, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -180,18 +178,16 @@ const CreateNewAppsOption = ({
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
+  const applications = useSelector(getApplicationsOfWorkspace);
   const selectedPlugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, createNewAppPluginId || ""),
   );
-  const selectedDatasource: Datasource | undefined = useSelector((state) =>
-    getDatasource(state, TEMP_DATASOURCE_ID || ""),
+  const application = applications.find(
+    (app) => app.id === currentApplicationIdForCreateNewApp,
   );
 
-  const application = useSelector((state) =>
-    getApplicationByIdFromWorkspaces(
-      state,
-      currentApplicationIdForCreateNewApp,
-    ),
+  const selectedDatasource: Datasource | undefined = useSelector((state) =>
+    getDatasource(state, TEMP_DATASOURCE_ID || ""),
   );
 
   const dispatch = useDispatch();

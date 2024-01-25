@@ -7,7 +7,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionErrorTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { pasteWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
