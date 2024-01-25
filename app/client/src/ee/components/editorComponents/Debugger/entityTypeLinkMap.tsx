@@ -1,3 +1,5 @@
+import { getModuleInstanceById } from "@appsmith/selectors/moduleInstanceSelectors";
+
 export * from "ce/components/editorComponents/Debugger/entityTypeLinkMap";
 
 import React, { useCallback } from "react";
@@ -48,14 +50,24 @@ function ModuleInputsEntityLink(props: EntityLinkProps) {
 }
 
 function ModuleInstanceEntityLink(props: EntityLinkProps) {
+  const moduleInstance = useSelector((state) =>
+    getModuleInstanceById(state, props.id),
+  );
   const onClick = useCallback(() => {
-    history.push(moduleInstanceEditorURL({ moduleInstanceId: props.id }));
-    AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
-      errorType: props.errorType,
-      errorSubType: props.errorSubType,
-      appsmithErrorCode: props.appsmithErrorCode,
-      entityType: ENTITY_TYPE.MODULE_INSTANCE,
-    });
+    if (moduleInstance) {
+      history.push(
+        moduleInstanceEditorURL({
+          moduleInstanceId: props.id,
+          moduleType: moduleInstance.type,
+        }),
+      );
+      AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+        errorType: props.errorType,
+        errorSubType: props.errorSubType,
+        appsmithErrorCode: props.appsmithErrorCode,
+        entityType: ENTITY_TYPE.MODULE_INSTANCE,
+      });
+    }
   }, [props.id]);
 
   return (

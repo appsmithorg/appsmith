@@ -108,6 +108,7 @@ function* createModuleInstanceSaga(
       const redirectURL = moduleInstanceEditorURL({
         pageId: contextId,
         moduleInstanceId: response.data.moduleInstance.id,
+        moduleType: response.data.moduleInstance.type,
       });
 
       analytics.createModuleInstance(response.data.moduleInstance);
@@ -561,8 +562,10 @@ function* convertEntityToInstanceSaga(
       }
 
       if (location.pathname === initiatedFromPathname) {
+        const { moduleInstance } = response.data.moduleInstanceData;
         const redirectUrl = moduleInstanceEditorURL({
-          moduleInstanceId: response.data.moduleInstanceData.moduleInstance.id,
+          moduleInstanceId: moduleInstance.id,
+          moduleType: moduleInstance.type,
         });
 
         if (redirectUrl) {

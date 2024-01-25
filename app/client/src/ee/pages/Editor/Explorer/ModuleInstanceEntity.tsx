@@ -32,10 +32,11 @@ export const ExplorerModuleInstanceEntity = (
   );
 
   const navigateToModuleInstance = useCallback(() => {
-    if (moduleInstance?.id) {
+    if (moduleInstance) {
       const navigateToUrl = moduleInstanceEditorURL({
         pageId,
-        moduleInstanceId: moduleInstance?.id || "",
+        moduleInstanceId: moduleInstance.id,
+        moduleType: moduleInstance.type,
         params: {},
       });
       history.push(navigateToUrl, {

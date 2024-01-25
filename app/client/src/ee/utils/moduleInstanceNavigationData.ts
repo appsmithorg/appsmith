@@ -23,7 +23,10 @@ export const getModuleInstanceNavigationData = (
         id: instance.id,
         name: instance.name,
         type: ENTITY_TYPE.MODULE_INSTANCE,
-        url: moduleInstanceEditorURL({ moduleInstanceId: instance.id }),
+        url: moduleInstanceEditorURL({
+          moduleInstanceId: instance.id,
+          moduleType: instance.type,
+        }),
         children: {},
       });
     } else if (instance.type === MODULE_TYPE.JS) {
@@ -43,7 +46,10 @@ export const getModuleInstanceNavigationData = (
         id: instance.id,
         name: instance.name,
         type: ENTITY_TYPE.MODULE_INSTANCE,
-        url: moduleInstanceEditorURL({ moduleInstanceId: instance.id }),
+        url: moduleInstanceEditorURL({
+          moduleInstanceId: instance.id,
+          moduleType: instance.type,
+        }),
         children: result?.childNavData || {},
       });
     }
@@ -65,7 +71,10 @@ export const getJSModuleInstanceChildNavigationData = (
           name: `${moduleInstance.name}.${jsChild.name}`,
           type: ENTITY_TYPE.MODULE_INSTANCE,
           isfunction: true, // use this to identify function
-          url: moduleInstanceEditorURL({ moduleInstanceId: moduleInstance.id }),
+          url: moduleInstanceEditorURL({
+            moduleInstanceId: moduleInstance.id,
+            moduleType: moduleInstance.type,
+          }),
           children: {},
           key: jsChild.name,
         });
@@ -79,7 +88,10 @@ export const getJSModuleInstanceChildNavigationData = (
           name: `${moduleInstance.name}.${jsChild.name}`,
           type: ENTITY_TYPE.MODULE_INSTANCE,
           isfunction: false,
-          url: moduleInstanceEditorURL({ moduleInstanceId: moduleInstance.id }),
+          url: moduleInstanceEditorURL({
+            moduleInstanceId: moduleInstance.id,
+            moduleType: moduleInstance.type,
+          }),
           children: {},
           key: jsChild.name,
         });

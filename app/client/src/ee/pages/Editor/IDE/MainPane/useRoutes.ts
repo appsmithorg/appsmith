@@ -6,6 +6,7 @@ import {
   MODULE_INSTANCE_ID_PATH,
   WORKFLOW_GENERAL_SETTINGS_PATH,
   WORKFLOW_TRIGGER_SETTINGS_PATH,
+  ADD_PATH,
 } from "@appsmith/constants/routes/appRoutes";
 import { useSelector } from "react-redux";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
@@ -37,7 +38,10 @@ function useRoutes(path: string) {
         key: "ModuleInstance",
         component: ModuleInstanceEditor,
         exact: true,
-        path: `${path}${MODULE_INSTANCE_ID_PATH}`,
+        path: [
+          `${path}${MODULE_INSTANCE_ID_PATH}`,
+          `${path}${MODULE_INSTANCE_ID_PATH}${ADD_PATH}`,
+        ],
       },
       {
         key: "ModuleEditor",

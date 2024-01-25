@@ -18,7 +18,7 @@ import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants
 const DEFAULT_ROUTE_MATCH_PARAMS = {
   isExact: true,
   path: BUILDER_PATH,
-  url: "app/app-slug/pageslug-pageId/edit/module-instance/test-module-instance",
+  url: "app/app-slug/pageslug-pageId/edit/module-instance/QUERY_MODULE/test-module-instance",
   params: {
     moduleId: "test-module",
   },
