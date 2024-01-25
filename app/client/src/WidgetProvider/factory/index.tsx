@@ -10,6 +10,7 @@ import type {
   AutocompletionDefinitions,
   AutoLayoutConfig,
   CanvasWidgetStructure,
+  FlattenedWidgetProps,
   WidgetConfigProps,
   WidgetMethods,
 } from "WidgetProvider/constants";
@@ -33,6 +34,12 @@ import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
 import produce from "immer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+} from "layoutSystems/anvil/utils/paste/types";
+import { call } from "redux-saga/effects";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -560,6 +567,54 @@ class WidgetFactory {
     } else {
       return {};
     }
+  }
+
+  @memoize
+  static performPasteOperationChecks(
+    allWidgets: CanvasWidgetsReduxState,
+    oldWidget: FlattenedWidgetProps,
+    newWidget: FlattenedWidgetProps,
+    widgetIdMap: Record<string, string>,
+  ): FlattenedWidgetProps {
+    const widget = WidgetFactory.widgetsMap.get(newWidget.type);
+
+    if (!widget) return newWidget;
+
+    const widgetProps: FlattenedWidgetProps | null =
+      widget?.pasteOperationChecks(
+        allWidgets,
+        oldWidget,
+        newWidget,
+        widgetIdMap,
+      );
+
+    return widgetProps !== null ? widgetProps : newWidget;
+  }
+
+  @memoize
+  static *performPasteOperation(
+    allWidgets: CanvasWidgetsReduxState, // All widgets
+    copiedWidgets: CopiedWidgetData[], // Original copied widgets
+    destinationInfo: PasteDestinationInfo, // Destination info of copied widgets
+    widgetIdMap: Record<string, string>, // Map of oldWidgetId -> newWidgetId
+    reverseWidgetIdMap: Record<string, string>, // Map of newWidgetId -> oldWidgetId
+  ) {
+    const { parentOrder } = destinationInfo;
+    const parent: FlattenedWidgetProps =
+      allWidgets[parentOrder[parentOrder.length - 1]];
+    const widget = WidgetFactory.widgetsMap.get(parent.type);
+
+    if (!widget) return allWidgets;
+
+    const res: CanvasWidgetsReduxState = yield call(
+      widget?.performPasteOperation,
+      allWidgets,
+      copiedWidgets,
+      destinationInfo,
+      widgetIdMap,
+      reverseWidgetIdMap,
+    );
+    return res;
   }
 }
 
