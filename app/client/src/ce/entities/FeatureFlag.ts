@@ -10,14 +10,11 @@ export const FEATURE_FLAG = {
   ab_wds_enabled: "ab_wds_enabled",
   release_table_serverside_filtering_enabled:
     "release_table_serverside_filtering_enabled",
-  release_custom_echarts_enabled: "release_custom_echarts_enabled",
   license_branding_enabled: "license_branding_enabled",
   release_git_status_lite_enabled: "release_git_status_lite_enabled",
   license_sso_saml_enabled: "license_sso_saml_enabled",
   license_sso_oidc_enabled: "license_sso_oidc_enabled",
   release_git_connect_v2_enabled: "release_git_connect_v2_enabled",
-  deprecate_custom_fusioncharts_enabled:
-    "deprecate_custom_fusioncharts_enabled",
   license_private_embeds_enabled: "license_private_embeds_enabled",
   release_show_publish_app_to_community_enabled:
     "release_show_publish_app_to_community_enabled",
@@ -30,6 +27,10 @@ export const FEATURE_FLAG = {
     "release_server_dsl_migrations_enabled",
   license_git_branch_protection_enabled:
     "license_git_branch_protection_enabled",
+  license_git_continuous_delivery_enabled:
+    "license_git_continuous_delivery_enabled",
+  release_git_continuous_delivery_enabled:
+    "release_git_continuous_delivery_enabled",
   release_git_autocommit_feature_enabled:
     "release_git_autocommit_feature_enabled",
   license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
@@ -46,6 +47,9 @@ export const FEATURE_FLAG = {
     "ab_one_click_learning_popover_enabled",
   release_side_by_side_ide_enabled: "release_side_by_side_ide_enabled",
   release_global_add_pane_enabled: "release_global_add_pane_enabled",
+  ab_appsmith_ai_query: "ab_appsmith_ai_query",
+  rollout_consolidated_page_load_fetch_enabled:
+    "rollout_consolidated_page_load_fetch_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -59,13 +63,11 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_embed_hide_share_settings_enabled: false,
   ab_wds_enabled: false,
   release_table_serverside_filtering_enabled: false,
-  release_custom_echarts_enabled: false,
   license_branding_enabled: false,
   release_git_status_lite_enabled: false,
   license_sso_saml_enabled: false,
   license_sso_oidc_enabled: false,
   release_git_connect_v2_enabled: false,
-  deprecate_custom_fusioncharts_enabled: false,
   license_private_embeds_enabled: false,
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
@@ -75,6 +77,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_server_dsl_migrations_enabled: false,
   license_git_branch_protection_enabled: false,
   release_git_autocommit_feature_enabled: false,
+  license_git_continuous_delivery_enabled: false,
+  release_git_continuous_delivery_enabled: false,
   license_widget_rtl_support_enabled: false,
   release_custom_widgets_enabled: false,
   ab_create_new_apps_enabled: false,
@@ -85,6 +89,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_one_click_learning_popover_enabled: false,
   release_side_by_side_ide_enabled: false,
   release_global_add_pane_enabled: false,
+  ab_appsmith_ai_query: false,
+  rollout_consolidated_page_load_fetch_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

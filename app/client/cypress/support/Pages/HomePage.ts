@@ -84,7 +84,7 @@ export class HomePage {
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-testid=t--workspace-import-app]";
-  private _uploadFile = "//div/form/input";
+  public _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
   public _appCard = (applicationName: string) =>
@@ -122,6 +122,10 @@ export class HomePage {
   private _applicationEditedText = (applicationName: string) =>
     this._appCard(applicationName) +
     "//div[contains(@class, 't--application-edited-text')]";
+
+  private _applicationMultiSelectionCheckbox = (applicationName: string) =>
+    this._appCard(applicationName) +
+    "//label[contains(@class, 't--app-multi-select-checkbox')]";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -274,6 +278,8 @@ export class HomePage {
       cy.wrap(interception.response.body.data.name).as("appName");
       cy.wrap(interception.response.body.data.id).as("applicationId");
     });
+    // should resolve auditlog test case
+    cy.wait("@getConsolidatedData");
     this.agHelper.AssertElementAbsence(this.locator._loading);
   }
 
@@ -383,12 +389,12 @@ export class HomePage {
     this.agHelper.Sleep(); //waiting for window to load
     this.InvokeDispatchOnStore();
     cy.wait("@postLogout");
-    this.agHelper.VisitNAssert("/user/login", "signUpLogin");
+    this.agHelper.VisitNAssert("/user/login", "getConsolidatedData");
     this.agHelper.AssertElementVisibility(this._username);
     this.agHelper.TypeText(this._username, uname);
     this.agHelper.TypeText(this._password, pswd);
     this.agHelper.GetNClick(this._submitBtn);
-    this.assertHelper.AssertNetworkStatus("@getMe");
+    this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
     this.agHelper.Sleep(3000);
     if (role != "App Viewer") {
       this.agHelper.AssertElementVisibility(this._homePageAppCreateBtn);
@@ -401,7 +407,7 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
+    this.agHelper.VisitNAssert("/user/signup", "@getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
     this.agHelper.TypeText(this._password, pswd);
@@ -418,7 +424,7 @@ export class HomePage {
         );
       }
     });
-    this.assertHelper.AssertNetworkStatus("@getMe");
+    this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
     this.agHelper.Sleep(3000);
   }
 
@@ -451,7 +457,7 @@ export class HomePage {
   public LaunchAppFromAppHover() {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
     this.agHelper.AssertElementAbsence(this.locator._loading);
-    this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
+    this.assertHelper.AssertNetworkStatus("getConsolidatedData");
   }
 
   public EditAppFromAppHover(appName = "") {
@@ -679,7 +685,9 @@ export class HomePage {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
-    this.agHelper.WaitUntilToastDisappear("Deleting application...");
+    // Toast has been removed
+    // this.agHelper.WaitUntilToastDisappear("Deleting application...");
+    this.assertHelper.AssertNetworkStatus("@deleteApp", 200);
   }
 
   public DeleteAppviaAPI(appId: any) {
@@ -715,13 +723,12 @@ export class HomePage {
   }
 
   public SelectMultipleApplicationToDelete(applicationName: string) {
+    this.agHelper
+      .GetElement(this._appCard(applicationName))
+      .first()
+      .realHover();
     this.agHelper.GetNClick(
-      this._applicationEditedText(applicationName),
-      0,
-      false,
-      500,
-      false,
-      true,
+      this._applicationMultiSelectionCheckbox(applicationName),
     );
   }
 }

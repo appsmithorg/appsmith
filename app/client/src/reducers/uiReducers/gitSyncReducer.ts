@@ -9,6 +9,12 @@ import { GitSyncModalTab } from "entities/GitSync";
 import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
 import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 
+export enum GitSettingsTab {
+  GENERAL = "GENERAL",
+  BRANCH = "BRANCH",
+  CD = "CD",
+}
+
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
   isCommitting: false,
@@ -22,6 +28,8 @@ const initialState: GitSyncReducerState = {
   branches: [],
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
+
+  isDiscarding: false,
 
   isFetchingLocalGitConfig: false,
   isFetchingGlobalGitConfig: false,
@@ -51,6 +59,9 @@ const initialState: GitSyncReducerState = {
 
   gitMetadata: null,
   gitMetadataLoading: false,
+
+  isGitSettingsModalOpen: false,
+  activeGitSettingsModalTab: GitSettingsTab.GENERAL,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -533,6 +544,11 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     deletingBranch: action.payload,
   }),
+  [ReduxActionTypes.GIT_DISCARD_CHANGES]: (state: GitSyncReducerState) => ({
+    ...state,
+    isDiscarding: true,
+    discardError: null,
+  }),
   [ReduxActionTypes.GIT_DISCARD_CHANGES_SUCCESS]: (
     state: GitSyncReducerState,
     action: ReduxAction<any>,
@@ -651,6 +667,14 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.GIT_GET_METADATA_ERROR]: (state) => ({
     ...state,
     gitMetadataLoading: false,
+  }),
+  [ReduxActionTypes.GIT_SET_SETTINGS_MODAL_OPEN]: (
+    state,
+    action: ReduxAction<{ open: boolean; tab?: GitSettingsTab }>,
+  ) => ({
+    ...state,
+    isGitSettingsModalOpen: action.payload.open,
+    activeGitSettingsModalTab: action.payload.tab || GitSettingsTab.GENERAL,
   }),
 });
 
@@ -795,7 +819,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   gitImportError?: any;
 
-  isDiscarding?: boolean;
+  isDiscarding: boolean;
   discard?: GitDiscardResponse;
   discardError?: GitErrorType;
 
@@ -813,6 +837,9 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   gitMetadata: GitMetadata | null;
   gitMetadataLoading: boolean;
+
+  isGitSettingsModalOpen: boolean;
+  activeGitSettingsModalTab: GitSettingsTab;
 };
 
 export default gitSyncReducer;

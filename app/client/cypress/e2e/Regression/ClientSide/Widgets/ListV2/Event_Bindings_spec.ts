@@ -1,6 +1,5 @@
 import {
   agHelper,
-  entityExplorer,
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";

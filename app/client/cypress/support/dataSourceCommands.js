@@ -29,7 +29,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
   // we delete the datasource that was just created (identified by its title)
   cy.get(datasourceEditor.datasourceTitle)
     .invoke("text")
-    .then((datasourceTitle) => {
+    .then(() => {
       // test datasource
       cy.get(".t--test-datasource").click();
       cy.wait("@testDatasource");
@@ -105,7 +105,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   "fillElasticDatasourceForm",
-  (shouldAddTrailingSpaces = false) => {
+  () => {
     // we are using postgresql data for elastic search,
     // in the future, this should be changed, just for testing purposes
     const hostAddress = "https://localhost";

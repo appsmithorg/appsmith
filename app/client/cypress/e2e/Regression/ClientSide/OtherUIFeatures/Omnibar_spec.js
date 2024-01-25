@@ -5,7 +5,6 @@ import EditorNavigation, {
 const omnibar = require("../../../../locators/Omnibar.json");
 import {
   agHelper,
-  entityExplorer,
   assertHelper,
   deployMode,
   draggableWidgets,
@@ -25,7 +24,7 @@ describe("Omnibar functionality test cases", () => {
     deployMode.StubWindowNAssert(
       '//span[text()="Learn more"]',
       "connect-to-a-database",
-      "getPluginForm",
+      "getConsolidatedData",
     );
   });
 
@@ -119,7 +118,7 @@ describe("Omnibar functionality test cases", () => {
       deployMode.StubWindowNAssert(
         omnibar.discordLink,
         "https://discord.com/invite/rBTTVJp",
-        "getPluginForm",
+        "getConsolidatedData",
       );
     },
   );

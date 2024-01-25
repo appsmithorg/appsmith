@@ -51,7 +51,6 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INVALID_FORM_CONFIGURATION,
-  NO_DATASOURCE_FOR_QUERY,
   UNEXPECTED_ERROR,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
@@ -65,8 +64,6 @@ import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import Guide from "pages/Editor/GuidedTour/Guide";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
@@ -92,6 +89,8 @@ import { QueryEditorContext } from "./QueryEditorContext";
 import QueryResponseTabView from "./QueryResponseView";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
+import { isAppsmithAIPlugin } from "utils/editorContextUtils";
+import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -189,20 +188,6 @@ const StyledSpinner = styled(Spinner)`
   align-items: center;
   justify-content: space-between;
   width: 5vw;
-`;
-
-const NoDataSourceContainer = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  margin-top: 62px;
-  flex: 1;
-  .font18 {
-    width: 50%;
-    text-align: center;
-    margin-bottom: 23px;
-    font-size: 18px;
-  }
 `;
 
 const TabContainerView = styled.div`
@@ -342,7 +327,6 @@ export function EditorJSONtoForm(props: Props) {
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
-  const guidedTourEnabled = useSelector(inGuidedTour);
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -368,7 +352,11 @@ export function EditorJSONtoForm(props: Props) {
     userWorkspacePermissions,
   );
 
-  const showSchema = useShowSchema(currentActionConfig?.pluginId || "");
+  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
+
+  const showSchema =
+    useShowSchema(currentActionConfig?.pluginId || "") &&
+    pluginRequireDatasource;
 
   const showRightPane =
     showSchema ||
@@ -628,8 +616,14 @@ export function EditorJSONtoForm(props: Props) {
   // here we check for normal conditions for opening action pane
   // or if any of the flags are true, We should open the actionpane by default.
   const shouldOpenActionPaneByDefault =
-    ((hasDependencies || !!actionResponse) && !guidedTourEnabled) ||
+    hasDependencies ||
+    !!actionResponse ||
     currentActionPluginName !== PluginName.SMTP;
+
+  // Datasource selection is hidden for Appsmith AI Plugin and for plugins that don't require datasource
+  // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented (Only remove the AI Condition)
+  const showDatasourceSelector =
+    !isAppsmithAIPlugin(plugin?.packageName) && pluginRequireDatasource;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -639,8 +633,7 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      {!guidedTourEnabled && closeEditorLink}
-      {guidedTourEnabled && <Guide className="query-page" />}
+      {closeEditorLink}
       <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
           <NameWrapper>
@@ -651,26 +644,30 @@ export function EditorJSONtoForm(props: Props) {
           </NameWrapper>
           <ActionsWrapper>
             {moreActionsMenu}
-            <DropdownSelect>
-              <DropdownField
-                className={"t--switch-datasource"}
-                formName={formName}
-                isDisabled={!isChangePermitted}
-                name="datasource.id"
-                options={DATASOURCES_OPTIONS}
-                placeholder="Datasource"
-              >
-                {canCreateDatasource && (
-                  // this additional div is here so that rc-select can render the child with the onClick correctly
-                  <div>
-                    <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-                      <Icon className="createIcon" name="plus" size="md" />
-                      {createMessage(CREATE_NEW_DATASOURCE)}
-                    </CreateDatasource>
-                  </div>
-                )}
-              </DropdownField>
-            </DropdownSelect>
+            {showDatasourceSelector && (
+              <DropdownSelect>
+                <DropdownField
+                  className={"t--switch-datasource"}
+                  formName={formName}
+                  isDisabled={!isChangePermitted}
+                  name="datasource.id"
+                  options={DATASOURCES_OPTIONS}
+                  placeholder="Datasource"
+                >
+                  {canCreateDatasource && (
+                    // this additional div is here so that rc-select can render the child with the onClick correctly
+                    <div>
+                      <CreateDatasource
+                        onClick={() => onCreateDatasourceClick()}
+                      >
+                        <Icon className="createIcon" name="plus" size="md" />
+                        {createMessage(CREATE_NEW_DATASOURCE)}
+                      </CreateDatasource>
+                    </div>
+                  )}
+                </DropdownField>
+              </DropdownSelect>
+            )}
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
@@ -730,22 +727,6 @@ export function EditorJSONtoForm(props: Props) {
                             {createMessage(ACTION_EDITOR_REFRESH)}
                           </Tag>
                         </>
-                      )}
-                      {dataSources.length === 0 && (
-                        <NoDataSourceContainer>
-                          <p className="font18">
-                            {createMessage(NO_DATASOURCE_FOR_QUERY)}
-                          </p>
-                          <Button
-                            isDisabled={!canCreateDatasource}
-                            kind="primary"
-                            onClick={() => onCreateDatasourceClick()}
-                            size="sm"
-                            startIcon="plus"
-                          >
-                            Add a Datasource
-                          </Button>
-                        </NoDataSourceContainer>
                       )}
                     </SettingsWrapper>
                   </TabPanelWrapper>

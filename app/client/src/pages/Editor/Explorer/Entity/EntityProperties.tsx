@@ -24,6 +24,7 @@ import { EntityClassNames } from ".";
 import { Button } from "design-system";
 import WidgetFactory from "WidgetProvider/factory";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { getModuleInstanceById } from "@appsmith/selectors/moduleInstanceSelectors";
 
 // const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
@@ -151,10 +152,15 @@ export function EntityProperties() {
     state.entities.jsActions.find((js) => js.config.id === entityId),
   );
 
+  const moduleInstance = useSelector((state: AppState) =>
+    getModuleInstanceById(state, entityId),
+  );
+
   const moduleInstanceQueryEntity = useSelector(
     (state: AppState) =>
       state.entities.moduleInstanceEntities?.actions?.find(
-        (action: ActionData) => action.config.moduleInstanceId === entityId,
+        (action: ActionData) =>
+          action.config.moduleInstanceId === entityId && action.config.isPublic,
       ),
   );
 
@@ -162,7 +168,7 @@ export function EntityProperties() {
     (state: AppState) =>
       state.entities.moduleInstanceEntities?.jsCollections?.find(
         (action: JSCollectionData) =>
-          action.config.moduleInstanceId === entityId,
+          action.config.moduleInstanceId === entityId && action.config.isPublic,
       ),
   );
 
@@ -265,17 +271,29 @@ export function EntityProperties() {
         });
       break;
     case ENTITY_TYPE.MODULE_INSTANCE:
-      if (moduleInstanceQueryEntity) {
+      if (moduleInstanceQueryEntity && moduleInstance) {
         entityProperties = getActionBindings(
-          moduleInstanceQueryEntity,
+          {
+            ...moduleInstanceQueryEntity,
+            config: {
+              ...moduleInstanceQueryEntity.config,
+              name: moduleInstance.name,
+            },
+          },
           entityDefinitions,
           entityProperties,
           entityType,
           entityName,
         );
-      } else if (moduleInstanceJSEntity) {
+      } else if (moduleInstanceJSEntity && moduleInstance) {
         entityProperties = getJSActionBindings(
-          moduleInstanceJSEntity,
+          {
+            ...moduleInstanceJSEntity,
+            config: {
+              ...moduleInstanceJSEntity.config,
+              name: moduleInstance.name,
+            },
+          },
           entityProperties,
           entityType,
         );

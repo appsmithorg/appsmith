@@ -152,6 +152,15 @@ export function isGoogleSheetPluginDS(pluginPackageName?: string) {
 }
 
 /**
+ * Determines whether plugin is Appsmith AI
+ * @param pluginPackageName string
+ * @returns boolean
+ */
+export function isAppsmithAIPlugin(pluginPackageName?: PluginPackageName) {
+  return pluginPackageName === PluginPackageName.APPSMITH_AI;
+}
+
+/**
  * Returns datasource property value from datasource?.datasourceConfiguration?.properties
  * @param datasource Datasource
  * @param propertyKey string
@@ -231,6 +240,7 @@ export function getSQLPluginsMockTableName(pluginId: string) {
 
 export function getDefaultTemplateActionConfig(
   plugin: Plugin,
+  dsPreviewTable?: string,
   dsStructure?: DatasourceStructure,
   isMock?: boolean,
 ) {
@@ -260,10 +270,11 @@ export function getDefaultTemplateActionConfig(
       }
     } else {
       if (SQL_DATASOURCES.includes(plugin?.name)) {
-        defaultTableName =
-          !!dsStructure.tables && dsStructure.tables.length > 0
-            ? dsStructure.tables[0].name
-            : "";
+        defaultTableName = !!dsPreviewTable
+          ? dsPreviewTable
+          : !!dsStructure.tables && dsStructure.tables.length > 0
+          ? dsStructure.tables[0].name
+          : "";
       }
     }
 

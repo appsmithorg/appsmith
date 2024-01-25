@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getChildAutoComplete: (props, moment, _) => {
+  getChildAutoComplete: (props, _) => {
     const currentItem = props.listData?.[0] ?? {};
     const currentView = props.currentItemsView?.[0];
 

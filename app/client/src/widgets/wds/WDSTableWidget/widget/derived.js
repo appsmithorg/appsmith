@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getSelectedRow: (props, moment, _) => {
+  getSelectedRow: (props, _) => {
     let index = -1;
 
     /*
@@ -66,7 +66,7 @@ export default {
     return _.omit(selectedRow, keysToBeOmitted);
   },
   //
-  getTriggeredRow: (props, moment, _) => {
+  getTriggeredRow: (props, _) => {
     let index = -1;
     const parsedTriggeredRowIndex = parseInt(props.triggeredRowIndex);
 
@@ -115,7 +115,7 @@ export default {
     return _.omit(triggeredRow, keysToBeOmitted);
   },
   //
-  getSelectedRows: (props, moment, _) => {
+  getSelectedRows: (props, _) => {
     if (!props.multiRowSelection) {
       return [];
     }
@@ -150,7 +150,7 @@ export default {
     return indices.map((index) => _.omit(rows[index], keysToBeOmitted));
   },
   //
-  getPageSize: (props, moment, _) => {
+  getPageSize: (props, _) => {
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
@@ -178,7 +178,7 @@ export default {
       },
     };
     const compactMode = props.compactMode || "DEFAULT";
-    const componentHeight = props.componentHeight - 10;
+    const componentHeight = 300;
     const tableSizes = TABLE_SIZES[compactMode];
 
     let pageSize =
@@ -190,7 +190,7 @@ export default {
     return pageSize % 1 > 0.3 ? Math.ceil(pageSize) : Math.floor(pageSize);
   },
   //
-  getProcessedTableData: (props, moment, _) => {
+  getProcessedTableData: (props, _) => {
     let data;
 
     if (_.isArray(props.tableData)) {
@@ -210,7 +210,7 @@ export default {
     return data;
   },
   //
-  getOrderedTableColumns: (props, moment, _) => {
+  getOrderedTableColumns: (props, _) => {
     let columns = [];
     let existingColumns = props.primaryColumns || {};
     /*
@@ -581,7 +581,7 @@ export default {
     return finalTableData;
   },
   //
-  getUpdatedRow: (props, moment, _) => {
+  getUpdatedRow: (props, _) => {
     let index = -1;
     const parsedUpdatedRowIndex = parseInt(props.updatedRowIndex);
 
@@ -629,7 +629,7 @@ export default {
     return _.omit(updatedRow, keysToBeOmitted);
   },
   //
-  getUpdatedRows: (props, moment, _) => {
+  getUpdatedRows: (props, _) => {
     const primaryColumns = props.primaryColumns;
     const nonDataColumnTypes = [
       "editActions",
@@ -702,7 +702,7 @@ export default {
     }
   },
   //
-  getUpdatedRowIndices: (props, moment, _) => {
+  getUpdatedRowIndices: (props, _) => {
     /* should return the keys of the transientTableData */
     if (props.transientTableData) {
       return Object.keys(props.transientTableData).map((index) =>
@@ -713,7 +713,7 @@ export default {
     }
   },
   //
-  getPageOffset: (props, moment, _) => {
+  getPageOffset: (props, _) => {
     const pageSize =
       props.serverSidePaginationEnabled && props.tableData
         ? props.tableData?.length
@@ -731,7 +731,7 @@ export default {
     return 0;
   },
   //
-  getEditableCellValidity: (props, moment, _) => {
+  getEditableCellValidity: (props, _) => {
     if (
       (!props.editableCell?.column && !props.isAddRowInProgress) ||
       !props.primaryColumns
@@ -853,7 +853,7 @@ export default {
     return validationMap;
   },
   //
-  getTableHeaders: (props, moment, _) => {
+  getTableHeaders: (props, _) => {
     const columns = props.primaryColumns
       ? Object.values(props.primaryColumns)
       : [];

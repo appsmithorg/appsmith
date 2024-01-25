@@ -17,7 +17,7 @@ describe(
       agHelper.AddDsl("MultipleInput");
     });
 
-    Cypress.on("uncaught:exception", (err, runnable) => {
+    Cypress.on("uncaught:exception", (runnable) => {
       // returning false here prevents Cypress from
       // failing the test
       return false;

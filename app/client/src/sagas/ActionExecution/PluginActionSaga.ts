@@ -170,10 +170,12 @@ import {
 } from "UITelemetry/generateTraces";
 import {
   getActionExecutionAnalytics,
+  getActionProperties,
   getJSActionPathNameToDisplay,
   getPluginActionNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
 import type { JSAction, JSCollection } from "entities/JSCollection";
+import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -620,12 +622,12 @@ export default function* executePluginActionTriggerSaga(
     });
     if (onError) {
       throw new PluginTriggerFailureError(
-        createMessage(ERROR_ACTION_EXECUTE_FAIL, action.name),
+        createMessage(ERROR_ACTION_EXECUTE_FAIL, pluginActionNameToDisplay),
         [payload.body, params],
       );
     } else {
       throw new PluginTriggerFailureError(
-        createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
+        createMessage(ERROR_PLUGIN_ACTION_EXECUTE, pluginActionNameToDisplay),
         [],
       );
     }
@@ -882,6 +884,14 @@ export function* runActionSaga(
     message: "An unexpected error occurred",
   };
 
+  const allowedActionAnalyticsKeys = getAllowedActionAnalyticsKeys(
+    plugin.packageName,
+  );
+  const actionAnalyticsPayload = getActionProperties(
+    actionObject,
+    allowedActionAnalyticsKeys,
+  );
+
   if (isError) {
     error =
       readableError || payloadBodyError || clientDefinedError || defaultError;
@@ -955,6 +965,7 @@ export function* runActionSaga(
       datasourceId: datasource?.id,
       pluginName: plugin?.name,
       isMock: !!datasource?.isMock,
+      actionConfig: actionAnalyticsPayload,
       ...payload?.pluginErrorDetails,
     });
     return;
@@ -979,6 +990,7 @@ export function* runActionSaga(
     datasourceId: datasource?.id,
     pluginName: plugin?.name,
     isMock: !!datasource?.isMock,
+    actionConfig: actionAnalyticsPayload,
   });
 
   yield put({
@@ -1617,6 +1629,7 @@ function* softRefreshActionsSaga() {
   toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, currentEnvName), {
     kind: "success",
   });
+  yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
 }
 
 function* handleUpdateActionData(

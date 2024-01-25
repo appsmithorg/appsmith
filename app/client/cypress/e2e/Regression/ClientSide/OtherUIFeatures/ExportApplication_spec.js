@@ -4,7 +4,7 @@ import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Export application as a JSON file", function () {
-  let workspaceId, appid;
+  let appid;
 
   before(() => {
     agHelper.AddDsl("displayWidgetDsl");

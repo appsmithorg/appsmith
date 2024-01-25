@@ -6,7 +6,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiPageLocators from "../../../../locators/ApiEditor";
 import {
-  entityExplorer,
   apiPage,
   deployMode,
   propPane,

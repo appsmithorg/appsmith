@@ -7,7 +7,6 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
 import {
-  entityExplorer,
   agHelper,
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";

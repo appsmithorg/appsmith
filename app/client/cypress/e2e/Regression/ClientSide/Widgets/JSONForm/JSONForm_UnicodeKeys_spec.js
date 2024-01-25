@@ -3,7 +3,6 @@ const jsonFormUnicodeDSLWithoutSourceData = require("../../../../../fixtures/jso
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
-const locators = ObjectsRegistry.CommonLocators;
 const propPane = ObjectsRegistry.PropertyPane;
 
 const fieldPrefix = ".t--jsonformfield";

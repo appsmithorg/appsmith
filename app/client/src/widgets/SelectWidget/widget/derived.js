@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getOptions: (props, moment, _) => {
+  getOptions: (props, _) => {
     let labels = [],
       values = [],
       sourceData = props.sourceData || [];
@@ -23,13 +23,13 @@ export default {
     }));
   },
   //
-  getIsValid: (props, moment, _) => {
+  getIsValid: (props, _) => {
     return props.isRequired
       ? !_.isNil(props.selectedOptionValue) && props.selectedOptionValue !== ""
       : true;
   },
   //
-  getSelectedOptionValue: (props, moment, _) => {
+  getSelectedOptionValue: (props, _) => {
     const isServerSideFiltered = props.serverSideFiltering;
     const options = props.options ?? [];
     let value = props.value?.value ?? props.value;
@@ -51,7 +51,7 @@ export default {
     return value;
   },
   //
-  getSelectedOptionLabel: (props, moment, _) => {
+  getSelectedOptionLabel: (props, _) => {
     const isServerSideFiltered = props.serverSideFiltering;
     const options = props.options ?? [];
     let label = props.label?.label ?? props.label;

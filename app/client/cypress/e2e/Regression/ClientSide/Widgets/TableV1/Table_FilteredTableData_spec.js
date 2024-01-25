@@ -40,7 +40,7 @@ describe(
       });
 
       //Table Widget Functionality to validate filtered table data with actual table data
-      cy.readTabledata("0", "1").then((tabData) => {
+      cy.readTabledata("0", "1").then(() => {
         const tableData = JSON.parse(dsl.dsl.children[0].tableData);
         cy.get(commonlocators.labelTextStyle).should(
           "have.text",

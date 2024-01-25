@@ -2,12 +2,7 @@ import React, { memo } from "react";
 import type { ReactTableColumnProps } from "../../Constants";
 import { transformTableDataIntoCsv } from "./Utilities";
 import zipcelx from "zipcelx";
-import { importSvg } from "design-system-old";
 import { Menu, MenuList, Item, Button } from "@design-system/widgets";
-
-const DownloadIcon = importSvg(
-  async () => import("assets/icons/control/download-data-icon.svg"),
-);
 
 interface TableDataDownloadProps {
   data: Array<Record<string, unknown>>;
@@ -143,7 +138,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
       onAction={(key) => downloadFile(key as FileDownloadType)}
     >
       <Button
-        icon={DownloadIcon}
+        icon="download"
         isDisabled={props.columns.length === 0}
         variant="ghost"
       >

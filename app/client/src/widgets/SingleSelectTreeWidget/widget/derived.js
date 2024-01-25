@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getIsValid: (props, moment, _) => {
+  getIsValid: (props, _) => {
     return props.isRequired
       ? !_.isNil(props.selectedOptionValue) && props.selectedOptionValue !== ""
       : true;
   },
   //
-  getSelectedOptionValue: (props, moment, _) => {
+  getSelectedOptionValue: (props, _) => {
     const options = props.flattenedOptions ?? [];
     let value = props.selectedOption;
 
@@ -18,7 +18,7 @@ export default {
     return value;
   },
   //
-  getSelectedOptionLabel: (props, moment, _) => {
+  getSelectedOptionLabel: (props, _) => {
     const options = props.flattenedOptions ?? [];
     const label =
       _.find(options, (option) => option.value === props.selectedOptionValue)
@@ -27,7 +27,7 @@ export default {
     return label;
   },
   //
-  getFlattenedOptions: (props, moment, _) => {
+  getFlattenedOptions: (props, _) => {
     const flat = (array) => {
       let result = [];
       array.forEach((a) => {

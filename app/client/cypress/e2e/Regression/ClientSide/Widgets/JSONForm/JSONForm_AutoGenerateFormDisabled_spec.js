@@ -6,9 +6,7 @@ const fieldPrefix = ".t--jsonformfield";
 import {
   agHelper,
   deployMode,
-  entityExplorer,
   propPane,
-  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(

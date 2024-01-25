@@ -14,11 +14,11 @@ describe(
       cy.get(".t--widget-containerwidget")
         .first()
         .invoke("css", "height")
-        .then((height) => {
+        .then(() => {
           EditorNavigation.SelectEntityByName("Container2", EntityType.Widget);
           cy.get(".t--widget-containerwidget")
             .invoke("css", "height")
-            .then((newheight) => {
+            .then(() => {
               _.deployMode.DeployApp();
               cy.get(".t--widget-containerwidget")
                 .first()

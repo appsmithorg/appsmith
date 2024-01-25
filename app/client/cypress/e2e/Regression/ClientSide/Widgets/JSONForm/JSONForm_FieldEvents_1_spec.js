@@ -11,8 +11,6 @@ import {
   agHelper,
   deployMode,
   propPane,
-  entityExplorer,
-  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";

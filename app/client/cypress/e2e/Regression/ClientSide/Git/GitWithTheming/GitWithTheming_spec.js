@@ -8,7 +8,6 @@ describe("Git with Theming:", { tags: ["@tag.Git"] }, function () {
   const tempBranch = "tempBranch";
   let repoName;
   let applicationId = null;
-  let applicationName = null;
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();
@@ -16,9 +15,7 @@ describe("Git with Theming:", { tags: ["@tag.Git"] }, function () {
       const newWorkspaceName = interception.response.body.data.name;
       cy.generateUUID().then((uid) => {
         cy.CreateAppForWorkspace(newWorkspaceName, uid);
-        applicationName = uid;
         cy.get("@currentApplicationId").then(
-          (currentAppId) => (applicationId = currentAppId),
         );
       });
     });

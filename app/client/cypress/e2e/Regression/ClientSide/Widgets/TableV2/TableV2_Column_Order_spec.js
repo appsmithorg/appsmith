@@ -18,7 +18,7 @@ describe(
       cy.get(commonlocators.switchWidgetActive)
         .click({ force: true })
         .wait(1000); //allowing time for table to rearrange
-      cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
+      cy.get(commonlocators.textWidgetContainer).each((item) => {
         cy.wrap(item).should(
           "contain.text",
           `Column Order: [\\"status\\",\\"task\\",\\"action\\",\\"step1\\"]`,
@@ -30,7 +30,7 @@ describe(
       cy.get(commonlocators.switchWidgetInActive)
         .click({ force: true })
         .wait(1000);
-      cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
+      cy.get(commonlocators.textWidgetContainer).each((item) => {
         cy.wrap(item).should(
           "contain.text",
           `Column Order: [\\"status\\",\\"action\\",\\"task\\",\\"step\\"]`,

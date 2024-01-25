@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getSelectedTab: (props, moment, _) => {
+  getSelectedTab: (props, _) => {
     if (props.selectedTabWidgetId) {
       return _.find(Object.values(props.tabsObj), {
         widgetId: props.selectedTabWidgetId,

@@ -7,7 +7,6 @@ const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import {
   agHelper,
-  entityExplorer,
   propPane,
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";

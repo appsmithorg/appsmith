@@ -1,7 +1,6 @@
 import {
   agHelper,
   deployMode,
-  entityExplorer,
   jsEditor,
   locators,
   table,

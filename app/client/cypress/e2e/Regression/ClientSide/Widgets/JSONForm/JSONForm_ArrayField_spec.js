@@ -11,7 +11,6 @@ const deleteButton = ".t--jsonformfield-array-delete-btn";
 import {
   agHelper,
   deployMode,
-  entityExplorer,
   propPane,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";

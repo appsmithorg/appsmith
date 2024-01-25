@@ -217,7 +217,6 @@ export const USER_RESET_PASSWORD = () => "Reset password";
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
-export const DELETING_APPLICATION = () => `Deleting application...`;
 export const DELETING_MULTIPLE_APPLICATION = () =>
   `Deleting multiple applications...`;
 export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
@@ -1112,6 +1111,15 @@ export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
 // Git Branch Protection end
 
+export const GENERAL = () => "General";
+export const BRANCH = () => "Branch";
+
+export const CONTINUOUS_DELIVERY = () => "Continuous delivery";
+export const CONFIGURE_CD_TITLE = () => "Configure continuous delivery";
+export const CONFIGURE_CD_DESC = () =>
+  "To automatically trigger a pull when changes occur on the remote branch, consider upgrading to our enterprise edition for enhanced functionality";
+export const TRY_APPSMITH_ENTERPRISE = () => "Try Appsmith Enterprise";
+
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
@@ -1648,12 +1656,9 @@ export const CONTINUE = () => "Continue";
 export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
 export const PROCEED = () => "Proceed";
 export const COMPLETE = () => "Complete";
-// -- Modal --
-export const DEVIATION = () => "You are deviating from the tutorial";
-export const END_CONFIRMATION = () => "Are you sure you want to end?";
-export const CANCEL_DIALOG = () => "Cancel";
 // -- End Tutorial --
 export const END_TUTORIAL = () => "End tutorial";
+export const CANCEL_DIALOG = () => "Cancel";
 // -- Intro content --
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
@@ -2229,9 +2234,9 @@ export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
 export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   header: () => "Choose a template",
   layouts: {
-    dashboard: {
-      name: () => "Visualize your data",
-      description: () => "Use to see your data in charts",
+    sortFilterTable: {
+      name: () => "Filter your data",
+      description: () => "Use to filter and sort your data",
     },
     form: {
       name: () => "Form",
@@ -2290,9 +2295,11 @@ export const EDITOR_PANE_TEXTS = {
     "Drag & drop widgets to create your app",
   query_add_button: () => "New query / API",
   js_add_button: () => "New JS object",
+  js_blank_object_item: () => "Blank JS object",
   widget_add_button: () => "New widget",
   query_create_tab_title: () => "Create new query / API",
   widgets_create_tab_title: () => "Drag & drop a widget",
+  js_create_tab_title: () => "Create JS object",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
 };
@@ -2356,6 +2363,7 @@ export const CUSTOM_WIDGET_FEATURE = {
   },
   templateKey: {
     blank: () => "Blank",
+    vanillaJs: () => "Vanilla JS",
     react: () => "React",
     vue: () => "Vue",
   },
@@ -2411,6 +2419,8 @@ export const CUSTOM_WIDGET_FEATURE = {
     helpDropdown: {
       stackoverflow: () => "Search StackOverflow",
     },
+    noOnReadyWarning: (url: string) =>
+      `Missing appsmith.onReady() function call. Initiate your component inside 'appsmith.onReady()' for your custom widget to work as expected. For more information - ${url}`,
   },
   preview: {
     eventFired: () => "Event fired:",
@@ -2434,3 +2444,5 @@ export const HEADER_TITLES = {
   SETTINGS: () => "Settings",
   LIBRARIES: () => "Libraries",
 };
+
+export const PASTE_FAILED = (str: string): string => `Paste failed! ${str}`;

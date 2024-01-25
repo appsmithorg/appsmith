@@ -31,6 +31,7 @@ import type {
 import {
   copyActionError,
   copyActionSuccess,
+  createActionInit,
   createActionSuccess,
   deleteActionSuccess,
   fetchActionsForPage,
@@ -63,7 +64,9 @@ import {
   SlashCommand,
 } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { PagePaneData } from "@appsmith/selectors/entitiesSelector";
+import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -74,8 +77,8 @@ import {
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-  selectQueriesForPagespane,
   getPageActions,
+  getNewEntityName,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -117,6 +120,7 @@ import {
   RequestPayloadAnalyticsPath,
   checkAndLogErrorsIfCyclicDependency,
   enhanceRequestPayloadWithEventData,
+  getFromServerWhenNoPrefetchedResult,
 } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
@@ -139,6 +143,13 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { getActionConfig } from "../pages/Editor/Explorer/Actions/helpers";
+import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
+import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
+
+export const DEFAULT_PREFIX = {
+  QUERY: "Query",
+  API: "Api",
+} as const;
 
 export function* createDefaultActionPayloadWithPluginDefaults(
   props: CreateActionDefaultsParams,
@@ -163,6 +174,7 @@ export function* createDefaultActionPayload({
   datasourceId,
   from,
   newActionName,
+  queryDefaultTableName,
 }: CreateActionDefaultsParams) {
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
@@ -191,9 +203,16 @@ export function* createDefaultActionPayload({
 
   const defaultActionConfig: any = getDefaultTemplateActionConfig(
     plugin,
+    queryDefaultTableName,
     dsStructure,
     datasource?.isMock,
   );
+
+  // since table name has been consumed, we no longer need it, hence resetting it
+  yield put({
+    type: ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME,
+    payload: "",
+  });
 
   const defaultAction: Partial<Action> = {
     pluginId: datasource?.pluginId,
@@ -240,6 +259,52 @@ export function* getPluginActionDefaultValues(pluginId: string) {
     initialValues = merge(initialValues, settingInitialValues);
   }
   return initialValues;
+}
+
+/**
+ * This saga prepares the action request i.e it helps generating a
+ * new name of an action. This is to reduce any dependency on name generation
+ * on the caller of this saga.
+ */
+export function* createActionRequestSaga(
+  actionPayload: ReduxAction<
+    Partial<Action> & { eventData: any; pluginId: string }
+  >,
+) {
+  const payload = { ...actionPayload.payload };
+  const pluginId =
+    actionPayload.payload.pluginId ||
+    actionPayload.payload.datasource?.pluginId;
+  if (!actionPayload.payload.name) {
+    const { parentEntityId, parentEntityKey } = resolveParentEntityMetadata(
+      actionPayload.payload,
+    );
+
+    if (!parentEntityId || !parentEntityKey) return;
+    const plugin: Plugin | undefined = yield select(getPlugin, pluginId || "");
+    const isQueryType =
+      plugin?.type === PluginType.DB ||
+      plugin?.packageName === PluginPackageName.APPSMITH_AI;
+
+    const prefix = isQueryType ? DEFAULT_PREFIX.QUERY : DEFAULT_PREFIX.API;
+
+    if (
+      plugin?.type === PluginType.DB ||
+      plugin?.packageName === PluginPackageName.APPSMITH_AI
+    ) {
+      DEFAULT_PREFIX.QUERY;
+    }
+
+    const name: string = yield select(getNewEntityName, {
+      prefix,
+      parentEntityId,
+      parentEntityKey,
+    });
+
+    payload.name = name;
+  }
+
+  yield put(createActionInit(payload));
 }
 
 export function* createActionSaga(
@@ -310,15 +375,18 @@ export function* fetchActionDatasourceStructure(
 export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, unpublishedActions } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: ApiResponse<Action[]> = yield ActionAPI.fetchActions({
-      applicationId,
-    });
+    const response: ApiResponse<Action[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      unpublishedActions,
+      async () => ActionAPI.fetchActions({ applicationId }),
+    );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -345,14 +413,18 @@ export function* fetchActionsSaga(
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, publishedActions } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
   );
   try {
-    const response: ApiResponse<ActionViewMode[]> =
-      yield ActionAPI.fetchActionsForViewMode(applicationId);
+    const response: ApiResponse<ActionViewMode[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      publishedActions,
+      async () => ActionAPI.fetchActionsForViewMode(applicationId),
+    );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const correctFormatResponse = response.data.map((action) => {
@@ -531,20 +603,17 @@ function* handleDeleteActionRedirect(deletedAction: Action) {
 
   // Check if another action is present in the group and redirect to it, orelse
   // navigate to tht top of the list
-  const currentSortedList: PagePaneData = yield select(
-    selectQueriesForPagespane,
+  const currentSortedList: EditorSegmentList = yield select(
+    selectQuerySegmentEditorList,
   );
-  let deletedActionGroup;
-  for (const [group, actions] of Object.entries(currentSortedList)) {
-    if (actions.find((a) => a.id === deletedAction.id)) {
-      deletedActionGroup = group;
+  let remainingGroupActions: EntityItem[] = [];
+  for (const { items } of currentSortedList) {
+    if (items.find((a) => a.key === deletedAction.id)) {
+      remainingGroupActions = items.filter((a) => a.key !== deletedAction.id);
       break;
     }
   }
-  const groupActions = currentSortedList[deletedActionGroup || ""];
-  const remainingGroupActions = groupActions.filter(
-    (a) => a.id !== deletedAction.id,
-  );
+
   let url;
   if (remainingGroupActions.length === 0) {
     const toRedirect = otherActions[0];
@@ -556,8 +625,9 @@ function* handleDeleteActionRedirect(deletedAction: Action) {
     );
   } else {
     const toRedirect = remainingGroupActions[0];
+    url = getQueryEntityItemUrl(toRedirect, pageId);
     const config = getActionConfig(toRedirect.type);
-    url = config?.getURL(pageId, toRedirect.id, toRedirect.type);
+    url = config?.getURL(pageId, toRedirect.key, toRedirect.type);
   }
   if (url) {
     history.push(url);
@@ -1128,6 +1198,7 @@ export function* watchActionSagas() {
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
       fetchActionsForViewModeSaga,
     ),
+    takeEvery(ReduxActionTypes.CREATE_ACTION_REQUEST, createActionRequestSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),

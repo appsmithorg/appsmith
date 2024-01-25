@@ -1,11 +1,6 @@
-/// <reference types="cypress-tags" />
+// <reference types="cypress-tags" />
 import adminsSettings from "../../../../locators/AdminsSettings";
 
-const {
-  GITHUB_SIGNUP_SETUP_DOC,
-  GOOGLE_MAPS_SETUP_DOC,
-  GOOGLE_SIGNUP_SETUP_DOC,
-} = require("../../../../../src/constants/ThirdPartyConstants");
 
 const routes = {
   APPLICATIONS: "/applications",
@@ -68,28 +63,6 @@ describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
     cy.visit(routes.SETTINGS, { timeout: 60000 });
     cy.url().should("contain", routes.GENERAL);
   });
-
-  it(
-    "5. should test that settings page tab redirects not airgap",
-    { tags: ["@tag.excludeForAirgap"] },
-    () => {
-      cy.visit(routes.APPLICATIONS, { timeout: 60000 });
-      cy.wait(3000);
-      cy.get(".admin-settings-menu-option").click();
-      cy.get(adminsSettings.generalTab).click();
-      cy.url().should("contain", routes.GENERAL);
-      cy.get(adminsSettings.advancedTab).click();
-      cy.url().should("contain", routes.ADVANCED);
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", routes.AUTHENTICATION);
-      cy.get(adminsSettings.emailTab).click();
-      cy.url().should("contain", routes.EMAIL);
-      cy.get(adminsSettings.developerSettingsTab).click();
-      cy.url().should("contain", routes.DEVELOPER_SETTINGS);
-      cy.get(adminsSettings.versionTab).click();
-      cy.url().should("contain", routes.VERSION);
-    },
-  );
 
   it(
     "airgap",

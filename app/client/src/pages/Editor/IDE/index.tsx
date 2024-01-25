@@ -54,4 +54,4 @@ function IDE() {
 
 IDE.displayName = "AppsmithIDE";
 
-export default IDE;
+export default React.memo(IDE);

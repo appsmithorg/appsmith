@@ -7,7 +7,6 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 import {
   agHelper,
-  entityExplorer,
   deployMode,
   propPane,
   locators,

@@ -1,6 +1,3 @@
-const queryLocators = require("../../../locators/QueryEditor.json");
-const queryEditor = require("../../../locators/QueryEditor.json");
-let datasourceName;
 
 describe("Binding Datasource to Query", function () {
   it("List of Datasource", function () {

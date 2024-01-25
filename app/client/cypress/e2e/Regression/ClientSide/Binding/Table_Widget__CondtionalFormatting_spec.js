@@ -1,6 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 import {
-  entityExplorer,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {

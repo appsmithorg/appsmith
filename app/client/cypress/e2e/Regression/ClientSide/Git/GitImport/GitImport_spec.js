@@ -5,7 +5,7 @@ const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json
 const jsObject = "JSObject1";
 let newBranch = "feat/temp";
 const mainBranch = "master";
-let repoName, newWorkspaceName;
+let repoName;
 import {
   agHelper,
   dataSources,
@@ -26,7 +26,6 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     homePage.NavigateToHome();
     homePage.CreateNewWorkspace();
     cy.get("@workspaceName").then((workspaceName) => {
-      newWorkspaceName = workspaceName;
       homePage.CreateAppInWorkspace(workspaceName);
     });
   });

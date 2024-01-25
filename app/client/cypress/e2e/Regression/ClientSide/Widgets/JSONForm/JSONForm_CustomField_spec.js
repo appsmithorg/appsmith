@@ -5,10 +5,8 @@ import EditorNavigation, {
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const locators = ObjectsRegistry.CommonLocators;
 const {
   deployMode,
-  entityExplorer,
   propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
 

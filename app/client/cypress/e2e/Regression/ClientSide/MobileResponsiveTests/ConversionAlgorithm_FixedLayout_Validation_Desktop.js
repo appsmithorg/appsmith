@@ -1,4 +1,3 @@
-let testHeight;
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -8,8 +7,8 @@ describe(
     it("1. Validate basic conversion algorithm usecases fixed layout Desktop", function () {
       _.agHelper.AddDsl("conversionFrAutoLayoutDsl");
       //cy.openPropertyPane("containerwidget");
-      cy.get("@getPage").then((httpResponse) => {
-        const data = httpResponse.response.body.data;
+      cy.get("@getConsolidatedData").then((httpResponse) => {
+        const data = httpResponse.response.body.data.pageWithMigratedDsl.data;
         testHeight = data.layouts[0].dsl.bottomRow;
         //expect(testHeight).to.equal(380);
       });

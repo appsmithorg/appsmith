@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// <reference types="Cypress" />
 import homePage from "../../../../locators/HomePage";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");
@@ -9,14 +9,10 @@ describe(
   "Create workspace and a new app / delete and recreate app",
   { tags: ["@tag.Workspace"] },
   function () {
-    let workspaceId;
-    let appid;
     it("1. Create app within an workspace and delete and re-create another app with same name", function () {
       _.homePage.NavigateToHome();
       _.agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        workspaceId = uid;
-        appid = uid;
         featureFlagIntercept({ license_gac_enabled: true });
         cy.wait(2000);
         _.homePage.CreateNewWorkspace(uid);

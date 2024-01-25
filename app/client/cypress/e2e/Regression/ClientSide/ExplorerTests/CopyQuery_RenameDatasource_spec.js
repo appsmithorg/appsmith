@@ -11,7 +11,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 const pageid = "MyPage";
-let updatedName;
 let datasourceName;
 
 describe(

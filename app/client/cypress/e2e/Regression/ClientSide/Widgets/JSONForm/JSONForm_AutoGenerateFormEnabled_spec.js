@@ -6,13 +6,11 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
 import {
-  entityExplorer,
   deployMode,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
-let locators = ObjectsRegistry.CommonLocators;
 
 describe(
   "JSON Form Widget AutoGenerate Enabled",

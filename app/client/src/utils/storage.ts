@@ -12,7 +12,6 @@ export const STORAGE_KEYS: {
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
-  POST_WELCOME_TOUR: "PostWelcomeTour",
   RECENT_ENTITIES: "RecentEntities",
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
@@ -192,24 +191,6 @@ export const resetCurrentEnvironment = async () => {
   } catch (error) {
     log.error("An error occurred when resetting current env: ", error);
     return false;
-  }
-};
-
-export const setPostWelcomeTourState = async (flag: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.POST_WELCOME_TOUR, flag);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting post welcome tour state", error);
-    return false;
-  }
-};
-
-export const getPostWelcomeTourState = async () => {
-  try {
-    return await store.getItem(STORAGE_KEYS.POST_WELCOME_TOUR);
-  } catch (error) {
-    log.error("An error occurred when getting post welcome tour state", error);
   }
 };
 

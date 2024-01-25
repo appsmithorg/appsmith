@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// <reference types="Cypress" />
 
 import EditorNavigation, {
   EntityType,
@@ -13,8 +13,7 @@ describe(
   "Container Widget Functionality",
   { tags: ["@tag.Widget", "@tag.List"] },
   function () {
-    const items = JSON.parse(dsl.dsl.children[0].listData);
-
+    
     before(() => {
       _.agHelper.AddDsl("listdsl");
     });

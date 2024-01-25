@@ -6,7 +6,6 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
-  entityExplorer,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";

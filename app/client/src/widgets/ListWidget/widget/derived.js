@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getSelectedItem: (props, moment, _) => {
+  getSelectedItem: (props, _) => {
     const selectedItemIndex =
       props.selectedItemIndex === undefined ||
       Number.isNaN(parseInt(props.selectedItemIndex))
@@ -20,7 +20,7 @@ export default {
     return selectedItem;
   },
   //
-  getItems: (props, moment, _) => {
+  getItems: (props, _) => {
     let item = {};
 
     Object.keys(props.template).map((widgetName) => {
@@ -36,7 +36,6 @@ export default {
       for (let i = 0; i < widgetKeys.length; i++) {
         const currentWidgetName = widgetKeys[i];
         let currentWidget = currentItem[currentWidgetName];
-        const filteredWidget = {};
 
         const dynamicPaths = _.compact(
           currentWidget.dynamicBindingPathList?.map((path) => path.key),
@@ -114,7 +113,7 @@ export default {
     return updatedItems;
   },
   // Patch #12438 - hard-coded DEFAULT_GRID_ROW_HEIGHT(parentRowSpace) for calculating template/component height. Ideally it should be dynamic based on props.
-  getPageSize: (props, moment, _) => {
+  getPageSize: (props, _) => {
     const LIST_WIDGET_PAGINATION_HEIGHT = 36;
     const DEFAULT_GRID_ROW_HEIGHT = 10;
     const WIDGET_PADDING = DEFAULT_GRID_ROW_HEIGHT * 0.4;
@@ -162,7 +161,7 @@ export default {
   },
   //
   // this is just a patch for #7520
-  getChildAutoComplete: (props, moment, _) => {
+  getChildAutoComplete: (props, _) => {
     const data = [...props.listData];
 
     const structure =

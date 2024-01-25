@@ -6,7 +6,6 @@ describe(
   { tags: ["@tag.Datasource", "@tag.Sanity"] },
   function () {
     let workspaceId;
-    let appid;
     let newWorkspaceName;
     let appName;
     it("1. Import application from json with one postgres and success modal", function () {

@@ -19,7 +19,6 @@ import PageList from "../../../../../support/Pages/PageList";
 
 describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
   let datasourceName;
-  let repoName;
   const query1 = "get_employees";
   const query2 = "get_category";
   const jsObject = "JSObject1";
@@ -60,7 +59,6 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     gitSync.CreateNConnectToGit();
     gitSync.CreateGitBranch();
     cy.get("@gitRepoName").then((repName) => {
-      repoName = repName;
     });
   });
 

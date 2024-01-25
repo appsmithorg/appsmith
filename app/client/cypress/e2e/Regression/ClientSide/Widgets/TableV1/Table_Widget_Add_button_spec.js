@@ -1,6 +1,6 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe(

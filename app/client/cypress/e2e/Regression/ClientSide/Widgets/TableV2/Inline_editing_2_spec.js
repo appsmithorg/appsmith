@@ -26,8 +26,7 @@ describe(
       agHelper.AddDsl("Table/InlineEditingDSL");
     });
 
-    let propPaneBack = "[data-testid='t--property-pane-back-btn']";
-
+    
     it("1. should check that onDiscard event is working", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.makeColumnEditable("step");

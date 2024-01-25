@@ -1,4 +1,3 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import { agHelper } from "../../../../support/Objects/ObjectsCore";
 

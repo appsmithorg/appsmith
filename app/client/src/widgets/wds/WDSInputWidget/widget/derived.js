@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  isValid: (props, moment, _) => {
+  isValid: (props, _) => {
     let hasValidValue, value, isEmpty;
     switch (props.inputType) {
       case "NUMBER":

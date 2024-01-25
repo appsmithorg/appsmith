@@ -5,10 +5,7 @@ describe(
   "Validate Datasource Panel Styles",
   { tags: ["@tag.Datasource", "@tag.Sanity", "@tag.excludeForAirgap"] },
   function () {
-    const backgroundColorGray700 = "rgb(76, 86, 100)";
-    const backgroundColorGray1 = "rgb(241, 245, 249)";
-    const backgroundColorGray2 = "rgba(0, 0, 0, 0)";
-
+    
     before("Creating mock db for test case 4 validations", () => {
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;

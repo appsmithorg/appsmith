@@ -11,7 +11,6 @@ describe(
   "Import, Export and Fork application and validate data binding",
   { tags: ["@tag.ImportExport"] },
   function () {
-    let workspaceId;
     let newWorkspaceName;
     let appName;
     it("1. Import application from json and validate data on pageload", function () {
@@ -136,8 +135,8 @@ describe(
               }
               const importedApp = interception.response.body.data.application;
               const appSlug = importedApp.slug;
-              cy.wait("@getPagesForCreateApp").then((interception) => {
-                const pages = interception.response.body.data.pages;
+              cy.wait("@getConsolidatedData").then((interception) => {
+                const pages = interception.response.body.data.pages.data.pages;
                 let defaultPage = pages.find(
                   (eachPage) => !!eachPage.isDefault,
                 );

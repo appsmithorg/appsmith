@@ -26,7 +26,6 @@ Cyclic Dependency Error if occurs, Message would be shown in following 6 cases:
 6. When updating Datasource query
 */
 
-let dsname;
 
 describe(
   "Cyclic Dependency Informational Error Messages",
@@ -94,9 +93,9 @@ describe(
       // cy.get(widgetsPage.NavHomePage).click({ force: true });
       cy.reload();
       cy.openPropertyPane("inputwidgetv2");
-      cy.wait("@getPage").should(
+      cy.wait("@getConsolidatedData").should(
         "have.nested.property",
-        "response.body.data.layouts[0].layoutOnLoadActionErrors.length",
+        "response.body.data.pageWithMigratedDsl.data.layouts[0].layoutOnLoadActionErrors.length",
         0,
       );
 

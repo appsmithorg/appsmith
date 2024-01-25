@@ -14,6 +14,7 @@
 // ***********************************************************
 /// <reference types="Cypress" />
 /// <reference types='cypress-tags' />
+import "cypress-real-events";
 import "cypress-real-events/support";
 import "cypress-wait-until";
 import "cypress-network-idle";
@@ -47,7 +48,7 @@ const registerCypressGrep = require("@cypress/grep");
 registerCypressGrep();
 installLogsCollector();
 
-Cypress.on("uncaught:exception", (error) => {
+Cypress.on("uncaught:exception", () => {
   //cy.log(error.message);
   return false; // returning false here prevents Cypress from failing the test
 });
@@ -90,7 +91,8 @@ before(function () {
     window.indexedDB.deleteDatabase("Appsmith");
   });
   cy.visit("/setup/welcome", { timeout: 60000 });
-  cy.wait("@getMe");
+  cy.wait("@getConsolidatedData");
+
   cy.wait(2000);
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");

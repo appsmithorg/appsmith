@@ -14,7 +14,6 @@ const viewWidgetsPage = require("../locators/ViewWidgets.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
 
-let pageidcopy = " ";
 
 const ee = ObjectsRegistry.EntityExplorer;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -478,7 +477,7 @@ Cypress.Commands.add("testJsonTextClearMultiline", (endp) => {
     .type(`{${modifierKey}}{del}`, { force: true });
 });
 
-Cypress.Commands.add("getCodeInput", ($selector, value) => {
+Cypress.Commands.add("getCodeInput", ($selector) => {
   cy.EnableAllCodeEditors();
   cy.get($selector)
     .first()
@@ -928,7 +927,7 @@ Cypress.Commands.add("DeleteModal", () => {
   cy.get(widgetsPage.deleteWidget).first().click({ force: true });
 });
 
-Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
+Cypress.Commands.add("Createpage", (pageName) => {
   cy.CreatePage();
   cy.wait("@createPage").then((xhr) => {
     expect(xhr.response.body.responseMeta.status).to.equal(201);

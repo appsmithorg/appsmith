@@ -1,6 +1,3 @@
-const queryLocators = require("../../../locators/QueryEditor.json");
-const queryEditor = require("../../../locators/QueryEditor.json");
-let datasourceName;
 
 describe("Test Ideas for GooglSheet API", function () {
   it("Add a Datasource", function () {

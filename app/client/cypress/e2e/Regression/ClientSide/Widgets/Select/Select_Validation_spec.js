@@ -40,7 +40,7 @@ describe(
     });
 
     it("2. Shows validation error for invalid defaultSelectedValue", () => {
-      const { agHelper, entityExplorer, locators, propPane } = _;
+      const { agHelper, locators, propPane } = _;
 
       EditorNavigation.SelectEntityByName("SelectRenamed", EntityType.Widget);
 

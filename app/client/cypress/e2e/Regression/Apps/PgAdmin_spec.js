@@ -9,7 +9,7 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 
 describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
-  let datasourceName, tableName;
+  let datasourceName;
 
   before("Add dsl and create datasource", () => {
     agHelper.AddDsl("PgAdmindsl");
@@ -70,7 +70,6 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
     agHelper.WaitUntilEleAppear(appPage.addTablename);
     cy.generateUUID().then((UUID) => {
       cy.xpath(appPage.addTablename).clear().type(`table${UUID}`);
-      tableName = `table${UUID}`;
     });
     // adding column to the table
     cy.xpath(appPage.addColumn).click({ force: true });

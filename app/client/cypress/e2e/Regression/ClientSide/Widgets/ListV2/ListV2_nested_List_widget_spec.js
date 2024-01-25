@@ -6,7 +6,6 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   assertHelper,
-  entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");

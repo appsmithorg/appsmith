@@ -10,12 +10,15 @@ import { anvilWidgets } from "widgets/anvil/constants";
 import {
   updateSectionWithDefaultSpaceDistribution,
   updateSectionsDistributedSpace,
-} from "layoutSystems/anvil/sectionSpaceDistributor/spaceRedistributionUtils";
+} from "layoutSystems/anvil/sectionSpaceDistributor/utils/spaceRedistributionSagaUtils";
 
-export function* updateAndSaveAnvilLayout(widgets: CanvasWidgetsReduxState) {
+export function* updateAndSaveAnvilLayout(
+  widgets: CanvasWidgetsReduxState,
+  options?: { isRetry: boolean; shouldReplay: boolean },
+) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
   if (layoutSystemType !== LayoutSystemTypes.ANVIL || !widgets) {
-    yield put(updateAndSaveLayout(widgets));
+    yield put(updateAndSaveLayout(widgets, options));
     return;
   }
 
@@ -80,5 +83,5 @@ export function* updateAndSaveAnvilLayout(widgets: CanvasWidgetsReduxState) {
     }
   }
 
-  yield put(updateAndSaveLayout(updatedWidgets));
+  yield put(updateAndSaveLayout(updatedWidgets, options));
 }

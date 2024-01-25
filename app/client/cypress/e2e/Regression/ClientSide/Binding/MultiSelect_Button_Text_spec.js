@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// <reference types="Cypress" />
 
 import EditorNavigation, {
   EntityType,
@@ -66,10 +66,9 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
           force: true,
         });
         cy.wait(1000);
-        cy.get(".t--text-widget-container").each((item, index, list) => {
+        cy.get(".t--text-widget-container").each((item) => {
           cy.wrap(item).should("contain.text", "BLUE");
         });
-        const inputs = testConfig.testCases;
         cy.get(getWidgetSelector(WIDGET.BUTTON))
           .scrollIntoView()
           .click({ force: true });
@@ -89,7 +88,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
         cy.wait(1000);
         cy.get("button:contains('Submit')").click({ force: true });
         cy.wait(1000);
-        cy.get(".t--text-widget-container").each((item, index, list) => {
+        cy.get(".t--text-widget-container").each((item) => {
           cy.wrap(item).should("not.contain.text", "BLUE");
         });
         cy.get("div.Toastify__toast").contains("success");

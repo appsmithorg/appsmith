@@ -30,7 +30,6 @@ import {
   scrollWidgetIntoView,
   switchTab,
 } from "utils/replayHelpers";
-import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getCurrentApplicationId,
@@ -53,7 +52,12 @@ import {
   getSettingConfig,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import { isAPIAction, isQueryAction, isSaaSAction } from "entities/Action";
+import {
+  isAIAction,
+  isAPIAction,
+  isQueryAction,
+  isSaaSAction,
+} from "entities/Action";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
@@ -80,6 +84,7 @@ import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 
 export interface UndoRedoPayload {
   operation: ReplayReduxActionTypes;
@@ -210,12 +215,10 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
 
-        yield put(
-          updateAndSaveLayout(replayEntity.widgets, {
-            isRetry: false,
-            shouldReplay: false,
-          }),
-        );
+        yield call(updateAndSaveAnvilLayout, replayEntity.widgets, {
+          isRetry: false,
+          shouldReplay: false,
+        });
 
         if (isPropertyUpdate) {
           yield call(openPropertyPaneSaga, replay);
@@ -303,7 +306,9 @@ function* replayActionSaga(
 
   //Reinitialize form
   const currentFormName =
-    isQueryAction(replayEntity) || isSaaSAction(replayEntity)
+    isQueryAction(replayEntity) ||
+    isSaaSAction(replayEntity) ||
+    isAIAction(replayEntity)
       ? QUERY_EDITOR_FORM_NAME
       : API_EDITOR_FORM_NAME;
   yield put(initialize(currentFormName, replayEntity));

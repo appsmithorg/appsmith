@@ -5,7 +5,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../locators/commonlocators.json");
 import apiPage from "../../../../locators/ApiEditor";
 import {
-  entityExplorer,
   agHelper,
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
