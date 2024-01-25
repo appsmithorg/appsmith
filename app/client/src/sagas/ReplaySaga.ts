@@ -30,7 +30,6 @@ import {
   scrollWidgetIntoView,
   switchTab,
 } from "utils/replayHelpers";
-import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getCurrentApplicationId,
@@ -85,6 +84,7 @@ import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 
 export interface UndoRedoPayload {
   operation: ReplayReduxActionTypes;
@@ -215,12 +215,10 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
 
-        yield put(
-          updateAndSaveLayout(replayEntity.widgets, {
-            isRetry: false,
-            shouldReplay: false,
-          }),
-        );
+        yield call(updateAndSaveAnvilLayout, replayEntity.widgets, {
+          isRetry: false,
+          shouldReplay: false,
+        });
 
         if (isPropertyUpdate) {
           yield call(openPropertyPaneSaga, replay);

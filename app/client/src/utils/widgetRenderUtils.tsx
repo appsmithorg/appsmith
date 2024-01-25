@@ -85,7 +85,7 @@ function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
   return widgetErrors;
 }
 
-const WidgetTypes = WidgetFactory.widgetTypes;
+const WidgetTypes = WidgetFactory?.widgetTypes;
 export const createLoadingWidget = (
   canvasWidget: FlattenedWidgetProps,
 ): WidgetEntity => {

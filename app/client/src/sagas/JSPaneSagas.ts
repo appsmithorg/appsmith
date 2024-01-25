@@ -571,11 +571,19 @@ function* handleUpdateJSCollectionBody(
         yield JSActionAPI.updateJSCollection(jsCollection);
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
-        // @ts-expect-error: response is of type unknown
-        yield put(updateJSCollectionBodySuccess({ data: response?.data }));
-        checkAndLogErrorsIfCyclicDependency(
-          (response.data as JSCollection).errorReports,
+        // since server is not sending the info about whether the js collection is main or not
+        // we are retaining it manually
+        const updatedJSCollection: JSCollection = {
+          // @ts-expect-error: response is of type unknown
+          ...response.data,
+          isMainJSCollection: !!jsCollection.isMainJSCollection,
+        };
+        yield put(
+          updateJSCollectionBodySuccess({
+            data: updatedJSCollection,
+          }),
         );
+        checkAndLogErrorsIfCyclicDependency(updatedJSCollection.errorReports);
       }
     }
   } catch (error) {

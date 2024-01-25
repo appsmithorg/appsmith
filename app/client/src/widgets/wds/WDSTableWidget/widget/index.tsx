@@ -124,6 +124,7 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
+  FlattenedWidgetProps,
   PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/constants";
@@ -135,6 +136,7 @@ import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 const ReactTableComponent = lazy(async () =>
@@ -506,6 +508,35 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       },
     };
+  }
+
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  static pasteOperationChecks(
+    allWidgets: CanvasWidgetsReduxState,
+    oldWidget: FlattenedWidgetProps,
+    newWidget: FlattenedWidgetProps,
+    widgetIdMap: Record<string, string>,
+  ): FlattenedWidgetProps | null {
+    if (!newWidget || !newWidget.primaryColumns) return null;
+    // If the primaryColumns of the table exist
+    const oldWidgetName: string = oldWidget.widgetName;
+    if (!oldWidgetName) return null;
+    // For each column
+    const updatedPrimaryColumns = { ...newWidget.primaryColumns };
+    for (const [columnId, column] of Object.entries(updatedPrimaryColumns)) {
+      // For each property in the column
+      for (const [key, value] of Object.entries(column as ColumnProperties)) {
+        // Replace reference of previous widget with the new widgetName
+        // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+        updatedPrimaryColumns[columnId][key] = isString(value)
+          ? value.replace(
+              new RegExp(`\\b${oldWidgetName}\\.`, "g"),
+              `${newWidget.widgetName}.`,
+            )
+          : value;
+      }
+    }
+    return { ...newWidget, primaryColumns: updatedPrimaryColumns };
   }
 
   /*
