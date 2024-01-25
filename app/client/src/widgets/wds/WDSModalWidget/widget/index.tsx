@@ -33,6 +33,14 @@ const modalBodyStyles: React.CSSProperties = {
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
 
+  constructor(props: ModalWidgetProps) {
+    super(props);
+
+    this.state = {
+      isVisible: this.getModalVisibility(),
+    };
+  }
+
   static getConfig() {
     return config.metaConfig;
   }
@@ -117,8 +125,9 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
     return (
       <Modal
-        isOpen={this.getModalVisibility()}
+        isOpen={this.state.isVisible as boolean}
         onClose={this.onModalClose}
+        setOpen={(val) => this.setState({ isVisible: val })}
         size={this.props.size}
       >
         <ModalContent className={this.props.className}>
