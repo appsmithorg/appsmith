@@ -101,7 +101,7 @@ import { ImageCell } from "../component/cellComponents/ImageCell";
 import { VideoCell } from "../component/cellComponents/VideoCell";
 import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
-import { klona as clone } from "klona";
+import { klona as clone } from "klona/lite";
 import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";

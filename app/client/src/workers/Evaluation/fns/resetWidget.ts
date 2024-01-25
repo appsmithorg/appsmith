@@ -13,7 +13,7 @@ import type {
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import evaluateSync from "../evaluate";
 import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";

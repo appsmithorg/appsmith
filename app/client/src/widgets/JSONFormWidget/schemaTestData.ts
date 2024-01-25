@@ -1,4 +1,4 @@
-import { klona } from "klona";
+import { klona } from "klona/lite";
 import { isEmpty, startCase } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { FieldThemeStylesheet, SchemaItem } from "./constants";

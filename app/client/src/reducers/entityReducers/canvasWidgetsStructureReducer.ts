@@ -9,7 +9,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { CANVAS_DEFAULT_MIN_ROWS } from "constants/AppConstants";
 import { denormalize } from "utils/canvasStructureHelpers";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {

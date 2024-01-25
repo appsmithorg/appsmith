@@ -12,7 +12,7 @@ import {
   getCanvasBottomRow,
   getCanvasWidgetHeightsToUpdate,
 } from "utils/WidgetSizeUtils";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values 

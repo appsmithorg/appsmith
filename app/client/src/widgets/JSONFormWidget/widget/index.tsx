@@ -1,7 +1,7 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { debounce, difference, isEmpty, merge, noop } from "lodash";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";

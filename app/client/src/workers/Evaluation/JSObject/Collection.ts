@@ -1,5 +1,5 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { klona } from "klona/full";
+import { klona } from "klona/lite";
 import { get, set } from "lodash";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";

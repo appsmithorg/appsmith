@@ -3,7 +3,7 @@ import type {
   WidgetEntityConfig,
   PropertyOverrideDependency,
 } from "@appsmith/entities/DataTree/types";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 import type { MetaState, WidgetMetaState } from ".";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";

@@ -1,4 +1,4 @@
-import { klona } from "klona";
+import { klona } from "klona/lite";
 import { get, set } from "lodash";
 
 import SchemaParser from "widgets/JSONFormWidget/schemaParser";

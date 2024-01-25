@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { applyChange } from "deep-diff";
 import produce from "immer";
-import { klona } from "klona/full";
+import { klona } from "klona/lite";
 import { range } from "lodash";
 import moment from "moment";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "sagas/EvaluationSaga.utils";

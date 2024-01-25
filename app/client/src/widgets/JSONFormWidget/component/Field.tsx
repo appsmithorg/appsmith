@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import type { ControllerProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 import type { FieldLabelProps } from "./FieldLabel";
 import FieldLabel from "./FieldLabel";

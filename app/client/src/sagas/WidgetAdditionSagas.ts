@@ -36,7 +36,7 @@ import {
   BlueprintOperationTypes,
 } from "WidgetProvider/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
-import { klona as clone } from "klona/full";
+import { klona as clone } from "klona/lite";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { toast } from "design-system";

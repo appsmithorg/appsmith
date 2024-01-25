@@ -7,7 +7,7 @@ import {
   sortBy,
   startCase,
 } from "lodash";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 import { sanitizeKey } from "widgets/WidgetUtils";
 import type {

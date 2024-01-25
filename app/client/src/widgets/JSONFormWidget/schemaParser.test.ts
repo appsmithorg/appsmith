@@ -1,5 +1,5 @@
 import { get, set } from "lodash";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 import SchemaParser, {
   applyPositions,

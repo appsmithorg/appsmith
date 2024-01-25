@@ -17,7 +17,7 @@ import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import _, { difference, find, get, has, isEmpty, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
-import { klona } from "klona/full";
+import { klona } from "klona/lite";
 import { warn as logWarn } from "loglevel";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import type {

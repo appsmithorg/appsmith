@@ -1,5 +1,5 @@
 import { difference } from "lodash";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 import type { ConstructorProps, GeneratorOptions } from "./MetaWidgetGenerator";
 import MetaWidgetGenerator from "./MetaWidgetGenerator";

@@ -3,7 +3,7 @@ import { set } from "lodash";
 import type { ControllerProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
 import { useContext, useEffect } from "react";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 import FormContext from "../FormContext";
 import type { FieldType } from "../constants";

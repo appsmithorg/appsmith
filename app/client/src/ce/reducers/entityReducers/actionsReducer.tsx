@@ -12,7 +12,7 @@ import type {
   ExecutePluginActionSuccessPayload,
   UpdateActionPropertyActionPayload,
 } from "actions/pluginActionActions";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 export interface ActionData {
   isLoading: boolean;

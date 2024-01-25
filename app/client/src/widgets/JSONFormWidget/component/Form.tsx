@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 import useFixedFooter from "./useFixedFooter";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";

@@ -1,6 +1,6 @@
 import React from "react";
 import log from "loglevel";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
 import type { ControlProps } from "./BaseControl";

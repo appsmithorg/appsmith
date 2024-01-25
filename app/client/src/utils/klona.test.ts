@@ -1,5 +1,5 @@
 import equal from "fast-deep-equal/es6";
-import { klona } from "klona/full";
+import { klona } from "klona/lite";
 import moment from "moment";
 
 describe("Klona clone test", () => {

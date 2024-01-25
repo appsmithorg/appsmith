@@ -10,7 +10,7 @@ import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import type { Action } from "@sentry/react/dist/types";
-import { klona } from "klona/full";
+import { klona } from "klona/lite";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import _ from "lodash";
 import { getType, Types } from "utils/TypeHelpers";

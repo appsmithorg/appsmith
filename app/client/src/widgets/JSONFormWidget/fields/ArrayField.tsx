@@ -10,7 +10,7 @@ import type { ControllerRenderProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
 import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 import log from "loglevel";
 
 import Accordion from "../component/Accordion";

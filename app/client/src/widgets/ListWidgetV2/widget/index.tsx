@@ -4,7 +4,7 @@ import memoize from "micro-memoize";
 import type { RefObject } from "react";
 import React, { createRef } from "react";
 import { floor, isEmpty, isNil, isString } from "lodash";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 import hash from "object-hash";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";

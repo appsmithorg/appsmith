@@ -1,5 +1,5 @@
 import hash from "object-hash";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 import { difference, omit, set, get, isEmpty, isString, isNil } from "lodash";
 import type { VirtualizerOptions } from "@tanstack/virtual-core";
 import {

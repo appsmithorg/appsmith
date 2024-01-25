@@ -98,7 +98,7 @@ import type {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { klona } from "klona/full";
+import { klona } from "klona/lite";
 import { klona as klonaJSON } from "klona/json";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {

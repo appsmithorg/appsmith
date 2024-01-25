@@ -1,6 +1,6 @@
 import { debounce, set } from "lodash";
 import { useMemo, useContext, useCallback } from "react";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import FormContext from "../FormContext";

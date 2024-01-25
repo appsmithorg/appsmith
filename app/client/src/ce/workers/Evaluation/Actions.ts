@@ -15,7 +15,7 @@ import {
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
-import { klona } from "klona/full";
+import { klona } from "klona/lite";
 import { isEmpty } from "lodash";
 import setters from "workers/Evaluation/setters";
 declare global {

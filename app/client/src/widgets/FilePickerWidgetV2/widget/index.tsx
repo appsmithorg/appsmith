@@ -6,7 +6,7 @@ import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 import _, { findIndex } from "lodash";
 import log from "loglevel";
 

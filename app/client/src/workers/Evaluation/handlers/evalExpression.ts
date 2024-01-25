@@ -1,4 +1,4 @@
-import { klona } from "klona/full";
+import { klona } from "klona/lite";
 import { evaluateAsync } from "../evaluate";
 import type { EvalWorkerASyncRequest } from "../types";
 import { dataTreeEvaluator } from "./evalTree";

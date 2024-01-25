@@ -7,7 +7,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 export const initialState: JSCollectionDataState = [];
 

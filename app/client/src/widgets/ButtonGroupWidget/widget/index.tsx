@@ -18,7 +18,7 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { klona as clone } from "klona/full";
+import { klona as clone } from "klona/lite";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";

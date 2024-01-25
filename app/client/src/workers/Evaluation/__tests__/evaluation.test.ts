@@ -17,7 +17,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "WidgetProvider/factory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
-import klona from "klona";
+import klona from "klona/lite";
 
 const klonaFullSpy = jest.fn();
 jest.mock("klona/full", () => ({
