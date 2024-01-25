@@ -9,8 +9,8 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { StartWithTemplateContent } from "./StartWithTemplateContent";
-import StartWithTemplateFilters from "./StartWithTemplateFilter";
+import { TemplateContent } from "./TemplateContent";
+import TemplateFilters from "./TemplateFilters";
 
 const FiltersWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
@@ -72,7 +72,7 @@ const StartWithTemplates = ({
   return (
     <>
       <TemplateContentWrapper>
-        <StartWithTemplateContent
+        <TemplateContent
           filterWithAllowPageImport={isModalLayout}
           isForkingEnabled={isForkingEnabled}
           isModalLayout={!!isModalLayout}
@@ -83,7 +83,7 @@ const StartWithTemplates = ({
 
       {!isLoading && (
         <FiltersWrapper>
-          <StartWithTemplateFilters initialFilters={initialFilters} />
+          <TemplateFilters initialFilters={initialFilters} />
         </FiltersWrapper>
       )}
     </>

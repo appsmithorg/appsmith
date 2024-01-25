@@ -26,7 +26,7 @@ import {
 } from "./StyledComponents";
 import FixedHeightTemplate from "../Template/FixedHeightTemplate";
 
-interface StartWithTemplateListProps {
+interface TemplateListProps {
   isForkingEnabled: boolean;
   isModalLayout?: boolean;
   templates: TemplateInterface[];
@@ -34,7 +34,7 @@ interface StartWithTemplateListProps {
   onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
-function StartWithTemplateList(props: StartWithTemplateListProps) {
+function TemplateList(props: TemplateListProps) {
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   const onlyBuildingBlocksFilterSet =
@@ -110,7 +110,7 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
   );
 }
 
-interface StartWithTemplateContentProps {
+interface TemplateContentProps {
   isModalLayout?: boolean;
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: TemplateInterface) => void;
@@ -119,7 +119,7 @@ interface StartWithTemplateContentProps {
   filterWithAllowPageImport?: boolean;
 }
 
-export function StartWithTemplateContent(props: StartWithTemplateContentProps) {
+export function TemplateContent(props: TemplateContentProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
   const isLoading = isFetchingApplications || isFetchingTemplates;
@@ -134,7 +134,7 @@ export function StartWithTemplateContent(props: StartWithTemplateContentProps) {
   }
 
   return (
-    <StartWithTemplateList
+    <TemplateList
       isForkingEnabled={props.isForkingEnabled}
       isModalLayout={props.isModalLayout}
       onForkTemplateClick={props.onForkTemplateClick}

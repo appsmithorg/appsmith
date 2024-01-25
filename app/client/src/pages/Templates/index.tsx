@@ -18,8 +18,8 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { editorInitializer } from "utils/editor/EditorUtils";
-import { StartWithTemplateContent } from "./StartWithTemplateContent";
-import StartWithTemplateFilters from "./StartWithTemplateFilter";
+import { TemplateContent } from "./TemplateContent";
+import TemplateFilters from "./TemplateFilters";
 import TemplateView from "./TemplateView";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -119,12 +119,12 @@ function Templates() {
       <SidebarWrapper>
         <SecondaryWrapper>
           <ReconnectDatasourceModal />
-          <StartWithTemplateFilters />
+          <TemplateFilters />
           <LeftPaneBottomSection />
         </SecondaryWrapper>
       </SidebarWrapper>
       <TemplateListWrapper>
-        <StartWithTemplateContent isForkingEnabled={!!workspaceList.length} />
+        <TemplateContent isForkingEnabled={!!workspaceList.length} />
       </TemplateListWrapper>
     </PageWrapper>
   );

@@ -195,7 +195,7 @@ const FilterCategory = ({
 };
 
 const INPUT_DEBOUNCE_TIMER = 500;
-const StartWithTemplateFilters = (props: FilterWrapperProps) => {
+const TemplateFilters = (props: FilterWrapperProps) => {
   const dispatch = useDispatch();
   const filters = useSelector(getFilterListSelector);
   const selectedFilters = useSelector(getTemplateFilterSelector);
@@ -251,4 +251,4 @@ const StartWithTemplateFilters = (props: FilterWrapperProps) => {
   );
 };
 
-export default StartWithTemplateFilters;
+export default TemplateFilters;

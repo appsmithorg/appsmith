@@ -4,7 +4,7 @@ import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getWorkspaceCreateApplication } from "@appsmith/selectors/applicationSelectors";
 import { getDefaultPlugins } from "@appsmith/selectors/entitiesSelector";
-import type { Filter } from "pages/Templates/Filters";
+import type { Filter } from "pages/Templates/TemplateFilters";
 
 const fuzzySearchOptions = {
   keys: ["title", "id", "datasources", "widgets"],
