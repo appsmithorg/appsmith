@@ -35,6 +35,7 @@ describe(
       autoLayout.ConvertToAutoLayoutAndVerify(false);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 200);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+      EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
       cy.url().then((url) => {
         currentUrl = url;
       });

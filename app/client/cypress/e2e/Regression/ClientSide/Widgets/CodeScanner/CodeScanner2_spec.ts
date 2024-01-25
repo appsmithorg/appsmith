@@ -81,6 +81,7 @@ describe(
       () => {
         //Add an action in onCodeDetected event
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 500);
+        EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
         propPane.TypeTextIntoField("Text", "{{CodeScanner1.value}}");
         EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
         propPane.EnterJSContext(

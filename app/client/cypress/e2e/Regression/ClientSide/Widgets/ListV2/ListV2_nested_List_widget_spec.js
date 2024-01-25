@@ -84,7 +84,9 @@ describe(
           y: 50,
         },
       );
-      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+        "List1",
+      ]);
       propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
 
       cy.dragAndDropToWidgetBySelector(
@@ -95,7 +97,9 @@ describe(
           y: 100,
         },
       );
-      EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Text2", EntityType.Widget, {}, [
+        "List1Copy",
+      ]);
       propPane.TypeTextIntoField("Text", "{{level_1.currentView.");
 
       checkAutosuggestion("Text1", "Object");

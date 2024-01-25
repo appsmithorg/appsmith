@@ -40,7 +40,7 @@ describe(
     it("2. Verify empty columnName in data", () => {
       // Drag and drop table widget
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
-      EditorNavigation.SelectEntityByName("Table3", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
       table.AddSampleTableData();
       cy.get(widgetsPage.tabedataField).should("not.be.empty");
       cy.get(`${widgetsPage.tabedataField} .CodeMirror`)

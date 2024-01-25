@@ -298,6 +298,7 @@ describe(
 
       //Tooltip
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 300);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Text", "Tooltip text");
       EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
       propPane.EnterJSContext(

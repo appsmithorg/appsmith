@@ -1,4 +1,5 @@
-import {
+import EditorNavigation, {
+  EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -19,44 +20,44 @@ describe(
     });
 
     const allowed = [
-      "audiowidget",
-      "buttongroupwidget",
-      "buttonwidget",
-      "chartwidget",
-      "checkboxwidget",
-      "checkboxgroupwidget",
-      "dividerwidget",
-      "iconbuttonwidget",
-      "iframewidget",
-      "imagewidget",
-      "inputwidgetv2",
-      "mapchartwidget",
-      "mapwidget",
-      "menubuttonwidget",
-      "progresswidget",
-      "statboxwidget",
-      "switchwidget",
-      "switchgroupwidget",
-      "textwidget",
-      "videowidget",
-      "containerwidget",
-      "tablewidgetv2",
-      "radiogroupwidget",
-      "tabswidget",
-      "richtexteditorwidget",
-      "datepickerwidget2",
-      "formwidget",
-      "filepickerwidgetv2",
-      "audiorecorderwidget",
-      "documentviewerwidget",
-      "multiselecttreewidget",
-      "singleselecttreewidget",
-      "camerawidget",
-      "selectwidget",
-      "multiselectwidgetv2",
-      "phoneinputwidget",
-      "currencyinputwidget",
-      "listwidgetv2",
+      ["audiowidget", "Audio1"],
+      ["buttongroupwidget", "ButtonGroup1"],
+      ["buttonwidget", "Button1"],
+      ["chartwidget", "Chart1"],
+      ["checkboxwidget", "Checkbox1"],
+      ["checkboxgroupwidget", "CheckboxGroup1"],
+      ["dividerwidget", "Divider1"],
+      ["iconbuttonwidget", "IconButton1"],
+      ["iframewidget", "Iframe1"],
+      ["imagewidget", "Image1"],
+      ["inputwidgetv2", "Input1"],
+      ["mapchartwidget", "MapChart1"],
+      ["mapwidget", "Map1"],
+      ["menubuttonwidget", "MenuButton1"],
+      ["progresswidget", "Progress1"],
+      ["statboxwidget", "StatBox1"],
+      ["switchwidget", "Switch1"],
+      ["switchgroupwidget", "SwitchGroup1"],
+      ["textwidget", "Text1"],
+      ["videowidget", "Video1"],
+      ["containerwidget", "Container2"],
+      ["tablewidgetv2", "Table1"],
+      ["radiogroupwidget", "RadioGroup1"],
+      ["tabswidget", "Tabs1"],
+      ["richtexteditorwidget", "RichTextEditor1"],
+      ["datepickerwidget2", "DatePicker1"],
+      ["formwidget", "Form1"],
+      ["filepickerwidgetv2", "FilePicker1"],
+      ["audiorecorderwidget", "AudioRecorder1"],
+      ["documentviewerwidget", "DocumentViewer1"],
+      ["multiselecttreewidget", "MultiSelectTree1"],
+      ["singleselecttreewidget", "SelectTree1"],
+      ["camerawidget", "Camera1"],
+      ["selectwidget", "Select1"],
+      ["multiselectwidgetv2", "MultiSelect1"],
+      ["phoneinputwidget", "PhoneInput1"],
+      ["currencyinputwidget", "CurrencyInput1"],
+      ["listwidgetv2", "List1"],
     ];
 
     it(
@@ -64,9 +65,14 @@ describe(
       { tags: ["@tag.excludeForAirgap"] },
       () => {
         PageLeftPane.switchSegment(PagePaneSegment.UI);
-        allowed.forEach((widget) => {
+        allowed.forEach(([widget, widgetName]) => {
           entityExplorer.DragDropWidgetNVerify(widget);
-          //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
+          EditorNavigation.SelectEntityByName(
+            widgetName,
+            EntityType.Widget,
+            {},
+            ["List1", "Container1"],
+          );
           agHelper.GetNClick(propPane._deleteWidget);
           cy.wait("@updateLayout");
         });
@@ -79,11 +85,11 @@ describe(
       () => {
         PageLeftPane.switchSegment(PagePaneSegment.UI);
         const airgapAllowed = allowed.filter(
-          (widget) => widget !== "mapwidget",
+          ([widget]) => widget !== "mapwidget",
         );
-        airgapAllowed.forEach((widget) => {
+        airgapAllowed.forEach(([widget, widgetName]) => {
           entityExplorer.DragDropWidgetNVerify(widget);
-
+          EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
           //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
           cy.assertPageSave();
           cy.get(`.t--draggable-${widget}`).should("exist");

@@ -119,6 +119,7 @@ describe(
 
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
       cy.get(".t--widget-buttonwidget").should("exist");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
       cy.updateCodeInput(".t--property-control-label", "Reset");
       cy.updateCodeInput(

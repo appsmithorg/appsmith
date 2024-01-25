@@ -295,7 +295,9 @@ describe(
       deployMode.NavigateBacktoEditor();
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM, 300, 400);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 200, 500);
-      EditorNavigation.SelectEntityByName("Select2", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Select2", EntityType.Widget, {}, [
+        "Form1",
+      ]);
       agHelper.AssertExistingToggleState("Required", "false");
       propPane.TogglePropertyState("Required", "On");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.FORM));

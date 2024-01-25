@@ -138,7 +138,8 @@ Object.values(setterMethodsToTest).forEach(
           );
 
           entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 500, 300);
-          EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+          const widgetName = widget === WIDGET.TEXT ? "Text2" : "Text1";
+          EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
 
           propPane.UpdatePropertyFieldValue(
             PROPERTY_SELECTOR.TextFieldName,

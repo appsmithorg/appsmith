@@ -23,6 +23,7 @@ describe("Reset widget action", { tags: ["@tag.Widget"] }, () => {
     propPane.UpdatePropertyFieldValue("Label", "Set value");
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 500, 100);
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
     propPane.EnterJSContext("onClick", `{{resetWidget("Input1")}}`);
     propPane.UpdatePropertyFieldValue("Label", "Reset value");
 

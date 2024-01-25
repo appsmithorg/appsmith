@@ -81,6 +81,7 @@ describe(
     it("4. Checks if video widget is reset on button click", function () {
       propPane.UpdatePropertyFieldValue("URL", testdata.videoUrl2);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 400);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
       cy.selectResetWidget("onClick");
       cy.selectWidgetForReset("Video1");

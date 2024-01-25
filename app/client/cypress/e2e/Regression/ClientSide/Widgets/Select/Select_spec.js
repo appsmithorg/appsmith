@@ -2,8 +2,10 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const EditorNavigation = require("../../../../../support/Pages/EditorNavigation");
-const { EntityType } = require("../../../../../support/Pages/EditorNavigation");
+
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
   it("1. Drag and drop Select/Text widgets", () => {

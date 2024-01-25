@@ -1,4 +1,7 @@
-import { PageLeftPane } from "../../../../../support/Pages/EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
@@ -64,15 +67,21 @@ describe(
         y: 50,
       });
 
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
+        "List1",
+        "Container1",
+      ]);
+
       // Verify drop
       cy.get(publishLocators.inputWidget).should("exist");
 
       // Type value
-      cy.get(publishLocators.inputWidget).find("input").type("abcd");
+      cy.get(publishLocators.inputWidget).find("input").first().type("abcd");
 
       // Verify if the value got typed
       cy.get(publishLocators.inputWidget)
         .find("input")
+        .first()
         .should("have.value", "abcd");
 
       deleteAllWidgetsInContainer();

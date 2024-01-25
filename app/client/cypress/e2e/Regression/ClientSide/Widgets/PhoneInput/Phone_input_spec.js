@@ -33,8 +33,6 @@ describe(
     });
 
     it("2. Should check for the format and dialCode", () => {
-      cy.get(`.t--widget-${widgetName} input`).clear();
-      cy.wait(500);
       cy.get(`.t--widget-${widgetName} input`).type("9999999999");
       cy.get(".t--widget-textwidget").should("contain", "(999) 999-9999:US:+1");
 

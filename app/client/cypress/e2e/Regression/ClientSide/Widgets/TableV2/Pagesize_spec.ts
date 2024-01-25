@@ -19,6 +19,7 @@ describe(
         500,
         300,
       );
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.propPane.MoveToTab("Style");
 
       _.agHelper.GetNClick(

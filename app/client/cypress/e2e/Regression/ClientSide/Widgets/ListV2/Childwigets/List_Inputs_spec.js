@@ -1,5 +1,6 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../../support/Pages/EditorNavigation";
 
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
@@ -35,7 +36,12 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
       200,
       100,
     );
-    EditorNavigation.SelectEntityByName("CurrencyInput1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName(
+      "CurrencyInput1",
+      EntityType.Widget,
+      {},
+      ["List1"],
+    );
     propPane.UpdatePropertyFieldValue("Default value", "{{currentItem.id}}");
     propPane.TogglePropertyState("Required", "On");
 
@@ -44,6 +50,9 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
       200,
       200,
     );
+    EditorNavigation.SelectEntityByName("PhoneInput1", EntityType.Widget, {}, [
+      "List1",
+    ]);
     propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{currentItem.phoneNumber}}",
@@ -52,6 +61,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
     propPane.TogglePropertyState("Enable formatting", "Off");
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 300);
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "{{currentItem.email}}");
     propPane.TogglePropertyState("Required", "On");
 
@@ -82,6 +92,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   it("2. Input Widgets isValid", function () {
     // Test for isValid === True
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 100);
+    PageLeftPane.expandCollapseItem("List1");
     propPane.RenameWidget("Text1", "Currency_Widget");
     agHelper.Sleep();
     propPane.UpdatePropertyFieldValue(

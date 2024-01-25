@@ -88,6 +88,7 @@ describe(
       _.propPane.SelectPropertiesDropDown("value", "test2", "Action", 0, 1);
 
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 450, 500);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
 
       _.propPane.UpdatePropertyFieldValue(
         "Text",
