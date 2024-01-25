@@ -61,9 +61,7 @@ export function* partialImportSaga(
   action: ReduxAction<{ applicationFile: File }>,
 ) {
   try {
-    // Step1: Import widgets from file, in parallel
-    yield fork(partialImportWidgetsSaga, action.payload.applicationFile);
-    // Step2: Send backend request to import pending items.
+    // Step1: Send backend request to import pending items.
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const pageId: string = yield select(getCurrentPageId);
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -80,6 +78,8 @@ export function* partialImportSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      // Step2: Import widgets from file, in parallel
+      yield fork(partialImportWidgetsSaga, action.payload.applicationFile);
       yield call(postPageAdditionSaga, applicationId);
       toast.show("Partial Application imported successfully", {
         kind: "success",
