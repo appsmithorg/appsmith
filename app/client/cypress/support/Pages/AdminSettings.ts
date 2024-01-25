@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import { featureFlagIntercept } from "../Objects/FeatureFlags";
 
 export class AdminSettings {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -14,11 +15,42 @@ export class AdminSettings {
     user +
     "')]/parent::div/parent::span/parent::a/parent::td/following-sibling::td[1]";
   public _instanceName = '[name="instanceName"]';
+  public rolesTab = ".t--settings-category-roles";
 
-  public NavigateToAdminSettings() {
-    this.homePage.NavigateToHome();
+  public NavigateToAdminSettings(toNavigateToHome = true) {
+    toNavigateToHome && this.homePage.NavigateToHome();
+    this.agHelper.AssertElementVisibility(this._adminSettingsBtn);
     this.agHelper.GetNClick(this._adminSettingsBtn);
     this.assertHelper.AssertNetworkStatus("getEnvVariables");
     this.agHelper.AssertElementVisibility(this._settingsList);
+  }
+
+  public EnableGAC(
+    toNavigateToHome = true,
+    toNavigateBackToHome = true,
+    methodType: "adminSettings" | "home" = "adminSettings",
+  ) {
+    switch (methodType) {
+      case "adminSettings":
+        this.NavigateToAdminSettings(toNavigateToHome);
+        this.enableGACFeatureFlag();
+        this.assertHelper.AssertDocumentReady();
+        this.agHelper.WaitUntilEleAppear(this.rolesTab);
+        toNavigateBackToHome && this.homePage.NavigateToHome();
+        break;
+      case "home":
+        toNavigateToHome && this.homePage.NavigateToHome();
+        this.enableGACFeatureFlag();
+        this.assertHelper.AssertDocumentReady();
+        this.agHelper.AssertElementExist(this.homePage._homePageContainer);
+        this.agHelper.AssertElementVisibility(this.homePage._homePageContainer);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private enableGACFeatureFlag() {
+    featureFlagIntercept({ license_gac_enabled: true });
   }
 }

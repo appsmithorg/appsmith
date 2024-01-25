@@ -14,7 +14,7 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 //require('cy-verify-downloads').addCustomCommand();
 const path = require("path");
-
+import { v4 as uuidv4 } from "uuid";
 const dayjs = require("dayjs");
 const {
   addMatchImageSnapshotCommand,
@@ -49,6 +49,7 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
+const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -382,7 +383,9 @@ Cypress.Commands.add("DeleteApp", (appName) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(homePage.applicationCard).first().trigger("mouseover");
-  cy.get(homePage.appMoreIcon).first().click({ force: true });
+  cy.get("[data-testid=t--application-card-context-menu]")
+    .first()
+    .click({ force: true });
   cy.get(homePage.deleteAppConfirm).should("be.visible").click({ force: true });
   cy.get(homePage.deleteApp).contains("Are you sure?").click({ force: true });
 });
@@ -546,8 +549,7 @@ Cypress.Commands.add("tabPopertyUpdate", (tabId, newTabName) => {
 });
 
 Cypress.Commands.add("generateUUID", () => {
-  const uuid = require("uuid");
-  const id = uuid.v4();
+  let id = uuidv4();
   return id.split("-")[0];
 });
 
@@ -1039,6 +1041,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
   cy.intercept("GET", "/api/v1/applications/ssh-keypair/*").as("generatedKey");
   cy.intercept("POST", "/api/v1/applications/snapshot/*").as("snapshotSuccess");
+  cy.intercept("GET", "/api/v1/applications/snapshot/*").as("pageSnap");
   cy.intercept(
     {
       method: "POST",
@@ -1112,6 +1115,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/datasources/*/schema-preview").as(
     "schemaPreview",
   );
+  cy.intercept("GET", "/api/v1/pages/*/view?v=*").as("templatePreview");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1781,8 +1785,6 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   // Drag a widget
   cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
   cy.get(`.t--widget-${widgetName}`).should("exist");
-
-  cy.openPropertyPane(widgetName);
 
   // Set the label text
   cy.updateCodeInput(".t--property-control-text", labelText);

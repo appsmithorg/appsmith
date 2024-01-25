@@ -10,5 +10,7 @@
   "closeButton": "//button[@aria-label='Close']//span",
   "marketingDashboard": "//h1[text()='Marketing Dashboard']",
   "vehicleMaintenenceApp": "//h1[text()='Vehicle Maintenance App']",
-  "startFromTemplateOnboardingCard": "[data-testid=t--start-from-template]"
+  "applicationTrackerDashboard": "//h1[text()='Applicant Tracker-test']",
+  "startFromTemplateOnboardingCard": "[data-testid=t--start-from-template]",
+  "templateLoadState": "div.template-content:not(:empty)"
 }

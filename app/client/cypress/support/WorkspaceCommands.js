@@ -8,7 +8,6 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
 import { ObjectsRegistry } from "../support/Objects/Registry";
-import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const assertHelper = ObjectsRegistry.AssertHelper;
@@ -234,6 +233,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
       .concat(workspaceName)
       .concat(homePage.createAppFrWorkspace),
   )
+    .first()
     .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
@@ -277,9 +277,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     localStorage.setItem("workspaceName", workspaceName);
     homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
   });
-
-  featureFlagIntercept({ release_custom_widgets_enabled: true });
-
   cy.get("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
@@ -298,7 +295,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     });
   });
   AppSidebar.assertVisible();
-  assertHelper.AssertNetworkResponseData("@getConsolidatedData"); //for auth rest api
 
   // If the intro modal is open, close it
   cy.skipSignposting();
@@ -316,6 +312,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
    */
   //cy.wait("@updateLayout");
 });
+
 Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
   cy.openWorkspaceOptionsPopup(newWorkspaceName);
   cy.get(homePage.workspaceNamePopoverContent)
