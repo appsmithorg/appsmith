@@ -622,12 +622,12 @@ export default function* executePluginActionTriggerSaga(
     });
     if (onError) {
       throw new PluginTriggerFailureError(
-        createMessage(ERROR_ACTION_EXECUTE_FAIL, pluginActionNameToDisplay),
+        createMessage(ERROR_ACTION_EXECUTE_FAIL, action.name),
         [payload.body, params],
       );
     } else {
       throw new PluginTriggerFailureError(
-        createMessage(ERROR_PLUGIN_ACTION_EXECUTE, pluginActionNameToDisplay),
+        createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
         [],
       );
     }
