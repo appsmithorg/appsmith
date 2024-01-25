@@ -6,7 +6,8 @@ import {
 import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import styled from "styled-components";
-import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
+import type { SettingsHeadingType } from "./constants";
+import { JS_FORM_SETTING, RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon, Radio, RadioGroup, Tooltip } from "design-system";
 
@@ -28,6 +29,7 @@ interface SettingsItemProps {
   disabled?: boolean;
   onUpdateSettings?: (props: OnUpdateSettingsProps) => void;
   renderAdditionalColumns?: (action: JSAction) => React.ReactNode;
+  whitelistedSettings: JS_FORM_SETTING[];
 }
 
 export interface JSFunctionSettingsProps {
@@ -35,8 +37,14 @@ export interface JSFunctionSettingsProps {
   disabled?: boolean;
   onUpdateSettings: SettingsItemProps["onUpdateSettings"];
   renderAdditionalColumns?: SettingsItemProps["renderAdditionalColumns"];
-  additionalHeadings?: typeof SETTINGS_HEADINGS;
+  additionalHeadings?: SettingsHeadingType[];
+  whitelistedSettings?: JS_FORM_SETTING[];
 }
+
+export const DEFAULT_WHITELISTED_SETTINGS = [
+  JS_FORM_SETTING.ON_PAGE_LOAD,
+  JS_FORM_SETTING.CONFORM_BEFORE_EXECUTE,
+];
 
 const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
   display: flex;
@@ -132,6 +140,7 @@ function SettingsItem({
   disabled,
   onUpdateSettings,
   renderAdditionalColumns,
+  whitelistedSettings,
 }: SettingsItemProps) {
   const [executeOnPageLoad, setExecuteOnPageLoad] = useState(
     String(!!action.executeOnLoad),
@@ -175,42 +184,46 @@ function SettingsItem({
       <SettingColumn grow>
         <span>{action.name}</span>
       </SettingColumn>
-      <SettingColumn className={`${action.name}-on-page-load-setting`}>
-        <RadioGroup
-          defaultValue={executeOnPageLoad}
-          name={`execute-on-page-load-${action.id}`}
-          onChange={onChangeExecuteOnPageLoad}
-          orientation="horizontal"
-        >
-          {RADIO_OPTIONS.map((option) => (
-            <Radio
-              isDisabled={disabled}
-              key={option.label}
-              value={option.value}
-            >
-              {option.label}
-            </Radio>
-          ))}
-        </RadioGroup>
-      </SettingColumn>
-      <SettingColumn className={`${action.name}-confirm-before-execute`}>
-        <RadioGroup
-          defaultValue={confirmBeforeExecute}
-          name={`confirm-before-execute-${action.id}`}
-          onChange={onChangeConfirmBeforeExecute}
-          orientation="horizontal"
-        >
-          {RADIO_OPTIONS.map((option) => (
-            <Radio
-              isDisabled={disabled}
-              key={option.label}
-              value={option.value}
-            >
-              {option.label}
-            </Radio>
-          ))}
-        </RadioGroup>
-      </SettingColumn>
+      {whitelistedSettings.includes(JS_FORM_SETTING.ON_PAGE_LOAD) && (
+        <SettingColumn className={`${action.name}-on-page-load-setting`}>
+          <RadioGroup
+            defaultValue={executeOnPageLoad}
+            name={`execute-on-page-load-${action.id}`}
+            onChange={onChangeExecuteOnPageLoad}
+            orientation="horizontal"
+          >
+            {RADIO_OPTIONS.map((option) => (
+              <Radio
+                isDisabled={disabled}
+                key={option.label}
+                value={option.value}
+              >
+                {option.label}
+              </Radio>
+            ))}
+          </RadioGroup>
+        </SettingColumn>
+      )}
+      {whitelistedSettings.includes(JS_FORM_SETTING.CONFORM_BEFORE_EXECUTE) && (
+        <SettingColumn className={`${action.name}-confirm-before-execute`}>
+          <RadioGroup
+            defaultValue={confirmBeforeExecute}
+            name={`confirm-before-execute-${action.id}`}
+            onChange={onChangeConfirmBeforeExecute}
+            orientation="horizontal"
+          >
+            {RADIO_OPTIONS.map((option) => (
+              <Radio
+                isDisabled={disabled}
+                key={option.label}
+                value={option.value}
+              >
+                {option.label}
+              </Radio>
+            ))}
+          </RadioGroup>
+        </SettingColumn>
+      )}
       {renderAdditionalColumns?.(action)}
     </SettingRow>
   );
@@ -222,7 +235,18 @@ function JSFunctionSettingsView({
   disabled = false,
   onUpdateSettings,
   renderAdditionalColumns,
+  whitelistedSettings = DEFAULT_WHITELISTED_SETTINGS,
 }: JSFunctionSettingsProps) {
+  const settingsHeadings = [...SETTINGS_HEADINGS, ...additionalHeadings].filter(
+    ({ type }) => {
+      if (type) {
+        return whitelistedSettings.includes(type);
+      }
+
+      return true;
+    },
+  );
+
   return (
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
@@ -230,17 +254,15 @@ function JSFunctionSettingsView({
         <SettingsRowWrapper>
           <SettingsHeaderWrapper>
             <SettingRow isHeading>
-              {[...SETTINGS_HEADINGS, ...additionalHeadings].map(
-                (setting, index) => (
-                  <SettingsHeading
-                    grow={index === 0}
-                    hasInfo={setting.hasInfo}
-                    info={setting.info}
-                    key={setting.key}
-                    text={setting.text}
-                  />
-                ),
-              )}
+              {settingsHeadings.map((setting, index) => (
+                <SettingsHeading
+                  grow={index === 0}
+                  hasInfo={setting.hasInfo}
+                  info={setting.info}
+                  key={setting.key}
+                  text={setting.text}
+                />
+              ))}
             </SettingRow>
           </SettingsHeaderWrapper>
           <SettingsBodyWrapper>
@@ -252,6 +274,7 @@ function JSFunctionSettingsView({
                   key={action.id}
                   onUpdateSettings={onUpdateSettings}
                   renderAdditionalColumns={renderAdditionalColumns}
+                  whitelistedSettings={whitelistedSettings}
                 />
               ))
             ) : (

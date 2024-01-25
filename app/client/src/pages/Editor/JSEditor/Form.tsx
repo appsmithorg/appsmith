@@ -70,6 +70,7 @@ import {
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JS_FORM_SETTING } from "./constants";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -80,6 +81,7 @@ interface JSFormProps {
   backLink?: React.ReactNode;
   hideContextMenuOnEditor?: boolean;
   hideEditIconOnEditor?: boolean;
+  whitelistedSettings?: JS_FORM_SETTING[];
 }
 
 type Props = JSFormProps;
@@ -113,6 +115,7 @@ function JSEditorForm({
   onUpdateSettings,
   saveJSObjectName,
   showSettings = true,
+  whitelistedSettings,
 }: Props) {
   const theme = EditorTheme.LIGHT;
   const dispatch = useDispatch();
@@ -412,6 +415,7 @@ function JSEditorForm({
                             actions={jsActions}
                             disabled={!isChangePermitted}
                             onUpdateSettings={onUpdateSettings}
+                            whitelistedSettings={whitelistedSettings}
                           />
                         </div>
                       </TabPanel>

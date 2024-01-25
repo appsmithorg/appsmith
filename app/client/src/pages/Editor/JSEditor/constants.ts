@@ -19,7 +19,20 @@ export const NO_FUNCTION_DROPDOWN_OPTION: JSActionDropdownOption = {
   value: "",
   data: null,
 };
-export const SETTINGS_HEADINGS = [
+export enum JS_FORM_SETTING {
+  ON_PAGE_LOAD = "ON_PAGE_LOAD",
+  CONFORM_BEFORE_EXECUTE = "CONFORM_BEFORE_EXECUTE",
+}
+
+export interface SettingsHeadingType {
+  text: string;
+  hasInfo: boolean;
+  key: string;
+  info?: string;
+  type?: JS_FORM_SETTING;
+}
+
+export const SETTINGS_HEADINGS: SettingsHeadingType[] = [
   {
     text: "Function name",
     hasInfo: false,
@@ -30,12 +43,14 @@ export const SETTINGS_HEADINGS = [
     hasInfo: true,
     info: "Allow function run when page loads",
     key: "run_on_pageload",
+    type: JS_FORM_SETTING.ON_PAGE_LOAD,
   },
   {
     text: "Confirm before calling ",
     hasInfo: true,
     info: "Ask for confirmation before executing function",
     key: "run_before_calling",
+    type: JS_FORM_SETTING.CONFORM_BEFORE_EXECUTE,
   },
 ];
 export const RADIO_OPTIONS: OptionProps[] = [
