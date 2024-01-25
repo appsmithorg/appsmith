@@ -217,6 +217,7 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+        run: exit 1
 
       # Install all the dependencies
       - name: Install dependencies
@@ -339,12 +340,12 @@ jobs:
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
       - name: Notify on failure
-        if: always()
+        if: failure()
         uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_CHANNEL: cypresspushworkflow
+          SLACK_CHANNEL: clientbuildfailure-test
           SLACK_ICON: https://app.slack.com/services/B05D17E4QVB
           SLACK_TITLE: "Client build failure:"
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
-          SLACK_TEXT: "❌ Client Build failed in workflow '${{ github.workflow }}' on branch '${{ github.ref }}'"
+          SLACK_MESSAGE: "❌ Client Build failed in workflow '${{ github.workflow }}' on branch '${{ github.ref }}'"
