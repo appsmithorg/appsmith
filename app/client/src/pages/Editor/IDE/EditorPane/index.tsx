@@ -8,16 +8,14 @@ import { SentryRoute } from "@appsmith/AppRouter";
 import { ADD_PATH } from "constants/routes";
 import EditorPaneSegments from "./EditorPaneSegments";
 import GlobalAdd from "./GlobalAdd";
-import { useIDEWidths } from "../hooks";
 import { getPagesActiveStatus } from "selectors/ideSelectors";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 import { MinimalSegment } from "./MinimalSegment";
 import { Pages } from "./components/Pages";
-import { getExplorerWidth } from "selectors/explorerSelector";
+import { useEditorPaneWidth } from "../hooks";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
-  useIDEWidths();
-  const editorPaneWidth = useSelector(getExplorerWidth);
+  const width = useEditorPaneWidth();
   const pagesActive = useSelector(getPagesActiveStatus);
 
   return (
@@ -27,7 +25,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       gap="spacing-2"
       height="100%"
       overflow="hidden"
-      width={editorPaneWidth + "px"}
+      width={width + "px"}
     >
       {/** Entity Properties component is needed to render
         the Bindings popover in the context menu. Will be removed eventually **/}
