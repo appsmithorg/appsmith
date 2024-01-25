@@ -53,7 +53,7 @@ describe(
 
     it("2. User with developer access,should not be able to export the app", function () {
       cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      adminSettings.EnableGAC(false, true);
+      if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.CreateNewWorkspace("exportApp" + uid);
@@ -91,7 +91,7 @@ describe(
 
     it("3. User with viewer access,should not be able to export the app", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      adminSettings.EnableGAC(false, true);
+      if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.CreateNewWorkspace("exportApp" + uid);

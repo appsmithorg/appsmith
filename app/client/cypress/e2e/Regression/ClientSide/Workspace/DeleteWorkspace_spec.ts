@@ -1,3 +1,4 @@
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
@@ -26,7 +27,7 @@ describe(
     });
 
     it("2. Should show option to delete workspace for an admin user", function () {
-      adminSettings.EnableGAC(false, true);
+      if (CURRENT_REPO == REPO.EE) adminSettings.EnableGAC(false, true);
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         newWorkspaceName = uid;

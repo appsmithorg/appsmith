@@ -52,7 +52,7 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
   });
 
   it("2. Super user can access branding page", () => {
-    cy.LogOut();
+    cy.LogOut(false);
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
@@ -282,7 +282,7 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
   });
 
   it("6. Super user sees upgrade option in branding page in free plan", () => {
-    cy.LogOut();
+    cy.LogOut(false);
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();

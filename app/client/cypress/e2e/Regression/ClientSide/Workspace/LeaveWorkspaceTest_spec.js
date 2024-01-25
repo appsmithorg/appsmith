@@ -5,6 +5,7 @@ import {
   homePage,
   adminSettings,
 } from "../../../../support/Objects/ObjectsCore";
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 describe(
   "Leave workspace test spec",
@@ -30,7 +31,7 @@ describe(
     });
 
     it("2. Bug 17235 & 17987 - Non admin users can only access leave workspace popup menu validation", function () {
-      adminSettings.EnableGAC(false, true);
+      if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
       homePage.InviteUserToWorkspace(
         newWorkspaceName,
         Cypress.env("TESTUSERNAME1"),
