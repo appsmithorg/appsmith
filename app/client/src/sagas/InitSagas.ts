@@ -341,7 +341,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   }
 }
 
-export function* resetDebuggerLogs() {
+function* resetDebuggerLogs() {
   // clear all existing debugger errors
   const debuggerErrors: ReturnType<typeof getDebuggerErrors> =
     yield select(getDebuggerErrors);
