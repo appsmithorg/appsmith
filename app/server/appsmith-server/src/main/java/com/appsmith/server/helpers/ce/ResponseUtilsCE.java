@@ -105,7 +105,9 @@ public class ResponseUtilsCE {
     }
 
     public ActionDTO updateActionDTOWithDefaultResources(ActionDTO action) {
-        log.debug("Updating action DTO with default resources with action id: {} ", action.getId());
+        log.debug(
+                "Updating action DTO with default resources with action id: {} ",
+                action != null ? action.getId() : null);
         DefaultResources defaultResourceIds = action.getDefaultResources();
         if (defaultResourceIds == null) {
             return action;

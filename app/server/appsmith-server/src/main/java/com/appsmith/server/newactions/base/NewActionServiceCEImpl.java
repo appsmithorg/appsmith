@@ -579,7 +579,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action) {
-        log.debug("Updating unpublished action with action id: {} and id: {} ", action.getId(), id);
+        log.debug(
+                "Updating unpublished action with action id: {} and id: {} ",
+                action != null ? action.getId() : null,
+                id);
 
         return updateUnpublishedActionWithoutAnalytics(id, action, Optional.of(actionPermission.getEditPermission()))
                 .zipWhen(zippedActions -> {
@@ -629,7 +632,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
             String id, ActionDTO action, Optional<AclPermission> permission) {
-        log.debug("Updating unpublished action without analytics with action id: {} ", action.getId());
+        log.debug(
+                "Updating unpublished action without analytics with action id: {} ",
+                action != null ? action.getId() : null);
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -1131,7 +1136,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<NewAction> sanitizeAction(NewAction action) {
         Mono<NewAction> actionMono = Mono.just(action);
         if (isPluginTypeOrPluginIdMissing(action)) {
-            log.debug("Sanitizing the action for missing plugin type or plugin Id with action id: {} ", action.getId());
+            log.debug(
+                    "Sanitizing the action for missing plugin type or plugin Id with action id: {} ",
+                    action != null ? action.getId() : null);
             actionMono = providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action);
         }
 
