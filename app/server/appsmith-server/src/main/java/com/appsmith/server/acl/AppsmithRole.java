@@ -2,8 +2,6 @@ package com.appsmith.server.acl;
 
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
