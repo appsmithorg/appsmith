@@ -256,6 +256,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                         Set<String> pageNamesSet = new HashSet<>(updatedPageNamesList);
                         ModifiedResources modifiedResources = new ModifiedResources();
                         modifiedResources.putResource(PAGE_LIST, pageNamesSet);
+                        modifiedResources.setAllModified(true);
                         applicationJson.setModifiedResources(modifiedResources);
                         return applicationJson;
                     });
