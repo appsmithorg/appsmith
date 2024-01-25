@@ -337,9 +337,10 @@ function DatasourceAuth({
           isLoading={isTesting}
           key={buttonType}
           kind={
-            pluginName === "PostgreSQL" ||
-            pluginName === "MySQL" ||
-            pluginName === "MongoDB"
+            (pluginName === "PostgreSQL" ||
+              pluginName === "MySQL" ||
+              pluginName === "MongoDB") &&
+            isEnabledForTestPrimary
               ? "primary"
               : "secondary"
           }
