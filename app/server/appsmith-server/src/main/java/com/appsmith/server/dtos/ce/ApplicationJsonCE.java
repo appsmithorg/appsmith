@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
@@ -79,13 +80,22 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
     List<ActionCollection> actionCollectionList;
 
     /**
+     * This field is no more used as we're using the modifiedResources property for the same purpose.
+     * This property is not removed to ensure compatibility with older JSON files that were created before
+     * the modifiedResources has been added.
+     */
+    @JsonView(Views.Internal.class)
+    @Deprecated
+    Map<String, Set<String>> updatedResources;
+
+    /**
      * This field will be used to store map of files to be updated in local file system by comparing the recent
      * changes in database and the last local git commit.
      * This field can be used while saving resources to local file system and only update the resource files which
      * are updated in the database.
      */
     @JsonView(Views.Internal.class)
-    Map<String, Set<String>> updatedResources;
+    ModifiedResources modifiedResources;
 
     // TODO remove the plain text fields during the export once we have a way to address sample apps DB authentication
     @JsonView(Views.Public.class)

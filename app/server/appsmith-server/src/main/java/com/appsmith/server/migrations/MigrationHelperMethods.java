@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.InvisibleActionFields;
@@ -270,5 +271,20 @@ public class MigrationHelperMethods {
             CustomJSLib xmlParserJsLib = ApplicationConstants.getDefaultParserCustomJsLibCompatibilityDTO();
             customJSLibList.add(xmlParserJsLib);
         }
+    }
+
+    public static void migrateUpdatedResourcesToModifiedResources(ApplicationJson applicationJson) {
+        if (applicationJson.getModifiedResources() == null) {
+            applicationJson.setModifiedResources(new ModifiedResources());
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(applicationJson.getUpdatedResources())) {
+            // if updated resources are present in file, we need migrate them to new format
+            for (Map.Entry<String, Set<String>> entry :
+                    applicationJson.getUpdatedResources().entrySet()) {
+                applicationJson.getModifiedResources().putResource(entry.getKey(), entry.getValue());
+            }
+        }
+        applicationJson.setUpdatedResources(null);
     }
 }

@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -3453,6 +3454,7 @@ public class ImportApplicationServiceTests {
                     assertThat(pageOrder.get(0)).isEqualTo("Page1");
                     assertThat(pageOrder.get(1)).isEqualTo("testPage1");
                     assertThat(pageOrder.get(2)).isEqualTo("testPage2");
+                    assertThat(applicationJson.getUpdatedResources()).isNull();
                 })
                 .verifyComplete();
 
@@ -5075,11 +5077,14 @@ public class ImportApplicationServiceTests {
         // verify that the exported json has the updated page name, and the queries are in the updated resources
         StepVerifier.create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
-                    assertThat(updatedResources).isNotNull();
-                    Set<String> updatedPageNames = updatedResources.get(FieldName.PAGE_LIST);
-                    Set<String> updatedActionNames = updatedResources.get(FieldName.ACTION_LIST);
-                    Set<String> updatedActionCollectionNames = updatedResources.get(FieldName.ACTION_COLLECTION_LIST);
+                    ModifiedResources modifiedResources = applicationJson.getModifiedResources();
+                    assertThat(modifiedResources).isNotNull();
+                    Set<String> updatedPageNames =
+                            modifiedResources.getModifiedResourceMap().get(FieldName.PAGE_LIST);
+                    Set<String> updatedActionNames =
+                            modifiedResources.getModifiedResourceMap().get(FieldName.ACTION_LIST);
+                    Set<String> updatedActionCollectionNames =
+                            modifiedResources.getModifiedResourceMap().get(FieldName.ACTION_COLLECTION_LIST);
 
                     assertThat(updatedPageNames).isNotNull();
                     assertThat(updatedActionNames).isNotNull();
@@ -5175,9 +5180,10 @@ public class ImportApplicationServiceTests {
         // verify that the exported json has the updated page name, and the queries are in the updated resources
         StepVerifier.create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
-                    assertThat(updatedResources).isNotNull();
-                    Set<String> updatedActionNames = updatedResources.get(FieldName.ACTION_LIST);
+                    ModifiedResources modifiedResources = applicationJson.getModifiedResources();
+                    assertThat(modifiedResources).isNotNull();
+                    Set<String> updatedActionNames =
+                            modifiedResources.getModifiedResourceMap().get(FieldName.ACTION_LIST);
                     assertThat(updatedActionNames).isNotNull();
 
                     // action should be present in the updated resources although action not updated but datasource is
