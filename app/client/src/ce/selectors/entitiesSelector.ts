@@ -59,6 +59,7 @@ import {
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1460,13 +1461,6 @@ export const getNewEntityName = createSelector(
     return getNextEntityName(prefix, actionNames.concat(jsActionNames));
   },
 );
-
-export interface EntityItem {
-  title: string;
-  type: PluginType;
-  key: string;
-  group?: string;
-}
 
 export const getQuerySegmentItems = createSelector(
   getCurrentActions,

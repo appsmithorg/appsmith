@@ -51,6 +51,7 @@ export const useCurrentEditorState = () => {
     switch (currentEntityInfo.entity) {
       case FocusEntity.QUERY:
       case FocusEntity.API:
+      case FocusEntity.QUERY_MODULE_INSTANCE:
         setSelectedSegment(EditorEntityTab.QUERIES);
         setSelectedSegmentState(EditorEntityTabState.Edit);
         break;
@@ -63,6 +64,7 @@ export const useCurrentEditorState = () => {
         setSelectedSegmentState(EditorEntityTabState.Add);
         break;
       case FocusEntity.JS_OBJECT:
+      case FocusEntity.JS_MODULE_INSTANCE:
         setSelectedSegment(EditorEntityTab.JS);
         setSelectedSegmentState(EditorEntityTabState.Edit);
         break;

@@ -35,8 +35,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
         return workspaceMono
                 .map(workspace -> workspace.getPlugins().stream()
                         .map(WorkspacePlugin::getPluginId)
@@ -65,7 +64,6 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importContextMono,
             ArtifactExchangeJson importableContextJson,
-            boolean isPartialImport,
             boolean isContextAgnostic) {
         return importContextMono.flatMap(importableContext -> {
             Application application = (Application) importableContext;
@@ -75,8 +73,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
                     mappedImportableResourcesDTO,
                     workspaceMono,
                     Mono.just(application),
-                    applicationJson,
-                    isPartialImport);
+                    applicationJson);
         });
     }
 }
