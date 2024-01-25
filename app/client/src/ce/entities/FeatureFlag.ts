@@ -48,6 +48,8 @@ export const FEATURE_FLAG = {
   release_side_by_side_ide_enabled: "release_side_by_side_ide_enabled",
   release_global_add_pane_enabled: "release_global_add_pane_enabled",
   ab_appsmith_ai_query: "ab_appsmith_ai_query",
+  ab_flip_primary_secondary_ctas_dsform_enabled:
+    "ab_flip_primary_secondary_ctas_dsform_enabled",
   rollout_consolidated_page_load_fetch_enabled:
     "rollout_consolidated_page_load_fetch_enabled",
 } as const;
@@ -90,6 +92,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_side_by_side_ide_enabled: false,
   release_global_add_pane_enabled: false,
   ab_appsmith_ai_query: false,
+  ab_flip_primary_secondary_ctas_dsform_enabled: false,
   rollout_consolidated_page_load_fetch_enabled: false,
 };
 

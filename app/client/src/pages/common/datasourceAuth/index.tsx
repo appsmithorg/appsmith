@@ -167,6 +167,10 @@ function DatasourceAuth({
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  const isEnabledForTestPrimary = !!useFeatureFlag(
+    FEATURE_FLAG.ab_flip_primary_secondary_ctas_dsform_enabled,
+  );
+
   const canManageDatasource = getHasManageDatasourcePermission(
     isFeatureEnabled,
     datasourcePermissions,
@@ -386,9 +390,10 @@ function DatasourceAuth({
           isLoading={isSaving}
           key={buttonType}
           kind={
-            pluginName === "PostgreSQL" ||
-            pluginName === "MySQL" ||
-            pluginName === "MongoDB"
+            (pluginName === "PostgreSQL" ||
+              pluginName === "MySQL" ||
+              pluginName === "MongoDB") &&
+            isEnabledForTestPrimary
               ? "secondary"
               : "primary"
           }
