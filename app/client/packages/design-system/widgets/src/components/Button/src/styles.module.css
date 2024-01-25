@@ -172,6 +172,7 @@
 
     & [data-icon] {
       inline-size: var(--sizing-4);
+      min-inline-size: var(--sizing-4);
     }
   }
 
@@ -181,6 +182,7 @@
 
     & [data-icon] {
       inline-size: var(--sizing-5);
+      min-inline-size: var(--sizing-5);
     }
   }
 }
