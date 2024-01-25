@@ -49,6 +49,7 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
+const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -293,8 +294,8 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.LogOutUser();
   cy.LoginUser(uname, pword);
   if (CURRENT_REPO === REPO.CE) {
-    cy.get(".t--applications-container .createnew").should("be.visible");
-    cy.get(".t--applications-container .createnew").should("be.enabled");
+    cy.get(".createnew").should("be.visible");
+    cy.get(".createnew").should("be.enabled");
   }
   initLocalstorage();
 });
@@ -370,9 +371,8 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
     } else {
+      assertHelper.AssertNetworkStatus("getAllWorkspaces");
       assertHelper.AssertNetworkStatus("getConsolidatedData");
-      assertHelper.AssertNetworkStatus("applications");
-      assertHelper.AssertNetworkStatus("getReleaseItems");
     }
   });
 });
@@ -915,6 +915,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/applications/releaseItems").as(
     "getReleaseItems",
   );
+  cy.intercept("GET", "/api/v1/workspaces/home").as("getAllWorkspaces");
+  cy.intercept("GET", "/api/v1/applications/home?workspaceId=*").as(
+    "getApplicationsOfWorkspace",
+  );
 
   cy.intercept("POST");
   cy.intercept("GET", "/api/v1/pages/*").as("getPage");
@@ -1037,6 +1041,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
   cy.intercept("GET", "/api/v1/applications/ssh-keypair/*").as("generatedKey");
   cy.intercept("POST", "/api/v1/applications/snapshot/*").as("snapshotSuccess");
+  cy.intercept("GET", "/api/v1/applications/snapshot/*").as("pageSnap");
   cy.intercept(
     {
       method: "POST",
@@ -1110,6 +1115,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/datasources/*/schema-preview").as(
     "schemaPreview",
   );
+  cy.intercept("GET", "/api/v1/pages/*/view?v=*").as("templatePreview");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1779,8 +1785,6 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   // Drag a widget
   cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
   cy.get(`.t--widget-${widgetName}`).should("exist");
-
-  cy.openPropertyPane(widgetName);
 
   // Set the label text
   cy.updateCodeInput(".t--property-control-text", labelText);

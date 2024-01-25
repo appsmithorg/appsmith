@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/messages";
 import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   importStarterBuildingBlockIntoApplication,
   showTemplatesModal,

@@ -62,6 +62,8 @@ export class DataSources {
   public _addNewDataSource = ".t--add-datasource-button";
   private _addNewDatasourceFromBlankScreen =
     ".t--add-datasource-button-blank-screen";
+  public _newDatasourceBtn =
+    ".t--add-datasource-button, .t--add-datasource-button-blank-screen";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
