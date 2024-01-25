@@ -99,6 +99,7 @@ describe(
       );
       EditorNavigation.SelectEntityByName("Text2", EntityType.Widget, {}, [
         "List1Copy",
+        "Container1Copy1",
       ]);
       propPane.TypeTextIntoField("Text", "{{level_1.currentView.");
 

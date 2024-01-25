@@ -1,6 +1,7 @@
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../../support/Pages/EditorNavigation";
 
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
@@ -40,7 +41,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
       "CurrencyInput1",
       EntityType.Widget,
       {},
-      ["List1"],
+      ["List1", "Container1"],
     );
     propPane.UpdatePropertyFieldValue("Default value", "{{currentItem.id}}");
     propPane.TogglePropertyState("Required", "On");
@@ -52,6 +53,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
     );
     EditorNavigation.SelectEntityByName("PhoneInput1", EntityType.Widget, {}, [
       "List1",
+      "Container1",
     ]);
     propPane.UpdatePropertyFieldValue(
       "Default value",
@@ -92,7 +94,9 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   it("2. Input Widgets isValid", function () {
     // Test for isValid === True
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 100);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.expandCollapseItem("List1");
+    PageLeftPane.expandCollapseItem("Container1");
     propPane.RenameWidget("Text1", "Currency_Widget");
     agHelper.Sleep();
     propPane.UpdatePropertyFieldValue(

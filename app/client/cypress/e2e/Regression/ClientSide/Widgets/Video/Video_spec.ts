@@ -87,6 +87,7 @@ describe(
       cy.selectWidgetForReset("Video1");
 
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 600);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Text", "{{Video1.playState}}");
       agHelper.Sleep(1500); // Wait time added for the widget to load current video state
 

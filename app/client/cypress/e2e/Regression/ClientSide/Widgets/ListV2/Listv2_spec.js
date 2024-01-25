@@ -35,7 +35,7 @@ describe(
       ["mapwidget", "Map1"],
       ["menubuttonwidget", "MenuButton1"],
       ["progresswidget", "Progress1"],
-      ["statboxwidget", "StatBox1"],
+      ["statboxwidget", "Statbox1"],
       ["switchwidget", "Switch1"],
       ["switchgroupwidget", "SwitchGroup1"],
       ["textwidget", "Text1"],

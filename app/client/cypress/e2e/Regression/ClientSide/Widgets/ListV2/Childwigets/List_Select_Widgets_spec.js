@@ -26,6 +26,7 @@ describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
     );
     EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget, {}, [
       "List1",
+      "Container1",
     ]);
 
     _.propPane.ToggleJSMode("sourcedata");
@@ -60,6 +61,7 @@ describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 250, 300);
     EditorNavigation.SelectEntityByName("Select1", EntityType.Widget, {}, [
       "List1",
+      "Container1",
     ]);
 
     _.propPane.ToggleJSMode("sourcedata");
