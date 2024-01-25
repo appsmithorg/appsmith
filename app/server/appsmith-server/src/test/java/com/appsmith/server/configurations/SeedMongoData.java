@@ -14,6 +14,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
@@ -25,18 +26,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -50,7 +49,6 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 @Configuration
@@ -60,9 +58,9 @@ public class SeedMongoData {
     ApplicationRunner init(
             UserRepositoryCake userRepository,
             WorkspaceRepositoryCake workspaceRepository,
+            WorkspaceRepository workspaceRepositoryDirect,
             ApplicationRepositoryCake applicationRepository,
             PluginRepositoryCake pluginRepository,
-            ReactiveMongoTemplate mongoTemplate,
             TenantRepositoryCake tenantRepository,
             PermissionGroupRepositoryCake permissionGroupRepository,
             PolicySolution policySolution) {
@@ -186,6 +184,7 @@ public class SeedMongoData {
         };
 
         // Seed the plugin data into the DB
+        final Map<String, Plugin> pluginsByPackageName = new HashMap<>();
         Flux<Plugin> pluginFlux = Flux.just(pluginData)
                 .map(array -> {
                     log.debug("Creating the plugins");
@@ -199,6 +198,7 @@ public class SeedMongoData {
                     return plugin;
                 })
                 .flatMap(pluginRepository::save)
+                .doOnNext(p -> pluginsByPackageName.put(p.getPackageName(), p))
                 .cache();
 
         Tenant defaultTenant = new Tenant();
@@ -251,26 +251,23 @@ public class SeedMongoData {
                 .cache();
 
         // Seed the workspace data into the DB
-        Flux<Workspace> workspaceFlux = mongoTemplate
-                .find(
-                        new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])),
-                        Plugin.class)
-                .map(plugin -> new WorkspacePlugin(plugin, WorkspacePluginStatus.FREE))
-                .collect(Collectors.toSet())
-                .cache()
-                .repeat()
-                .zipWithIterable(List.of(workspaceData))
-                .map(tuple -> {
-                    final Set<WorkspacePlugin> workspacePlugins = tuple.getT1();
-                    final Object[] workspaceArray = tuple.getT2();
-
+        Flux<Workspace> workspaceFlux = pluginFlux
+                .thenMany(Flux.fromIterable(List.of(workspaceData)))
+                .map(workspaceArray -> {
                     Workspace workspace = new Workspace();
                     workspace.setName((String) workspaceArray[0]);
                     workspace.setDomain((String) workspaceArray[1]);
                     workspace.setWebsite((String) workspaceArray[2]);
                     workspace.setSlug((String) workspaceArray[3]);
                     workspace.setPolicies((Set<Policy>) workspaceArray[4]);
-                    workspace.setPlugins(workspacePlugins);
+
+                    workspace.setPlugins(Set.of(
+                            new WorkspacePlugin(
+                                    pluginsByPackageName.get("installed-plugin"), WorkspacePluginStatus.FREE),
+                            new WorkspacePlugin(
+                                    pluginsByPackageName.get("installed-db-plugin"), WorkspacePluginStatus.FREE),
+                            new WorkspacePlugin(
+                                    pluginsByPackageName.get("installed-js-plugin"), WorkspacePluginStatus.FREE)));
 
                     List<UserRole> userRoles = new ArrayList<>();
                     UserRole userRole = new UserRole();
@@ -283,7 +280,11 @@ public class SeedMongoData {
                     log.debug("In the workspaceFlux. Create Workspace: {}", workspace);
                     return workspace;
                 })
-                .flatMap(workspaceRepository::save);
+                .flatMap(workspaceRepository::save)
+                .map((w) -> {
+                    System.out.println("saved workspace" + w);
+                    return w;
+                });
 
         Flux<Workspace> workspaceFlux1 = workspaceRepository
                 .deleteAll()
@@ -309,15 +310,14 @@ public class SeedMongoData {
             });
         }));
 
-        Query workspaceNameQuery = new Query(where("slug").is(workspaceData[0][3]));
-        Mono<Workspace> workspaceByNameMono = mongoTemplate
-                .findOne(workspaceNameQuery, Workspace.class)
+        Mono<Workspace> workspaceByNameMono = workspaceRepository
+                .findBySlug((String) workspaceData[0][3])
                 .switchIfEmpty(Mono.error(new Exception("Can't find workspace")));
 
-        Query appNameQuery = new Query(where("name").is(appData[0][0]));
-        Mono<Application> appByNameMono = mongoTemplate
-                .findOne(appNameQuery, Application.class)
+        Mono<Application> appByNameMono = applicationRepository
+                .findByName((String) appData[0][0])
                 .switchIfEmpty(Mono.error(new Exception("Can't find app")));
+
         return args -> {
             workspaceFlux1
                     .thenMany(addUserWorkspaceFlux)

@@ -107,63 +107,6 @@ def switch_repo_types(domain):
         update_file(full_path, content)
 
 
-def generate_base_cake():
-    base_cake_cls = f"""\
-        package com.appsmith.server.repositories.cakes;
-
-        import com.appsmith.external.models.BaseDomain;
-        import com.appsmith.server.acl.AclPermission;
-        import lombok.RequiredArgsConstructor;
-        import org.springframework.data.repository.CrudRepository;
-        import reactor.core.publisher.Flux;
-        import reactor.core.publisher.Mono;
-        import reactor.core.scheduler.Schedulers;
-
-        import java.util.Optional;
-
-        @RequiredArgsConstructor
-        public abstract class BaseCake<T extends BaseDomain> {{
-            private final CrudRepository<T, String> repository;
-
-            public Mono<T> save(T entity) {{
-                return {MONO_WRAPPER % "Optional.of(repository.save(entity))"};
-            }}
-
-            public Mono<T> findById(String id) {{
-                return {MONO_WRAPPER % "repository.findById(id)"};
-            }}
-
-            public Flux<T> findAllById(Iterable<String> ids) {{
-                return {FLUX_WRAPPER % "repository.findAllById(ids)"};
-            }}
-
-            public Mono<T> updateById(String id, T entity, AclPermission permission) {{
-                // TODO: Implement this method.
-                return Mono.just(entity);
-            }}
-
-            // TODO: This should be soft delete, not hard delete.
-            public Mono<Void> deleteAll() {{
-                return Mono.<Void>fromRunnable(repository::deleteAll).subscribeOn(Schedulers.boundedElastic());
-            }}
-
-            public Mono<Void> deleteById(String id) {{  // hard delete
-                return Mono.<Void>fromRunnable(() -> repository.deleteById(id)).subscribeOn(Schedulers.boundedElastic());
-            }}
-
-            public Mono<Long> count() {{
-                return Mono.fromSupplier(repository::count).subscribeOn(Schedulers.boundedElastic());
-            }}
-        }}
-    """
-
-    update_file(
-        server_root
-        / "appsmith-server/src/main/java/com/appsmith/server/repositories/cakes/BaseCake.java",
-        dedent(base_cake_cls),
-    )
-
-
 def generate_cake_class(domain):
     methods = set()
     reactor_methods = []
@@ -380,8 +323,6 @@ def convert(domain):
 def main():
     apply(root / "app/server/appsmith-interfaces/pom.xml", add_postgres_dep)
     apply(root / "app/server/appsmith-plugins/postgresPlugin/pom.xml", del_postgres_dep)
-
-    generate_base_cake()
 
     convert("ActionCollection")
     convert("Application")

@@ -11,6 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ApplicationRepositoryCE extends BaseRepository<Application, String>, CustomApplicationRepository {
 
+    Optional<Application> findByName(String name);
+
     List<Application> findByIdIn(List<String> ids);
 
     List<Application> findByWorkspaceId(String workspaceId);

@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface PluginRepositoryCE extends BaseRepository<Plugin, String>, CustomPluginRepository {
     Optional<Plugin> findByName(String name);
 
+    List<Plugin> findByNameIn(Iterable<String> names);
+
     Optional<Plugin> findByPackageName(String packageName);
 
     List<Plugin> findByDefaultInstall(Boolean isDefaultInstall);

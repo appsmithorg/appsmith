@@ -35,7 +35,10 @@ public class Workspace extends BaseDomain {
     @JsonView(Views.Public.class)
     private String email;
 
-    @OneToMany
+    @OneToMany(
+            mappedBy = "workspace",
+            cascade = {CascadeType.ALL},
+            orphanRemoval = true)
     @JsonView(Views.Public.class)
     @ToString.Exclude
     private Set<WorkspacePlugin> plugins;

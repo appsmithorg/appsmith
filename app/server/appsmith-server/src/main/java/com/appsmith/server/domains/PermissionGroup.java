@@ -33,7 +33,7 @@ public class PermissionGroup extends BaseDomain {
     String defaultDomainId;
     String defaultDomainType;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @Deprecated
     private Set<Permission> permissions;
 

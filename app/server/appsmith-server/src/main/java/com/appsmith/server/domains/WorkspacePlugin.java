@@ -2,7 +2,6 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -23,11 +22,12 @@ import java.util.Objects;
 public class WorkspacePlugin extends BaseDomain {
 
     @ManyToOne
-    @JoinColumn(name = "plugin_id", referencedColumnName = "id")
-    private Plugin plugin;
+    @JoinColumn(name = "workspace_id")
+    private Workspace workspace;
 
-    @Column(name = "plugin_id", insertable = false, updatable = false)
-    private String pluginId;
+    @ManyToOne
+    @JoinColumn(name = "plugin_id")
+    private Plugin plugin;
 
     private WorkspacePluginStatus status;
 

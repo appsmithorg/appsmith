@@ -5,6 +5,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -17,6 +18,7 @@ import org.hibernate.annotations.Type;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -29,6 +31,10 @@ public class Plugin extends BaseDomain {
         TABLE,
         JSON,
     }
+
+    @OneToMany(mappedBy = "plugin", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private Set<WorkspacePlugin> workspaces;
 
     @JsonView(Views.Public.class)
     String name;
