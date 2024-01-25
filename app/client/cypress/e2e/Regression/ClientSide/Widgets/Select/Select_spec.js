@@ -6,9 +6,9 @@ const {
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const {
-  dataSources,
   agHelper,
   assertHelper,
+  dataSources,
 } = require("../../../../../support/Objects/ObjectsCore");
 const {
   default: EditorNavigation,
