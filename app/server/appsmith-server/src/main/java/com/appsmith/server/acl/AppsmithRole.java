@@ -76,14 +76,4 @@ public enum AppsmithRole {
         this.description = description;
         this.permissions = permissions;
     }
-
-    public static AppsmithRole generateAppsmithRoleFromName(String name) {
-        List<AppsmithRole> appsmithRoles = Arrays.asList(AppsmithRole.values());
-        for (AppsmithRole role : appsmithRoles) {
-            if (role.getName().equals(name)) {
-                return role;
-            }
-        }
-        return null;
-    }
 }

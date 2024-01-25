@@ -1493,52 +1493,6 @@ public class WorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void inviteRolesGivenAdministrator() {
-        Set<AppsmithRole> roles = roleGraph.generateHierarchicalRoles("Administrator");
-        AppsmithRole administratorRole = AppsmithRole.generateAppsmithRoleFromName("Administrator");
-        AppsmithRole developerRole = AppsmithRole.generateAppsmithRoleFromName("Developer");
-        AppsmithRole viewerRole = AppsmithRole.generateAppsmithRoleFromName("App Viewer");
-
-        StepVerifier.create(Mono.just(roles))
-                .assertNext(appsmithRoles -> {
-                    assertThat(appsmithRoles).isNotNull();
-                    assertThat(appsmithRoles).containsAll(Set.of(administratorRole, developerRole, viewerRole));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void inviteRolesGivenDeveloper() {
-        Set<AppsmithRole> roles = roleGraph.generateHierarchicalRoles("Developer");
-        AppsmithRole developerRole = AppsmithRole.generateAppsmithRoleFromName("Developer");
-        AppsmithRole viewerRole = AppsmithRole.generateAppsmithRoleFromName("App Viewer");
-
-        StepVerifier.create(Mono.just(roles))
-                .assertNext(appsmithRoles -> {
-                    assertThat(appsmithRoles).isNotNull();
-                    assertThat(appsmithRoles).containsAll(Set.of(developerRole, viewerRole));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void inviteRolesGivenViewer() {
-        Set<AppsmithRole> roles = roleGraph.generateHierarchicalRoles("App Viewer");
-        AppsmithRole viewerRole = AppsmithRole.generateAppsmithRoleFromName("App Viewer");
-
-        StepVerifier.create(Mono.just(roles))
-                .assertNext(appsmithRoles -> {
-                    assertThat(appsmithRoles).isNotNull();
-                    assertThat(appsmithRoles).hasSize(1);
-                    assertThat(appsmithRoles).containsAll(Set.of(viewerRole));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void uploadWorkspaceLogo_nullFilePart() throws IOException {
         Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
         final Mono<Workspace> resultMono =

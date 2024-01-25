@@ -302,14 +302,6 @@ public class SeedMongoData {
                     workspace.setPolicies((Set<Policy>) workspaceArray[4]);
                     workspace.setPlugins(workspacePlugins);
 
-                    List<UserRole> userRoles = new ArrayList<>();
-                    UserRole userRole = new UserRole();
-                    String roleName = "Administrator";
-                    userRole.setRole(AppsmithRole.generateAppsmithRoleFromName(roleName));
-                    userRole.setUsername(API_USER_EMAIL);
-                    userRole.setRoleName(roleName);
-                    userRoles.add(userRole);
-
                     log.debug("In the workspaceFlux. Create Workspace: {}", workspace);
                     return workspace;
                 })
