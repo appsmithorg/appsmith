@@ -1,4 +1,10 @@
-import { Button, BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
+import {
+  Button,
+  BUTTON_VARIANTS,
+  COLORS,
+  Flex,
+  SIZES,
+} from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
 
 <Meta
@@ -59,7 +65,7 @@ There are 3 variants of the button component.
 `Button` component has 3 visual style variants and 5 semantic color options
 
 <Story name="Semantic">
-  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+  <Flex gap="1rem" wrap="wrap">
     {Object.values(BUTTON_VARIANTS).map((variant) =>
       Object.values(COLORS).map((color) => (
         <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
@@ -67,21 +73,21 @@ There are 3 variants of the button component.
         </div>
       )),
     )}
-  </div>
+  </Flex>
 </Story>
 
 ## Size
 
-There are 3 sizes of the button component. Default size is `medium`.
+There are 2 sizes of the button component. Default size is `medium`.
 
 <Story name="Size">
-  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-    {["small", "medium"].map((size) => (
+  <Flex gap="spacing-2">
+    {Object.keys(SIZES).map((size) => (
       <div key={size} style={{ marginBottom: 10 }}>
         <Button size={size} icon="star" children={size} />
       </div>
     ))}
-  </div>
+  </Flex>
 </Story>
 
 ## Disabled

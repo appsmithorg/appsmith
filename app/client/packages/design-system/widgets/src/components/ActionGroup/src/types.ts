@@ -4,6 +4,7 @@ import type { ListState } from "@react-stately/list";
 import type { Node, StyleProps } from "@react-types/shared";
 
 import type { ButtonProps } from "../../Button";
+import type { SIZES } from "../../../shared";
 
 export const ACTION_GROUP_ORIENTATIONS = {
   vertical: "vertical",
@@ -32,7 +33,7 @@ export interface ActionGroupProps<T>
     >,
     InheritedActionButtonProps {
   orientation?: keyof typeof ACTION_GROUP_ORIENTATIONS;
-  size?: "small" | "medium";
+  size?: keyof typeof SIZES;
 }
 
 export interface ActionGroupItemProps<T> extends ButtonProps {

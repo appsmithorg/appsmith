@@ -1,4 +1,4 @@
-import { Icon, ICONS } from "@design-system/widgets";
+import { Flex, Icon, ICONS, SIZES } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
 
 <Meta
@@ -30,13 +30,11 @@ The Icon component comes with three sizes
 - large — 2rem = 32px
 
 <Story name="Size">
-  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-    {["small", "medium", "large"].map((size) => (
-      <div key={size}>
-        <Icon size={size} name="home" />
-      </div>
+  <Flex gap="spacing-2">
+    {Object.keys(SIZES).map((size) => (
+      <Icon size={size} name="home" key={size} />
     ))}
-  </div>
+  </Flex>
 </Story>
 
 ## Custom Icon

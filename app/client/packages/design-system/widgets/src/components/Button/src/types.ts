@@ -1,7 +1,7 @@
 import type { ButtonProps as HeadlessButtonProps } from "@design-system/headless";
 
 import type { IconProps } from "../../Icon";
-import type { COLORS } from "../../../shared";
+import type { COLORS, SIZES } from "../../../shared";
 
 export const BUTTON_VARIANTS = {
   filled: "filled",
@@ -41,5 +41,5 @@ export interface ButtonProps extends HeadlessButtonProps {
   /** Size of the button
    * @default medium
    */
-  size?: "small" | "medium";
+  size?: keyof typeof SIZES;
 }

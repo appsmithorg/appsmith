@@ -4,6 +4,7 @@ import {
   COLORS,
   BUTTON_VARIANTS,
   Item,
+  SIZES,
 } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
 
@@ -37,25 +38,16 @@ export const Template = (args) => {
 ## Size
 
 <Story name="Size">
-  <div
-    style={{
-      display: "flex",
-      gap: "10px",
-      flexWrap: "wrap",
-      flexDirection: "column",
-    }}
-  >
-    {["small", "medium"].map((size) => (
-      <div key={size} style={{ marginBottom: 10 }}>
-        <ActionGroup size={size}>
-          <Item key="option-1">Option 1</Item>
-          <Item key="option-2">Option 2</Item>
-          <Item key="option-3">Option 3</Item>
-          <Item key="option-4">Option 4</Item>
-        </ActionGroup>
-      </div>
+  <Flex gap="spacing-2" direction="column">
+    {Object.keys(SIZES).map((size) => (
+      <ActionGroup size={size} key={size}>
+        <Item key="option-1">Option 1</Item>
+        <Item key="option-2">Option 2</Item>
+        <Item key="option-3">Option 3</Item>
+        <Item key="option-4">Option 4</Item>
+      </ActionGroup>
     ))}
-  </div>
+  </Flex>
 </Story>
 
 ## Orientation

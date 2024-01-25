@@ -1,4 +1,4 @@
-import { IconButton } from "@design-system/widgets";
+import { Flex, IconButton, SIZES } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
 
 <Meta
@@ -50,7 +50,7 @@ Just like Button component, There are 3 variants of the icon button component.
 `IconButton` component has 3 visual style variants and 5 semantic color options, similar to `Button` component.
 
 <Story name="Semantic">
-  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+  <Flex gap="spacing-2" wrap="wrap">
     {["filled", "outlined", "ghost"].map((variant) =>
       ["accent", "neutral", "positive", "negative", "warning"].map((color) => (
         <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
@@ -58,7 +58,7 @@ Just like Button component, There are 3 variants of the icon button component.
         </div>
       )),
     )}
-  </div>
+  </Flex>
 </Story>
 
 ## Size
@@ -67,7 +67,7 @@ Just like Button component, There are 3 variants of the icon button component.
 
 <Story name="Size">
   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-    {["small", "medium"].map((size) => (
+    {Object.keys(SIZES).map((size) => (
       <div key={size} style={{ marginBottom: 10 }}>
         <IconButton size={size} icon="plus" />
       </div>

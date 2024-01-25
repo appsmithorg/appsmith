@@ -12,6 +12,7 @@ import type { IconProps } from "../../Icon";
 import { IconButton } from "../../IconButton";
 import { ContextualHelp } from "./ContextualHelp";
 import { textInputStyles, fieldStyles } from "../../../styles";
+import type { SIZES } from "../../../shared";
 
 export interface TextInputProps extends HeadlessTextInputProps {
   /** position for the laoding icon */
@@ -22,7 +23,7 @@ export interface TextInputProps extends HeadlessTextInputProps {
    *
    * @default medium
    */
-  size?: "small" | "medium";
+  size?: keyof typeof SIZES;
 }
 
 const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
