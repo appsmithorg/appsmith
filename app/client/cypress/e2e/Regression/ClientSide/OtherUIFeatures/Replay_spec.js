@@ -4,6 +4,8 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const {
   agHelper,
+  draggableWidgets,
+  entityExplorer,
   propPane,
 } = require("../../../../support/Objects/ObjectsCore");
 import EditorNavigation, {
@@ -18,8 +20,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("1. checks undo/redo for new widgets", function () {
-    cy.dragAndDropToCanvas("checkboxwidget", { x: 200, y: 200 });
-
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHECKBOX, 200, 200);
     cy.focused().blur();
 
     cy.get(widgetsPage.checkboxWidget).should("exist");

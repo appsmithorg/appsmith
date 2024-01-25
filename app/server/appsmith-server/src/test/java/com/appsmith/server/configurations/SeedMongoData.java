@@ -2,13 +2,11 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -29,7 +27,6 @@ import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -268,14 +265,6 @@ public class SeedMongoData {
                                     pluginsByPackageName.get("installed-db-plugin"), WorkspacePluginStatus.FREE),
                             new WorkspacePlugin(
                                     pluginsByPackageName.get("installed-js-plugin"), WorkspacePluginStatus.FREE)));
-
-                    List<UserRole> userRoles = new ArrayList<>();
-                    UserRole userRole = new UserRole();
-                    String roleName = "Administrator";
-                    userRole.setRole(AppsmithRole.generateAppsmithRoleFromName(roleName));
-                    userRole.setUsername(API_USER_EMAIL);
-                    userRole.setRoleName(roleName);
-                    userRoles.add(userRole);
 
                     log.debug("In the workspaceFlux. Create Workspace: {}", workspace);
                     return workspace;
