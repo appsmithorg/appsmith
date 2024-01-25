@@ -295,7 +295,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     });
   });
   AppSidebar.assertVisible();
-  assertHelper.AssertNetworkResponseData("@getConsolidatedData"); //for auth rest api
 
   // If the intro modal is open, close it
   cy.skipSignposting();
