@@ -337,3 +337,14 @@ jobs:
       # Set status = success
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+
+      - name: Notify on failure
+        if: always()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: cypresspushworkflow
+          SLACK_ICON: https://app.slack.com/services/B05D17E4QVB
+          SLACK_TITLE: "Client build failure:"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
+          MSG_MINIMAL: Ref,Event,Commit
+          SLACK_TEXT: "❌ Client Build failed in workflow '${{ github.workflow }}' on branch '${{ github.ref }}'"
