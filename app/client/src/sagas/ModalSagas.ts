@@ -49,10 +49,7 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
 } from "layoutSystems/common/utils/constants";
-import {
-  getModalWidgetType,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
+import { getModalWidgetType } from "selectors/widgetSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
@@ -61,6 +58,7 @@ const WidgetTypes = WidgetFactory.widgetTypes;
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
     const modalWidgetId = generateReactKey();
+    const isAutoLayout: boolean = yield select(getIsAutoLayout);
     const modalWidgetType: string = yield select(getModalWidgetType);
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
@@ -78,7 +76,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       tabId: "",
     };
 
-    if (layoutSystemType === LayoutSystemTypes.AUTO) {
+    if (isAutoLayout) {
       const dropPayload = {
         alignment: FlexLayerAlignment.Center,
         index: 0,
@@ -150,9 +148,7 @@ export function* showIfModalSaga(
   }
 }
 
-export function* showModalSaga(
-  action: ReduxAction<{ modalId: string; shouldSelectModal: boolean }>,
-) {
+export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   // First we close the currently open modals (if any)
   // Notice the empty payload.
   yield call(closeModalSaga, {
@@ -163,18 +159,6 @@ export function* showModalSaga(
   });
 
   yield put(focusWidget(action.payload.modalId));
-
-  const isModalSelected: boolean = yield select(
-    isWidgetSelected(action.payload.modalId),
-  );
-
-  if (!isModalSelected) {
-    yield put(
-      selectWidgetInitAction(SelectionRequestType.One, [
-        action.payload.modalId,
-      ]),
-    );
-  }
 
   const widgetLikeProps = {
     widgetId: action.payload.modalId,

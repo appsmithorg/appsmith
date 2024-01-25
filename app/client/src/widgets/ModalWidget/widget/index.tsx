@@ -37,7 +37,7 @@ import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
-import { modalPreset } from "layoutSystems/anvil/layoutComponents/presets/ModalPreset";
+import { modalPreset } from "layoutSystems/autolayout/layoutComponents/presets/ModalPreset";
 import { LayoutSystemTypes } from "layoutSystems/types";
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
@@ -281,7 +281,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                 },
               ];
 
-              const layout: LayoutProps[] = modalPreset();
+              const layout: LayoutProps[] = modalPreset(
+                textWidget.widgetId,
+                iconWidget.widgetId,
+                buttonWidget2.widgetId,
+                buttonWidget1.widgetId,
+              );
 
               //Add widget specific property Defaults, for autoLayout widget
               const { disabledPropsDefaults } =
