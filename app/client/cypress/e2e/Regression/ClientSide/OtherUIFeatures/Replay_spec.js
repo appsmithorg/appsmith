@@ -4,9 +4,9 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const {
   agHelper,
-  propPane,
   draggableWidgets,
   entityExplorer,
+  propPane,
 } = require("../../../../support/Objects/ObjectsCore");
 import EditorNavigation, {
   EntityType,
