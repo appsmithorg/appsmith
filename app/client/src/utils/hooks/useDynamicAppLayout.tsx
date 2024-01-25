@@ -46,8 +46,6 @@ import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
-import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -82,7 +80,6 @@ export const useDynamicAppLayout = () => {
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
   const isAppSidebarEnabled = useIsAppSidebarEnabled();
-  const { segment } = useCurrentEditorState();
 
   const isPreviewing = isPreviewMode;
 
@@ -140,8 +137,7 @@ export const useDynamicAppLayout = () => {
     if (
       isPreviewing === false &&
       !isAppSettingsPaneOpen &&
-      appMode === APP_MODE.EDIT &&
-      segment === EditorEntityTab.UI
+      appMode === APP_MODE.EDIT
     ) {
       calculatedWidth -= propertyPaneWidth;
     }

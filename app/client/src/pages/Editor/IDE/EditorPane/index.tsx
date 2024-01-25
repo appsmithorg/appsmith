@@ -8,11 +8,11 @@ import { SentryRoute } from "@appsmith/AppRouter";
 import { ADD_PATH } from "constants/routes";
 import EditorPaneSegments from "./EditorPaneSegments";
 import GlobalAdd from "./GlobalAdd";
+import { useEditorPaneWidth } from "../hooks";
 import { getPagesActiveStatus } from "selectors/ideSelectors";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 import { MinimalSegment } from "./MinimalSegment";
 import { Pages } from "./components/Pages";
-import { useEditorPaneWidth } from "../hooks";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
   const width = useEditorPaneWidth();
@@ -20,7 +20,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
 
   return (
     <Flex
-      className="ide-editor-left-pane transition-[width] ease-linear"
+      className="ide-editor-left-pane"
       flexDirection="column"
       gap="spacing-2"
       height="100%"

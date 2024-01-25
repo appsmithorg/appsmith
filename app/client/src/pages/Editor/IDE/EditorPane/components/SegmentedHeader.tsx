@@ -17,6 +17,10 @@ import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
 
 const Container = styled(Flex)`
+  #editor-pane-segment-control {
+    width: 220px;
+  }
+
   button {
     flex-shrink: 0;
     flex-basis: auto;
@@ -43,6 +47,7 @@ const SegmentedHeader = () => {
       backgroundColor="var(--ads-v2-colors-control-track-default-bg)"
       className="ide-editor-left-pane__header"
       gap="spaces-2"
+      justifyContent="space-between"
       padding="spaces-2"
     >
       <SegmentedControl
