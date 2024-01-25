@@ -65,7 +65,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
 
   const onClickFn = useCallback(
     function () {
-      if (ref.current) {
+      if (ref.current && isFocused) {
         ref.current.dispatchEvent(
           new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
             bubbles: true,
@@ -75,7 +75,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
         );
       }
     },
-    [props.widgetId],
+    [props.widgetId, isFocused],
   );
 
   const stopEventPropagation: MouseEventHandler<HTMLDivElement> = (e) => {

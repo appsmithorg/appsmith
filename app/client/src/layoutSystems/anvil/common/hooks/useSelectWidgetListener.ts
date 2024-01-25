@@ -1,6 +1,5 @@
 import { selectAnvilWidget } from "layoutSystems/anvil/integrations/actions";
 import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
-import debounce from "lodash/debounce";
 import { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 
@@ -18,18 +17,12 @@ import { useDispatch } from "react-redux";
 export function useSelectWidgetListener() {
   const dispatch = useDispatch();
 
-  // Pick the latest event and dispatch the select action
-  const debouncedSelectAnvilWidget = debounce(
+  const handleClick = useCallback(
     function (e: any) {
       dispatch(selectAnvilWidget(e.detail.widgetId, e));
     },
-    100,
-    { maxWait: 100, trailing: true },
+    [selectAnvilWidget],
   );
-
-  const handleClick = useCallback(debouncedSelectAnvilWidget, [
-    selectAnvilWidget,
-  ]);
 
   // Register and unregister the listeners on the document.body
   useEffect(() => {
