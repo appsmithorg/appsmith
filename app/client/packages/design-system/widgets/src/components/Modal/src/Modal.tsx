@@ -4,13 +4,6 @@ import styles from "./styles.module.css";
 import type { ModalProps } from "./types";
 import clsx from "clsx";
 
-const style: React.CSSProperties = {
-  width: `calc(var(--provider-width) - var(--sizing-6))`,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
-
 export const Modal = (props: ModalProps) => {
   const {
     children,
@@ -26,7 +19,6 @@ export const Modal = (props: ModalProps) => {
       <PopoverModalContent
         data-size={size}
         overlayClassName={clsx(styles.overlay, overlayClassName)}
-        style={style}
       >
         {children}
       </PopoverModalContent>
