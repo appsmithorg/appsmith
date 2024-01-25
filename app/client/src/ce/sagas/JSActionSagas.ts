@@ -346,7 +346,7 @@ export function* deleteJSCollectionSaga(
       );
       if (isPagePaneSegmentsEnabled) {
         yield call(handleDeleteRedirect, id);
-      } else {
+      } else if (pageId) {
         history.push(builderURL({ pageId }));
       }
       yield put(removeFocusHistoryRequest(currentUrl));
@@ -364,13 +364,16 @@ export function* deleteJSCollectionSaga(
       yield put(deleteJSCollectionSuccess({ id }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
-      yield put(
-        updateAndSaveLayout(widgets, {
-          shouldReplay: false,
-          isRetry: false,
-          updatedWidgetIds: [],
-        }),
-      );
+
+      if (pageId) {
+        yield put(
+          updateAndSaveLayout(widgets, {
+            shouldReplay: false,
+            isRetry: false,
+            updatedWidgetIds: [],
+          }),
+        );
+      }
     }
   } catch (error) {
     yield put(deleteJSCollectionError({ id: actionPayload.payload.id }));
