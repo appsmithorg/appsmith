@@ -12,7 +12,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
@@ -55,7 +54,6 @@ public class SeedMongoData {
     ApplicationRunner init(
             UserRepositoryCake userRepository,
             WorkspaceRepositoryCake workspaceRepository,
-            WorkspaceRepository workspaceRepositoryDirect,
             ApplicationRepositoryCake applicationRepository,
             PluginRepositoryCake pluginRepository,
             TenantRepositoryCake tenantRepository,

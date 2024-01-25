@@ -14,8 +14,6 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Optional<User> findByEmail(String email, AclPermission aclPermission);
 
-    List<User> findAllByEmails(Set<String> emails);
-
     List<User> getAllByEmails(
             Set<String> emails,
             Optional<AclPermission> aclPermission,

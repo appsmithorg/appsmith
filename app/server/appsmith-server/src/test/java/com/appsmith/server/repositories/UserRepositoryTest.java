@@ -42,9 +42,9 @@ public class UserRepositoryTest {
 
     @AfterEach
     public void cleanUp() {
-        for (User savedUser : savedUsers) {
-            userRepository.deleteById(savedUser.getId()).block();
-        }
+        // for (User savedUser : savedUsers) {
+        //     userRepository.deleteById(savedUser.getId()).block();
+        // }
     }
 
     @Test
@@ -150,7 +150,7 @@ public class UserRepositoryTest {
         final int skip1 = 0;
         int limit1 = 10;
         List<User> usersFrom0To10 = userRepository
-                .getAllByEmails(
+                .getAllByEmailIn(
                         new HashSet<>(unsortedEmails),
                         Optional.empty(),
                         limit1,
@@ -167,7 +167,7 @@ public class UserRepositoryTest {
 
         final int skip2 = 9, limit2 = 10;
         List<User> usersFrom9To19 = userRepository
-                .getAllByEmails(
+                .getAllByEmailIn(
                         new HashSet<>(unsortedEmails),
                         Optional.empty(),
                         limit2,

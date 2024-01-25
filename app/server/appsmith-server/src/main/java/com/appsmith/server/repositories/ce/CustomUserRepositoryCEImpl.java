@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,15 +31,6 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     public Optional<User> findByEmail(String email, AclPermission aclPermission) {
         Criteria emailCriteria = where("email").is(email);
         return queryOne(List.of(emailCriteria), aclPermission);
-    }
-
-    @Override
-    public List<User> findAllByEmails(Set<String> emails) {
-        return Collections.emptyList(); /*
-        Criteria emailCriteria = where("email").in(emails);
-        Query query = new Query();
-        query.addCriteria(emailCriteria);
-        return mongoOperations.find(query, User.class);*/
     }
 
     @Override

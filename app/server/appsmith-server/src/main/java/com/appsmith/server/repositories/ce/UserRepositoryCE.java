@@ -5,13 +5,18 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUserRepository {
 
     Optional<User> findByEmail(String email);
 
+    @Query("select u from User u where lower(u.email) = lower(?1) order by u.createdAt desc limit 1")
     Optional<User> findByEmailIgnoreCase(String email);
+
+    List<User> findAllByEmailIn(Set<String> emails);
 
     Optional<Long> countByDeletedAtNull();
 
