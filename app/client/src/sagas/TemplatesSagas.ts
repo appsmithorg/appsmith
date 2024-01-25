@@ -1,3 +1,8 @@
+import { builderURL } from "@appsmith/RouteBuilder";
+import {
+  fetchApplication,
+  showReconnectDatasourceModal,
+} from "@appsmith/actions/applicationActions";
 import type {
   ApplicationPayload,
   ReduxAction,
@@ -5,66 +10,76 @@ import type {
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  all,
-  put,
-  takeEvery,
-  call,
-  select,
-  take,
-  fork,
-  race,
-  delay,
-} from "redux-saga/effects";
-import type {
-  ImportTemplateResponse,
-  FetchTemplateResponse,
-  TemplateFiltersResponse,
-} from "api/TemplatesApi";
-import TemplatesAPI from "api/TemplatesApi";
-import history from "utils/history";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
-import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
+import { WidgetTypes, fetchPageDSLSaga } from "@appsmith/sagas/PageSagas";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
+import { fetchDatasources } from "actions/datasourceActions";
+import { fetchJSCollections } from "actions/jsActionActions";
+import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
+import {
+  executePageLoadActions,
+  fetchActions,
+} from "actions/pluginActionActions";
+import { fetchPluginFormConfigs } from "actions/pluginActions";
 import {
   getAllTemplates,
   hideTemplatesModal,
   setTemplateNotificationSeenAction,
   showStarterBuildingBlockDatasourcePrompt,
 } from "actions/templateActions";
+import PageApi, {
+  type CreatePageRequest,
+  type FetchPageResponse,
+} from "api/PageApi";
+import type {
+  FetchTemplateResponse,
+  ImportTemplateResponse,
+  TemplateFiltersResponse,
+} from "api/TemplatesApi";
+import TemplatesAPI from "api/TemplatesApi";
+import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { toast } from "design-system";
+import { APP_MODE } from "entities/App";
+import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
+import type { LayoutSystemTypes } from "layoutSystems/types";
+import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import {
+  all,
+  call,
+  delay,
+  fork,
+  put,
+  race,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
+import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+  getCurrentPageName,
+  getMainCanvasProps,
+} from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { generateReactKey } from "utils/generators";
+import history from "utils/history";
 import {
   getTemplateNotificationSeen,
   setTemplateNotificationSeen,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
-import { builderURL } from "@appsmith/RouteBuilder";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getCurrentPageName,
-} from "selectors/editorSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import {
-  fetchApplication,
-  showReconnectDatasourceModal,
-} from "@appsmith/actions/applicationActions";
-import { APP_MODE } from "entities/App";
-import {
-  executePageLoadActions,
-  fetchActions,
-} from "actions/pluginActionActions";
-import { fetchJSCollections } from "actions/jsActionActions";
 import { failFastApiCalls } from "./InitSagas";
-import { fetchDatasources } from "actions/datasourceActions";
-import { fetchPluginFormConfigs } from "actions/pluginActions";
-import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { getAllPageIds } from "./selectors";
-import { fetchPageDSLSaga } from "@appsmith/sagas/PageSagas";
-import { toast } from "design-system";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { fetchJSLibraries } from "actions/JSLibraryActions";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -549,6 +564,126 @@ function* forkTemplateToApplicationViaOnboardingFlowSaga(
   }
 }
 
+export function* generateBuildingBlockFromData() {
+  // console.log("🚀 ~ action:", action);
+  try {
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
+    const mainCanvasProps: MainCanvasReduxState =
+      yield select(getMainCanvasProps);
+    const dslTransformer = getLayoutSystemDSLTransformer(
+      layoutSystemType,
+      mainCanvasProps.width,
+    );
+
+    const tableWidget = {
+      widgetId: MAIN_CONTAINER_WIDGET_ID,
+      widgetName: "tbl_userData",
+      type: WidgetTypes.TABLE_WIDGET_V2,
+      newWidgetId: generateReactKey(),
+      parentRowSpace: 1,
+      parentColumnSpace: 1,
+      leftColumn: 4,
+      topRow: 10,
+      columns: 50,
+      rows: 28,
+      tabId: "",
+    };
+
+    const titleTextWidget = {
+      widgetId: MAIN_CONTAINER_WIDGET_ID,
+      widgetName: "txt_title",
+      type: WidgetTypes.TEXT_WIDGET,
+      newWidgetId: generateReactKey(),
+      parentRowSpace: 1,
+      parentColumnSpace: 1,
+      leftColumn: 4,
+      topRow: 3,
+      columns: 20,
+      rows: 4,
+      tabId: "",
+    };
+
+    const defaultPageLayouts = [
+      {
+        dsl: extractCurrentDSL({ dslTransformer }).dsl,
+        layoutOnLoadActions: [],
+      },
+    ];
+
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const name: string = "Record Edit Building Block";
+
+    const request: CreatePageRequest = {
+      applicationId,
+      name,
+      layouts: defaultPageLayouts,
+    };
+    const response: FetchPageResponse = yield call(PageApi.createPage, request);
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CREATE_PAGE_SUCCESS,
+        payload: {
+          pageId: response.data.id,
+          pageName: response.data.name,
+          layoutId: response.data.layouts[0].id,
+          slug: response.data.slug,
+          customSlug: response.data.customSlug,
+          userPermissions: response.data.userPermissions,
+        },
+      });
+      const isServerDSLMigrationsEnabled: boolean = yield select(
+        getIsServerDSLMigrationsEnabled,
+      );
+      history.push(
+        builderURL({
+          pageId: response.data.id,
+        }),
+      );
+
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+        payload: {
+          pageId: response.data.id,
+          dsl: extractCurrentDSL({
+            dslTransformer,
+            response,
+            migrateDSLLocally: !isServerDSLMigrationsEnabled,
+          }).dsl,
+          layoutId: response.data.layouts[0].id,
+        },
+      });
+
+      yield delay(1000);
+
+      yield put({
+        type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
+        payload: tableWidget,
+      });
+
+      yield take(ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET);
+
+      yield put({
+        type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
+        payload: titleTextWidget,
+      });
+
+      // yield take(ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET);
+
+      // yield put({
+      //   type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE,
+      //   payload: {
+      //     datasourceId: action.payload.datasourceId,
+      //     widgetId: tableWidget.newWidgetId,
+      //   },
+      // });
+    }
+  } catch (error) {
+    // console.log("🚀 ~ function*generateBuildingBlockFromData ~ error:", error);
+  }
+}
+
 // TODO: Refactor and handle this airgap check in a better way - posssibly in root sagas (sangeeth)
 export default function* watchActionSagas() {
   if (!isAirgappedInstance)
@@ -586,6 +721,10 @@ export default function* watchActionSagas() {
       takeEvery(
         ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW,
         forkTemplateToApplicationViaOnboardingFlowSaga,
+      ),
+      takeLatest(
+        ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DATA_INIT,
+        generateBuildingBlockFromData,
       ),
     ]);
 }

@@ -20,6 +20,7 @@ const oneClickBindingReducer = createReducer(initialState, {
     state: OneClickBindingState,
     action: ReduxAction<WidgetQueryGenerationFormConfig>,
   ) => {
+    // console.log("🚀 ~ action:", action);
     return {
       ...state,
       isConnecting: true,

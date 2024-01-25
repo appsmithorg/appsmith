@@ -362,6 +362,7 @@ function* BindWidgetToDatasource(
       formType: otherFields?.formType,
     });
   } catch (e: any) {
+    // console.log("🚀 ~ errorFromOneClickBinding:", e);
     Toaster.show({
       text: e.message,
       hideProgressBar: false,

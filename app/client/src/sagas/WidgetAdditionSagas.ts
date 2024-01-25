@@ -1,54 +1,54 @@
-import type { WidgetAddChild } from "actions/pageActions";
-import { updateAndSaveLayout } from "actions/pageActions";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import type { WidgetBlueprint } from "WidgetProvider/constants";
+import {
+  BlueprintOperationTypes,
+  GRID_DENSITY_MIGRATION_V1,
+} from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import type { WidgetAddChild } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
 import { RenderModes } from "constants/WidgetConstants";
+import { toast } from "design-system";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import produce from "immer";
+import { klona as clone } from "klona/full";
+import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { isFunction } from "lodash";
+import omit from "lodash/omit";
+import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetBlueprint } from "WidgetProvider/constants";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import {
+  getCanvasWidth,
+  getIsAutoLayout,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
-import { getWidget, getWidgets } from "./selectors";
+import { generateReactKey } from "utils/generators";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   buildWidgetBlueprint,
   executeWidgetBlueprintBeforeOperations,
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
-import log from "loglevel";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { generateReactKey } from "utils/generators";
-import type { WidgetProps } from "widgets/BaseWidget";
-import WidgetFactory from "WidgetProvider/factory";
-import omit from "lodash/omit";
-import produce from "immer";
-import {
-  GRID_DENSITY_MIGRATION_V1,
-  BlueprintOperationTypes,
-} from "WidgetProvider/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
-import { klona as clone } from "klona/full";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { toast } from "design-system";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
-import {
-  getCanvasWidth,
-  getIsAutoLayout,
-  getIsAutoLayoutMobileBreakPoint,
-} from "selectors/editorSelectors";
-import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import { isFunction } from "lodash";
+import { getWidget, getWidgets } from "./selectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -392,6 +392,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
     // call execute
   } catch (error) {
+    // console.log("🚀 ~ function*addChildSaga ~ error:", error);
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {

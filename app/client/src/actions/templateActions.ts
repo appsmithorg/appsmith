@@ -118,3 +118,12 @@ export const setActiveLoadingTemplateId = (templateId: string) => ({
   type: ReduxActionTypes.SET_ACTIVE_LOADING_TEMPLATE_ID,
   payload: templateId,
 });
+
+export const generateBuildingBlockFromData = (datasourceId: string) => {
+  return {
+    type: ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DATA_INIT,
+    payload: {
+      datasourceId,
+    },
+  };
+};

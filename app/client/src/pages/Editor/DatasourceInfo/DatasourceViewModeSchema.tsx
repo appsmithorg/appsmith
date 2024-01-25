@@ -1,43 +1,48 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { DatasourceStructureContainer as DatasourceStructureList } from "./DatasourceStructureContainer";
+import {
+  DATASOURCE_GENERATE_PAGE_BUTTON,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useEditorType } from "@appsmith/hooks";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { AppState } from "@appsmith/reducers";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getNumberOfEntitiesInCurrentPage,
   getSelectedTableName,
 } from "@appsmith/selectors/entitiesSelector";
-import DatasourceStructureHeader from "./DatasourceStructureHeader";
-import { Button } from "design-system";
 import {
-  DATASOURCE_GENERATE_PAGE_BUTTON,
-  createMessage,
-} from "@appsmith/constants/messages";
-import Table from "pages/Editor/QueryEditor/Table";
+  getHasCreatePagePermission,
+  hasCreateDSActionPermissionInApp,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
-import { useParams } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import {
-  getCurrentApplicationId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
-import { useDatasourceQuery } from "../DataSourceEditor/hooks";
+import { generateBuildingBlockFromData } from "actions/templateActions";
+import { Button } from "design-system";
 import type {
   Datasource,
   DatasourceTable,
   QueryTemplate,
 } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import type { AppState } from "@appsmith/reducers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import Table from "pages/Editor/QueryEditor/Table";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
 import {
-  getHasCreatePagePermission,
-  hasCreateDSActionPermissionInApp,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+  getCurrentApplicationId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
+import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { useDatasourceQuery } from "../DataSourceEditor/hooks";
+import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
+import { DatasourceStructureContainer as DatasourceStructureList } from "./DatasourceStructureContainer";
+import DatasourceStructureHeader from "./DatasourceStructureHeader";
 import RenderInterimDataState from "./RenderInterimDataState";
 import {
   ButtonContainer,
@@ -48,10 +53,6 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
-import { useEditorType } from "@appsmith/hooks";
-import history from "utils/history";
-import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
-import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
 
 interface Props {
   datasource: Datasource;
@@ -106,7 +107,7 @@ const DatasourceViewModeSchema = (props: Props) => {
       : GENERATE_PAGE_MODE.REPLACE_EMPTY,
   );
 
-  const tableName = useSelector(getSelectedTableName);
+  const tableName: string = useSelector(getSelectedTableName);
 
   const { failedFetchingPreviewData, fetchPreviewData, isLoading } =
     useDatasourceQuery({ setPreviewData, setPreviewDataError });
@@ -221,6 +222,21 @@ const DatasourceViewModeSchema = (props: Props) => {
     }
   };
 
+  const generateRecordEditBlockAction = () => {
+    if (
+      datasourceStructure &&
+      datasourceStructure?.tables &&
+      datasourceStructure?.tables?.length > 0
+    ) {
+      // console.log(
+      //   "🚀 ~ generateRecordEditBlockAction ~ datasource:",
+      //   datasourceStructure.tables.filter((table) => table.name === tableName),
+      // );
+
+      dispatch(generateBuildingBlockFromData(props.datasource.id));
+    }
+  };
+
   // custom edit datasource function
   const customEditDatasourceFn = () => {
     props.setDatasourceViewModeFlag(false);
@@ -295,6 +311,18 @@ const DatasourceViewModeSchema = (props: Props) => {
             size="md"
           >
             {createMessage(DATASOURCE_GENERATE_PAGE_BUTTON)}
+          </Button>
+
+          <Button
+            className="t--datasource-generate-page"
+            isLoading={isGeneratePageLoading}
+            key="datasource-generate-page"
+            kind="secondary"
+            onClick={generateRecordEditBlockAction}
+            size="md"
+            style={{ marginLeft: "10px" }}
+          >
+            Generate Record Edit Block
           </Button>
         </ButtonContainer>
       )}
