@@ -70,9 +70,6 @@ public class JsonSchemaMigration {
                 MigrationHelperMethods.ensureXmlParserPresenceInCustomJsLibList(applicationJson);
 
                 applicationJson.setServerSchemaVersion(7);
-            case 7:
-                MigrationHelperMethods.migrateUpdatedResourcesToModifiedResources(applicationJson);
-                applicationJson.setServerSchemaVersion(8);
             default:
                 // Unable to detect the serverSchema
         }

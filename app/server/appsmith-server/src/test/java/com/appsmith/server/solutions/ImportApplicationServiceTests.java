@@ -3454,7 +3454,6 @@ public class ImportApplicationServiceTests {
                     assertThat(pageOrder.get(0)).isEqualTo("Page1");
                     assertThat(pageOrder.get(1)).isEqualTo("testPage1");
                     assertThat(pageOrder.get(2)).isEqualTo("testPage2");
-                    assertThat(applicationJson.getUpdatedResources()).isNull();
                 })
                 .verifyComplete();
 
