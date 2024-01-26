@@ -21,8 +21,10 @@ describe("<TemplateFilters />", () => {
   beforeEach(() => {
     store = mockStore({
       ui: {
-        applications: {
-          isFetchingApplications: false,
+        selectedWorkspace: {
+          loadingStates: {
+            isFetchingApplications: false,
+          },
         },
         templates: {
           filters: {

@@ -1,6 +1,4 @@
-import { getAllApplications } from "@appsmith/actions/applicationActions";
 import type { AppState } from "@appsmith/reducers";
-import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicationSelectors";
 import * as Sentry from "@sentry/react";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import { getAllTemplates, getTemplateFilters } from "actions/templateActions";
@@ -8,7 +6,6 @@ import { setHeaderMeta } from "actions/themeActions";
 import { Text } from "design-system";
 import { isEmpty } from "lodash";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
@@ -18,9 +15,16 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { editorInitializer } from "utils/editor/EditorUtils";
+<<<<<<< HEAD
 import { TemplateContent } from "./TemplateContent";
 import TemplateFilters from "./TemplateFilters";
+=======
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import { StartWithTemplateContent } from "./StartWithTemplateContent";
+import StartWithTemplateFilters from "./StartWithTemplateFilter";
+>>>>>>> 41e51c4703c7b155dd1829e65dd81073bbe8e789
 import TemplateView from "./TemplateView";
+import { fetchAllWorkspaces } from "@appsmith/actions/workspaceActions";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -63,7 +67,7 @@ function TemplateRoutes() {
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
   const workspaceListLength = useSelector(
-    (state: AppState) => getUserApplicationsWorkspacesList(state).length,
+    (state: AppState) => getFetchedWorkspaces(state).length,
   );
   const pluginListLength = useSelector(
     (state: AppState) => state.entities.plugins.defaultPluginList.length,
@@ -87,7 +91,7 @@ function TemplateRoutes() {
 
   useEffect(() => {
     if (!workspaceListLength) {
-      dispatch(getAllApplications());
+      dispatch(fetchAllWorkspaces());
     }
   }, [workspaceListLength]);
 
@@ -119,8 +123,12 @@ function Templates() {
       <SidebarWrapper>
         <SecondaryWrapper>
           <ReconnectDatasourceModal />
+<<<<<<< HEAD
           <TemplateFilters />
           <LeftPaneBottomSection />
+=======
+          <StartWithTemplateFilters />
+>>>>>>> 41e51c4703c7b155dd1829e65dd81073bbe8e789
         </SecondaryWrapper>
       </SidebarWrapper>
       <TemplateListWrapper>

@@ -112,6 +112,7 @@ export interface PropertyPaneControlConfig {
    * will depend on the control type and its individual requirements.
    */
   controlConfig?: Record<string, unknown>;
+  defaultValue?: unknown;
 }
 
 interface ValidationConfigParams {

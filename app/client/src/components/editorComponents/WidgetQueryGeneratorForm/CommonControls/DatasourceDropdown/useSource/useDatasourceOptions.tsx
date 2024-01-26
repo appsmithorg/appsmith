@@ -29,7 +29,7 @@ import {
   getPluginIdPackageNamesMap,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
