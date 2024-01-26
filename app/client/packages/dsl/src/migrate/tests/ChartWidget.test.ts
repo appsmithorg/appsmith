@@ -3,6 +3,7 @@ import { migrateDefaultValuesForCustomEChart } from "../migrations/085-migrate-d
 import { migrateAddShowHideDataPointLabels } from "../migrations/083-migrate-add-show-hide-data-point-labels";
 import { migrateChartWidgetLabelOrientationStaggerOption } from "../migrations/082-migrate-chart-widget-label-orientation-stagger-option";
 import type { DSLWidget } from "../types";
+import { migrateChartwidgetCustomEchartConfig } from "../migrations/087-migrate-chart-widget-customechartdata";
 
 type ChartWidgetProps = any;
 
@@ -97,5 +98,29 @@ describe("Migrate Default Custom EChart configuration", () => {
     expect(
       Object.keys(outputChartWidgetDSL.customEChartConfig).length,
     ).toBeGreaterThan(0);
+  });
+});
+
+describe("Migrate customEcChartConfig", () => {
+  it("test that customEChartConfig is migrated for matching cases", () => {
+    const chartWidgetDSL = inputDSL.children?.[0] as ChartWidgetProps;
+
+    const widgetName = chartWidgetDSL.widgetName;
+
+    chartWidgetDSL.customEChartConfig = `{{ ((chartType) => ( \n${widgetName}.chartData\n))(${widgetName}.chartType); }}`;
+
+    migrateChartwidgetCustomEchartConfig(inputDSL);
+
+    expect(chartWidgetDSL.customEChartConfig).toEqual(
+      `{{ ((chartType) => ( \n${widgetName}.chartData\n))(${widgetName}.chartType) }}`,
+    );
+
+    chartWidgetDSL.customEChartConfig = `{{ ((chartType) => ( \n${widgetName}.chartData\n))(${widgetName}.chartType); }} something`;
+
+    migrateChartwidgetCustomEchartConfig(inputDSL);
+
+    expect(chartWidgetDSL.customEChartConfig).toEqual(
+      `{{ ((chartType) => ( \n${widgetName}.chartData\n))(${widgetName}.chartType); }} something`,
+    );
   });
 });
