@@ -1,26 +1,21 @@
 import React from "react";
-import { Button } from "design-system";
-import { importSvg } from "design-system-old";
+import { Text } from "design-system";
 import { useSelector } from "react-redux";
 
 import CardList from "pages/Applications/CardList";
 import { PaddingWrapper } from "pages/Applications/CommonElements";
-import {
-  getIsCreatingApplicationByWorkspaceId,
-  getIsFetchingApplications,
-} from "@appsmith/selectors/applicationSelectors";
 import { NoAppsFound } from "@appsmith/pages/Applications";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
+  APPLICATIONS,
   APPLICATION_CARD_LIST_ZERO_STATE,
   createMessage,
 } from "@appsmith/constants/messages";
-
-const NoAppsFoundIcon = importSvg(
-  async () => import("assets/svg/no-apps-icon.svg"),
-);
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 interface ApplicationCardListProps {
   applications: ApplicationPayload[];
@@ -46,20 +41,16 @@ function ApplicationCardList({
   hasCreateNewApplicationPermission,
   hasManageWorkspacePermissions,
   isMobile,
-  onClickAddNewButton,
   updateApplicationDispatch,
   workspaceId,
 }: ApplicationCardListProps) {
-  const isCreatingApplication = Boolean(
-    useSelector(getIsCreatingApplicationByWorkspaceId(workspaceId)),
-  );
   const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   return (
     <CardList
       isLoading={isFetchingApplications}
       isMobile={isMobile}
-      title="Apps"
+      title={createMessage(APPLICATIONS)}
     >
       {applications.map((application: any) => {
         return (
@@ -84,20 +75,14 @@ function ApplicationCardList({
       })}
       {applications.length === 0 && (
         <NoAppsFound>
-          <NoAppsFoundIcon />
-          <span>{createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}</span>
+          <img
+            className="mb-7"
+            src={getAssetUrl(`${ASSETS_CDN_URL}/no-applications.svg`)}
+          />
+          <Text kind="heading-xs">
+            {createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}
+          </Text>
           {/* below component is duplicate. This is because of cypress test were failing */}
-          {hasCreateNewApplicationPermission && (
-            <Button
-              className="t--new-button createnew"
-              isLoading={isCreatingApplication}
-              onClick={() => onClickAddNewButton(workspaceId)}
-              size="md"
-              startIcon={"plus"}
-            >
-              New
-            </Button>
-          )}
         </NoAppsFound>
       )}
     </CardList>
