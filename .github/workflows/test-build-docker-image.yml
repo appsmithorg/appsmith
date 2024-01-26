@@ -201,6 +201,7 @@ jobs:
           SLACK_FOOTER: "Push Workflow"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
 
+      # This step triggers an external workflow for automated analysis of Cypress test runs.
       - name: Invoke Automated analysis workflow
         run: |
          curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
