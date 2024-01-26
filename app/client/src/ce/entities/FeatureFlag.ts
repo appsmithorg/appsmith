@@ -52,6 +52,7 @@ export const FEATURE_FLAG = {
     "ab_flip_primary_secondary_ctas_dsform_enabled",
   rollout_consolidated_page_load_fetch_enabled:
     "rollout_consolidated_page_load_fetch_enabled",
+  ab_start_with_data_default_enabled: "ab_start_with_data_default_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -94,6 +95,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_appsmith_ai_query: false,
   ab_flip_primary_secondary_ctas_dsform_enabled: false,
   rollout_consolidated_page_load_fetch_enabled: false,
+  ab_start_with_data_default_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
