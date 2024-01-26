@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
@@ -63,6 +64,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -563,12 +565,11 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
     @Override
     public Mono<User> update(String id, User userUpdate) {
-        return Mono.empty(); /*
         Mono<User> userFromRepository = repository
                 .findById(id, MANAGE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
-        return userFromRepository.flatMap(existingUser -> this.update(existingUser, userUpdate));*/
+        return userFromRepository.flatMap(existingUser -> this.update(existingUser, userUpdate));
     }
 
     /**
@@ -589,15 +590,13 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
     }
 
     private Mono<User> update(User existingUser, User userUpdate) {
-        return Mono.empty(); /*
-
         // The password is being updated. Hash it first and then store it
         if (userUpdate.getPassword() != null) {
             userUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
         }
 
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
-        return repository.save(existingUser).map(userChangedHandler::publish);*/
+        return repository.save(existingUser);
     }
 
     @Override
