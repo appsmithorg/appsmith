@@ -28,7 +28,7 @@ import type { Plugin } from "api/PluginApi";
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 import type { Datasource } from "entities/Datasource";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
 
 const NameWrapper = styled.div`
