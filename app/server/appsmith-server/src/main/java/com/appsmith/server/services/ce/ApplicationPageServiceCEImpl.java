@@ -572,13 +572,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<List<Application>> deleteMultipleApps(List<String> ids) {
-        log.debug("Archiving application with ids: {}", ids.toString());
-
-        return Flux.fromIterable(ids).flatMap(id -> deleteApplication(id)).collectList();
-    }
-
-    @Override
     public Mono<Application> deleteApplicationByResource(Application application) {
         log.debug("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
         return deleteApplicationResources(application)

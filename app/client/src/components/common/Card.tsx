@@ -5,19 +5,16 @@ import { omit } from "lodash";
 import { AppIcon, Size, TextType, Text } from "design-system-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Button, Checkbox, type MenuItemProps } from "design-system";
+import { Button, type MenuItemProps } from "design-system";
 
 import GitConnectedBadge from "./GitConnectedBadge";
-import { noop } from "utils/AppsmithUtils";
 
 type CardProps = PropsWithChildren<{
   backgroundColor: string;
   contextMenu: React.ReactNode;
   editedByText: string;
-  handleMultipleSelection?: (e: any) => void;
   hasReadPermission: boolean;
   icon: string;
-  isEnabledMultipleSelection: boolean;
   isContextMenuOpen: boolean;
   isFetching: boolean;
   isMobile?: boolean;
@@ -181,46 +178,6 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   border-radius: var(--ads-v2-border-radius);
   &:hover {
     border-color: var(--ads-v2-color-gray-100);
-    .t--app-multi-select-checkbox {
-      display: inline;
-      animation: multi-select-check 0.5s;
-      animation-fill-mode: forwards;
-    }
-  }
-
-  ${(props) => `&.${props.testId}-selected {
-    border-color: var(--ads-v2-color-blue-300);
-    .t--app-multi-select-checkbox {
-      display: inline;
-      animation: multi-select-check 0.5s;
-      animation-fill-mode: forwards;
-    }
-  }`}
-
-  .t--app-multi-select-checkbox {
-    display: none;
-    height: 14px;
-    visibility: hidden;
-    opacity: 0;
-    margin-left: -24px;
-    &.t--app-multi-select-mode-checkbox {
-      display: inline;
-      animation: multi-select-check 0.5s;
-      animation-fill-mode: forwards;
-    }
-  }
-
-  @keyframes multi-select-check {
-    from {
-      margin-left: -24px;
-      visibility: hidden;
-      opacity: 0;
-    }
-    to {
-      visibility: visible;
-      opacity: 1;
-      margin-left: 4px;
-    }
   }
 `;
 
@@ -355,15 +312,12 @@ function Card({
   children,
   contextMenu,
   editedByText,
-  handleMultipleSelection,
   hasEditPermission,
   hasReadPermission,
   icon,
   isContextMenuOpen,
-  isEnabledMultipleSelection,
   isFetching,
   isMobile,
-  isSelected,
   moreActionItems,
   primaryAction,
   setShowOverlay,
@@ -374,16 +328,9 @@ function Card({
   titleTestId,
 }: CardProps) {
   return (
-    <Container
-      isMobile={isMobile}
-      onClick={
-        isEnabledMultipleSelection && handleMultipleSelection
-          ? handleMultipleSelection
-          : primaryAction
-      }
-    >
+    <Container isMobile={isMobile} onClick={primaryAction}>
       <NameWrapper
-        className={`${testId} ${isSelected ? `${testId}-selected` : ""}`}
+        className={testId}
         hasReadPermission={hasReadPermission}
         isContextMenuOpen={isContextMenuOpen}
         onMouseEnter={() => {
@@ -422,23 +369,6 @@ function Card({
           )}
         </Wrapper>
         <CardFooter>
-          {handleMultipleSelection && (
-            <div
-              onClick={
-                isEnabledMultipleSelection ? noop : handleMultipleSelection
-              }
-            >
-              <Checkbox
-                aria-label="Multiple Selection"
-                className={`t--app-multi-select-checkbox ${
-                  isEnabledMultipleSelection
-                    ? "t--app-multi-select-mode-checkbox"
-                    : ""
-                }`}
-                isSelected={isSelected}
-              />
-            </div>
-          )}
           {hasEditPermission ? (
             <ModifiedDataComponent className="t--application-edited-text">
               {editedByText}

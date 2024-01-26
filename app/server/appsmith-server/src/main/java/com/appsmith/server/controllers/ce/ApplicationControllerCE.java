@@ -157,14 +157,6 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
-    @JsonView(Views.Public.class)
-    @PostMapping("/delete-apps")
-    public Mono<ResponseDTO<List<Application>>> deleteMultipleApps(@Valid @RequestBody List<String> ids) {
-        return applicationPageService
-                .deleteMultipleApps(ids)
-                .map(deletedResources -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResources, null));
-    }
-
     @Deprecated
     @JsonView(Views.Public.class)
     @GetMapping("/new")
