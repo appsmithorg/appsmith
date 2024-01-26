@@ -1378,7 +1378,8 @@ export const filterOutSelectedWidgets = function* (
   parentId: string,
   copiedWidgetGroups: CopiedWidgetGroup[],
 ) {
-  const canvasWidgets: CanvasWidgetsReduxState = yield klona(
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const clonedCanvasWidgets = klona(canvasWidgets);
     select(getWidgets),
   );
 
