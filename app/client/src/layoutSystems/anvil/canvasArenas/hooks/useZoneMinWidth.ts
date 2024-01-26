@@ -9,9 +9,9 @@ import {
 } from "selectors/editorSelectors";
 import type { SizeConfig } from "WidgetProvider/constants";
 import { getWidgetSizeConfiguration } from "layoutSystems/anvil/utils/widgetUtils";
-import { FLEX_LAYOUT_PADDING } from "layoutSystems/anvil/layoutComponents/components/FlexLayout";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
+import isObject from "lodash/isObject";
 
 export function useZoneMinWidth() {
   const childrenMap: Record<string, WidgetProps> =
@@ -22,30 +22,34 @@ export function useZoneMinWidth() {
 
   if (renderMode === RenderModes.CANVAS && !isPreviewMode) return "auto";
 
-  const minWidth: number = Object.keys(childrenMap).reduce(
-    (acc: number, curr: string) => {
-      const sizeConfig: SizeConfig = getWidgetSizeConfiguration(
-        childrenMap[curr].type,
-        widgets[curr],
-        isPreviewMode,
-      );
-      if (!sizeConfig.minWidth || !sizeConfig.minWidth["base"]) return acc;
+  let minWidth = 0;
 
-      return Math.max(acc, removeCSSUnits(sizeConfig.minWidth["base"]));
-    },
-    0,
-  );
+  Object.keys(childrenMap).forEach((child) => {
+    const sizeConfig: SizeConfig = getWidgetSizeConfiguration(
+      childrenMap[child].type,
+      widgets[child],
+      isPreviewMode,
+    );
+    let currentWidth = 0;
 
-  return `${minWidth + FLEX_LAYOUT_PADDING * 2}px`;
+    if (sizeConfig.minWidth) {
+      if (isObject(sizeConfig.minWidth)) {
+        Object.values(sizeConfig.minWidth).forEach((width) => {
+          currentWidth = getSizingNumber(width);
+        });
+      } else {
+        currentWidth = getSizingNumber(sizeConfig.minWidth);
+      }
+    }
+
+    minWidth = currentWidth > minWidth ? currentWidth : minWidth;
+  });
+
+  return `sizing-${minWidth}`;
 }
 
-function removeCSSUnits(value: string): number {
-  // This regular expression matches the beginning of the string (^)
-  // and captures as many numerical characters (including decimal points) as possible
-  // The match stops when it encounters a non-numerical character
-  const regExp = /^[\d.-]+/;
-  const match = value.match(regExp);
-
-  // If a match is found, return it as a number, otherwise return null
-  return match ? parseFloat(match[0]) : 0;
+function getSizingNumber(value?: string) {
+  return value && value.includes("sizing")
+    ? Number(value.replace("sizing-", ""))
+    : 0;
 }

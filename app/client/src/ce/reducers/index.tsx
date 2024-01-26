@@ -55,7 +55,6 @@ import type { AppThemingState } from "reducers/uiReducers/appThemingReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import type { SettingsReduxState } from "@appsmith/reducers/settingsReducer";
 import SettingsReducer from "@appsmith/reducers/settingsReducer";
-import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import type { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
@@ -79,6 +78,8 @@ import type { IDEState } from "reducers/uiReducers/ideReducer";
     or done so by a module that is designed to be eventually pluggable */
 import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
+import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
+import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -92,6 +93,7 @@ export const reducerObject = {
 
 export interface AppState {
   ui: {
+    consolidatedPageLoad: ConsolidatedPageLoadState;
     analytics: AnalyticsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
@@ -103,6 +105,7 @@ export interface AppState {
     auth: AuthState;
     templates: TemplatesReduxState;
     workspaces: WorkspaceReduxState;
+    selectedWorkspace: SelectedWorkspaceReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
     imports: ImportReduxState;
@@ -117,7 +120,6 @@ export interface AppState {
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
-    guidedTour: GuidedTourState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
     websocket: WebsocketReducerState;

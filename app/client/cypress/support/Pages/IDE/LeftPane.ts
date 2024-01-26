@@ -10,7 +10,7 @@ export class LeftPane {
       "//div[text()='" +
       name +
       "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
-    addItem: () => "//button[contains(@class, 't--add-item')]",
+    addItem: "button.t--add-item",
     selector: "",
   };
 
@@ -89,6 +89,14 @@ export class LeftPane {
 
   public switchToAddNew() {
     // for js it will directly add a new file
-    cy.xpath(this.locators.addItem()).click();
+    cy.get("body").then(($body) => {
+      if ($body.find(this.locators.addItem).length > 0) {
+        ObjectsRegistry.AggregateHelper.GetNClick(
+          this.locators.addItem,
+          0,
+          true,
+        );
+      }
+    });
   }
 }

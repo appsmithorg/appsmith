@@ -64,15 +64,13 @@ import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import Guide from "pages/Editor/GuidedTour/Guide";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   getDebuggerSelectedTab,
   showDebuggerFlag,
@@ -329,7 +327,6 @@ export function EditorJSONtoForm(props: Props) {
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
-  const guidedTourEnabled = useSelector(inGuidedTour);
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -619,7 +616,8 @@ export function EditorJSONtoForm(props: Props) {
   // here we check for normal conditions for opening action pane
   // or if any of the flags are true, We should open the actionpane by default.
   const shouldOpenActionPaneByDefault =
-    ((hasDependencies || !!actionResponse) && !guidedTourEnabled) ||
+    hasDependencies ||
+    !!actionResponse ||
     currentActionPluginName !== PluginName.SMTP;
 
   // Datasource selection is hidden for Appsmith AI Plugin and for plugins that don't require datasource
@@ -635,8 +633,7 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      {!guidedTourEnabled && closeEditorLink}
-      {guidedTourEnabled && <Guide className="query-page" />}
+      {closeEditorLink}
       <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
           <NameWrapper>

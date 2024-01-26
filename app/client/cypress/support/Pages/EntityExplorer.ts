@@ -152,6 +152,7 @@ export class EntityExplorer {
     dropTargetId = "",
     skipWidgetSearch = false,
   ) {
+    PageLeftPane.switchToAddNew();
     if (!skipWidgetSearch) {
       this.SearchWidgetPane(widgetType);
     }
@@ -204,7 +205,7 @@ export class EntityExplorer {
       dropTargetId,
       skipWidgetSearch,
     );
-    this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
+    this.agHelper.AssertAutoSave(); //allowing widget to autosave on canvas!
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");
     } else {
