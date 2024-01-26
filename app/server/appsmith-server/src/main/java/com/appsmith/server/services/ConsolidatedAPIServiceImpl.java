@@ -49,9 +49,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
-import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
-import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE;
 import static com.appsmith.server.constants.OtlpSpanNames.ACTIONS_SPAN;
 import static com.appsmith.server.constants.OtlpSpanNames.ACTION_COLLECTIONS_SPAN;
 import static com.appsmith.server.constants.OtlpSpanNames.APPLICATION_ID_SPAN;
@@ -671,8 +669,6 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
     }
 
     private boolean isPossibleToCreateQueryWithoutDatasource(Plugin plugin) {
-        return REST_API_PLUGIN.equals(plugin.getPackageName())
-                || GRAPHQL_PLUGIN.equals(plugin.getPackageName())
-                || APPSMITH_AI_PLUGIN.equals(plugin.getPackageName());
+        return PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE.contains(plugin.getPackageName());
     }
 }

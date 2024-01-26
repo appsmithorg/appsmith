@@ -423,6 +423,8 @@ public class ConsolidatedAPIServiceImplTest {
 
         Plugin samplePlugin = new Plugin();
         samplePlugin.setName("samplePlugin");
+        samplePlugin.setId("samplePluginId");
+        samplePlugin.setPackageName("sample-plugin");
         Plugin sampleRestApiPlugin = new Plugin();
         sampleRestApiPlugin.setName("sampleRestApiPlugin");
         sampleRestApiPlugin.setId("sampleRestApiPluginId");
