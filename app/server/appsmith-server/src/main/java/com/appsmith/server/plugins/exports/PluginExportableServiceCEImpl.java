@@ -60,11 +60,11 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
-        return transactionalArtifactMono.flatMap(transactionalArtifact -> {
-            Mono<Application> applicationMono = Mono.just((Application) transactionalArtifact);
+        return exportableArtifactMono.flatMap(exportableArtifact -> {
+            Mono<Application> applicationMono = Mono.just((Application) exportableArtifact);
             ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
             return getExportableEntities(
                     exportingMetaDTO, mappedExportableResourcesDTO, applicationMono, applicationJson);

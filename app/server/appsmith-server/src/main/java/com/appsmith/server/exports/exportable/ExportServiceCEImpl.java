@@ -79,7 +79,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     }
 
     @Override
-    public Mono<? extends ArtifactExchangeJson> exportByTransactionalArtifactIdAndBranchName(
+    public Mono<? extends ArtifactExchangeJson> exportByExportableArtifactIdAndBranchName(
             String artifactId,
             String branchName,
             SerialiseArtifactObjective objective,
@@ -126,7 +126,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
         artifactExchangeJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
         // Find the transaction artifact with appropriate permission
-        Mono<? extends ExportableArtifact> transactionalArtifactMono = contextBasedExportService
+        Mono<? extends ExportableArtifact> exportableArtifactMono = contextBasedExportService
                 .findExistingArtifactByIdAndBranchName(artifactId, branchName, permission)
                 .map(transactionArtifact -> {
                     // Since we have moved the setting of artifactId from the repository, the MetaDTO needs to assigned
@@ -145,29 +145,26 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 })
                 .cache();
 
-        return transactionalArtifactMono
-                .flatMap(transactionalArtifact -> {
-                    // Refactor transactionalArtifact to remove the ids
+        return exportableArtifactMono
+                .flatMap(exportableArtifact -> {
+                    // Refactor exportableArtifact to remove the ids
                     // TODO rename the method
                     contextBasedExportService.getArtifactReadyForExport(
-                            transactionalArtifact, artifactExchangeJson, exportingMetaDTO);
+                            exportableArtifact, artifactExchangeJson, exportingMetaDTO);
                     return getExportableEntities(
-                                    exportingMetaDTO,
-                                    mappedResourcesDTO,
-                                    transactionalArtifactMono,
-                                    artifactExchangeJson)
+                                    exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson)
                             .then(Mono.defer(() -> sanitizeEntities(
                                     serialiseArtifactObjective,
                                     artifactExchangeJson,
                                     mappedResourcesDTO,
                                     exportingMetaDTO)))
                             .then(Mono.fromCallable(() -> {
-                                transactionalArtifact.makePristine();
-                                transactionalArtifact.sanitiseToExportDBObject();
-                                // Disable exporting the transactionalArtifact with datasource config once imported in
+                                exportableArtifact.makePristine();
+                                exportableArtifact.sanitiseToExportDBObject();
+                                // Disable exporting the exportableArtifact with datasource config once imported in
                                 // destination
                                 // instance
-                                transactionalArtifact.setExportWithConfiguration(null);
+                                exportableArtifact.setExportWithConfiguration(null);
                                 return artifactExchangeJson;
                             }));
                 })
@@ -210,19 +207,19 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     private Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         ContextBasedExportService<?, ?> contextBasedExportService =
                 getContextBasedExportService(artifactExchangeJson.getArtifactJsonType());
 
         List<Mono<Void>> artifactAgnosticExportedEntities = generateArtifactAgnosticExportables(
-                exportingMetaDTO, mappedResourcesDTO, transactionalArtifactMono, artifactExchangeJson);
+                exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson);
         Flux<Void> artifactSpecificExportedEntities = contextBasedExportService.generateArtifactSpecificExportables(
-                exportingMetaDTO, mappedResourcesDTO, transactionalArtifactMono, artifactExchangeJson);
+                exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson);
         Flux<Void> artifactComponentDependentExportedEntities =
                 contextBasedExportService.generateArtifactComponentDependentExportables(
-                        exportingMetaDTO, mappedResourcesDTO, transactionalArtifactMono, artifactExchangeJson);
+                        exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson);
 
         // The idea with both these methods is that any amount of overriding should take care of whether they want to
         // zip the additional exportables along with these or sequence them, or combine them using any other logic
@@ -235,21 +232,21 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     protected List<Mono<Void>> generateArtifactAgnosticExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         // Updates plugin map in exportable resources
         Mono<Void> pluginExportablesMono = pluginExportableService.getExportableEntities(
-                exportingMetaDTO, mappedResourcesDTO, transactionalArtifactMono, artifactExchangeJson, TRUE);
+                exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson, TRUE);
 
         // Updates datasourceId to name map in exportable resources.
         // Also directly updates required datasources information in artifactExchangeJSON
         Mono<Void> datasourceExportablesMono = datasourceExportableService.getExportableEntities(
-                exportingMetaDTO, mappedResourcesDTO, transactionalArtifactMono, artifactExchangeJson, TRUE);
+                exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson, TRUE);
 
         // Directly sets required custom JS lib information in artifactExchangeJSON
         Mono<Void> customJsLibsExportablesMono = customJSLibExportableService.getExportableEntities(
-                exportingMetaDTO, mappedResourcesDTO, transactionalArtifactMono, artifactExchangeJson, TRUE);
+                exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson, TRUE);
 
         return List.of(pluginExportablesMono, datasourceExportablesMono, customJsLibsExportablesMono);
     }
@@ -265,7 +262,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     @Override
     public Mono<? extends ArtifactExchangeJson> exportByArtifactId(
             String artifactId, SerialiseArtifactObjective objective, ArtifactJsonType artifactJsonType) {
-        return exportByTransactionalArtifactIdAndBranchName(artifactId, null, objective, artifactJsonType);
+        return exportByExportableArtifactIdAndBranchName(artifactId, null, objective, artifactJsonType);
     }
 
     /**
@@ -278,7 +275,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     @Override
     public Mono<? extends ArtifactExchangeJson> exportByArtifactIdAndBranchName(
             String artifactId, String branchName, ArtifactJsonType artifactJsonType) {
-        return exportByTransactionalArtifactIdAndBranchName(
+        return exportByExportableArtifactIdAndBranchName(
                 artifactId, branchName, SerialiseArtifactObjective.SHARE, artifactJsonType);
     }
 
@@ -308,32 +305,32 @@ public class ExportServiceCEImpl implements ExportServiceCE {
      * To send analytics event for import and export of application
      *
      * @param contextBasedExportService : A exportService which is an implementation of contextBasedExportService
-     * @param transactionalArtifactId : String transactionalArtifactId
+     * @param exportableArtifactId : String exportableArtifactId
      * @param event : Analytics Event
      * @return a subclass of  which is imported or exported
      */
     private Mono<? extends ExportableArtifact> sendExportArtifactAnalyticsEvent(
             ContextBasedExportService<?, ?> contextBasedExportService,
-            String transactionalArtifactId,
+            String exportableArtifactId,
             AnalyticsEvents event) {
         return contextBasedExportService
-                .findExistingArtifactForAnalytics(transactionalArtifactId)
-                .flatMap(transactionalArtifact -> {
+                .findExistingArtifactForAnalytics(exportableArtifactId)
+                .flatMap(exportableArtifact -> {
                     return workspaceService
-                            .getById(transactionalArtifact.getWorkspaceId())
+                            .getById(exportableArtifact.getWorkspaceId())
                             .flatMap(workspace -> {
                                 Map<String, String> contextConstants = contextBasedExportService.getConstantsMap();
                                 final Map<String, Object> data = new HashMap<>();
                                 final Map<String, Object> eventData = Map.of(
                                         contextConstants.get(FieldName.ARTIFACT_CONTEXT),
-                                        transactionalArtifact,
+                                        exportableArtifact,
                                         FieldName.WORKSPACE,
                                         workspace);
 
                                 data.put(FieldName.EVENT_DATA, eventData);
                                 data.put(FieldName.WORKSPACE_ID, workspace.getId());
-                                data.put(contextConstants.get(FieldName.ID), transactionalArtifact.getId());
-                                return analyticsService.sendObjectEvent(event, transactionalArtifact, data);
+                                data.put(contextConstants.get(FieldName.ID), exportableArtifact.getId());
+                                return analyticsService.sendObjectEvent(event, exportableArtifact, data);
                             });
                 });
     }

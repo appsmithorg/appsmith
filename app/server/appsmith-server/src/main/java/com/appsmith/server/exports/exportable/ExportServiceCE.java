@@ -11,7 +11,7 @@ public interface ExportServiceCE {
 
     ContextBasedExportService<?, ?> getContextBasedExportService(ArtifactJsonType artifactJsonType);
 
-    Mono<? extends ArtifactExchangeJson> exportByTransactionalArtifactIdAndBranchName(
+    Mono<? extends ArtifactExchangeJson> exportByExportableArtifactIdAndBranchName(
             String artifactId,
             String branchName,
             SerialiseArtifactObjective objective,

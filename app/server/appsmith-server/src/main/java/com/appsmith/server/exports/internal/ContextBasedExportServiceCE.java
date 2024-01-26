@@ -22,7 +22,7 @@ public interface ContextBasedExportServiceCE<T extends ExportableArtifact, U ext
     Mono<T> findExistingArtifactForAnalytics(String artifactId);
 
     void getArtifactReadyForExport(
-            ExportableArtifact transactionalArtifact,
+            ExportableArtifact exportableArtifact,
             ArtifactExchangeJson artifactExchangeJson,
             ExportingMetaDTO exportingMetaDTO);
 
@@ -39,12 +39,12 @@ public interface ContextBasedExportServiceCE<T extends ExportableArtifact, U ext
     Flux<Void> generateArtifactSpecificExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
 
     Flux<Void> generateArtifactComponentDependentExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
 }

@@ -105,11 +105,11 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
 
     @Override
     public void getArtifactReadyForExport(
-            ExportableArtifact transactionalArtifact,
+            ExportableArtifact exportableArtifact,
             ArtifactExchangeJson artifactExchangeJson,
             ExportingMetaDTO exportingMetaDTO) {
 
-        Application application = (Application) transactionalArtifact;
+        Application application = (Application) exportableArtifact;
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -150,10 +150,10 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
     public Flux<Void> generateArtifactSpecificExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
-        return transactionalArtifactMono.flatMapMany(transactionalArtifact -> {
-            Mono<Application> applicationMono = Mono.just((Application) transactionalArtifact);
+        return exportableArtifactMono.flatMapMany(exportableArtifact -> {
+            Mono<Application> applicationMono = Mono.just((Application) exportableArtifact);
             ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
             // Directly updates required theme information in application json
@@ -173,10 +173,10 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
     public Flux<Void> generateArtifactComponentDependentExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
-        return transactionalArtifactMono.flatMapMany(transactionalArtifact -> {
-            Mono<Application> applicationMono = Mono.just((Application) transactionalArtifact);
+        return exportableArtifactMono.flatMapMany(exportableArtifact -> {
+            Mono<Application> applicationMono = Mono.just((Application) exportableArtifact);
             ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
             // Requires pageIdToNameMap, pluginMap.

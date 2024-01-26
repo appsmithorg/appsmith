@@ -25,7 +25,7 @@ public interface ExportableServiceCE<T extends BaseDomain> {
     default Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return Mono.empty();
