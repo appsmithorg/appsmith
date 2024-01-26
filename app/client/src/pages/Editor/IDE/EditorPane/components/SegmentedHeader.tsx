@@ -18,7 +18,7 @@ import { setIdeEditorViewMode } from "actions/ideActions";
 
 const Container = styled(Flex)`
   #editor-pane-segment-control {
-    width: 220px;
+    max-width: 247px;
   }
 
   button {
