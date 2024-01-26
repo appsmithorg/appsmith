@@ -82,6 +82,27 @@ export const importStarterBuildingBlockIntoApplication = (
   },
 });
 
+export const generateBuildingBlockFromDsTable = (
+  templateId: string,
+  templateName: string,
+  templatePageName: string,
+  datasourceId: string,
+  pluginId: string,
+  datasourceName: string,
+  tableName: string,
+) => ({
+  type: ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_INIT,
+  payload: {
+    templateId,
+    templateName,
+    pageNames: [templatePageName],
+    datasourceId,
+    tableName,
+    pluginId,
+    datasourceName,
+  },
+});
+
 export const showStarterBuildingBlockDatasourcePrompt = (
   buildingBlockSourcePageId: string,
 ) => ({

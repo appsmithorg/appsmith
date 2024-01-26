@@ -52,6 +52,7 @@ import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
+import { generateBuildingBlockFromDsTable } from "actions/templateActions";
 
 interface Props {
   datasource: Datasource;
@@ -221,6 +222,26 @@ const DatasourceViewModeSchema = (props: Props) => {
     }
   };
 
+  const generateBuildingBlockFromDsAction = () => {
+    if (
+      datasourceStructure &&
+      datasourceStructure?.tables &&
+      datasourceStructure?.tables?.length > 0
+    ) {
+      dispatch(
+        generateBuildingBlockFromDsTable(
+          "65b3096bacc7a11eac425271",
+          "Data Building Blocks",
+          "Postgres - View Data",
+          props.datasource.id,
+          props.datasource.pluginId,
+          props.datasource.name,
+          tableName,
+        ),
+      );
+    }
+  };
+
   // custom edit datasource function
   const customEditDatasourceFn = () => {
     props.setDatasourceViewModeFlag(false);
@@ -295,6 +316,20 @@ const DatasourceViewModeSchema = (props: Props) => {
             size="md"
           >
             {createMessage(DATASOURCE_GENERATE_PAGE_BUTTON)}
+          </Button>
+
+          <Button
+            className="t--datasource-generate-page"
+            isLoading={isGeneratePageLoading}
+            key="datasource-generate-page"
+            kind="secondary"
+            onClick={generateBuildingBlockFromDsAction}
+            size="md"
+            style={{
+              marginLeft: "10px",
+            }}
+          >
+            Generate View Data Block
           </Button>
         </ButtonContainer>
       )}

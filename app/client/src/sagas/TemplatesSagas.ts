@@ -1,3 +1,8 @@
+import { builderURL } from "@appsmith/RouteBuilder";
+import {
+  fetchApplication,
+  showReconnectDatasourceModal,
+} from "@appsmith/actions/applicationActions";
 import type {
   ApplicationPayload,
   ReduxAction,
@@ -6,65 +11,67 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  all,
-  put,
-  takeEvery,
-  call,
-  select,
-  take,
-  fork,
-  race,
-  delay,
-} from "redux-saga/effects";
-import type {
-  ImportTemplateResponse,
-  FetchTemplateResponse,
-  TemplateFiltersResponse,
-} from "api/TemplatesApi";
-import TemplatesAPI from "api/TemplatesApi";
-import history from "utils/history";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
-import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
+import { fetchPageDSLSaga } from "@appsmith/sagas/PageSagas";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
+import { fetchDatasources } from "actions/datasourceActions";
+import { fetchJSCollections } from "actions/jsActionActions";
+import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
+import {
+  executePageLoadActions,
+  fetchActions,
+  updateActionSuccess,
+} from "actions/pluginActionActions";
+import { fetchPluginFormConfigs } from "actions/pluginActions";
 import {
   getAllTemplates,
   hideTemplatesModal,
   setTemplateNotificationSeenAction,
   showStarterBuildingBlockDatasourcePrompt,
 } from "actions/templateActions";
+import type { ApiResponse } from "api/ApiResponses";
+import type {
+  FetchTemplateResponse,
+  ImportTemplateResponse,
+  TemplateFiltersResponse,
+} from "api/TemplatesApi";
+import TemplatesAPI from "api/TemplatesApi";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
+import { getAction, getActions } from "@appsmith/selectors/entitiesSelector";
+import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
+import { toast } from "design-system";
+import type { Action } from "entities/Action";
+import { APP_MODE } from "entities/App";
 import {
-  getTemplateNotificationSeen,
-  setTemplateNotificationSeen,
-} from "utils/storage";
-import { validateResponse } from "./ErrorSagas";
-import { builderURL } from "@appsmith/RouteBuilder";
+  all,
+  call,
+  delay,
+  fork,
+  put,
+  race,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
+import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import history from "utils/history";
 import {
-  fetchApplication,
-  showReconnectDatasourceModal,
-} from "@appsmith/actions/applicationActions";
-import { APP_MODE } from "entities/App";
-import {
-  executePageLoadActions,
-  fetchActions,
-} from "actions/pluginActionActions";
-import { fetchJSCollections } from "actions/jsActionActions";
+  getTemplateNotificationSeen,
+  setTemplateNotificationSeen,
+} from "utils/storage";
+import { validateResponse } from "./ErrorSagas";
 import { failFastApiCalls } from "./InitSagas";
-import { fetchDatasources } from "actions/datasourceActions";
-import { fetchPluginFormConfigs } from "actions/pluginActions";
-import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { getAllPageIds } from "./selectors";
-import { fetchPageDSLSaga } from "@appsmith/sagas/PageSagas";
-import { toast } from "design-system";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { fetchJSLibraries } from "actions/JSLibraryActions";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -331,6 +338,100 @@ function* forkStarterBuildingBlockToApplicationSaga(
   }
 }
 
+function* generateBuildingBlockFromDatasourceTable(
+  action: ReduxAction<{
+    pageNames?: string[];
+    templateId: string;
+    templateName: string;
+    datasourceId: string;
+    pluginId: string;
+    datasourceName: string;
+    tableName: string;
+  }>,
+) {
+  function updateSelectQuery(query: string, newTableName: string): string {
+    // Regular expression to match the FROM clause in the SELECT query
+    const fromClauseRegex = /FROM\s+(?:public\.)?"([^"]+)"/i;
+
+    // Find the current table name in the query using the regular expression
+    const match = query.match(fromClauseRegex);
+
+    if (match && match[1]) {
+      // Replace the current table name with the new table name
+      const currentTableName = match[1];
+      const updatedQuery = query.replace(currentTableName, newTableName);
+      return updatedQuery;
+    } else {
+      // Handle cases where the FROM clause or table name is not found
+      throw new Error("Table name not found in the query.");
+    }
+  }
+  try {
+    // Get some building block config that details the queries that need to be changed
+    const RECORD_EDIT_CONFIG = {
+      selectActions: ["getData"],
+    };
+
+    const {
+      isValid,
+      templatePageIds,
+    }: {
+      isValid: boolean;
+      templatePageIds: string[];
+    } = yield call(apiCallForForkTemplateToApplicaion, action);
+
+    if (isValid) {
+      // navigate back to the new building block in its page
+      history.push(
+        builderURL({
+          pageId: templatePageIds[0],
+        }),
+      );
+      // Get action(s) that need to be changed
+      const appActions: ActionDataState = yield select(getActions);
+      const getUsersActionData = appActions.filter(
+        (a) => a.config.name === RECORD_EDIT_CONFIG.selectActions[0],
+      )[0];
+      const getUsersAction: Action = yield select(
+        getAction,
+        getUsersActionData.config.id,
+      );
+
+      // create object to update action with new datasource and query
+      const updatedGetUsersAction: Action = {
+        ...getUsersAction,
+        actionConfiguration: {
+          ...getUsersAction.actionConfiguration,
+          body: updateSelectQuery(
+            getUsersAction.actionConfiguration.body,
+            action.payload.tableName.split(".")[1],
+          ),
+        },
+        datasource: {
+          ...getUsersAction.datasource,
+          id: action.payload.datasourceId,
+          name: action.payload.datasourceName,
+          pluginId: action.payload.pluginId,
+        },
+      };
+
+      // Update the action with the new datasource and query
+      const response: ApiResponse<Action> = yield call(
+        updateActionAPICall,
+        updatedGetUsersAction,
+      );
+
+      const isValidResponse: boolean = yield validateResponse(response);
+
+      if (isValidResponse) {
+        yield put(updateActionSuccess({ data: response.data }));
+      }
+    }
+  } catch (error) {
+    // console.log("🚀 ~ error:", error);
+  }
+}
+
 function* forkTemplateToApplicationSaga(
   action: ReduxAction<{
     pageNames?: string[];
@@ -586,6 +687,10 @@ export default function* watchActionSagas() {
       takeEvery(
         ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW,
         forkTemplateToApplicationViaOnboardingFlowSaga,
+      ),
+      takeLatest(
+        ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_INIT,
+        generateBuildingBlockFromDatasourceTable,
       ),
     ]);
 }
