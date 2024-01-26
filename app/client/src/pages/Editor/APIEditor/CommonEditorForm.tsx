@@ -583,34 +583,40 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
 
   const theme = EditorTheme.LIGHT;
 
+  const isSideBySideEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_side_by_side_ide_enabled,
+  );
+
   return (
     <MainContainer>
       {closeEditorLink}
       <Form onSubmit={handleSubmit(noop)}>
         <MainConfiguration>
-          <FormRow className="form-row-header">
-            <NameWrapper className="t--nameOfApi">
-              <ActionNameEditor
-                disabled={!isChangePermitted}
-                enableFontStyling
-                saveActionName={saveActionName}
-              />
-            </NameWrapper>
-            <ActionButtons className="t--formActionButtons">
-              {moreActionsMenu}
-              <Button
-                className="t--apiFormRunBtn"
-                isDisabled={blockExecution}
-                isLoading={isRunning}
-                onClick={() => {
-                  onRunClick();
-                }}
-                size="md"
-              >
-                Run
-              </Button>
-            </ActionButtons>
-          </FormRow>
+          {isSideBySideEnabled ? null : (
+            <FormRow className="form-row-header">
+              <NameWrapper className="t--nameOfApi">
+                <ActionNameEditor
+                  disabled={!isChangePermitted}
+                  enableFontStyling
+                  saveActionName={saveActionName}
+                />
+              </NameWrapper>
+              <ActionButtons className="t--formActionButtons">
+                {moreActionsMenu}
+                <Button
+                  className="t--apiFormRunBtn"
+                  isDisabled={blockExecution}
+                  isLoading={isRunning}
+                  onClick={() => {
+                    onRunClick();
+                  }}
+                  size="md"
+                >
+                  Run
+                </Button>
+              </ActionButtons>
+            </FormRow>
+          )}
           {notification}
           <FormRow className="api-info-row">
             <div>
@@ -749,21 +755,23 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
             )}
           </SecondaryWrapper>
-          <DataSourceList
-            actionName={actionName}
-            actionRightPaneBackLink={actionRightPaneBackLink}
-            additionalSections={actionRightPaneAdditionSections}
-            applicationId={props.applicationId}
-            currentActionDatasourceId={currentActionDatasourceId}
-            currentPageId={props.currentPageId}
-            datasourceId={props.currentActionDatasourceId}
-            datasources={props.datasources}
-            hasResponse={props.hasResponse}
-            onClick={updateDatasource}
-            pluginId={props.pluginId}
-            showTabbedSection={showRightPaneTabbedSection}
-            suggestedWidgets={props.suggestedWidgets}
-          />
+          {isSideBySideEnabled ? null : (
+            <DataSourceList
+              actionName={actionName}
+              actionRightPaneBackLink={actionRightPaneBackLink}
+              additionalSections={actionRightPaneAdditionSections}
+              applicationId={props.applicationId}
+              currentActionDatasourceId={currentActionDatasourceId}
+              currentPageId={props.currentPageId}
+              datasourceId={props.currentActionDatasourceId}
+              datasources={props.datasources}
+              hasResponse={props.hasResponse}
+              onClick={updateDatasource}
+              pluginId={props.pluginId}
+              showTabbedSection={showRightPaneTabbedSection}
+              suggestedWidgets={props.suggestedWidgets}
+            />
+          )}
         </Wrapper>
       </Form>
     </MainContainer>

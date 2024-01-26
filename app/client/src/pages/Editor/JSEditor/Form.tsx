@@ -310,6 +310,10 @@ function JSEditorForm({
     dispatch(setJsPaneConfigSelectedTab(selectedTab));
   }, []);
 
+  const isSideBySideEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_side_by_side_ide_enabled,
+  );
+
   return (
     <FormWrapper>
       <JSObjectHotKeys
@@ -321,33 +325,35 @@ function JSEditorForm({
       >
         {backLink}
         <Form onSubmit={(event) => event.preventDefault()}>
-          <StyledFormRow className="form-row-header">
-            <NameWrapper className="t--nameOfJSObject">
-              <JSObjectNameEditor
-                disabled={!isChangePermitted || hideEditIconOnEditor}
-                saveJSObjectName={saveJSObjectName}
-              />
-            </NameWrapper>
-            <ActionButtons className="t--formActionButtons">
-              {!hideContextMenuOnEditor && contextMenu}
-              <JSFunctionRun
-                disabled={disableRunFunctionality || !isExecutePermitted}
-                isLoading={isExecutingCurrentJSAction}
-                jsCollection={currentJSCollection}
-                onButtonClick={(
-                  event:
-                    | React.MouseEvent<HTMLElement, MouseEvent>
-                    | KeyboardEvent,
-                ) => {
-                  handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
-                }}
-                onSelect={handleJSActionOptionSelection}
-                options={convertJSActionsToDropdownOptions(jsActions)}
-                selected={selectedJSActionOption}
-                showTooltip={!selectedJSActionOption.data}
-              />
-            </ActionButtons>
-          </StyledFormRow>
+          {isSideBySideEnabled ? null : (
+            <StyledFormRow className="form-row-header">
+              <NameWrapper className="t--nameOfJSObject">
+                <JSObjectNameEditor
+                  disabled={!isChangePermitted || hideEditIconOnEditor}
+                  saveJSObjectName={saveJSObjectName}
+                />
+              </NameWrapper>
+              <ActionButtons className="t--formActionButtons">
+                {!hideContextMenuOnEditor && contextMenu}
+                <JSFunctionRun
+                  disabled={disableRunFunctionality || !isExecutePermitted}
+                  isLoading={isExecutingCurrentJSAction}
+                  jsCollection={currentJSCollection}
+                  onButtonClick={(
+                    event:
+                      | React.MouseEvent<HTMLElement, MouseEvent>
+                      | KeyboardEvent,
+                  ) => {
+                    handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
+                  }}
+                  onSelect={handleJSActionOptionSelection}
+                  options={convertJSActionsToDropdownOptions(jsActions)}
+                  selected={selectedJSActionOption}
+                  showTooltip={!selectedJSActionOption.data}
+                />
+              </ActionButtons>
+            </StyledFormRow>
+          )}
           <Wrapper>
             <div className="flex flex-1">
               <SecondaryWrapper>
