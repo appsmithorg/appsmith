@@ -1804,7 +1804,7 @@ export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
   "App name, icon and share";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
-  "App name cannot be empty";
+  "Please enter valid App Name";
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
