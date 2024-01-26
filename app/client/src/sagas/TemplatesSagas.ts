@@ -387,7 +387,7 @@ function* generateBuildingBlockFromDatasourceTable(
           pageId: templatePageIds[0],
         }),
       );
-      // Get action(s) that need to be changed
+      // Get action(s) that need to be changedgit pull
       const appActions: ActionDataState = yield select(getActions);
       const getUsersActionData = appActions.filter(
         (a) => a.config.name === RECORD_EDIT_CONFIG.selectActions[0],
