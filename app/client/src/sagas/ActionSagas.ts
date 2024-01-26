@@ -65,7 +65,7 @@ import {
 } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
-import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import {
   getAction,
@@ -144,6 +144,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { getActionConfig } from "../pages/Editor/Explorer/Actions/helpers";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
+import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -624,6 +625,7 @@ function* handleDeleteActionRedirect(deletedAction: Action) {
     );
   } else {
     const toRedirect = remainingGroupActions[0];
+    url = getQueryEntityItemUrl(toRedirect, pageId);
     const config = getActionConfig(toRedirect.type);
     url = config?.getURL(pageId, toRedirect.key, toRedirect.type);
   }

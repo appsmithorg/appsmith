@@ -10,7 +10,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     COLUMN_SPACE = (640 - 12 - 5 - 72) / 64;
   });
 
-  it("CheckboxGroupWidget label properties: Text, Position, Alignment, Width", () => {
+  it("1. CheckboxGroupWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "checkboxgroupwidget",
       parentColumnSpace: COLUMN_SPACE,
@@ -23,7 +23,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("CurrencyInputWidget label properties: Text, Position, Alignment, Width", () => {
+  it("2. CurrencyInputWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "currencyinputwidget",
       parentColumnSpace: COLUMN_SPACE,
@@ -36,7 +36,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("DatePickerWidget2 label properties: Text, Position, Alignment, Width", () => {
+  it("3. DatePickerWidget2 label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "datepickerwidget2",
       parentColumnSpace: COLUMN_SPACE,
@@ -49,7 +49,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("InputWidgetV2 label properties: Text, Position, Alignment, Width", () => {
+  it("4. InputWidgetV2 label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "inputwidgetv2",
       parentColumnSpace: COLUMN_SPACE,
@@ -62,7 +62,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("MultiSelectTreeWidget label properties: Text, Position, Alignment, Width", () => {
+  it("5. MultiSelectTreeWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "multiselecttreewidget",
       parentColumnSpace: COLUMN_SPACE,
@@ -75,7 +75,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("MultiSelectWidgetV2 label properties: Text, Position, Alignment, Width", () => {
+  it("6. MultiSelectWidgetV2 label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "multiselectwidgetv2",
       parentColumnSpace: COLUMN_SPACE,
@@ -88,7 +88,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("PhoneInputWidget label properties: Text, Position, Alignment, Width", () => {
+  it("7. PhoneInputWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "phoneinputwidget",
       parentColumnSpace: COLUMN_SPACE,
@@ -101,7 +101,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("RadioGroupWidget label properties: Text, Position, Alignment, Width", () => {
+  it("8. RadioGroupWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "radiogroupwidget",
       parentColumnSpace: COLUMN_SPACE,
@@ -114,7 +114,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("RichTextEditorWidget label properties: Text, Position, Alignment, Width", () => {
+  it("9. RichTextEditorWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "richtexteditorwidget",
       parentColumnSpace: COLUMN_SPACE,
@@ -127,7 +127,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("SelectWidget label properties: Text, Position, Alignment, Width", () => {
+  it("10. SelectWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "selectwidget",
       parentColumnSpace: COLUMN_SPACE,
@@ -140,7 +140,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("SingleSelectTreeWidget label properties: Text, Position, Alignment, Width", () => {
+  it("11. SingleSelectTreeWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "singleselecttreewidget",
       parentColumnSpace: COLUMN_SPACE,
@@ -153,7 +153,7 @@ describe("Label feature", { tags: ["@tag.Widget"] }, () => {
     cy.checkLabelForWidget(options);
   });
 
-  it("SwitchGroupWidget label properties: Text, Position, Alignment, Width", () => {
+  it("12. SwitchGroupWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "switchgroupwidget",
       parentColumnSpace: COLUMN_SPACE,

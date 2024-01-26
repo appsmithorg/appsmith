@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import type { CSSProperties, MouseEvent } from "react";
+import type { CSSProperties, MouseEventHandler } from "react";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
 
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import {
   isCurrentWidgetFocused,
@@ -18,10 +17,6 @@ import {
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { AnvilFlexComponentProps } from "../utils/types";
-import {
-  getResponsiveMinWidth,
-  validateResponsiveProp,
-} from "../utils/widgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
@@ -29,6 +24,7 @@ import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPos
 import { useWidgetBorderStyles } from "./hooks/useWidgetBorderStyles";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { AppState } from "@appsmith/reducers";
+import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "../utils/constants";
 
 /**
  * Adds following functionalities to the widget:
@@ -67,15 +63,22 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const [verticalAlignment, setVerticalAlignment] =
     useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
 
-  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(
-    (e) => {
-      clickToSelectWidget(e);
+    function () {
+      if (ref.current && isFocused) {
+        ref.current.dispatchEvent(
+          new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
+            bubbles: true,
+            cancelable: true,
+            detail: { widgetId: props.widgetId },
+          }),
+        );
+      }
     },
-    [props.widgetId, clickToSelectWidget],
+    [props.widgetId, isFocused],
   );
 
-  const stopEventPropagation = (e: MouseEvent<HTMLElement>) => {
+  const stopEventPropagation: MouseEventHandler<HTMLDivElement> = (e) => {
     !isSnipingMode && e.stopPropagation();
   };
 
@@ -126,28 +129,15 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       flexGrow: props.flexGrow ? props.flexGrow : isFillWidget ? 1 : 0,
       flexShrink: isFillWidget ? 1 : 0,
       flexBasis: isFillWidget ? "0%" : "auto",
-      height: "auto",
       padding: "spacing-1",
-      width: "auto",
-      minHeight: { base: "var(--sizing-12)" },
       alignItems: "center",
     };
-    if (props?.widgetSize) {
-      // adding min max limits only if they are available, as WDS Flex doesn't handle undefined values.
-      if (validateResponsiveProp(props.widgetSize?.maxHeight)) {
-        data.maxHeight = props.widgetSize.maxHeight;
-      }
-      if (validateResponsiveProp(props.widgetSize?.maxWidth)) {
-        data.maxWidth = props.widgetSize.maxWidth;
-      }
-
-      if (validateResponsiveProp(props.widgetSize?.minWidth)) {
-        // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
-        data.minWidth = getResponsiveMinWidth(
-          props.widgetSize?.minWidth,
-          isFillWidget,
-        );
-      }
+    if (props.widgetSize) {
+      const { maxHeight, maxWidth, minHeight, minWidth } = props.widgetSize;
+      data.maxHeight = maxHeight;
+      data.maxWidth = maxWidth;
+      data.minHeight = minHeight ?? { base: "sizing-12" };
+      data.minWidth = minWidth;
     }
     return data;
   }, [isFillWidget, props.widgetSize, verticalAlignment, props.flexGrow]);
@@ -172,16 +162,12 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       {...flexProps}
       className={className}
       id={getAnvilWidgetDOMId(props.widgetId)}
+      onClick={stopEventPropagation}
+      onClickCapture={onClickFn}
       ref={ref}
       style={styleProps}
     >
-      <div
-        className="w-full h-full"
-        onClick={stopEventPropagation}
-        onClickCapture={onClickFn}
-      >
-        {props.children}
-      </div>
+      <div className="h-full w-full">{props.children}</div>
     </Flex>
   );
 }

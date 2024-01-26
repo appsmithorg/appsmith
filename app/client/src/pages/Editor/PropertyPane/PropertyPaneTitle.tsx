@@ -18,8 +18,6 @@ import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 import type { WidgetType } from "constants/WidgetConstants";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
 
@@ -63,7 +61,6 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const isCurrentWidgetRecentlyAdded = useSelector(
     getIsCurrentWidgetRecentlyAdded,
   );
-  const guidedTourEnabled = useSelector(inGuidedTour);
 
   const { dispatchInteractionAnalyticsEvent, eventEmitterRef } =
     useInteractionAnalyticsEvent<HTMLDivElement>();
@@ -79,11 +76,6 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const { title, updatePropertyTitle } = props;
   const updateNewTitle = useCallback(
     (value: string) => {
-      if (guidedTourEnabled) {
-        dispatch(toggleShowDeviationDialog(true));
-        return;
-      }
-
       if (
         value &&
         value.trim().length > 0 &&
@@ -92,16 +84,12 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         updatePropertyTitle && updatePropertyTitle(value.trim());
       }
     },
-    [updatePropertyTitle, title, guidedTourEnabled],
+    [updatePropertyTitle, title],
   );
   // End
 
   const updateTitle = useCallback(
     (value?: string) => {
-      if (guidedTourEnabled) {
-        dispatch(toggleShowDeviationDialog(true));
-        return;
-      }
       if (
         value &&
         value.trim().length > 0 &&
@@ -117,14 +105,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         toggleEditWidgetName(props.widgetId, false);
       }
     },
-    [
-      dispatch,
-      widgets,
-      setName,
-      props.widgetId,
-      props.title,
-      guidedTourEnabled,
-    ],
+    [dispatch, widgets, setName, props.widgetId, props.title],
   );
 
   useEffect(() => {

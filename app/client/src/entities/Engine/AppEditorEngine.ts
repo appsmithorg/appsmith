@@ -11,7 +11,6 @@ import {
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { loadGuidedTourInit } from "actions/onboardingActions";
 import { fetchAllPageEntityCompletion, setupPage } from "actions/pageActions";
 import {
   executePageLoadActions,
@@ -61,16 +60,16 @@ import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import {
+  getFeatureFlagsForEngine,
+  type DependentFeatureFlags,
+} from "@appsmith/selectors/engineSelectors";
 import { fetchJSCollections } from "actions/jsActionActions";
 import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import {
-  getFeatureFlagsForEngine,
-  type DependentFeatureFlags,
-} from "@appsmith/selectors/engineSelectors";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -241,7 +240,6 @@ export default class AppEditorEngine extends AppEngine {
         currentTabs,
       });
     }
-    yield put(loadGuidedTourInit());
     if (isFirstTimeUserOnboardingComplete) {
       yield put({
         type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,

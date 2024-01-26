@@ -1,11 +1,7 @@
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import {
-  getAllUsers,
-  getCurrentAppWorkspace,
-  getWorkspaceLoadingStates,
-} from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { createMessage, NO_USERS_INVITED } from "@appsmith/constants/messages";
 import {
   isPermitted,
@@ -33,6 +29,11 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import {
+  getAllUsersOfWorkspace,
+  selectedWorkspaceLoadingStates,
+} from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { AppState } from "@appsmith/reducers";
 
 const NoEmailConfigImage = importSvg(
   async () => import("assets/images/email-not-configured.svg"),
@@ -114,14 +115,14 @@ function WorkspaceInviteUsers(props: any) {
   const showAppLevelInviteModal =
     (isFeatureEnabled && props.isApplicationPage) || false;
   const allUsers = useSelector(
-    showAppLevelInviteModal ? getAllAppUsers : getAllUsers,
+    showAppLevelInviteModal ? getAllAppUsers : getAllUsersOfWorkspace,
   );
   const isLoading: boolean =
-    useSelector(
+    useSelector((state: AppState) =>
       showAppLevelInviteModal
-        ? getApplicationLoadingStates
-        : getWorkspaceLoadingStates,
-    )?.isFetchingAllUsers || false;
+        ? getApplicationLoadingStates(state).isFetchingAllUsers
+        : selectedWorkspaceLoadingStates(state).isFetchingAllUsers,
+    ) || false;
 
   const emailOutsideCurrentDomain = useRef<undefined | string>();
   const [showPartnerProgramCallout, setShowPartnerProgramCallout] =
