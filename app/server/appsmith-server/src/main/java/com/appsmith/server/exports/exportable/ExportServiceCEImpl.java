@@ -9,8 +9,8 @@ import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -126,7 +126,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
         artifactExchangeJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
         // Find the transaction artifact with appropriate permission
-        Mono<? extends TransactionalArtifact> transactionalArtifactMono = contextBasedExportService
+        Mono<? extends ExportableArtifact> transactionalArtifactMono = contextBasedExportService
                 .findExistingArtifactByIdAndBranchName(artifactId, branchName, permission)
                 .map(transactionArtifact -> {
                     // Since we have moved the setting of artifactId from the repository, the MetaDTO needs to assigned
@@ -210,7 +210,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     private Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> transactionalArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         ContextBasedExportService<?, ?> contextBasedExportService =
@@ -235,7 +235,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     protected List<Mono<Void>> generateArtifactAgnosticExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> transactionalArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         // Updates plugin map in exportable resources
@@ -288,7 +288,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 .map(artifactExchangeJson -> {
                     String stringifiedFile = gson.toJson(artifactExchangeJson);
                     String artifactName =
-                            artifactExchangeJson.getTransactionalArtifact().getName();
+                            artifactExchangeJson.getExportableArtifact().getName();
                     Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
                     HttpHeaders responseHeaders = new HttpHeaders();
                     ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
@@ -312,7 +312,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
      * @param event : Analytics Event
      * @return a subclass of  which is imported or exported
      */
-    private Mono<? extends TransactionalArtifact> sendExportArtifactAnalyticsEvent(
+    private Mono<? extends ExportableArtifact> sendExportArtifactAnalyticsEvent(
             ContextBasedExportService<?, ?> contextBasedExportService,
             String transactionalArtifactId,
             AnalyticsEvents event) {

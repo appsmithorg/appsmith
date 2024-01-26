@@ -7,11 +7,11 @@ import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -105,7 +105,7 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
 
     @Override
     public void getArtifactReadyForExport(
-            TransactionalArtifact transactionalArtifact,
+            ExportableArtifact transactionalArtifact,
             ArtifactExchangeJson artifactExchangeJson,
             ExportingMetaDTO exportingMetaDTO) {
 
@@ -150,7 +150,7 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
     public Flux<Void> generateArtifactSpecificExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> transactionalArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         return transactionalArtifactMono.flatMapMany(transactionalArtifact -> {
             Mono<Application> applicationMono = Mono.just((Application) transactionalArtifact);
@@ -173,7 +173,7 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
     public Flux<Void> generateArtifactComponentDependentExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> transactionalArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         return transactionalArtifactMono.flatMapMany(transactionalArtifact -> {
             Mono<Application> applicationMono = Mono.just((Application) transactionalArtifact);

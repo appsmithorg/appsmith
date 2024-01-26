@@ -4,8 +4,8 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.GitApplicationMetadata;
-import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -83,7 +83,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> transactionalArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return transactionalArtifactMono.flatMap(transactionalArtifact -> {

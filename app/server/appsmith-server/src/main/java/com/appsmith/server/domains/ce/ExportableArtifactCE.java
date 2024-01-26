@@ -1,8 +1,6 @@
-package com.appsmith.server.domains;
+package com.appsmith.server.domains.ce;
 
-import com.appsmith.server.domains.ce.TransactionalArtifactCE;
-
-public interface TransactionalArtifact extends TransactionalArtifactCE {
+public interface ExportableArtifactCE {
 
     String getId();
 

@@ -13,7 +13,7 @@ import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.TransactionalArtifact;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -108,7 +108,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> transactionalArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return transactionalArtifactMono.flatMap(transactionalArtifact -> {

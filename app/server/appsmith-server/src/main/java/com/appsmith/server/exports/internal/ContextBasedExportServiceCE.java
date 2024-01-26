@@ -2,7 +2,7 @@ package com.appsmith.server.exports.internal;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
-import com.appsmith.server.domains.TransactionalArtifact;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-public interface ContextBasedExportServiceCE<T extends TransactionalArtifact, U extends ArtifactExchangeJson> {
+public interface ContextBasedExportServiceCE<T extends ExportableArtifact, U extends ArtifactExchangeJson> {
 
     U createNewArtifactExchangeJson();
 
@@ -22,7 +22,7 @@ public interface ContextBasedExportServiceCE<T extends TransactionalArtifact, U 
     Mono<T> findExistingArtifactForAnalytics(String artifactId);
 
     void getArtifactReadyForExport(
-            TransactionalArtifact transactionalArtifact,
+            ExportableArtifact transactionalArtifact,
             ArtifactExchangeJson artifactExchangeJson,
             ExportingMetaDTO exportingMetaDTO);
 
@@ -39,12 +39,12 @@ public interface ContextBasedExportServiceCE<T extends TransactionalArtifact, U 
     Flux<Void> generateArtifactSpecificExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> transactionalArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
 
     Flux<Void> generateArtifactComponentDependentExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> transactionalArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
 }

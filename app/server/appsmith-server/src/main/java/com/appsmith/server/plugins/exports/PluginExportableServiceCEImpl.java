@@ -1,9 +1,9 @@
 package com.appsmith.server.plugins.exports;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -60,7 +60,7 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends TransactionalArtifact> transactionalArtifactMono,
+            Mono<? extends ExportableArtifact> transactionalArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return transactionalArtifactMono.flatMap(transactionalArtifact -> {

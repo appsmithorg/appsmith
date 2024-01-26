@@ -9,11 +9,11 @@ import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.domains.TransactionalArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -127,7 +127,7 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
     }
 
     @Override
-    public TransactionalArtifact getTransactionalArtifact() {
+    public ExportableArtifact getExportableArtifact() {
         return this.getExportedApplication();
     }
 
