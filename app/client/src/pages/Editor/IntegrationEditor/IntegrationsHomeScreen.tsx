@@ -119,19 +119,6 @@ const PRIMARY_MENU_IDS = {
   CREATE_NEW: "CREATE_NEW",
 };
 
-const getSecondaryMenuIds = (hasActiveSources = false) => {
-  return {
-    API: 0 + (hasActiveSources ? 0 : 1),
-    DATABASE: 1 + (hasActiveSources ? 0 : 1),
-    MOCK_DATABASE: 2 - (hasActiveSources ? 0 : 2),
-  };
-};
-
-const TERTIARY_MENU_IDS = {
-  ACTIVE_CONNECTIONS: 0,
-  MOCK_DATABASE: 1,
-};
-
 class IntegrationsHomeScreen extends React.Component<
   Props,
   IntegrationsHomeScreenState
@@ -141,14 +128,6 @@ class IntegrationsHomeScreen extends React.Component<
   constructor(props: Props) {
     super(props);
     this.unsupportedPluginContinueAction = () => null;
-    this.state = {
-      page: 1,
-      activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
-      activeSecondaryMenuId: getSecondaryMenuIds(
-        props.mockDatasources.length > 0,
-      ).API,
-      unsupportedPluginDialogVisible: false,
-    };
   }
 
   syncActivePrimaryMenu = () => {
@@ -244,17 +223,9 @@ class IntegrationsHomeScreen extends React.Component<
             : INTEGRATION_TABS.NEW,
       }),
     );
-    this.setState({
-      activeSecondaryMenuId:
-        activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
-          ? TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS
-          : getSecondaryMenuIds(dataSources.length > 0).API,
-    });
   };
 
-  onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {
-    this.setState({ activeSecondaryMenuId });
-  };
+  onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {};
 
   render() {
     const {

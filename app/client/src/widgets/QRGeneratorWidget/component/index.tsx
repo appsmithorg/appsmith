@@ -37,7 +37,6 @@ type TextRef = React.Ref<Text> | undefined;
 class TextComponent extends React.Component<TextComponentProps, State> {
   state = {
     isTruncated: false,
-    showModal: false,
   };
 
   textRef = React.createRef() as TextRef;
@@ -78,13 +77,9 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     }
   };
 
-  handleModelOpen = () => {
-    this.setState({ showModal: true });
-  };
+  handleModelOpen = () => {};
 
-  handleModelClose = () => {
-    this.setState({ showModal: false });
-  };
+  handleModelClose = () => {};
 
   render() {
     const { text } = this.props;

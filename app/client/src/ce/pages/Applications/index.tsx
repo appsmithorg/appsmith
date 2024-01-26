@@ -831,11 +831,6 @@ export class Applications<
 > extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    this.state = {
-      selectedWorkspaceId: "",
-      showOnboardingForm: false,
-    } as State;
   }
 
   componentDidMount() {

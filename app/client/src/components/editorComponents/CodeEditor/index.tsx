@@ -307,7 +307,6 @@ class CodeEditor extends Component<Props, State> {
       isDynamic: false,
       isFocused: false,
       isOpened: false,
-      autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
       ctrlPressed: false,

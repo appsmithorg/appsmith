@@ -12,9 +12,6 @@ class FilePickerComponent extends React.Component<
 > {
   constructor(props: FilePickerComponentProps) {
     super(props);
-    this.state = {
-      isOpen: false,
-    };
   }
 
   openModal = () => {

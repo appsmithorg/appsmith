@@ -253,15 +253,9 @@ class CreateNewDatasourceTab extends React.Component<
   constructor(props: CreateNewDatasourceScreenProps) {
     super(props);
     this.unsupportedPluginContinueAction = () => null;
-    this.state = {
-      unsupportedPluginDialogVisible: false,
-    };
   }
 
   showUnsupportedPluginDialog = (callback: () => void) => {
-    this.setState({
-      unsupportedPluginDialogVisible: true,
-    });
     this.unsupportedPluginContinueAction = callback;
   };
   render() {

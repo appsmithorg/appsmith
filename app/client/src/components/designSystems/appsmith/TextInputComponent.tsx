@@ -104,19 +104,14 @@ interface TextInputState {
 export class BaseTextInput extends Component<TextInputProps, TextInputState> {
   constructor(props: TextInputProps) {
     super(props);
-    this.state = {
-      inputIsFocused: false,
-    };
   }
 
   handleFocus = (e: React.FocusEvent) => {
-    this.setState({ inputIsFocused: true });
     if (this.props.input && this.props.input.onFocus) {
       this.props.input.onFocus(e);
     }
   };
   handleBlur = (e: React.FocusEvent) => {
-    this.setState({ inputIsFocused: false });
     if (this.props.input && this.props.input.onBlur) {
       this.props.input.onBlur(e);
     }
