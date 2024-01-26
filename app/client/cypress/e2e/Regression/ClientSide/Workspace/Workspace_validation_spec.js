@@ -40,7 +40,8 @@ describe(
               cy.get(homePage.shareUserIcons).first().should("be.visible");
             });
           _.agHelper.ClickOutside();
-          _.homePage.OpenWorkspaceSettings(workspaceId);
+          _.agHelper.GetNClick(homePage.optionsIcon, 0, true);
+          _.agHelper.GetNClick(homePage.workspaceSettingOption, 0);
           _.agHelper.GetNClickByContains(
             "[data-testid=t--user-edit-tabs-wrapper]",
             "Members",

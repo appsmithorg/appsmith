@@ -10,7 +10,7 @@ import type { ModalHeaderProps } from "./types";
 
 export const ModalHeader = (props: ModalHeaderProps) => {
   const { title } = props;
-  const { setLabelId, setOpen } = usePopoverContext();
+  const { onClose, setLabelId, setOpen } = usePopoverContext();
   const id = useId();
 
   // Only sets `aria-labelledby` on the Dialog root element
@@ -20,12 +20,17 @@ export const ModalHeader = (props: ModalHeaderProps) => {
     return () => setLabelId(undefined);
   }, [id, setLabelId]);
 
+  const closeHandler = () => {
+    onClose && onClose();
+    setOpen(false);
+  };
+
   return (
     <Flex alignItems="center" gap="spacing-4" justifyContent="space-between">
       <Text id={id} lineClamp={1} title={title} variant="caption">
         {title}
       </Text>
-      <IconButton icon="cross" onPress={() => setOpen(false)} variant="ghost" />
+      <IconButton icon="x" onPress={closeHandler} variant="ghost" />
     </Flex>
   );
 };
