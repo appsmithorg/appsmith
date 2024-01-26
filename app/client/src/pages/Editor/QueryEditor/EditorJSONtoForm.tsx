@@ -55,6 +55,7 @@ import useShowSchema from "components/editorComponents/ActionRightPane/useShowSc
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 import FormRender from "./FormRender";
 import QueryEditorHeader from "./QueryEditorHeader";
+import QueryEditorCompact from "./CompactEditor";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -260,6 +261,10 @@ export function EditorJSONtoForm(props: Props) {
     useShowSchema(currentActionConfig?.pluginId || "") &&
     pluginRequireDatasource;
 
+  const isSideBySideEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_side_by_side_ide_enabled,
+  );
+
   const showRightPane =
     showSchema ||
     showSuggestedWidgets ||
@@ -343,6 +348,22 @@ export function EditorJSONtoForm(props: Props) {
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
     return null;
+  }
+
+  if (isSideBySideEnabled && plugin) {
+    return (
+      <QueryEditorCompact
+        actionName={actionName}
+        actionResponse={actionResponse}
+        editorConfig={editorConfig}
+        formData={props.formData}
+        formName={formName}
+        isRunning={isRunning}
+        onRunClick={onRunClick}
+        pluginId={plugin.id}
+        runErrorMessage={runErrorMessage}
+      />
+    );
   }
 
   return (
