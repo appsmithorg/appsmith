@@ -4,6 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
+import { klona } from "klona";
 import _, { find, isString, reduce, remove } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
 import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
@@ -127,7 +128,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
   while (root && root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
     if (root.type === "LIST_WIDGET") {
       const listWidget = root;
-      const currentWidget = _.cloneDeep(widget);
+      const currentWidget = klona(widget);
       let template = _.get(listWidget, "template", {});
       const dynamicBindingPathList: any[] = _.get(
         listWidget,
@@ -1377,7 +1378,7 @@ export const filterOutSelectedWidgets = function* (
   parentId: string,
   copiedWidgetGroups: CopiedWidgetGroup[],
 ) {
-  const canvasWidgets: CanvasWidgetsReduxState = yield _.cloneDeep(
+  const canvasWidgets: CanvasWidgetsReduxState = yield klona(
     select(getWidgets),
   );
 

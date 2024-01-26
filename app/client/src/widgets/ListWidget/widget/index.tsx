@@ -10,7 +10,6 @@ import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
 import {
-  cloneDeep,
   compact,
   get,
   indexOf,
@@ -332,7 +331,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
               canvas.children &&
                 get(canvas, "children", []).forEach((child: string) => {
-                  const childWidget = cloneDeep(get(widgets, `${child}`));
+                  const childWidget = klona(get(widgets, `${child}`));
                   const logBlackList: { [key: string]: boolean } = {};
                   const keys = Object.keys(childWidget);
 

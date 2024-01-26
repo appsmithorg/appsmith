@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { klona } from "klona";
 import configureStore from "redux-mock-store";
 
 const PAGE_ID = 2;
@@ -67,7 +67,7 @@ export function getStore(step: number) {
   switch (step) {
     // Step 0: Base State - Use this for the initial setup before making any changes to the state.
     case 0:
-      state = _.cloneDeep(initialState);
+      state = klona(initialState);
       break;
     // Step 1: Adding a Datasource - Use this if your test involves a scenario where a datasource is added.
     case 1:

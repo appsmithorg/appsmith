@@ -5,6 +5,7 @@ import { chartOptions, dataClickCallbackHelper } from "./helpers";
 import { ChartErrorComponent } from "./ChartErrorComponent";
 import usePrevious from "utils/hooks/usePrevious";
 import equal from "fast-deep-equal/es6";
+import { klona } from "klona";
 
 import type * as echarts from "echarts";
 import type {
@@ -143,7 +144,7 @@ export function CustomEChartIFrameComponent(
 
     echartsInstance.on("click", (event: echarts.ECElementEvent) => {
       const data: CustomEChartClickEventData = {
-        event: _.omit(_.cloneDeep(event), "event"),
+        event: _.omit(klona(event), "event"),
       };
 
       const message: CustomEChartIFrameMessage = {
@@ -159,7 +160,7 @@ export function CustomEChartIFrameComponent(
     chartConfig: Record<string, unknown>,
     _: any,
   ) {
-    const config: Record<string, unknown> = _.cloneDeep(chartConfig);
+    const config: Record<string, unknown> = klona(chartConfig);
 
     const fnKeys = (config["__fn_keys__"] as string[]) ?? [];
 

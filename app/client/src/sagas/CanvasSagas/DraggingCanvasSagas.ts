@@ -13,7 +13,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { cloneDeep } from "lodash";
+import { klona } from "klona";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
@@ -228,7 +228,7 @@ function* moveAndUpdateWidgets(
   draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
   canvasId: string,
 ) {
-  const widgets = cloneDeep(allWidgets);
+  const widgets = klona(allWidgets);
   const bottomMostRowAfterMove = getBottomMostRowAfterMove(
     draggedBlocksToUpdate,
     allWidgets,

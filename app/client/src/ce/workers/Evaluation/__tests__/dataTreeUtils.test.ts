@@ -2,7 +2,7 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import { smallDataSet } from "workers/Evaluation/__tests__/generateOpimisedUpdates.test";
 import produce from "immer";
-import { cloneDeep } from "lodash";
+import { klona } from "klona";
 
 const unevalTreeFromMainThread = {
   Api2: {
@@ -198,7 +198,7 @@ describe("7. Test util methods", () => {
 
         const identicalEvalPathsPatches = {};
         const initialEvalProps = {} as any;
-        const evalProps = cloneDeep(initialEvalProps);
+        const evalProps = klona(initialEvalProps);
         const dataTree = makeEntityConfigsAsObjProperties(state, {
           sanitizeDataTree: true,
           evalProps,
@@ -236,7 +236,7 @@ describe("7. Test util methods", () => {
             },
           },
         } as any;
-        const evalProps = cloneDeep(initialEvalProps);
+        const evalProps = klona(initialEvalProps);
         const dataTree = makeEntityConfigsAsObjProperties(state, {
           sanitizeDataTree: true,
           evalProps,

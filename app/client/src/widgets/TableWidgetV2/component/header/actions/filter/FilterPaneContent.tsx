@@ -18,7 +18,7 @@ import { Icon, IconSize } from "@design-system/widgets-old";
 import { StyledButton as Button } from "widgets/ButtonWidget/component";
 import { ButtonVariantTypes } from "components/constants";
 
-import { cloneDeep } from "lodash";
+import { klona } from "klona";
 import {
   ColumnTypes,
   FilterableColumnTypes,
@@ -211,7 +211,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
                 isOperatorChange: boolean,
               ) => {
                 // here updated filters store in state, not in redux
-                const updatedFilters = filters ? cloneDeep(filters) : [];
+                const updatedFilters = filters ? klona(filters) : [];
                 updatedFilters[index] = filter;
                 if (isOperatorChange) {
                   /*
@@ -238,7 +238,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
                 filters.length >= 2 ? filters[1].operator : filter.operator
               }
               removeFilter={(index: number) => {
-                const updatedFilters = cloneDeep(filters);
+                const updatedFilters = klona(filters);
                 let newFilters: Array<ReactTableFilter> = [];
                 if (updatedFilters) {
                   if (index === 1 && updatedFilters.length > 2) {
