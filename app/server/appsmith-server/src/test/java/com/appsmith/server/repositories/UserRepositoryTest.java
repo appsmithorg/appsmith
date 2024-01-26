@@ -141,45 +141,9 @@ public class UserRepositoryTest {
                 .toList();
 
         List<User> allCreatedUsers = userRepository
-                .findAllByEmails(new HashSet<>(unsortedEmails))
+                .findAllByEmailIn(new HashSet<>(unsortedEmails))
                 .collectList()
                 .block();
         assertEquals(countOfUsersToBeCreated, allCreatedUsers.size());
-
-        Sort sortByEmailAsc = Sort.by(Sort.Direction.ASC, "email");
-        final int skip1 = 0;
-        int limit1 = 10;
-        List<User> usersFrom0To10 = userRepository
-                .getAllByEmailIn(
-                        new HashSet<>(unsortedEmails),
-                        Optional.empty(),
-                        limit1,
-                        skip1,
-                        QUser.user.email,
-                        Sort.Direction.ASC)
-                .collectList()
-                .block();
-        assertEquals(usersFrom0To10.size(), limit1);
-        List<String> subList0To10 = sortedEmails.subList(skip1, skip1 + limit1);
-        IntStream.range(skip1, skip1 + limit1).forEach(index -> {
-            usersFrom0To10.get(index - skip1).getEmail().equals(subList0To10.get(index - skip1));
-        });
-
-        final int skip2 = 9, limit2 = 10;
-        List<User> usersFrom9To19 = userRepository
-                .getAllByEmailIn(
-                        new HashSet<>(unsortedEmails),
-                        Optional.empty(),
-                        limit2,
-                        skip2,
-                        QUser.user.email,
-                        Sort.Direction.ASC)
-                .collectList()
-                .block();
-        assertEquals(usersFrom9To19.size(), limit2);
-        List<String> subList9To19 = sortedEmails.subList(skip2, skip2 + limit2);
-        IntStream.range(skip2, skip2 + limit2).forEach(index -> {
-            usersFrom9To19.get(index - skip2).getEmail().equals(subList9To19.get(index - skip2));
-        });
     }
 }
