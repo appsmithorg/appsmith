@@ -258,8 +258,14 @@ public class ResponseUtilsCE {
         collection.setId(defaultResourceIds.getCollectionId());
 
         // Update actions within the collection
-        collection.getActions().forEach(this::updateActionDTOWithDefaultResources);
-        collection.getArchivedActions().forEach(this::updateActionDTOWithDefaultResources);
+        collection.getActions().forEach(actionDto -> {
+            actionDto.setCollectionId(collection.getId());
+            this.updateActionDTOWithDefaultResources(actionDto);
+        });
+        collection.getArchivedActions().forEach(actionDto -> {
+            actionDto.setCollectionId(collection.getId());
+            this.updateActionDTOWithDefaultResources(actionDto);
+        });
 
         return collection;
     }
