@@ -6,7 +6,11 @@ import { get, set } from "lodash";
 import type { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
-import { executeTrigger, disableDragAction } from "actions/widgetActions";
+import {
+  executeTrigger,
+  disableDragAction,
+  focusWidget,
+} from "actions/widgetActions";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import {
   updateWidgetPropertyRequest,
@@ -99,6 +103,7 @@ export interface EditorContextType<TCache = unknown> {
   selectWidgetRequest?: WidgetSelectionRequest;
   updatePositionsOnTabChange?: (widgetId: string, selectedTab: string) => void;
   updateOneClickBindingOptionsVisibility?: (visibility: boolean) => void;
+  unfocusWidget?: () => void;
 }
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -126,6 +131,7 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "checkContainersForAutoHeight",
   "selectWidgetRequest",
   "updatePositionsOnTabChange",
+  "unfocusWidget",
 ];
 
 const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [...COMMON_API_METHODS];
@@ -233,6 +239,7 @@ const mapDispatchToProps = {
   updatePositionsOnTabChange: updatePositionsOnTabChange,
   updateOneClickBindingOptionsVisibility:
     updateOneClickBindingOptionsVisibility,
+  unfocusWidget: focusWidget,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

@@ -40,10 +40,13 @@ const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
  * and also there would be no highlights for AnvilOverlayWidgetTypes widgets
  */
 const renderOverlayWidgetDropLayer = (slidingArena: HTMLDivElement) => {
-  slidingArena.style.backgroundColor = "blue";
-  slidingArena.style.opacity = "50%";
+  slidingArena.style.backgroundColor = Colors.HIGHLIGHT_FILL;
+  slidingArena.style.opacity = "70%";
   slidingArena.style.color = "white";
-  slidingArena.innerText = "Pls drop the widget anywhere on the canvas";
+  slidingArena.innerText = "Please drop the widget here";
+  slidingArena.style.display = "flex";
+  slidingArena.style.alignItems = "center";
+  slidingArena.style.justifyContent = "center";
 };
 
 /**

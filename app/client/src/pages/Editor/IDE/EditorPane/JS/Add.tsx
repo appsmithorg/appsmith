@@ -40,7 +40,7 @@ const AddJS = () => {
   };
 
   return (
-    <Flex flexDirection="column" gap={"spaces-4"}>
+    <Flex flexDirection="column" gap={"spaces-4"} overflow="hidden">
       <SegmentAddHeader
         onCloseClick={closeButtonClickHandler}
         titleMessage={EDITOR_PANE_TEXTS.js_create_tab_title}

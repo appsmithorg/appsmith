@@ -9,7 +9,7 @@ import type { CurlImportRequest } from "api/ImportApi";
 import CurlImportApi from "api/ImportApi";
 import type { ApiResponse } from "api/ApiResponses";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import history from "utils/history";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";

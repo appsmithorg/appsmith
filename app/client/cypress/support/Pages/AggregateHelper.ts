@@ -770,9 +770,10 @@ export class AggregateHelper {
     waitTimeInterval = 500,
     ctrlKey = false,
     metaKey = false,
+    position: Cypress.PositionType = "center",
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({
+      .click(position, {
         force: force,
         ctrlKey: ctrlKey,
         metaKey,
@@ -1730,7 +1731,10 @@ export class AggregateHelper {
     //   win.location.href = url;
     // });
     this.Sleep(waitTime); //for new url to settle
-    if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
+    if (
+      apiToValidate.includes("getAllWorkspaces") &&
+      Cypress.env("AIRGAPPED")
+    ) {
       this.Sleep(2000);
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
