@@ -88,9 +88,10 @@ import { migrateAddShowHideDataPointLabels } from "./migrations/083-migrate-add-
 import { migrateSelectWidgetAddSourceDataPropertyPathList } from "./migrations/084-migrate-select-widget-add-source-data-property-path-list";
 import { migrateDefaultValuesForCustomEChart } from "./migrations/085-migrate-default-values-for-custom-echart";
 import { migrateTableServerSideFiltering } from "./migrations/086-migrate-table-server-side-filtering";
+import { migrateChartwidgetCustomEchartConfig } from "./migrations/087-migrate-chart-widget-customechartdata";
 import type { DSLWidget } from "./types";
 
-export const LATEST_DSL_VERSION = 87;
+export const LATEST_DSL_VERSION = 88;
 
 export const calculateDynamicHeight = () => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
@@ -580,6 +581,11 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 86) {
     currentDSL = migrateTableServerSideFiltering(currentDSL);
+    currentDSL.version = 87;
+  }
+
+  if (currentDSL.version === 87) {
+    currentDSL = migrateChartwidgetCustomEchartConfig(currentDSL);
     currentDSL.version = LATEST_DSL_VERSION;
   }
 

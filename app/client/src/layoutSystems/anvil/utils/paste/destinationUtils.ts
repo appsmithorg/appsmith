@@ -35,7 +35,7 @@ export function* getDestinedParent(
     /**
      * Traverse up the parent - child tree,
      * tracking all parentIds, until we reach a hierarchy where the copied widgets can be added.
-     * MainCanvas > Section > Zone > Widgets.
+     * MainCanvas > Modal > Section > Zone > Widgets.
      */
     const parent: FlattenedWidgetProps = allWidgets[currentWidget?.parentId];
     index = getWidgetHierarchy(parent.type, parent.widgetId);

@@ -41,6 +41,8 @@ function* pasteWidgetSagas() {
     const selectedWidget: FlattenedWidgetProps =
       yield getSelectedWidgetWhenPasting();
 
+    if (!selectedWidget) return;
+
     let allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
     const destinationInfo: PasteDestinationInfo = yield call(
