@@ -51,7 +51,10 @@ const Wrapper = styled.section<{
   isPreviewingNavigation?: boolean;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
   navigationHeight?: number;
+  $heightWithTopMargin: string;
 }>`
+  /* Create a custom variable that will allow us to measure the height of the canvas down the road */
+  --canvas-height: ${(props) => props.$heightWithTopMargin};
   width: ${({ $enableMainCanvasResizer }) =>
     $enableMainCanvasResizer
       ? `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`
@@ -202,6 +205,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     <>
       <Wrapper
         $enableMainCanvasResizer={enableMainContainerResizer}
+        $heightWithTopMargin={heightWithTopMargin}
         background={
           isPreviewMode ||
           isProtectedMode ||

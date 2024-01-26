@@ -77,8 +77,9 @@ import { SectionWidget } from "./anvil/SectionWidget";
 import { ZoneWidget } from "./anvil/ZoneWidget";
 import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
 import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
+import { WDSModalWidget } from "./wds/WDSModalWidget";
 
-const Widgets = [
+const LegacyWidgets = [
   CanvasWidget,
   SkeletonWidget,
   ContainerWidget,
@@ -129,6 +130,24 @@ const Widgets = [
   CodeScannerWidget,
   ListWidgetV2,
   ExternalWidget,
+];
+
+const DeprecatedWidgets = [
+  //Deprecated Widgets
+  InputWidget,
+  DropdownWidget,
+  DatePickerWidget,
+  IconWidget,
+  FilePickerWidget,
+  MultiSelectWidget,
+  FormButtonWidget,
+  ProgressWidget,
+  CircularProgressWidget,
+  ListWidget,
+];
+
+const WDSWidgets = [
+  // WDS Widgets
   WDSButtonWidget,
   WDSInputWidget,
   WDSCheckboxWidget,
@@ -147,18 +166,13 @@ const Widgets = [
   ZoneWidget,
   WDSParagraphWidget,
   WDSHeadingWidget,
+  WDSModalWidget,
+];
 
-  //Deprecated Widgets
-  InputWidget,
-  DropdownWidget,
-  DatePickerWidget,
-  IconWidget,
-  FilePickerWidget,
-  MultiSelectWidget,
-  FormButtonWidget,
-  ProgressWidget,
-  CircularProgressWidget,
-  ListWidget,
+const Widgets = [
+  ...WDSWidgets,
+  ...DeprecatedWidgets,
+  ...LegacyWidgets,
 ] as (typeof BaseWidget)[];
 
 export default Widgets;
