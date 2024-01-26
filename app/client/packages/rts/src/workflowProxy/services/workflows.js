@@ -118,7 +118,7 @@ export async function executeWorkflow(runRequest, workflowInstanceId) {
       // TODO: Push to log file
       // console.log("workflow-proxy activity data", output);
 
-      this.data = output.data;
+      this.data = output;
       return this.data;
     }.bind(actionMapTransformed[actionName]);
   }

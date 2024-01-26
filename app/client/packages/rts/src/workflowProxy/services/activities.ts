@@ -26,7 +26,7 @@ export async function executeActivity(
   })
     .then(async (response) => await response.json())
     .then((data) => {
-      return data;
+      return data.data.body;
     })
     .catch((error) => {
       return error;

@@ -34,18 +34,37 @@ export class ExecuteService {
       const blobArrays = [];
 
       if (request.inputParams.length > 0) {
-        const inputParamsEntries = Object.entries(request.inputParams[0]);
+        const inputParams = request.inputParams[0];
+        const inputParamsEntries = Object.entries({ ...inputParams });
         inputParamsEntries.forEach(([key, value], index) => {
           const varName = `k${index}`;
+          const dataType = findDatatype(value);
           paramProperties[varName] = {
-            dataType: findDatatype(value),
+            dataType,
             blobIdentifiers: [],
           };
+          if (dataType === "object") value = JSON.stringify(value);
+
           parameterMap[`this.params.${key}`] = varName;
           blobArrays.push({
             name: varName,
             value: new Blob([value], { type: "text/plain" }),
           });
+        });
+
+        // We need to send `this.params` as a blob as well so that it can be parsed
+        // if the action is expecting an object
+        const allParamsValue = JSON.stringify({ ...inputParams });
+        const blobValue = new Blob([allParamsValue]);
+        const varName = `k${inputParamsEntries.length}`;
+        paramProperties[varName] = {
+          dataType: findDatatype(inputParams),
+          blobIdentifiers: [],
+        };
+        parameterMap["this.params"] = varName;
+        blobArrays.push({
+          name: varName,
+          value: blobValue,
         });
       }
 
