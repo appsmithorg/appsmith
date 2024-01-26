@@ -22,10 +22,4 @@ export REACT_APP_CLIENT_LOG_LEVEL=ERROR
 export DISABLE_ESLINT_PLUGIN=true
 craco --max-old-space-size=7168 build --config craco.build.config.js
 
-if [ "$GITHUB_REPOSITORY" == "appsmithorg/appsmith-ee" ]; then
-    echo "Deleting sourcemaps for EE"
-    rm ./$OUTPUT_PATH/static/js/*.js.map
-    rm ./$OUTPUT_PATH/static/js/*.js.map.gz
-fi
-
 echo "build finished"
