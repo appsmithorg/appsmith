@@ -50,9 +50,11 @@ export const selectJSSegmentEditorTabs = createSelector(
   getJSTabs,
   (items, tabs) => {
     const keyedItems = keyBy(items, "key");
-    return tabs.map((tab) => {
-      return keyedItems[tab];
-    });
+    return tabs
+      .map((tab) => {
+        return keyedItems[tab];
+      })
+      .filter((tab) => !!tab);
   },
 );
 
@@ -61,8 +63,10 @@ export const selectQuerySegmentEditorTabs = createSelector(
   getQueryTabs,
   (items, tabs) => {
     const keyedItems = keyBy(items, "key");
-    return tabs.map((tab) => {
-      return keyedItems[tab];
-    });
+    return tabs
+      .map((tab) => {
+        return keyedItems[tab];
+      })
+      .filter((tab) => !!tab);
   },
 );
