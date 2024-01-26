@@ -37,11 +37,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
@@ -98,16 +96,6 @@ public class SeedMongoData {
 
         Policy inviteUserWorkspacePolicy = Policy.builder()
                 .permission(WORKSPACE_INVITE_USERS.getValue())
-                .users(Set.of(API_USER_EMAIL))
-                .build();
-
-        Policy managePagePolicy = Policy.builder()
-                .permission(MANAGE_PAGES.getValue())
-                .users(Set.of(API_USER_EMAIL))
-                .build();
-
-        Policy readPagePolicy = Policy.builder()
-                .permission(READ_PAGES.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
