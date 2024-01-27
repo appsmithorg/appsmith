@@ -353,8 +353,7 @@ public class SeedMongoData {
                             // Query the seed data to get the applicationId (required for page creation)
                             )
                     .then()
-            // .block()
-            ;
+                    .block();
         };
     }
 }
