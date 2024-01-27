@@ -9,6 +9,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.bulk.BulkWriteResult;
@@ -78,9 +79,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     protected final CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    protected static final int NO_RECORD_LIMIT = -1;
+    public static final int NO_RECORD_LIMIT = -1;
 
-    protected static final int NO_SKIP = 0;
+    public static final int NO_SKIP = 0;
 
     @Autowired
     @SuppressWarnings("unchecked")
@@ -439,56 +440,70 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     @Deprecated
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
-        return queryAll(
-                criterias, Optional.empty(), Optional.ofNullable(aclPermission), Optional.empty(), NO_RECORD_LIMIT);
+        return queryAll().criteria(criterias).permission(aclPermission).execute();
     }
 
+    @Deprecated
     public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission) {
-        return queryAll(criterias, permission, Optional.empty());
+        return queryAll()
+                .criteria(criterias)
+                .permission(permission.orElseGet(null))
+                .execute();
     }
 
     @Deprecated
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission, Sort sort) {
-        return queryAll(
-                criterias,
-                Optional.empty(),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(criterias)
+                .permission(aclPermission)
+                .sort(sort)
+                .execute();
     }
 
+    @Deprecated
     public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission, Optional<Sort> sort) {
-        return queryAll(criterias, Optional.empty(), permission, sort, NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(criterias)
+                .permission(permission.orElseGet(null))
+                .sort(sort.orElseGet(null))
+                .execute();
     }
 
     @Deprecated
     public Flux<T> queryAll(
             List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort) {
-        return queryAll(
-                criterias,
-                Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(criterias)
+                .fields(includeFields)
+                .permission(aclPermission)
+                .sort(sort)
+                .execute();
     }
 
+    @Deprecated
     public Flux<T> queryAll(
             List<Criteria> criterias,
             Optional<List<String>> includeFields,
             Optional<AclPermission> aclPermission,
             Optional<Sort> sort) {
-        return queryAll(criterias, includeFields, aclPermission, sort, NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(criterias)
+                .fields(includeFields.orElseGet(null))
+                .permission(aclPermission.orElseGet(null))
+                .sort(sort.orElseGet(null))
+                .execute();
     }
 
     @Deprecated
     public Flux<T> queryAll(
             List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort, int limit) {
-        return queryAll(
-                criterias,
-                Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                limit);
+        return queryAll()
+                .criteria(criterias)
+                .fields(includeFields)
+                .permission(aclPermission)
+                .sort(sort)
+                .limit(limit)
+                .execute();
     }
 
     public Flux<T> queryAll(
@@ -497,9 +512,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             Optional<AclPermission> permission,
             Optional<Sort> sort,
             int limit) {
-        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, sort, permissionGroups, limit, NO_SKIP));
+        return queryAll()
+                .criteria(criterias)
+                .fields(includeFields.orElseGet(null))
+                .permission(permission.orElseGet(null))
+                .sort(sort.orElseGet(null))
+                .limit(limit)
+                .execute();
     }
 
     public Flux<T> queryAll(
@@ -509,19 +528,24 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             Sort sort,
             int limit,
             int skip) {
-        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));
+        return queryAll()
+                .criteria(criterias)
+                .fields(includeFields.orElseGet(null))
+                .permission(permission.orElseGet(null))
+                .sort(sort)
+                .limit(limit)
+                .skip(skip)
+                .execute();
     }
 
-    @Deprecated
     public Flux<T> queryAllWithPermissionGroups(
             List<Criteria> criterias,
             List<String> includeFields,
             AclPermission aclPermission,
             Sort sort,
             Set<String> permissionGroups,
-            int limit) {
+            int limit,
+            int skip) {
         return queryAllWithPermissionGroups(
                 criterias,
                 Optional.ofNullable(includeFields),
@@ -529,7 +553,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 Optional.ofNullable(sort),
                 permissionGroups,
                 limit,
-                NO_SKIP);
+                skip);
     }
 
     public Flux<T> queryAllWithPermissionGroups(
@@ -562,6 +586,24 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .matching(query.cursorBatchSize(10000))
                 .all()
                 .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
+    }
+
+    public QueryAllParams<T> queryAll() {
+        return new QueryAllParams<>(this);
+    }
+
+    public Flux<T> queryAllExecute(QueryAllParams<T> params) {
+        return Mono.justOrEmpty(params.getPermissionGroups())
+                .switchIfEmpty(Mono.defer(
+                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .flatMapMany(permissionGroups1 -> queryAllWithPermissionGroups(
+                        params.getCriterias(),
+                        params.getIncludeFields(),
+                        params.getPermission(),
+                        params.getSort(),
+                        permissionGroups1,
+                        params.getLimit(),
+                        params.getSkip()));
     }
 
     public Mono<T> setUserPermissionsInObject(T obj) {
