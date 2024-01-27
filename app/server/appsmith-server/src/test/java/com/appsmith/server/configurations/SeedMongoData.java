@@ -76,8 +76,9 @@ public class SeedMongoData {
         };
 
         Object[][] pluginData = {
-            {"Installed Plugin Name", PluginType.API, "installed-plugin"},
-            {"Installed JS Plugin Name", PluginType.JS, "installed-js-plugin"},
+            {"Installed Plugin Name", PluginType.API, "installed-plugin", true},
+            {"Installed JS Plugin Name", PluginType.JS, "installed-js-plugin", true},
+            {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin", false},
         };
 
         // Seed the plugin data into the DB
