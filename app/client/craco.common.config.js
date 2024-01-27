@@ -68,6 +68,7 @@ module.exports = {
       },
       optimization: {
         splitChunks: {
+          chunks: "all",
           cacheGroups: {
             icons: {
               // This determines which modules are considered icons
