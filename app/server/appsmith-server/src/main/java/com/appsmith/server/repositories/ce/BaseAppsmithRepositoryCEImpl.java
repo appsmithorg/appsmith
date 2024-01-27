@@ -546,29 +546,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             Set<String> permissionGroups,
             int limit,
             int skip) {
-        return queryAllWithPermissionGroups(
-                criterias,
-                Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                permissionGroups,
-                limit,
-                skip);
-    }
-
-    public Flux<T> queryAllWithPermissionGroups(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> aclPermission,
-            Optional<Sort> sortOptional,
-            Set<String> permissionGroups,
-            int limit,
-            int skip) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         Query query = new Query();
-        includeFields.ifPresent(fields -> {
-            fields.forEach(field -> query.fields().include(field));
-        });
+        if (!CollectionUtils.isEmpty(includeFields)) {
+            query.fields().include(includeFields.toArray(new String[0]));
+        }
         if (skip > NO_SKIP) {
             query.skip(skip);
         }
@@ -577,10 +559,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         }
         Criteria andCriteria = new Criteria();
         criteriaList.add(notDeleted());
-        userAcl(permissionGroups, aclPermission).ifPresent(criteria -> criteriaList.add(criteria));
+        userAcl(permissionGroups, Optional.ofNullable(aclPermission)).ifPresent(criteria -> criteriaList.add(criteria));
         andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
         query.addCriteria(andCriteria);
-        sortOptional.ifPresent(sort -> query.with(sort));
+        if (sort != null) {
+            query.with(sort);
+        }
         return mongoOperations
                 .query(this.genericDomain)
                 .matching(query.cursorBatchSize(10000))
@@ -597,8 +581,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .switchIfEmpty(Mono.defer(
                         () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
                 .flatMapMany(permissionGroups1 -> queryAllWithPermissionGroups(
-                        params.getCriterias(),
-                        params.getIncludeFields(),
+                        params.getCriteria(),
+                        params.getFields(),
                         params.getPermission(),
                         params.getSort(),
                         permissionGroups1,

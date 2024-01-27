@@ -20,8 +20,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.N
 @Getter
 public class QueryAllParams<T extends BaseDomain> {
     private final BaseAppsmithRepositoryCEImpl<T> repo;
-    private List<Criteria> criterias;
-    private List<String> includeFields;
+    private final List<Criteria> criteria = new ArrayList<>();
+    private final List<String> fields = new ArrayList<>();
     private AclPermission permission;
     private Set<String> permissionGroups;
     private Sort sort;
@@ -48,10 +48,7 @@ public class QueryAllParams<T extends BaseDomain> {
         if (criterias == null) {
             return this;
         }
-        if (this.criterias == null) {
-            this.criterias = new ArrayList<>();
-        }
-        this.criterias.addAll(criterias);
+        this.criteria.addAll(criterias);
         return this;
     }
 
@@ -63,10 +60,7 @@ public class QueryAllParams<T extends BaseDomain> {
         if (fields == null) {
             return this;
         }
-        if (includeFields == null) {
-            includeFields = new ArrayList<>();
-        }
-        includeFields.addAll(fields);
+        this.fields.addAll(fields);
         return this;
     }
 
