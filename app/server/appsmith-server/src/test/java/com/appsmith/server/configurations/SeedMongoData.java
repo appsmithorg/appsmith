@@ -177,6 +177,18 @@ public class SeedMongoData {
         };
         Object[][] workspaceData = {
             {
+                "Spring Test Workspace",
+                "appsmith-spring-test.com",
+                "appsmith.com",
+                "spring-test-workspace",
+                Set.of(
+                        manageWorkspaceAppPolicy,
+                        manageWorkspacePolicy,
+                        readWorkspacePolicy,
+                        inviteUserWorkspacePolicy,
+                        exportWorkspaceAppPolicy)
+            },
+            {
                 "Another Test Workspace",
                 "appsmith-another-test.com",
                 "appsmith.com",
@@ -191,9 +203,9 @@ public class SeedMongoData {
         };
 
         Object[][] appData = {
-            // {"LayoutServiceTest TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
-            // {"TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
-            // {"Another TestApplications", Set.of(manageAppPolicy, readAppPolicy)}
+            {"LayoutServiceTest TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
+            {"TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
+            {"Another TestApplications", Set.of(manageAppPolicy, readAppPolicy)}
         };
         Object[][] pluginData = {
             {"Installed Plugin Name", PluginType.API, "installed-plugin", true},
@@ -332,6 +344,10 @@ public class SeedMongoData {
                 .findOne(workspaceNameQuery, Workspace.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find workspace")));
 
+        Query appNameQuery = new Query(where("name").is(appData[0][0]));
+        Mono<Application> appByNameMono = mongoTemplate
+                .findOne(appNameQuery, Application.class)
+                .switchIfEmpty(Mono.error(new Exception("Can't find app")));
         return args -> {
             workspaceFlux1
                     .thenMany(addUserWorkspaceFlux)
@@ -342,17 +358,18 @@ public class SeedMongoData {
                     .flatMapMany(
                             workspaceId ->
                                     // Seed the application data into the DB
-                                    Flux.just(appData).map(array -> {
-                                        Application app = new Application();
-                                        app.setName((String) array[0]);
-                                        app.setWorkspaceId(workspaceId);
-                                        app.setPolicies((Set<Policy>) array[1]);
-                                        return app;
-                                    })
-                            // .flatMap(applicationRepository::save)
+                                    Flux.just(appData)
+                                            .map(array -> {
+                                                Application app = new Application();
+                                                app.setName((String) array[0]);
+                                                app.setWorkspaceId(workspaceId);
+                                                app.setPolicies((Set<Policy>) array[1]);
+                                                return app;
+                                            })
+                                            .flatMap(applicationRepository::save)
                             // Query the seed data to get the applicationId (required for page creation)
                             )
-                    .then()
+                    .then(appByNameMono)
                     .block();
         };
     }
