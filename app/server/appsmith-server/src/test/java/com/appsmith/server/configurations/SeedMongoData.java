@@ -66,53 +66,18 @@ public class SeedMongoData {
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy readTestUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(TEST_USER_EMAIL))
-                .build();
-
-        Policy readAdminUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(ADMIN_USER_EMAIL))
-                .build();
-
-        Policy readDevUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(DEV_USER_EMAIL))
-                .build();
-
         Object[][] userData = {
-            {
-                "user test",
-                TEST_USER_EMAIL,
-                UserState.ACTIVATED,
-                new HashSet<>(Arrays.asList(readTestUserPolicy, userManageWorkspacePolicy))
-            },
             {
                 "api_user",
                 API_USER_EMAIL,
                 UserState.ACTIVATED,
                 new HashSet<>(Arrays.asList(userManageWorkspacePolicy, readApiUserPolicy, manageApiUserPolicy))
             },
-            {
-                "admin test",
-                ADMIN_USER_EMAIL,
-                UserState.ACTIVATED,
-                new HashSet<>(Arrays.asList(readAdminUserPolicy, userManageWorkspacePolicy))
-            },
-            {
-                "developer test",
-                DEV_USER_EMAIL,
-                UserState.ACTIVATED,
-                new HashSet<>(Arrays.asList(readDevUserPolicy, userManageWorkspacePolicy))
-            },
         };
 
         Object[][] pluginData = {
-            {"Installed Plugin Name", PluginType.API, "installed-plugin", true},
-            {"Installed DB Plugin Name", PluginType.DB, "installed-db-plugin", true},
-            {"Installed JS Plugin Name", PluginType.JS, "installed-js-plugin", true},
-            {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin", false}
+            {"Installed Plugin Name", PluginType.API, "installed-plugin"},
+            {"Installed JS Plugin Name", PluginType.JS, "installed-js-plugin"},
         };
 
         // Seed the plugin data into the DB
@@ -124,7 +89,7 @@ public class SeedMongoData {
                     plugin.setName((String) array[0]);
                     plugin.setType((PluginType) array[1]);
                     plugin.setPackageName((String) array[2]);
-                    plugin.setDefaultInstall((Boolean) array[3]);
+                    plugin.setDefaultInstall(true);
                     log.debug("Create plugin: {}", plugin);
                     return plugin;
                 })
