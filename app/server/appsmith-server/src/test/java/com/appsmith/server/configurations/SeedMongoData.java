@@ -349,28 +349,7 @@ public class SeedMongoData {
                 .findOne(appNameQuery, Application.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find app")));
         return args -> {
-            workspaceFlux1
-                    .thenMany(addUserWorkspaceFlux)
-                    // Query the seed data to get the workspaceId (required for application creation)
-                    .then(workspaceByNameMono)
-                    .map(workspace -> workspace.getId())
-                    // Seed the user data into the DB
-                    .flatMapMany(
-                            workspaceId ->
-                                    // Seed the application data into the DB
-                                    Flux.just(appData)
-                                            .map(array -> {
-                                                Application app = new Application();
-                                                app.setName((String) array[0]);
-                                                app.setWorkspaceId(workspaceId);
-                                                app.setPolicies((Set<Policy>) array[1]);
-                                                return app;
-                                            })
-                                            .flatMap(applicationRepository::save)
-                            // Query the seed data to get the applicationId (required for page creation)
-                            )
-                    .then(appByNameMono)
-                    .block();
+            workspaceFlux1.thenMany(addUserWorkspaceFlux).then().block();
         };
     }
 }
