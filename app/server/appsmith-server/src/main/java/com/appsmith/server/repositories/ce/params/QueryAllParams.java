@@ -32,7 +32,7 @@ public class QueryAllParams<T extends BaseDomain> {
         this.repo = repo;
     }
 
-    public Flux<T> execute() {
+    public Flux<T> submit() {
         return repo.queryAllExecute(this);
     }
 

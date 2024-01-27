@@ -107,7 +107,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .flatMapMany(permissionGroups -> queryAll()
                         .permission(permission)
                         .permissionGroups(permissionGroups)
-                        .execute());
+                        .submit());
     }
 
     @Override

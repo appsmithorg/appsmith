@@ -70,7 +70,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         return queryAll()
                 .criteria(criteria)
                 .fields(fieldName(QUserData.userData.profilePhotoAssetId), fieldName(QUserData.userData.userId))
-                .execute();
+                .submit();
     }
 
     @Override

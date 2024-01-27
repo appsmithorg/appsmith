@@ -440,15 +440,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     @Deprecated
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
-        return queryAll().criteria(criterias).permission(aclPermission).execute();
+        return queryAll().criteria(criterias).permission(aclPermission).submit();
     }
 
     @Deprecated
     public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission) {
         return queryAll()
                 .criteria(criterias)
-                .permission(permission.orElseGet(null))
-                .execute();
+                .permission(permission.orElse(null))
+                .submit();
     }
 
     @Deprecated
@@ -457,16 +457,16 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .criteria(criterias)
                 .permission(aclPermission)
                 .sort(sort)
-                .execute();
+                .submit();
     }
 
     @Deprecated
     public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission, Optional<Sort> sort) {
         return queryAll()
                 .criteria(criterias)
-                .permission(permission.orElseGet(null))
-                .sort(sort.orElseGet(null))
-                .execute();
+                .permission(permission.orElse(null))
+                .sort(sort.orElse(null))
+                .submit();
     }
 
     @Deprecated
@@ -477,7 +477,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .fields(includeFields)
                 .permission(aclPermission)
                 .sort(sort)
-                .execute();
+                .submit();
     }
 
     @Deprecated
@@ -488,10 +488,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             Optional<Sort> sort) {
         return queryAll()
                 .criteria(criterias)
-                .fields(includeFields.orElseGet(null))
-                .permission(aclPermission.orElseGet(null))
-                .sort(sort.orElseGet(null))
-                .execute();
+                .fields(includeFields.orElse(null))
+                .permission(aclPermission.orElse(null))
+                .sort(sort.orElse(null))
+                .submit();
     }
 
     @Deprecated
@@ -503,7 +503,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .permission(aclPermission)
                 .sort(sort)
                 .limit(limit)
-                .execute();
+                .submit();
     }
 
     public Flux<T> queryAll(
@@ -514,11 +514,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             int limit) {
         return queryAll()
                 .criteria(criterias)
-                .fields(includeFields.orElseGet(null))
-                .permission(permission.orElseGet(null))
-                .sort(sort.orElseGet(null))
+                .fields(includeFields.orElse(null))
+                .permission(permission.orElse(null))
+                .sort(sort.orElse(null))
                 .limit(limit)
-                .execute();
+                .submit();
     }
 
     public Flux<T> queryAll(
@@ -530,12 +530,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             int skip) {
         return queryAll()
                 .criteria(criterias)
-                .fields(includeFields.orElseGet(null))
-                .permission(permission.orElseGet(null))
+                .fields(includeFields.orElse(null))
+                .permission(permission.orElse(null))
                 .sort(sort)
                 .limit(limit)
                 .skip(skip)
-                .execute();
+                .submit();
     }
 
     public Flux<T> queryAllWithPermissionGroups(
