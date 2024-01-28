@@ -163,7 +163,7 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
                 .findById(publicEntityCandidateId, actionPermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_ID, publicEntityCandidateId)))
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
         return publicEntityCandidateMono.cache();
     }
 

@@ -96,13 +96,14 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
 
         //  For each entity name, call refactor current entity
         return Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
-                .concatMap(refactorEntityNameDTO -> newActionService
-                        .generateActionByViewMode(toBeInstantiatedAction, false)
-                        .flatMap(actionDTO -> refactoringService.refactorCurrentEntity(
-                                actionDTO,
-                                EntityType.JS_ACTION,
-                                refactorEntityNameDTO,
-                                moduleInstantiatingMetaDTO.getEvalVersionMono())))
+                .concatMap(refactorEntityNameDTO -> {
+                    ActionDTO actionDTO = newActionService.generateActionByViewMode(toBeInstantiatedAction, false);
+                    return refactoringService.refactorCurrentEntity(
+                            actionDTO,
+                            EntityType.JS_ACTION,
+                            refactorEntityNameDTO,
+                            moduleInstantiatingMetaDTO.getEvalVersionMono());
+                })
                 .then(Mono.defer(() -> {
                     // After all refactors, call extractAndSetJsonPathKeys for the current entity
                     return newActionService

@@ -95,7 +95,7 @@ public class ActionCollectionModuleEntityServiceImpl implements ModuleEntityServ
 
             return newActionService
                     .findAllJSActionsByCollectionIds(collectionIds, null)
-                    .flatMap(jsAction -> newActionService.generateActionByViewMode(jsAction, false))
+                    .map(jsAction -> newActionService.generateActionByViewMode(jsAction, false))
                     .map(actionDTO -> {
                         List<ActionDTO> childActionDTOs =
                                 collectionIdToActionsMap.getOrDefault(actionDTO.getCollectionId(), new ArrayList<>());
