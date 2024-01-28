@@ -2,7 +2,6 @@ import adminsSettings from "../../../../locators/AdminsSettings";
 import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 const {
-  GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
 } = require("../../../../../src/constants/ThirdPartyConstants");
 

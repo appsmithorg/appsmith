@@ -11,7 +11,6 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
-const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
 
 export const initLocalstorage = () => {

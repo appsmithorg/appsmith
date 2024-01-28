@@ -1778,13 +1778,9 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   // Variables
   const widgetName = options.widgetName;
   const labelText = options.labelText;
-  const parentColumnSpace = options.parentColumnSpace;
-  const isCompact = options.isCompact;
   const widgetSelector = `.t--widget-${widgetName}`;
   const labelSelector = `${widgetSelector} label`;
-  const labelContainer = `${widgetSelector} .label-container`;
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
-  const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
     ".t--property-control-alignment .ads-v2-segmented-control__segments-container-segment[data-value='right']";
   const labelWidth = options.labelWidth;
@@ -2137,7 +2133,7 @@ Cypress.Commands.add("skipSignposting", () => {
 
 Cypress.Commands.add("stubPricingPage", () => {
   cy.window().then((win) => {
-    cy.stub(win, "open", (url) => {
+    cy.stub(win, "open", () => {
       win.location.href = "https://www.appsmith.com/pricing?";
     }).as("pricingPage");
   });
