@@ -66,6 +66,6 @@ public class NewActionModulePublicEntityServiceImpl extends NewActionModulePubli
     public Mono<Reusable> getPublicEntity(String moduleId) {
         return newActionService
                 .findPublicActionByModuleId(moduleId, ResourceModes.EDIT)
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
     }
 }

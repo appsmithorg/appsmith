@@ -39,7 +39,7 @@ public class ExecutableOnModuleLoadServiceImpl implements ExecutableOnLoadServic
         return newActionService
                 .findAllActionsByContextIdAndContextTypeAndViewMode(
                         creatorId, CreatorContextType.MODULE, actionPermission.getEditPermission(), false, true)
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .map(actionDTO -> (Executable) actionDTO)
                 .cache();
     }
@@ -56,7 +56,7 @@ public class ExecutableOnModuleLoadServiceImpl implements ExecutableOnLoadServic
     public Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(String creatorId) {
         return newActionService
                 .findUnpublishedOnLoadActionsExplicitSetByUserInModule(creatorId)
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
     }
 
     @Override

@@ -1357,7 +1357,7 @@ class AutoUpgradePackageTest {
     private void updatePublicActionProperties(ModuleInstanceDTO moduleInstanceDTO) {
         List<ActionDTO> actions = newActionService
                 .findAllUnpublishedComposedActionsByRootModuleInstanceId(moduleInstanceDTO.getId(), READ_ACTIONS, false)
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .collectList()
                 .block();
 

@@ -32,6 +32,8 @@ import static com.appsmith.server.constants.FieldName.MODULE_LIST;
 @Import({FileUtilsImpl.class})
 public class GitFileUtils extends GitFileUtilsCE {
 
+    private Gson gson;
+
     public GitFileUtils(
             FileInterface fileUtils,
             AnalyticsService analyticsService,

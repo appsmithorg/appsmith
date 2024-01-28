@@ -222,7 +222,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
      *
      * @param newAction
      * @return A Mono emitting the created action DTO after validation and saving to the repository.
-     *         The Mono will emit an error if any part of the validation, saving, or policy update encounters an issue.
+     * The Mono will emit an error if any part of the validation, saving, or policy update encounters an issue.
      */
     @Override
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
@@ -455,7 +455,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             List<String> collectionIds, List<String> projectionFields, boolean viewMode) {
         return repository
                 .findAllByActionCollectionIdWithoutPermissions(collectionIds, projectionFields)
-                .flatMap(newAction -> this.generateActionByViewMode(newAction, viewMode))
+                .map(newAction -> this.generateActionByViewMode(newAction, viewMode))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
@@ -522,20 +522,19 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
-        return super.generateActionByViewMode(newAction, viewMode).map(actionDTO -> {
-            actionDTO.setIsPublic(newAction.getIsPublic());
-            actionDTO.setModuleInstanceId(newAction.getModuleInstanceId());
-            actionDTO.setRootModuleInstanceId(newAction.getRootModuleInstanceId());
+    public ActionDTO generateActionByViewMode(NewAction newAction, Boolean viewMode) {
+        ActionDTO actionDTO = super.generateActionByViewMode(newAction, viewMode);
+        actionDTO.setIsPublic(newAction.getIsPublic());
+        actionDTO.setModuleInstanceId(newAction.getModuleInstanceId());
+        actionDTO.setRootModuleInstanceId(newAction.getRootModuleInstanceId());
 
-            DefaultResources defaultResources = newAction.getDefaultResources();
-            if (actionDTO.getDefaultResources() != null) {
-                actionDTO.getDefaultResources().setModuleInstanceId(defaultResources.getModuleInstanceId());
-                actionDTO.getDefaultResources().setRootModuleInstanceId(defaultResources.getRootModuleInstanceId());
-            }
+        DefaultResources defaultResources = newAction.getDefaultResources();
+        if (actionDTO.getDefaultResources() != null) {
+            actionDTO.getDefaultResources().setModuleInstanceId(defaultResources.getModuleInstanceId());
+            actionDTO.getDefaultResources().setRootModuleInstanceId(defaultResources.getRootModuleInstanceId());
+        }
 
-            return actionDTO;
-        });
+        return actionDTO;
     }
 
     @Override

@@ -102,7 +102,7 @@ public class NewActionModuleEntityServiceImpl extends NewActionModuleEntityServi
                 contextId, contextType, actionPermission.getEditPermission(), false, false);
 
         return actionFlux
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .map(actionDTO -> (Reusable) actionDTO)
                 .collectList();
     }
