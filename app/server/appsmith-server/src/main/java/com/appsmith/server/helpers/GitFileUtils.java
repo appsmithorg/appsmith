@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportableModule;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.helpers.ce.GitFileUtilsCE;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
@@ -31,15 +32,13 @@ import static com.appsmith.server.constants.FieldName.MODULE_LIST;
 @Import({FileUtilsImpl.class})
 public class GitFileUtils extends GitFileUtilsCE {
 
-    private final Gson gson;
-
     public GitFileUtils(
             FileInterface fileUtils,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
+            NewActionService newActionService,
             Gson gson) {
-        super(fileUtils, analyticsService, sessionUserService, gson);
-        this.gson = gson;
+        super(fileUtils, analyticsService, sessionUserService, newActionService, gson);
     }
 
     @Override

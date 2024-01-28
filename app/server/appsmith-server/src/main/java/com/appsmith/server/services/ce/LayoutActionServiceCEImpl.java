@@ -301,7 +301,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
                             .updatePageLayoutsByPageId(
                                     savedAction.getUnpublishedAction().getPageId())
-                            .then(newActionService.generateActionByViewMode(savedAction, false)));
+                            .thenReturn(newActionService.generateActionByViewMode(savedAction, false)));
                 });
     }
 

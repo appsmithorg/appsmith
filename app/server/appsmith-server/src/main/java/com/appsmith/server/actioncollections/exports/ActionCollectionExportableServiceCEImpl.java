@@ -54,7 +54,7 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                 .collectList()
                 .map(actionCollectionList -> {
                     mapNameToIdForExportableEntities(mappedExportableResourcesDTO, actionCollectionList);
-                    return actionCollectionList;
+                    return getExportableActionCollections(actionCollectionList);
                 })
                 .map(actionCollections -> {
                     // This object won't have the list of actions but we don't care about that today
@@ -99,6 +99,10 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                     return actionCollections;
                 })
                 .then();
+    }
+
+    protected List<ActionCollection> getExportableActionCollections(List<ActionCollection> actionCollectionList) {
+        return actionCollectionList;
     }
 
     @Override
