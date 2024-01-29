@@ -20,7 +20,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import JSResponseView from "components/editorComponents/JSResponseView";
-import { isEmpty, noop } from "lodash";
+import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { JSFunctionRun } from "./JSFunctionRun";
 import type { AppState } from "@appsmith/reducers";
@@ -70,7 +70,6 @@ import {
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import ActionToolbar from "../IDE/EditorPane/components/ActionToolbar";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -311,10 +310,6 @@ function JSEditorForm({
     dispatch(setJsPaneConfigSelectedTab(selectedTab));
   }, []);
 
-  const isSideBySideEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_side_by_side_ide_enabled,
-  );
-
   return (
     <FormWrapper>
       <JSObjectHotKeys
@@ -326,35 +321,33 @@ function JSEditorForm({
       >
         {backLink}
         <Form onSubmit={(event) => event.preventDefault()}>
-          {isSideBySideEnabled ? null : (
-            <StyledFormRow className="form-row-header">
-              <NameWrapper className="t--nameOfJSObject">
-                <JSObjectNameEditor
-                  disabled={!isChangePermitted || hideEditIconOnEditor}
-                  saveJSObjectName={saveJSObjectName}
-                />
-              </NameWrapper>
-              <ActionButtons className="t--formActionButtons">
-                {!hideContextMenuOnEditor && contextMenu}
-                <JSFunctionRun
-                  disabled={disableRunFunctionality || !isExecutePermitted}
-                  isLoading={isExecutingCurrentJSAction}
-                  jsCollection={currentJSCollection}
-                  onButtonClick={(
-                    event:
-                      | React.MouseEvent<HTMLElement, MouseEvent>
-                      | KeyboardEvent,
-                  ) => {
-                    handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
-                  }}
-                  onSelect={handleJSActionOptionSelection}
-                  options={convertJSActionsToDropdownOptions(jsActions)}
-                  selected={selectedJSActionOption}
-                  showTooltip={!selectedJSActionOption.data}
-                />
-              </ActionButtons>
-            </StyledFormRow>
-          )}
+          <StyledFormRow className="form-row-header">
+            <NameWrapper className="t--nameOfJSObject">
+              <JSObjectNameEditor
+                disabled={!isChangePermitted || hideEditIconOnEditor}
+                saveJSObjectName={saveJSObjectName}
+              />
+            </NameWrapper>
+            <ActionButtons className="t--formActionButtons">
+              {!hideContextMenuOnEditor && contextMenu}
+              <JSFunctionRun
+                disabled={disableRunFunctionality || !isExecutePermitted}
+                isLoading={isExecutingCurrentJSAction}
+                jsCollection={currentJSCollection}
+                onButtonClick={(
+                  event:
+                    | React.MouseEvent<HTMLElement, MouseEvent>
+                    | KeyboardEvent,
+                ) => {
+                  handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
+                }}
+                onSelect={handleJSActionOptionSelection}
+                options={convertJSActionsToDropdownOptions(jsActions)}
+                selected={selectedJSActionOption}
+                showTooltip={!selectedJSActionOption.data}
+              />
+            </ActionButtons>
+          </StyledFormRow>
           <Wrapper>
             <div className="flex flex-1">
               <SecondaryWrapper>
@@ -425,10 +418,6 @@ function JSEditorForm({
                     )}
                   </Tabs>
                 </TabbedViewContainer>
-                <ActionToolbar
-                  onRunClick={handleRunAction}
-                  onSettingsClick={noop}
-                />
                 {showDebugger ? (
                   <JSResponseView
                     currentFunction={activeResponse}
