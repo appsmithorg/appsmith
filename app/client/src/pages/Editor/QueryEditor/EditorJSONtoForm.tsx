@@ -17,7 +17,6 @@ import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import { ResizerCSS } from "components/editorComponents/Debugger/Resizer";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   DOCUMENTATION,
@@ -42,20 +41,18 @@ import {
   getDebuggerSelectedTab,
   showDebuggerFlag,
 } from "selectors/debuggerSelectors";
-import type { SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { getHasExecuteActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
-import QueryResponseTabView from "./QueryResponseView";
+import QueryDebuggerTabs from "./QueryDebuggerTabs";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 import FormRender from "./FormRender";
 import QueryEditorHeader from "./QueryEditorHeader";
-import QueryEditorCompact from "./CompactEditor";
+import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
+import QueryResponseTab from "./QueryResponseTab";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -223,9 +220,7 @@ export function EditorJSONtoForm(props: Props) {
     onCreateDatasourceClick,
     onRunClick,
     plugin,
-    responseDataTypes,
     responseDisplayFormat,
-    runErrorMessage,
     settingConfig,
     uiComponent,
   } = props;
@@ -246,14 +241,8 @@ export function EditorJSONtoForm(props: Props) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
     useState<boolean>(false);
-
-  const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    currentActionConfig?.userPermissions,
-  );
 
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
 
@@ -307,23 +296,6 @@ export function EditorJSONtoForm(props: Props) {
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
   };
 
-  const responseTabOnRunClick = () => {
-    props.onRunClick();
-
-    AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
-      source: "QUERY_PANE",
-    });
-  };
-
-  // onResponseTabSelect(selectedControl);
-
-  // action source for analytics.
-  const actionSource: SourceEntity = {
-    type: SOURCE_ENTITY_TYPE.ACTION,
-    name: currentActionConfig ? currentActionConfig.name : "",
-    id: currentActionConfig ? currentActionConfig.id : "",
-  };
-
   const { hasDependencies } = useEntityDependencies(props.actionName);
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
@@ -351,18 +323,33 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   if (isSideBySideEnabled && plugin) {
+    const responseTabs = [];
+    if (currentActionConfig) {
+      responseTabs.push({
+        key: "response",
+        title: "Response",
+        panelComponent: (
+          <QueryResponseTab
+            currentActionConfig={currentActionConfig}
+            onRunClick={onRunClick}
+          />
+        ),
+      });
+    }
     return (
-      <QueryEditorCompact
-        actionName={actionName}
-        actionResponse={actionResponse}
-        editorConfig={editorConfig}
-        formData={props.formData}
-        formName={formName}
+      <ActionEditor
         isRunning={isRunning}
         onRunClick={onRunClick}
-        pluginId={plugin.id}
-        runErrorMessage={runErrorMessage}
-      />
+        tabs={responseTabs}
+      >
+        <FormRender
+          editorConfig={editorConfig}
+          formData={props.formData}
+          formEvaluationState={props.formEvaluationState}
+          formName={formName}
+          uiComponent={uiComponent}
+        />
+      </ActionEditor>
     );
   }
 
@@ -447,17 +434,12 @@ export function EditorJSONtoForm(props: Props) {
               </TabContainerView>
               {renderDebugger &&
                 selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
-                  <QueryResponseTabView
+                  <QueryDebuggerTabs
                     actionName={actionName}
                     actionResponse={actionResponse}
-                    actionSource={actionSource}
                     currentActionConfig={currentActionConfig}
-                    isExecutePermitted={isExecutePermitted}
                     isRunning={isRunning}
-                    responseDataTypes={responseDataTypes}
-                    responseDisplayFormat={responseDisplayFormat}
-                    responseTabOnRunClick={responseTabOnRunClick}
-                    runErrorMessage={runErrorMessage}
+                    onRunClick={onRunClick}
                   />
                 )}
             </SecondaryWrapper>

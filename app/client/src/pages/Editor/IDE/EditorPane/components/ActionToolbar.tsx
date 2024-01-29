@@ -35,6 +35,7 @@ const ActionToolbar = (props: Props) => {
           size="sm"
           startIcon="settings-2-line"
         />
+        <Button isIconButton kind="tertiary" size="sm" startIcon="book-line" />
         <Button
           isIconButton
           kind="tertiary"
