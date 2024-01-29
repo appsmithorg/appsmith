@@ -12,8 +12,8 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import LoadingScreen from "./LoadingScreen";
-import { TemplateContent } from "../TemplateContent";
 import TemplateFilters from "../TemplateFilters";
+import { TemplateContent } from "../TemplateContent";
 
 const Wrapper = styled.div`
   display: flex;

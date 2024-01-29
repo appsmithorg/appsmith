@@ -15,16 +15,12 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { editorInitializer } from "utils/editor/EditorUtils";
-<<<<<<< HEAD
-import { TemplateContent } from "./TemplateContent";
-import TemplateFilters from "./TemplateFilters";
-=======
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
-import { StartWithTemplateContent } from "./StartWithTemplateContent";
-import StartWithTemplateFilters from "./StartWithTemplateFilter";
->>>>>>> 41e51c4703c7b155dd1829e65dd81073bbe8e789
-import TemplateView from "./TemplateView";
+
 import { fetchAllWorkspaces } from "@appsmith/actions/workspaceActions";
+import TemplateFilters from "./TemplateFilters";
+import { TemplateContent } from "./TemplateContent";
+import TemplateView from "./TemplateView";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -123,12 +119,7 @@ function Templates() {
       <SidebarWrapper>
         <SecondaryWrapper>
           <ReconnectDatasourceModal />
-<<<<<<< HEAD
           <TemplateFilters />
-          <LeftPaneBottomSection />
-=======
-          <StartWithTemplateFilters />
->>>>>>> 41e51c4703c7b155dd1829e65dd81073bbe8e789
         </SecondaryWrapper>
       </SidebarWrapper>
       <TemplateListWrapper>

@@ -1,3 +1,4 @@
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -8,14 +9,8 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-<<<<<<< HEAD
-import { TemplateContent } from "./TemplateContent";
 import TemplateFilters from "./TemplateFilters";
-=======
-import { StartWithTemplateContent } from "./StartWithTemplateContent";
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import StartWithTemplateFilters from "./StartWithTemplateFilter";
->>>>>>> 41e51c4703c7b155dd1829e65dd81073bbe8e789
+import { TemplateContent } from "./TemplateContent";
 
 const FiltersWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
