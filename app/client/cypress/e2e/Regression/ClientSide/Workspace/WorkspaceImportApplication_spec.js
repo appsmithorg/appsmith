@@ -71,7 +71,7 @@ describe(
                   "Application imported successfully",
                 );
                 agHelper.WaitUntilAllToastsDisappear();
-                cy.wait("@getConsolidatedData").then((interception) => {
+                cy.get("@getConsolidatedData").then((interception) => {
                   const pages =
                     interception.response.body.data.pages.data.pages;
                   const pageSlug =
