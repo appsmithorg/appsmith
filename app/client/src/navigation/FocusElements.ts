@@ -25,6 +25,7 @@ export enum FocusElement {
   SelectedQuery = "SelectedQuery",
   SelectedJSObject = "SelectedJSObject",
   SelectedSegment = "SelectedSegment",
+  IDETabs = "IDETabs",
 }
 
 export enum FocusElementConfigType {
