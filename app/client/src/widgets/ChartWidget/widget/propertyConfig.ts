@@ -85,7 +85,7 @@ export const contentConfig = () => {
             wrapperCode: {
               prefix: "{{ ((chartType) => ( ",
               suffix: (widget: WidgetProps) =>
-                `))(${widget.widgetName}.chartType); }}`,
+                `))(${widget.widgetName}.chartType) }}`,
             },
           },
           isBindProperty: true,
