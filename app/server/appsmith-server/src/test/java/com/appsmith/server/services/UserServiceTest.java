@@ -28,6 +28,7 @@ import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -73,6 +74,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @DirtiesContext
 public class UserServiceTest {
+
+    @Autowired
+    EntityManager entityManager;
 
     @Autowired
     UserService userService;
@@ -444,6 +448,7 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateRoleOfUser() {
+        // XXX: `UserData.role` is deprecated, can we remove it, and this test?
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setRole("New role of user");
         final Mono<UserData> resultMono =
