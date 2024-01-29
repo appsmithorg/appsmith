@@ -1,6 +1,4 @@
 .icon {
-  aspect-ratio: 1;
-
   &[data-size="small"] {
     inline-size: var(--icon-size-1);
   }
