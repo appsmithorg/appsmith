@@ -9,6 +9,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ModuleActionCollectionDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -191,7 +192,7 @@ class ClonePageTest {
                 .block();
 
         PageDTO clonedPageDTO = applicationPageService
-                .clonePage(moduleInstanceTestHelperDTO.getPageDTO().getId())
+                .clonePage(moduleInstanceTestHelperDTO.getPageDTO().getId(), new ClonePageMetaDTO())
                 .block();
 
         List<NewAction> clonedActions = newActionService

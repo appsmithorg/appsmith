@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.clonepage.ClonePageService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ModuleInstance;
@@ -82,7 +83,9 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             ApplicationPublishableService<ModuleInstance> moduleInstanceApplicationPublishableService,
             DSLMigrationUtils dslMigrationUtils,
             GitAutoCommitHelper gitAutoCommitHelper,
-            CrudModuleInstanceService crudModuleInstanceService) {
+            CrudModuleInstanceService crudModuleInstanceService,
+            ClonePageService<NewAction> actionClonePageService,
+            ClonePageService<ActionCollection> actionCollectionClonePageService) {
         super(
                 workspaceService,
                 applicationService,
@@ -111,7 +114,9 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 datasourceRepository,
                 datasourcePermission,
                 dslMigrationUtils,
-                gitAutoCommitHelper);
+                gitAutoCommitHelper,
+                actionClonePageService,
+                actionCollectionClonePageService);
         this.permissionGroupService = permissionGroupService;
         this.moduleInstanceApplicationPublishableService = moduleInstanceApplicationPublishableService;
         this.crudModuleInstanceService = crudModuleInstanceService;

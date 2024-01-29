@@ -14,6 +14,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.ce.AutoDeployment;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDeployApplicationResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -1111,7 +1112,7 @@ public class GitServiceTest {
                     assertThat(application.getPages().size()).isEqualTo(1);
                     assertThat(application.getPublishedPages().size()).isEqualTo(1);
                     return applicationPageService
-                            .clonePage(application.getPages().get(0).getId())
+                            .clonePage(application.getPages().get(0).getId(), new ClonePageMetaDTO())
                             .thenReturn(application);
                 })
                 .then(gitService.autoDeployGitApplication(defaultAppId, "main"))
