@@ -2,7 +2,6 @@ package com.appsmith.server.moduleinstances.crud;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -443,18 +442,6 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                 })
                 .map(page -> {
                     moduleInstance.setApplicationId(page.getApplicationId());
-
-                    if (page.getDefaultResources() != null) {
-                        DefaultResources defaultResources = moduleInstance.getDefaultResources();
-
-                        if (defaultResources == null) {
-                            defaultResources = new DefaultResources();
-                        }
-
-                        defaultResources.setApplicationId(
-                                page.getDefaultResources().getApplicationId());
-                        moduleInstance.setDefaultResources(defaultResources);
-                    }
 
                     defaultResourcesService.initialize(moduleInstance, branchName, false);
                     dtoDefaultResourcesService.initialize(

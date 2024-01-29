@@ -10,7 +10,6 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.solutions.ActionPermission;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -19,17 +18,6 @@ public class NewActionExportableServiceImpl extends NewActionExportableServiceCE
 
     public NewActionExportableServiceImpl(NewActionService newActionService, ActionPermission actionPermission) {
         super(newActionService, actionPermission);
-    }
-
-    @Override
-    protected List<NewAction> getExportableNewActions(List<NewAction> newActionList) {
-
-        List<NewAction> exportableNewActionsFromSuper = super.getExportableNewActions(newActionList);
-
-        return exportableNewActionsFromSuper.stream()
-                .filter(newAction ->
-                        newAction.getRootModuleInstanceId() == null || Boolean.TRUE.equals(newAction.getIsPublic()))
-                .toList();
     }
 
     @Override

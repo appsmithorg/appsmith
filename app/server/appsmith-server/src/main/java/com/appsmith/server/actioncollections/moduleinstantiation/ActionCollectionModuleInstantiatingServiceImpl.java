@@ -2,7 +2,6 @@ package com.appsmith.server.actioncollections.moduleinstantiation;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -177,20 +176,10 @@ public class ActionCollectionModuleInstantiatingServiceImpl
         setRootModuleInstanceIdAndModuleInstanceId(
                 moduleInstantiatingMetaDTO, sourceActionCollection, toBeInstantiatedActionCollection);
 
-        DefaultResources domainDefaultResources = new DefaultResources();
-        domainDefaultResources.setApplicationId(
-                moduleInstantiatingMetaDTO.getPage().getDefaultResources().getApplicationId());
-        toBeInstantiatedActionCollection.setDefaultResources(domainDefaultResources);
-
-        DefaultResources dtoDefaultResources = new DefaultResources();
-        dtoDefaultResources.setPageId(
-                moduleInstantiatingMetaDTO.getPage().getDefaultResources().getPageId());
-        unpublishedActionCollectionDTO.setDefaultResources(dtoDefaultResources);
-
         defaultResourcesService.initialize(
-                toBeInstantiatedActionCollection, moduleInstantiatingMetaDTO.getBranchName(), false);
+                toBeInstantiatedActionCollection, moduleInstantiatingMetaDTO.getBranchName(), true);
         dtoDefaultResourcesService.initialize(
-                unpublishedActionCollectionDTO, moduleInstantiatingMetaDTO.getBranchName(), false);
+                unpublishedActionCollectionDTO, moduleInstantiatingMetaDTO.getBranchName(), true);
         toBeInstantiatedActionCollection.setGitSyncId(null);
 
         // Set the truncated policies for this new instance

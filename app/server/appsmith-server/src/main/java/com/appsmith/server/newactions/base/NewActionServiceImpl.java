@@ -612,6 +612,14 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    public Flux<NewAction> findByPageIdsForExport(
+            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return super.findByPageIdsForExport(unpublishedPages, optionalPermission)
+                .filter(newAction ->
+                        newAction.getRootModuleInstanceId() == null || Boolean.TRUE.equals(newAction.getIsPublic()));
+    }
+
+    @Override
     public Mono<List<BulkWriteResult>> publishActionsForActionCollection(
             String actionCollectionId, AclPermission aclPermission) {
         Mono<UpdateResult> archiveDeletedUnpublishedActions =

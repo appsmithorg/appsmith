@@ -346,6 +346,8 @@ class ImportWithModulesTest {
                     ActionDTO unpublishedJsFunc1 = jsFunc1Action.getUnpublishedAction();
                     assertThat(unpublishedJsFunc1.getActionConfiguration()).isNull();
                     assertThat(unpublishedJsFunc1.getJsonPathKeys()).isEmpty();
+                    assertThat(unpublishedJsFunc1.getDefaultResources().getCollectionId())
+                            .isEqualTo(unpublishedJsFunc1.getCollectionId());
 
                     collectionIdInAction.add(unpublishedJsFunc1.getCollectionId());
 

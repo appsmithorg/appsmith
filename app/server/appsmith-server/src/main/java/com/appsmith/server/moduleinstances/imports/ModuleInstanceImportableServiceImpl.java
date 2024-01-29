@@ -37,17 +37,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static java.lang.Boolean.FALSE;
@@ -340,24 +340,23 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 });
     }
 
-    private Mono<Void> updateDefaultResourcesForPrivateCompositeEntities(
-            List<ModuleInstance> moduleInstanceList, ImportingMetaDTO importingMetaDTO) {
-        Mono<Map<String, String>> moduleInstanceIdsCache = Flux.fromIterable(moduleInstanceList)
-                .collectMap(
-                        ModuleInstance::getId,
-                        moduleInstance -> moduleInstance.getDefaultResources().getModuleInstanceId())
+    private Mono<Tuple2<List<List<NewAction>>, List<List<ActionCollection>>>>
+            updateDefaultResourcesForPrivateCompositeEntities(
+                    List<ModuleInstance> moduleInstanceList, ImportingMetaDTO importingMetaDTO) {
+        Flux<Tuple2<String, String>> moduleInstanceIdsCache = Flux.fromIterable(moduleInstanceList)
+                .mapNotNull(moduleInstance -> Tuples.of(
+                        moduleInstance.getId(),
+                        moduleInstance.getDefaultResources().getModuleInstanceId()))
                 .cache();
 
-        Map<String, String> branchedToDefaultActionIds = new ConcurrentHashMap<>();
-
         Mono<List<List<NewAction>>> updatedActionsMono = moduleInstanceIdsCache
-                .flatMapIterable(Map::entrySet)
-                .flatMap(entry -> {
-                    String existingModuleInstanceId = entry.getKey();
-                    String defaultModuleInstanceId = entry.getValue();
+                .flatMap(tuple2 -> {
+                    String existingModuleInstanceId = tuple2.getT1();
+                    String defaultModuleInstanceId = tuple2.getT2();
                     Mono<Map<String, NewAction>> defaultActionsMapMono = newActionService
                             .findAllUnpublishedComposedActionsByRootModuleInstanceId(
                                     defaultModuleInstanceId, null, true)
+                            .filter(newAction -> FALSE.equals(newAction.getIsPublic()))
                             .collectMap(
                                     newAction -> newAction.getRootModuleInstanceId() + "_"
                                             + newAction.getUnpublishedAction().getValidName(),
@@ -378,9 +377,6 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                                                 newAction.getUnpublishedAction(),
                                                 defaultNewAction.getUnpublishedAction(),
                                                 importingMetaDTO.getBranchName());
-
-                                        branchedToDefaultActionIds.put(newAction.getId(), defaultNewAction.getId());
-                                        newAction.setGitSyncId(defaultNewAction.getGitSyncId());
                                     }
                                 })
                                 .collectList()
@@ -391,14 +387,14 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 .collectList();
 
         Mono<List<List<ActionCollection>>> updatedCollectionsMono = moduleInstanceIdsCache
-                .flatMapIterable(Map::entrySet)
-                .flatMap(entry -> {
-                    String existingModuleInstanceId = entry.getKey();
-                    String defaultModuleInstanceId = entry.getValue();
+                .flatMap(tuple2 -> {
+                    String existingModuleInstanceId = tuple2.getT1();
+                    String defaultModuleInstanceId = tuple2.getT2();
 
                     Mono<Map<String, ActionCollection>> defaultCollectionsMapMono = actionCollectionService
                             .findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(
                                     defaultModuleInstanceId, null)
+                            .filter(newAction -> FALSE.equals(newAction.getIsPublic()))
                             .collectMap(
                                     actionCollection -> actionCollection.getRootModuleInstanceId() + "_"
                                             + actionCollection
@@ -426,21 +422,6 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                                                 actionCollection.getUnpublishedCollection(),
                                                 defaultActionCollection.getUnpublishedCollection(),
                                                 importingMetaDTO.getBranchName());
-                                        Map<String, String> defaultToBranchedActionIdsMap = actionCollection
-                                                .getUnpublishedCollection()
-                                                .getDefaultToBranchedActionIdsMap();
-                                        Map<String, String> newDefaultToBranchedActionIdsMap = new HashMap<>();
-
-                                        defaultToBranchedActionIdsMap.keySet().forEach(branchedActionId -> {
-                                            String defaultActionId = branchedToDefaultActionIds.getOrDefault(
-                                                    branchedActionId, branchedActionId);
-                                            newDefaultToBranchedActionIdsMap.put(defaultActionId, branchedActionId);
-                                        });
-
-                                        actionCollection
-                                                .getUnpublishedCollection()
-                                                .setDefaultToBranchedActionIdsMap(newDefaultToBranchedActionIdsMap);
-                                        actionCollection.setGitSyncId(defaultActionCollection.getGitSyncId());
                                     }
                                 })
                                 .collectList()
@@ -450,7 +431,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 })
                 .collectList();
 
-        return updatedActionsMono.then(updatedCollectionsMono).then();
+        return updatedActionsMono.zipWith(updatedCollectionsMono);
     }
 
     private void updateExistingInstance(

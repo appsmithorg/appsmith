@@ -3,7 +3,6 @@ package com.appsmith.server.newactions.moduleinstantiation;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
@@ -68,24 +67,10 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
                     setRootModuleInstanceIdAndModuleInstanceId(
                             moduleInstantiatingMetaDTO, sourceAction, toBeInstantiatedAction);
 
-                    DefaultResources domainDefaultResources = new DefaultResources();
-                    domainDefaultResources.setApplicationId(moduleInstantiatingMetaDTO
-                            .getPage()
-                            .getDefaultResources()
-                            .getApplicationId());
-                    toBeInstantiatedAction.setDefaultResources(domainDefaultResources);
-
-                    DefaultResources dtoDefaultResources = new DefaultResources();
-                    dtoDefaultResources.setPageId(moduleInstantiatingMetaDTO
-                            .getPage()
-                            .getDefaultResources()
-                            .getPageId());
-                    unpublishedAction.setDefaultResources(dtoDefaultResources);
-
                     defaultResourcesService.initialize(
-                            toBeInstantiatedAction, moduleInstantiatingMetaDTO.getBranchName(), false);
+                            toBeInstantiatedAction, moduleInstantiatingMetaDTO.getBranchName(), true);
                     dtoDefaultResourcesService.initialize(
-                            unpublishedAction, moduleInstantiatingMetaDTO.getBranchName(), false);
+                            unpublishedAction, moduleInstantiatingMetaDTO.getBranchName(), true);
                     toBeInstantiatedAction.setGitSyncId(null);
 
                     List<String> newJSActions =
