@@ -26,11 +26,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
-import {
-  jsCollectionListURL,
-  queryListURL,
-  widgetListURL,
-} from "@appsmith/RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import history, { NavigationMethod } from "utils/history";
@@ -41,13 +37,14 @@ import AddPageContextMenu from "pages/Editor/Explorer/Pages/AddPageContextMenu";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
-import { getFocusInfo } from "selectors/focusHistorySelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 
 const AnimatedFlex = animated(Flex);
 
-const PagesSection = () => {
+const PagesSection = ({
+  pageFocusUrls,
+}: {
+  pageFocusUrls: Record<string, any>;
+}) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const pages: Page[] = useSelector(selectAllPages);
@@ -58,8 +55,6 @@ const PagesSection = () => {
   );
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const instanceId = useSelector(getInstanceId);
-  const focusInfo = useSelector(getFocusInfo);
-  const branch = useSelector(getCurrentGitBranch);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -86,27 +81,11 @@ const PagesSection = () => {
 
   const switchPage = useCallback(
     (page: Page) => {
-      const key = `EDITOR_STATE.${page.pageId}#${branch}`;
-      const segment =
-        focusInfo && focusInfo[key]
-          ? focusInfo[key].state.SelectedSegment || EditorEntityTab.UI
-          : EditorEntityTab.UI;
-
-      let navigateToUrl = "";
-      switch (segment) {
-        case EditorEntityTab.UI:
-          navigateToUrl = widgetListURL({ pageId: page.pageId });
-          break;
-        case EditorEntityTab.JS:
-          navigateToUrl = jsCollectionListURL({ pageId: page.pageId });
-          break;
-        case EditorEntityTab.QUERIES:
-          navigateToUrl = queryListURL({ pageId: page.pageId });
-          break;
-        default:
-          navigateToUrl = widgetListURL({ pageId: page.pageId });
-          break;
-      }
+      const navigateToUrl = pageFocusUrls[page.pageId]
+        ? pageFocusUrls[page.pageId]
+        : builderURL({
+            pageId: page.pageId,
+          });
       AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
         name: page.pageName,
         fromUrl: location.pathname,
@@ -119,7 +98,7 @@ const PagesSection = () => {
         invokedBy: NavigationMethod.EntityExplorer,
       });
     },
-    [location.pathname, currentPageId],
+    [location.pathname, currentPageId, pageFocusUrls],
   );
 
   const createPageCallback = useCallback(() => {
