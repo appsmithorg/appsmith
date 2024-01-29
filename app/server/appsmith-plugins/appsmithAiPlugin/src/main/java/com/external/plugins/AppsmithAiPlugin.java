@@ -11,6 +11,8 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
@@ -34,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.external.plugins.constants.AppsmithAiConstants.SOURCE_DETAILS;
+import static com.external.plugins.constants.AppsmithAiConstants.UPLOAD_FILES;
 import static com.external.plugins.constants.AppsmithAiConstants.USECASE;
 
 @Slf4j
@@ -56,6 +59,20 @@ public class AppsmithAiPlugin extends BasePlugin {
             apiKeyAuth.setValue("test-key");
             return ApiKeyAuthentication.create(apiKeyAuth)
                     .flatMap(apiKeyAuthentication -> Mono.just((APIConnection) apiKeyAuthentication));
+        }
+
+        @Override
+        public Mono<TriggerResultDTO> trigger(
+                APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            String requestType = request.getRequestType();
+            if (UPLOAD_FILES.equals(requestType)) {
+                return aiServerService.uploadFiles(request.getFiles()).flatMap(response -> {
+                    TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                    triggerResultDTO.setTrigger(response);
+                    return Mono.just(triggerResultDTO);
+                });
+            }
+            return super.trigger(connection, datasourceConfiguration, request);
         }
 
         @Override
@@ -96,7 +113,7 @@ public class AppsmithAiPlugin extends BasePlugin {
 
             ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
             ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
-                    actionConfiguration, RequestUtils.createQueryUri(), insertedParams, objectMapper);
+                    actionConfiguration, RequestUtils.getQueryUri(), insertedParams, objectMapper);
 
             Map<String, String> headers = new HashMap<>();
             headers.put(SOURCE_DETAILS, HeadersUtil.createSourceDetailsHeader(executeActionDTO));

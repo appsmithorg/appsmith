@@ -7,6 +7,7 @@ public class AppsmithAiConstants {
     public static final String AI_SERVER_HOST = "https://cs.appsmith.com/api/v1/proxy";
     public static final String ASSISTANT_PATH = "/assistant";
     public static final String QUERY_PATH = ASSISTANT_PATH + "/query";
+    public static final String FILE_PATH = ASSISTANT_PATH + "/files";
 
     // Action paths
     public static final String TEXT_SUMMARY = "textSummary";
@@ -49,8 +50,10 @@ public class AppsmithAiConstants {
     public static final String IMAGE_CLASSIFY_INSTRUCTIONS = IMAGE_CLASSIFICATION + PERIOD_DELIMITER + INSTRUCTIONS;
     public static final String IMAGE_CAPTION_INPUT = IMAGE_CAPTIONING + PERIOD_DELIMITER + INPUT;
     public static final String IMAGE_CAPTION_INSTRUCTIONS = IMAGE_CAPTIONING + PERIOD_DELIMITER + INSTRUCTIONS;
+    public static final String UPLOAD_FILES = "uploadFiles";
+    public static final String FILES = "files";
 
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
+            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 150MB */ 150 * 1024 * 1024))
             .build();
 }

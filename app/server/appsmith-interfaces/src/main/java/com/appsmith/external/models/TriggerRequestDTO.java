@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.codec.multipart.FilePart;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class TriggerRequestDTO {
     ClientDataDisplayType displayType;
 
     List<Property> headers = new ArrayList<>();
+    List<FilePart> files;
 
     String datasourceId;
     String actionId;

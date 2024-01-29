@@ -1,11 +1,15 @@
 package com.external.plugins.utils;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -13,11 +17,14 @@ import reactor.netty.resources.ConnectionProvider;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import static com.external.plugins.constants.AppsmithAiConstants.AI_SERVER_HOST;
 import static com.external.plugins.constants.AppsmithAiConstants.DATA;
 import static com.external.plugins.constants.AppsmithAiConstants.EXCHANGE_STRATEGIES;
+import static com.external.plugins.constants.AppsmithAiConstants.FILES;
+import static com.external.plugins.constants.AppsmithAiConstants.FILE_PATH;
 import static com.external.plugins.constants.AppsmithAiConstants.QUERY_PATH;
 
 public class RequestUtils {
@@ -31,8 +38,12 @@ public class RequestUtils {
         return (String) formData.get(key);
     }
 
-    public static URI createQueryUri() {
+    public static URI getQueryUri() {
         return URI.create(AI_SERVER_HOST + QUERY_PATH);
+    }
+
+    public static URI getFileUploadUri() {
+        return URI.create(AI_SERVER_HOST + FILE_PATH);
     }
 
     public static Mono<ResponseEntity<byte[]>> makeRequest(
@@ -46,6 +57,17 @@ public class RequestUtils {
                 .headers(httpHeaders -> headers.forEach(httpHeaders::add))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body)
+                .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class));
+    }
+
+    public static Mono<ResponseEntity<byte[]>> makeRequest(
+            HttpMethod httpMethod, URI uri, @NotNull Map<String, String> headers, List<FilePart> fileParts) {
+        return webClient
+                .method(httpMethod)
+                .uri(uri)
+                .headers(httpHeaders -> headers.forEach(httpHeaders::add))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(new LinkedMultiValueMap<>(Map.of(FILES, fileParts))))
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class));
     }
 
