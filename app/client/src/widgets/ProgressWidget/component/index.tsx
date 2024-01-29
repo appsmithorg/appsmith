@@ -149,8 +149,8 @@ const DeterminateLinearProgress = styled.div<{
 
   &:after {
     background: ${({ fillColor }) => fillColor};
-    ${({ value }) => value && `width: ${value}%`};
-    transition: width 0.4s ease;
+    ${({ value }) => value !== undefined && `width: ${value}%`};
+    transition: width 0.4s ease-in-out;
     position: absolute;
     content: "";
     left: 0;
