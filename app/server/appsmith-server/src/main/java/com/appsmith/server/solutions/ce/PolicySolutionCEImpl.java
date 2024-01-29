@@ -62,6 +62,10 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
             policyMap1.put(entry.getKey(), policy);
         }
 
+        if (obj.getPolicies() == null) {
+            obj.setPolicies(new HashSet<>());
+        }
+
         // Append the user to the existing permission policy if it already exists.
         for (Policy policy : obj.getPolicies()) {
             String permission = policy.getPermission();
