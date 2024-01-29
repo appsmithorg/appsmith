@@ -22,7 +22,12 @@ const ActionEditor = (props: Props) => {
 
   return (
     <Flex flex="1" flexDirection="column" overflow="hidden">
-      <Flex flex="1 1 0%" flexDirection="column" overflow="auto">
+      <Flex
+        flex="1 1 0%"
+        flexDirection="column"
+        overflow="auto"
+        padding="spaces-3"
+      >
         {props.children}
       </Flex>
       <ActionToolbar onRunClick={props.onRunClick} onSettingsClick={noop} />
