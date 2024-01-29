@@ -339,7 +339,7 @@ describe(
 
     after("Delete spreadsheet and app", function () {
       // Delete spreadsheet and app
-      homePage.SearchAndOpenApp(appName);
+      homePage.EditAppFromAppHover(appName);
       gsheetHelper.DeleteSpreadsheetQuery(
         dataSourceName.allAccess,
         spreadSheetName,
