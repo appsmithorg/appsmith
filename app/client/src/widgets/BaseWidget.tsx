@@ -272,6 +272,13 @@ abstract class BaseWidget<
     }
   };
 
+  unfocusWidget = () => {
+    const { unfocusWidget } = this.context;
+    if (unfocusWidget) {
+      unfocusWidget();
+    }
+  };
+
   /* eslint-disable @typescript-eslint/no-empty-function */
 
   /* eslint-disable @typescript-eslint/no-unused-vars */

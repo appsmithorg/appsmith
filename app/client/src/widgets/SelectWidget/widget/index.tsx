@@ -202,7 +202,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     return {
       optionLabel: ["sourceData"],
       optionValue: ["sourceData"],
-      defaultOptionValue: ["serverSideFiltering", "options"],
     };
   }
 
@@ -375,6 +374,12 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               },
             },
             dependencies: ["serverSideFiltering", "options"],
+            helperText: (
+              <div className="leading-5" style={{ marginTop: "10px" }}>
+                Make sure the default value is present in the source data to
+                have it selected by default in the UI.
+              </div>
+            ),
           },
         ],
       },

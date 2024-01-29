@@ -44,3 +44,5 @@ export const getJSTabs = (state: AppState) =>
 
 export const getQueryTabs = (state: AppState) =>
   state.ui.ide.tabs[EditorEntityTab.QUERIES];
+
+export const getIDETabs = (state: AppState) => state.ui.ide.tabs;

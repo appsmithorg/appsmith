@@ -9,6 +9,7 @@ import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -122,6 +123,11 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
 
     @Override
     public ImportableArtifact getImportableArtifact() {
+        return this.getExportedApplication();
+    }
+
+    @Override
+    public ExportableArtifact getExportableArtifact() {
         return this.getExportedApplication();
     }
 

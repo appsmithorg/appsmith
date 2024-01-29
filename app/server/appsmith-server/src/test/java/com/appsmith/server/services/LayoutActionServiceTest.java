@@ -18,6 +18,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -1010,7 +1011,9 @@ public class LayoutActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateMultipleLayouts_MultipleLayouts_LayoutsUpdated() {
         // clone the current page to create another page for testing
-        PageDTO secondPage = applicationPageService.clonePage(testPage.getId()).block();
+        PageDTO secondPage = applicationPageService
+                .clonePage(testPage.getId(), new ClonePageMetaDTO())
+                .block();
 
         List<PageDTO> testPages = List.of(testPage, secondPage);
         UpdateMultiplePageLayoutDTO multiplePageLayoutDTO = new UpdateMultiplePageLayoutDTO();
