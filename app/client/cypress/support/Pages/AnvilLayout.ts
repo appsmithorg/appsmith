@@ -24,7 +24,7 @@ export class AnvilLayout {
   private agHelper = ObjectsRegistry.AggregateHelper;
 
   private getAnvilDropTargetSelectorFromOptions = (
-    dropTarget: DropTargetDetails,
+    dropTarget?: DropTargetDetails,
   ) => {
     if (dropTarget) {
       if (dropTarget.id) {
@@ -40,12 +40,13 @@ export class AnvilLayout {
   };
 
   private performDnDInAnvil(
-    dropTargetDetails: DropTargetDetails,
     xPos: number,
     yPos: number,
+    options = {} as DragDropWidgetOptions,
   ) {
-    const dropAreaSelector =
-      this.getAnvilDropTargetSelectorFromOptions(dropTargetDetails);
+    const dropAreaSelector = this.getAnvilDropTargetSelectorFromOptions(
+      options.dropTargetDetails,
+    );
     cy.get(dropAreaSelector)
       .first()
       .then((dropAreaDom) => {
@@ -101,8 +102,7 @@ export class AnvilLayout {
     const { skipWidgetSearch = false } = options;
     this.setupWidgetPane(skipWidgetSearch, widgetType);
     this.startDraggingWidgetFromPane(widgetType);
-    const { dropTargetDetails } = options;
-    this.performDnDInAnvil(dropTargetDetails, x, y);
+    this.performDnDInAnvil(x, y, options);
   }
 
   public DragDropAnvilWidgetNVerify(
