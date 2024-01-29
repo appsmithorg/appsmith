@@ -28,7 +28,6 @@ import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
-import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -74,9 +73,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @DirtiesContext
 public class UserServiceTest {
-
-    @Autowired
-    EntityManager entityManager;
 
     @Autowired
     UserService userService;
