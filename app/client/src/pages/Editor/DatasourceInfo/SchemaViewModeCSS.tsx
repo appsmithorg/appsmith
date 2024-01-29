@@ -138,6 +138,8 @@ export const SchemaStateMessageWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   position: relative;
+  text-align: center;
+  padding: 0 var(--ads-spaces-3);
   img {
     padding-bottom: var(--ads-v2-spaces-7);
   }

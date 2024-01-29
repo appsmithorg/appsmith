@@ -98,7 +98,7 @@ import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
 import { getFormData } from "selectors/formSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
@@ -1188,6 +1188,14 @@ function* createDatasourceFromFormSaga(
       });
       yield put(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
+      );
+
+      // Set datasource page to view mode
+      yield put(
+        setDatasourceViewMode({
+          datasourceId: response?.data?.id,
+          viewMode: true,
+        }),
       );
 
       // fetch the datasource structure.

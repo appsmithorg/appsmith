@@ -95,7 +95,7 @@ describe(
     });
 
     it("5. should test that settings page tab redirects not airgap", () => {
-      agHelper.VisitNAssert(routes.APPLICATIONS, "getReleaseItems");
+      agHelper.VisitNAssert(routes.APPLICATIONS, "getConsolidatedData");
       cy.get(".admin-settings-menu-option").click();
       cy.wait("@getEnvVariables");
       cy.get(adminsSettings.generalTab).click();

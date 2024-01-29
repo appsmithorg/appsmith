@@ -4,6 +4,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { getAnvilCanvasId } from "./utils";
 import { LayoutProvider } from "../layoutComponents/LayoutProvider";
 import { useClickToClearSelections } from "./useClickToClearSelections";
+import { useRenderDetachedChildren } from "../common/hooks/detachedWidgetHooks";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
   const className: string = useMemo(
@@ -19,13 +20,21 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
     [clickToClearSelections],
   );
 
+  const renderDetachedChildren = useRenderDetachedChildren(
+    props.widgetId,
+    props.children,
+  );
+
   return (
-    <div
-      className={className}
-      id={getAnvilCanvasId(props.widgetId)}
-      onClick={handleOnClickCapture}
-    >
-      <LayoutProvider {...props} />
-    </div>
+    <>
+      {renderDetachedChildren}
+      <div
+        className={className}
+        id={getAnvilCanvasId(props.widgetId)}
+        onClick={handleOnClickCapture}
+      >
+        <LayoutProvider {...props} />
+      </div>
+    </>
   );
 };
