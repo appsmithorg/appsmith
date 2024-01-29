@@ -9,10 +9,8 @@ echo "Sentry Auth Token: $SENTRY_AUTH_TOKEN"
 if [ "$REACT_APP_AIRGAP_ENABLED" == "true" ]; then
     echo "Building for airgapped Appsmith instances"
     node download-assets.js;
-    OUTPUT_PATH=build_airgap
 else
     echo "Building for non-airgapped Appsmith instances"
-    OUTPUT_PATH=build
 fi
 
 # build cra app
