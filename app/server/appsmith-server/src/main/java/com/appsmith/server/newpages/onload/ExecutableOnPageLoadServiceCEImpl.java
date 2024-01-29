@@ -39,7 +39,7 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
     public Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId) {
         return newActionService
                 .findByPageIdAndViewMode(creatorId, false, actionPermission.getEditPermission())
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .map(actionDTO -> (Executable) actionDTO)
                 .cache();
     }
@@ -55,7 +55,7 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
     public Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(String creatorId) {
         return newActionService
                 .findUnpublishedOnLoadActionsExplicitSetByUserInPage(creatorId)
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
     }
 
     @Override
