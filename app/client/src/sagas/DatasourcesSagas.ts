@@ -98,7 +98,7 @@ import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
 import { getFormData } from "selectors/formSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
@@ -165,6 +165,7 @@ import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
+  isEnvironmentFetching,
 } from "@appsmith/selectors/environmentSelectors";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
@@ -1461,6 +1462,10 @@ function* fetchDatasourceStructureSaga(
     schemaFetchContext: DatasourceStructureContext;
   }>,
 ) {
+  const isLoadingEnv: boolean = yield select(isEnvironmentFetching);
+  if (isLoadingEnv) {
+    yield take(ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS);
+  }
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, action.payload.id),
     `Datasource not found for id - ${action.payload.id}`,
