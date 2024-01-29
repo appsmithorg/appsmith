@@ -343,7 +343,7 @@ describe(
 
     after("Delete spreadsheet and app", function () {
       // Delete spreadsheet and app
-      homePage.SearchAndOpenApp(appName);
+      homePage.EditAppFromAppHover(appName);
       gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
       cy.get("@postExecute").then((interception: any) => {
         expect(interception.response.body.data.body.message).to.deep.equal(

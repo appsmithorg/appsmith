@@ -273,7 +273,7 @@ describe(
     after("Delete spreadsheet and app", function () {
       // Delete spreadsheet and app
       homePage.NavigateToHome();
-      homePage.SearchAndOpenApp(appName);
+      homePage.EditAppFromAppHover(appName);
       gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
       cy.get("@postExecute", {
         timeout: Cypress.config("pageLoadTimeout"),
