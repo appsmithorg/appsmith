@@ -16,7 +16,6 @@ import {
   fetchUnconfiguredDatasourceList,
   uploadNavigationLogoSaga,
   deleteNavigationLogoSaga,
-  deleteMultipleApplicationSaga,
   fetchAllApplicationsOfWorkspaceSaga,
 } from "ce/sagas/ApplicationSagas";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -251,10 +250,6 @@ export default function* applicationSagas() {
       setDefaultApplicationPageSaga,
     ),
     takeLatest(ReduxActionTypes.DELETE_APPLICATION_INIT, deleteApplicationSaga),
-    takeLatest(
-      ReduxActionTypes.DELETE_MULTIPLE_APPS_INIT,
-      deleteMultipleApplicationSaga,
-    ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
     takeLatest(
       ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_INIT,
