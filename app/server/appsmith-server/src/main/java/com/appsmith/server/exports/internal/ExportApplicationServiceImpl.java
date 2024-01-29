@@ -2,7 +2,7 @@ package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
@@ -66,7 +66,7 @@ public class ExportApplicationServiceImpl extends ExportApplicationServiceCEImpl
 
     @Override
     protected Mono<Void> sanitizeEntities(
-            SerialiseApplicationObjective serialiseFor,
+            SerialiseArtifactObjective serialiseFor,
             ApplicationJson applicationJson,
             MappedExportableResourcesDTO mappedResourcesDTO,
             ExportingMetaDTO exportingMetaDTO) {

@@ -40,7 +40,7 @@ import java.util.Map;
 
 import static com.appsmith.server.constants.ProcessingStatus.IDLE;
 import static com.appsmith.server.constants.ProcessingStatus.IN_PROGRESS;
-import static com.appsmith.server.constants.SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION;
+import static com.appsmith.server.constants.SerialiseArtifactObjective.KNOWLEDGE_BASE_GENERATION;
 
 @Slf4j
 @Service

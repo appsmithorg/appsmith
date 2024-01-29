@@ -1,7 +1,7 @@
 package com.appsmith.server.actioncollections.exports;
 
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -25,7 +25,7 @@ public class ActionCollectionExportableServiceImpl extends ActionCollectionExpor
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ApplicationJson applicationJson,
-            SerialiseApplicationObjective serialiseFor) {
+            SerialiseArtifactObjective serialiseFor) {
         Map<String, String> moduleInstanceIdToNameMap = mappedExportableResourcesDTO.getModuleInstanceIdToNameMap();
 
         for (ActionCollection actionCollection : applicationJson.getActionCollectionList()) {

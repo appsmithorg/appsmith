@@ -20,7 +20,6 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -129,6 +128,8 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static com.appsmith.server.constants.SerialiseArtifactObjective.SHARE;
+import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -771,8 +772,7 @@ public class ImportExportApplicationServiceGACTest {
 
                     return layoutActionService
                             .createAction(action)
-                            .then(exportApplicationService.exportApplicationById(
-                                    testApp.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                            .then(exportApplicationService.exportApplicationById(testApp.getId(), VERSION_CONTROL));
                 });
 
         StepVerifier.create(resultMono)
@@ -1380,7 +1380,7 @@ public class ImportExportApplicationServiceGACTest {
                             .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS));
                 })
                 .then(exportApplicationService
-                        .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                        .exportApplicationById(savedApplication.getId(), VERSION_CONTROL)
                         .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
                                 workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName())))
                 .cache();
@@ -2831,8 +2831,8 @@ public class ImportExportApplicationServiceGACTest {
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
     public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
-        Mono<ApplicationJson> exportApplicationMono = exportApplicationService.exportApplicationById(
-                exportWithConfigurationAppId, SerialiseApplicationObjective.SHARE);
+        Mono<ApplicationJson> exportApplicationMono =
+                exportApplicationService.exportApplicationById(exportWithConfigurationAppId, SHARE);
 
         StepVerifier.create(exportApplicationMono)
                 .assertNext(applicationJson -> {
@@ -3116,7 +3116,7 @@ public class ImportExportApplicationServiceGACTest {
                 .block();
 
         Mono<Application> result = exportApplicationService
-                .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                .exportApplicationById(savedApplication.getId(), VERSION_CONTROL)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
                     applicationJson.getExportedApplication().setPublishedApplicationDetail(null);
@@ -3171,7 +3171,7 @@ public class ImportExportApplicationServiceGACTest {
                 .block();
 
         Mono<Application> result = exportApplicationService
-                .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                .exportApplicationById(savedApplication.getId(), VERSION_CONTROL)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
                     applicationJson.getExportedApplication().setPublishedAppLayout(null);
@@ -4863,8 +4863,7 @@ public class ImportExportApplicationServiceGACTest {
                     return newPageService
                             .updatePage(applicationPage.getId(), pageDTO)
                             // export the application
-                            .then(exportApplicationService.exportApplicationById(
-                                    application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                            .then(exportApplicationService.exportApplicationById(application.getId(), VERSION_CONTROL));
                 });
 
         // verify that the exported json has the updated page name, and the queries are in the updated resources
@@ -4963,8 +4962,7 @@ public class ImportExportApplicationServiceGACTest {
                     datasource.setName("DS_FOR_RENAME_TEST_RENAMED");
                     return datasourceService
                             .save(datasource)
-                            .then(exportApplicationService.exportApplicationById(
-                                    application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                            .then(exportApplicationService.exportApplicationById(application.getId(), VERSION_CONTROL));
                 });
 
         // verify that the exported json has the updated page name, and the queries are in the updated resources

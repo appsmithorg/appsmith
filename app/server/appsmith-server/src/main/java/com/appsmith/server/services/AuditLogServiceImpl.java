@@ -359,7 +359,7 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
             responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
             ExportFileDTO exportFileDTO = new ExportFileDTO();
-            exportFileDTO.setApplicationResource(exportContent);
+            exportFileDTO.setArtifactResource(exportContent);
             exportFileDTO.setHttpHeaders(responseHeaders);
             return exportFileDTO;
         });
