@@ -1,11 +1,14 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -39,13 +42,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.EMAIL;
@@ -56,6 +60,7 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRI
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
+import static com.appsmith.server.helpers.PermissionUtils.collateAllPermissions;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
 import static java.lang.Boolean.TRUE;
 
@@ -281,7 +286,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     Mono<Set<PermissionGroup>> generatePermissionsForDefaultPermissionGroups(
             Set<PermissionGroup> permissionGroups, Workspace workspace, User user) {
-        return Mono.just(Collections.emptySet()); /*
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst()
@@ -302,7 +306,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                 .collect(Collectors.toSet());
         // The administrator should also be able to assign any of the three permissions groups
         Set<Permission> assignPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
         // All the default permission groups should be readable by all the members of the workspace
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
@@ -377,7 +381,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                 .thenReturn(TRUE);
 
         return savedPermissionGroupsMono.flatMap(
-                savedPermissionGroups -> cleanPermissionGroupCacheForCurrentUser.thenReturn(savedPermissionGroups));*/
+                savedPermissionGroups -> cleanPermissionGroupCacheForCurrentUser.thenReturn(savedPermissionGroups));
     }
 
     protected Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {

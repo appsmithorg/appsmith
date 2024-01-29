@@ -41,8 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
-
 @Slf4j
 public class ImportServiceCEImpl implements ImportServiceCE {
 
@@ -58,7 +56,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<Datasource> datasourceImportableService;
     private final ImportableService<Theme> themeImportableService;
-    private final Map<ArtifactJsonType, ContextBasedImportService<?, ?, ?>> serviceFactory = new HashMap<>();
 
     public ImportServiceCEImpl(
             ApplicationImportService applicationImportService,
@@ -81,7 +78,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         this.pluginImportableService = pluginImportableService;
         this.datasourceImportableService = datasourceImportableService;
         this.themeImportableService = themeImportableService;
-        serviceFactory.put(APPLICATION, applicationImportService);
     }
 
     /**
@@ -107,7 +103,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     public ContextBasedImportService<
                     ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getContextBasedImportService(ArtifactJsonType artifactJsonType) {
-        return serviceFactory.getOrDefault(artifactJsonType, applicationImportService);
+        return switch (artifactJsonType) {
+            case APPLICATION -> applicationImportService;
+            default -> applicationImportService;
+        };
     }
 
     /**

@@ -1,7 +1,22 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+const {
+  default: OneClickBindingLocator,
+} = require("../../../../../locators/OneClickBindingLocator");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+const {
+  agHelper,
+  assertHelper,
+  dataSources,
+} = require("../../../../../support/Objects/ObjectsCore");
+const {
+  default: EditorNavigation,
+  EntityType,
+} = require("../../../../../support/Pages/EditorNavigation");
+const { OneClickBinding } = require("../../OneClickBinding/spec_utility");
+
+const oneClickBinding = new OneClickBinding();
 
 describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
   it("1. Drag and drop Select/Text widgets", () => {
@@ -73,7 +88,49 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
       .should("not.be.empty");
   });
 
-  it("5. Select tooltip renders if tooltip prop is not empty", () => {
+  it("5. Select widget selection is not cleared when the widget is server side filtered", () => {
+    dataSources.CreateDataSource("Postgres");
+
+    cy.get("@dsName").then((dsName) => {
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+
+      oneClickBinding.ChooseAndAssertForm(
+        `${dsName}`,
+        dsName,
+        "public.employees",
+        {
+          label: "first_name",
+          value: "last_name",
+        },
+      );
+    });
+
+    agHelper.GetNClick(OneClickBindingLocator.connectData);
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    cy.get(formWidgetsPage.selectWidget)
+      .find(widgetLocators.dropdownSingleSelect)
+      .click({ force: true });
+
+    cy.get(commonlocators.selectInputSearch).clear().type("Janet");
+
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
+      .contains("Janet")
+      .click({ force: true });
+
+    cy.get(formWidgetsPage.selectWidget)
+      .find(widgetLocators.dropdownSingleSelect)
+      .click({ force: true });
+
+    cy.get(commonlocators.selectInputSearch).clear().type("Steven");
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    cy.get(".select-button").should("contain", "Janet");
+  });
+
+  it("6. Select tooltip renders if tooltip prop is not empty", () => {
     cy.openPropertyPane("selectwidget");
     // enter tooltip in property pan
     cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");

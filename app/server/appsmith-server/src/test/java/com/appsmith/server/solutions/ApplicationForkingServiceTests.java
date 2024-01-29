@@ -1847,14 +1847,18 @@ public class ApplicationForkingServiceTests {
                             .findFirst()
                             .get();
                     DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(data.defaultEnvironmentId);
-                    assertThat(storage1.getDatasourceConfiguration()).isNull();
+                    assertThat(storage1.getDatasourceConfiguration()).isNotNull();
+                    assertThat(storage1.getDatasourceConfiguration().getConnection())
+                            .isNotNull();
+                    assertThat(storage1.getDatasourceConfiguration().getEndpoints())
+                            .isNotNull();
 
                     final Datasource ds2 = data.datasources.stream()
                             .filter(ds -> ds.getName().equals("datasource 2"))
                             .findFirst()
                             .get();
                     DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(data.defaultEnvironmentId);
-                    assertThat(storage2.getDatasourceConfiguration()).isNull();
+                    assertThat(storage2.getDatasourceConfiguration()).isNotNull();
 
                     assertThat(getUnpublishedActionName(data.actions))
                             .containsExactlyInAnyOrder(

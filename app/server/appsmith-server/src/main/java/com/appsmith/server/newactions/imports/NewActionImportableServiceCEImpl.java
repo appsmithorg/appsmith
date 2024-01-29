@@ -321,7 +321,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         if (actionsInOtherBranches.containsKey(newAction.getGitSyncId())) {
                                             // action found in other branch, copy the default resources from that
                                             // action
-                                            NewAction branchedAction = getExistingActionForImportedAction(
+                                            NewAction branchedAction = getExistingActionInOtherBranchForImportedAction(
                                                     mappedImportableResourcesDTO, actionsInOtherBranches, newAction);
                                             defaultResourcesService.setFromOtherBranch(
                                                     newAction, branchedAction, importingMetaDTO.getBranchName());
@@ -351,7 +351,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                     if (existingAppContainsAction(actionsInCurrentApp, newAction)) {
 
                                         // Since the resource is already present in DB, just update resource
-                                        NewAction existingAction = getExistingActionForImportedAction(
+                                        NewAction existingAction = getExistingActionInCurrentBranchForImportedAction(
                                                 mappedImportableResourcesDTO, actionsInCurrentApp, newAction);
                                         updateExistingAction(
                                                 existingAction,
@@ -463,7 +463,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         }
     }
 
-    protected NewAction getExistingActionForImportedAction(
+    protected NewAction getExistingActionInOtherBranchForImportedAction(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, NewAction> actionsInOtherBranches,
+            NewAction newAction) {
+        return actionsInOtherBranches.get(newAction.getGitSyncId());
+    }
+
+    protected NewAction getExistingActionInCurrentBranchForImportedAction(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Map<String, NewAction> actionsInCurrentApp,
             NewAction newAction) {

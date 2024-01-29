@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -40,12 +40,12 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     public Mono<Boolean> createApplicationSnapshot(String applicationId, String branchName) {
         return applicationService
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
-                /* SerialiseApplicationObjective=VERSION_CONTROL because this API can be invoked from developers.
-                exportApplicationById method check for MANAGE_PERMISSION if SerialiseApplicationObjective=SHARE.
+                /* SerialiseArtifactObjective=VERSION_CONTROL because this API can be invoked from developers.
+                exportApplicationById method check for MANAGE_PERMISSION if SerialiseArtifactObjective=SHARE.
                 */
                 .flatMap(branchedAppId -> Mono.zip(
                         exportApplicationService.exportApplicationById(
-                                branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL),
+                                branchedAppId, SerialiseArtifactObjective.VERSION_CONTROL),
                         Mono.just(branchedAppId)))
                 .flatMapMany(objects -> {
                     String branchedAppId = objects.getT2();

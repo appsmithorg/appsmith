@@ -1270,7 +1270,7 @@ public class ActionServiceCE_Test {
         Mono<ActionDTO> actionMono = layoutActionService
                 .createSingleAction(action, Boolean.FALSE)
                 .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
@@ -1302,7 +1302,7 @@ public class ActionServiceCE_Test {
         Mono<ActionDTO> actionMono = layoutActionService
                 .createSingleAction(action, Boolean.FALSE)
                 .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {

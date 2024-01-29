@@ -17,7 +17,7 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.GitDefaultCommitMessage;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -482,7 +482,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     return Mono.zip(
                             exportApplicationService.exportApplicationById(
-                                    branchedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL),
+                                    branchedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL),
                             Mono.just(branchedApplication));
                 })
                 .flatMap(tuple -> {
@@ -834,7 +834,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         // Set branchName for each application resource
                                         return exportApplicationService
                                                 .exportApplicationById(
-                                                        applicationId, SerialiseApplicationObjective.VERSION_CONTROL)
+                                                        applicationId, SerialiseArtifactObjective.VERSION_CONTROL)
                                                 .flatMap(applicationJson -> {
                                                     applicationJson
                                                             .getExportedApplication()
@@ -1325,7 +1325,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return Mono.zip(
                                         applicationService.save(srcApplication),
                                         exportApplicationService.exportApplicationById(
-                                                srcApplicationId, SerialiseApplicationObjective.VERSION_CONTROL));
+                                                srcApplicationId, SerialiseArtifactObjective.VERSION_CONTROL));
                             })
                             .onErrorResume(error -> Mono.error(new AppsmithException(
                                     AppsmithError.GIT_ACTION_FAILED, "branch", error.getMessage())));
@@ -1914,7 +1914,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 }
 
                                 Mono<ApplicationJson> exportAppMono = exportApplicationService.exportApplicationById(
-                                        application.getId(), SerialiseApplicationObjective.VERSION_CONTROL);
+                                        application.getId(), SerialiseArtifactObjective.VERSION_CONTROL);
 
                                 return Mono.zip(exportAppMono, fetchRemoteMono) // zip will run them in parallel
                                         .map(Tuple2::getT1);
@@ -2460,7 +2460,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .findByBranchNameAndDefaultApplicationId(
                                         branchName, defaultApplicationId, applicationPermission.getEditPermission())
                                 .zipWhen(application -> exportApplicationService.exportApplicationById(
-                                        application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
+                                        application.getId(), SerialiseArtifactObjective.VERSION_CONTROL)))
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
                     Application application = tuple.getT2().getT1();

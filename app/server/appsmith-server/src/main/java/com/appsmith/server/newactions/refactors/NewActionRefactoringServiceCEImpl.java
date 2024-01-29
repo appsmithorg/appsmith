@@ -78,32 +78,31 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                     final Integer evalVersion = tuple.getT2();
                     // We need actionDTO to be populated with pluginType from NewAction
                     // so that we can check for the JS path
-                    Mono<ActionDTO> actionMono = newActionService.generateActionByViewMode(newAction, false);
-                    return actionMono.flatMap(action -> {
-                        if (action.getActionConfiguration() == null) {
-                            return Mono.just(newAction);
-                        }
-                        // If this is a JS function rename, add this collection for rename
-                        // because the action configuration won't tell us this
-                        if (StringUtils.hasLength(action.getCollectionId()) && newName.equals(action.getValidName())) {
-                            updatableCollectionIds.add(action.getCollectionId());
-                        }
-                        newAction.setUnpublishedAction(action);
-                        return this.refactorNameInAction(action, oldName, newName, evalVersion, oldNamePattern)
-                                .flatMap(updates -> {
-                                    if (updates.isEmpty()) {
-                                        return Mono.just(newAction);
-                                    }
-                                    updatedBindingPaths.addAll(updates);
-                                    if (StringUtils.hasLength(action.getCollectionId())) {
-                                        updatableCollectionIds.add(action.getCollectionId());
-                                    }
+                    ActionDTO action = newActionService.generateActionByViewMode(newAction, false);
 
-                                    return newActionService
-                                            .extractAndSetJsonPathKeys(newAction)
-                                            .then(newActionService.save(newAction));
-                                });
-                    });
+                    if (action.getActionConfiguration() == null) {
+                        return Mono.just(newAction);
+                    }
+                    // If this is a JS function rename, add this collection for rename
+                    // because the action configuration won't tell us this
+                    if (StringUtils.hasLength(action.getCollectionId()) && newName.equals(action.getValidName())) {
+                        updatableCollectionIds.add(action.getCollectionId());
+                    }
+                    newAction.setUnpublishedAction(action);
+                    return this.refactorNameInAction(action, oldName, newName, evalVersion, oldNamePattern)
+                            .flatMap(updates -> {
+                                if (updates.isEmpty()) {
+                                    return Mono.just(newAction);
+                                }
+                                updatedBindingPaths.addAll(updates);
+                                if (StringUtils.hasLength(action.getCollectionId())) {
+                                    updatableCollectionIds.add(action.getCollectionId());
+                                }
+
+                                return newActionService
+                                        .extractAndSetJsonPathKeys(newAction)
+                                        .then(newActionService.save(newAction));
+                            });
                 })
                 .map(savedAction -> savedAction.getUnpublishedAction().getName())
                 .collectList()
@@ -128,10 +127,8 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
     public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
         return newActionService
                 .findByBranchNameAndDefaultActionId(
-                        branchName,
-                        refactorEntityNameDTO.getActionId().toString(),
-                        actionPermission.getEditPermission())
-                .flatMap(branchedAction -> newActionService.generateActionByViewMode(branchedAction, false))
+                        branchName, refactorEntityNameDTO.getActionId(), actionPermission.getEditPermission())
+                .map(branchedAction -> newActionService.generateActionByViewMode(branchedAction, false))
                 .flatMap(action -> {
                     action.setName(refactorEntityNameDTO.getNewName());
                     if (StringUtils.hasLength(refactorEntityNameDTO.getCollectionName())) {

@@ -1,6 +1,6 @@
 package com.appsmith.server.newpages.exports;
 
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -38,10 +38,10 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
         Optional<AclPermission> optionalPermission = Optional.ofNullable(pagePermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
-        List<String> unpublishedPages = exportingMetaDTO.getUnpublishedPages();
+        List<String> unpublishedPages = exportingMetaDTO.getUnpublishedModulesOrPages();
 
         return newPageService
-                .findNewPagesByApplicationId(exportingMetaDTO.getApplicationId(), optionalPermission)
+                .findNewPagesByApplicationId(exportingMetaDTO.getArtifactId(), optionalPermission)
                 .collectList()
                 .map(newPageList -> {
                     // Extract mongoEscapedWidgets from pages and save it to applicationJson object as this
@@ -56,7 +56,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                     newPageList.forEach(newPage -> {
                         if (newPage.getUnpublishedPage() != null) {
                             mappedExportableResourcesDTO
-                                    .getPageIdToNameMap()
+                                    .getPageOrModuleIdToNameMap()
                                     .put(
                                             newPage.getId() + EDIT,
                                             newPage.getUnpublishedPage().getName());
@@ -70,7 +70,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
 
                         if (newPage.getPublishedPage() != null) {
                             mappedExportableResourcesDTO
-                                    .getPageIdToNameMap()
+                                    .getPageOrModuleIdToNameMap()
                                     .put(
                                             newPage.getId() + VIEW,
                                             newPage.getPublishedPage().getName());
@@ -85,11 +85,9 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                         Instant newPageUpdatedAt = newPage.getUpdatedAt();
                         boolean isNewPageUpdated = exportingMetaDTO.isClientSchemaMigrated()
                                 || exportingMetaDTO.isServerSchemaMigrated()
-                                || exportingMetaDTO.getApplicationLastCommittedAt() == null
+                                || exportingMetaDTO.getArtifactLastCommittedAt() == null
                                 || newPageUpdatedAt == null
-                                || exportingMetaDTO
-                                        .getApplicationLastCommittedAt()
-                                        .isBefore(newPageUpdatedAt);
+                                || exportingMetaDTO.getArtifactLastCommittedAt().isBefore(newPageUpdatedAt);
                         String newPageName = newPage.getUnpublishedPage() != null
                                 ? newPage.getUnpublishedPage().getName()
                                 : newPage.getPublishedPage() != null
@@ -113,7 +111,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ApplicationJson applicationJson,
-            SerialiseApplicationObjective serialiseFor) {
+            SerialiseArtifactObjective serialiseFor) {
         // Update ids for layoutOnLoadAction
         for (NewPage newPage : applicationJson.getPageList()) {
             updateIdsForLayoutOnLoadAction(
@@ -127,11 +125,11 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
         }
 
         applicationJson
-                .getExportedApplication(); // .exportApplicationPages(mappedExportableResourcesDTO.getPageIdToNameMap());
+                .getExportedApplication(); // .exportApplicationPages(mappedExportableResourcesDTO.getPageOrModuleIdToNameMap());
     }
 
     private void updateIdsForLayoutOnLoadAction(
-            PageDTO page, Map<Long, String> actionIdToNameMap, Map<String, String> collectionIdToNameMap) {
+            PageDTO page, Map<String, String> actionIdToNameMap, Map<String, String> collectionIdToNameMap) {
 
         if (page != null && !CollectionUtils.isEmpty(page.getLayouts())) {
             for (Layout layout : page.getLayouts()) {

@@ -25,6 +25,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -646,8 +647,9 @@ public class PageServiceTest {
 
         applicationPageService.publish(applicationId, true).block();
 
-        final Mono<PageDTO> pageMono =
-                applicationPageService.clonePage(page.getId()).cache();
+        final Mono<PageDTO> pageMono = applicationPageService
+                .clonePage(page.getId(), new ClonePageMetaDTO())
+                .cache();
 
         Mono<List<NewAction>> actionsMono = pageMono.flatMapMany(
                         page1 -> newActionService.findByPageId(page1.getId(), READ_ACTIONS))

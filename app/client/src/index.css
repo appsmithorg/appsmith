@@ -12,6 +12,12 @@
 :root {
   /* TODO: This needs to be fixed! This override is to maintain branding changes. */
   --ads-color-background-secondary: var(--ads-v2-color-bg-subtle);
+  /* All on canvas ui need to be above other editor elements
+     This includes the Modal overlay.
+     The maximum value of z-index in the theme is 9999.
+     This value makes sure that on-canvas ui is always above editor elements
+  */
+  --on-canvas-ui-z-index: 999999;
 }
 
 body {

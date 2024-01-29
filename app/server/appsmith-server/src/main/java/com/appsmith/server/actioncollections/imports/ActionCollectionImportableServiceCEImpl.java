@@ -229,7 +229,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .getDefaultApplicationId();
                                         if (actionsCollectionsInBranches.containsKey(actionCollection.getGitSyncId())) {
                                             ActionCollection branchedActionCollection =
-                                                    getExistingCollectionForImportedCollection(
+                                                    getExistingCollectionInOtherBranchesForImportedCollection(
                                                             mappedImportableResourcesDTO,
                                                             actionsCollectionsInBranches,
                                                             actionCollection);
@@ -260,7 +260,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
                                         // Since the resource is already present in DB, just update resource
                                         ActionCollection existingActionCollection =
-                                                getExistingCollectionForImportedCollection(
+                                                getExistingCollectionInCurrentBranchForImportedCollection(
                                                         mappedImportableResourcesDTO,
                                                         actionsCollectionsInCurrentApp,
                                                         actionCollection);
@@ -385,7 +385,14 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         // Nothing to update from the existing action collection
     }
 
-    protected ActionCollection getExistingCollectionForImportedCollection(
+    protected ActionCollection getExistingCollectionInCurrentBranchForImportedCollection(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp,
+            ActionCollection actionCollection) {
+        return actionsCollectionsInCurrentApp.get(actionCollection.getGitSyncId());
+    }
+
+    protected ActionCollection getExistingCollectionInOtherBranchesForImportedCollection(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Map<String, ActionCollection> actionsCollectionsInCurrentApp,
             ActionCollection actionCollection) {

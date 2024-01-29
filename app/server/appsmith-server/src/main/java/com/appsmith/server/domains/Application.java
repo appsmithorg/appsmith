@@ -37,7 +37,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @NoArgsConstructor
 @QueryEntity
 @Entity
-public class Application extends BaseDomain implements ImportableArtifact {
+public class Application extends BaseDomain implements ImportableArtifact, ExportableArtifact {
 
     @NotNull @JsonView(Views.Public.class)
     String name;

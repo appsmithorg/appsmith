@@ -221,7 +221,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     }
 
     @Override
-    public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
+    public ActionDTO generateActionByViewMode(NewAction newAction, Boolean viewMode) {
         ActionDTO action = null;
 
         if (TRUE.equals(viewMode)) {
@@ -230,14 +230,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
             } else {
                 // We are trying to fetch published action but it doesn't exist because the action hasn't been published
                 // yet
-                return Mono.empty();
+                return null;
             }
         } else {
             if (newAction.getUnpublishedAction() != null) {
                 action = newAction.getUnpublishedAction();
             } else {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.INVALID_ACTION, newAction.getId(), "No unpublished action found for edit mode"));
+                throw new AppsmithException(
+                        AppsmithError.INVALID_ACTION, newAction.getId(), "No unpublished action found for edit mode");
             }
         }
 
@@ -251,7 +251,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
             action.getDefaultResources().setApplicationId(defaultResources.getApplicationId());
         }
 
-        return Mono.just(action);
+        return action;
     }
 
     @Override
@@ -564,12 +564,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
-                .flatMap(action1 -> generateActionByViewMode(action1, false))
+                .map(action1 -> generateActionByViewMode(action1, false))
                 .flatMap(this::populateHintMessages);
     }
 
     @Override
     public Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action) {
+        log.debug(
+                "Updating unpublished action with action id: {} and id: {} ",
+                action != null ? action.getId() : null,
+                id);
 
         return updateUnpublishedActionWithoutAnalytics(id, action, Optional.of(actionPermission.getEditPermission()))
                 .zipWhen(zippedActions -> {
@@ -620,6 +624,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
             String id, ActionDTO action, Optional<AclPermission> permission) {
         return Mono.empty(); /*
+        log.debug(
+                "Updating unpublished action without analytics with action id: {} ",
+                action != null ? action.getId() : null);
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -675,12 +682,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     public Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
         return repository
                 .findByUnpublishedNameAndPageId(name, pageId, permission)
-                .flatMap(action -> generateActionByViewMode(action, false));
+                .map(action -> generateActionByViewMode(action, false));
     }
 
     @Override
     public Mono<ActionDTO> findActionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission) {
-        return this.findById(id, permission).flatMap(action -> generateActionByViewMode(action, viewMode));
+        return this.findById(id, permission).map(action -> generateActionByViewMode(action, viewMode));
     }
 
     @Override
@@ -918,7 +925,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
                     return newActionMono;
                 })
-                .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));*/
+                .map(updatedAction -> generateActionByViewMode(updatedAction, false));*/
     }
 
     /*
@@ -1125,6 +1132,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     public Mono<NewAction> sanitizeAction(NewAction action) {
         Mono<NewAction> actionMono = Mono.just(action);
         if (isPluginTypeOrPluginIdMissing(action)) {
+            log.debug(
+                    "Sanitizing the action for missing plugin type or plugin Id with action id: {} ",
+                    action != null ? action.getId() : null);
             actionMono = providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action);
         }
 
@@ -1560,6 +1570,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     public Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission) {
         return Mono.empty(); /*
+        log.debug("Going to find action based on branchName and defaultActionId with id: {} ", defaultActionId);
         if (!StringUtils.hasLength(branchName)) {
             return repository
                     .findById(defaultActionId, permission)
@@ -1676,9 +1687,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
                         unpublishedAction.setCollectionId(mapsDTO.getUnpublishedActionIdToCollectionIdMap()
                                 .get(newAction.getId())
                                 .get(0));
-                        if (unpublishedAction.getDefaultResources() != null
-                                && !StringUtils.hasText(
-                                        unpublishedAction.getDefaultResources().getCollectionId())) {
+                        if (unpublishedAction.getDefaultResources() != null) {
 
                             unpublishedAction
                                     .getDefaultResources()
@@ -1694,9 +1703,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
                                 .get(newAction.getId())
                                 .get(0));
 
-                        if (publishedAction.getDefaultResources() != null
-                                && org.apache.commons.lang3.StringUtils.isEmpty(
-                                        publishedAction.getDefaultResources().getCollectionId())) {
+                        if (publishedAction.getDefaultResources() != null) {
 
                             publishedAction
                                     .getDefaultResources()

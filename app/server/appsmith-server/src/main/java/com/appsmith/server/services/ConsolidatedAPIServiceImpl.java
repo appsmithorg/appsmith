@@ -49,8 +49,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
-import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE;
 import static com.appsmith.server.constants.OtlpSpanNames.ACTIONS_SPAN;
 import static com.appsmith.server.constants.OtlpSpanNames.ACTION_COLLECTIONS_SPAN;
 import static com.appsmith.server.constants.OtlpSpanNames.APPLICATION_ID_SPAN;
@@ -571,9 +570,12 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                                 .filter(datasource -> !isBlank(datasource.getPluginId()))
                                 .forEach(datasource -> setOfAllPluginIdsToGetFormConfig.add(datasource.getPluginId()));
 
+                        /**
+                         * There are some plugins that allow query to be created without creating a datasource. For
+                         * such datasources, form config is required by the client at the time of page load.
+                         */
                         pluginList.stream()
-                                .filter(plugin -> REST_API_PLUGIN.equals(plugin.getPackageName())
-                                        || GRAPHQL_PLUGIN.equals(plugin.getPackageName()))
+                                .filter(this::isPossibleToCreateQueryWithoutDatasource)
                                 .forEach(plugin -> setOfAllPluginIdsToGetFormConfig.add(plugin.getId()));
 
                         return setOfAllPluginIdsToGetFormConfig;
@@ -664,5 +666,9 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 return consolidatedAPIResponseDTO;
             });
         }
+    }
+
+    private boolean isPossibleToCreateQueryWithoutDatasource(Plugin plugin) {
+        return PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE.contains(plugin.getPackageName());
     }
 }
