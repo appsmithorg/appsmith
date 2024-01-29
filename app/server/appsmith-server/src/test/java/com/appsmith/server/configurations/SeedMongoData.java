@@ -24,7 +24,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -142,13 +141,17 @@ public class SeedMongoData {
                 .cache();
 
         Flux<User> userFlux = Flux.just(userData)
-                .flatMap(array -> {
+                .zipWith(defaultTenantId.repeat())
+                .flatMap(tuple -> {
+                    Object[] array = tuple.getT1();
+                    String tenantId = tuple.getT2();
                     log.debug("Going to create bare users");
                     User user = new User();
                     user.setName((String) array[0]);
                     user.setEmail((String) array[1]);
                     user.setState((UserState) array[2]);
                     user.setPolicies((Set<Policy>) array[3]);
+                    user.setTenantId(tenantId);
                     return userRepository.save(user);
                 })
                 .flatMap(user -> {
@@ -165,19 +168,7 @@ public class SeedMongoData {
 
                         return userRepository.save(updatedWithPolicies);
                     });
-                })
-                .collectList()
-                .zipWith(defaultTenantId)
-                .flatMapMany(tuple -> {
-                    List<User> users = tuple.getT1();
-                    String tenantId = tuple.getT2();
-                    return Flux.fromIterable(users).map(user -> {
-                        user.setTenantId(tenantId);
-                        log.debug("Creating user: {}", user);
-                        return user;
-                    });
-                })
-                .flatMap(userRepository::save);
+                });
 
         return args -> {
             Mono.when(workspaceRepository.deleteAll(), pluginFlux, userFlux).block();
