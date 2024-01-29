@@ -48,8 +48,12 @@ import history, { NavigationMethod } from "utils/history";
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
+  getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
+import { getModalWidgetType } from "selectors/widgetSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -250,10 +254,12 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   // Let's assume that the payload widgetId is a modal widget and we need to open the modal as it is selected
   let modalWidgetToOpen: string = action.payload.widgetIds[0];
 
+  const modalWidgetType: string = yield select(getModalWidgetType);
+
   // Get all modal widget ids
   const modalWidgetIds: string[] = yield select(
     getWidgetIdsByType,
-    "MODAL_WIDGET",
+    modalWidgetType,
   );
 
   // Get all widgets
@@ -279,6 +285,22 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
       // Set the flag to true, so that we can open the modal
       widgetIsChildOfModal = true;
       modalWidgetToOpen = widgetAncestry[indexOfParentModalWidget];
+    }
+  }
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+  if (featureFlags.ab_wds_enabled) {
+    // If widget is modal and modal is already open, skip opening it
+    const modalProps = allWidgets[modalWidgetToOpen];
+    const metaProps: Record<string, unknown> = yield select(
+      getWidgetMetaProps,
+      modalProps,
+    );
+
+    if (
+      (widgetIsModal || widgetIsChildOfModal) &&
+      metaProps?.isVisible === true
+    ) {
+      return;
     }
   }
 

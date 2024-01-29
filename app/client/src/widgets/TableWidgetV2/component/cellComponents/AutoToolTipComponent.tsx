@@ -32,7 +32,7 @@ export const Content = styled.span`
 `;
 
 const WIDTH_OFFSET = 32;
-const MAX_WIDTH = 300;
+const MAX_WIDTH = 500;
 const TOOLTIP_OPEN_DELAY = 500;
 
 function useToolTip(
@@ -82,14 +82,16 @@ function useToolTip(
   return requiresTooltip && children ? (
     <Tooltip
       autoFocus={false}
+      boundary="viewport"
       content={
-        <TooltipContentWrapper width={(tableWidth || MAX_WIDTH) - WIDTH_OFFSET}>
+        <TooltipContentWrapper width={MAX_WIDTH - WIDTH_OFFSET}>
           {title}
         </TooltipContentWrapper>
       }
       defaultIsOpen
       hoverOpenDelay={TOOLTIP_OPEN_DELAY}
-      position="top"
+      position="bottom"
+      usePortal
     >
       {
         <Content className="t--table-cell-tooltip-target" ref={ref}>

@@ -1,6 +1,11 @@
 /// <reference types="Cypress" />
-import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import {
+  agHelper,
+  assertHelper,
+  homePage,
+  adminSettings,
+} from "../../../../support/Objects/ObjectsCore";
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 describe(
   "Leave workspace test spec",
@@ -9,45 +14,40 @@ describe(
     let newWorkspaceName;
 
     it("1. Only admin user can not leave workspace validation", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      homePage.NavigateToHome();
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        newWorkspaceName = "LeaveWorkspace" + uid;
+        newWorkspaceName = "LeaveWs" + uid;
         homePage.CreateNewWorkspace(newWorkspaceName);
         cy.get(homePage._homeIcon).click({ force: true });
+        homePage.SelectWorkspace(newWorkspaceName);
         homePage.OpenWorkspaceOptions(newWorkspaceName);
         // verify leave workspace is visible
-        cy.contains("Leave workspace").click();
-        cy.contains("Are you sure").click();
-        cy.wait("@leaveWorkspaceApiCall")
-          .its("response.body.responseMeta.status")
-          .should("eq", 400);
-        cy.contains(newWorkspaceName);
+        agHelper.ContainsNClick("Leave workspace");
+        agHelper.ContainsNClick("Are you sure");
+        assertHelper.AssertNetworkStatus("@leaveWorkspaceApiCall", 400);
+        agHelper.AssertContains(newWorkspaceName);
       });
     });
 
     it("2. Bug 17235 & 17987 - Non admin users can only access leave workspace popup menu validation", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
-      agHelper.GenerateUUID();
-      cy.get("@guid").then((uid) => {
-        newWorkspaceName = "LeaveWorkspace" + uid;
-        homePage.CreateNewWorkspace(newWorkspaceName);
-        homePage.InviteUserToWorkspace(
-          newWorkspaceName,
-          Cypress.env("TESTUSERNAME1"),
-          "App Viewer",
-        );
+      if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
+      homePage.InviteUserToWorkspace(
+        newWorkspaceName,
+        Cypress.env("TESTUSERNAME1"),
+        "App Viewer",
+        false,
+      );
+      homePage.LogOutviaAPI();
 
-        homePage.LogintoApp(
-          Cypress.env("TESTUSERNAME1"),
-          Cypress.env("TESTPASSWORD1"),
-          "App Viewer",
-        );
-        agHelper.VisitNAssert("/applications", "getReleaseItems");
-        homePage.LeaveWorkspace(newWorkspaceName);
-      });
+      homePage.LogintoApp(
+        Cypress.env("TESTUSERNAME1"),
+        Cypress.env("TESTPASSWORD1"),
+        "App Viewer",
+      );
+      agHelper.AssertContains(newWorkspaceName);
+      homePage.SelectWorkspace(newWorkspaceName, false);
+      homePage.LeaveWorkspace(newWorkspaceName);
     });
   },
 );

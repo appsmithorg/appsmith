@@ -8,32 +8,34 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateZoneCountAction } from "layoutSystems/anvil/integrations/actions/sectionActions";
 import {
   MAX_ZONE_COUNT,
   MIN_ZONE_COUNT,
 } from "layoutSystems/anvil/utils/constants";
+import type { AppState } from "@appsmith/reducers";
 
 const ZoneNumInput = React.forwardRef(
   (
     {
       max,
       min,
+      sectionWidgetId,
       steps,
-      widgetId,
-      zoneCount,
     }: {
-      widgetId: string;
+      sectionWidgetId: string;
       max: number;
       min: number;
       steps: number;
-      zoneCount: any;
     },
     ref: React.Ref<HTMLInputElement>,
   ) => {
     const dispatch = useDispatch();
-
+    const zoneCount = useSelector((state: AppState) => {
+      const sectionWidget = state.entities.canvasWidgets[sectionWidgetId];
+      return sectionWidget && sectionWidget.zoneCount;
+    });
     // Handling onChange event for the NumberInput
     const handleInputChange = (value: string | undefined) => {
       const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
@@ -42,7 +44,7 @@ const ZoneNumInput = React.forwardRef(
       }
 
       // Dispatching an action to update the zone count
-      dispatch(updateZoneCountAction(widgetId, v));
+      dispatch(updateZoneCountAction(sectionWidgetId, v));
     };
 
     return (
@@ -106,9 +108,8 @@ class ZoneStepperControl extends BaseControl<ZoneStepperControlProps> {
         max={max}
         min={min}
         ref={this.componentRef}
+        sectionWidgetId={this.props.propertyValue}
         steps={steps}
-        widgetId={this.props.widgetProperties.widgetId}
-        zoneCount={this.props.propertyValue}
       />
     );
   }

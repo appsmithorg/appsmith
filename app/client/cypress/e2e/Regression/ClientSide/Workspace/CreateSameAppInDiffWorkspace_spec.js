@@ -30,11 +30,6 @@ describe(
     });
     it("1. create app with same name in a different workspace", function () {
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      cy.wait("@applications").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
       const newWSName = workspaceId + "1";

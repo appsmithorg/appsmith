@@ -18,3 +18,17 @@ export const setIdeEditorPagesActiveStatus = (active: boolean) => {
     },
   };
 };
+
+export const setJSTabs = (tabs: string[]) => {
+  return {
+    type: ReduxActionTypes.SET_IDE_JS_TABS,
+    payload: tabs,
+  };
+};
+
+export const setQueryTabs = (tabs: string[]) => {
+  return {
+    type: ReduxActionTypes.SET_IDE_QUERIES_TABS,
+    payload: tabs,
+  };
+};
