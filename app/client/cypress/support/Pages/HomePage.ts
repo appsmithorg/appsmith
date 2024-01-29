@@ -331,6 +331,7 @@ export class HomePage {
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
         this.agHelper.GetNClick(this._applicationName);
+        this.agHelper.AssertElementVisibility(this._appMenu);
         this.agHelper.GetNClickByContains(this._appMenu, "Rename");
       }
     });
@@ -428,29 +429,25 @@ export class HomePage {
   public SignUp(uname: string, pswd: string) {
     this.agHelper.VisitNAssert("/user/signup", "@getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
+    this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
     this.agHelper.TypeText(this.signupUsername, uname);
     this.agHelper.TypeText(this._password, pswd);
-    this.agHelper.GetNClick(this._submitBtn);
-    this.agHelper.Sleep(1000);
-    cy.url().then((url) => {
-      if (url.indexOf("/signup-success") > -1) {
-        cy.get("body").then(($body) => {
-          if (
-            $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
-          ) {
-            this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
-            this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
-            this.agHelper.GetNClick(
-              SignupPageLocators.getStartedSubmit,
-              undefined,
-              true,
-            );
-          }
-        });
-      }
-    });
+    this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "false");
+    this.agHelper.ClickButton("Sign up");
+    this.agHelper.WaitForCondition(() =>
+      cy.url().should("include", "signup-success"),
+    );
+    this.agHelper.WaitUntilEleAppear(SignupPageLocators.proficiencyGroupButton);
+    this.agHelper
+      .GetElementLength(SignupPageLocators.proficiencyGroupButton)
+      .then(($len) => {
+        if ($len > 0) {
+          this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
+          this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
+          this.agHelper.ClickButton("Get started");
+        }
+      });
     this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
-    this.agHelper.Sleep(3000);
   }
 
   public FilterApplication(
