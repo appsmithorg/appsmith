@@ -15,7 +15,7 @@ const Pages = () => {
   const pageFocusUrls = useGetPageFocusUrls();
 
   if (!isSideBySideEnabled) {
-    return <OldPages />;
+    return <OldPages pageFocusUrls={pageFocusUrls} />;
     /* divider is inside the Pages component */
   } else if (isSideBySideEnabled && pagesActive) {
     return <PagesSection pageFocusUrls={pageFocusUrls} />;

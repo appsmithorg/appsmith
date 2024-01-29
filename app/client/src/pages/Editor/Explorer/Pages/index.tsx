@@ -23,7 +23,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
-import { builderURL, widgetListURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import {
   getExplorerStatus,
   saveExplorerStatus,
@@ -52,7 +52,7 @@ import {
   isPermitted,
 } from "@appsmith/utils/permissionHelpers";
 
-function Pages() {
+function Pages({ pageFocusUrls }: { pageFocusUrls: Record<string, any> }) {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages: Page[] = useSelector(selectAllPages);
   const currentPageId = useSelector(getCurrentPageId);
@@ -80,12 +80,11 @@ function Pages() {
 
   const switchPage = useCallback(
     (page: Page) => {
-      const navigateToUrl =
-        currentPageId === page.pageId
-          ? widgetListURL({})
-          : builderURL({
-              pageId: page.pageId,
-            });
+      const navigateToUrl = pageFocusUrls[page.pageId]
+        ? pageFocusUrls[page.pageId]
+        : builderURL({
+            pageId: page.pageId,
+          });
       AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
         name: page.pageName,
         fromUrl: location.pathname,
