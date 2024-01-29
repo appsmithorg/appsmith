@@ -5,6 +5,7 @@ import com.appsmith.server.clonepage.ClonePageService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.newactions.base.NewActionService;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 @Service
 public class ActionCollectionClonePageServiceImpl extends ActionCollectionClonePageServiceCEImpl
@@ -12,5 +13,11 @@ public class ActionCollectionClonePageServiceImpl extends ActionCollectionCloneP
     public ActionCollectionClonePageServiceImpl(
             ActionCollectionService actionCollectionService, NewActionService newActionService) {
         super(actionCollectionService, newActionService);
+    }
+
+    @Override
+    protected Flux<ActionCollection> getCloneableActionCollections(String pageId) {
+        return super.getCloneableActionCollections(pageId)
+                .filter(actionCollection -> actionCollection.getRootModuleInstanceId() == null);
     }
 }

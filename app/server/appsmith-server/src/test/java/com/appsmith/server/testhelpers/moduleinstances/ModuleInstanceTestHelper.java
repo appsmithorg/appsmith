@@ -1,24 +1,30 @@
 package com.appsmith.server.testhelpers.moduleinstances;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.ModuleInput;
 import com.appsmith.external.models.ModuleInputForm;
 import com.appsmith.external.models.ModuleType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
+import com.appsmith.server.dtos.ModuleActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
@@ -37,9 +43,11 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -48,6 +56,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.mockito.Mockito;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -99,6 +108,8 @@ public class ModuleInstanceTestHelper {
     CustomJSLibService customJSLibService;
 
     PluginRepository pluginRepository;
+    ActionCollectionRepository actionCollectionRepository;
+    LayoutCollectionService layoutCollectionService;
 
     public void createPrerequisites(ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO) {
 
@@ -165,11 +176,22 @@ public class ModuleInstanceTestHelper {
                 .getAllPackagesForConsumer(moduleInstanceTestHelperDTO.getWorkspaceId())
                 .block();
 
-        Optional<ModuleDTO> consumableModuleOptional =
-                allConsumablePackages.getModules().stream().findFirst();
+        Optional<ModuleDTO> consumableModuleOptional = allConsumablePackages.getModules().stream()
+                .filter(moduleDTO -> moduleDTO.getType().equals(ModuleType.QUERY_MODULE))
+                .findFirst();
         assertThat(consumableModuleOptional).isPresent();
 
         moduleInstanceTestHelperDTO.setConsumableModuleOptional(consumableModuleOptional);
+
+        Optional<ModuleDTO> consumableJSModuleOptional = allConsumablePackages.getModules().stream()
+                .filter(moduleDTO -> moduleDTO.getType().equals(ModuleType.JS_MODULE))
+                .findFirst();
+        assertThat(consumableJSModuleOptional).isPresent();
+
+        moduleInstanceTestHelperDTO.setConsumableJSModuleOptional(consumableJSModuleOptional);
+
+        // Fetch consumable JS module
+
     }
 
     private void fetchPublicAction(ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO) {
@@ -183,6 +205,18 @@ public class ModuleInstanceTestHelper {
         assertThat(modulePublicAction.getIsPublic()).isTrue();
 
         moduleInstanceTestHelperDTO.setModulePublicAction(modulePublicAction);
+
+        // Fetch public action collection for JS module
+        Optional<ModuleDTO> consumableJSModuleOptional = moduleInstanceTestHelperDTO.getConsumableJSModuleOptional();
+
+        ModuleDTO publishedJSModule = consumableJSModuleOptional.get();
+        ActionCollection modulePublicActionCollection = actionCollectionRepository
+                .findPublicActionCollectionByModuleId(publishedJSModule.getId(), ResourceModes.VIEW)
+                .block();
+
+        assertThat(modulePublicActionCollection.getIsPublic()).isTrue();
+
+        moduleInstanceTestHelperDTO.setModulePublicActionCollection(modulePublicActionCollection);
     }
 
     private PageDTO getPageDTO(Application application) {
@@ -222,8 +256,7 @@ public class ModuleInstanceTestHelper {
         pluginWorkspaceDTO.setWorkspaceId(moduleInstanceTestHelperDTO.getWorkspaceId());
         pluginWorkspaceDTO.setStatus(WorkspacePluginStatus.FREE);
         pluginService.installPlugin(pluginWorkspaceDTO).block();
-        jsDatasource = new Datasource();
-        jsDatasource.setName("Default Database");
+        jsDatasource.setName("Default JS DS");
         jsDatasource.setWorkspaceId(moduleInstanceTestHelperDTO.getWorkspaceId());
         jsDatasource.setPluginId(installedJsPlugin.getId());
 
@@ -247,17 +280,37 @@ public class ModuleInstanceTestHelper {
         moduleInstanceTestHelperDTO.setOriginPackageDTO(packageDTO);
 
         ModuleDTO moduleReqDTO = createModuleRequestDTO(moduleInstanceTestHelperDTO, packageDTO);
+        ModuleDTO jsModuleReqDTO = createJSModuleRequestDTO(moduleInstanceTestHelperDTO, packageDTO);
 
         ModuleDTO sourceModuleDTO = createModule(moduleReqDTO);
+        ModuleDTO sourceJSModuleDTO = createModule(jsModuleReqDTO);
+
+        moduleInstanceTestHelperDTO.setOriginModuleDTO(sourceModuleDTO);
+        moduleInstanceTestHelperDTO.setOriginJSModuleDTO(sourceJSModuleDTO);
+
+        ActionCollectionDTO privateActionCollectionDTO = layoutCollectionService
+                .createCollection(getPrivateActionCollectionDTO(moduleInstanceTestHelperDTO), null)
+                .block();
 
         CustomJSLib jsLib = new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
         customJSLibService
                 .addJSLibsToContext(packageDTO.getId(), CreatorContextType.PACKAGE, Set.of(jsLib), null, false)
                 .block();
 
-        moduleInstanceTestHelperDTO.setOriginModuleDTO(sourceModuleDTO);
-
         publishPackageService.publishPackage(packageDTO.getId()).block();
+    }
+
+    private ModuleDTO createJSModuleRequestDTO(
+            ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO, PackageDTO packageDTO) {
+        ModuleDTO jsModuleDTO = new ModuleDTO();
+        jsModuleDTO.setName("MyJSModule1");
+        jsModuleDTO.setType(ModuleType.JS_MODULE);
+        jsModuleDTO.setPackageId(packageDTO.getId());
+
+        ModuleActionCollectionDTO moduleActionCollectionDTO = getPublicEntityOfJSModule(moduleInstanceTestHelperDTO);
+        jsModuleDTO.setEntity(moduleActionCollectionDTO);
+
+        return jsModuleDTO;
     }
 
     private ModuleDTO createModule(ModuleDTO moduleReqDTO) {
@@ -358,6 +411,16 @@ public class ModuleInstanceTestHelper {
 
     public CreateModuleInstanceResponseDTO createModuleInstance(
             ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO) {
+        return createModuleInstanceInternal(moduleInstanceTestHelperDTO, null);
+    }
+
+    public CreateModuleInstanceResponseDTO createModuleInstance(
+            ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO, String givenName) {
+        return createModuleInstanceInternal(moduleInstanceTestHelperDTO, givenName);
+    }
+
+    private CreateModuleInstanceResponseDTO createModuleInstanceInternal(
+            ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO, String givenName) {
 
         ModuleDTO consumableModule =
                 moduleInstanceTestHelperDTO.getConsumableModuleOptional().get();
@@ -366,12 +429,133 @@ public class ModuleInstanceTestHelper {
         moduleInstanceReqDTO.setContextId(
                 moduleInstanceTestHelperDTO.getPageDTO().getId());
         moduleInstanceReqDTO.setContextType(CreatorContextType.PAGE);
-        String name = "UniqueName_" + System.currentTimeMillis();
+        String name = StringUtils.hasLength(givenName) ? givenName : "UniqueName_" + System.currentTimeMillis();
         moduleInstanceReqDTO.setName(name);
         moduleInstanceTestHelperDTO.setModuleInstanceName(name);
         moduleInstanceReqDTO.setSourceModuleId(consumableModule.getId());
         return crudModuleInstanceService
                 .createModuleInstance(moduleInstanceReqDTO, null)
                 .block();
+    }
+
+    public CreateModuleInstanceResponseDTO createJSModuleInstance(
+            ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO, String name) {
+
+        ModuleDTO consumableJSModule =
+                moduleInstanceTestHelperDTO.getConsumableJSModuleOptional().get();
+
+        ModuleInstanceDTO moduleInstanceReqDTO = new ModuleInstanceDTO();
+        moduleInstanceReqDTO.setContextId(
+                moduleInstanceTestHelperDTO.getPageDTO().getId());
+        moduleInstanceReqDTO.setContextType(CreatorContextType.PAGE);
+        moduleInstanceReqDTO.setName(name);
+        moduleInstanceTestHelperDTO.setModuleInstanceName(name);
+        moduleInstanceReqDTO.setSourceModuleId(consumableJSModule.getId());
+        return crudModuleInstanceService
+                .createModuleInstance(moduleInstanceReqDTO, null)
+                .block();
+    }
+
+    private ModuleActionCollectionDTO getPrivateActionCollectionDTO(
+            ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO) {
+        ModuleActionCollectionDTO actionCollectionDTO = new ModuleActionCollectionDTO();
+
+        actionCollectionDTO.setName("PrivateJSObject1");
+        actionCollectionDTO.setModuleId(
+                moduleInstanceTestHelperDTO.getOriginJSModuleDTO().getId());
+        actionCollectionDTO.setContextType(CreatorContextType.MODULE);
+        actionCollectionDTO.setPluginId(
+                moduleInstanceTestHelperDTO.getJsDatasource().getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        String body =
+                """
+        export default {
+            myVar1: [],
+            myVar2: {},
+            getAllUsers () {
+                return "Dummy users";
+            },
+            async myFun2 () {
+                return "do nothing"
+            }
+        }
+""";
+
+        actionCollectionDTO.setBody(body);
+        ActionDTO getAllUsersActionDTO = new ActionDTO();
+        getAllUsersActionDTO.setName("getAllUsers");
+        getAllUsersActionDTO.setActionConfiguration(new ActionConfiguration());
+        getAllUsersActionDTO
+                .getActionConfiguration()
+                .setBody("""
+    getAllUsers () {
+        return "Dummy users";
+    }
+""");
+
+        ActionDTO myFun2ActionDTO = new ActionDTO();
+        myFun2ActionDTO.setName("myFun2");
+        myFun2ActionDTO.setActionConfiguration(new ActionConfiguration());
+        myFun2ActionDTO
+                .getActionConfiguration()
+                .setBody("""
+    async myFun2 () {
+        return "do nothing"
+    }
+""");
+        actionCollectionDTO.setActions(List.of(getAllUsersActionDTO, myFun2ActionDTO));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        return actionCollectionDTO;
+    }
+
+    private ModuleActionCollectionDTO getPublicEntityOfJSModule(
+            ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO) {
+        ModuleActionCollectionDTO actionCollectionDTO = new ModuleActionCollectionDTO();
+
+        actionCollectionDTO.setName("MyJSModule1");
+        actionCollectionDTO.setPluginId(
+                moduleInstanceTestHelperDTO.getJsDatasource().getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        String body =
+                """
+        export default {
+            myVar1: [],
+            myVar2: {},
+            getAllUsers () {
+                return PrivateJSObject1.getAllUsers.data;
+            },
+            async myFun2 () {
+                return PrivateJSObject1.myFun2.data;
+            }
+        }
+""";
+
+        actionCollectionDTO.setBody(body);
+        ActionDTO getAllUsersActionDTO = new ActionDTO();
+        getAllUsersActionDTO.setName("getAllUsers");
+        getAllUsersActionDTO.setActionConfiguration(new ActionConfiguration());
+        getAllUsersActionDTO
+                .getActionConfiguration()
+                .setBody("""
+    getAllUsers () {
+        return PrivateJSObject1.getAllUsers.data;
+    }
+""");
+
+        ActionDTO myFun2ActionDTO = new ActionDTO();
+        myFun2ActionDTO.setName("myFun2");
+        myFun2ActionDTO.setActionConfiguration(new ActionConfiguration());
+        myFun2ActionDTO
+                .getActionConfiguration()
+                .setBody("""
+    async myFun2 () {
+        return PrivateJSObject1.myFun2.data;
+    }
+""");
+        actionCollectionDTO.setActions(List.of(getAllUsersActionDTO, myFun2ActionDTO));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        return actionCollectionDTO;
     }
 }

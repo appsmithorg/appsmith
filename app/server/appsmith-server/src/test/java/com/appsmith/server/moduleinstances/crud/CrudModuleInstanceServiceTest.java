@@ -49,6 +49,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.PackageRepository;
@@ -194,6 +195,9 @@ class CrudModuleInstanceServiceTest {
     @Autowired
     LayoutCollectionService layoutCollectionService;
 
+    @Autowired
+    ActionCollectionRepository actionCollectionRepository;
+
     // Test helpers
     ModuleInstanceTestHelper moduleInstanceTestHelper;
 
@@ -218,7 +222,9 @@ class CrudModuleInstanceServiceTest {
                 crudModuleInstanceService,
                 objectMapper,
                 customJSLibService,
-                pluginRepository);
+                pluginRepository,
+                actionCollectionRepository,
+                layoutCollectionService);
         moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("CRUD_Module_Instance_Workspace");
         moduleInstanceTestHelperDTO.setApplicationName("CRUD_Module_Instance_Application");
