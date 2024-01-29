@@ -14,7 +14,7 @@ export const DEFAULT_PROPERTY_PANE_WIDTH = 288;
 export const APP_SETTINGS_PANE_WIDTH = 525;
 export const DEFAULT_APP_SIDEBAR_WIDTH = 50;
 export const DEFAULT_EDITOR_PANE_WIDTH = 255;
-export const DEFAULT_PP_LARGE_WIDTH = window.innerWidth * 0.18;
+export const DEFAULT_PP_LARGE_WIDTH = window.innerWidth * 0.404 - 255; // 40.4% - 255px
 
 const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
 
