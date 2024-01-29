@@ -27,6 +27,8 @@
   -webkit-line-clamp: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .menuList li:first-of-type {
@@ -45,23 +47,6 @@
 
 .menuList li:not([data-disabled]) {
   cursor: pointer;
-}
-
-.menuList li [data-icon] {
-  width: 1.3em;
-  height: 1.3em;
-}
-
-.menuList li[data-icon-position="start"] [data-icon] {
-  margin-inline-end: var(--inner-spacing-2);
-}
-
-.menuList li[data-icon-position="end"] {
-  flex-direction: row-reverse;
-}
-
-.menuList li[data-icon-position="end"] [data-icon] {
-  margin-inline-start: auto;
 }
 
 .menuList [data-hovered] {
