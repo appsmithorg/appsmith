@@ -7,8 +7,6 @@ describe("Git with Theming:", { tags: ["@tag.Git"] }, function () {
   const backgroudColorChildBranch = "rgb(100, 116, 139)";
   const tempBranch = "tempBranch";
   let repoName;
-  let applicationId = null;
-  let applicationName = null;
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();

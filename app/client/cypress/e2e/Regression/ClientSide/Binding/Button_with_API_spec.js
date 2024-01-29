@@ -11,7 +11,6 @@ describe(
   "Bind a button and Api usecase",
   { tags: ["@tag.Binding"] },
   function () {
-    let apiData;
     let valueToTest;
     before(() => {
       _.agHelper.AddDsl("buttonApiDsl");

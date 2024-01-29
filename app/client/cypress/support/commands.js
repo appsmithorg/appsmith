@@ -50,7 +50,6 @@ const deployMode = ObjectsRegistry.DeployMode;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
 
-let pageidcopy = " ";
 const chainStart = Symbol();
 
 export const initLocalstorage = () => {
@@ -806,7 +805,7 @@ Cypress.Commands.add("closePropertyPane", () => {
 
 Cypress.Commands.add(
   "onClickActions",
-  (forSuccess, forFailure, actionType, actionValue, idx = 0) => {
+  (forSuccess, forFailure, actionType, actionValue) => {
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
     agHelper.Sleep();
@@ -849,7 +848,7 @@ Cypress.Commands.add("setDate", (date, dateFormate) => {
   cy.get(sel).click();
 });
 
-Cypress.Commands.add("pageNo", (index) => {
+Cypress.Commands.add("pageNo", () => {
   cy.get(".page-item").first().click({ force: true });
 });
 
@@ -1435,7 +1434,7 @@ Cypress.Commands.add("startInterceptRoutesForS3", () => {
 
 Cypress.Commands.add("replaceApplicationIdForInterceptPages", (fixtureFile) => {
   let currentAppId, currentURL;
-  cy.readFile(fixtureFile, (err, data) => {
+  cy.readFile(fixtureFile, (err) => {
     if (err) {
       return console.error(err);
     }
@@ -1783,7 +1782,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
   const labelAlignmentRightSelector =
     ".t--property-control-alignment .ads-v2-segmented-control__segments-container-segment[data-value='right']";
-  const labelWidth = options.labelWidth;
+  
 
   // Drag a widget
   cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });

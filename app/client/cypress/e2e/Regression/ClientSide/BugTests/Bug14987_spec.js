@@ -9,7 +9,7 @@ describe(
   "Verify setting tab form controls not to have tooltip and tooltip (underline) styles",
   { tags: ["@tag.Datasource", "@tag.Settings"] },
   function () {
-    let guid, datasourceName;
+    let datasourceName;
 
     before("Creates a new Mongo datasource", () => {
       dataSources.CreateDataSource("Mongo");

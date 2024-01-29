@@ -1,4 +1,3 @@
-const dsl = require("../../../fixtures/ModalWidgetDsl.json");
 
 describe("Modal Functionality ", function () {
   it("1. Collapse the tabs of Property pane", function () {

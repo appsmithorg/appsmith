@@ -9,7 +9,7 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 
 describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
-  let datasourceName, tableName;
+  let datasourceName;
 
   before("Add dsl and create datasource", () => {
     agHelper.AddDsl("PgAdmindsl");

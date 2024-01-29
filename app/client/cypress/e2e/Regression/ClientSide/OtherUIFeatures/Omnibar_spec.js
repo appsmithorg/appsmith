@@ -5,7 +5,6 @@ import EditorNavigation, {
 const omnibar = require("../../../../locators/Omnibar.json");
 import {
   agHelper,
-  entityExplorer,
   assertHelper,
   deployMode,
   draggableWidgets,

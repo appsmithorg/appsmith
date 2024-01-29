@@ -5,7 +5,6 @@ import {
   entityExplorer,
   homePage,
   locators,
-  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Slug URLs", () => {

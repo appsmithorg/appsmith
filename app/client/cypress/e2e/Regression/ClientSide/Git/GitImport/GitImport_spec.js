@@ -5,7 +5,7 @@ const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json
 const jsObject = "JSObject1";
 let newBranch = "feat/temp";
 const mainBranch = "master";
-let repoName, newWorkspaceName;
+let repoName;
 import {
   agHelper,
   dataSources,

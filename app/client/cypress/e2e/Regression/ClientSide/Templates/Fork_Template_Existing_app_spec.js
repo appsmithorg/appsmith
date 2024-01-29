@@ -126,7 +126,7 @@ describe(
 
         agHelper.AssertElementVisibility(template.templateDialogBox);
         cy.wait("@fetchAllTemplates");
-        cy.get("@fetchAllTemplates").then(({ request, response }) => {
+        cy.get("@fetchAllTemplates").then(({response }) => {
           // in the fixture data we are sending some tempaltes with `allowPageImport: false`
           cy.get(template.templateCard).should(
             "not.have.length",

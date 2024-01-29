@@ -7,7 +7,6 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let datasourceName;
 
 describe(
   "Binding the multiple widgets and validating default data",

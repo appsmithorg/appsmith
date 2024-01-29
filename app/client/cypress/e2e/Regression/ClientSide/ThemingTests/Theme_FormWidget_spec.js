@@ -17,7 +17,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 
-let themeBackgroudColor;
 let themeFont;
 
 describe("Theme validation usecases", { tags: ["@tag.Theme"] }, function () {

@@ -5,10 +5,8 @@ import EditorNavigation, {
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
-  entityExplorer,
   deployMode,
   propPane,
-  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";

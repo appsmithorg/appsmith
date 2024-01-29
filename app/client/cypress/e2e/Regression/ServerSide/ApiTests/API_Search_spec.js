@@ -10,7 +10,6 @@ import {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
-let APIName;
 const testUrl1 =
   "http://host.docker.internal:5001/v1/dynamicrecords/generaterecords?records=10";
 const testUrl2 =

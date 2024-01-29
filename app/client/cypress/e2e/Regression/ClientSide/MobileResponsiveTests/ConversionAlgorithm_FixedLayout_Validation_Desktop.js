@@ -1,4 +1,3 @@
-let testHeight;
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(

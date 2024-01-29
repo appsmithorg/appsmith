@@ -15,7 +15,6 @@ describe(
   "API Panel Test Functionality",
   { tags: ["@tag.Datasource"] },
   function () {
-    let datasourceName;
     before(() => {
       agHelper.AddDsl("executionParamsDsl");
     });

@@ -4,7 +4,6 @@ import apiLocators from "../../../../locators/ApiEditor";
 
 import {
   agHelper,
-  entityExplorer,
   deployMode,
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";

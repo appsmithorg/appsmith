@@ -7,7 +7,6 @@ const testdata = require("../../../../fixtures/testdata.json");
 import apiLocators from "../../../../locators/ApiEditor";
 
 import {
-  entityExplorer,
   apiPage,
   agHelper,
   deployMode,

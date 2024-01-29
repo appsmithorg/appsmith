@@ -11,7 +11,6 @@ describe(
   "Import, Export and Fork application and validate data binding",
   { tags: ["@tag.ImportExport"] },
   function () {
-    let workspaceId;
     let newWorkspaceName;
     let appName;
     it("1. Import application from json and validate data on pageload", function () {

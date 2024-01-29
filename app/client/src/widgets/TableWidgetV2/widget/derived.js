@@ -702,7 +702,7 @@ export default {
     }
   },
   //
-  getUpdatedRowIndices: (props, moment, _) => {
+  getUpdatedRowIndices: (props, _) => {
     /* should return the keys of the transientTableData */
     if (props.transientTableData) {
       return Object.keys(props.transientTableData).map((index) =>
@@ -853,7 +853,7 @@ export default {
     return validationMap;
   },
   //
-  getTableHeaders: (props, moment, _) => {
+  getTableHeaders: (props, _) => {
     const columns = props.primaryColumns
       ? Object.values(props.primaryColumns)
       : [];

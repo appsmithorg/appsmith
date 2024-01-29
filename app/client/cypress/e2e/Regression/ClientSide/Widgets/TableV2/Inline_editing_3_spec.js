@@ -1,13 +1,8 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
-  agHelper,
-  entityExplorer,
-  propPane,
-  table,
-  draggableWidgets,
+  agHelper
 } from "../../../../../support/Objects/ObjectsCore";
-import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
 describe(
   "Table widget inline editing functionality",

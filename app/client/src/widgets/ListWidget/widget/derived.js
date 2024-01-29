@@ -36,7 +36,6 @@ export default {
       for (let i = 0; i < widgetKeys.length; i++) {
         const currentWidgetName = widgetKeys[i];
         let currentWidget = currentItem[currentWidgetName];
-        const filteredWidget = {};
 
         const dynamicPaths = _.compact(
           currentWidget.dynamicBindingPathList?.map((path) => path.key),
@@ -162,7 +161,7 @@ export default {
   },
   //
   // this is just a patch for #7520
-  getChildAutoComplete: (props, moment, _) => {
+  getChildAutoComplete: (props, _) => {
     const data = [...props.listData];
 
     const structure =

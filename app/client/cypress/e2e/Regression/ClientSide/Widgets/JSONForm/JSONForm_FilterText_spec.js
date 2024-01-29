@@ -8,12 +8,10 @@ const onFilterUpdateJSBtn = ".t--property-control-onfilterupdate .t--js-toggle";
 const fieldPrefix = ".t--jsonformfield";
 import {
   deployMode,
-  entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
-let locators = ObjectsRegistry.CommonLocators;
 
 describe(
   "JSONForm Select field - filterText update action trigger ",

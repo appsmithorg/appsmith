@@ -4,7 +4,6 @@ import {
   agHelper,
   draggableWidgets,
   deployMode,
-  table,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 

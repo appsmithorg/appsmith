@@ -40,7 +40,7 @@ Cypress.Commands.add("revokeAccessGit", (appName) => {
 
 Cypress.Commands.add(
   "connectToGitRepo",
-  (repo, shouldCommit = true, assertConnectFailure) => {
+  (repo, assertConnectFailure) => {
     const testEmail = "test@test.com";
     const testUsername = "testusername";
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
@@ -335,7 +335,7 @@ Cypress.Commands.add(
   (repo, assertConnectFailure, failureMessage) => {
     const testEmail = "test@test.com";
     const testUsername = "testusername";
-    const owner = Cypress.env("TEST_GITHUB_USER_NAME");
+   // const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 
     let generatedKey;
     // cy.intercept(

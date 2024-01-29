@@ -5,7 +5,6 @@ import EditorNavigation, {
 const widgets = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let testHeight;
 
 describe(
   "Auto conversion algorithm usecases for auto-layout",

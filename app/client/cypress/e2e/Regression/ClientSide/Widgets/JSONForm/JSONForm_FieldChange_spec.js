@@ -9,7 +9,6 @@ const locators = ObjectsRegistry.CommonLocators;
 const {
   agHelper,
   deployMode,
-  entityExplorer,
   propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";

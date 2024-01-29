@@ -2,9 +2,8 @@
 import adminsSettings from "../../../../locators/AdminsSettings";
 
 const {
-  GITHUB_SIGNUP_SETUP_DOC,
+  
   GOOGLE_MAPS_SETUP_DOC,
-  GOOGLE_SIGNUP_SETUP_DOC,
 } = require("../../../../../src/constants/ThirdPartyConstants");
 
 const routes = {

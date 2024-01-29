@@ -1,5 +1,4 @@
 import {
-  entityExplorer,
   table,
   propPane,
   agHelper,

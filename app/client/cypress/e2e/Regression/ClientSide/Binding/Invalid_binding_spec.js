@@ -4,7 +4,6 @@ import EditorNavigation, {
 
 const testdata = require("../../../../fixtures/testdata.json");
 import {
-  entityExplorer,
   agHelper,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";

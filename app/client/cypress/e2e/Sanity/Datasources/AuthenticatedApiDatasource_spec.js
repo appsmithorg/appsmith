@@ -1,7 +1,6 @@
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 const datasourceFormData = require("../../../fixtures/datasources.json");
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
-const testdata = require("../../../fixtures/testdata.json");
 
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 

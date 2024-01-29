@@ -9,8 +9,6 @@ describe(
   "Create app same name in different workspace",
   { tags: ["@tag.Workspace"] },
   function () {
-    let workspaceId;
-    let appid;
     let newWorkspaceName;
     before(() => {
       //create app within a new workspace

@@ -3,7 +3,6 @@ import {
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import appPage from "../../../../locators/CMSApplocators";
 import apiEditor from "../../../../locators/ApiEditor";

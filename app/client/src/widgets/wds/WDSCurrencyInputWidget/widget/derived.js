@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  isValid: (props, moment, _) => {
+  isValid: (props, _) => {
     let hasValidValue, value;
     try {
       value = Number(props.value);
@@ -51,7 +51,7 @@ export default {
     }
   },
   //
-  value: (props, moment, _) => {
+  value: (props, _) => {
     const text = props.text;
 
     function getLocale() {

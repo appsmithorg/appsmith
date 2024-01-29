@@ -7,14 +7,11 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
   propPane,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
-const backBtn = "[data-testid='t--property-pane-back-btn']";
 
 function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
   // Check if visible

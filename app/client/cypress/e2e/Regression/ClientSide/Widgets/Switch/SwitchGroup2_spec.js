@@ -1,4 +1,4 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 

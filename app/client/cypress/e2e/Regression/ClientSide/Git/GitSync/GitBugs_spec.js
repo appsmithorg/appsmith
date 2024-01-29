@@ -254,7 +254,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       cy.CreateAppForWorkspace(newWorkspaceName, `${newWorkspaceName}app`);
 
       cy.generateUUID().then((uid) => {
-        const owner = Cypress.env("TEST_GITHUB_USER_NAME");
+        //const owner = Cypress.env("TEST_GITHUB_USER_NAME");
         repoName = uid;
         gitSync.CreateTestGiteaRepo(repoName);
         //cy.createTestGithubRepo(repoName);

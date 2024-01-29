@@ -26,7 +26,6 @@ Cyclic Dependency Error if occurs, Message would be shown in following 6 cases:
 6. When updating Datasource query
 */
 
-let dsname;
 
 describe(
   "Cyclic Dependency Informational Error Messages",

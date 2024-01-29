@@ -8,19 +8,19 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
  * A function to set the content inside an RTE widget
  * @param textValue
  */
-const setRTEContent = (textValue) => {
+//const setRTEContent = (textValue) => {
   // Set the content inside RTE widget
   cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
     const $body = $iframe.contents().find("body");
     cy.wrap($body).type(textValue, { force: true });
   });
-};
+//};
 
 /**
  * A function to test if the cursor position is at the end of the string.
  * @param textValueLen
  */
-const testCursorPoistion = (textValueLen, tinyMceId) => {
+//const testCursorPoistion = (textValueLen, tinyMceId) => {
   cy.window().then((win) => {
     const editor = win.tinymce.editors[tinyMceId];
 
@@ -30,7 +30,7 @@ const testCursorPoistion = (textValueLen, tinyMceId) => {
     // Check if the cursor is at the end.
     expect(getCurrentCursorLocation).to.be.equal(textValueLen);
   });
-};
+//};
 
 describe(
   "RichTextEditor Widget Functionality",

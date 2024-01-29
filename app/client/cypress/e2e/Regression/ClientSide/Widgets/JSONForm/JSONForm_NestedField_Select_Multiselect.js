@@ -8,7 +8,6 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const fieldPrefix = ".t--jsonformfield";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
-let locators = ObjectsRegistry.CommonLocators;
 let propPane = ObjectsRegistry.PropertyPane;
 
 describe(

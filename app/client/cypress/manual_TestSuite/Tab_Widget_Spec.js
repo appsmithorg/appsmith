@@ -1,4 +1,3 @@
-const dsl = require("../../../fixtures/TabWidgetDsl.json");
 
 describe("Tab widget", function () {
   it("Movement of tabs inside Tab widget ", function () {

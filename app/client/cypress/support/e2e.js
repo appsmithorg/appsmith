@@ -47,7 +47,7 @@ const registerCypressGrep = require("@cypress/grep");
 registerCypressGrep();
 installLogsCollector();
 
-Cypress.on("uncaught:exception", (error) => {
+Cypress.on("uncaught:exception", () => {
   //cy.log(error.message);
   return false; // returning false here prevents Cypress from failing the test
 });
@@ -58,7 +58,6 @@ Cypress.on("fail", (error) => {
 });
 
 Cypress.env("MESSAGES", MESSAGES);
-let dataSet; // Declare a variable to hold the test data
 
 before(function () {
   if (RapidMode.config.enabled) {

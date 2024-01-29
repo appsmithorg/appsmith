@@ -54,7 +54,7 @@ describe(
     });
 
     it("1. Datepicker-Clear date validation", function () {
-      const today = dayjs().add(0, "days").format("DD/MM/YYYY");
+      //const today = dayjs().add(0, "days").format("DD/MM/YYYY");
       cy.get(formWidgetsPage.defaultDate).click();
       cy.ClearDate();
       _.deployMode.DeployApp();

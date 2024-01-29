@@ -7,7 +7,6 @@ import EditorNavigation, {
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import {
-  entityExplorer,
   propPane,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";

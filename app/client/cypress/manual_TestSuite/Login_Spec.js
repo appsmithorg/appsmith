@@ -1,6 +1,3 @@
-const onboarding = require("../../../locators/Onboarding.json");
-const explorer = require("../../../locators/explorerlocators.json");
-const loginPage = require("../../../locators/LoginPage.json");
 
 describe("Onboarding flow", function () {
   it("Onboarding using Google Id ", function () {

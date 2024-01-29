@@ -5,7 +5,6 @@ import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
-let datasourceName;
 let currentUrl;
 
 describe(

@@ -7,7 +7,6 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   apiPage,
-  entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 

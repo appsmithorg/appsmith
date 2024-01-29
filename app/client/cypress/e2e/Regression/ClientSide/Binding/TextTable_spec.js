@@ -5,7 +5,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 import {
-  entityExplorer,
   agHelper,
   deployMode,
   propPane,
@@ -15,7 +14,7 @@ describe(
   "Text-Table Binding Functionality",
   { tags: ["@tag.Binding"] },
   function () {
-    Cypress.on("uncaught:exception", (err, runnable) => {
+    Cypress.on("uncaught:exception", () => {
       // returning false here prevents Cypress from
       // failing the test
       return false;

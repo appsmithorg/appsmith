@@ -6,9 +6,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   deployMode,
-  entityExplorer,
   propPane,
-  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";

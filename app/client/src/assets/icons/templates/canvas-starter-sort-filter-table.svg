@@ -1,0 +1,56 @@
+<svg width="56" height="52" viewBox="0 0 56 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="56" height="52" rx="3" fill="white"/>
+<rect x="4.5" y="4.5" width="31" height="6" rx="0.5" fill="white" stroke="#CDD5DF"/>
+<rect x="37.5" y="4.5" width="14" height="6" rx="0.5" fill="#FFEEE5" stroke="#CC3D00"/>
+<g clip-path="url(#clip0_9998_66109)">
+<mask id="path-6-outside-1_9998_66109" maskUnits="userSpaceOnUse" x="3" y="15" width="14" height="12" fill="black">
+<rect fill="white" x="3" y="15" width="14" height="12"/>
+<path d="M4 15H17V26H4V15Z"/>
+</mask>
+<path d="M4 15H17V26H4V15Z" fill="#E3E8EF"/>
+<path d="M4 26H3V27H4V26ZM17 25H4V27H17V25ZM5 26V15H3V26H5Z" fill="#CDD5DF" mask="url(#path-6-outside-1_9998_66109)"/>
+<mask id="path-8-outside-2_9998_66109" maskUnits="userSpaceOnUse" x="16" y="15" width="13" height="12" fill="black">
+<rect fill="white" x="16" y="15" width="13" height="12"/>
+<path d="M17 15H29V26H17V15Z"/>
+</mask>
+<path d="M17 15H29V26H17V15Z" fill="#E3E8EF"/>
+<path d="M17 26H16V27H17V26ZM29 25H17V27H29V25ZM18 26V15H16V26H18Z" fill="#CDD5DF" mask="url(#path-8-outside-2_9998_66109)"/>
+<mask id="path-10-outside-3_9998_66109" maskUnits="userSpaceOnUse" x="28" y="15" width="24" height="12" fill="black">
+<rect fill="white" x="28" y="15" width="24" height="12"/>
+<path d="M29 15H52V26H29V15Z"/>
+</mask>
+<path d="M29 15H52V26H29V15Z" fill="#E3E8EF"/>
+<path d="M29 26H28V27H29V26ZM52 25H29V27H52V25ZM30 26V15H28V26H30Z" fill="#CDD5DF" mask="url(#path-10-outside-3_9998_66109)"/>
+<mask id="path-12-outside-4_9998_66109" maskUnits="userSpaceOnUse" x="3" y="26" width="14" height="12" fill="black">
+<rect fill="white" x="3" y="26" width="14" height="12"/>
+<path d="M4 26H17V37H4V26Z"/>
+</mask>
+<path d="M4 37H3V38H4V37ZM17 36H4V38H17V36ZM5 37V26H3V37H5Z" fill="#CDD5DF" mask="url(#path-12-outside-4_9998_66109)"/>
+<mask id="path-14-outside-5_9998_66109" maskUnits="userSpaceOnUse" x="16" y="26" width="13" height="12" fill="black">
+<rect fill="white" x="16" y="26" width="13" height="12"/>
+<path d="M17 26H28V37H17V26Z"/>
+</mask>
+<path d="M28 37V38H29V37H28ZM17 37H16V38H17V37ZM27 26V37H29V26H27ZM28 36H17V38H28V36ZM18 37V26H16V37H18Z" fill="#CDD5DF" mask="url(#path-14-outside-5_9998_66109)"/>
+<mask id="path-16-outside-6_9998_66109" maskUnits="userSpaceOnUse" x="3" y="37" width="14" height="12" fill="black">
+<rect fill="white" x="3" y="37" width="14" height="12"/>
+<path d="M4 37H17V48H4V37Z"/>
+</mask>
+<path d="M4 48H3V49H4V48ZM17 47H4V49H17V47ZM5 48V37H3V48H5Z" fill="#CDD5DF" mask="url(#path-16-outside-6_9998_66109)"/>
+<mask id="path-18-outside-7_9998_66109" maskUnits="userSpaceOnUse" x="16" y="37" width="13" height="12" fill="black">
+<rect fill="white" x="16" y="37" width="13" height="12"/>
+<path d="M17 37H28V48H17V37Z"/>
+</mask>
+<path d="M28 48V49H29V48H28ZM17 48H16V49H17V48ZM27 37V48H29V37H27ZM28 47H17V49H28V47ZM18 48V37H16V48H18Z" fill="#CDD5DF" mask="url(#path-18-outside-7_9998_66109)"/>
+</g>
+<rect x="4.5" y="15.5" width="47" height="32" rx="0.5" stroke="#CDD5DF"/>
+<path d="M51 47V50H54V47H51ZM48 27V47H54V27H48ZM51 44H29V50H51V44Z" fill="white" mask="url(#path-20-outside-8_9998_66109)"/>
+<path d="M37.5 45V36.5" stroke="#CC3D00" stroke-linecap="round"/>
+<path d="M35.5 43.5L37.5 45.5L39.5 43.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M43.5 41.5V33" stroke="#CC3D00" stroke-linecap="round"/>
+<path d="M41.5 34.5L43.5 32.5L45.5 34.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<defs>
+<clipPath id="clip0_9998_66109">
+<rect x="4" y="15" width="48" height="33" rx="1" fill="white"/>
+</clipPath>
+</defs>
+</svg>

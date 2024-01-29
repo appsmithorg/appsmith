@@ -7,7 +7,6 @@ const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.jso
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-const backBtn = "[data-testid='t--property-pane-back-btn']";
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const submitButtonStylesSection =
@@ -15,9 +14,7 @@ const submitButtonStylesSection =
 import {
   agHelper,
   deployMode,
-  entityExplorer,
   propPane,
-  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(

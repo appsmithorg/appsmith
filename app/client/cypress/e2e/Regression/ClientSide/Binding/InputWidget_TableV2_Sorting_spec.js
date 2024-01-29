@@ -5,8 +5,7 @@ import EditorNavigation, {
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import {
-  agHelper,
-  entityExplorer,
+  agHelper
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(

@@ -3,6 +3,7 @@ import {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
+import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {

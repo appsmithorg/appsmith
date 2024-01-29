@@ -10,7 +10,7 @@ describe(
   { tags: ["@tag.Workspace"] },
   function () {
     let workspaceId;
-    let appid;
+    
     it("1. Create app within an workspace and delete and re-create another app with same name", function () {
       _.homePage.NavigateToHome();
       _.agHelper.GenerateUUID();

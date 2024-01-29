@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getOptions: (props, moment, _) => {
+  getOptions: (props, _) => {
     let labels = [],
       values = [],
       sourceData = props.sourceData || [];
