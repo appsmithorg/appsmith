@@ -52,7 +52,9 @@ export default defineConfig({
     },
     specPattern: [
       //"cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
-      "cypress/e2e/GSheet/**/**/*",
+      //"cypress/e2e/GSheet/**/**/*",
+      "cypress/e2e/GSheet/Misc_Spec.ts",
+      "cypress/e2e/GSheet/AllAccess_Spec.ts",
       // "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
       // "cypress/e2e/Regression/ClientSide/Widgets/Others/MapWidget_Spec.ts",
     ],
