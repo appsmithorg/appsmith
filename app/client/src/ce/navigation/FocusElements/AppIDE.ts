@@ -83,6 +83,9 @@ import {
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
+import { getIDETabs } from "selectors/ideSelectors";
+import { setIDETabs } from "actions/ideActions";
+import { IDETabsDefaultValue } from "reducers/uiReducers/ideReducer";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
@@ -241,6 +244,13 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.SelectedSegment,
       selector: getSelectedSegment,
       setter: setSelectedSegment,
+    },
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.IDETabs,
+      selector: getIDETabs,
+      setter: setIDETabs,
+      defaultValue: IDETabsDefaultValue,
     },
     {
       type: FocusElementConfigType.Redux,
