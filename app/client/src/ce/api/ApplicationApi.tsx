@@ -379,12 +379,6 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static async deleteMultipleApps(request: {
-    ids: string[];
-  }): Promise<AxiosPromise<ApiResponse>> {
-    return Api.post(`${ApplicationApi.baseURL}/delete-apps`, request.ids);
-  }
-
   static async importApplicationToWorkspace(
     request: ImportApplicationRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
