@@ -32,6 +32,7 @@ class LayoutElementPositionObserver {
       ref: RefObject<HTMLDivElement>;
       id: string;
       layoutId: string;
+      isDetached?: boolean;
     };
   } = {};
 
@@ -61,10 +62,22 @@ class LayoutElementPositionObserver {
   private resizeObserver = new ResizeObserver(
     (entries: ResizeObserverEntry[]) => {
       for (const entry of entries) {
-        if (entry?.target?.id) {
-          const DOMId = entry?.target?.id;
-          this.trackEntry(DOMId);
+        // If the entry's anvil_widget_ identifier is not present as an id
+        // Check if it exists as a className
+        // If it does, then use that as the identifier
+        let DOMIdentifier = entry?.target?.id;
+        if (!DOMIdentifier) {
+          const classList: DOMTokenList = entry?.target?.classList;
+          if (classList && classList.length > 0) {
+            for (let i = 0; i < classList.length; i++) {
+              if (classList[i].indexOf(ANVIL_WIDGET) > -1) {
+                DOMIdentifier = classList[i];
+                break;
+              }
+            }
+          }
         }
+        if (DOMIdentifier) this.trackEntry(DOMIdentifier);
       }
     },
   );
@@ -90,11 +103,18 @@ class LayoutElementPositionObserver {
     widgetId: string,
     layoutId: string,
     ref: RefObject<HTMLDivElement>,
+    isDetached?: boolean,
   ) {
     if (ref.current) {
       if (!this.registeredWidgets.hasOwnProperty(widgetId)) {
         const widgetDOMId = getAnvilWidgetDOMId(widgetId);
-        this.registeredWidgets[widgetDOMId] = { ref, id: widgetId, layoutId };
+        this.registeredWidgets[widgetDOMId] = {
+          ref,
+          id: widgetId,
+          layoutId,
+          isDetached: !!isDetached,
+        };
+
         this.resizeObserver.observe(ref.current);
         this.mutationObserver.observe(ref.current, this.mutationOptions);
       }
@@ -224,7 +244,10 @@ class LayoutElementPositionObserver {
   }
 
   private trackEntry(DOMId: string) {
-    if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
+    if (
+      DOMId.indexOf(ANVIL_WIDGET) > -1 ||
+      this.registeredWidgets[DOMId]?.isDetached
+    ) {
       this.addWidgetToProcess(DOMId);
     } else if (DOMId.indexOf(LAYOUT) > -1) {
       this.addLayoutToProcess(DOMId);

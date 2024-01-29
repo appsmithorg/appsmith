@@ -39,7 +39,6 @@ import appThemingReducer from "reducers/uiReducers/appThemingReducer";
 import mainCanvasReducer from "reducers/uiReducers/mainCanvasReducer";
 import focusHistoryReducer from "reducers/uiReducers/focusHistoryReducer";
 import { editorContextReducer } from "@appsmith/reducers/uiReducers/editorContextReducer";
-import guidedTourReducer from "reducers/uiReducers/guidedTourReducer";
 import libraryReducer from "reducers/uiReducers/libraryReducer";
 import appSettingsPaneReducer from "reducers/uiReducers/appSettingsPaneReducer";
 import autoHeightUIReducer from "reducers/uiReducers/autoHeightReducer";
@@ -47,6 +46,7 @@ import analyticsReducer from "reducers/uiReducers/analyticsReducer";
 import layoutConversionReducer from "reducers/uiReducers/layoutConversionReducer";
 import oneClickBindingReducer from "reducers/uiReducers/oneClickBindingReducer";
 import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
+import selectedWorkspaceReducer from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 import ideReducer from "../../../reducers/uiReducers/ideReducer";
 import consolidatedPageLoadReducer from "reducers/uiReducers/consolidatedPageLoadReducer";
 
@@ -62,6 +62,7 @@ export const uiReducerObject = {
   auth: authReducer,
   templates: templateReducer,
   workspaces: workspaceReducer,
+  selectedWorkspace: selectedWorkspaceReducer,
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
   imports: importReducer,
@@ -76,7 +77,6 @@ export const uiReducerObject = {
   theme: themeReducer,
   modalAction: modalActionReducer,
   onBoarding: onBoardingReducer,
-  guidedTour: guidedTourReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
   websocket: websocketReducer,

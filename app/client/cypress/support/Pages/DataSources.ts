@@ -63,6 +63,8 @@ export class DataSources {
   public _addNewDataSource = ".t--add-datasource-button";
   private _addNewDatasourceFromBlankScreen =
     ".t--add-datasource-button-blank-screen";
+  public _newDatasourceBtn =
+    ".t--add-datasource-button, .t--add-datasource-button-blank-screen";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
@@ -1837,6 +1839,26 @@ export class DataSources {
         this.locator._visibleTextDiv($infs),
       );
     });
+  }
+
+  public GeneratePostgresCRUDPage(dbName: string) {
+    PageList.AddNewPage("Generate page with data");
+    this.agHelper.GetNClick(this._selectDatasourceDropdown);
+    this.agHelper.GetNClickByContains(
+      this._dropdownOption,
+      "Connect new datasource",
+    );
+    this.CreateDataSource("Postgres", false);
+    this.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
+    this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
+    this.agHelper.GetNClickByContains(this._dropdownOption, dbName);
+    this.agHelper.GetNClick(this._generatePageBtn);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.AssertContains("Successfully generated a page");
+    this.assertHelper.AssertNetworkStatus("@getActions", 200);
+    this.assertHelper.AssertNetworkStatus("@postExecute", 200);
+    this.agHelper.GetNClick(this._visibleTextSpan("Got it"));
+    this.assertHelper.AssertNetworkStatus("@updateLayout", 200);
   }
 
   public AssertTableInVirtuosoList(

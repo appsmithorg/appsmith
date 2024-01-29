@@ -1,10 +1,10 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Help Button on editor", function () {
-  it(
-    "excludeForAirgap",
-    "1. Chat with us and Intercom consent should be visible on Help Menu",
-    () => {
+describe(
+  "Help Button on editor",
+  { tags: ["@tag.excludeForAirgap"] },
+  function () {
+    it("1. Chat with us and Intercom consent should be visible on Help Menu", () => {
       _.agHelper.GetNClick(
         _.debuggerHelper.locators._helpButton,
         0,
@@ -22,6 +22,6 @@ describe("Help Button on editor", function () {
         "Can we have your email for better support?",
         "contain.text",
       );
-    },
-  );
-});
+    });
+  },
+);

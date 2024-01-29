@@ -31,8 +31,6 @@ if (CUSTOM_DOMAIN !== "") {
 
 }
 
-const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
-
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
 
@@ -128,13 +126,27 @@ parts.push(`
 `)
 
 if (CUSTOM_DOMAIN !== "") {
-  // If no custom domain, no extra routing needed.
+  if (certLocation) {
+    // There's a custom certificate, don't bind to any exact domain.
+    parts.push(`
+    https:// {
+      import all-config
+      tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem
+    }
+    `)
+
+  } else {
+    // No custom certificate, bind to the custom domain explicitly, so Caddy can auto-provision the cert.
+    parts.push(`
+    https://${CUSTOM_DOMAIN} {
+      import all-config
+    }
+    `)
+
+  }
+
   // We have to own the http-to-https redirect, since we need to remove the `Server` header from the response.
   parts.push(`
-  https://${CUSTOM_DOMAIN} {
-    import all-config
-    ${tlsConfig}
-  }
   http://${CUSTOM_DOMAIN} {
     redir https://{host}{uri}
     header -Server
