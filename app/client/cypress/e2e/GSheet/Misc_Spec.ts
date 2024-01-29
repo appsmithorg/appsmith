@@ -44,6 +44,7 @@ describe(
 
       //Adding query to insert a new spreadsheet
       homePage.NavigateToHome();
+      homePage.SelectWorkspace(workspaceName);
       homePage.CreateAppInWorkspace(workspaceName);
       homePage.RenameApplication(appName);
       gsheetHelper.AddNewSpreadsheetQuery(
