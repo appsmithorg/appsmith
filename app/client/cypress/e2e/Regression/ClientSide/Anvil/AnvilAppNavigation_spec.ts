@@ -3,7 +3,6 @@ import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import {
   agHelper,
   locators,
-  entityExplorer,
   propPane,
   appSettings,
   anvilLayout,
@@ -46,7 +45,9 @@ describe(
           y + paddingBetweenZoneAndMainCanvas,
           {
             skipWidgetSearch: true,
-            widgetNameToDropInto: "Section1",
+            dropTargetDetails: {
+              name: "Section1",
+            },
           },
         );
         anvilLayout.DragDropAnvilWidgetNVerify(
@@ -55,7 +56,9 @@ describe(
           y + paddingBetweenZoneAndMainCanvas,
           {
             skipWidgetSearch: true,
-            widgetNameToDropInto: "Section1",
+            dropTargetDetails: {
+              name: "Section1",
+            },
           },
         );
       });

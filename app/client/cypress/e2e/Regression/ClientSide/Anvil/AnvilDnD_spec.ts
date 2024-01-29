@@ -46,7 +46,9 @@ describe(
           y + paddingBetweenZoneAndMainCanvas * 0.5,
           {
             skipWidgetSearch: true,
-            widgetNameToDropInto: "Zone1",
+            dropTargetDetails: {
+              name: "Zone1",
+            },
           },
         );
         // end align
@@ -56,7 +58,9 @@ describe(
           y + paddingBetweenZoneAndMainCanvas * 0.5,
           {
             skipWidgetSearch: true,
-            widgetNameToDropInto: "Zone1",
+            dropTargetDetails: {
+              name: "Zone1",
+            },
           },
         );
         agHelper.AssertElementLength(

@@ -1,3 +1,4 @@
+import { drop } from "lodash";
 import { getWidgetSelector } from "../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../Objects/Registry";
 import {
@@ -7,21 +8,80 @@ import {
   PagePaneSegment,
 } from "./EditorNavigation";
 
+type DropTargetDetails = {
+  id?: string;
+  name?: string;
+};
+
 type DragDropWidgetOptions = {
   skipWidgetSearch?: boolean;
-  widgetNameToDropInto?: string;
+  dropTargetDetails?: DropTargetDetails;
 };
+
 export class AnvilLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
-  public DragNDropAnvilWidget(
-    widgetType: string,
-    x = 300,
-    y = 100,
-    options = {} as DragDropWidgetOptions,
+
+  private getAnvilDropTargetSelectorFromOptions = (
+    dropTarget: DropTargetDetails,
+  ) => {
+    if (dropTarget) {
+      if (dropTarget.id) {
+        return `#${dropTarget.id}`;
+      }
+      if (dropTarget.name) {
+        return `${getWidgetSelector(dropTarget.name.toLowerCase() as any)} ${
+          this.locator._dropHere
+        }`;
+      }
+    }
+    return this.locator._dropHere;
+  };
+
+  private performDnDInAnvil(
+    dropTargetDetails: DropTargetDetails,
+    xPos: number,
+    yPos: number,
   ) {
-    const { skipWidgetSearch } = options;
+    const dropAreaSelector =
+      this.getAnvilDropTargetSelectorFromOptions(dropTargetDetails);
+    cy.get(dropAreaSelector)
+      .first()
+      .then((dropAreaDom) => {
+        const { left, top } = dropAreaDom[0].getBoundingClientRect();
+        cy.document()
+          // to activate ANVIL canvas
+          .trigger("mousemove", left + xPos, top + yPos, {
+            eventConstructor: "MouseEvent",
+            clientX: left + xPos,
+            clientY: top + yPos,
+            force: true,
+          });
+        this.agHelper.Sleep(200);
+        cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
+          eventConstructor: "MouseEvent",
+          force: true,
+        });
+        this.agHelper.Sleep(200);
+        cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
+          eventConstructor: "MouseEvent",
+          force: true,
+        });
+        cy.get(this.locator._dropHere).first().trigger("mouseup", xPos, yPos, {
+          eventConstructor: "MouseEvent",
+          force: true,
+        });
+      });
+  }
+
+  private startDraggingWidgetFromPane(widgetType: string) {
+    cy.get(this.locator._widgetPageIcon(widgetType))
+      .first()
+      .trigger("dragstart", { force: true });
+  }
+
+  private setupWidgetPane(skipWidgetSearch: boolean, widgetType: string) {
     if (!skipWidgetSearch) {
       this.entityExplorer.SearchWidgetPane(widgetType);
     } else {
@@ -30,42 +90,19 @@ export class AnvilLayout {
       PageLeftPane.switchToAddNew();
       cy.focused().blur();
     }
+  }
 
-    cy.get(this.locator._widgetPageIcon(widgetType))
-      .first()
-      .trigger("dragstart", { force: true });
-    const dropAreaSelector = options.widgetNameToDropInto
-      ? `${getWidgetSelector(
-          options.widgetNameToDropInto.toLowerCase() as any,
-        )} ${this.locator._dropHere}`
-      : this.locator._dropHere;
-    cy.get(dropAreaSelector)
-      .first()
-      .then((dropAreaDom) => {
-        const { left, top } = dropAreaDom[0].getBoundingClientRect();
-        cy.document()
-          // to activate ANVIL canvas
-          .trigger("mousemove", left + x, top + y, {
-            eventConstructor: "MouseEvent",
-            clientX: left + x,
-            clientY: top + y,
-            force: true,
-          });
-        this.agHelper.Sleep(200);
-        cy.get(dropAreaSelector).first().trigger("mousemove", x, y, {
-          eventConstructor: "MouseEvent",
-          force: true,
-        });
-        this.agHelper.Sleep(200);
-        cy.get(dropAreaSelector).first().trigger("mousemove", x, y, {
-          eventConstructor: "MouseEvent",
-          force: true,
-        });
-        cy.get(this.locator._dropHere).first().trigger("mouseup", x, y, {
-          eventConstructor: "MouseEvent",
-          force: true,
-        });
-      });
+  private DragNDropAnvilWidget(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    options = {} as DragDropWidgetOptions,
+  ) {
+    const { skipWidgetSearch = false } = options;
+    this.setupWidgetPane(skipWidgetSearch, widgetType);
+    this.startDraggingWidgetFromPane(widgetType);
+    const { dropTargetDetails } = options;
+    this.performDnDInAnvil(dropTargetDetails, x, y);
   }
 
   public DragDropAnvilWidgetNVerify(
