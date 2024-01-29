@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
@@ -7,7 +7,7 @@ const initialState: ReleasesState = {
   releaseItems: [],
 };
 
-const importReducer = createReducer(initialState, {
+const importReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_RELEASES_SUCCESS]: (
     _state: ReleasesState,
     action: ReduxAction<{ payload: Record<string, unknown> }>,

@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
@@ -11,7 +11,7 @@ const initialState: AppViewReduxState = {
   headerHeight: 0,
 };
 
-const appViewReducer = createReducer(initialState, {
+const appViewReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.RESET_EDITOR_SUCCESS]: (state: AppViewReduxState) => {
     return { ...state, initialized: false };
   },

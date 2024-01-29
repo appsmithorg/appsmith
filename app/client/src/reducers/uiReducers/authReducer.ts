@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -9,7 +9,7 @@ const initialState: AuthState = {
   isTokenValid: false,
 };
 
-const authReducer = createReducer(initialState, {
+const authReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_INIT]: () => ({
     isTokenValid: false,
     isValidatingToken: true,

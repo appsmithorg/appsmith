@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { TenantReduxState } from "@appsmith/reducers/tenantReducer";
 import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
 
@@ -129,4 +129,4 @@ export const handlers = {
   }),
 };
 
-export default createReducer(initialState, handlers);
+export default createImmerReducer(initialState, handlers);

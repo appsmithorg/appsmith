@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { TourType } from "entities/Tour";
@@ -9,7 +9,7 @@ const initialState: TourReducerState = {
   activeTourType: undefined,
 };
 
-const tourReducer = createReducer(initialState, {
+const tourReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_ACTIVE_TOUR]: (
     state: TourReducerState,
     action: ReduxAction<TourType>,

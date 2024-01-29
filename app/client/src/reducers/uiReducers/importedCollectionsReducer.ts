@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
@@ -15,7 +15,7 @@ const initialState: ImportedCollectionsReduxState = {
   importedCollections: [],
 };
 
-const importedCollectionsReducer = createReducer(initialState, {
+const importedCollectionsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.FETCH_IMPORTED_COLLECTIONS_INIT]: (
     state: ImportedCollectionsReduxState,
   ) => ({ ...state, isFetchingImportedCollections: true }),

@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
@@ -10,7 +10,7 @@ const initialState: JSObjectNameReduxState = {
   errors: {},
 };
 
-const jsObjectNameReducer = createReducer(initialState, {
+const jsObjectNameReducer = createImmerReducer(initialState, {
   [ReduxActionErrorTypes.SAVE_JS_COLLECTION_NAME_ERROR]: (
     state: JSObjectNameReduxState,
     action: ReduxAction<{ actionId: string }>,

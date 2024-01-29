@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
@@ -8,7 +8,7 @@ const initialState: HelpReduxState = {
   defaultRefinement: "",
 };
 
-const helpReducer = createReducer(initialState, {
+const helpReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_DEFAULT_REFINEMENT]: (
     state: HelpReduxState,
     action: ReduxAction<string>,

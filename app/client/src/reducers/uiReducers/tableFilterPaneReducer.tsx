@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type {
   ReduxAction,
   ShowPropertyPanePayload,
@@ -11,7 +11,7 @@ const initialState: TableFilterPaneReduxState = {
   lastWidgetId: undefined,
 };
 
-const tableFilterPaneReducer = createReducer(initialState, {
+const tableFilterPaneReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SHOW_TABLE_FILTER_PANE]: (
     state: TableFilterPaneReduxState,
     action: ReduxAction<ShowPropertyPanePayload>,
