@@ -4,20 +4,19 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.BaseRepository;
 import com.querydsl.core.types.Predicate;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Optional;
-
 @RequiredArgsConstructor
 public abstract class BaseCake<T extends BaseDomain> {
+    private final EntityManager entityManager;
     private final BaseRepository<T, String> repository;
 
     public Mono<T> save(T entity) {
-        return Mono.fromSupplier(() -> Optional.of(repository.save(entity)).orElse(null))
-                .subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromSupplier(() -> repository.save(entity)).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<T> findById(String id) {
@@ -40,8 +39,12 @@ public abstract class BaseCake<T extends BaseDomain> {
         return Mono.<Void>fromRunnable(repository::deleteAll).subscribeOn(Schedulers.boundedElastic());
     }
 
-    public Mono<Void> deleteById(String id) { // hard delete
+    public Mono<Void> deleteById(String id) {
         return Mono.<Void>fromRunnable(() -> repository.deleteById(id)).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Mono<Void> delete(T entity) {
+        return Mono.<Void>fromRunnable(() -> repository.delete(entity)).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<Long> count() {

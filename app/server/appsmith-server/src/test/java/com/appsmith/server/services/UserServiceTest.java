@@ -448,7 +448,6 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateRoleOfUser() {
-        // XXX: `UserData.role` is deprecated, can we remove it, and this test?
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setRole("New role of user");
         final Mono<UserData> resultMono =

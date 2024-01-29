@@ -6,7 +6,9 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import jakarta.persistence.*;
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,15 +30,11 @@ import static com.appsmith.server.constants.FieldName.DEFAULT;
 @ToString
 @Entity
 @NoArgsConstructor
+@Cacheable(false)
 public class UserData extends BaseDomain {
 
-    @Column(name = "user_id", insertable = false, updatable = false)
     @JsonView(Views.Internal.class)
     String userId;
-
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    User user;
 
     // Role of the user in their workspace, example, Designer, Developer, Product Lead etc.
     @JsonView(Views.Public.class)

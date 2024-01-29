@@ -6,6 +6,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.cakes.BaseCake;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -80,7 +81,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
-        if (resource.getPolicies().isEmpty()) {
+        if (CollectionUtils.isNullOrEmpty(resource.getPolicies())) {
             resource.setPolicies(null);
         }
 

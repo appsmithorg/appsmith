@@ -5,6 +5,7 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
@@ -22,6 +23,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.cakes.EmailVerificationTokenRepositoryCake;
 import com.appsmith.server.repositories.cakes.PasswordResetTokenRepositoryCake;
@@ -36,23 +38,33 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -61,12 +73,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Slf4j
 public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, String> implements UserServiceCE {
@@ -203,7 +221,6 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
      */
     @Override
     public Mono<Boolean> forgotPasswordTokenGenerate(ResetUserPasswordDTO resetUserPasswordDTO) {
-        return Mono.empty(); /*
         if (resetUserPasswordDTO.getEmail() == null
                 || resetUserPasswordDTO.getEmail().isBlank()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
@@ -222,7 +239,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
         return repository
                 .findByEmail(email)
-                .switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
+                .switchIfEmpty(repository.findByEmailIgnoreCase(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
@@ -261,7 +278,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
                     return emailService.sendForgotPasswordEmail(email, resetUrl, resetUserPasswordDTO.getBaseUrl());
                 })
-                .thenReturn(true);*/
+                .thenReturn(true);
     }
 
     /**
@@ -331,7 +348,6 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
      */
     @Override
     public Mono<Boolean> resetPasswordAfterForgotPassword(String encryptedToken, User user) {
-        return Mono.empty(); /*
         EmailTokenDTO emailTokenDTO;
         try {
             emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
@@ -397,7 +413,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                                                 .subscribe();
                                     })
                                     .thenReturn(true);
-                        }));*/
+                        }));
     }
 
     @Override
@@ -581,12 +597,11 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
      */
     @Override
     public Mono<User> updateWithoutPermission(String id, User update) {
-        return Mono.empty(); /*
         Mono<User> userFromRepository = repository
                 .findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
-        return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));*/
+        return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));
     }
 
     private Mono<User> update(User existingUser, User userUpdate) {
@@ -700,7 +715,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                     final UserProfileDTO profile = new UserProfileDTO();
 
                     profile.setEmail(userFromDb.getEmail());
-                    // profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
+                    profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());
@@ -739,7 +754,6 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
     @Override
     public Mono<Boolean> resendEmailVerification(
             ResendEmailVerificationDTO resendEmailVerificationDTO, String redirectUrl) {
-        return Mono.empty(); /*
 
         if (resendEmailVerificationDTO.getEmail() == null
                 || resendEmailVerificationDTO.getEmail().isBlank()) {
@@ -758,7 +772,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
         // Check if the user exists in our DB. If not, we will not send the email verification link to the user
         Mono<User> userMono = repository.findByEmail(email).cache();
-        return userMono.switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
+        return userMono.switchIfEmpty(repository.findByEmailIgnoreCase(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
@@ -814,7 +828,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                     return emailService.sendEmailVerificationEmail(
                             user, verificationUrl, resendEmailVerificationDTO.getBaseUrl());
                 })
-                .thenReturn(true);*/
+                .thenReturn(true);
     }
 
     private String getEmailVerificationErrorRedirectUrl(AppsmithError appsmithError, String userEmail, Object... args) {
@@ -830,7 +844,6 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
     @Override
     public Mono<Void> verifyEmailVerificationToken(ServerWebExchange exchange) {
-        return Mono.empty(); /*
         return exchange.getFormData().flatMap(formData -> {
             final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
             EmailTokenDTO parsedEmailTokenDTO;
@@ -922,6 +935,6 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                                 webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl));
                         return repository.save(user).then(redirectionMono);
                     });
-        });*/
+        });
     }
 }
