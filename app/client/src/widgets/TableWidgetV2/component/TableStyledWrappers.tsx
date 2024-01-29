@@ -50,7 +50,7 @@ export const TableWrapper = styled.div<{
 }>`
   width: 100%;
   height: 100%;
-  background: white;
+  background: lightgrey;
   border-style: solid;
   border-width: ${({ borderWidth }) => `${borderWidth}px`};
   border-color: ${({ borderColor }) => borderColor};
@@ -211,7 +211,7 @@ export const TableWrapper = styled.div<{
     }
 
     [role="columnheader"] {
-      background-color: var(--wds-color-bg) !important;
+      background-color: lightgreen;
     }
 
     [data-sticky-td] {
