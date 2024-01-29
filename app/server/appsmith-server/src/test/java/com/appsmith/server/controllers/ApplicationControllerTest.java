@@ -9,6 +9,7 @@ import com.appsmith.server.configurations.solutions.OidcAccessTokenUpdateSolutio
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
@@ -69,6 +70,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     ImportService importService;
+
+    @MockBean
+    ExportService exportService;
 
     @MockBean
     ExportApplicationService exportApplicationService;
