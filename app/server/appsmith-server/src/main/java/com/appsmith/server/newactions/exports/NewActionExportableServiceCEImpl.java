@@ -58,7 +58,8 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                 .flatMap(newActionList -> {
                     Set<String> dbNamesUsedInActions =
                             mapNameToIdForExportableEntities(mappedExportableResourcesDTO, newActionList);
-                    return Mono.zip(Mono.just(newActionList), Mono.just(dbNamesUsedInActions));
+                    List<NewAction> exportableNewActions = getExportableNewActions(newActionList);
+                    return Mono.zip(Mono.just(exportableNewActions), Mono.just(dbNamesUsedInActions));
                 })
                 .map(tuple -> {
                     List<NewAction> actionList = tuple.getT1();
@@ -106,6 +107,10 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                     return actionList;
                 })
                 .then();
+    }
+
+    protected List<NewAction> getExportableNewActions(List<NewAction> newActionList) {
+        return newActionList;
     }
 
     @Override

@@ -34,7 +34,7 @@ import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { TemplateView } from "pages/Templates/TemplateView";
-import { default as React, useEffect, useState } from "react";
+import { default as React, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   allTemplatesFiltersSelector,
@@ -55,6 +55,8 @@ import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 import StartWithTemplatesWrapper from "./StartWithTemplatesWrapper";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -80,6 +82,10 @@ const BackWrapper = styled.div<{ hidden?: boolean }>`
   padding: var(--ads-v2-spaces-3);
   z-index: 1;
   margin-left: -4px;
+  ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
+`;
+
+const LinkWrapper = styled(Link)<{ hidden?: boolean }>`
   ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
 `;
 
@@ -190,6 +196,10 @@ const CreateNewAppsOption = ({
     getDatasource(state, TEMP_DATASOURCE_ID || ""),
   );
 
+  const isEnabledForStartWithDataDefault = useFeatureFlag(
+    FEATURE_FLAG.ab_start_with_data_default_enabled,
+  );
+
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
     AnalyticsUtil.logEvent("CREATE_APP_FROM_TEMPLATE");
@@ -217,9 +227,12 @@ const CreateNewAppsOption = ({
   };
 
   const onClickStartWithData = () => {
-    AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA");
+    AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA", {
+      [FEATURE_FLAG.ab_start_with_data_default_enabled]:
+        isEnabledForStartWithDataDefault,
+    });
     // fetch plugins information to show list of all plugins
-    dispatch(fetchPlugins());
+    dispatch(fetchPlugins({ workspaceId: application?.workspaceId }));
     dispatch(fetchMockDatasources());
     if (application?.workspaceId) {
       dispatch(
@@ -286,11 +299,19 @@ const CreateNewAppsOption = ({
       if (createNewAppPluginId) {
         AnalyticsUtil.logEvent(
           "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_DATASOURCE_FORM_PAGE",
-          { pluginId: createNewAppPluginId },
+          {
+            pluginId: createNewAppPluginId,
+            [FEATURE_FLAG.ab_start_with_data_default_enabled]:
+              isEnabledForStartWithDataDefault,
+          },
         );
       } else {
         AnalyticsUtil.logEvent(
           "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_START_FROM_DATA_PAGE",
+          {
+            [FEATURE_FLAG.ab_start_with_data_default_enabled]:
+              isEnabledForStartWithDataDefault,
+          },
         );
       }
     }
@@ -363,6 +384,38 @@ const CreateNewAppsOption = ({
     }
   };
 
+  const renderStartWithData = useCallback(() => {
+    return (
+      <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+        <Header
+          subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+          title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+        />
+        <WithDataWrapper>
+          {createNewAppPluginId && !!selectedDatasource ? (
+            selectedPlugin?.type === PluginType.SAAS ? (
+              <DatasourceForm
+                datasourceId={TEMP_DATASOURCE_ID}
+                isOnboardingFlow
+                pageId={application?.defaultPageId || ""}
+                pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
+              />
+            ) : (
+              <DataSourceEditor
+                applicationId={currentApplicationIdForCreateNewApp}
+                datasourceId={TEMP_DATASOURCE_ID}
+                isOnboardingFlow
+                pageId={application?.defaultPageId}
+              />
+            )
+          ) : (
+            <CreateNewDatasourceTab isOnboardingScreen />
+          )}
+        </WithDataWrapper>
+      </Flex>
+    );
+  }, [createNewAppPluginId, selectedDatasource, selectedPlugin]);
+
   const selectionOptions: CardProps[] = [
     {
       onClick: onClickStartWithData,
@@ -388,10 +441,7 @@ const CreateNewAppsOption = ({
   ];
 
   useEffect(() => {
-    AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {
-      totalOptions: selectionOptions.length,
-    });
-    if (application)
+    if (application) {
       urlBuilder.updateURLParams(
         {
           applicationSlug: application.slug,
@@ -405,33 +455,51 @@ const CreateNewAppsOption = ({
         })),
       );
 
+      if (isEnabledForStartWithDataDefault) {
+        onClickStartWithData();
+      }
+    }
+  }, [application]);
+
+  useEffect(() => {
+    AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {
+      totalOptions: selectionOptions.length,
+    });
+
     return () => {
       resetCreateNewAppFlow();
     };
   }, []);
 
+  const isBackButtonHidden =
+    isEnabledForStartWithDataDefault &&
+    (!createNewAppPluginId || !selectedDatasource);
+
   return (
     <SectionWrapper>
       <BackWrapper hidden={!useType}>
-        <Link
+        <LinkWrapper
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
+          hidden={isBackButtonHidden}
           onClick={onClickBackButton}
           startIcon="arrow-left-line"
         >
           {createMessage(GO_BACK)}
-        </Link>
+        </LinkWrapper>
 
-        <Link
+        <LinkWrapper
           className="t--create-new-app-option-skip"
           data-testid="t--create-new-app-option-skip"
           endIcon="arrow-right-line"
           onClick={onClickSkipButton}
         >
           {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
-        </Link>
+        </LinkWrapper>
       </BackWrapper>
-      {useType === START_WITH_TYPE.TEMPLATE ? (
+      {isEnabledForStartWithDataDefault ? (
+        renderStartWithData()
+      ) : useType === START_WITH_TYPE.TEMPLATE ? (
         selectedTemplate ? (
           <TemplateView
             onClickUseTemplate={onClickUseTemplate}
@@ -448,33 +516,7 @@ const CreateNewAppsOption = ({
           />
         )
       ) : useType === START_WITH_TYPE.DATA ? (
-        <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-          <Header
-            subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
-            title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
-          />
-          <WithDataWrapper>
-            {createNewAppPluginId && !!selectedDatasource ? (
-              selectedPlugin?.type === PluginType.SAAS ? (
-                <DatasourceForm
-                  datasourceId={TEMP_DATASOURCE_ID}
-                  isOnboardingFlow
-                  pageId={application?.defaultPageId || ""}
-                  pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
-                />
-              ) : (
-                <DataSourceEditor
-                  applicationId={currentApplicationIdForCreateNewApp}
-                  datasourceId={TEMP_DATASOURCE_ID}
-                  isOnboardingFlow
-                  pageId={application?.defaultPageId}
-                />
-              )
-            ) : (
-              <CreateNewDatasourceTab />
-            )}
-          </WithDataWrapper>
-        </Flex>
+        renderStartWithData()
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">
