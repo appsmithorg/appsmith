@@ -3,6 +3,7 @@ import {
   apiPage,
   dataManager,
   debuggerHelper,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -28,6 +29,7 @@ describe(
         expectedPath: "response.body.data.body.data.isExecutionSuccess",
         expectedRes: false,
       });
+      agHelper.WaitUntilEleDisappear(locators._cancelActionExecution);
 
       cy.get("@postExecute").then((interception: any) => {
         debuggerHelper.AssertDownStreamLogError(
@@ -41,6 +43,7 @@ describe(
         expectedPath: "response.body.data.body.data.isExecutionSuccess",
         expectedRes: false,
       });
+      agHelper.WaitUntilEleDisappear(locators._cancelActionExecution);
       agHelper.AssertElementAbsence(
         debuggerHelper.locators._debuggerDownStreamErrMsg,
       );
