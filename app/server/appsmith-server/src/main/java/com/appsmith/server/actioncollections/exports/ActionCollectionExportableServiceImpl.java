@@ -10,6 +10,7 @@ import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.solutions.ActionPermission;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -18,6 +19,17 @@ public class ActionCollectionExportableServiceImpl extends ActionCollectionExpor
     public ActionCollectionExportableServiceImpl(
             ActionCollectionService actionCollectionService, ActionPermission actionPermission) {
         super(actionCollectionService, actionPermission);
+    }
+
+    @Override
+    protected List<ActionCollection> getExportableActionCollections(List<ActionCollection> actionCollectionList) {
+        List<ActionCollection> exportableActionCollectionsFromSuper =
+                super.getExportableActionCollections(actionCollectionList);
+
+        return exportableActionCollectionsFromSuper.stream()
+                .filter(actionCollection -> actionCollection.getRootModuleInstanceId() == null
+                        || Boolean.TRUE.equals(actionCollection.getIsPublic()))
+                .toList();
     }
 
     @Override

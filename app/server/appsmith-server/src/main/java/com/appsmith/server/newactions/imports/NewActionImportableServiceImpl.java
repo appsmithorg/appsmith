@@ -47,24 +47,8 @@ public class NewActionImportableServiceImpl extends NewActionImportableServiceCE
         Map<String, NewAction> fQNToNewActionMap = actionsInCurrentApp.values().stream()
                 .collect(Collectors.toMap(
                         existingAction -> existingAction.getUnpublishedAction().getValidName(),
-                        newAction1 -> newAction1));
-
-        return fQNToNewActionMap.get(newAction.getUnpublishedAction().getValidName());
-    }
-
-    @Override
-    protected NewAction getExistingActionInOtherBranchForImportedAction(
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            Map<String, NewAction> actionsInCurrentApp,
-            NewAction newAction) {
-        if (!Boolean.TRUE.equals(newAction.getIsPublic())) {
-            return super.getExistingActionInOtherBranchForImportedAction(
-                    mappedImportableResourcesDTO, actionsInCurrentApp, newAction);
-        }
-        Map<String, NewAction> fQNToNewActionMap = actionsInCurrentApp.values().stream()
-                .collect(Collectors.toMap(
-                        existingAction -> existingAction.getUnpublishedAction().getValidName(),
-                        newAction1 -> newAction1));
+                        newAction1 -> newAction1,
+                        (u, v) -> u));
 
         return fQNToNewActionMap.get(newAction.getUnpublishedAction().getValidName());
     }

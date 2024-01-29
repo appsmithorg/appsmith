@@ -142,7 +142,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
     protected Mono<Tuple2<Mono<Application>, ApplicationPublishingMetaDTO>> publishAndGetMetadata(
             String applicationId, boolean isPublishedManually) {
         // Execute publish operation and extract the Application Mono
-        // TODO: Move existing entities to this new structure and we can parallelize the publish process for each of
+        // TODO : Move existing entities to this new structure and we can parallelize the publish process for each of
         // this
         Mono<Tuple2<Mono<Application>, ApplicationPublishingMetaDTO>> applicationPublishMetadataMono =
                 super.publishAndGetMetadata(applicationId, isPublishedManually);
