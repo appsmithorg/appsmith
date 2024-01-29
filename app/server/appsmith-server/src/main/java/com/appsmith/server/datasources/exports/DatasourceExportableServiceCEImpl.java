@@ -9,11 +9,13 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableServiceCE;
@@ -102,6 +104,21 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
                 .then();
     }
 
+    @Override
+    public Mono<Void> getExportableEntities(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson,
+            Boolean isContextAgnostic) {
+        return exportableArtifactMono.flatMap(exportableArtifact -> {
+            Mono<Application> applicationMono = Mono.just((Application) exportableArtifact);
+            ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+            return getExportableEntities(
+                    exportingMetaDTO, mappedExportableResourcesDTO, applicationMono, applicationJson);
+        });
+    }
+
     private void removeSensitiveFields(DatasourceStorage datasourceStorage) {
         if (datasourceStorage.getDatasourceConfiguration() != null) {
             datasourceStorage.getDatasourceConfiguration().setAuthentication(null);
@@ -127,12 +144,23 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
     public void sanitizeEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            ArtifactExchangeJson artifactExchangeJson,
+            SerialiseArtifactObjective serialiseFor,
+            Boolean isContextAgnositc) {
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+        sanitizeEntities(exportingMetaDTO, mappedExportableResourcesDTO, applicationJson, serialiseFor);
+    }
+
+    @Override
+    public void sanitizeEntities(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ApplicationJson applicationJson,
-            SerialiseApplicationObjective serialiseFor) {
+            SerialiseArtifactObjective serialiseFor) {
         // Save decrypted fields for datasources for internally used sample apps and templates
         // only when serialising for file sharing
         if (TRUE.equals(exportingMetaDTO.getExportWithConfiguration())
-                && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
+                && SerialiseArtifactObjective.SHARE.equals(serialiseFor)) {
             // Save decrypted fields for datasources
             Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
             applicationJson.getDatasourceList().forEach(datasourceStorage -> {

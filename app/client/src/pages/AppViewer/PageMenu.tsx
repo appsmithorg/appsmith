@@ -7,7 +7,7 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import classNames from "classnames";
 import PrimaryCTA from "./PrimaryCTA";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";

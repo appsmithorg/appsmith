@@ -27,6 +27,8 @@ describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
     cy.intercept("POST", "/api/v1/users/forgotPassword", {
       fixture: "resetPassword.json",
     }).as("resetPwd");
+    _.agHelper.GetNClick(homePage.homeIcon, 0, true);
+    _.agHelper.GetNClick(homePage.profileMenu, 0, true);
     cy.get(".t--edit-profile").click({ force: true });
 
     // Waiting as the input onchange has a debounce

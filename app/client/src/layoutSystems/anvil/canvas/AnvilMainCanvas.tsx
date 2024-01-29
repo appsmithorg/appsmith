@@ -2,6 +2,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilCanvas } from "./AnvilCanvas";
 import React from "react";
 import { useCanvasActivation } from "../canvasArenas/hooks/mainCanvas/useCanvasActivation";
+import { useSelectWidgetListener } from "../common/hooks/useSelectWidgetListener";
 
 /**
  * Anvil Main Canvas is just a wrapper around AnvilCanvas.
@@ -12,5 +13,6 @@ import { useCanvasActivation } from "../canvasArenas/hooks/mainCanvas/useCanvasA
 
 export const AnvilMainCanvas = (props: BaseWidgetProps) => {
   useCanvasActivation();
+  useSelectWidgetListener();
   return <AnvilCanvas {...props} />;
 };

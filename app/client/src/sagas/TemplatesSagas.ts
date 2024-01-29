@@ -43,7 +43,7 @@ import {
   getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   fetchApplication,
   showReconnectDatasourceModal,

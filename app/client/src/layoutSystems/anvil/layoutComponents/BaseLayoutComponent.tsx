@@ -53,6 +53,7 @@ abstract class BaseLayoutComponent extends PureComponent<
   getFlexLayoutProps(): Omit<FlexLayoutProps, "children"> {
     return {
       canvasId: this.props.canvasId,
+      isContainer: !!this.props.isContainer,
       isDropTarget: !!this.props.isDropTarget,
       layoutId: this.props.layoutId,
       layoutIndex: this.props.layoutIndex,

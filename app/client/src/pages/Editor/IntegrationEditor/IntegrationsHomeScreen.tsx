@@ -20,7 +20,7 @@ import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import Debugger, {

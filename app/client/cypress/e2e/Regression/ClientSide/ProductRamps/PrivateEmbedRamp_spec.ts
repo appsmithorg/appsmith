@@ -100,6 +100,7 @@ describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
       _.agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         let appName: any = uid;
+        _.homePage.SelectWorkspace(workspaceName);
         _.homePage.CreateAppInWorkspace(workspaceName, appName);
       });
       checkAppSettingsRamp();

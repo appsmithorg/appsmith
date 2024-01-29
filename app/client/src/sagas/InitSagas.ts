@@ -37,7 +37,6 @@ import {
   selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
-import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import type { AppEnginePayload } from "entities/Engine";
 import { PageNotFoundError } from "entities/Engine";
@@ -360,8 +359,6 @@ function* resetEditorSaga() {
   yield put(resetPageList());
   yield put(resetApplicationWidgets());
   yield put(resetRecentEntities());
-  // End guided tour once user exits editor
-  yield put(enableGuidedTour(false));
   // Reset to edit mode once user exits editor
   // Without doing this if the user creates a new app they
   // might end up in preview mode if they were in preview mode

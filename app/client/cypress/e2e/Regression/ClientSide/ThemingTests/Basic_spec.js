@@ -64,10 +64,8 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     appSettings.ClosePane();
 
     // drop a button & container widget and click on body
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
-    cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
-    cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
-    cy.assertPageSave();
+    cy.dragAndDropToCanvas("buttonwidget", { x: 100, y: 100 });
+    cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 200 });
     cy.get("canvas").first(0).trigger("click", { force: true });
 
     appSettings.OpenAppSettings();
@@ -192,8 +190,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
   });
 
   it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
-    cy.dragAndDropToCanvas("iconbuttonwidget", { x: 200, y: 300 });
+    cy.dragAndDropToCanvas("iconbuttonwidget", { x: 300, y: 300 });
     cy.assertPageSave();
     cy.get("canvas").first(0).trigger("click", { force: true });
 
@@ -687,9 +684,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
   });
 
   it("9. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
-    cy.assertPageSave();
     cy.moveToStyleTab();
     //Change Color & verify
     cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
