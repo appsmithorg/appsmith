@@ -38,6 +38,30 @@ const ideReducer = createReducer(initialState, {
     ...state,
     tabs: { ...state.tabs, [EditorEntityTab.QUERIES]: action.payload },
   }),
+  [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (
+    state: IDEState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    tabs: {
+      ...state.tabs,
+      [EditorEntityTab.QUERIES]: state.tabs[EditorEntityTab.QUERIES].filter(
+        (tab) => tab !== action.payload.id,
+      ),
+    },
+  }),
+  [ReduxActionTypes.DELETE_JS_ACTION_SUCCESS]: (
+    state: IDEState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    tabs: {
+      ...state.tabs,
+      [EditorEntityTab.JS]: state.tabs[EditorEntityTab.JS].filter(
+        (tab) => tab !== action.payload.id,
+      ),
+    },
+  }),
 });
 
 export interface IDEState {
