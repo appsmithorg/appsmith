@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.cakes.BaseCake;
@@ -14,12 +15,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,7 +72,6 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
     }
 
     public Mono<T> update(ID id, T resource, String key) {
-        return Mono.empty(); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -90,9 +94,9 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
 
         return mongoTemplate
                 .updateFirst(query, updateObj, resource.getClass())
-                .flatMap(obj -> repository.findById(id))
+                .flatMap(obj -> repository.findById((String) id))
                 .flatMap(savedResource ->
-                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));*/
+                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {

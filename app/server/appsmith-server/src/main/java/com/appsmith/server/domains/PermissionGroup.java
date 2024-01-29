@@ -20,8 +20,7 @@ public class PermissionGroup extends BaseDomain {
 
     @NotNull String name;
 
-    @ManyToOne
-    Tenant tenant;
+    String tenantId;
 
     String description;
 

@@ -415,8 +415,8 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
         Mono<User> userWithTenantMono = Mono.just(user).flatMap(userBeforeSave -> {
             if (userBeforeSave.getTenantId() == null) {
-                return tenantService.getDefaultTenant().map(tenant -> {
-                    userBeforeSave.setTenant(tenant);
+                return tenantService.getDefaultTenantId().map(tenantId -> {
+                    userBeforeSave.setTenantId(tenantId);
                     return userBeforeSave;
                 });
             }
@@ -621,20 +621,25 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
         Mono<UserData> updatedUserDataMono;
 
         if (allUpdates.hasUserUpdates()) {
-            final User updates = new User();
             String inputName = allUpdates.getName();
             boolean isValidName = validateName(inputName);
             if (!isValidName) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
             }
-            updates.setName(inputName);
             updatedUserMono = sessionUserService
                     .getCurrentUser()
-                    .flatMap(user -> update(user.getEmail(), updates, "email")
-                            .then(
-                                    exchange == null
-                                            ? repository.findByEmail(user.getEmail())
-                                            : sessionUserService.refreshCurrentUser(exchange)))
+                    .flatMap(user -> {
+                        user.setName(inputName);
+                        return repository.save(user).flatMap(savedUser -> {
+                            if (exchange != null) {
+                                // Can we do this in a separate thread, async?
+                                return sessionUserService
+                                        .refreshCurrentUser(exchange)
+                                        .thenReturn(savedUser);
+                            }
+                            return Mono.just(savedUser);
+                        });
+                    })
                     .cache();
             monos.add(updatedUserMono.then());
         } else {

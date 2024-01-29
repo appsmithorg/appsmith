@@ -4,10 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -91,12 +88,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     Boolean isAnonymous = false;
 
-    @ManyToOne
-    @JoinColumn(name = "tenant_id", referencedColumnName = "id")
-    @JsonView(Views.Internal.class)
-    private Tenant tenant;
-
-    @Column(name = "tenant_id", insertable = false, updatable = false)
     @JsonView(Views.Public.class)
     private String tenantId;
 

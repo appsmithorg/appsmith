@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
@@ -20,16 +21,12 @@ import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -143,24 +140,19 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "userId"));
         }
 
-        Query query = new Query(Criteria.where("userId").is(userId));
-
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
         if (resource.getPolicies().isEmpty()) {
             resource.setPolicies(null);
         }
 
-        DBObject update = getDbObject(resource);
-
-        Update updateObj = new Update();
-        Map<String, Object> updateMap = update.toMap();
-        updateMap.entrySet().stream().forEach(entry -> updateObj.set(entry.getKey(), entry.getValue()));
-
-        return mongoTemplate
-                .updateFirst(query, updateObj, resource.getClass())
-                .flatMap(updateResult ->
-                        updateResult.getMatchedCount() == 0 ? Mono.empty() : repository.findByUserId(userId))
+        return repository
+                .findByUserId(userId)
+                .map(userData -> {
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, userData);
+                    return userData;
+                })
+                .flatMap(repository::save)
                 .flatMap(analyticsService::sendUpdateEvent);
     }
 

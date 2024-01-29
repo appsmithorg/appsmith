@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -27,6 +28,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.mongodb.DBObject;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -34,6 +36,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -117,7 +122,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     @Override
     public Flux<Workspace> get(MultiValueMap<String, String> params) {
-        return Flux.empty(); /*
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
             Set<String> workspaceIds = user.getWorkspaceIds();
             if (workspaceIds == null || workspaceIds.isEmpty()) {
@@ -125,7 +129,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                 return Flux.empty();
             }
             return repository.findAllById(workspaceIds);
-        });*/
+        });
     }
 
     /**
@@ -219,7 +223,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     protected Mono<Workspace> addPoliciesAndSaveWorkspace(
             Set<PermissionGroup> permissionGroups, Workspace createdWorkspace) {
-        return Mono.empty(); /*
         createdWorkspace.setDefaultPermissionGroups(
                 permissionGroups.stream().map(PermissionGroup::getId).collect(Collectors.toSet()));
         // Apply the permissions to the workspace
@@ -228,7 +231,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                     permissionGroup, createdWorkspace.getId());
             createdWorkspace = policySolution.addPoliciesToExistingObject(policyMap, createdWorkspace);
         }
-        return repository.save(createdWorkspace);*/
+        return repository.save(createdWorkspace);
     }
 
     @Override
@@ -257,7 +260,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
         adminPermissionGroup.setName(generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName));
         adminPermissionGroup.setDefaultDomainId(workspaceId);
         adminPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        // adminPermissionGroup.setTenantId(workspace.getTenantId());
+        adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
         adminPermissionGroup.setPermissions(Set.of());
 
@@ -266,7 +269,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
         developerPermissionGroup.setName(generateDefaultRoleNameForResource(DEVELOPER, workspaceName));
         developerPermissionGroup.setDefaultDomainId(workspaceId);
         developerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        // developerPermissionGroup.setTenantId(workspace.getTenantId());
+        developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
         developerPermissionGroup.setPermissions(Set.of());
 
@@ -275,7 +278,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
         viewerPermissionGroup.setName(generateDefaultRoleNameForResource(VIEWER, workspaceName));
         viewerPermissionGroup.setDefaultDomainId(workspaceId);
         viewerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        // viewerPermissionGroup.setTenantId(workspace.getTenantId());
+        viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
         viewerPermissionGroup.setPermissions(Set.of());
 
@@ -306,7 +309,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                 .collect(Collectors.toSet());
         // The administrator should also be able to assign any of the three permissions groups
         Set<Permission> assignPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
         // All the default permission groups should be readable by all the members of the workspace
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
@@ -405,7 +408,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     @Override
     public Mono<Workspace> update(String id, Workspace resource) {
-        return Mono.empty(); /*
 
         this.validateIncomingWorkspace(resource);
         // Ensure the resource has the same ID as from the parameter.
@@ -446,29 +448,28 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
             });
         }
 
-        return updateDefaultGroups_thenReturnWorkspaceMono
-                .map(workspaceFromDb -> {
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, workspaceFromDb);
-                    return workspaceFromDb;
-                })
-                .flatMap(this::validateObject)
-                .then(Mono.defer(() -> {
-                    Query query = new Query(
-                            Criteria.where("id").is(id));
-                    DBObject update = getDbObject(resource);
-                    Update updateObj = new Update();
-                    Map<String, Object> updateMap = update.toMap();
-                    updateMap.forEach(updateObj::set);
-                    return mongoTemplate
-                            .updateFirst(query, updateObj, resource.getClass())
-                            .flatMap(updateResult -> {
-                                if (updateResult.getMatchedCount() == 0) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id));
-                                }
-                                return repository.findById(id).flatMap(analyticsService::sendUpdateEvent);
-                            });
-                }));*/
+        updateDefaultGroups_thenReturnWorkspaceMono.map(workspaceFromDb -> {
+            AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, workspaceFromDb);
+            return workspaceFromDb;
+        });
+        updateDefaultGroups_thenReturnWorkspaceMono.flatMap(this::validateObject);
+        updateDefaultGroups_thenReturnWorkspaceMono.then(Mono.defer(() -> {
+            Query query = new Query(Criteria.where("id").is(id));
+            DBObject update = getDbObject(resource);
+            Update updateObj = new Update();
+            Map<String, Object> updateMap = update.toMap();
+            updateMap.forEach(updateObj::set);
+            return mongoTemplate
+                    .updateFirst(query, updateObj, resource.getClass())
+                    .flatMap(updateResult -> {
+                        if (updateResult.getMatchedCount() == 0) {
+                            return Mono.error(
+                                    new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id));
+                        }
+                        return repository.findById(id).flatMap(analyticsService::sendUpdateEvent);
+                    });
+        }));
+        return updateDefaultGroups_thenReturnWorkspaceMono;
     }
 
     @Override
