@@ -135,9 +135,7 @@ const ItemWrapper = styled.div`
 `;
 
 const SubSection = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
-  overflow-y: scroll;
-  height: 100%;
+  padding-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const HeadingWrapper = styled.div`

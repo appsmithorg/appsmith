@@ -123,8 +123,10 @@ const DataStructureListWrapper = styled.div`
 export const CollapsibleSection = styled.div<{
   height: string;
   marginTop?: number;
+  paddingTop?: number;
 }>`
-  margin-top: ${(props) => props?.marginTop && `${props.marginTop}px`};
+  margin-top: ${(props) => props.marginTop && `${props.marginTop}px`};
+  padding-top: ${(props) => props.paddingTop && `${props.paddingTop}px`};
   height: auto;
   display: flex;
   width: 100%;
@@ -350,7 +352,7 @@ function ActionSidebar({
 
           {showSuggestedWidgets && showSchema && <StyledDivider />}
           {showSuggestedWidgets && suggestedWidgetsEnabled && (
-            <CollapsibleSection height={"40%"} marginTop={12}>
+            <CollapsibleSection height={"40%"} paddingTop={12}>
               <SuggestedWidgets
                 actionName={actionName}
                 hasWidgets={hasWidgets}
