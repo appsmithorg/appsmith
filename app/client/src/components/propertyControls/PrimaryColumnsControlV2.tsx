@@ -32,6 +32,7 @@ import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListCon
 import { Button } from "design-system";
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
+  right:15px;
   ${(props) => props.rightPadding && `right: 6px;`}
   align-items: center;
   .ads-v2-checkbox {
