@@ -54,8 +54,8 @@ import { getHTMLPageTitle } from "@appsmith/utils/BusinessFeatures/brandingPageH
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};
-  const email = values[LOGIN_FORM_EMAIL_FIELD_NAME] || "";
-  const password = values[LOGIN_FORM_PASSWORD_FIELD_NAME];
+  let email = values[LOGIN_FORM_EMAIL_FIELD_NAME] || "";
+  let password = values[LOGIN_FORM_PASSWORD_FIELD_NAME];
   const { isPasswordFieldDirty, touch } = props;
   if (!password || isEmptyString(password)) {
     isPasswordFieldDirty && touch?.(LOGIN_FORM_PASSWORD_FIELD_NAME);
@@ -69,7 +69,8 @@ const validate = (values: LoginFormValues, props: ValidateProps) => {
       FORM_VALIDATION_INVALID_EMAIL,
     );
   }
-
+  password = "";
+email = "";
   return errors;
 };
 
