@@ -62,6 +62,7 @@ import {
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { ApiEditorContext } from "./ApiEditorContext";
+import ActionToolbar from "../IDE/EditorPane/components/ActionToolbar";
 
 const Form = styled.form`
   position: relative;
@@ -741,6 +742,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 </StyledTabPanel>
               </Tabs>
             </TabbedViewContainer>
+            <ActionToolbar onRunClick={onRunClick} onSettingsClick={noop} />
             {showDebugger && (
               <ApiResponseView
                 actionResponse={actionResponse}

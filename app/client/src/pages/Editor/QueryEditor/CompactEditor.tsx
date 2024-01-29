@@ -27,6 +27,8 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasExecuteActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { actionResponseDisplayDataFormats } from "../utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import ActionToolbar from "../IDE/EditorPane/components/ActionToolbar";
+import { noop } from "lodash";
 
 interface Props {
   actionName: string;
@@ -111,6 +113,7 @@ const QueryEditorCompact = (props: Props) => {
           uiComponent={uiComponent}
         />
       </Flex>
+      <ActionToolbar onRunClick={onRunClick} onSettingsClick={noop} />
       {renderDebugger &&
         selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
           <QueryResponseTabView

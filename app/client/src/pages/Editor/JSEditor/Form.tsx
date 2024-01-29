@@ -20,7 +20,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import JSResponseView from "components/editorComponents/JSResponseView";
-import { isEmpty } from "lodash";
+import { isEmpty, noop } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { JSFunctionRun } from "./JSFunctionRun";
 import type { AppState } from "@appsmith/reducers";
@@ -70,6 +70,7 @@ import {
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import ActionToolbar from "../IDE/EditorPane/components/ActionToolbar";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -424,6 +425,10 @@ function JSEditorForm({
                     )}
                   </Tabs>
                 </TabbedViewContainer>
+                <ActionToolbar
+                  onRunClick={handleRunAction}
+                  onSettingsClick={noop}
+                />
                 {showDebugger ? (
                   <JSResponseView
                     currentFunction={activeResponse}
