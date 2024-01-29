@@ -16,7 +16,6 @@ import { EmptyState } from "../components/EmptyState";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
 import styled from "styled-components";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 const ListContainer = styled(Flex)`
   & .t--entity-item {
@@ -32,7 +31,6 @@ const ListWidgets = () => {
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
 
   const canManagePages = getHasManagePagePermission(
     isFeatureEnabled,
@@ -68,7 +66,7 @@ const ListWidgets = () => {
           icon={"widgets-v3"}
           onClick={canManagePages ? addButtonClickHandler : undefined}
         />
-      ) : canManagePages && !isSideBySideEnabled ? (
+      ) : canManagePages ? (
         /* We show the List Add button when side by side is not enabled  */
         <Flex flexDirection="column" px="spaces-3">
           <Button
