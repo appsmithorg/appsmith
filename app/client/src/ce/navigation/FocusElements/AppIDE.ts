@@ -83,9 +83,9 @@ import {
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
-import { getIDETabs } from "../../../selectors/ideSelectors";
-import { setIDETabs } from "../../../actions/ideActions";
-import { IDETabsDefaultValue } from "../../../reducers/uiReducers/ideReducer";
+import { getIDETabs } from "selectors/ideSelectors";
+import { setIDETabs } from "actions/ideActions";
+import { IDETabsDefaultValue } from "reducers/uiReducers/ideReducer";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
