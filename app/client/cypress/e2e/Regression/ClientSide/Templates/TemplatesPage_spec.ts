@@ -1,10 +1,11 @@
 import { agHelper, templates } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Templates page",
   { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
-    it("1. Templates tab should have no impact of 'allowPageImport:true'", () => {
+    it("1. Templates Modal should have show only 'allowPageImport:true' templates", () => {
       cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
         cy.intercept(
           {
@@ -16,21 +17,20 @@ describe(
             body: data,
           },
         ).as("fetchAllTemplates");
-        templates.SwitchToTemplatesTab();
         agHelper.RefreshPage(); //is important for below intercept to go thru!
+        PageList.AddNewPage("Add page from template");
+        agHelper.AssertElementVisibility(templates.locators._templateDialogBox);
         cy.wait("@fetchAllTemplates").then(({ request, response }) => {
           if (response) {
             // in the fixture data we are sending some tempaltes with `allowPageImport: false`
-            templates
-              .GetTemplatesCardsList()
-              .should("have.length", response.body.data.length);
 
             const templatesFilteredForAllowPageImport =
               response.body.data.filter((card: any) => !!card.allowPageImport);
+
             templates
               .GetTemplatesCardsList()
               .should(
-                "not.have.length",
+                "have.length",
                 templatesFilteredForAllowPageImport.length,
               );
           }

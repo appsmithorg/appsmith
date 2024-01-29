@@ -51,7 +51,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     { tags: ["@tag.airgap"] },
     () => {
       cy.visit("/applications", { timeout: 60000 });
-      if (!Cypress.env("AIRGAPPED")) cy.wait("@getReleaseItems");
+      if (!Cypress.env("AIRGAPPED")) cy.wait("@getAllWorkspaces");
 
       cy.get(".admin-settings-menu-option").click();
       cy.wait("@getEnvVariables");

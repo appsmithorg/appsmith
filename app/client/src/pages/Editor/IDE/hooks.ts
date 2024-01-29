@@ -65,6 +65,10 @@ export const useCurrentEditorState = () => {
         setSelectedSegment(EditorEntityTab.JS);
         setSelectedSegmentState(EditorEntityTabState.Edit);
         break;
+      case FocusEntity.JS_OBJECT_ADD:
+        setSelectedSegment(EditorEntityTab.JS);
+        setSelectedSegmentState(EditorEntityTabState.Add);
+        break;
       case FocusEntity.JS_OBJECT_LIST:
         setSelectedSegment(EditorEntityTab.JS);
         setSelectedSegmentState(EditorEntityTabState.List);

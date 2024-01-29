@@ -8,7 +8,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
@@ -70,7 +70,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
         final MappedExportableResourcesDTO mappedResourcesDTO = new MappedExportableResourcesDTO();
         final ExportingMetaDTO exportingMetaDTO = new ExportingMetaDTO();
 
-        exportingMetaDTO.setApplicationId(applicationId);
+        exportingMetaDTO.setArtifactId(applicationId);
         exportingMetaDTO.setBranchName(null);
         exportingMetaDTO.setIsGitSync(false);
         exportingMetaDTO.setExportWithConfiguration(false);
@@ -164,7 +164,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                 exportingMetaDTO,
                                 mappedResourcesDTO,
                                 applicationJson,
-                                SerialiseApplicationObjective.SHARE);
+                                SerialiseArtifactObjective.SHARE);
                     }
                     return Mono.just(applicationJson).zipWith(sessionUserService.getCurrentUser());
                 })
@@ -266,8 +266,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private Mono<String> updatePageNameInResourceMapDTO(
             String pageId, MappedExportableResourcesDTO mappedResourcesDTO) {
         return newPageService.getNameByPageId(pageId, false).flatMap(pageName -> {
-            mappedResourcesDTO.getPageIdToNameMap().put(pageId + EDIT, pageName);
-            mappedResourcesDTO.getPageIdToNameMap().put(pageId + VIEW, pageName);
+            mappedResourcesDTO.getPageOrModuleIdToNameMap().put(pageId + EDIT, pageName);
+            mappedResourcesDTO.getPageOrModuleIdToNameMap().put(pageId + VIEW, pageName);
             return Mono.just(pageId);
         });
     }

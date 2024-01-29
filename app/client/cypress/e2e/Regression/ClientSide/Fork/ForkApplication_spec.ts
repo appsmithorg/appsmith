@@ -69,7 +69,7 @@ describe(
     it("2. Non signed user should be able to fork a public forkable app", function () {
       homePage.NavigateToHome();
       cy.get(homepagelocators.homeIcon).click();
-      cy.get(homepagelocators.optionsIcon).first().click();
+      agHelper.GetNClick(homepagelocators.createNew, 0);
       cy.get(homepagelocators.workspaceImportAppOption).click({ force: true });
       cy.get(homepagelocators.workspaceImportAppModal).should("be.visible");
       cy.xpath(homepagelocators.uploadLogo).selectFile(
@@ -111,7 +111,7 @@ describe(
           cy.wait(4000);
           cy.get(applicationLocators.forkButton).first().click({ force: true });
           cy.get(loginPageLocators.signupLink).click();
-          cy.generateUUID().then((uid) => {
+          cy.generateUUID().then((uid: string) => {
             cy.get(signupPageLocators.username).type(`${uid}@appsmith.com`);
             cy.get(signupPageLocators.password).type(uid);
             cy.get(signupPageLocators.submitBtn).click();

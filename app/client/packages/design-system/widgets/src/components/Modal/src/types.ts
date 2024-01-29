@@ -45,4 +45,6 @@ export interface ModalFooterProps {
 
 export interface ModalBodyProps {
   children: ReactNode;
+  style?: React.CSSProperties;
+  className?: string;
 }

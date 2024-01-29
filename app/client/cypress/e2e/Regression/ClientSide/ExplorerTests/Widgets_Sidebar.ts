@@ -3,6 +3,7 @@ import {
   agHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Entity explorer tests related to widgets and validation",
@@ -80,6 +81,10 @@ describe(
         0,
       );
     };
+
+    before(() => {
+      featureFlagIntercept({ release_custom_widgets_enabled: true });
+    });
 
     it("1. All widget tags should be visible and open by default.", () => {
       agHelper.AssertElementLength(

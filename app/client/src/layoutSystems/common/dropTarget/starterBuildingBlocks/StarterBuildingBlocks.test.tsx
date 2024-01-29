@@ -66,9 +66,8 @@ describe("<StarterBuildingBlocks />", () => {
     store = mockStore({
       ...unitTestBaseMockStore,
       ui: {
-        workspaces: {
-          currentWorkspace:
-            unitTestBaseMockStore.ui.workspaces.currentWorkspace,
+        selectedWorkspace: {
+          workspace: unitTestBaseMockStore.ui.workspaces.currentWorkspace,
         },
         applications: {
           isFetchingApplications: false,
