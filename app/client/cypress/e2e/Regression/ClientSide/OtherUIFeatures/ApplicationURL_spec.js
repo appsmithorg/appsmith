@@ -84,9 +84,9 @@ describe("Slug URLs", () => {
           });
           entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
 
-          cy.updateCodeInput(
-            ".t--property-control-text",
-            `{{appsmith.URL.pathname}}`,
+          propPane.UpdatePropertyFieldValue(
+            "Text",
+            "{{appsmith.URL.pathname}}",
           );
 
           cy.get(".t--draggable-textwidget .bp3-ui-text").should(
@@ -94,11 +94,13 @@ describe("Slug URLs", () => {
             `/applications/${application.id}/pages/${currentPageId}/edit`,
           );
 
-          cy.get(".t--upgrade").click({ force: true });
+          agHelper.GetNClick(".t--upgrade");
 
-          cy.get(".t--upgrade-confirm").click({ force: true });
+          agHelper.ClickButton("Update");
 
-          cy.wait("@getConsolidatedData").then((intercept) => {
+          assertHelper.AssertNetworkStatus("getConsolidatedData");
+
+          cy.get("@getConsolidatedData").then((intercept) => {
             const { application, pages } =
               intercept.response.body.data.pages.data;
 
@@ -109,7 +111,9 @@ describe("Slug URLs", () => {
                 `/app/${application.slug}/${currentPage.slug}-${currentPage.id}`,
               );
             });
-
+            agHelper.AssertElementVisibility(
+              locators._widgetInCanvas(draggableWidgets.TEXT),
+            );
             cy.get(".t--draggable-textwidget .bp3-ui-text").should(
               "contain.text",
               `/app/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
