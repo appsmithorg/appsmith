@@ -3,7 +3,6 @@ package com.appsmith.server.solutions.ee;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.PermissionGroup;
@@ -89,9 +88,6 @@ public class WorkspaceServiceTestEE {
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    RoleGraph roleGraph;
 
     @Autowired
     MongoTemplate mongoTemplate;
