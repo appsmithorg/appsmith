@@ -50,35 +50,23 @@ public class SeedMongoData {
         final String ADMIN_USER_EMAIL = "admin@solutiontest.com";
         final String DEV_USER_EMAIL = "developer@solutiontest.com";
 
-        Policy userManageWorkspacePolicy = Policy.builder()
-                .permission(USER_MANAGE_WORKSPACES.getValue())
-                .users(Set.of(API_USER_EMAIL, TEST_USER_EMAIL, ADMIN_USER_EMAIL, DEV_USER_EMAIL))
-                .build();
+        Policy userManageWorkspacePolicy =
+                Policy.builder().permission(USER_MANAGE_WORKSPACES.getValue()).build();
 
-        Policy readApiUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(API_USER_EMAIL))
-                .build();
+        Policy readApiUserPolicy =
+                Policy.builder().permission(READ_USERS.getValue()).build();
 
-        Policy manageApiUserPolicy = Policy.builder()
-                .permission(MANAGE_USERS.getValue())
-                .users(Set.of(API_USER_EMAIL))
-                .build();
+        Policy manageApiUserPolicy =
+                Policy.builder().permission(MANAGE_USERS.getValue()).build();
 
-        Policy readTestUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(TEST_USER_EMAIL))
-                .build();
+        Policy readTestUserPolicy =
+                Policy.builder().permission(READ_USERS.getValue()).build();
 
-        Policy readAdminUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(ADMIN_USER_EMAIL))
-                .build();
+        Policy readAdminUserPolicy =
+                Policy.builder().permission(READ_USERS.getValue()).build();
 
-        Policy readDevUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(DEV_USER_EMAIL))
-                .build();
+        Policy readDevUserPolicy =
+                Policy.builder().permission(READ_USERS.getValue()).build();
 
         Object[][] userData = {
             {

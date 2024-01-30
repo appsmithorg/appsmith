@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.helpers.ce.GitFileUtilsCE;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
@@ -15,14 +16,12 @@ import org.springframework.stereotype.Component;
 @Import({FileUtilsImpl.class})
 public class GitFileUtils extends GitFileUtilsCE {
 
-    private final Gson gson;
-
     public GitFileUtils(
             FileInterface fileUtils,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
+            NewActionService newActionService,
             Gson gson) {
-        super(fileUtils, analyticsService, sessionUserService, gson);
-        this.gson = gson;
+        super(fileUtils, analyticsService, sessionUserService, newActionService, gson);
     }
 }

@@ -225,7 +225,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
+    public ActionDTO generateActionByViewMode(NewAction newAction, Boolean viewMode) {
         ActionDTO action = null;
 
         if (TRUE.equals(viewMode)) {
@@ -234,14 +234,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             } else {
                 // We are trying to fetch published action but it doesn't exist because the action hasn't been published
                 // yet
-                return Mono.empty();
+                return null;
             }
         } else {
             if (newAction.getUnpublishedAction() != null) {
                 action = newAction.getUnpublishedAction();
             } else {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.INVALID_ACTION, newAction.getId(), "No unpublished action found for edit mode"));
+                throw new AppsmithException(
+                        AppsmithError.INVALID_ACTION, newAction.getId(), "No unpublished action found for edit mode");
             }
         }
 
@@ -255,7 +255,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             action.getDefaultResources().setApplicationId(defaultResources.getApplicationId());
         }
 
-        return Mono.just(action);
+        return action;
     }
 
     @Override
@@ -573,7 +573,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
-                .flatMap(action1 -> generateActionByViewMode(action1, false))
+                .map(action1 -> generateActionByViewMode(action1, false))
                 .flatMap(this::populateHintMessages);
     }
 
@@ -690,12 +690,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
         return repository
                 .findByUnpublishedNameAndPageId(name, pageId, permission)
-                .flatMap(action -> generateActionByViewMode(action, false));
+                .map(action -> generateActionByViewMode(action, false));
     }
 
     @Override
     public Mono<ActionDTO> findActionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission) {
-        return this.findById(id, permission).flatMap(action -> generateActionByViewMode(action, viewMode));
+        return this.findById(id, permission).map(action -> generateActionByViewMode(action, viewMode));
     }
 
     @Override
@@ -930,7 +930,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return newActionMono;
                 })
-                .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
+                .map(updatedAction -> generateActionByViewMode(updatedAction, false));
     }
 
     /*
@@ -1687,9 +1687,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         unpublishedAction.setCollectionId(mapsDTO.getUnpublishedActionIdToCollectionIdMap()
                                 .get(newAction.getId())
                                 .get(0));
-                        if (unpublishedAction.getDefaultResources() != null
-                                && !StringUtils.hasText(
-                                        unpublishedAction.getDefaultResources().getCollectionId())) {
+                        if (unpublishedAction.getDefaultResources() != null) {
 
                             unpublishedAction
                                     .getDefaultResources()
@@ -1705,9 +1703,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .get(newAction.getId())
                                 .get(0));
 
-                        if (publishedAction.getDefaultResources() != null
-                                && org.apache.commons.lang3.StringUtils.isEmpty(
-                                        publishedAction.getDefaultResources().getCollectionId())) {
+                        if (publishedAction.getDefaultResources() != null) {
 
                             publishedAction
                                     .getDefaultResources()
