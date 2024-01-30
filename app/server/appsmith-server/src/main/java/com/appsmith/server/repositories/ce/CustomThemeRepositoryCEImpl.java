@@ -39,14 +39,17 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         Criteria systemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
         Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
-        return queryAll(List.of(criteria), aclPermission);
+        return queryAll().criteria(List.of(criteria)).permission(aclPermission).submit();
     }
 
     @Override
     public Flux<Theme> getSystemThemes() {
         Criteria systemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
-        return queryAll(List.of(systemThemeCriteria), AclPermission.READ_THEMES);
+        return queryAll()
+                .criteria(List.of(systemThemeCriteria))
+                .permission(AclPermission.READ_THEMES)
+                .submit();
     }
 
     @Override
