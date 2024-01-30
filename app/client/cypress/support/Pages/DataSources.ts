@@ -431,9 +431,14 @@ export class DataSources {
     }).as("testDatasource");
   }
 
-  public CreatePlugIn(pluginName: string, waitForToastDisappear = false) {
+  public CreatePlugIn(
+    pluginName: string,
+    waitForToastDisappear = false,
+    index = 0,
+  ) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
+      .eq(index)
       .trigger("click", { force: true });
     this.agHelper.Sleep();
     //this.agHelper.WaitUntilEleAppear(this.locator._toastMsg);

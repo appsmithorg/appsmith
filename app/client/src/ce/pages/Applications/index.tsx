@@ -20,7 +20,6 @@ import {
   getApplicationSearchKeyword,
   getCreateApplicationError,
   getCurrentApplicationIdForCreateNewApp,
-  getDeletingMultipleApps,
   getIsCreatingApplication,
   getIsDeletingApplication,
 } from "@appsmith/selectors/applicationSelectors";
@@ -74,7 +73,6 @@ import {
   NO_APPS_FOUND,
   NO_WORKSPACE_DESCRIPTION,
   NO_WORKSPACE_HEADING,
-  SEARCH_APPS,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
 
@@ -117,7 +115,6 @@ import {
   getIsFetchingWorkspaces,
   getIsSavingWorkspaceInfo,
 } from "@appsmith/selectors/workspaceSelectors";
-import ApplicationsSubHeader from "pages/common/SubHeader";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import {
@@ -188,10 +185,9 @@ export const ItemWrapper = styled.div`
 export const StyledIcon = styled(Icon)`
   margin-right: 11px;
 `;
-export const WorkspaceShareUsers = styled.div<{ isHidden?: boolean }>`
+export const WorkspaceShareUsers = styled.div`
   display: flex;
   align-items: center;
-  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
 
   & .t--options-icon {
     margin-left: 8px;
@@ -506,9 +502,6 @@ export function ApplicationsSection(props: any) {
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
-  const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
-  const isEnabledMultipleSelection =
-    !!deleteMultipleApplicationObject.list?.length;
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -733,7 +726,7 @@ export function ApplicationsSection(props: any) {
               />
             )}
             {!isLoadingResources && (
-              <WorkspaceShareUsers isHidden={isEnabledMultipleSelection}>
+              <WorkspaceShareUsers>
                 <SharedUserList />
                 {canInviteToWorkspace && !isMobile && (
                   <FormDialogComponent
@@ -841,7 +834,7 @@ export function ApplicationsSection(props: any) {
 }
 
 export const ApplictionsMainPage = (props: any) => {
-  const { searchApplications, searchKeyword } = props;
+  const { searchKeyword } = props;
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const workspaceIdFromQueryParams = urlParams.get("workspaceId");
@@ -939,13 +932,6 @@ export const ApplictionsMainPage = (props: any) => {
                 </Select>
               </WorkspaceSelectorWrapper>
             )}
-            <ApplicationsSubHeader
-              search={{
-                placeholder: createMessage(SEARCH_APPS),
-                queryFn: searchApplications,
-                defaultValue: searchKeyword,
-              }}
-            />
             <ApplicationsSection
               activeWorkspaceId={activeWorkspaceId}
               applications={fetchedApplications}

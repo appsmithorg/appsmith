@@ -5,7 +5,7 @@ import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
 
-import StartWithTemplateFilters from "./index";
+import TemplateFilters from "./index";
 import { lightTheme } from "selectors/themeSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -15,7 +15,7 @@ import {
 
 const mockStore = configureStore([]);
 
-describe("<StartWithTemplateFilters />", () => {
+describe("<TemplateFilters />", () => {
   let store: any;
 
   beforeEach(() => {
@@ -41,12 +41,12 @@ describe("<StartWithTemplateFilters />", () => {
   const BaseComponentRender = () => (
     <Provider store={store}>
       <ThemeProvider theme={lightTheme}>
-        <StartWithTemplateFilters />
+        <TemplateFilters />
       </ThemeProvider>
     </Provider>
   );
 
-  it("renders StartWithTemplateFilters component correctly", () => {
+  it("renders TemplateFilters component correctly", () => {
     render(<BaseComponentRender />);
     const filterItems = screen.getAllByTestId("t--templates-filter-item");
     expect(
@@ -75,7 +75,7 @@ describe("<StartWithTemplateFilters />", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <StartWithTemplateFilters />
+          <TemplateFilters />
         </ThemeProvider>
       </Provider>,
     );
