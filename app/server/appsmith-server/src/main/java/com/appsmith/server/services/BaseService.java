@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -16,9 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -77,27 +75,18 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Query query = new Query(Criteria.where(key).is(id));
-
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
         if (CollectionUtils.isNullOrEmpty(resource.getPolicies())) {
             resource.setPolicies(null);
         }
 
-        resource.setUpdatedAt(Instant.now());
-
-        DBObject update = getDbObject(resource);
-
-        Update updateObj = new Update();
-        Map<String, Object> updateMap = update.toMap();
-        updateMap.entrySet().stream().forEach(entry -> updateObj.set(entry.getKey(), entry.getValue()));
-
-        return mongoTemplate
-                .updateFirst(query, updateObj, resource.getClass())
-                .flatMap(obj -> repository.findById((String) id))
-                .flatMap(savedResource ->
-                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
+        // TODO: Don't `findById`, we have to `findBy{key}` instead.
+        return repository.findById((String) id).flatMap(dbResource -> {
+            dbResource.setUpdatedAt(Instant.now());
+            AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, dbResource);
+            return repository.save(dbResource);
+        });
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
