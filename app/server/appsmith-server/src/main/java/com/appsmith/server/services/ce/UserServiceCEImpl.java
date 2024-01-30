@@ -751,7 +751,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Flux<User> getAllByEmails(Set<String> emails, AclPermission permission) {
-        return repository.findAllByEmails(emails);
+        return repository.findAllByEmailIn(emails);
     }
 
     @Override

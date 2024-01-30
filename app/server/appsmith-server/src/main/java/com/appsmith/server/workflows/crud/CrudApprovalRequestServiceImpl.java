@@ -153,7 +153,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
             Set<String> caseInsensitiveEmails = approvalRequestCreationDTO.getRequestToUsers().stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.toSet());
-            usersMono = userRepository.findAllByEmails(caseInsensitiveEmails).collectList();
+            usersMono = userRepository.findAllByEmailIn(caseInsensitiveEmails).collectList();
         }
 
         if (!ValidationUtils.isEmptyParam(approvalRequestCreationDTO.getRequestToGroups())) {
