@@ -145,6 +145,7 @@ describe(
         workspaceId,
         Cypress.env("TESTUSERNAME2"),
         "App Viewer",
+        false,
       );
       _.agHelper.GetNClick(HomePage.closeBtn);
       _.agHelper.Sleep();
