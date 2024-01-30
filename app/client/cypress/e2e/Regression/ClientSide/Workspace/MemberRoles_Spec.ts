@@ -27,7 +27,7 @@ describe(
         _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 2);
         _.homePage.CreateAppInWorkspace(workspaceId, appid);
       });
-      _.homePage.LogOutviaAPI();
+      //_.homePage.LogOutviaAPI();
     });
 
     it("2. Login as Administrator and search for users using search bar", () => {
@@ -44,7 +44,7 @@ describe(
       cy.get(".search-highlight")
         .should("exist")
         .contains(Cypress.env("TESTUSERNAME1"));
-      _.homePage.Signout();
+      // _.homePage.Signout();
     });
 
     it("3. Login as Invited user and validate Viewer role", function () {
@@ -69,7 +69,7 @@ describe(
       _.agHelper.GetNClick(HomePage.closeBtn);
       _.homePage.LaunchAppFromAppHover(_.locators._emptyPageTxt);
       //_.deployMode.NavigateToHomeDirectly();
-      _.homePage.Signout(false);
+      //_.homePage.Signout(false);
     });
 
     it("4. Login as Workspace owner and Update the Invited user role to Developer", function () {
@@ -82,7 +82,7 @@ describe(
         "App Viewer",
         "Developer",
       );
-      _.homePage.Signout();
+      //_.homePage.Signout();
     });
 
     it("5. Login as Invited user and validate Developer role", function () {
@@ -116,7 +116,7 @@ describe(
       _.agHelper.GetNClick(HomePage.closeBtn);
       _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
 
-      _.homePage.Signout();
+      //_.homePage.Signout();
     });
 
     it("6. Login as Workspace owner and Update the Invited user role to Administrator", function () {
@@ -129,7 +129,7 @@ describe(
         "Developer",
         "Administrator",
       );
-      _.homePage.Signout();
+      //_.homePage.Signout();
     });
 
     it("7. Login as Invited user and validate Administrator role", function () {
@@ -173,7 +173,7 @@ describe(
       _.agHelper.GetNClick(HomePage.closeBtn);
       _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
 
-      _.homePage.Signout();
+      //_.homePage.Signout();
     });
 
     it("8. Login as Workspace owner and verify all 3 users are present", function () {
@@ -206,7 +206,7 @@ describe(
       if (CURRENT_REPO === REPO.EE)
         _.adminSettings.EnableGAC(false, true, "home");
       _.homePage.LeaveWorkspace(workspaceId);
-      _.homePage.Signout();
+      //_.homePage.Signout();
     });
 
     it("10. Login as App Viewer, Verify leave workspace flow", () => {
@@ -219,7 +219,7 @@ describe(
         _.adminSettings.EnableGAC(false, true, "home");
       _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
-      _.homePage.LogOutviaAPI();
+      //_.homePage.LogOutviaAPI();
     });
   },
 );
