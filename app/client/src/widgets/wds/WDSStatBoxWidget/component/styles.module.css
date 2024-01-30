@@ -1,0 +1,5 @@
+.statbox {
+  border: 1px solid var(--color-bd);
+  border-radius: var(--border-radius-1);
+  width: 100%;
+}

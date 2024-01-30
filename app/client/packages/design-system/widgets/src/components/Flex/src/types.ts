@@ -122,6 +122,10 @@ export interface FlexWrap {
   wrap?: Responsive<boolean | "wrap" | "nowrap" | "wrap-reverse">;
 }
 
+export interface FlexInternalProps {
+  isInner?: boolean;
+}
+
 export interface FlexProps
   extends AlignContent,
     AlignItems,
@@ -129,7 +133,8 @@ export interface FlexProps
     JustifyContent,
     JustifySelf,
     FlexDirection,
-    FlexWrap {
+    FlexWrap,
+    FlexInternalProps {
   /*
    * Layout props
    */

@@ -1,13 +1,15 @@
 import { css } from "@emotion/css";
 import kebabCase from "lodash/kebabCase";
 
-import type { FlexCssProps, CssVarValues } from "./types";
+import type { FlexCssProps, CssVarValues, FlexInternalProps } from "./types";
 
 export const flexCss = (props: FlexCssProps) => {
+  const { isInner, ...rest } = props;
+
   return css`
-    ${Object.keys(props).reduce(
+    ${Object.keys(rest).reduce(
       (styles, key) =>
-        styles + flexStyles(key, props[key as keyof FlexCssProps]),
+        styles + flexStyles(key, props[key as keyof FlexCssProps], { isInner }),
       "",
     )}
   `;
@@ -16,6 +18,7 @@ export const flexCss = (props: FlexCssProps) => {
 const flexStyles = (
   cssProp: string,
   value: FlexCssProps[keyof FlexCssProps],
+  extraProps?: FlexInternalProps,
 ): string => {
   if (value == null) return "";
 
@@ -71,6 +74,7 @@ const flexStyles = (
           kebabCase(cssProp),
           value as CssVarValues,
           cssVarValue,
+          extraProps,
         )};
       `;
     default:
@@ -83,7 +87,8 @@ const flexStyles = (
 export const containerDimensionStyles = <T = FlexCssProps[keyof FlexCssProps]>(
   cssProp: string,
   value: T,
-  callback?: (value: T) => void,
+  callback?: (value: T, extraProps?: FlexInternalProps) => void,
+  extraProps?: FlexInternalProps,
 ) => {
   if (value == null) return;
 
@@ -95,20 +100,22 @@ export const containerDimensionStyles = <T = FlexCssProps[keyof FlexCssProps]>(
           `@container (min-width: ${current}) {& {
           ${cssProp}: ${
             //@ts-expect-error: type mismatch
-            callback ? callback(value[current]) : value[current]
+            callback ? callback(value[current], extraProps) : value[current]
           };}}`
         );
       } else {
         return (
           prev +
-          //@ts-expect-error: type mismatch
-          `${cssProp}: ${callback ? callback(value[current]) : value[current]};`
+          `${cssProp}: ${
+            //@ts-expect-error: type mismatch
+            callback ? callback(value[current], extraProps) : value[current]
+          };`
         );
       }
     }, "");
   }
 
-  return `${cssProp}: ${callback ? callback(value) : value};`;
+  return `${cssProp}: ${callback ? callback(value, extraProps) : value};`;
 };
 
 const alignItemsValue = (value: FlexCssProps["alignItems"]) => {
@@ -131,15 +138,21 @@ export const flexWrapValue = (value: FlexCssProps["wrap"]) => {
   return value;
 };
 
-const cssVarValue = (value: CssVarValues) => {
+const cssVarValue = (value: CssVarValues, extraProps?: FlexInternalProps) => {
+  const isInner = Boolean(extraProps?.isInner);
+
   if (value == null) return;
 
   if ((value as string).includes("sizing")) {
     return `var(--${value})`;
   }
 
-  if ((value as string).includes("spacing")) {
+  if ((value as string).includes("spacing") && !isInner) {
     return `var(--outer-${value})`;
+  }
+
+  if ((value as string).includes("spacing") && isInner) {
+    return `var(--inner-${value})`;
   }
 
   return value;

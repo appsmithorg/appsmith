@@ -78,6 +78,7 @@ import { ZoneWidget } from "./anvil/ZoneWidget";
 import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
 import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
 import { WDSModalWidget } from "./wds/WDSModalWidget";
+import { WDSStatBoxWidget } from "./wds/WDSStatBoxWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -167,6 +168,7 @@ const WDSWidgets = [
   WDSParagraphWidget,
   WDSHeadingWidget,
   WDSModalWidget,
+  WDSStatBoxWidget,
 ];
 
 const Widgets = [
