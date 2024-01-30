@@ -2,14 +2,12 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -31,7 +29,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -40,11 +37,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
@@ -93,12 +88,6 @@ public class SeedMongoData {
 
         Policy inviteUserWorkspacePolicy =
                 Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue()).build();
-
-        Policy managePagePolicy =
-                Policy.builder().permission(MANAGE_PAGES.getValue()).build();
-
-        Policy readPagePolicy =
-                Policy.builder().permission(READ_PAGES.getValue()).build();
 
         Policy readWorkspacePolicy =
                 Policy.builder().permission(READ_WORKSPACES.getValue()).build();
@@ -273,14 +262,6 @@ public class SeedMongoData {
                     workspace.setSlug((String) workspaceArray[3]);
                     workspace.setPolicies((Set<Policy>) workspaceArray[4]);
                     workspace.setPlugins(workspacePlugins);
-
-                    List<UserRole> userRoles = new ArrayList<>();
-                    UserRole userRole = new UserRole();
-                    String roleName = "Administrator";
-                    userRole.setRole(AppsmithRole.generateAppsmithRoleFromName(roleName));
-                    userRole.setUsername(API_USER_EMAIL);
-                    userRole.setRoleName(roleName);
-                    userRoles.add(userRole);
 
                     log.debug("In the workspaceFlux. Create Workspace: {}", workspace);
                     return workspace;
