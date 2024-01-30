@@ -10,8 +10,6 @@ import {
 } from "actions/pluginActionActions";
 
 import { useNewActionName } from "./helpers";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
@@ -43,7 +41,6 @@ interface EntityContextMenuProps {
 export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
   const nextEntityName = useNewActionName();
-  const guidedTourEnabled = useSelector(inGuidedTour);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { isChangePermitted = false, isDeletePermitted = false } = props;
 
@@ -73,14 +70,13 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
   );
   const deleteActionFromPage = useCallback(
     (actionId: string, actionName: string) => {
-      if (guidedTourEnabled) {
-        dispatch(toggleShowDeviationDialog(true));
-        return;
-      }
-
       dispatch(deleteAction({ id: actionId, name: actionName }));
+      // Reset the delete confirmation state because it can navigate to another action
+      // which will not remount this component
+      setConfirmDelete(false);
+      toggleMenuOpen(false);
     },
-    [dispatch, guidedTourEnabled],
+    [dispatch],
   );
 
   const menuPages = useSelector((state: AppState) => {

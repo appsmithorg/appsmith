@@ -64,15 +64,13 @@ import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import Guide from "pages/Editor/GuidedTour/Guide";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   getDebuggerSelectedTab,
   showDebuggerFlag,
@@ -92,6 +90,7 @@ import QueryResponseTabView from "./QueryResponseView";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import { isAppsmithAIPlugin } from "utils/editorContextUtils";
+import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -328,7 +327,6 @@ export function EditorJSONtoForm(props: Props) {
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
-  const guidedTourEnabled = useSelector(inGuidedTour);
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -354,7 +352,11 @@ export function EditorJSONtoForm(props: Props) {
     userWorkspacePermissions,
   );
 
-  const showSchema = useShowSchema(currentActionConfig?.pluginId || "");
+  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
+
+  const showSchema =
+    useShowSchema(currentActionConfig?.pluginId || "") &&
+    pluginRequireDatasource;
 
   const showRightPane =
     showSchema ||
@@ -614,12 +616,14 @@ export function EditorJSONtoForm(props: Props) {
   // here we check for normal conditions for opening action pane
   // or if any of the flags are true, We should open the actionpane by default.
   const shouldOpenActionPaneByDefault =
-    ((hasDependencies || !!actionResponse) && !guidedTourEnabled) ||
+    hasDependencies ||
+    !!actionResponse ||
     currentActionPluginName !== PluginName.SMTP;
 
-  // Datasource selection is hidden for Appsmith AI Plugin
-  // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented
-  const showDatasourceSelector = !isAppsmithAIPlugin(plugin?.packageName);
+  // Datasource selection is hidden for Appsmith AI Plugin and for plugins that don't require datasource
+  // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented (Only remove the AI Condition)
+  const showDatasourceSelector =
+    !isAppsmithAIPlugin(plugin?.packageName) && pluginRequireDatasource;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -629,8 +633,7 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      {!guidedTourEnabled && closeEditorLink}
-      {guidedTourEnabled && <Guide className="query-page" />}
+      {closeEditorLink}
       <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
           <NameWrapper>

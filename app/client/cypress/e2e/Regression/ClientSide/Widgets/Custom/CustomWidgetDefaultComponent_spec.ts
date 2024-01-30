@@ -4,11 +4,15 @@ import {
   entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
 
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+
 describe(
   "Custom widget Tests",
   { tags: ["@tag.Widget", "@tag.Custom"] },
   function () {
     before(() => {
+      featureFlagIntercept({ release_custom_widgets_enabled: true });
+
       entityExplorer.DragDropWidgetNVerify("customwidget", 550, 100);
       cy.wait(5000);
     });

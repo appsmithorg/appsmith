@@ -11,9 +11,9 @@ import {
   getPageSavingError,
 } from "selectors/editorSelectors";
 import {
-  getCurrentAppWorkspace,
   getCurrentWorkspaceId,
-} from "@appsmith/selectors/workspaceSelectors";
+  getCurrentAppWorkspace,
+} from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import {
@@ -62,9 +62,6 @@ import {
   COMMUNITY_TEMPLATES,
   APPLICATION_INVITE,
 } from "@appsmith/constants/messages";
-import Boxed from "./GuidedTour/Boxed";
-import EndTour from "./GuidedTour/EndTour";
-import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "@appsmith/RouteBuilder";
 import { useHref } from "./utils";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -254,98 +251,93 @@ export function EditorHeader() {
         <HelperBarInHeader />
 
         <HeaderSection className="gap-x-1">
-          <Boxed
-            alternative={<EndTour />}
-            step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
+          <RealtimeAppEditors applicationId={applicationId} />
+          <ToggleModeButton />
+          {applicationId && <EditorShareButton setShowModal={setShowModal} />}
+          <Modal
+            onOpenChange={(isOpen) => setShowModal(isOpen)}
+            open={showModal}
           >
-            <RealtimeAppEditors applicationId={applicationId} />
-            <ToggleModeButton />
-            {applicationId && <EditorShareButton setShowModal={setShowModal} />}
-            <Modal
-              onOpenChange={(isOpen) => setShowModal(isOpen)}
-              open={showModal}
-            >
-              <ModalContent style={{ width: "640px" }}>
-                <ModalHeader>
-                  {createMessage(
-                    APPLICATION_INVITE,
-                    currentWorkspace.name,
-                    !isGACEnabled,
-                  )}
-                </ModalHeader>
-                <ModalBody>
-                  <Tabs
-                    onValueChange={(value) => setActiveTab(value)}
-                    value={activeTab}
-                  >
-                    <TabsList>
-                      <Tab data-testid="t--tab-INVITE" value="invite">
-                        {createMessage(INVITE_TAB)}
-                      </Tab>
-                      <Tab data-testid="t--tab-EMBED" value="embed">
-                        {createMessage(IN_APP_EMBED_SETTING.embed)}
-                      </Tab>
-                      {featureFlags.release_show_publish_app_to_community_enabled &&
-                        cloudHosting && (
-                          <Tab data-testid="t--tab-PUBLISH" value="publish">
-                            {createMessage(COMMUNITY_TEMPLATES.tabTitle)}
-                          </Tab>
-                        )}
-                    </TabsList>
-                    <TabPanel value="invite">
-                      <AppInviteUsersForm
-                        applicationId={applicationId}
-                        workspaceId={workspaceId}
+            <ModalContent style={{ width: "640px" }}>
+              <ModalHeader>
+                {createMessage(
+                  APPLICATION_INVITE,
+                  currentWorkspace.name,
+                  !isGACEnabled,
+                )}
+              </ModalHeader>
+              <ModalBody>
+                <Tabs
+                  onValueChange={(value) => setActiveTab(value)}
+                  value={activeTab}
+                >
+                  <TabsList>
+                    <Tab data-testid="t--tab-INVITE" value="invite">
+                      {createMessage(INVITE_TAB)}
+                    </Tab>
+                    <Tab data-testid="t--tab-EMBED" value="embed">
+                      {createMessage(IN_APP_EMBED_SETTING.embed)}
+                    </Tab>
+                    {featureFlags.release_show_publish_app_to_community_enabled &&
+                      cloudHosting && (
+                        <Tab data-testid="t--tab-PUBLISH" value="publish">
+                          {createMessage(COMMUNITY_TEMPLATES.tabTitle)}
+                        </Tab>
+                      )}
+                  </TabsList>
+                  <TabPanel value="invite">
+                    <AppInviteUsersForm
+                      applicationId={applicationId}
+                      workspaceId={workspaceId}
+                    />
+                  </TabPanel>
+                  <TabPanel value="embed">
+                    {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
+                  </TabPanel>
+                  {cloudHosting && (
+                    <TabPanel value="publish">
+                      <CommunityTemplatesPublishInfo
+                        onPublishClick={() =>
+                          setShowPublishCommunityTemplateModal(true)
+                        }
+                        setShowHostModal={setShowModal}
                       />
                     </TabPanel>
-                    <TabPanel value="embed">
-                      {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
-                    </TabPanel>
-                    {cloudHosting && (
-                      <TabPanel value="publish">
-                        <CommunityTemplatesPublishInfo
-                          onPublishClick={() =>
-                            setShowPublishCommunityTemplateModal(true)
-                          }
-                          setShowHostModal={setShowModal}
-                        />
-                      </TabPanel>
-                    )}
-                  </Tabs>
-                </ModalBody>
-              </ModalContent>
-            </Modal>
-            <PublishCommunityTemplateModal
-              onPublishSuccess={() => {
-                setShowPublishCommunityTemplateModal(false);
-                setShowModal(true);
-              }}
-              setShowModal={setShowPublishCommunityTemplateModal}
-              showModal={showPublishCommunityTemplateModal}
-            />
-            <div className="flex items-center">
-              <Tooltip
-                content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-                placement="bottomRight"
+                  )}
+                </Tabs>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+          <PublishCommunityTemplateModal
+            onPublishSuccess={() => {
+              setShowPublishCommunityTemplateModal(false);
+              setShowModal(true);
+            }}
+            setShowModal={setShowPublishCommunityTemplateModal}
+            showModal={showPublishCommunityTemplateModal}
+          />
+          <div className="flex items-center">
+            <Tooltip
+              content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+              placement="bottomRight"
+            >
+              <Button
+                className="t--application-publish-btn"
+                data-guided-tour-iid="deploy"
+                id={"application-publish-btn"}
+                isDisabled={isProtectedMode}
+                isLoading={isPublishing}
+                kind="tertiary"
+                onClick={() => handleClickDeploy(true)}
+                size="md"
+                startIcon={"rocket"}
               >
-                <Button
-                  className="t--application-publish-btn"
-                  data-guided-tour-iid="deploy"
-                  id={"application-publish-btn"}
-                  isDisabled={isProtectedMode}
-                  isLoading={isPublishing}
-                  kind="tertiary"
-                  onClick={() => handleClickDeploy(true)}
-                  size="md"
-                  startIcon={"rocket"}
-                >
-                  {DEPLOY_MENU_OPTION()}
-                </Button>
-              </Tooltip>
+                {DEPLOY_MENU_OPTION()}
+              </Button>
+            </Tooltip>
 
-              <DeployLinkButtonDialog link={deployLink} trigger="" />
-            </div>
-          </Boxed>
+            <DeployLinkButtonDialog link={deployLink} trigger="" />
+          </div>
         </HeaderSection>
         <Omnibar />
       </HeaderWrapper>

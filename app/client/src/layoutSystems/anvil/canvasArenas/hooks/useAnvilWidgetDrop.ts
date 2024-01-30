@@ -25,6 +25,7 @@ export const useAnvilWidgetDrop = (
       newWidgetId: newWidget.widgetId,
       parentId: canvasId,
       type: isSectionWidget ? anvilWidgets.ZONE_WIDGET : newWidget.type,
+      detachFromLayout: !!newWidget.detachFromLayout,
     };
   }, [dragDetails]);
   return (renderedBlock: AnvilHighlightInfo) => {

@@ -1,9 +1,7 @@
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
-  rows: 4,
-  columns: 12,
   label: "Label",
   defaultCheckedState: true,
   widgetName: "Checkbox",
@@ -13,5 +11,4 @@ export const defaultsConfig = {
   isRequired: false,
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
-  minWidth: FILL_WIDGET_MIN_WIDTH,
-};
+} as unknown as WidgetDefaultProps;

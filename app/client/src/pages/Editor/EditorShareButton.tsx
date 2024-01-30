@@ -7,15 +7,15 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getAllUsers } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector } from "react-redux";
+import { getAllUsersOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 export const EditorShareButton = ({
   setShowModal,
 }: {
   setShowModal: (val: boolean) => void;
 }) => {
-  const sharedUserList = useSelector(getAllUsers);
+  const sharedUserList = useSelector(getAllUsersOfWorkspace);
   const currentUser = useSelector(getCurrentUser);
   const filteredSharedUserList = sharedUserList.filter(
     (user) => user.username !== currentUser?.username,

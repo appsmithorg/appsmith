@@ -55,8 +55,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             // appending to existing app, theme should not change
             return Mono.empty().then();
@@ -123,7 +122,6 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importContextMono,
             ArtifactExchangeJson importableContextJson,
-            boolean isPartialImport,
             boolean isContextAgnostic) {
         return importContextMono.flatMap(importableContext -> {
             Application application = (Application) importableContext;
@@ -133,8 +131,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                     mappedImportableResourcesDTO,
                     workspaceMono,
                     Mono.just(application),
-                    applicationJson,
-                    isPartialImport);
+                    applicationJson);
         });
     }
 }

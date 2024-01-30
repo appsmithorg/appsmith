@@ -124,6 +124,7 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
+  FlattenedWidgetProps,
   PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/constants";
@@ -132,13 +133,11 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import {
-  FlexVerticalAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -182,13 +181,9 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getDefaults() {
     return {
-      flexVerticalAlignment: FlexVerticalAlignment.Top,
       responsiveBehavior: ResponsiveBehavior.Fill,
-      minWidth: FILL_WIDGET_MIN_WIDTH,
-      rows: 28,
       canFreezeColumn: true,
       columnUpdatedAt: Date.now(),
-      columns: 34,
       animateLoading: true,
       defaultSelectedRowIndex: 0,
       defaultSelectedRowIndices: [0],
@@ -222,7 +217,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       )
         ? false
         : undefined,
-    };
+    } as unknown as WidgetDefaultProps;
   }
 
   static getMethods() {
@@ -359,30 +354,14 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  static getAutoLayoutConfig() {
-    return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "280px",
-              minHeight: "300px",
-            };
-          },
-        },
-      ],
-    };
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return {
       isLargeWidget: true,
       widgetSize: {
-        maxHeight: {},
-        maxWidth: {},
-        minHeight: { base: "300px" },
-        minWidth: { base: "280px" },
+        minWidth: {
+          base: "100%",
+          [`280px`]: "sizing-70",
+        },
       },
     };
   }
@@ -503,35 +482,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getStylesheetConfig(): Stylesheet {
-    return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
-      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
-      childStylesheet: {
-        button: {
-          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-          boxShadow: "none",
-        },
-        menuButton: {
-          menuColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-          boxShadow: "none",
-        },
-        iconButton: {
-          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-          boxShadow: "none",
-        },
-        editActions: {
-          saveButtonColor: "{{appsmith.theme.colors.primaryColor}}",
-          saveBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-          discardButtonColor: "{{appsmith.theme.colors.primaryColor}}",
-          discardBorderRadius:
-            "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        },
-      },
-    };
+    return {};
   }
 
   static getSetterConfig(): SetterConfig {
@@ -557,6 +508,35 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       },
     };
+  }
+
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  static pasteOperationChecks(
+    allWidgets: CanvasWidgetsReduxState,
+    oldWidget: FlattenedWidgetProps,
+    newWidget: FlattenedWidgetProps,
+    widgetIdMap: Record<string, string>,
+  ): FlattenedWidgetProps | null {
+    if (!newWidget || !newWidget.primaryColumns) return null;
+    // If the primaryColumns of the table exist
+    const oldWidgetName: string = oldWidget.widgetName;
+    if (!oldWidgetName) return null;
+    // For each column
+    const updatedPrimaryColumns = { ...newWidget.primaryColumns };
+    for (const [columnId, column] of Object.entries(updatedPrimaryColumns)) {
+      // For each property in the column
+      for (const [key, value] of Object.entries(column as ColumnProperties)) {
+        // Replace reference of previous widget with the new widgetName
+        // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+        updatedPrimaryColumns[columnId][key] = isString(value)
+          ? value.replace(
+              new RegExp(`\\b${oldWidgetName}\\.`, "g"),
+              `${newWidget.widgetName}.`,
+            )
+          : value;
+      }
+    }
+    return { ...newWidget, primaryColumns: updatedPrimaryColumns };
   }
 
   /*

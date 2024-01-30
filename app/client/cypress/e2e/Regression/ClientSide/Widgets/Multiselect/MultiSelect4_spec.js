@@ -1,5 +1,15 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import OneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
+const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+
+const { OneClickBinding } = require("../../OneClickBinding/spec_utility");
+
+const oneClickBinding = new OneClickBinding();
 
 const defaultValue = `[
         {
@@ -94,6 +104,65 @@ describe(
       );
       // tooltip help icon shows
       cy.get(".multiselect-tooltip").should("be.visible");
+    });
+
+    it("4. multi Select widget selection is not cleared when the widget is server side filtered", () => {
+      // Turn off server side filtering for the widget
+      cy.togglebarDisable(
+        '.t--property-control-serversidefiltering input[type="checkbox"]',
+      );
+
+      _.propPane.UpdatePropertyFieldValue("Source Data", "");
+
+      _.propPane.ToggleJSMode("sourcedata", false);
+
+      _.dataSources.CreateDataSource("Postgres");
+
+      cy.get("@dsName").then((dsName) => {
+        EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
+
+        oneClickBinding.ChooseAndAssertForm(
+          `${dsName}`,
+          dsName,
+          "public.employees",
+          {
+            label: "first_name",
+            value: "last_name",
+          },
+        );
+      });
+
+      _.agHelper.GetNClick(OneClickBindingLocator.connectData);
+
+      _.assertHelper.AssertNetworkStatus("@postExecute");
+
+      cy.get(formWidgetsPage.multiselectwidgetv2)
+        .find(".rc-select-selection-search-input")
+        .first()
+        .focus({ force: true })
+        .type("{uparrow}", { force: true });
+
+      cy.get(".rc-select-dropdown input[type='text']")
+        .click()
+        .clear()
+        .type("Janet");
+
+      cy.get(".multi-select-dropdown").contains("Janet").click({ force: true });
+
+      cy.get(formWidgetsPage.multiselectwidgetv2)
+        .find(".rc-select-selection-search-input")
+        .first()
+        .focus({ force: true })
+        .type("{uparrow}", { force: true });
+
+      cy.get(".rc-select-dropdown input[type='text']")
+        .click()
+        .clear()
+        .type("Steven");
+
+      _.assertHelper.AssertNetworkStatus("@postExecute");
+
+      cy.get(".rc-select-selection-item-content").should("contain", "Janet");
     });
   },
 );

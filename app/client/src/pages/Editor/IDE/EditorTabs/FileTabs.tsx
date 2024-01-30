@@ -3,7 +3,7 @@ import { Flex } from "design-system";
 import { useCurrentEditorState } from "../hooks";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import { useSelector } from "react-redux";
-import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
   selectJSSegmentEditorTabs,
   selectQuerySegmentEditorTabs,

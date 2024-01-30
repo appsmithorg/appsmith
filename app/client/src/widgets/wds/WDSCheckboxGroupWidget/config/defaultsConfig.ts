@@ -1,9 +1,7 @@
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
-  rows: 10,
-  columns: 20,
   animateLoading: true,
   options: [
     { label: "Blue", value: "BLUE" },
@@ -20,5 +18,4 @@ export const defaultsConfig = {
   version: 1,
   widgetName: "CheckboxGroup",
   responsiveBehavior: ResponsiveBehavior.Fill,
-  minWidth: FILL_WIDGET_MIN_WIDTH,
-};
+} as unknown as WidgetDefaultProps;
