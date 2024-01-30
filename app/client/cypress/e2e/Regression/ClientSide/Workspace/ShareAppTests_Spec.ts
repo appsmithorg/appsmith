@@ -62,7 +62,7 @@ describe(
         .first()
         .trigger("mouseover");
       agHelper.AssertElementAbsence(homePage._appEditIcon);
-      homePage.LaunchAppFromAppHover();
+      homePage.LaunchAppFromAppHover(locators._emptyPageTxt);
       agHelper.Sleep(2000); //for CI
       agHelper.GetText(locators._emptyPageTxt).then((text) => {
         expect(text).to.equal("This page seems to be blank");
