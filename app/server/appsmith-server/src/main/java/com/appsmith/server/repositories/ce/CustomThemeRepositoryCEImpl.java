@@ -39,7 +39,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         Criteria systemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
         Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
-        return queryAll().criteria(List.of(criteria)).permission(aclPermission).submit();
+        return queryAll().criteria(criteria).permission(aclPermission).submit();
     }
 
     @Override
@@ -47,7 +47,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         Criteria systemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
         return queryAll()
-                .criteria(List.of(systemThemeCriteria))
+                .criteria(systemThemeCriteria)
                 .permission(AclPermission.READ_THEMES)
                 .submit();
     }

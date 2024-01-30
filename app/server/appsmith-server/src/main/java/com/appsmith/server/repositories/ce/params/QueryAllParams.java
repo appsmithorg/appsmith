@@ -10,7 +10,6 @@ import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -37,11 +36,11 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.queryAllExecute(this);
     }
 
-    public QueryAllParams<T> criteria(Criteria criteria) {
+    public QueryAllParams<T> criteria(Criteria... criteria) {
         if (criteria == null) {
             return this;
         }
-        return criteria(Collections.singletonList(criteria));
+        return criteria(List.of(criteria));
     }
 
     public QueryAllParams<T> criteria(List<Criteria> criterias) {

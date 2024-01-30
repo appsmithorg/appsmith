@@ -35,7 +35,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         Sort sort = Sort.by(fieldName(QDatasource.datasource.name));
         return queryAll()
-                .criteria(List.of(workspaceIdCriteria))
+                .criteria(workspaceIdCriteria)
                 .permission(permission)
                 .sort(sort)
                 .submit();

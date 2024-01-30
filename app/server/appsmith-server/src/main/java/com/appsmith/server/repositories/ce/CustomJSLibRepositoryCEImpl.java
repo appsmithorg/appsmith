@@ -44,6 +44,6 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
         Criteria criteria =
                 Criteria.where(fieldName(QCustomJSLib.customJSLib.uidString)).in(uidStrings);
 
-        return queryAll().criteria(List.of(criteria)).submit();
+        return queryAll().criteria(criteria).submit();
     }
 }

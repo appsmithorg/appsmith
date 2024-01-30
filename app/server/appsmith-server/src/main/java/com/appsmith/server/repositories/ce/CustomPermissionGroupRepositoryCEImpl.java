@@ -45,7 +45,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(Workspace.class.getSimpleName());
         return queryAll()
-                .criteria(List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria))
+                .criteria(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
                 .submit();
     }
@@ -66,7 +66,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(Workspace.class.getSimpleName());
         return queryAll()
-                .criteria(List.of(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria))
+                .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
                 .submit();
     }
@@ -78,7 +78,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(Workspace.class.getSimpleName());
         return queryAll()
-                .criteria(List.of(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria))
+                .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
                 .submit();
     }

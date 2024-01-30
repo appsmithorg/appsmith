@@ -50,7 +50,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria applicationIdCriteria =
                 where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
         return queryAll()
-                .criteria(List.of(applicationIdCriteria))
+                .criteria(applicationIdCriteria)
                 .permission(aclPermission)
                 .submit();
     }
@@ -60,7 +60,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria applicationIdCriteria =
                 where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
         return queryAll()
-                .criteria(List.of(applicationIdCriteria))
+                .criteria(applicationIdCriteria)
                 .permission(permission.orElse(null))
                 .submit();
     }
@@ -75,7 +75,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                         + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
                 .is(null);
         return queryAll()
-                .criteria(List.of(applicationIdCriteria, activeEditModeCriteria))
+                .criteria(applicationIdCriteria, activeEditModeCriteria)
                 .permission(aclPermission)
                 .submit();
     }

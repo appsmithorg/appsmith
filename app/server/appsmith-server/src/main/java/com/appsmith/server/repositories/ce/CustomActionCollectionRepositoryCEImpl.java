@@ -40,7 +40,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 .is(applicationId);
 
         return queryAll()
-                .criteria(List.of(applicationCriteria))
+                .criteria(applicationCriteria)
                 .permission(aclPermission)
                 .sort(sort)
                 .submit();
@@ -180,10 +180,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 .orOperator(
                         where(unpublishedPage).is(pageId), where(publishedPage).is(pageId));
 
-        return queryAll()
-                .criteria(List.of(pageCriteria))
-                .permission(aclPermission)
-                .submit();
+        return queryAll().criteria(pageCriteria).permission(aclPermission).submit();
     }
 
     @Override
@@ -225,7 +222,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         return queryAll()
-                .criteria(List.of(defaultAppIdCriteria))
+                .criteria(defaultAppIdCriteria)
                 .permission(permission.orElse(null))
                 .submit();
     }
@@ -235,10 +232,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         Criteria pageIdCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
                         + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
                 .in(pageIds);
-        return queryAll()
-                .criteria(List.of(pageIdCriteria))
-                .permission(permission)
-                .submit();
+        return queryAll().criteria(pageIdCriteria).permission(permission).submit();
     }
 
     @Override
@@ -247,7 +241,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                         + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
                 .in(pageIds);
         return queryAll()
-                .criteria(List.of(pageIdCriteria))
+                .criteria(pageIdCriteria)
                 .permission(permission.orElse(null))
                 .submit();
     }
@@ -268,7 +262,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         return queryAll()
-                .criteria(List.of(contextIdAndContextTypeCriteria))
+                .criteria(contextIdAndContextTypeCriteria)
                 .permission(Optional.ofNullable(permission).orElse(null))
                 .submit();
     }
@@ -283,7 +277,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         return queryAll()
-                .criteria(List.of(contextIdAndContextTypeCriteria))
+                .criteria(contextIdAndContextTypeCriteria)
                 .permission(Optional.ofNullable(permission).orElse(null))
                 .submit();
     }
