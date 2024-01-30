@@ -44,17 +44,13 @@ describe(
         "contain",
         "template added successfully",
       );
+      agHelper.WaitUntilAllToastsDisappear();
     });
 
     it("2. Add selected page of template from page section", () => {
       PageList.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(template.templateDialogBox);
-      agHelper.AssertElementVisibility(
-        templates.locators._templateCard,
-        true,
-        0,
-        30000,
-      );
+      agHelper.AssertElementVisibility(templates.locators._templateCard);
       agHelper.GetNClick(template.vehicleMaintenenceApp);
       //agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       cy.wait("@getTemplatePages").should(
