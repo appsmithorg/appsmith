@@ -61,16 +61,6 @@ export const handlers = {
   ) => {
     draftState.loadingStates.isFetchingApplications = false;
   },
-  [ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_SUCCESS]: (
-    draftState: SelectedWorkspaceReduxState,
-    action: ReduxAction<ApplicationPayload[]>,
-  ) => {
-    const deletedApplicationIds = action.payload.map((app) => app.id);
-    const applications = draftState.applications.filter(
-      (app) => !deletedApplicationIds.includes(app.id),
-    );
-    draftState.applications = applications;
-  },
   [ReduxActionTypes.DELETE_APPLICATION_SUCCESS]: (
     draftState: SelectedWorkspaceReduxState,
     action: ReduxAction<ApplicationPayload>,

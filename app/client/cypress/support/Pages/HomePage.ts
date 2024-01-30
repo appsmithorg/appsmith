@@ -116,7 +116,6 @@ export class HomePage {
   _importFromGitBtn = "div.t--import-json-card + div";
   _helpButton = ".t--help-menu-option";
   private signupUsername = "input[name='email']";
-  _multipleSelectedApplication = ".t--application-card-selected";
   private _applicationEditedText = (applicationName: string) =>
     this._appCard(applicationName) +
     "//div[contains(@class, 't--application-edited-text')]";
@@ -129,10 +128,6 @@ export class HomePage {
 
   public _searchWorkspaceLocator = (workspaceName: string) =>
     `[data-testid="${workspaceName}"]`;
-  private _applicationMultiSelectionCheckbox = (applicationName: string) =>
-    this._appCard(applicationName) +
-    "//label[contains(@class, 't--app-multi-select-checkbox')]";
-
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
   }
@@ -766,30 +761,6 @@ export class HomePage {
         this.NavigateToHome();
       }
     });
-  }
-
-  public SelectMultipleApplicationToDelete(applicationName: string) {
-    this.agHelper
-      .GetElement(this._appCard(applicationName))
-      .first()
-      .realHover();
-    this.agHelper.GetNClick(
-      this._applicationMultiSelectionCheckbox(applicationName),
-    );
-  }
-  public SelectMultipleApplicationToDeleteByCard(
-    applicationName: string,
-    position: Cypress.PositionType = "center",
-  ) {
-    this.agHelper.GetNClick(
-      this._appCard(applicationName),
-      0,
-      true,
-      500,
-      false,
-      true,
-      position,
-    );
   }
   public SelectWorkspace(workspaceName: string, networkCallAlias = true) {
     this.agHelper
