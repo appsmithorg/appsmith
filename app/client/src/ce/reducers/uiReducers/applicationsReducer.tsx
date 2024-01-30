@@ -47,7 +47,6 @@ export const initialState: ApplicationsReduxState = {
   isErrorSavingNavigationSetting: false,
   isUploadingNavigationLogo: false,
   isDeletingNavigationLogo: false,
-  deletingMultipleApps: {},
   loadingStates: {
     isFetchingAllRoles: false,
     isFetchingAllUsers: false,
@@ -80,70 +79,6 @@ export const handlers = {
     state: ApplicationsReduxState,
   ) => {
     return { ...state, deletingApplication: false };
-  },
-  [ReduxActionTypes.DELETE_MULTIPLE_APPS_TOGGLE]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<{ id: string }>,
-  ) => {
-    let deleteMultipleAppsList = state.deletingMultipleApps.list || [];
-    if (deleteMultipleAppsList.includes(action.payload.id)) {
-      deleteMultipleAppsList = deleteMultipleAppsList.filter(
-        (i) => i !== action.payload.id,
-      );
-    } else {
-      deleteMultipleAppsList = [...deleteMultipleAppsList, action.payload.id];
-    }
-    return {
-      ...state,
-      deletingMultipleApps: {
-        list: deleteMultipleAppsList,
-      },
-    };
-  },
-  [ReduxActionTypes.DELETE_MULTIPLE_APPS_INIT]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      deletingMultipleApps: {
-        list: state.deletingMultipleApps.list,
-        isDeleting: true,
-      },
-    };
-  },
-  [ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_SUCCESS]: (
-    state: ApplicationsReduxState,
-    // eslint-disable-next-line
-    action: ReduxAction<ApplicationPayload[]>,
-  ) => {
-    return {
-      ...state,
-      deletingMultipleApps: {
-        list: [],
-        isDeleting: false,
-      },
-    };
-  },
-  [ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_CANCEL]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      deletingMultipleApps: {
-        list: [],
-        isDeleting: false,
-      },
-    };
-  },
-  [ReduxActionErrorTypes.DELETE_MULTIPLE_APPLICATION_ERROR]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      deletingMultipleApps: {
-        isDeleting: false,
-      },
-    };
   },
   [ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT]: (
     state: ApplicationsReduxState,
@@ -766,11 +701,6 @@ const applicationsReducer = createReducer(initialState, handlers);
 
 export type creatingApplicationMap = Record<string, boolean>;
 
-export interface DeletingMultipleApps {
-  list?: string[];
-  isDeleting?: boolean;
-}
-
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
   searchKeyword?: string;
@@ -794,7 +724,6 @@ export interface ApplicationsReduxState {
   isErrorSavingNavigationSetting: boolean;
   isUploadingNavigationLogo: boolean;
   isDeletingNavigationLogo: boolean;
-  deletingMultipleApps: DeletingMultipleApps;
   loadingStates: {
     isFetchingAllRoles: boolean;
     isFetchingAllUsers: boolean;

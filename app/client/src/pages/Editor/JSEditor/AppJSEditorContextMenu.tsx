@@ -85,8 +85,10 @@ export function AppJSEditorContextMenu({
     [dispatch],
   );
   const deleteJSCollectionFromPage = useCallback(
-    (actionId: string, actionName: string) =>
-      dispatch(deleteJSCollection({ id: actionId, name: actionName })),
+    (actionId: string, actionName: string) => {
+      dispatch(deleteJSCollection({ id: actionId, name: actionName }));
+      setConfirmDelete(false);
+    },
     [dispatch],
   );
 

@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import type { CSSProperties, MouseEvent } from "react";
+import type { CSSProperties, MouseEventHandler } from "react";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
 
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import {
   isCurrentWidgetFocused,
@@ -25,6 +24,7 @@ import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPos
 import { useWidgetBorderStyles } from "./hooks/useWidgetBorderStyles";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { AppState } from "@appsmith/reducers";
+import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "../utils/constants";
 
 /**
  * Adds following functionalities to the widget:
@@ -63,15 +63,22 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const [verticalAlignment, setVerticalAlignment] =
     useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
 
-  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(
-    (e) => {
-      clickToSelectWidget(e);
+    function () {
+      if (ref.current && isFocused) {
+        ref.current.dispatchEvent(
+          new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
+            bubbles: true,
+            cancelable: true,
+            detail: { widgetId: props.widgetId },
+          }),
+        );
+      }
     },
-    [props.widgetId, clickToSelectWidget],
+    [props.widgetId, isFocused],
   );
 
-  const stopEventPropagation = (e: MouseEvent<HTMLElement>) => {
+  const stopEventPropagation: MouseEventHandler<HTMLDivElement> = (e) => {
     !isSnipingMode && e.stopPropagation();
   };
 
@@ -160,7 +167,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       ref={ref}
       style={styleProps}
     >
-      {props.children}
+      <div className="h-full w-full">{props.children}</div>
     </Flex>
   );
 }

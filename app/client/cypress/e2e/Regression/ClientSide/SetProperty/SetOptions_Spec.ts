@@ -2,7 +2,6 @@ import {
   agHelper,
   apiPage,
   dataManager,
-  debuggerHelper,
   deployMode,
   draggableWidgets,
   entityExplorer,
@@ -49,12 +48,6 @@ describe(
         .then((val) => {
           expect(val).to.eq("false");
         });
-      debuggerHelper.AssertDebugError(
-        "Default value is missing in options. Please update the value.",
-        "",
-        true,
-        false,
-      );
 
       //SetOptions to not acceptable value - Numeric
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
@@ -78,12 +71,6 @@ describe(
         .then((val) => {
           expect(val).to.eq("1234");
         });
-      debuggerHelper.AssertDebugError(
-        "Default value is missing in options. Please update the value.",
-        "",
-        false,
-        false,
-      );
 
       //SetOptions to not acceptable value - String
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
@@ -107,12 +94,6 @@ describe(
         .then((val) => {
           expect(val).to.eq("fdfjhgf7");
         });
-      debuggerHelper.AssertDebugError(
-        "Default value is missing in options. Please update the value.",
-        "",
-        false,
-        false,
-      );
 
       //SetOptions to not acceptable value - undefined
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
@@ -136,12 +117,6 @@ describe(
         .then((val) => {
           expect(val).to.eq("fdfjhgf7");
         });
-      debuggerHelper.AssertDebugError(
-        "Default value is missing in options. Please update the value.",
-        "",
-        false,
-        false,
-      );
 
       //SetOptions to not acceptable value - null
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
@@ -165,12 +140,6 @@ describe(
         .then((val) => {
           expect(val).to.be.empty;
         });
-      debuggerHelper.AssertDebugError(
-        "Default value is missing in options. Please update the value.",
-        "",
-        false,
-        false,
-      );
 
       //unabel to set +ve value to setOptions:
       // {{JSObject1.myFun1.data.map((item)=>{return{

@@ -325,11 +325,9 @@ public class FileUtilsCEImpl implements FileInterface {
         // Create HashMap for valid actions and actionCollections
         HashMap<String, Set<String>> validActionsMap = new HashMap<>();
         HashMap<String, Set<String>> validActionCollectionsMap = new HashMap<>();
-        HashMap<String, Set<String>> validModuleInstancesMap = new HashMap<>();
         validPages.forEach(validPage -> {
             validActionsMap.put(validPage, new HashSet<>());
             validActionCollectionsMap.put(validPage, new HashSet<>());
-            validModuleInstancesMap.put(validPage, new HashSet<>());
         });
 
         // Save actions
