@@ -333,6 +333,7 @@ export class HomePage {
     });
     cy.get(this._applicationName).type(appName);
     this.agHelper.PressEnter();
+    this.assertHelper.AssertNetworkStatus("updateApplication");
     this.agHelper.RemoveUIElement("Tooltip", "Rename application");
   }
 
