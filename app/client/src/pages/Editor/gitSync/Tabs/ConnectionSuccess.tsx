@@ -92,6 +92,11 @@ function ConnectionSuccess() {
 
   const handleOpenSettings = () => {
     dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: false,
+      }),
+    );
+    dispatch(
       setGitSettingsModalOpenAction({
         open: true,
         tab: GitSettingsTab.GENERAL,
