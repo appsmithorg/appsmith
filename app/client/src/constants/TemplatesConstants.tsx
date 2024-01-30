@@ -24,6 +24,10 @@ const SortFilterTable = importSvg(
 );
 
 export const STARTER_BUILDING_BLOCK_TEMPLATE_NAME = "Starter Building Block";
+export const GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_NAME =
+  "Data Building Blocks";
+export const GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_ID =
+  "65b3096bacc7a11eac425271";
 
 export const STARTER_BUILDING_BLOCKS = {
   DATASOURCE_PROMPT_DELAY: 3000,
@@ -75,6 +79,39 @@ export const STARTER_BUILDING_BLOCKS = {
     },
   ],
 };
+
+export const GENERATE_BUILDING_BLOCK_FROM_DATA_STARTER_APPS = [
+  {
+    id: 1,
+    title: "View Data",
+    templateId: GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_ID,
+    templateName: GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_NAME,
+    templatePageName: "Postgres - View Data",
+    templateQueriesConfig: [
+      {
+        name: "getData",
+        type: "SELECT",
+      },
+    ],
+  },
+  {
+    id: 2,
+    title: "Edit Data",
+    templateId: GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_ID,
+    templateName: GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_NAME,
+    templatePageName: "Postgres - Edit Data",
+    templateQueriesConfig: [
+      {
+        name: "getData",
+        type: "SELECT",
+      },
+      {
+        name: "updateData",
+        type: "UPDATE",
+      },
+    ],
+  },
+];
 
 export const CANVAS_STARTER_TEMPLATES_SEE_MORE_BUILDING_BLOCKS_PRE_FILTER = {
   functions: [TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE],

@@ -90,6 +90,7 @@ export const generateBuildingBlockFromDsTable = (
   pluginId: string,
   datasourceName: string,
   tableName: string,
+  templateQueryConfig: { name: string; type: string }[],
 ) => ({
   type: ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_INIT,
   payload: {
@@ -100,6 +101,7 @@ export const generateBuildingBlockFromDsTable = (
     tableName,
     pluginId,
     datasourceName,
+    templateQueryConfig,
   },
 });
 
