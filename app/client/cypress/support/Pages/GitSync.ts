@@ -183,7 +183,8 @@ export class GitSync {
   private remoteUrlInput = "[data-testid='git-connect-remote-url-input']";
   private addedDeployKeyCheckbox =
     "[data-testid='t--added-deploy-key-checkbox']";
-  private startUsingGitButton = "[data-testid='t--git-success-modal-start-using-git-cta']";
+  private startUsingGitButton =
+    "[data-testid='t--git-success-modal-start-using-git-cta']";
   private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
 
   CreateNConnectToGitV2(
