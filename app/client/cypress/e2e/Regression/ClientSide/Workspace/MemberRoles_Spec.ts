@@ -8,7 +8,7 @@ describe(
   { tags: ["@tag.Workspace"] },
   () => {
     it("1. Create new Workspace, Share with a user from UI & verify", () => {
-      _.adminSettings.EnableGAC(true, true);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(true, true);
       _.agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         workspaceId = uid;
@@ -32,7 +32,7 @@ describe(
 
     it("2. Login as Administrator and search for users using search bar", () => {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      _.adminSettings.EnableGAC(false, true);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
       _.homePage.SelectWorkspace(workspaceId);
       _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
       _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage users"));
@@ -53,7 +53,8 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      _.adminSettings.EnableGAC(false, true, "home");
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
       _.agHelper.RefreshPage();
       _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
@@ -74,7 +75,7 @@ describe(
 
     it("4. Login as Workspace owner and Update the Invited user role to Developer", function () {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      _.adminSettings.EnableGAC(false, true);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
       _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
@@ -91,7 +92,8 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "Developer",
       );
-      _.adminSettings.EnableGAC(false, true, "home");
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
       _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
@@ -120,7 +122,7 @@ describe(
 
     it("6. Login as Workspace owner and Update the Invited user role to Administrator", function () {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      _.adminSettings.EnableGAC(false, true);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
       _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
@@ -137,7 +139,8 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "Administrator",
       );
-      _.adminSettings.EnableGAC(false, true, "home");
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
       _.homePage.InviteUserToWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME2"),
@@ -175,7 +178,7 @@ describe(
 
     it("8. Login as Workspace owner and verify all 3 users are present", function () {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      _.adminSettings.EnableGAC(false, true);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
       _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
@@ -200,7 +203,8 @@ describe(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
       );
-      _.adminSettings.EnableGAC(false, true, "home");
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
       _.homePage.LeaveWorkspace(workspaceId);
       _.homePage.Signout();
     });
@@ -211,7 +215,8 @@ describe(
         Cypress.env("TESTPASSWORD2"),
         "App Viewer",
       );
-      _.adminSettings.EnableGAC(false, true, "home");
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
       _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
       _.homePage.LogOutviaAPI();
