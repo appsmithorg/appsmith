@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -8,21 +7,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.IntStream;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -130,56 +124,16 @@ public class UserRepositoryTest {
                 .limit(countOfUsersToBeCreated)
                 .mapToObj(index -> uuid + "_" + index + "@gmail.com")
                 .toList();
-        List<String> sortedEmails = new ArrayList<>(unsortedEmails);
-        Collections.sort(sortedEmails);
-        List<User> createdUsers = unsortedEmails.stream()
-                .map(email -> {
-                    User user = new User();
-                    user.setEmail(email);
-                    return userRepository.save(user).block();
-                })
-                .toList();
+        unsortedEmails.forEach(email -> {
+            User user = new User();
+            user.setEmail(email);
+            userRepository.save(user).block();
+        });
 
         List<User> allCreatedUsers = userRepository
-                .findAllByEmails(new HashSet<>(unsortedEmails))
+                .findAllByEmailIn(new HashSet<>(unsortedEmails))
                 .collectList()
                 .block();
         assertEquals(countOfUsersToBeCreated, allCreatedUsers.size());
-
-        Sort sortByEmailAsc = Sort.by(Sort.Direction.ASC, fieldName(QUser.user.email));
-        final int skip1 = 0;
-        int limit1 = 10;
-        List<User> usersFrom0To10 = userRepository
-                .getAllByEmails(
-                        new HashSet<>(unsortedEmails),
-                        Optional.empty(),
-                        limit1,
-                        skip1,
-                        QUser.user.email,
-                        Sort.Direction.ASC)
-                .collectList()
-                .block();
-        assertEquals(usersFrom0To10.size(), limit1);
-        List<String> subList0To10 = sortedEmails.subList(skip1, skip1 + limit1);
-        IntStream.range(skip1, skip1 + limit1).forEach(index -> {
-            usersFrom0To10.get(index - skip1).getEmail().equals(subList0To10.get(index - skip1));
-        });
-
-        final int skip2 = 9, limit2 = 10;
-        List<User> usersFrom9To19 = userRepository
-                .getAllByEmails(
-                        new HashSet<>(unsortedEmails),
-                        Optional.empty(),
-                        limit2,
-                        skip2,
-                        QUser.user.email,
-                        Sort.Direction.ASC)
-                .collectList()
-                .block();
-        assertEquals(usersFrom9To19.size(), limit2);
-        List<String> subList9To19 = sortedEmails.subList(skip2, skip2 + limit2);
-        IntStream.range(skip2, skip2 + limit2).forEach(index -> {
-            usersFrom9To19.get(index - skip2).getEmail().equals(subList9To19.get(index - skip2));
-        });
     }
 }
