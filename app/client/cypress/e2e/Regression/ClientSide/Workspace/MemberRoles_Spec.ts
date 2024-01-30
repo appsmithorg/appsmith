@@ -67,7 +67,7 @@ describe(
         .should("have.length", 1)
         .and("contain.text", `App Viewer`);
       _.agHelper.GetNClick(HomePage.closeBtn);
-      _.homePage.LaunchAppFromAppHover();
+      _.homePage.LaunchAppFromAppHover(_.locators._emptyPageTxt);
       //_.deployMode.NavigateToHomeDirectly();
       _.homePage.Signout(false);
     });

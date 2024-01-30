@@ -481,11 +481,11 @@ export class HomePage {
   }
 
   //Maps to launchApp in command.js
-  public LaunchAppFromAppHover() {
+  public LaunchAppFromAppHover(element?: string) {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getConsolidatedData");
-    this.AssertViewPageLoad();
+    this.AssertViewPageLoad(element);
   }
 
   public EditAppFromSearch(appName: string, element?: string) {
