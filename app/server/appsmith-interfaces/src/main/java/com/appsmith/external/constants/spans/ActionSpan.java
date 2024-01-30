@@ -9,7 +9,8 @@ public final class ActionSpan {
     public static final String ACTION_EXECUTION_CACHED_DATASOURCE = APPSMITH_SPAN_PREFIX + "get.datasource.cached";
     public static final String ACTION_EXECUTION_DATASOURCE_CONTEXT = APPSMITH_SPAN_PREFIX + "get.datasource.context";
     public static final String ACTION_EXECUTION_EDITOR_CONFIG = APPSMITH_SPAN_PREFIX + "get.editorConfig.cached";
-    public static final String ACTION_EXECUTION_PLUGIN_EXECUTION = APPSMITH_SPAN_PREFIX + "total.plugin.execution";
+    public static final String ACTION_EXECUTION_PLUGIN_EXECUTION = APPSMITH_SPAN_PREFIX + "total.plugin.execution" +
+        ".sumit.test.1";
     public static final String ACTION_EXECUTION_SERVER_EXECUTION = APPSMITH_SPAN_PREFIX + "total.server.execution";
 
     // Getter spans
