@@ -404,7 +404,7 @@ export class HomePage {
   ) {
     this.agHelper.Sleep(); //waiting for window to load
     this.InvokeDispatchOnStore();
-    cy.wait("@postLogout");
+    this.assertHelper.AssertNetworkStatus("postLogout");
     // cy.url().then((url: any) => {
     //   if (url.indexOf("/user/login") !== -1) {
     //   }
