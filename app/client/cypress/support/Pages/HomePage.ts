@@ -404,7 +404,7 @@ export class HomePage {
   ) {
     this.agHelper.Sleep(); //waiting for window to load
     this.InvokeDispatchOnStore();
-    this.assertHelper.AssertNetworkStatus("postLogout");
+    this.assertHelper.WaitForNetworkCall("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "getConsolidatedData");
     this.agHelper.AssertElementVisibility(this._username);
     this.agHelper.TypeText(this._username, uname);
