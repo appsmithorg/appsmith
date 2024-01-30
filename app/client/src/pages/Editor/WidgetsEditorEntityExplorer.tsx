@@ -7,19 +7,17 @@ import OnboardingStatusbar from "./FirstTimeUserOnboarding/Statusbar";
 import Pages from "./Explorer/Pages";
 import EntityExplorerSidebar from "components/editorComponents/EntityExplorerSidebar";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import { useGetPageFocusUrls } from "./IDE/hooks";
 
 function WidgetsEditorEntityExplorer() {
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
-  const pageFocusUrls = useGetPageFocusUrls();
 
   return (
     <EntityExplorerSidebar>
       {enableFirstTimeUserOnboarding && <OnboardingStatusbar />}
       {/* PagesContainer */}
-      <Pages pageFocusUrls={pageFocusUrls} />
+      <Pages />
       {/* Popover that contains the bindings info */}
       <EntityProperties />
       {/* Contains entity explorer & widgets library along with a switcher*/}

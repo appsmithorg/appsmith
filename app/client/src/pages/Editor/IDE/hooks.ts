@@ -13,6 +13,7 @@ import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
 import {
+  builderURL,
   jsCollectionListURL,
   queryListURL,
   widgetListURL,
@@ -20,7 +21,6 @@ import {
 import isEmpty from "lodash/isEmpty";
 import pickBy from "lodash/pickBy";
 import { getFocusInfo } from "selectors/focusHistorySelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -157,49 +157,41 @@ export const useSegmentNavigation = (): {
   return { onSegmentChange };
 };
 
-export const useGetPageFocusUrls = (): Record<string, any> => {
-  const editorStateString = "EDITOR_STATE.";
+export const useGetPageFocusUrl = (pageId: string): string => {
   const focusInfo = useSelector(getFocusInfo);
-  const branch = useSelector(getCurrentGitBranch);
-  const [focusPageUrls, setFocusPageUrls] = useState({});
+  const [focusPageUrl, setFocusPageUrl] = useState(
+    builderURL({ pageId: pageId }),
+  );
 
   useEffect(() => {
-    if (!focusInfo || isEmpty(focusInfo)) {
-      return;
-    }
-    const editorStates = pickBy(
+    const editorState = pickBy(
       focusInfo,
-      (v, k) =>
-        k.startsWith(editorStateString) && k.endsWith(branch || "undefined"),
+      (v) => v.entityInfo.params.pageId === pageId,
     );
 
-    let data = {};
+    if (isEmpty(editorState)) {
+      return;
+    }
 
-    Object.keys(editorStates).map((esKey) => {
-      const segment =
-        editorStates[esKey].state?.SelectedSegment || EditorEntityTab.UI;
-      // structure of esKey = EDITOR_STATE.<pageId>#<branchName>
-      const pageId = esKey.split(editorStateString)[1].split("#")[0];
+    const segment =
+      Object.values(editorState)[0].state?.SelectedSegment ||
+      EditorEntityTab.UI;
 
-      let url = "";
-      switch (segment) {
-        case EditorEntityTab.UI:
-          url = widgetListURL({ pageId: pageId });
-          break;
-        case EditorEntityTab.JS:
-          url = jsCollectionListURL({ pageId: pageId });
-          break;
-        case EditorEntityTab.QUERIES:
-          url = queryListURL({ pageId: pageId });
-          break;
-        default:
-          url = widgetListURL({ pageId: pageId });
-          break;
-      }
-      data = { ...data, [pageId]: url };
-    });
-    setFocusPageUrls({ ...data });
-  }, [focusInfo, branch]);
+    let url = "";
+    switch (segment) {
+      case EditorEntityTab.UI:
+        url = widgetListURL({ pageId: pageId });
+        break;
+      case EditorEntityTab.JS:
+        url = jsCollectionListURL({ pageId: pageId });
+        break;
+      case EditorEntityTab.QUERIES:
+        url = queryListURL({ pageId: pageId });
+        break;
+    }
 
-  return focusPageUrls;
+    setFocusPageUrl(url);
+  }, [focusInfo]);
+
+  return focusPageUrl;
 };

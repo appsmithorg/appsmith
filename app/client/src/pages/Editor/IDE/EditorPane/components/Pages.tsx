@@ -7,18 +7,16 @@ import {
   getIsSideBySideEnabled,
   getPagesActiveStatus,
 } from "selectors/ideSelectors";
-import { useGetPageFocusUrls } from "../../hooks";
 
 const Pages = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const pagesActive = useSelector(getPagesActiveStatus);
-  const pageFocusUrls = useGetPageFocusUrls();
 
   if (!isSideBySideEnabled) {
-    return <OldPages pageFocusUrls={pageFocusUrls} />;
+    return <OldPages />;
     /* divider is inside the Pages component */
   } else if (isSideBySideEnabled && pagesActive) {
-    return <PagesSection pageFocusUrls={pageFocusUrls} />;
+    return <PagesSection />;
   } else {
     return null;
   }
