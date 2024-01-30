@@ -8,6 +8,7 @@ import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -40,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ImportServiceCEImpl implements ImportServiceCE {
@@ -733,5 +735,30 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         return analyticsService
                 .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), analyticsData)
                 .thenReturn(importableArtifact);
+    }
+
+    @Override
+    public Mono<List<Datasource>> findDatasourceByArtifactId(
+            String defaultArtifactId, String workspaceId, ArtifactJsonType artifactJsonType) {
+        Mono<List<Datasource>> datasourceListMono =
+                datasourceImportableService.getEntitiesPresentInWorkspace(workspaceId);
+        ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(artifactJsonType);
+
+        return contextBasedImportService
+                .getNewActionByArtifactId(defaultArtifactId)
+                .zipWith(datasourceListMono)
+                .flatMap(objects -> {
+                    List<Datasource> datasourceList = objects.getT2();
+                    List<NewAction> actionList = objects.getT1();
+                    List<String> usedDatasource = actionList.stream()
+                            .map(newAction -> newAction
+                                    .getUnpublishedAction()
+                                    .getDatasource()
+                                    .getId())
+                            .collect(Collectors.toList());
+
+                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
+                    return Mono.just(datasourceList);
+                });
     }
 }

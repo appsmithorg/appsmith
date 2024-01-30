@@ -10,6 +10,8 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface ImportableServiceCE<T extends BaseDomain> {
 
     Mono<Void> importEntities(
@@ -33,6 +35,10 @@ public interface ImportableServiceCE<T extends BaseDomain> {
             Mono<? extends ImportableArtifact> importContextMono,
             ArtifactExchangeJson importableContextJson,
             boolean isContextAgnostic) {
+        return null;
+    }
+
+    default Mono<List<T>> getEntitiesPresentInWorkspace(String workspaceId) {
         return null;
     }
 }

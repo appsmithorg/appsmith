@@ -160,9 +160,6 @@ public class ImportServiceTests {
     @Autowired
     ExportService exportService;
 
-    //    @Autowired
-    //    ExportApplicationService exportApplicationService;
-
     @Autowired
     Gson gson;
 

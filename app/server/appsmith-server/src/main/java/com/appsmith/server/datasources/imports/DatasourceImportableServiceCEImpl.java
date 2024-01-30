@@ -385,4 +385,11 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
         }
         return Mono.just("");
     }
+
+    @Override
+    public Mono<List<Datasource>> getEntitiesPresentInWorkspace(String workspaceId) {
+        return datasourceService
+                .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
+                .collectList();
+    }
 }

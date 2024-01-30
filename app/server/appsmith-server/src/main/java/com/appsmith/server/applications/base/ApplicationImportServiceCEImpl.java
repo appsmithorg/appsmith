@@ -699,4 +699,11 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     public Map<String, String> getArtifactSpecificConstantsMap() {
         return applicationConstantsMap;
     }
+
+    @Override
+    public Mono<List<NewAction>> getNewActionByArtifactId(String defaultApplicationId) {
+        return newActionService
+                .findAllByApplicationIdAndViewMode(defaultApplicationId, false, Optional.empty(), Optional.empty())
+                .collectList();
+    }
 }

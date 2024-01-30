@@ -1,5 +1,6 @@
 package com.appsmith.server.imports.importable;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -93,4 +94,7 @@ public interface ImportServiceCE {
             String artifactId,
             ImportableArtifact importableArtifact,
             ArtifactExchangeJson artifactExchangeJson);
+
+    Mono<List<Datasource>> findDatasourceByArtifactId(
+            String defaultArtifactId, String workspaceId, ArtifactJsonType artifactJsonType);
 }
