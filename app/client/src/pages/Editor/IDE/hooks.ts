@@ -21,6 +21,7 @@ import {
 import isEmpty from "lodash/isEmpty";
 import pickBy from "lodash/pickBy";
 import { getFocusInfo } from "selectors/focusHistorySelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -158,7 +159,9 @@ export const useSegmentNavigation = (): {
 };
 
 export const useGetPageFocusUrl = (pageId: string): string => {
+  const editorStateString = "EDITOR_STATE.";
   const focusInfo = useSelector(getFocusInfo);
+  const branch = useSelector(getCurrentGitBranch);
   const [focusPageUrl, setFocusPageUrl] = useState(
     builderURL({ pageId: pageId }),
   );
@@ -166,7 +169,8 @@ export const useGetPageFocusUrl = (pageId: string): string => {
   useEffect(() => {
     const editorState = pickBy(
       focusInfo,
-      (v) => v.entityInfo.params.pageId === pageId,
+      (v, k) =>
+        k === editorStateString + pageId + "#" + (branch || "undefined"),
     );
 
     if (isEmpty(editorState)) {
@@ -177,21 +181,18 @@ export const useGetPageFocusUrl = (pageId: string): string => {
       Object.values(editorState)[0].state?.SelectedSegment ||
       EditorEntityTab.UI;
 
-    let url = "";
     switch (segment) {
       case EditorEntityTab.UI:
-        url = widgetListURL({ pageId: pageId });
+        setFocusPageUrl(widgetListURL({ pageId: pageId }));
         break;
       case EditorEntityTab.JS:
-        url = jsCollectionListURL({ pageId: pageId });
+        setFocusPageUrl(jsCollectionListURL({ pageId: pageId }));
         break;
       case EditorEntityTab.QUERIES:
-        url = queryListURL({ pageId: pageId });
+        setFocusPageUrl(queryListURL({ pageId: pageId }));
         break;
     }
-
-    setFocusPageUrl(url);
-  }, [focusInfo]);
+  }, [focusInfo, branch]);
 
   return focusPageUrl;
 };
