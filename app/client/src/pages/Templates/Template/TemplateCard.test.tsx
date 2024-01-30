@@ -19,11 +19,6 @@ jest.mock("react-redux", () => {
   };
 });
 
-jest.mock("./LargeTemplate", () => ({
-  __esModule: true,
-  default: () => <div data-testid="mocked-large-template" />,
-}));
-
 const BaseTemplateRender = () => (
   <ThemeProvider theme={lightTheme}>
     <TemplateLayout

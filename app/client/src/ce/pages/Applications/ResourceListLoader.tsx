@@ -14,11 +14,13 @@ interface ResourcesLoaderProps {
 
 const DEFAULT_BACKGROUND_COLOR = "#9747FF1A";
 const DEFAULT_ICON = "book";
+const DEAFULT_RESOURCES = [{ name: "Default Resource" }];
 
 function ResourceListLoader({ isMobile, resources }: ResourcesLoaderProps) {
+  const resourcesToUse = resources?.length ? resources : DEAFULT_RESOURCES;
   return (
     <CardList isLoading isMobile={isMobile} title="Apps">
-      {resources.map((resource: any) => {
+      {resourcesToUse.map((resource: any) => {
         return (
           <PaddingWrapper isMobile={isMobile} key={resource.id}>
             <Card
@@ -28,7 +30,6 @@ function ResourceListLoader({ isMobile, resources }: ResourcesLoaderProps) {
               hasReadPermission
               icon={DEFAULT_ICON}
               isContextMenuOpen={false}
-              isEnabledMultipleSelection={false}
               isFetching
               isMobile={isMobile}
               moreActionItems={[]}

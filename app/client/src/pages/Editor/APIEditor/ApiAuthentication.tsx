@@ -14,7 +14,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { Icon, Text } from "design-system";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";

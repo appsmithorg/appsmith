@@ -19,10 +19,11 @@ describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   });
 
   it("1. Select Widgets default value", function () {
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 500, 100); //for test #2
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.MULTISELECT,
-      250,
-      100,
+      200,
+      150,
     );
 
     _.propPane.ToggleJSMode("sourcedata");
@@ -54,7 +55,8 @@ describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
       "{{showAlert('Row ' + currentIndex + ' Option Changed')}}",
     );
 
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 250, 300);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 500, 300); //for test #2
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 200, 350);
 
     _.propPane.ToggleJSMode("sourcedata");
 
@@ -116,22 +118,8 @@ describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
 
   it("2. Select Widgets isValid", function () {
     // Test for isValid === True
-
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 550, 300);
-    _.propPane.RenameWidget("Text1", "Select_Widget");
-    _.propPane.UpdatePropertyFieldValue(
-      "Text",
-      "{{`${currentView.Select1.selectedOptionLabel}_${currentView.Select1.selectedOptionValue}_${currentView.Select1.isDirty}_${currentView.Select1.isValid}`}}",
-    );
-
-    cy.get(`${widgetSelector("Select_Widget")} ${commonlocators.bodyTextStyle}`)
-      .first()
-      .should("have.text", `${items[0].name}_${items[0].id}_false_true`);
-
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 550, 100);
-
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     _.propPane.RenameWidget("Text1", "MultiSelect_Widget");
-
     _.propPane.UpdatePropertyFieldValue(
       "Text",
       "{{`${currentView.MultiSelect1.selectedOptionLabels[0]}_${currentView.MultiSelect1.selectedOptionValues[0]}_${currentView.MultiSelect1.isDirty}_${currentView.MultiSelect1.isValid}`}}",
@@ -139,6 +127,16 @@ describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
     cy.get(
       `${widgetSelector("MultiSelect_Widget")} ${commonlocators.bodyTextStyle}`,
     )
+      .first()
+      .should("have.text", `${items[0].name}_${items[0].id}_false_true`);
+
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
+    _.propPane.RenameWidget("Text2", "Select_Widget");
+    _.propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{`${currentView.Select1.selectedOptionLabel}_${currentView.Select1.selectedOptionValue}_${currentView.Select1.isDirty}_${currentView.Select1.isValid}`}}",
+    );
+    cy.get(`${widgetSelector("Select_Widget")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", `${items[0].name}_${items[0].id}_false_true`);
 

@@ -77,11 +77,12 @@ class EditorNavigation {
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
-  NavigateToPage(name: string) {
+  NavigateToPage(name: string, networkCallAlias = false) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AggregateHelper.Sleep(); //for selection to settle
+    networkCallAlias && _.AssertHelper.AssertNetworkStatus("pageSnap");
   }
 
   SelectEntityByName(
