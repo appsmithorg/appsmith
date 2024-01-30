@@ -151,11 +151,6 @@ function AIDataSources(props: Props) {
 
   // AI Plugins
   const aiPlugins = plugins
-    .filter((p) => {
-      // Remove Appsmith AI Plugin from Datasources page
-      // TODO: @Diljit Remove this when knowledge retrieval for Appsmith AI is implemented
-      return p.packageName !== PluginPackageName.APPSMITH_AI;
-    })
     .sort((a, b) => {
       // Sort the AI plugins alphabetically
       return a.name.localeCompare(b.name);

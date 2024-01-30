@@ -248,6 +248,7 @@ function renderDropdown(
         return (
           <Option
             aria-label={option.label}
+            disabled={option.disabled}
             isDisabled={option.isDisabled}
             key={option.value}
             value={option.value}
@@ -297,6 +298,7 @@ const mapStateToProps = (
   let isLoading = false;
   let options = ownProps.fetchOptionsConditionally ? [] : ownProps.options;
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
+  console.log("DEBUG >>", formValues);
 
   try {
     if (ownProps.fetchOptionsConditionally) {
