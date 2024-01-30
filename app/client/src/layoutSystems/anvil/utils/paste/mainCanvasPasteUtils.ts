@@ -52,22 +52,28 @@ export function* pasteWidgetsIntoMainCanvas(
   const targetLayout: LayoutProps = layoutOrder[layoutIndex];
   const targetRowIndex = layoutOrder.length > 1 ? 1 : 0;
 
-  widgets = yield call(
-    handleWidgetMovement,
-    widgets,
-    copiedWidgets.map((each: CopiedWidgetData) => map[each.widgetId]),
-    {
-      ...defaultHighlightRenderInfo,
-      alignment,
-      canvasId: parent.widgetId,
-      layoutId: targetLayout.layoutId,
-      layoutOrder: layoutOrder
-        .slice(0, layoutIndex + 1)
-        .map((each: LayoutProps) => each.layoutId),
-      rowIndex: rowIndex[targetRowIndex],
-    },
-    true,
-    false,
+  const nonDetachedWidgets: CopiedWidgetData[] = copiedWidgets.filter(
+    (each: CopiedWidgetData) => !each.list[0].detachFromLayout,
   );
+
+  if (nonDetachedWidgets.length) {
+    widgets = yield call(
+      handleWidgetMovement,
+      widgets,
+      nonDetachedWidgets.map((each: CopiedWidgetData) => map[each.widgetId]),
+      {
+        ...defaultHighlightRenderInfo,
+        alignment,
+        canvasId: parent.widgetId,
+        layoutId: targetLayout.layoutId,
+        layoutOrder: layoutOrder
+          .slice(0, layoutIndex + 1)
+          .map((each: LayoutProps) => each.layoutId),
+        rowIndex: rowIndex[targetRowIndex],
+      },
+      true,
+      false,
+    );
+  }
   return { widgets, widgetIdMap: map, reverseWidgetIdMap: reverseMap };
 }

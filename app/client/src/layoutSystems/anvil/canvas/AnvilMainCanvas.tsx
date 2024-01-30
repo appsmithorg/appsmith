@@ -1,11 +1,18 @@
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilCanvas } from "./AnvilCanvas";
 import React from "react";
-import { useCanvasActivationStates } from "../canvasArenas/hooks/mainCanvas/useCanvasActivationStates";
 import { useCanvasActivation } from "../canvasArenas/hooks/mainCanvas/useCanvasActivation";
+import { useSelectWidgetListener } from "../common/hooks/useSelectWidgetListener";
+
+/**
+ * Anvil Main Canvas is just a wrapper around AnvilCanvas.
+ * Why do we need this?
+ * Because we need to use useCanvasActivation hook which is only needed to be used once and it is also exclusive to edit mode.
+ * checkout useCanvasActivation for more details.
+ */
 
 export const AnvilMainCanvas = (props: BaseWidgetProps) => {
-  const anvilCanvasActivationStates = useCanvasActivationStates();
-  useCanvasActivation(anvilCanvasActivationStates);
+  useCanvasActivation();
+  useSelectWidgetListener();
   return <AnvilCanvas {...props} />;
 };

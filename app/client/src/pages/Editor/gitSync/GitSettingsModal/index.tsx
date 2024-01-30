@@ -27,10 +27,10 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
-    width: 640px;
+    width: 600px;
     transform: none !important;
     top: 100px;
-    left: calc(50% - 320px);
+    left: calc(50% - 300px);
     max-height: calc(100vh - 200px);
   }
 `;

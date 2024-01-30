@@ -1,5 +1,11 @@
 package com.appsmith.external.constants;
 
+import java.util.List;
+
+import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+
 public interface PluginConstants {
 
     interface PackageName {
@@ -53,4 +59,7 @@ public interface PluginConstants {
     interface HostName {
         public static final String LOCALHOST = "localhost";
     }
+
+    public static List<String> PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE =
+            List.of(REST_API_PLUGIN, GRAPHQL_PLUGIN, APPSMITH_AI_PLUGIN);
 }

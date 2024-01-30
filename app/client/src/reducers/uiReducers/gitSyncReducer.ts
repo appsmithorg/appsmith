@@ -768,6 +768,7 @@ export type GitMetadata = {
   autoCommitConfig: {
     enabled: boolean;
   };
+  autoDeploymentConfigs?: { branchName: string }[];
 } | null;
 
 export type GitSyncReducerState = GitBranchDeleteState & {

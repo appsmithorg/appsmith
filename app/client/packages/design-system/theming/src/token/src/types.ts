@@ -13,7 +13,9 @@ export type TokenType =
   | "boxShadow"
   | "borderWidth"
   | "opacity"
-  | "zIndex";
+  | "zIndex"
+  | "strokeWidth"
+  | "iconSize";
 
 export interface Token {
   value: string | number;
@@ -34,6 +36,8 @@ export interface TokenSource {
   outerSpacing?: TokenObj;
   innerSpacing?: TokenObj;
   iconStyle?: IconStyle;
+  strokeWidth?: TokenObj;
+  iconSize?: TokenObj;
 }
 
 export interface TokenObj {
