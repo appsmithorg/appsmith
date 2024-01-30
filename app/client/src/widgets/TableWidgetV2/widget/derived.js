@@ -326,7 +326,18 @@ export default {
         sortBycolumn && sortBycolumn.columnType
           ? sortBycolumn.columnType
           : "text";
-      const inputFormat = sortBycolumn.inputFormat;
+
+      let inputFormat = (() => {
+        switch (sortBycolumn.inputFormat) {
+          case "Epoch":
+            return "X";
+          case "Milliseconds":
+            return "x";
+          default:
+            return sortBycolumn.inputFormat;
+        }
+      })();
+
       const isEmptyOrNil = (value) => {
         return _.isNil(value) || value === "";
       };

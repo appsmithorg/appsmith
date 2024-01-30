@@ -9,7 +9,6 @@ import {
 
 const Container = styled.div`
   overflow: auto;
-  min-height: calc(360px + 52px);
 `;
 
 function TabGeneral() {
