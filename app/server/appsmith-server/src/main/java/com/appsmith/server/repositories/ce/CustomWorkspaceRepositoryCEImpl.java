@@ -50,7 +50,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria tenantIdCriteria =
                 where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId);
 
-        return queryAll(List.of(workspaceIdCriteria, tenantIdCriteria), aclPermission, sort);
+        return queryAll()
+                .criteria(List.of(workspaceIdCriteria, tenantIdCriteria))
+                .permission(aclPermission)
+                .sort(sort)
+                .submit();
     }
 
     @Override
@@ -73,7 +77,10 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
             Criteria tenantIdCriteria =
                     where(fieldName(QWorkspace.workspace.tenantId)).is(user.getTenantId());
-            return queryAll(List.of(tenantIdCriteria), permission);
+            return queryAll()
+                    .criteria(List.of(tenantIdCriteria))
+                    .permission(permission)
+                    .submit();
         });
     }
 }

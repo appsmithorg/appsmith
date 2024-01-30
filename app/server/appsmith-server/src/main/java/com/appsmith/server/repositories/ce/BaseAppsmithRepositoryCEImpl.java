@@ -438,89 +438,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return count(criteriaList, Optional.empty());
     }
 
-    @Deprecated
-    public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
-        return queryAll().criteria(criterias).permission(aclPermission).submit();
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission) {
-        return queryAll()
-                .criteria(criterias)
-                .permission(permission.orElse(null))
-                .submit();
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission, Sort sort) {
-        return queryAll()
-                .criteria(criterias)
-                .permission(aclPermission)
-                .sort(sort)
-                .submit();
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission, Optional<Sort> sort) {
-        return queryAll()
-                .criteria(criterias)
-                .permission(permission.orElse(null))
-                .sort(sort.orElse(null))
-                .submit();
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort) {
-        return queryAll()
-                .criteria(criterias)
-                .fields(includeFields)
-                .permission(aclPermission)
-                .sort(sort)
-                .submit();
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> aclPermission,
-            Optional<Sort> sort) {
-        return queryAll()
-                .criteria(criterias)
-                .fields(includeFields.orElse(null))
-                .permission(aclPermission.orElse(null))
-                .sort(sort.orElse(null))
-                .submit();
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort, int limit) {
-        return queryAll()
-                .criteria(criterias)
-                .fields(includeFields)
-                .permission(aclPermission)
-                .sort(sort)
-                .limit(limit)
-                .submit();
-    }
-
-    public Flux<T> queryAll(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> permission,
-            Optional<Sort> sort,
-            int limit) {
-        return queryAll()
-                .criteria(criterias)
-                .fields(includeFields.orElse(null))
-                .permission(permission.orElse(null))
-                .sort(sort.orElse(null))
-                .limit(limit)
-                .submit();
-    }
-
     public Flux<T> queryAllWithStrictPermissionGroups(
             List<Criteria> criterias,
             Optional<List<String>> includeFields,
@@ -532,25 +449,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getStrictPermissionGroupsForUser((User) principal));
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));
-    }
-
-    public Flux<T> queryAll(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> permission,
-            Sort sort,
-            int limit,
-            int skip) {
-        return queryAll()
+        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAll()
                 .criteria(criterias)
                 .fields(includeFields.orElse(null))
                 .permission(permission.orElse(null))
+                .permissionGroups(permissionGroups)
                 .sort(sort)
                 .limit(limit)
                 .skip(skip)
-                .submit();
+                .submit());
     }
 
     public Flux<T> queryAllWithPermissionGroups(

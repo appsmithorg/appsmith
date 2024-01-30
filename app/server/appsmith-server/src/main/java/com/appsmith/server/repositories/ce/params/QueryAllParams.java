@@ -36,7 +36,6 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.queryAllExecute(this);
     }
 
-    // TODO: the null checks in below methods are temporary, and intended to be removed soon.
     public QueryAllParams<T> criteria(Criteria criteria) {
         if (criteria == null) {
             return this;
