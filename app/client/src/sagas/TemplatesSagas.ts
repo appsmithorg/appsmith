@@ -445,34 +445,65 @@ function* generateBuildingBlockFromDatasourceTable(
     }
   }
   try {
-    const {
-      isValid,
-      templatePageIds,
-    }: {
-      isValid: boolean;
-      templatePageIds: string[];
-    } = yield call(apiCallForForkTemplateToApplicaion, action);
-
+    const pagesToImport = action.payload.pageNames
+      ? action.payload.pageNames
+      : undefined;
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const prevPageIds: string[] = yield select(getAllPageIds);
+    const response: ImportTemplateResponse = yield call(
+      TemplatesAPI.importTemplateToApplication,
+      action.payload.templateId,
+      applicationId,
+      workspaceId,
+      pagesToImport,
+    );
+    yield put(
+      fetchApplication({
+        mode: APP_MODE.EDIT,
+        applicationId,
+      }),
+    );
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
-      // navigate back to the new building block in its page
-      history.push(
-        builderURL({
-          pageId: templatePageIds[0],
+      yield call(postPageAdditionSaga, applicationId);
+      const pages: string[] = yield select(getAllPageIds);
+      const templatePageIds: string[] = pages.filter(
+        (pageId) => !prevPageIds.includes(pageId),
+      );
+      const pageDSLs: unknown = yield all(
+        templatePageIds.map((pageId: string) => {
+          return call(fetchPageDSLSaga, pageId);
         }),
       );
+
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
+        payload: pageDSLs,
+      });
+
+      yield put({
+        type: ReduxActionTypes.UPDATE_PAGE_LIST,
+        payload: pageDSLs,
+      });
+
+      yield put({
+        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS,
+        payload: response.data.application,
+      });
 
       // Get and update the query for each queryConfig in the template
       for (const queryConfig of action.payload.templateQueryConfig) {
         yield* handleActionUpdate(queryConfig, templatePageIds[0]);
       }
 
-      // reload page after all actions are updated
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_INIT,
-        payload: {
-          id: templatePageIds[0],
-        },
-      });
+      yield delay(3000);
+
+      history.push(
+        builderURL({
+          pageId: pages[0],
+        }),
+      );
     }
   } catch (error) {
     // console.log("🚀 ~ error:", error);
