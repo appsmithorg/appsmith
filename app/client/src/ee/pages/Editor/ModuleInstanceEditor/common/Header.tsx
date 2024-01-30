@@ -14,6 +14,8 @@ import { deleteModuleInstance } from "@appsmith/actions/moduleInstanceActions";
 import { hasDeleteModuleInstancePermission } from "@appsmith/utils/permissionHelpers";
 import { GO_TO_MODULE, createMessage } from "@appsmith/constants/messages";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -73,16 +75,22 @@ function Header({
     moduleInstance?.userPermissions,
   );
 
+  const isPagePaneSegmentsEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
+
   return (
     <StyledContainer>
-      <StyledBackLink
-        className="t--admin-settings-back-button"
-        kind="secondary"
-        onClick={onBack}
-        startIcon="back-control"
-      >
-        Back
-      </StyledBackLink>
+      {isPagePaneSegmentsEnabled ? null : (
+        <StyledBackLink
+          className="t--admin-settings-back-button"
+          kind="secondary"
+          onClick={onBack}
+          startIcon="back-control"
+        >
+          Back
+        </StyledBackLink>
+      )}
       <StyledSubheader>
         <StyledSubheaderSection>
           <ModuleInstanceNameEditor moduleInstance={moduleInstance} />

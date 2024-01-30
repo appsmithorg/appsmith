@@ -81,18 +81,13 @@ import {
   setSelectedSegment,
 } from "@appsmith/navigation/FocusSetters";
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
-import type { FocusElementConfig } from "navigation/FocusElements";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
+import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
+import { getIDETabs } from "selectors/ideSelectors";
+import { setIDETabs } from "actions/ideActions";
+import { IDETabsDefaultValue } from "reducers/uiReducers/ideReducer";
 
-export const AppIDEFocusElements: Record<FocusEntity, FocusElementConfig[]> = {
-  [FocusEntity.NONE]: [],
-  [FocusEntity.APP_STATE]: [],
-  [FocusEntity.CANVAS]: [],
-  [FocusEntity.QUERY_ADD]: [],
-  [FocusEntity.API]: [],
-  [FocusEntity.LIBRARY]: [],
-  [FocusEntity.SETTINGS]: [],
-  [FocusEntity.DATASOURCE_CREATE]: [],
+export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
     {
       type: FocusElementConfigType.URL,
@@ -249,6 +244,13 @@ export const AppIDEFocusElements: Record<FocusEntity, FocusElementConfig[]> = {
       name: FocusElement.SelectedSegment,
       selector: getSelectedSegment,
       setter: setSelectedSegment,
+    },
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.IDETabs,
+      selector: getIDETabs,
+      setter: setIDETabs,
+      defaultValue: IDETabsDefaultValue,
     },
     {
       type: FocusElementConfigType.Redux,

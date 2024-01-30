@@ -4,7 +4,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { EntityExplorerWrapper } from "pages/Editor/Explorer/Common/EntityExplorerWrapper";
 import {
   ActionEntityContextMenuItemsEnum,
@@ -46,6 +46,8 @@ function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
           parentEntityType={ActionParentEntityType.MODULE}
           selectFilesForExplorer={selectFilesForPackageExplorer}
           showModules={false}
+          // TODO: Add workflows support when it is ready
+          showWorkflows={false}
         >
           <Files />
         </FilesContextProvider>

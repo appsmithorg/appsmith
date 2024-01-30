@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllUsers,
   getAllRoles,
-  getCurrentWorkspace,
   getWorkspaceLoadingStates,
+  getFetchedWorkspaces,
 } from "@appsmith/selectors/workspaceSelectors";
 import type { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router";
@@ -41,6 +40,10 @@ import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getAllUsersOfWorkspace,
+  selectedWorkspaceLoadingStates,
+} from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;
@@ -243,16 +246,13 @@ export default function MemberSettings(props: PageProps) {
     );
   };
 
-  const {
-    deletingUserInfo,
-    isFetchingAllRoles,
-    isFetchingAllUsers,
-    roleChangingUserInfo,
-  } = useSelector(getWorkspaceLoadingStates);
+  const { deletingUserInfo, isFetchingAllUsers, roleChangingUserInfo } =
+    useSelector(selectedWorkspaceLoadingStates);
+  const { isFetchingAllRoles } = useSelector(getWorkspaceLoadingStates);
   const allRoles = useSelector(getAllRoles);
-  const allUsers = useSelector(getAllUsers);
+  const allUsers = useSelector(getAllUsersOfWorkspace);
   const currentUser = useSelector(getCurrentUser);
-  const currentWorkspace = useSelector(getCurrentWorkspace).find(
+  const currentWorkspace = useSelector(getFetchedWorkspaces).find(
     (el) => el.id === workspaceId,
   );
 

@@ -70,7 +70,7 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
         Flux<ModuleInstance> moduleInstanceFlux = crudModuleInstanceService
-                .findByPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission)
+                .findByPageIds(exportingMetaDTO.getUnpublishedModulesOrPages(), optionalPermission)
                 .filter(moduleInstance ->
                         moduleInstance.getUnpublishedModuleInstance().getDeletedAt() == null);
 
@@ -122,12 +122,10 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
                         Instant moduleInstanceUpdatedAt = moduleInstance.getUpdatedAt();
                         boolean isModuleInstanceUpdated = exportingMetaDTO.isClientSchemaMigrated()
                                 || exportingMetaDTO.isServerSchemaMigrated()
-                                || exportingMetaDTO.getApplicationLastCommittedAt() == null
+                                || exportingMetaDTO.getArtifactLastCommittedAt() == null
                                 || isPageUpdated
                                 || moduleInstanceUpdatedAt == null
-                                || exportingMetaDTO
-                                        .getApplicationLastCommittedAt()
-                                        .isBefore(moduleInstanceUpdatedAt);
+                                || exportingMetaDTO.getArtifactLastCommittedAt().isBefore(moduleInstanceUpdatedAt);
                         if (isModuleInstanceUpdated && moduleInstanceName != null) {
                             updatedModuleInstancesSet.add(moduleInstanceName);
                         }
@@ -159,8 +157,9 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
             // Set unique id for module instance
             if (moduleInstance.getUnpublishedModuleInstance() != null) {
                 ModuleInstanceDTO moduleInstanceDTO = moduleInstance.getUnpublishedModuleInstance();
-                moduleInstanceDTO.setPageId(
-                        mappedExportableResourcesDTO.getPageIdToNameMap().get(moduleInstanceDTO.getPageId() + EDIT));
+                moduleInstanceDTO.setPageId(mappedExportableResourcesDTO
+                        .getPageOrModuleIdToNameMap()
+                        .get(moduleInstanceDTO.getPageId() + EDIT));
 
                 final String updatedModuleInstanceId =
                         moduleInstanceDTO.getPageId() + "_" + moduleInstanceDTO.getName();
@@ -171,8 +170,9 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
             }
             if (moduleInstance.getPublishedModuleInstance() != null) {
                 ModuleInstanceDTO moduleInstanceDTO = moduleInstance.getPublishedModuleInstance();
-                moduleInstanceDTO.setPageId(
-                        mappedExportableResourcesDTO.getPageIdToNameMap().get(moduleInstanceDTO.getPageId() + VIEW));
+                moduleInstanceDTO.setPageId(mappedExportableResourcesDTO
+                        .getPageOrModuleIdToNameMap()
+                        .get(moduleInstanceDTO.getPageId() + VIEW));
 
                 if (!mappedExportableResourcesDTO
                         .getModuleInstanceIdToNameMap()

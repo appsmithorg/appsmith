@@ -6,6 +6,8 @@ import {
   convertModulesToArray,
   getModuleIdPackageNameMap,
 } from "./Packages/moduleHelpers";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createQueryModuleInstance } from "@appsmith/actions/moduleInstanceActions";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
@@ -13,8 +15,9 @@ import { Icon } from "design-system";
 import { ModuleInstanceCreatorType } from "@appsmith/constants/ModuleInstanceConstants";
 import { getPackages } from "@appsmith/selectors/packageSelectors";
 import { sortBy } from "lodash";
+import { FocusEntity } from "navigation/FocusEntity";
 
-export const useModuleOptions = () => {
+export const useModuleOptions = (): ActionOperation[] => {
   const allModules = useSelector(getAllModules);
   const modules = convertModulesToArray(allModules);
   const packages = useSelector(getPackages);
@@ -38,6 +41,10 @@ export const useModuleOptions = () => {
           sourceModuleId: module.id,
         }),
       tooltip: `From ${modulePackageMap[module.id]} package`,
+      focusEntityType:
+        module.type === MODULE_TYPE.QUERY
+          ? FocusEntity.QUERY_MODULE_INSTANCE
+          : FocusEntity.JS_MODULE_INSTANCE,
     };
   });
 

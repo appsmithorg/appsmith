@@ -51,12 +51,29 @@ public class ActionCollectionImportableServiceImpl extends ActionCollectionImpor
     }
 
     @Override
-    protected ActionCollection getExistingCollectionForImportedCollection(
+    protected ActionCollection getExistingCollectionInCurrentBranchForImportedCollection(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Map<String, ActionCollection> actionsCollectionsInCurrentApp,
             ActionCollection actionCollection) {
         if (!Boolean.TRUE.equals(actionCollection.getIsPublic())) {
-            return super.getExistingCollectionForImportedCollection(
+            return super.getExistingCollectionInCurrentBranchForImportedCollection(
+                    mappedImportableResourcesDTO, actionsCollectionsInCurrentApp, actionCollection);
+        }
+        Map<String, ActionCollection> nameToCollectionMap = actionsCollectionsInCurrentApp.values().stream()
+                .collect(Collectors.toMap(
+                        collection -> collection.getUnpublishedCollection().getName(), collection -> collection));
+
+        return nameToCollectionMap.get(
+                actionCollection.getUnpublishedCollection().getName());
+    }
+
+    @Override
+    protected ActionCollection getExistingCollectionInOtherBranchesForImportedCollection(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp,
+            ActionCollection actionCollection) {
+        if (!Boolean.TRUE.equals(actionCollection.getIsPublic())) {
+            return super.getExistingCollectionInOtherBranchesForImportedCollection(
                     mappedImportableResourcesDTO, actionsCollectionsInCurrentApp, actionCollection);
         }
         Map<String, ActionCollection> nameToCollectionMap = actionsCollectionsInCurrentApp.values().stream()

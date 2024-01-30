@@ -46,7 +46,6 @@ export interface AppsmithUIConfigs {
     snippetIndex: string;
   };
 
-  enableRapidAPI: boolean;
   enableMixpanel: boolean;
 
   cloudHosting: boolean;

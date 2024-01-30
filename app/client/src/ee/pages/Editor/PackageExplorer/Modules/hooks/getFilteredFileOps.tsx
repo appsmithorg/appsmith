@@ -9,7 +9,7 @@ import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import history from "utils/history";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {

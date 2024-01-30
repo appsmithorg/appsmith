@@ -44,7 +44,7 @@ public class AuditLogController {
     public Mono<ResponseEntity<Object>> exportAuditLogsInFile(@RequestParam MultiValueMap<String, String> params) {
         return auditLogService.exportAuditLogs(params).map(fetchedResource -> {
             HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
-            Object applicationResource = fetchedResource.getApplicationResource();
+            Object applicationResource = fetchedResource.getArtifactResource();
             return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
         });
     }

@@ -17,11 +17,11 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -1109,7 +1109,7 @@ public class ApplicationShareTest {
             String permission = policy.getPermission();
             Set<String> permissionGroups = policy.getPermissionGroups();
 
-            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Action.class);
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, NewAction.class);
             assertThat(permissionByValue).isNotNull();
             switch (permissionByValue) {
                 case MANAGE_ACTIONS, DELETE_ACTIONS, READ_ACTIONS -> {
@@ -1446,7 +1446,7 @@ public class ApplicationShareTest {
             String permission = policy.getPermission();
             Set<String> permissionGroups = policy.getPermissionGroups();
 
-            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Action.class);
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, NewAction.class);
             assertThat(permissionByValue).isNotNull();
             switch (permissionByValue) {
                 case MANAGE_ACTIONS, DELETE_ACTIONS, READ_ACTIONS -> {
@@ -1769,7 +1769,7 @@ public class ApplicationShareTest {
             String permission = policy.getPermission();
             Set<String> permissionGroups = policy.getPermissionGroups();
 
-            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Action.class);
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, NewAction.class);
             assertThat(permissionByValue).isNotNull();
             switch (permissionByValue) {
                 case MANAGE_ACTIONS, DELETE_ACTIONS, READ_ACTIONS -> {

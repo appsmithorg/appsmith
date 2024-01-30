@@ -42,11 +42,6 @@ import {
 } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "WidgetProvider/factory";
-import {
-  inGuidedTour,
-  isExploringSelector,
-} from "selectors/onboardingSelectors";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
@@ -146,13 +141,6 @@ function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const selectedWidget: FlattenedWidgetProps | undefined =
     yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
-  const isExploring: boolean = yield select(isExploringSelector);
-
-  if (guidedTourEnabled && !isExploring) {
-    yield put(toggleShowDeviationDialog(true));
-    return;
-  }
 
   if (selectedWidgets.length > 1) {
     yield put({

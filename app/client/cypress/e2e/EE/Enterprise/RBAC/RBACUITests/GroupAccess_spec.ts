@@ -2,6 +2,7 @@ import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlag
 import {
   adminSettings,
   agHelper,
+  assertHelper,
   dataSources,
   entityExplorer,
   fakerHelper,
@@ -68,7 +69,8 @@ describe(
         featureFlagIntercept({
           license_gac_enabled: true,
         });
-        agHelper.Sleep(2000);
+        assertHelper.AssertDocumentReady();
+        agHelper.WaitUntilEleAppear(".t--sidebar");
         adminSettings.NavigateToAdminSettings();
         rbacHelper.CreatePermissionPageLevel(
           permissionAtPageLevel,
@@ -108,11 +110,12 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
+      homePage.SelectWorkspace(workspaceName);
       cy.wait(5000);
       featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(5000);
+      assertHelper.AssertDocumentReady();
       homePage.SearchAndOpenApp(appName);
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.NavigateToPage(pageName, true);
       entityExplorer.DragDropWidgetNVerify(
         "checkboxwidget",
         300,
@@ -122,8 +125,8 @@ describe(
         true,
       );
       agHelper.AssertElementAbsence(locators._saveStatusError);
-      EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
-      agHelper.AssertElementAbsence(PageLeftPane.locators.addItem());
+      EditorNavigation.NavigateToPage(pageName, true);
+      agHelper.AssertElementAbsence(PageLeftPane.locators.addItem);
       EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
       agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
       agHelper.AssertElementAbsence(locators._contextMenuItem("Copy to page"));
@@ -135,18 +138,18 @@ describe(
     it("2. group with 2 roles - Dev and custom page view", function () {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
+      assertHelper.AssertDocumentReady();
       rbacHelper.AddDefaultRoleGroup(groupName, "Developer", workspaceName);
       homePage.LogintoApp(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
         "Developer",
       );
-      homePage.SearchAndOpenApp(appName);
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      entityExplorer.DragDropWidgetNVerify("checkboxwidget");
-      EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
-      entityExplorer.DragDropWidgetNVerify("checkboxwidget");
+      homePage.SearchAndOpenApp(appName, locators._emptyPageTxt);
+      EditorNavigation.NavigateToPage("Page1", true);
+      entityExplorer.DragDropWidgetNVerify("checkboxwidget", 400, 200);
+      EditorNavigation.NavigateToPage(pageName, true);
+      entityExplorer.DragDropWidgetNVerify("checkboxwidget", 400, 200);
     });
   },
 );

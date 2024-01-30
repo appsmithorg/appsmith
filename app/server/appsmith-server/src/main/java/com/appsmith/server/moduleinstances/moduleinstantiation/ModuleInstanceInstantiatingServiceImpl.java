@@ -6,7 +6,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.ModuleInstance;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
@@ -147,7 +147,7 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
             ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO, ModuleInstance toBeInstantiatedModuleInstance) {
         // Set policies to the new module instance
         Set<Policy> moduleInstancePolicies = policyGenerator.getAllChildPolicies(
-                moduleInstantiatingMetaDTO.getPage().getPolicies(), Page.class, ModuleInstance.class);
+                moduleInstantiatingMetaDTO.getPage().getPolicies(), NewPage.class, ModuleInstance.class);
 
         toBeInstantiatedModuleInstance.setPolicies(moduleInstancePolicies);
     }

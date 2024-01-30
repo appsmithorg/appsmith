@@ -45,7 +45,6 @@ describe("WorkflowCardListRenderer", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkflowCardListRenderer
-            createWorkflow={() => {}}
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
             workspaceId="1"
@@ -63,7 +62,6 @@ describe("WorkflowCardListRenderer", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkflowCardListRenderer
-            createWorkflow={() => {}}
             isMobile={false}
             workflows={[]}
             workspaceId="1"

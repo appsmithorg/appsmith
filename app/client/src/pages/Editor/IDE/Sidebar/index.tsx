@@ -5,9 +5,8 @@ import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { useCurrentAppState } from "../hooks";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import SidebarComponent from "./SidebarComponent";
 import { BottomButtons, TopButtons } from "@appsmith/entities/IDE/constants";
 
@@ -20,7 +19,6 @@ function Sidebar() {
   const pageId = useSelector(getCurrentPageId);
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
-  const guidedTourEnabled = useSelector(inGuidedTour);
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
@@ -40,10 +38,6 @@ function Sidebar() {
     },
     [pageId],
   );
-
-  if (guidedTourEnabled) {
-    return null;
-  }
 
   return (
     <SidebarComponent

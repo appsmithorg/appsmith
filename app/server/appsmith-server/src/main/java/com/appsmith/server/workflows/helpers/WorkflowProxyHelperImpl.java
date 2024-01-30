@@ -19,11 +19,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-import static com.appsmith.server.workflows.constants.WorkflowProxyRequests.FETCH_WORKFLOW_HISTORY;
+import static com.appsmith.server.workflows.constants.WorkflowProxyRequests.FETCH_WORKFLOW_RUNS;
+import static com.appsmith.server.workflows.constants.WorkflowProxyRequests.FETCH_WORKFLOW_RUN_ACTIVITIES;
 import static com.appsmith.server.workflows.constants.WorkflowProxyRequests.RESOLVE_APPROVAL_REQUEST;
 import static com.appsmith.server.workflows.constants.WorkflowProxyRequests.TRIGGER_WORKFLOW_ON_PROXY;
 import static com.appsmith.server.workflows.constants.WorkflowProxyUrls.APPROVAL_REQUEST_RESOLUTION_URI;
-import static com.appsmith.server.workflows.constants.WorkflowProxyUrls.WORKFLOW_HISTORY_URI;
+import static com.appsmith.server.workflows.constants.WorkflowProxyUrls.WORKFLOW_RUNS_URI;
+import static com.appsmith.server.workflows.constants.WorkflowProxyUrls.WORKFLOW_RUN_ACTIVITIES_URI;
 import static com.appsmith.server.workflows.constants.WorkflowProxyUrls.WORKFLOW_TRIGGER_URI;
 
 @Component
@@ -37,18 +39,6 @@ public class WorkflowProxyHelperImpl implements WorkflowProxyHelper {
         webClient = WebClientUtils.builder().build();
         this.commonConfig = commonConfig;
         this.objectMapper = objectMapper;
-    }
-
-    @Override
-    public Mono<JsonNode> getWorkflowHistoryFromProxySource(MultiValueMap<String, String> filters) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(
-                        getWorkflowProxyUrlString(WORKFLOW_HISTORY_URI))
-                .queryParams(filters);
-
-        Mono<ResponseEntity<String>> responseEntityMono =
-                webClient.get().uri(uriBuilder.build().toUri()).retrieve().toEntity(String.class);
-
-        return checkWorkflowResponseForError(responseEntityMono, FETCH_WORKFLOW_HISTORY);
     }
 
     private String getWorkflowProxyUrlString(String uri) {
@@ -110,5 +100,29 @@ public class WorkflowProxyHelperImpl implements WorkflowProxyHelper {
                 .toEntity(String.class);
 
         return checkWorkflowResponseForError(responseEntityMono, TRIGGER_WORKFLOW_ON_PROXY);
+    }
+
+    @Override
+    public Mono<JsonNode> getWorkflowRunActivities(String workflowId, String runId) {
+        String getWorkflowRunActivitiesUri = String.format(WORKFLOW_RUN_ACTIVITIES_URI, workflowId, runId);
+        UriComponentsBuilder uriBuilder =
+                UriComponentsBuilder.fromUriString(getWorkflowProxyUrlString(getWorkflowRunActivitiesUri));
+        Mono<ResponseEntity<String>> responseEntityMono =
+                webClient.get().uri(uriBuilder.build().toUri()).retrieve().toEntity(String.class);
+
+        return checkWorkflowResponseForError(responseEntityMono, FETCH_WORKFLOW_RUN_ACTIVITIES);
+    }
+
+    @Override
+    public Mono<JsonNode> getWorkflowRuns(String workflowId, MultiValueMap<String, String> queryParams) {
+        String getWorkflowRunsUri = String.format(WORKFLOW_RUNS_URI, workflowId);
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(
+                        getWorkflowProxyUrlString(getWorkflowRunsUri))
+                .queryParams(queryParams);
+
+        Mono<ResponseEntity<String>> responseEntityMono =
+                webClient.get().uri(uriBuilder.build().toUri()).retrieve().toEntity(String.class);
+
+        return checkWorkflowResponseForError(responseEntityMono, FETCH_WORKFLOW_RUNS);
     }
 }

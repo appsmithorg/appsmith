@@ -21,6 +21,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
@@ -72,6 +73,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final PartialExportService partialExportService;
     private final PartialImportService partialImportService;
     private final ImportService importService;
+    private final ExportService exportService;
 
     @Autowired
     public ApplicationControllerCE(
@@ -85,8 +87,10 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ApplicationSnapshotService applicationSnapshotService,
             PartialExportService partialExportService,
             PartialImportService partialImportService,
-            ImportService importService) {
+            ImportService importService,
+            ExportService exportService) {
         super(service);
+        this.exportService = exportService;
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
@@ -155,14 +159,6 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         return applicationPageService
                 .deleteApplication(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
-    }
-
-    @JsonView(Views.Public.class)
-    @PostMapping("/delete-apps")
-    public Mono<ResponseDTO<List<Application>>> deleteMultipleApps(@Valid @RequestBody List<String> ids) {
-        return applicationPageService
-                .deleteMultipleApps(ids)
-                .map(deletedResources -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResources, null));
     }
 
     @Deprecated
@@ -247,7 +243,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
         return exportApplicationService.getApplicationFile(id, branchName).map(fetchedResource -> {
             HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
-            Object applicationResource = fetchedResource.getApplicationResource();
+            Object applicationResource = fetchedResource.getArtifactResource();
             return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
         });
     }

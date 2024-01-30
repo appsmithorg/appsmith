@@ -28,12 +28,12 @@ public class ProxyWorkflowServiceCECompatibleImpl extends BaseWorkflowServiceCEC
     }
 
     @Override
-    public Mono<JsonNode> getWorkflowHistory(MultiValueMap<String, String> filters) {
+    public Mono<JsonNode> getWorkflowRunActivities(String workflowId, String runId) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     @Override
-    public Mono<JsonNode> getWorkflowHistoryByWorkflowId(String id, MultiValueMap<String, String> filters) {
+    public Mono<JsonNode> getWorkflowRuns(String workflowId, MultiValueMap<String, String> queryParams) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

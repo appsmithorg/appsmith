@@ -4677,9 +4677,9 @@ public class AuditLogServiceTest {
         StepVerifier.create(fileDTOMono)
                 .assertNext(fileDTO -> {
                     assertThat(fileDTO).isNotNull();
-                    assertThat(fileDTO.getApplicationResource()).isNotNull();
+                    assertThat(fileDTO.getArtifactResource()).isNotNull();
                     assertThat(fileDTO.getHttpHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                    AuditLogExportDTO auditLogExport = (AuditLogExportDTO) fileDTO.getApplicationResource();
+                    AuditLogExportDTO auditLogExport = (AuditLogExportDTO) fileDTO.getArtifactResource();
                     assertThat(auditLogExport.getData()).hasSize(2);
                     List<AuditLog> auditLogs = auditLogExport.getData();
                     List<String> eventTypes =
@@ -4700,9 +4700,9 @@ public class AuditLogServiceTest {
         StepVerifier.create(fileDTOMono)
                 .assertNext(fileDTO -> {
                     assertThat(fileDTO).isNotNull();
-                    assertThat(fileDTO.getApplicationResource()).isNotNull();
+                    assertThat(fileDTO.getArtifactResource()).isNotNull();
                     assertThat(fileDTO.getHttpHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                    AuditLogExportDTO auditLogExport = (AuditLogExportDTO) fileDTO.getApplicationResource();
+                    AuditLogExportDTO auditLogExport = (AuditLogExportDTO) fileDTO.getArtifactResource();
                     assertThat(auditLogExport.getData()).hasSize(0);
                     assertThat(auditLogExport.getQuery()).hasSize(0);
                 })

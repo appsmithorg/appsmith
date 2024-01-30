@@ -7,20 +7,19 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
+  Divider,
   Menu,
   MenuContent,
   MenuItem,
   MenuTrigger,
 } from "design-system";
 
-import {
-  getIsCreatingApplicationByWorkspaceId,
-  getUserApplicationsWorkspacesList,
-} from "@appsmith/selectors/applicationSelectors";
+import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import { createPackageFromWorkspace } from "@appsmith/actions/packageActions";
 import { getIsCreatingPackage } from "@appsmith/selectors/packageSelectors";
 import {
+  IMPORT_BTN_LABEL,
   NEW_APP,
   NEW_PACKAGE,
   NEW_WORKFLOW,
@@ -43,7 +42,14 @@ const StyledCreateNewButton = styled(Button)`
 `;
 
 function WorkspaceAction(props: CE_WorkspaceActionProps) {
-  const { isMobile, onCreateNewApplication, workspaceId } = props;
+  const {
+    enableImportExport,
+    isMobile,
+    onCreateNewApplication,
+    setSelectedWorkspaceIdForImportApplication,
+    workspace,
+    workspaceId,
+  } = props;
 
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const dispatch = useDispatch();
@@ -57,10 +63,6 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
   );
   const isCreatingWorkflow = useSelector((state) =>
     getIsCreatingWorkflow(state, workspaceId),
-  );
-  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
-  const currentUserWorkspace = userWorkspaces.find(
-    (w) => w.workspace.id === workspaceId,
   );
 
   const openActionMenu = useCallback(() => {
@@ -79,9 +81,7 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
     dispatch(createWorkflowFromWorkspace({ workspaceId }));
   }, [dispatch, createWorkflowFromWorkspace, workspaceId]);
 
-  if (!currentUserWorkspace) return null;
-
-  const { workspace } = currentUserWorkspace;
+  if (!workspace) return null;
 
   const hasCreateNewApplicationPermission =
     hasCreateNewAppPermission(workspace?.userPermissions) && !isMobile;
@@ -133,7 +133,7 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
           data-testid="t--workspace-action-create-app"
           disabled={!hasCreateNewApplicationPermission}
           onSelect={() => onCreateNewApplication(workspaceId)}
-          startIcon="apps-line"
+          startIcon="group-control"
         >
           {createMessage(NEW_APP)}
         </MenuItem>
@@ -156,6 +156,18 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
             startIcon="package"
           >
             {createMessage(NEW_WORKFLOW)}
+          </MenuItem>
+        )}
+        <Divider className="!block mb-[2px]" />
+        {enableImportExport && hasCreateNewApplicationPermission && (
+          <MenuItem
+            data-testid="t--workspace-import-app"
+            onSelect={() =>
+              setSelectedWorkspaceIdForImportApplication(workspace.id)
+            }
+            startIcon="download"
+          >
+            {createMessage(IMPORT_BTN_LABEL)}
           </MenuItem>
         )}
       </MenuContent>

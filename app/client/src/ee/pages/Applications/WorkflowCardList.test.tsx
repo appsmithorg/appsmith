@@ -10,7 +10,7 @@ import WorkflowCardList from "./WorkflowCardList";
 import * as workflowSelectors from "@appsmith/selectors/workflowSelectors";
 import * as workspaceSelectors from "@appsmith/selectors/workspaceSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
-import type { Workspaces } from "@appsmith/constants/workspaceConstants";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type { Workflow } from "@appsmith/constants/WorkflowConstants";
 
 jest.mock("@appsmith/selectors/workflowSelectors");
@@ -47,11 +47,11 @@ const setIsFetchingWorkflowsSelector = (value: boolean) => {
   );
 };
 
-const setGetWorkspaces = (userWorkspaces: Workspaces[]) => {
+const setGetWorkspaces = (userWorkspaces: Workspace[]) => {
   const workspaceSelectorsFactory = workspaceSelectors as jest.Mocked<
     typeof workspaceSelectors
   >;
-  workspaceSelectorsFactory.getWorkspaces.mockImplementation(
+  workspaceSelectorsFactory.getFetchedWorkspaces.mockImplementation(
     () => userWorkspaces,
   );
 };
@@ -78,15 +78,19 @@ const DEFAULT_WORKFLOWS_LIST = [
 
 const DEFAULT_WORKSPACE_ID = "test-workspace";
 
-const DEFAULT_USER_WORKSPACES: Workspaces[] = [
+const DEFAULT_USER_WORKSPACES: Workspace[] = [
   {
-    workspace: {
-      id: DEFAULT_WORKSPACE_ID,
-      name: "Test Workspace",
-      userPermissions: [PERMISSION_TYPE.MANAGE_WORKSPACE_WORKFLOWS],
-    },
-    applications: [],
-    users: [],
+    id: DEFAULT_WORKSPACE_ID,
+    name: "Test Workspace",
+    userPermissions: [PERMISSION_TYPE.MANAGE_WORKSPACE_WORKFLOWS],
+  },
+];
+
+const USER_WITH_NO_PERMISSIONS_WORKSPACES: Workspace[] = [
+  {
+    id: DEFAULT_WORKSPACE_ID,
+    name: "Test Workspace",
+    userPermissions: [],
   },
 ];
 
@@ -103,6 +107,7 @@ describe("WorkflowCardList", () => {
           <WorkflowCardList
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -123,6 +128,7 @@ describe("WorkflowCardList", () => {
           <WorkflowCardList
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -137,13 +143,9 @@ describe("WorkflowCardList", () => {
     setIsFetchingWorkflowsSelector(false);
     setGetWorkspaces([
       {
-        workspace: {
-          id: DEFAULT_WORKSPACE_ID,
-          name: "Test Workspace",
-          userPermissions: [],
-        },
-        applications: [],
-        users: [],
+        id: DEFAULT_WORKSPACE_ID,
+        name: "Test Workspace",
+        userPermissions: [],
       },
     ]);
 
@@ -153,6 +155,7 @@ describe("WorkflowCardList", () => {
           <WorkflowCardList
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
+            workspace={USER_WITH_NO_PERMISSIONS_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -173,6 +176,7 @@ describe("WorkflowCardList", () => {
           <WorkflowCardList
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>

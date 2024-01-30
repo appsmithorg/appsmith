@@ -31,6 +31,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -41,6 +42,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
@@ -207,6 +209,12 @@ public class ModuleInstanceApplicationShareTest {
     @Autowired
     PluginRepository pluginRepository;
 
+    @Autowired
+    ActionCollectionRepository actionCollectionRepository;
+
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
+
     String workspaceId;
 
     Workspace workspace;
@@ -231,7 +239,9 @@ public class ModuleInstanceApplicationShareTest {
                 crudModuleInstanceService,
                 objectMapper,
                 customJSLibService,
-                pluginRepository);
+                pluginRepository,
+                actionCollectionRepository,
+                layoutCollectionService);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));

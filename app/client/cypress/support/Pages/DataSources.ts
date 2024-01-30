@@ -62,6 +62,8 @@ export class DataSources {
   public _addNewDataSource = ".t--add-datasource-button";
   private _addNewDatasourceFromBlankScreen =
     ".t--add-datasource-button-blank-screen";
+  public _newDatasourceBtn =
+    ".t--add-datasource-button, .t--add-datasource-button-blank-screen";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
@@ -428,9 +430,14 @@ export class DataSources {
     }).as("testDatasource");
   }
 
-  public CreatePlugIn(pluginName: string, waitForToastDisappear = false) {
+  public CreatePlugIn(
+    pluginName: string,
+    waitForToastDisappear = false,
+    index = 0,
+  ) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
+      .eq(index)
       .trigger("click", { force: true });
     this.agHelper.Sleep();
     //this.agHelper.WaitUntilEleAppear(this.locator._toastMsg);
@@ -1009,7 +1016,7 @@ export class DataSources {
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
     this.TestSaveDatasource(true, true);
-    this.assertHelper.AssertNetworkStatus("@getPage", 200);
+    this.assertHelper.AssertNetworkStatus("@getConsolidatedData", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
   public ReconnectModalValidation(

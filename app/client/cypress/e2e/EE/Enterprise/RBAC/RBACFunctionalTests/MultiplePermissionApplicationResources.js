@@ -2,7 +2,6 @@ import homePageLocators from "../../../../../locators/HomePage";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const jsEditorLocators = require("../../../../../locators/JSEditor.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
@@ -180,7 +179,6 @@ describe(
       cy.CheckAndUnfoldEntityItem("Pages");
       cy.Createpage("page2");
       cy.wait(1000);
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
       cy.get(".t--widget-tablewidgetv2").should("exist");
       cy.NavigateToDatasourceEditor();

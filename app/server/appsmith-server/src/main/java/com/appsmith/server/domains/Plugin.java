@@ -65,7 +65,6 @@ public class Plugin extends BaseDomain {
     @JsonView(Views.Public.class)
     String version;
 
-    // Legacy field to find which form to use (RapidAPI hack)
     @JsonView(Views.Public.class)
     String uiComponent;
 

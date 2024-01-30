@@ -1,6 +1,5 @@
 import React from "react";
-import styled from "styled-components";
-import { Button, Icon } from "design-system";
+import { Text } from "design-system";
 
 import PackageCard from "@appsmith/pages/Applications/PackageCard";
 import {
@@ -16,6 +15,8 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import type { Package } from "@appsmith/constants/PackageConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export interface PackageCardListRendererProps {
   createPackage: () => void;
@@ -26,21 +27,7 @@ export interface PackageCardListRendererProps {
   workspaceId: string;
 }
 
-const NotFoundIcon = styled(Icon)`
-  && {
-    margin-bottom: var(--ads-v2-spaces-3);
-  }
-
-  & svg {
-    color: var(--ads-v2-color-gray-400);
-    height: var(--ads-v2-spaces-11);
-    width: var(--ads-v2-spaces-11);
-  }
-`;
-
 function PackageCardListRenderer({
-  createPackage,
-  isCreatingPackage = false,
   isFetchingPackages = false,
   isMobile,
   packages = [],
@@ -66,18 +53,11 @@ function PackageCardListRenderer({
         })}
         {packages.length === 0 && (
           <NoAppsFound>
-            <NotFoundIcon name="package" size="lg" />
-            <span>{createMessage(EMPTY_PACKAGE_LIST)}</span>
-            <Button
-              className="t--new-package-button createnew"
-              isLoading={isCreatingPackage}
-              kind="secondary"
-              onClick={createPackage}
-              size="md"
-              startIcon="plus"
-            >
-              New
-            </Button>
+            <img
+              className="mb-7"
+              src={getAssetUrl(`${ASSETS_CDN_URL}/no-packages.svg`)}
+            />
+            <Text kind="heading-xs">{createMessage(EMPTY_PACKAGE_LIST)}</Text>
           </NoAppsFound>
         )}
       </CardListWrapper>

@@ -5,12 +5,10 @@ import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.mongodb.client.result.UpdateResult;
@@ -131,7 +129,7 @@ public class GenericDatabaseOperation {
         });
 
         Set<Policy> inheritedActionCollectionPolicies =
-                policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
+                policyGenerator.getAllChildPolicies(page.getPolicies(), NewPage.class, NewAction.class);
 
         return actionCollectionsFlux
                 .flatMap(actionCollection -> {
@@ -180,7 +178,7 @@ public class GenericDatabaseOperation {
         });
 
         Set<Policy> inheritedActionPolicies =
-                policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
+                policyGenerator.getAllChildPolicies(page.getPolicies(), NewPage.class, NewAction.class);
 
         return actionsFlux
                 .flatMap(action -> {
@@ -238,9 +236,9 @@ public class GenericDatabaseOperation {
 
         // Get policies to be applied to pages that exits only in feature branch
         Set<Policy> inheritedPagePolicies =
-                policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
+                policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, NewPage.class);
         Set<Policy> inheritedActionPolicies =
-                policyGenerator.getAllChildPolicies(inheritedPagePolicies, Page.class, Action.class);
+                policyGenerator.getAllChildPolicies(inheritedPagePolicies, NewPage.class, NewAction.class);
 
         return pages.flatMap(page -> {
                     page.setPolicies(inheritedPagePolicies);

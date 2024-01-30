@@ -14,12 +14,15 @@ import {
   SavingState,
 } from "design-system-old";
 
-import Card from "components/common/Card";
+import Card, { ContextMenuTrigger } from "components/common/Card";
 import history from "utils/history";
 import { generateEditedByText } from "pages/Applications/helpers";
 import type { ModifiedMenuItemProps } from "pages/Applications/ApplicationCard";
 import { useDispatch, useSelector } from "react-redux";
-import { hasDeleteWorkflowPermission } from "@appsmith/utils/permissionHelpers";
+import {
+  hasDeleteWorkflowPermission,
+  hasManageWorkflowPermission,
+} from "@appsmith/utils/permissionHelpers";
 import {
   deleteWorkflow,
   updateWorkflowName,
@@ -64,7 +67,7 @@ const ContextMenu = ({
   return (
     <Menu className="more" onOpenChange={handleMenuOnClose} open={isMenuOpen}>
       <MenuTrigger>
-        <Button
+        <ContextMenuTrigger
           className="m-0.5"
           data-testid="t--application-card-context-menu"
           isIconButton
@@ -141,6 +144,10 @@ function WorkflowCard({
   const dispatch = useDispatch();
 
   const hasDeletePermission = hasDeleteWorkflowPermission(
+    workflow.userPermissions,
+  );
+
+  const hasEditPermission = hasManageWorkflowPermission(
     workflow.userPermissions,
   );
 
@@ -238,6 +245,7 @@ function WorkflowCard({
       backgroundColor={workflow.color || DEFAULT_BACKGROUND_COLOR}
       contextMenu={contextMenu}
       editedByText={editedByText}
+      hasEditPermission={hasEditPermission}
       hasReadPermission
       icon={workflow.icon || DEFAULT_ICON}
       isContextMenuOpen={false}

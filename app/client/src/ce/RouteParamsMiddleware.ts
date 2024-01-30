@@ -15,7 +15,7 @@ import type { Middleware } from "redux";
 export const handler = (action: ReduxAction<any>) => {
   let appParams: ApplicationURLParams = {};
   let pageParams: PageURLParams[] = [];
-  switch (action.type) {
+  switch (action?.type) {
     case ReduxActionTypes.IMPORT_APPLICATION_SUCCESS:
     case ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS:
     case ReduxActionTypes.FETCH_APPLICATION_SUCCESS: {

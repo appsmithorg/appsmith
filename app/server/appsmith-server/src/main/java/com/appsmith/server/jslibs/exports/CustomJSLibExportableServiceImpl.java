@@ -24,7 +24,7 @@ public class CustomJSLibExportableServiceImpl extends CustomJSLibExportableServi
     @Override
     protected Mono<List<CustomJSLib>> getAllJSLibsInContext(ExportingMetaDTO exportingMetaDTO) {
         return customJSLibService.getAllVisibleJSLibsInContext(
-                exportingMetaDTO.getApplicationId(),
+                exportingMetaDTO.getArtifactId(),
                 CreatorContextType.APPLICATION,
                 exportingMetaDTO.getBranchName(),
                 false);

@@ -9,7 +9,6 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Workflow;
@@ -131,7 +130,7 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
         workflowAction.setPublishedAction(null);
         workflowAction.setWorkflowId(workflow.getId());
         Set<Policy> workflowActionPolicies =
-                policyGenerator.getAllChildPolicies(workflow.getPolicies(), Workflow.class, Action.class);
+                policyGenerator.getAllChildPolicies(workflow.getPolicies(), Workflow.class, NewAction.class);
         workflowAction.setPolicies(workflowActionPolicies);
         return workflowAction;
     }
@@ -177,7 +176,7 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
         workflowActionCollection.setPublishedCollection(new ActionCollectionDTO());
         workflowActionCollection.setWorkflowId(workflow.getId());
         Set<Policy> workflowActionPolicies =
-                policyGenerator.getAllChildPolicies(workflow.getPolicies(), Workflow.class, Action.class);
+                policyGenerator.getAllChildPolicies(workflow.getPolicies(), Workflow.class, NewAction.class);
         workflowActionCollection.setPolicies(workflowActionPolicies);
         workflowActionCollection.setPublishedCollection(null);
         return workflowActionCollection;

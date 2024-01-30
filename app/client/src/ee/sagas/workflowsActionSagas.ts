@@ -5,7 +5,10 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { getJSCollections } from "@appsmith/selectors/entitiesSelector";
+import {
+  getActions,
+  getJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import type { Action, ApiAction } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
@@ -31,8 +34,13 @@ import type {
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import { generateDefaultJSObject } from "sagas/JSPaneSagas";
 import { createDummyJSCollectionActions } from "utils/JSPaneUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getMainJsObjectIdOfCurrentWorkflow } from "@appsmith/selectors/workflowSelectors";
+import { getPluginIdOfPackageName } from "sagas/selectors";
+import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
+import { createNewWorkflowQueryName } from "@appsmith/utils/workflowHelpers";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 export function* createWorkflowQueryActionSaga(
   action: ReduxAction<{
@@ -92,6 +100,85 @@ export function* createWorkflowApiActionSaga(
         workflowId,
         contextType: ActionParentEntityType.WORKFLOW,
       }), // We don't have recursive partial in typescript for now.
+    );
+  }
+}
+
+export function* createDefaultWorkflowQueryPayload(props: {
+  newActionName: string;
+  from: EventLocation;
+}) {
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const { from, newActionName } = props;
+  const pluginId: string = yield select(
+    getPluginIdOfPackageName,
+    PluginPackageName.WORKFLOW,
+  );
+
+  yield call(checkAndGetPluginFormConfigsSaga, pluginId);
+
+  return {
+    actionConfiguration: {
+      timeoutInMillisecond: 10000,
+      formData: {
+        workflowId: {
+          data: "",
+        },
+        requestType: {
+          data: "GET_APPROVAL_REQUESTS",
+        },
+        requestStatus: {
+          data: "PENDING",
+        },
+        limit: {
+          data: "10",
+        },
+        skip: {
+          data: "0",
+        },
+      },
+    },
+    name: newActionName,
+    datasource: {
+      name: DEFAULT_DATASOURCE_NAME,
+      pluginId,
+      workspaceId,
+      datasourceConfiguration: {},
+    },
+    eventData: {
+      actionType: "WORKFLOWS",
+      from: from,
+    },
+  };
+}
+
+export function* createWorkflowQueryInApplication(
+  action: ReduxAction<{
+    pageId: string;
+    from: EventLocation;
+  }>,
+) {
+  const { from, pageId } = action.payload;
+
+  if (pageId) {
+    const actions: ActionDataState = yield select(getActions);
+    const newActionName = createNewWorkflowQueryName(actions, pageId || "");
+    // Note: Do NOT send pluginId on top level here.
+    // It breaks embedded rest datasource flow.
+
+    const createApiActionPayload: Partial<ApiAction> = yield call(
+      createDefaultWorkflowQueryPayload,
+      {
+        from,
+        newActionName,
+      },
+    );
+
+    yield put(
+      createActionRequest({
+        ...createApiActionPayload,
+        pageId,
+      }),
     );
   }
 }
@@ -221,6 +308,10 @@ export default function* workflowsActionSagas() {
     takeLatest(
       ReduxActionTypes.CREATE_WORKFLOW_JS_ACTION,
       createWorkflowJSActionSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.CREATE_WORKFLOW_QUERY_IN_APPLICATION,
+      createWorkflowQueryInApplication,
     ),
     takeLatest(
       ReduxActionTypes.FETCH_WORKFLOW_ACTIONS_INIT,

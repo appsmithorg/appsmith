@@ -36,7 +36,8 @@ export const matchSAASGsheetsPath = (pathname: string) =>
     exact: false,
   });
 
-export const MODULE_INSTANCE_ID_PATH = "/module-instance/:moduleInstanceId";
+export const MODULE_INSTANCE_ID_PATH =
+  "/module-instance/:moduleType/:moduleInstanceId";
 
 export const basePathForActiveAction = [
   ...CE_basePathForActiveAction,

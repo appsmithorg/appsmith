@@ -15,15 +15,20 @@ public class ActionDTODefaultResourcesServiceCEImpl implements DefaultResourcesS
         DefaultResources defaultResources = new DefaultResources();
 
         String defaultPageId = domainObject.getPageId();
+        String defaultCollectionId = domainObject.getCollectionId();
 
         if (existingDefaultResources != null && !resetExistingValues) {
             // Check if there are properties to be copied over from existing
             if (StringUtils.hasText(existingDefaultResources.getPageId())) {
                 defaultPageId = existingDefaultResources.getPageId();
             }
+            if (StringUtils.hasText(existingDefaultResources.getCollectionId())) {
+                defaultCollectionId = existingDefaultResources.getCollectionId();
+            }
         }
 
         defaultResources.setPageId(defaultPageId);
+        defaultResources.setCollectionId(defaultCollectionId);
 
         domainObject.setDefaultResources(defaultResources);
         return domainObject;
@@ -34,6 +39,8 @@ public class ActionDTODefaultResourcesServiceCEImpl implements DefaultResourcesS
         DefaultResources defaultResources = new DefaultResources();
 
         defaultResources.setPageId(defaultDomainObject.getDefaultResources().getPageId());
+        defaultResources.setCollectionId(
+                defaultDomainObject.getDefaultResources().getCollectionId());
 
         domainObject.setDefaultResources(defaultResources);
         return domainObject;

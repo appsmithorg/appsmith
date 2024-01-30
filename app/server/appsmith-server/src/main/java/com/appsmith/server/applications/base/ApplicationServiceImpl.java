@@ -9,14 +9,12 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Package;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -43,10 +41,12 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -122,6 +122,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             ApplicationPermission applicationPermission,
             SessionUserService sessionUserService,
             UserDataService userDataService,
+            WorkspaceService workspaceService,
+            WorkspacePermission workspacePermission,
             PermissionGroupRepository permissionGroupRepository,
             PermissionGroupPermission permissionGroupPermission,
             RoleConfigurationSolution roleConfigurationSolution,
@@ -148,7 +150,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 datasourcePermission,
                 applicationPermission,
                 sessionUserService,
-                userDataService);
+                userDataService,
+                workspaceService,
+                workspacePermission);
         this.permissionGroupService = permissionGroupService;
         this.policySolution = policySolution;
         this.permissionGroupRepository = permissionGroupRepository;
@@ -527,10 +531,10 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
         environmentPermissions.addAll(indirectEnvironmentPermissions);
 
         List<AclPermission> pagePermissions =
-                policyGenerator.getAllChildPermissions(applicationPermissions, Page.class).stream()
+                policyGenerator.getAllChildPermissions(applicationPermissions, NewPage.class).stream()
                         .toList();
         List<AclPermission> actionPermissions =
-                policyGenerator.getAllChildPermissions(pagePermissions, Action.class).stream()
+                policyGenerator.getAllChildPermissions(pagePermissions, NewAction.class).stream()
                         .toList();
 
         List<AclPermission> moduleInstancePermissions =
@@ -1037,7 +1041,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 super.updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
 
         Map<String, Policy> pagePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
-                applicationPolicyMap, Application.class, Page.class);
+                applicationPolicyMap, Application.class, NewPage.class);
 
         updateModuleInstancePolicies(application, addViewAccess, monoList, pagePolicyMap);
 
@@ -1052,7 +1056,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             List<Mono<Void>> monoList,
             Map<String, Policy> pagePolicyMap) {
         Map<String, Policy> moduleInstancePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
-                pagePolicyMap, Page.class, ModuleInstance.class);
+                pagePolicyMap, NewPage.class, ModuleInstance.class);
 
         final Mono<Void> updatedModuleInstancesMono = policySolution
                 .updateWithPagePermissionsToAllItsModuleInstances(

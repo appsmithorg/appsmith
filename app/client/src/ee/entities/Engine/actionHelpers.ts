@@ -1,5 +1,6 @@
 export * from "ce/entities/Engine/actionHelpers";
 import { fetchConsumablePackagesInWorkspace } from "@appsmith/actions/packageActions";
+import { fetchAllWorkflowsForWorkspace } from "@appsmith/actions/workflowActions";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -10,6 +11,7 @@ import {
   ActionParentEntityType as CE_ActionParentEntityType,
   CreateNewActionKey as CE_CreateNewActionKey,
 } from "ce/entities/Engine/actionHelpers";
+import type { EditConsolidatedApi } from "sagas/InitSagas";
 
 export const CreateNewActionKey = {
   ...CE_CreateNewActionKey,
@@ -32,8 +34,13 @@ export type ActionParentEntityTypeInterface =
 export const getPageDependencyActions = (
   currentWorkspaceId: string = "",
   featureFlags: DependentFeatureFlags = {},
+  allResponses: EditConsolidatedApi,
 ) => {
-  const CE = CE_getPageDependencyActions(currentWorkspaceId, featureFlags);
+  const CE = CE_getPageDependencyActions(
+    currentWorkspaceId,
+    featureFlags,
+    allResponses,
+  );
   const initActions = [
     ...CE.initActions,
     ...(featureFlags.showQueryModule
@@ -43,6 +50,9 @@ export const getPageDependencyActions = (
           }),
         ]
       : []),
+    ...(featureFlags.showWorkflowFeature
+      ? [fetchAllWorkflowsForWorkspace(currentWorkspaceId)]
+      : []),
   ];
 
   const successActions = [
@@ -50,12 +60,18 @@ export const getPageDependencyActions = (
     ...(featureFlags.showQueryModule
       ? [ReduxActionTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_SUCCESS]
       : []),
+    ...(featureFlags.showWorkflowFeature
+      ? [ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_SUCCESS]
+      : []),
   ];
 
   const errorActions = [
     ...CE.errorActions,
     ...(featureFlags.showQueryModule
       ? [ReduxActionErrorTypes.FETCH_CONSUMABLE_PACKAGES_IN_WORKSPACE_ERROR]
+      : []),
+    ...(featureFlags.showWorkflowFeature
+      ? [ReduxActionErrorTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_ERROR]
       : []),
   ];
 

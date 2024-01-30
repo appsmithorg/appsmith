@@ -5,7 +5,6 @@ import history, { NavigationMethod } from "utils/history";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { AppState } from "@appsmith/reducers";
-import type { PluginType } from "entities/Action";
 import { moduleInstanceEditorURL } from "@appsmith/RouteBuilder";
 import Entity, { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getModuleInstanceById } from "@appsmith/selectors/moduleInstanceSelectors";
@@ -22,7 +21,6 @@ interface ExplorerModuleInstanceEntityProps {
   searchKeyword?: string;
   id: string;
   isActive: boolean;
-  type: PluginType;
 }
 
 export const ExplorerModuleInstanceEntity = (
@@ -34,10 +32,11 @@ export const ExplorerModuleInstanceEntity = (
   );
 
   const navigateToModuleInstance = useCallback(() => {
-    if (moduleInstance?.id) {
+    if (moduleInstance) {
       const navigateToUrl = moduleInstanceEditorURL({
         pageId,
-        moduleInstanceId: moduleInstance?.id || "",
+        moduleInstanceId: moduleInstance.id,
+        moduleType: moduleInstance.type,
         params: {},
       });
       history.push(navigateToUrl, {

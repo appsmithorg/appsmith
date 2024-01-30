@@ -1,25 +1,20 @@
 import { createSelector } from "reselect";
-import { groupBy, memoize } from "lodash";
+import { memoize } from "lodash";
 import type { AppState } from "@appsmith/reducers";
-import type { WorkflowMetadata } from "@appsmith/constants/WorkflowConstants";
 import type {
   ApplicationsReduxState,
   creatingApplicationMap,
 } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
-import type { Workspaces } from "@appsmith/constants/workspaceConstants";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
-import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
+import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   NAVIGATION_SETTINGS,
   SIDEBAR_WIDTH,
   type ThemeSetting,
   defaultThemeSetting,
 } from "constants/AppConstants";
-import { getPackagesList } from "@appsmith/selectors/packageSelectors";
-import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
-import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name", "packages.name"],
@@ -47,24 +42,6 @@ const fuzzySearchOptions = {
  *    workflows: [],
  *  }
  */
-const injectPackagesAndWorkflowsToWorkspacesList = (
-  workspacesList: Workspaces[] = [],
-  packages: PackageMetadata[] = [],
-  workflows: WorkflowMetadata[] = [],
-) => {
-  const packagesGroupByWorkspaceId = groupBy(packages, (p) => p.workspaceId);
-  const workflowsGroupByWorkspaceId = groupBy(workflows, (w) => w?.workspaceId);
-
-  return workspacesList.map((workspacesObj) => {
-    const { workspace } = workspacesObj;
-
-    return {
-      ...workspacesObj,
-      packages: packagesGroupByWorkspaceId[workspace.id] || [],
-      workflows: workflowsGroupByWorkspaceId[workspace.id] || [],
-    };
-  });
-};
 
 export const getApplicationsState = (state: AppState) => state.ui.applications;
 export const getApplications = (state: AppState) =>
@@ -83,20 +60,6 @@ export const getIsSavingAppName = (state: AppState) =>
   state.ui.applications.isSavingAppName;
 export const getIsErroredSavingAppName = (state: AppState) =>
   state.ui.applications.isErrorSavingAppName;
-export const getUserApplicationsWorkspaces = (state: AppState) => {
-  return state.ui.applications.userWorkspaces;
-};
-
-export const getImportedCollections = (state: AppState) =>
-  state.ui.importedCollections.importedCollections;
-
-export const getProviders = (state: AppState) => state.ui.providers.providers;
-export const getProvidersLoadingState = (state: AppState) =>
-  state.ui.providers.isFetchingProviders;
-export const getProviderTemplates = (state: AppState) =>
-  state.ui.providers.providerTemplates;
-export const getProvidersTemplatesLoadingState = (state: AppState) =>
-  state.ui.providers.isFetchingProviderTemplates;
 
 export const getApplicationList = createSelector(
   getApplications,
@@ -121,69 +84,6 @@ export const getApplicationList = createSelector(
     }
     return [];
   },
-);
-
-export const getUserApplicationsWorkspacesList = createSelector(
-  getUserApplicationsWorkspaces,
-  getApplicationSearchKeyword,
-  getPackagesList,
-  getWorkflowsList,
-  (
-    applicationsWorkspaces?: Workspaces[],
-    keyword?: string,
-    packages?: PackageMetadata[],
-    workflows?: WorkflowMetadata[],
-  ) => {
-    const workspacesList = injectPackagesAndWorkflowsToWorkspacesList(
-      applicationsWorkspaces,
-      packages,
-      workflows,
-    );
-
-    if (
-      workspacesList &&
-      workspacesList.length > 0 &&
-      keyword &&
-      keyword.trim().length > 0
-    ) {
-      const fuzzy = new Fuse(workspacesList, fuzzySearchOptions);
-      const workspaceList = fuzzy.search(keyword);
-
-      return workspaceList.map((workspace) => {
-        const appFuzzy = new Fuse(workspace.applications, {
-          ...fuzzySearchOptions,
-          keys: ["name"],
-        });
-        const packageFuzzy = new Fuse(workspace.packages, {
-          ...fuzzySearchOptions,
-          keys: ["name"],
-        });
-        const workflowFuzzy = new Fuse(workspace.workflows, {
-          ...fuzzySearchOptions,
-          keys: ["name"],
-        });
-
-        return {
-          ...workspace,
-          applications: appFuzzy.search(keyword),
-          packages: packageFuzzy.search(keyword),
-          workflows: workflowFuzzy.search(keyword),
-        };
-      });
-    } else if (
-      workspacesList &&
-      (keyword === undefined || keyword.trim().length === 0)
-    ) {
-      return workspacesList;
-    }
-    return [];
-  },
-);
-
-export const getIsFetchingApplications = createSelector(
-  getApplicationsState,
-  (applications: ApplicationsReduxState): boolean =>
-    applications.isFetchingApplications,
 );
 
 export const getIsChangingViewAccess = createSelector(
@@ -223,9 +123,6 @@ export const getCurrentAppGitMetaData = createSelector(
     currentApplication?.gitApplicationMetadata,
 );
 
-export const getIsSavingWorkspaceInfo = (state: AppState) =>
-  state.ui.applications.isSavingWorkspaceInfo;
-
 export const getIsDatasourceConfigForImportFetched = (state: AppState) =>
   state.ui.applications.isDatasourceConfigForImportFetched;
 
@@ -243,16 +140,6 @@ export const getPageIdForImport = (state: AppState) =>
 
 export const getImportedApplication = (state: AppState) =>
   state.ui.applications.importedApplication;
-
-// Get workspace list where user can create applications
-export const getWorkspaceCreateApplication = createSelector(
-  getUserApplicationsWorkspaces,
-  (userWorkspaces) => {
-    return userWorkspaces.filter((userWorkspace) =>
-      hasCreateNewAppPermission(userWorkspace.workspace.userPermissions ?? []),
-    );
-  },
-);
 
 export const getAppSidebarPinned = (state: AppState) => {
   return state.ui.applications.isAppSidebarPinned;
@@ -297,10 +184,6 @@ export const selectEvaluationVersion = (state: AppState) =>
   state.ui.applications.currentApplication?.evaluationVersion ||
   DEFAULT_EVALUATION_VERSION;
 
-export const getDeletingMultipleApps = (state: AppState) => {
-  return state.ui.applications.deletingMultipleApps;
-};
-
 export const getApplicationLoadingStates = (state: AppState) => {
   return state.ui.applications?.loadingStates;
 };
@@ -311,27 +194,23 @@ export const getCurrentApplicationIdForCreateNewApp = (state: AppState) => {
   return state.ui.applications.currentApplicationIdForCreateNewApp;
 };
 
-// Get application from id from userWorkspaces
-export const getApplicationByIdFromWorkspaces = createSelector(
-  getUserApplicationsWorkspaces,
-  (_: AppState, applicationId: string) => applicationId,
-  (userWorkspaces, applicationId) => {
-    let application: ApplicationPayload | undefined;
-    userWorkspaces.forEach((userWorkspace) => {
-      if (!application)
-        application = userWorkspace.applications.find(
-          (i) => i.id === applicationId,
-        );
-    });
-    return application;
-  },
-);
 export const getPartialImportExportLoadingState = (state: AppState) =>
   state.ui.applications.partialImportExport;
 
 export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
   return state.ui.applications.currentPluginIdForCreateNewApp;
 };
+
+export const getApplicationByIdFromWorkspaces = createSelector(
+  getApplicationsOfWorkspace,
+  (_: AppState, applicationId: string) => applicationId,
+  (applications, applicationId) => {
+    const application: ApplicationPayload | undefined = applications.find(
+      (app) => app.id === applicationId,
+    );
+    return application;
+  },
+);
 
 const getMemoizedThemeObj = memoize(
   (themeSetting: ThemeSetting | undefined) => {

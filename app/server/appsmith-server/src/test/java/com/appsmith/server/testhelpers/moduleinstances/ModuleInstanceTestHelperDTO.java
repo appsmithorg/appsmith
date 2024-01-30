@@ -1,6 +1,7 @@
 package com.appsmith.server.testhelpers.moduleinstances;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackageDTO;
@@ -20,7 +21,10 @@ public class ModuleInstanceTestHelperDTO {
     PageDTO pageDTO;
     PackageDTO originPackageDTO;
     ModuleDTO originModuleDTO;
+    ModuleDTO originJSModuleDTO;
     Optional<ModuleDTO> consumableModuleOptional;
+    Optional<ModuleDTO> consumableJSModuleOptional;
     NewAction modulePublicAction;
+    ActionCollection modulePublicActionCollection;
     String moduleInstanceName;
 }

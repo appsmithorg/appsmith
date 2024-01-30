@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { currentWorkflowEditorURL } from "@appsmith/RouteBuilder";
 import history, { NavigationMethod } from "utils/history";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import useCurrentWorkflowState from "../hooks";
 import { BottomButtons } from "../constants";

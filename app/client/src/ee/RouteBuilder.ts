@@ -1,15 +1,23 @@
 import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { WithAddView } from "../ce/RouteBuilder";
+import { ADD_PATH } from "constants/routes";
+
 export * from "ce/RouteBuilder";
 
 export const moduleInstanceEditorURL = (
-  props: URLBuilderParams & {
-    moduleInstanceId: string;
-  },
+  props: URLBuilderParams &
+    WithAddView & {
+      moduleInstanceId: string;
+      moduleType: MODULE_TYPE;
+    },
 ) =>
   urlBuilder.build({
     ...props,
-    suffix: `module-instance/${props.moduleInstanceId}`,
+    suffix: `module-instance/${props.moduleType}/${props.moduleInstanceId}${
+      props.add ? ADD_PATH : ""
+    }`,
   });
 
 export const moduleEditorURL = ({ moduleId }: URLBuilderParams): string =>
@@ -24,17 +32,3 @@ export const currentWorkflowEditorURL = (): string =>
 // URL builder for workflow editor
 export const workflowEditorURL = ({ workflowId }: URLBuilderParams): string =>
   urlBuilder.build({ workflowId });
-
-export const jsCollectionIdURL = (
-  props: URLBuilderParams & {
-    collectionId: string;
-    // Pass a function name to set the cursor directly on the function
-    functionName?: string;
-  },
-): string => {
-  return urlBuilder.build({
-    ...props,
-    suffix: `jsObjects/${props.collectionId}`,
-    hash: props.functionName,
-  });
-};

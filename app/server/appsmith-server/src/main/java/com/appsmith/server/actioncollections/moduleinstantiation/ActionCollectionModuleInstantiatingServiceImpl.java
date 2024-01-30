@@ -6,10 +6,9 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
@@ -87,7 +86,7 @@ public class ActionCollectionModuleInstantiatingServiceImpl
             // Calculating policies at the beginning to avoid doing the same task for all nested entities as policies
             // would remain same
             Set<Policy> policies = policyGenerator.getAllChildPolicies(
-                    moduleInstantiatingMetaDTO.getPage().getPolicies(), Page.class, Action.class);
+                    moduleInstantiatingMetaDTO.getPage().getPolicies(), NewPage.class, NewAction.class);
 
             Mono<Map<String, ActionCollection>> newCollectionIdToNewCollectionMapMono = Flux.fromIterable(
                             sourceActionCollections)

@@ -16,6 +16,7 @@ import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/red
 import { PAGE_NOT_FOUND_URL, SETUP, USER_AUTH_URL } from "constants/routes";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AxiosError } from "axios";
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 const response = {
   responseMeta: {
@@ -73,7 +74,13 @@ describe("fetchCurrentTenantConfigSaga", () => {
     const gen = cloneableGenerator(fetchCurrentTenantConfigSaga)();
     let clone;
 
-    expect(gen.next().value).toEqual(call(TenantApi.fetchCurrentTenantConfig));
+    expect(JSON.stringify(gen.next().value)).toEqual(
+      JSON.stringify(
+        call(getFromServerWhenNoPrefetchedResult, undefined, () =>
+          call(TenantApi.fetchCurrentTenantConfig),
+        ),
+      ),
+    );
 
     // Test successful response
     clone = gen.clone();
@@ -106,7 +113,13 @@ describe("fetchCurrentTenantConfigSaga", () => {
     const errorObj = new AxiosError("Fetch error");
     const gen = cloneableGenerator(fetchCurrentTenantConfigSaga)();
 
-    expect(gen.next().value).toEqual(call(TenantApi.fetchCurrentTenantConfig));
+    expect(JSON.stringify(gen.next().value)).toEqual(
+      JSON.stringify(
+        call(getFromServerWhenNoPrefetchedResult, undefined, () =>
+          call(TenantApi.fetchCurrentTenantConfig),
+        ),
+      ),
+    );
     expect(gen?.throw?.(errorObj).value).toEqual(
       put({
         type: ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR,

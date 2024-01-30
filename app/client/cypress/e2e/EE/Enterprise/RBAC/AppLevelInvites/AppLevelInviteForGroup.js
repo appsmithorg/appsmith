@@ -32,7 +32,7 @@ describe(
 
     before(() => {
       cy.AddIntercepts();
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.GetNClick(auditLogslocators.AdminSettingsEntryLink);
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
@@ -52,10 +52,10 @@ describe(
       cy.get("@guid").then((uid) => {
         workspaceId = uid;
         appid = uid;
-
         homePage.CreateNewWorkspace(workspaceId);
         homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
-        agHelper.VisitNAssert("/applications", "getReleaseItems");
+        agHelper.VisitNAssert("/applications", "getAllWorkspaces");
+        homePage.SelectWorkspace(workspaceId);
         cy.InviteGroupToWorkspace(workspaceId, GroupName, "Developer");
         agHelper.GetNClick(homePage._visibleTextSpan("Manage users"));
         homePage.NavigateToHome();
@@ -83,7 +83,7 @@ describe(
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
       homePage.NavigateToHome();
-      homePage.FilterApplication(appid, workspaceId);
+      homePage.SelectWorkspace(workspaceId);
 
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
@@ -116,6 +116,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(2000);
+      homePage.SelectWorkspace(workspaceId);
       cy.get(homePageLocators.searchInput).type(appid);
       agHelper.Sleep(2000);
       cy.get(homePageLocators.appsContainer).contains(workspaceId);
@@ -144,7 +145,7 @@ describe(
       agHelper.AssertElementAbsence(homePageLocators.manageUsers);
       agHelper.GetNClick(homePageLocators.editModeInviteModalCloseBtn);
       homePage.NavigateToHome();
-      homePage.FilterApplication(appid + "Internal Apps", workspaceId);
+      homePage.SelectWorkspace(workspaceId);
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
       agHelper.AssertElementExist(homePage._shareWorkspace(workspaceId));
@@ -158,7 +159,8 @@ describe(
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
 
-      homePage.FilterApplication(appid, workspaceId);
+      homePage.SelectWorkspace(workspaceId);
+
       homePage.UpdateUserRoleInWorkspace(
         workspaceId,
         GroupName,
@@ -176,9 +178,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
-
-      cy.get(homePageLocators.searchInput).type(appid);
-      agHelper.Sleep(2000);
+      homePage.SelectWorkspace(workspaceId);
       cy.get(homePageLocators.appsContainer).contains(workspaceId);
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
@@ -205,7 +205,7 @@ describe(
       agHelper.AssertElementAbsence(homePageLocators.manageUsers);
       agHelper.GetNClick(homePageLocators.editModeInviteModalCloseBtn);
       homePage.NavigateToHome();
-      homePage.FilterApplication(appid + "Internal Apps", workspaceId);
+      homePage.SelectWorkspace(workspaceId);
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       agHelper.AssertElementAbsence(homePage._appHoverIcon("edit"));
       agHelper.AssertElementExist(homePage._shareWorkspace(workspaceId));
@@ -217,7 +217,7 @@ describe(
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
-
+      homePage.SelectWorkspace(workspaceId);
       homePage.DeleteUserFromWorkspace(appid, workspaceId, GroupName);
       agHelper.ClearNType(homePage._searchUsersInput, GroupName);
       cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
@@ -237,9 +237,7 @@ describe(
       );
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
-
-      cy.get(homePageLocators.searchInput).type(appid);
-      agHelper.Sleep(2000);
+      homePage.SelectWorkspace(workspaceId);
       cy.get(homePageLocators.appsContainer).contains(workspaceId);
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
@@ -272,7 +270,7 @@ describe(
       agHelper.AssertElementAbsence(homePageLocators.manageUsers);
       agHelper.GetNClick(homePageLocators.editModeInviteModalCloseBtn);
       homePage.NavigateToHome();
-      homePage.FilterApplication(appid, workspaceId, false);
+      homePage.SelectWorkspace(workspaceId);
       agHelper.AssertElementAbsence(homePage._appHoverIcon("edit"));
       agHelper.AssertElementAbsence(homePage._shareWorkspace(workspaceId));
       agHelper.AssertElementAbsence(homePageLocators.optionsIcon);
@@ -289,9 +287,7 @@ describe(
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
-
-      homePage.FilterApplication(appid, workspaceId);
-
+      homePage.SelectWorkspace(workspaceId);
       agHelper.GetNClick(homePageLocators.optionsIcon);
       agHelper.GetNClick(homePage._visibleTextSpan("Members"));
       agHelper.TypeText(homePage._searchUsersInput, GroupName);
@@ -315,8 +311,7 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      cy.get(homePageLocators.searchInput).type(appid);
-      agHelper.Sleep(2000);
+      homePage.SelectWorkspace(workspaceId);
       cy.get(homePageLocators.appsContainer).contains(workspaceId);
       cy.get(homePage._applicationCard).first().trigger("mouseover");
       agHelper.AssertElementAbsence(homePage._appHoverIcon("edit"));
@@ -340,8 +335,7 @@ describe(
       featureFlagIntercept({ license_gac_enabled: true });
       cy.wait(3000);
 
-      homePage.FilterApplication(appid, workspaceId);
-
+      homePage.SelectWorkspace(workspaceId);
       agHelper.GetNClick(homePageLocators.optionsIcon);
       agHelper.GetNClick(homePage._visibleTextSpan("Members"));
       agHelper.TypeText(homePage._searchUsersInput, GroupName);

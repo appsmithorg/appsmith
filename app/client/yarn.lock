@@ -3205,7 +3205,6 @@ __metadata:
     "@design-system/widgets": "workspace:^"
     "@design-system/widgets-old": "workspace:^"
     "@storybook/addon-a11y": ^7.3.1
-    "@storybook/addon-actions": ^7.3.1
     "@storybook/addon-controls": ^7.3.1
     "@storybook/addon-docs": ^7.3.1
     "@storybook/addon-measure": ^7.3.1
@@ -3230,7 +3229,7 @@ __metadata:
     postcss-modules-values: "*"
     react-docgen-typescript: ^2.2.2
     storybook: ^7.3.1
-    vite: ^4.4.12
+    vite: ^4.5.2
     vite-plugin-svgr: ^3.2.0
   languageName: unknown
   linkType: soft
@@ -9536,38 +9535,6 @@ __metadata:
     react-dom:
       optional: true
   checksum: 648c14cff09ea14defb89dea4282f0c1e18629595d952fdceb8f3b8c0f35200bd0bf77bd3bd95fe115f21eae760f2d894b8f29ae3fe514ec113b5137cb0f9591
-  languageName: node
-  linkType: hard
-
-"@storybook/addon-actions@npm:^7.3.1":
-  version: 7.3.1
-  resolution: "@storybook/addon-actions@npm:7.3.1"
-  dependencies:
-    "@storybook/client-logger": 7.3.1
-    "@storybook/components": 7.3.1
-    "@storybook/core-events": 7.3.1
-    "@storybook/global": ^5.0.0
-    "@storybook/manager-api": 7.3.1
-    "@storybook/preview-api": 7.3.1
-    "@storybook/theming": 7.3.1
-    "@storybook/types": 7.3.1
-    dequal: ^2.0.2
-    lodash: ^4.17.21
-    polished: ^4.2.2
-    prop-types: ^15.7.2
-    react-inspector: ^6.0.0
-    telejson: ^7.0.3
-    ts-dedent: ^2.0.0
-    uuid: ^9.0.0
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-dom:
-      optional: true
-  checksum: bb76f10802a231843b96de156dbc0e7a65e5706377cd557516dc8b2baadb54626ee088edbea633f5977a47e3564996a2c880813b5a43d32e1c8c57ee206467ff
   languageName: node
   linkType: hard
 
@@ -30843,15 +30810,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-inspector@npm:^6.0.0":
-  version: 6.0.2
-  resolution: "react-inspector@npm:6.0.2"
-  peerDependencies:
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
-  checksum: dab7a7daf570c283fdc5d4e07ee8941ee8670af698ab5a27a704602b248e29ab911b117310d64c30a4af93931b2d6ee2a729369e3f5ab7f02df4651692e195a5
-  languageName: node
-  linkType: hard
-
 "react-instantsearch-core@npm:^6.7.0":
   version: 6.7.0
   resolution: "react-instantsearch-core@npm:6.7.0"
@@ -36057,9 +36015,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.4.12":
-  version: 4.5.1
-  resolution: "vite@npm:4.5.1"
+"vite@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "vite@npm:4.5.2"
   dependencies:
     esbuild: ^0.18.10
     fsevents: ~2.3.2
@@ -36093,7 +36051,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 72b3584b3d3b8d14e8a37f0248e47fb8b4d02ab35de5b5a8e5ca8ae55c3be2aab73760dc36edac4fa722de182f78cc492eb44888fcb4a9a0712c4605dad644f9
+  checksum: 9d1f84f703c2660aced34deee7f309278ed368880f66e9570ac115c793d91f7fffb80ab19c602b3c8bc1341fe23437d86a3fcca2a9ef82f7ef0cdac5a40d0c86
   languageName: node
   linkType: hard
 

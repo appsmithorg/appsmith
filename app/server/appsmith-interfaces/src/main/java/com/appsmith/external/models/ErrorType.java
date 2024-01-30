@@ -19,4 +19,5 @@ public enum ErrorType {
     EE_FEATURE_ERROR,
     APPROVAL_REQUEST_ERROR,
     WORKFLOW_ERROR,
+    RATE_LIMIT_ERROR
 }

@@ -8,7 +8,7 @@ import {
   proxyActivities,
 } from "@temporalio/workflow";
 
-const { executeActivity, executeCreateApprovalRequest } = proxyActivities({
+const { createWorkflowRequest, executeActivity } = proxyActivities({
   startToCloseTimeout: "1 minute",
 });
 
@@ -62,11 +62,11 @@ export async function executeWorkflow(runRequest, workflowInstanceId) {
 
   // define platform functions here
   const appsmith = {
-    workflow: {
-      ApprovalRequest: async function (...args) {
+    workflows: {
+      assignRequest: async function (...args) {
         // TODO: Push to log file
-        // console.log("inside ApprovalRequest", args);
-        await executeCreateApprovalRequest(
+        // console.log("inside assignRequest", args);
+        await createWorkflowRequest(
           reqHeaders,
           workflowId,
           workflowInstanceId,
@@ -118,7 +118,7 @@ export async function executeWorkflow(runRequest, workflowInstanceId) {
       // TODO: Push to log file
       // console.log("workflow-proxy activity data", output);
 
-      this.data = output.data;
+      this.data = output;
       return this.data;
     }.bind(actionMapTransformed[actionName]);
   }

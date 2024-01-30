@@ -30,9 +30,10 @@ export interface PublishWorkflowPayload {
   workflowId: string;
 }
 
-export const fetchAllWorkflows = () => {
+export const fetchAllWorkflowsForWorkspace = (payload: string) => {
   return {
-    type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_INIT,
+    type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_FOR_WORKSPACE_INIT,
+    payload,
   };
 };
 
@@ -168,6 +169,19 @@ export const toggleWorkflowToken = (
     payload: {
       workflowId,
       isTokenCurrentlyGenerated,
+    },
+  };
+};
+
+export const createWorkflowQueryInApp = (
+  pageId: string,
+  from: EventLocation,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_WORKFLOW_QUERY_IN_APPLICATION,
+    payload: {
+      pageId,
+      from,
     },
   };
 };

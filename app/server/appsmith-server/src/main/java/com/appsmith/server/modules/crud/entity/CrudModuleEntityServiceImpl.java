@@ -98,7 +98,7 @@ public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompat
         return moduleMono.flatMap(module -> newActionService
                 .findAllActionsByContextIdAndContextTypeAndViewMode(
                         module.getId(), CreatorContextType.MODULE, actionPermission.getEditPermission(), false, false)
-                .flatMap(moduleAction -> newActionService.generateActionByViewMode(moduleAction, false))
+                .map(moduleAction -> newActionService.generateActionByViewMode(moduleAction, false))
                 .collectList());
     }
 

@@ -71,6 +71,7 @@ export enum EventType {
   ON_TOGGLE = "ON_TOGGLE",
   ON_LOAD = "ON_LOAD",
   ON_MODAL_CLOSE = "ON_MODAL_CLOSE",
+  ON_MODAL_SUBMIT = "ON_MODAL_SUBMIT",
   ON_TEXT_CHANGE = "ON_TEXT_CHANGE",
   ON_SUBMIT = "ON_SUBMIT",
   ON_CHECK_CHANGE = "ON_CHECK_CHANGE",
@@ -171,6 +172,7 @@ export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.REMOTE]: saasActionSettingsConfig,
   [PluginType.JS]: [],
   [PluginType.AI]: saasActionSettingsConfig,
+  [PluginType.INTERNAL]: saasActionSettingsConfig,
 };
 
 export const defaultActionEditorConfigs: Record<PluginType, any> = {
@@ -180,6 +182,7 @@ export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.REMOTE]: [],
   [PluginType.JS]: [],
   [PluginType.AI]: [],
+  [PluginType.INTERNAL]: [],
 };
 
 export const defaultActionDependenciesConfig: Record<
@@ -192,6 +195,7 @@ export const defaultActionDependenciesConfig: Record<
   [PluginType.REMOTE]: {},
   [PluginType.JS]: {},
   [PluginType.AI]: {},
+  [PluginType.INTERNAL]: {},
 };
 
 export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
@@ -201,4 +205,5 @@ export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
   [PluginType.REMOTE]: apiActionDatasourceFormButtonConfig.REMOTE,
   [PluginType.JS]: [],
   [PluginType.AI]: apiActionDatasourceFormButtonConfig.AI,
+  [PluginType.INTERNAL]: [],
 };

@@ -35,6 +35,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -42,6 +43,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -168,6 +170,12 @@ class QueryToModuleConvertibleServiceTest {
     @Autowired
     PluginRepository pluginRepository;
 
+    @Autowired
+    ActionCollectionRepository actionCollectionRepository;
+
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
+
     @BeforeEach
     void setup() {
         moduleInstanceTestHelper = new ModuleInstanceTestHelper(
@@ -187,7 +195,9 @@ class QueryToModuleConvertibleServiceTest {
                 crudModuleInstanceService,
                 objectMapper,
                 customJSLibService,
-                pluginRepository);
+                pluginRepository,
+                actionCollectionRepository,
+                layoutCollectionService);
         moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("Convert_Query_To_Module_Workspace");
         moduleInstanceTestHelperDTO.setApplicationName("Convert_Query_To_Module_Application");

@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @QueryEmbeddable
 public class ActionCollectionDTO extends ActionCollectionCE_DTO implements Reusable {
     @JsonView(Views.Public.class)

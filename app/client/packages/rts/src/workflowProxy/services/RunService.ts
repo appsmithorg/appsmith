@@ -19,7 +19,21 @@ export interface RunResponse {
   data?: any;
 }
 
-// export const resumeSignal = defineSignal<[ExecuteInboxResolutionRequest]>("resumeSignal");
+//Remove export default
+//This is required for temporal to understand the function
+const jsObjectToCode = (script: string) => {
+  return script.replace(/export default/g, "");
+};
+
+// Remove trailing comments from the input script
+// This is required for temporal to understand the function
+const removeComments = (script: string) => {
+  return script.replace(/\/\/.*/g, "");
+};
+
+const sanitizeWorkflowDef = (workflowDef: string) => {
+  return removeComments(jsObjectToCode(workflowDef));
+};
 
 // Connections are expensive to construct and should be reused.
 // Make sure to close any unused connections to avoid leaking resources.
@@ -60,9 +74,14 @@ export class RunService {
 
       // in practice, use a meaningful business ID, like customerId or transactionId
       const workflowInstanceId = "workflowInstance-" + nanoid();
+      const { workflowDef } = runRequest;
+      const formattedWorkflowDef = sanitizeWorkflowDef(workflowDef);
       await temporalClient.workflow.start(executeWorkflow, {
         taskQueue: "appsmith-queue",
-        args: [runRequest, workflowInstanceId],
+        args: [
+          { ...runRequest, workflowDef: formattedWorkflowDef },
+          workflowInstanceId,
+        ],
         workflowId: workflowInstanceId, // temporal workflowID is NOT same as the workflowId used in the java server and frontend.
       });
 

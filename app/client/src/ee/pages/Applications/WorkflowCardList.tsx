@@ -1,39 +1,23 @@
 export * from "ce/pages/Applications/WorkflowCardList";
-
-import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
+import React from "react";
+import { useSelector } from "react-redux";
 import WorkflowCardListRenderer from "./WorkflowCardListRenderer";
-import { getWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { hasManageWorkspaceWorkflowPermission } from "@appsmith/utils/permissionHelpers";
 import {
-  getIsCreatingWorkflow,
   getIsFetchingWorkflows,
   getShowWorkflowFeature,
 } from "@appsmith/selectors/workflowSelectors";
-import type { WorkflowCardListProps } from "ce/pages/Applications/WorkflowCardList";
-import { createWorkflowFromWorkspace } from "@appsmith/actions/workflowActions";
+import type { WorkflowCardListProps } from "@appsmith/pages/Applications/WorkflowCardList";
 
 function WorkflowCardList({
   isMobile,
   workflows = [],
+  workspace,
   workspaceId,
 }: WorkflowCardListProps) {
-  const dispatch = useDispatch();
   const showWorkflowFeature = useSelector(getShowWorkflowFeature);
-  const isCreatingWorkflow = useSelector((state) =>
-    getIsCreatingWorkflow(state, workspaceId),
-  );
   const isFetchingWorkflows = useSelector(getIsFetchingWorkflows);
-  const userWorkspaces = useSelector(getWorkspaces);
-  const onCreateNewWorkflow = useCallback(() => {
-    dispatch(createWorkflowFromWorkspace({ workspaceId }));
-  }, [createWorkflowFromWorkspace, dispatch, workspaceId]);
 
-  const currentUserWorkspace = userWorkspaces.find(
-    (w) => w.workspace.id === workspaceId,
-  );
-  const workspace = currentUserWorkspace?.workspace;
   const canManageWorkflows = hasManageWorkspaceWorkflowPermission(
     workspace?.userPermissions,
   );
@@ -45,8 +29,6 @@ function WorkflowCardList({
 
   return (
     <WorkflowCardListRenderer
-      createWorkflow={onCreateNewWorkflow}
-      isCreatingWorkflow={isCreatingWorkflow}
       isFetchingWorkflows={isFetchingWorkflows}
       isMobile={isMobile}
       workflows={workflows}

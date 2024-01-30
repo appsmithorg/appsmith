@@ -98,7 +98,7 @@ import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
 import { getFormData } from "selectors/formSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
@@ -129,7 +129,6 @@ import { getQueryParams } from "utils/URLUtils";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
@@ -166,6 +165,7 @@ import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
+  isEnvironmentFetching,
 } from "@appsmith/selectors/environmentSelectors";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
@@ -174,16 +174,24 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
+import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 function* fetchDatasourcesSaga(
-  action: ReduxAction<{ workspaceId?: string } | undefined>,
+  action: ReduxAction<
+    | { workspaceId?: string; datasources?: ApiResponse<Datasource[]> }
+    | undefined
+  >,
 ) {
   try {
     let workspaceId: string = yield select(getCurrentWorkspaceId);
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
+    const datasources = action.payload?.datasources;
+    const response: ApiResponse<Datasource[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      datasources,
+      async () => DatasourcesApi.fetchDatasources(workspaceId),
+    );
 
-    const response: ApiResponse<Datasource[]> =
-      yield DatasourcesApi.fetchDatasources(workspaceId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -231,9 +239,17 @@ function* fetchDatasourceStructureOnLoad() {
   } catch (error) {}
 }
 
-function* fetchMockDatasourcesSaga() {
+function* fetchMockDatasourcesSaga(action?: {
+  payload?: { mockDatasources?: ApiResponse };
+}) {
+  const mockDatasources = action?.payload?.mockDatasources;
   try {
-    const response: ApiResponse = yield DatasourcesApi.fetchMockDatasources();
+    const response: ApiResponse = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      mockDatasources,
+      async () => DatasourcesApi.fetchMockDatasources(),
+    );
+
     // not validating the api call here. If the call is unsuccessful it'll be unblocking. And we'll hide the mock DB section.
     yield put({
       type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
@@ -301,8 +317,6 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       const isGeneratePageInitiator =
         getIsGeneratePageInitiator(isGeneratePageMode);
 
-      const isInGuidedTour: boolean = yield select(inGuidedTour);
-
       if (isGeneratePageInitiator) {
         history.push(
           generateTemplateFormURL({
@@ -313,7 +327,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           }),
         );
       } else {
-        if (isInGuidedTour || skipRedirection) {
+        if (skipRedirection) {
           return;
         }
 
@@ -1177,6 +1191,14 @@ function* createDatasourceFromFormSaga(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
       );
 
+      // Set datasource page to view mode
+      yield put(
+        setDatasourceViewMode({
+          datasourceId: response?.data?.id,
+          viewMode: true,
+        }),
+      );
+
       // fetch the datasource structure.
       yield put(fetchDatasourceStructure(response?.data?.id, true));
 
@@ -1440,6 +1462,10 @@ function* fetchDatasourceStructureSaga(
     schemaFetchContext: DatasourceStructureContext;
   }>,
 ) {
+  const isLoadingEnv: boolean = yield select(isEnvironmentFetching);
+  if (isLoadingEnv) {
+    yield take(ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS);
+  }
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, action.payload.id),
     `Datasource not found for id - ${action.payload.id}`,

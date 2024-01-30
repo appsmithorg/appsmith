@@ -3,7 +3,6 @@ package com.appsmith.server.moduleinstances.roleconfigs;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
@@ -29,6 +28,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -37,6 +37,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -154,6 +155,12 @@ class ModuleInstanceRoleConfigurationsTest {
     @Autowired
     PluginRepository pluginRepository;
 
+    @Autowired
+    ActionCollectionRepository actionCollectionRepository;
+
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
+
     User api_user = null;
 
     @BeforeEach
@@ -205,7 +212,9 @@ class ModuleInstanceRoleConfigurationsTest {
                 crudModuleInstanceService,
                 objectMapper,
                 customJSLibService,
-                pluginRepository);
+                pluginRepository,
+                actionCollectionRepository,
+                layoutCollectionService);
         ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("Workspace - " + testName);
         moduleInstanceTestHelperDTO.setApplicationName("Application - " + testName);
@@ -328,7 +337,9 @@ class ModuleInstanceRoleConfigurationsTest {
                 crudModuleInstanceService,
                 objectMapper,
                 customJSLibService,
-                pluginRepository);
+                pluginRepository,
+                actionCollectionRepository,
+                layoutCollectionService);
         ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("Workspace - " + testName);
         moduleInstanceTestHelperDTO.setApplicationName("Application - " + testName);
@@ -450,7 +461,7 @@ class ModuleInstanceRoleConfigurationsTest {
         NewAction newAction =
                 newActionRepository.findById(composedActions.get(0).getId()).block();
         assertThat(newAction.getPolicies()).hasSize(4).allMatch(policy -> {
-            return switch (AclPermission.getPermissionByValue(policy.getPermission(), Action.class)) {
+            return switch (AclPermission.getPermissionByValue(policy.getPermission(), NewAction.class)) {
                 case DELETE_ACTIONS:
                     yield !policy.getPermissionGroups().contains(sampleRoleViewDTO.getId());
                 case READ_ACTIONS:

@@ -27,6 +27,14 @@ public interface AppsmithRepository<T> {
 
     Flux<T> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort);
 
+    Flux<T> queryAllWithStrictPermissionGroups(
+            List<Criteria> criterias,
+            Optional<List<String>> includeFields,
+            Optional<AclPermission> permission,
+            Sort sort,
+            int limit,
+            int skip);
+
     Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
 
     /**

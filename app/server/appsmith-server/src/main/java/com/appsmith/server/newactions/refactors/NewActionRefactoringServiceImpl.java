@@ -75,7 +75,7 @@ public class NewActionRefactoringServiceImpl extends NewActionRefactoringService
         if (isModuleContext(contextType) || isWorkflowContext(contextType)) {
             return newActionService
                     .findAllActionsByContextIdAndContextTypeAndViewMode(contextId, contextType, null, viewMode, true)
-                    .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, viewMode));
+                    .map(newAction -> newActionService.generateActionByViewMode(newAction, viewMode));
         } else {
             return super.getExistingEntities(contextId, contextType, layoutId, viewMode);
         }

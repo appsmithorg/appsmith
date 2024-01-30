@@ -12,7 +12,9 @@ import type { Action } from "entities/Action";
 export interface FetchWorkflowResponseData extends Workflow {}
 
 export type FetchWorkflowResponse = ApiResponse<FetchWorkflowResponseData>;
-export type FetchWorkflowsResponse = ApiResponse<FetchWorkflowResponseData[]>;
+export interface FetchWorkflowsResponse extends ApiResponse {
+  data: Array<FetchWorkflowResponse>;
+}
 
 export interface CreateWorkflowApiKeysResponse {
   data: string;

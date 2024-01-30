@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
+import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 const locators = {
@@ -52,7 +52,7 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
   });
 
   it("2. Super user can access branding page", () => {
-    cy.LogOut();
+    cy.LogOut(false);
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
@@ -78,13 +78,15 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
     );
 
     agHelper.AssertElementVisibility(locators.AdmingSettingsLogoInputImage);
-    cy.get(locators.BrandingLogo)
-      .invoke("attr", "src")
-      .then((src) => {
-        cy.get(locators.AdmingSettingsLogoInputImage)
-          .invoke("attr", "src")
-          .should("equal", src);
-      });
+    agHelper.WaitForCondition(() => {
+      cy.get(locators.BrandingLogo)
+        .invoke("attr", "src")
+        .then((src) => {
+          cy.get(locators.AdmingSettingsLogoInputImage)
+            .invoke("attr", "src")
+            .should("equal", src);
+        });
+    });
 
     // branding favicon
     cy.get(locators.AdmingSettingsFaviconInput).selectFile(
@@ -186,8 +188,8 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
   });
 
   it(
-    "excludeForAirgap",
     "checks branding on dashboard and checks if colorpicker has branding colors",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       if (CURRENT_REPO === REPO.EE) {
         // naivagae to dashboard
@@ -203,23 +205,8 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
           .invoke("attr", "href")
           .should("eq", favicon);
 
-        // check the apps tab border bottom
-        cy.get(locators.dashboardAppTab).then(($x) => {
-          const win = $x[0].ownerDocument.defaultView;
-          const after = win.getComputedStyle($x[0], "::after");
-          const backgroundColor = after.getPropertyValue("background-color");
-          expect(backgroundColor).to.eq(shades.primary);
-        });
-
-        // check the button bg
-        cy.get(`${locators.createNewAppButton} div`).should(
-          "have.css",
-          "background-color",
-          shades.primary,
-        );
-
         // create new app
-        cy.get(locators.createNewAppButton).eq(0).click({ force: true });
+        homePage.CreateNewApplication();
 
         _.appSettings.OpenAppSettings();
         _.appSettings.GoToThemeSettings();
@@ -257,23 +244,8 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
           .invoke("attr", "href")
           .should("eq", airgappedFavicon);
 
-        // check the apps tab border bottom
-        cy.get(locators.dashboardAppTab).then(($x) => {
-          const win = $x[0].ownerDocument.defaultView;
-          const after = win.getComputedStyle($x[0], "::after");
-          const backgroundColor = after.getPropertyValue("background-color");
-          expect(backgroundColor).to.eq(shades.primary);
-        });
-
-        // check the button bg
-        cy.get(`${locators.createNewAppButton} div`).should(
-          "have.css",
-          "background-color",
-          shades.primary,
-        );
-
         // create new app
-        cy.get(locators.createNewAppButton).eq(0).click({ force: true });
+        homePage.CreateNewApplication();
 
         _.appSettings.OpenAppSettings();
         _.appSettings.GoToThemeSettings();
@@ -310,7 +282,7 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
   });
 
   it("6. Super user sees upgrade option in branding page in free plan", () => {
-    cy.LogOut();
+    cy.LogOut(false);
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();

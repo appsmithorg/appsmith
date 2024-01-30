@@ -16,6 +16,7 @@ export const INTERCOM_CONSENT_MESSAGE = () =>
   `Can we have your email for better support?`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
+export const CHAT_WITH_US = () => `Chat with us`;
 export const ERROR_ADD_API_INVALID_URL = () =>
   `Unable to create API. Try adding a URL to the datasource`;
 export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
@@ -200,6 +201,8 @@ export const PARTNER_PROGRAM_CALLOUT = (
 for someone else, you should check out our partner program.`;
 export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
   `Learn about Appsmith Partner Program`;
+export const NEW_APPLICATION = () => `New application`;
+export const APPLICATIONS = () => `Applications`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -216,17 +219,6 @@ export const USER_RESET_PASSWORD = () => "Reset password";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
-
-export const DELETING_APPLICATION = () => `Deleting application...`;
-export const DELETING_MULTIPLE_APPLICATION = () =>
-  `Deleting multiple applications...`;
-export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
-  `You don't have permission to delete this application`;
-
-export const DELETING_MULTIPLE_APPLICATION_MODAL_TITLE = () =>
-  `Delete Confirmation`;
-export const DELETING_MULTIPLE_APPLICATION_MODAL_DESC = () =>
-  `Are you sure you want to delete selected applications?`;
 
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
@@ -263,11 +255,20 @@ export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `Getting started`;
 export const WORKSPACES_HEADING = () => `Workspaces`;
+export const CREATE_A_NEW_WORKSPACE = () => `Create a new workspace`;
 export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
 export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
-  `There are no apps in this workspace.`;
+  `There are no applications in this workspace.`;
+export const TRY_GUIDED_TOUR = () => `Try guided tour`;
+export const JOIN_OUR_DISCORD = () => `Join our discord`;
+export const WHATS_NEW = () => `What's new?`;
+export const WORKSPACE_ACTION_BUTTON = () => "Create New";
+export const NEW_APP = () => "New app";
+export const NO_WORKSPACE_HEADING = () => "Oops! No workspace found";
+export const NO_WORKSPACE_DESCRIPTION = () =>
+  "You can find workspace list on the left sidebar, try selecting one of them to access a workspace.";
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
@@ -1110,10 +1111,16 @@ export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
   `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
 export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
+// Git Branch Protection end
 
 export const GENERAL = () => "General";
 export const BRANCH = () => "Branch";
-// Git Branch Protection end
+
+export const CONTINUOUS_DELIVERY = () => "Continuous delivery";
+export const CONFIGURE_CD_TITLE = () => "Configure continuous delivery";
+export const CONFIGURE_CD_DESC = () =>
+  "To automatically trigger a pull when changes occur on the remote branch, consider upgrading to our enterprise edition for enhanced functionality";
+export const TRY_APPSMITH_ENTERPRISE = () => "Try Appsmith Enterprise";
 
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
@@ -1377,6 +1384,7 @@ export const SETTINGS_TOOLTIP = () => "Settings";
 
 //settings
 export const ADMIN_SETTINGS = () => "Admin settings";
+export const HELP = () => "Help";
 export const RESTART_BANNER_BODY = () =>
   "Hang in there. This should be done soon.";
 export const RESTART_BANNER_HEADER = () => "Restarting your server";
@@ -1651,12 +1659,9 @@ export const CONTINUE = () => "Continue";
 export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
 export const PROCEED = () => "Proceed";
 export const COMPLETE = () => "Complete";
-// -- Modal --
-export const DEVIATION = () => "You are deviating from the tutorial";
-export const END_CONFIRMATION = () => "Are you sure you want to end?";
-export const CANCEL_DIALOG = () => "Cancel";
 // -- End Tutorial --
 export const END_TUTORIAL = () => "End tutorial";
+export const CANCEL_DIALOG = () => "Cancel";
 // -- Intro content --
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
@@ -2293,9 +2298,11 @@ export const EDITOR_PANE_TEXTS = {
     "Drag & drop widgets to create your app",
   query_add_button: () => "New query / API",
   js_add_button: () => "New JS object",
+  js_blank_object_item: () => "Blank JS object",
   widget_add_button: () => "New widget",
   query_create_tab_title: () => "Create new query / API",
   widgets_create_tab_title: () => "Drag & drop a widget",
+  js_create_tab_title: () => "Create JS object",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
 };
@@ -2440,3 +2447,5 @@ export const HEADER_TITLES = {
   SETTINGS: () => "Settings",
   LIBRARIES: () => "Libraries",
 };
+
+export const PASTE_FAILED = (str: string): string => `Paste failed! ${str}`;

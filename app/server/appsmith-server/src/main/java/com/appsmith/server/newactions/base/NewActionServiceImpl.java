@@ -15,7 +15,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
@@ -37,7 +36,6 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -105,7 +103,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             DatasourceService datasourceService,
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
-            MarketplaceService marketplaceService,
             PolicyGenerator policyGenerator,
             NewPageService newPageService,
             ApplicationService applicationService,
@@ -136,7 +133,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 datasourceService,
                 pluginService,
                 pluginExecutorHelper,
-                marketplaceService,
                 policyGenerator,
                 newPageService,
                 applicationService,
@@ -226,7 +222,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
      *
      * @param newAction
      * @return A Mono emitting the created action DTO after validation and saving to the repository.
-     *         The Mono will emit an error if any part of the validation, saving, or policy update encounters an issue.
+     * The Mono will emit an error if any part of the validation, saving, or policy update encounters an issue.
      */
     @Override
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
@@ -459,7 +455,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             List<String> collectionIds, List<String> projectionFields, boolean viewMode) {
         return repository
                 .findAllByActionCollectionIdWithoutPermissions(collectionIds, projectionFields)
-                .flatMap(newAction -> this.generateActionByViewMode(newAction, viewMode))
+                .map(newAction -> this.generateActionByViewMode(newAction, viewMode))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
@@ -526,20 +522,19 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
-        return super.generateActionByViewMode(newAction, viewMode).map(actionDTO -> {
-            actionDTO.setIsPublic(newAction.getIsPublic());
-            actionDTO.setModuleInstanceId(newAction.getModuleInstanceId());
-            actionDTO.setRootModuleInstanceId(newAction.getRootModuleInstanceId());
+    public ActionDTO generateActionByViewMode(NewAction newAction, Boolean viewMode) {
+        ActionDTO actionDTO = super.generateActionByViewMode(newAction, viewMode);
+        actionDTO.setIsPublic(newAction.getIsPublic());
+        actionDTO.setModuleInstanceId(newAction.getModuleInstanceId());
+        actionDTO.setRootModuleInstanceId(newAction.getRootModuleInstanceId());
 
-            DefaultResources defaultResources = newAction.getDefaultResources();
-            if (actionDTO.getDefaultResources() != null) {
-                actionDTO.getDefaultResources().setModuleInstanceId(defaultResources.getModuleInstanceId());
-                actionDTO.getDefaultResources().setRootModuleInstanceId(defaultResources.getRootModuleInstanceId());
-            }
+        DefaultResources defaultResources = newAction.getDefaultResources();
+        if (actionDTO.getDefaultResources() != null) {
+            actionDTO.getDefaultResources().setModuleInstanceId(defaultResources.getModuleInstanceId());
+            actionDTO.getDefaultResources().setRootModuleInstanceId(defaultResources.getRootModuleInstanceId());
+        }
 
-            return actionDTO;
-        });
+        return actionDTO;
     }
 
     @Override
@@ -682,8 +677,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             throw new AppsmithException(
                     AppsmithError.INTERNAL_SERVER_ERROR, "No module instance found to copy policies from.");
         }
-        Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(moduleInstance.getPolicies(), ModuleInstance.class, Action.class);
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
+                moduleInstance.getPolicies(), ModuleInstance.class, NewAction.class);
         action.setPolicies(documentPolicies);
     }
 

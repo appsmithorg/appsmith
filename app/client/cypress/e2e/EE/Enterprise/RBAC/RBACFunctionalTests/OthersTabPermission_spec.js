@@ -153,6 +153,7 @@ describe(
         Cypress.env("TESTPASSWORD2"),
       );
       cy.wait(2000);
+      homePage.SelectWorkspace(workspaceName);
       cy.openWorkspaceOptionsPopup(workspaceName);
       cy.get(homePageLocators.workspaceNamePopoverContent)
         .find(".ads-v2-menu__menu-item")
@@ -239,10 +240,10 @@ describe(
 
     it("7. Verify user with DeleteWorkspaceRole is able to delete workspace ", function () {
       cy.SignupFromAPI(testUser3, password);
-      cy.LogintoAppTestUser(testUser3, password);
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.wait(2000);
       // delete app
-      cy.get(homePageLocators.searchInput).clear().type(appName);
+      homePage.SelectWorkspace(workspaceName);
       cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
       cy.wait(2000);
       cy.get(RBAC.appMoreIcon)
@@ -262,6 +263,11 @@ describe(
         200,
       );
       // delete workspace
+
+      cy.LogintoAppTestUser(testUser3, password);
+
+      homePage.SelectWorkspace(workspaceName);
+
       cy.openWorkspaceOptionsPopup(workspaceName);
       cy.contains("Delete workspace").click();
       cy.contains("Are you sure").click();

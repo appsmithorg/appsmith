@@ -8,9 +8,9 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ModuleInstance;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
@@ -282,8 +282,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             throw new AppsmithException(
                     AppsmithError.INTERNAL_SERVER_ERROR, "No module instance found to copy policies from.");
         }
-        Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(moduleInstance.getPolicies(), ModuleInstance.class, Action.class);
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
+                moduleInstance.getPolicies(), ModuleInstance.class, NewAction.class);
         actionCollection.setPolicies(documentPolicies);
     }
 

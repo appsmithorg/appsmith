@@ -22,7 +22,7 @@ import {
   SavingState,
 } from "design-system-old";
 
-import Card from "components/common/Card";
+import Card, { ContextMenuTrigger } from "components/common/Card";
 import history from "utils/history";
 import { generateEditedByText } from "pages/Applications/helpers";
 import { BASE_PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
@@ -33,7 +33,10 @@ import {
 } from "@appsmith/constants/PackageConstants";
 import type { ModifiedMenuItemProps } from "pages/Applications/ApplicationCard";
 import { useDispatch, useSelector } from "react-redux";
-import { hasDeletePackagePermission } from "@appsmith/utils/permissionHelpers";
+import {
+  hasDeletePackagePermission,
+  hasManagePackagePermission,
+} from "@appsmith/utils/permissionHelpers";
 import { deletePackage, updatePackage } from "@appsmith/actions/packageActions";
 import {
   getIsSavingPackageName,
@@ -77,7 +80,7 @@ const ContextMenu = ({
   return (
     <Menu className="more" onOpenChange={handleMenuOnClose} open={isMenuOpen}>
       <MenuTrigger>
-        <Button
+        <ContextMenuTrigger
           className="m-0.5"
           data-testid="t--application-card-context-menu"
           isIconButton
@@ -159,6 +162,8 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
   const dispatch = useDispatch();
 
   const hasDeletePermission = hasDeletePackagePermission(pkg.userPermissions);
+
+  const hasEditPermission = hasManagePackagePermission(pkg.userPermissions);
 
   useEffect(() => {
     addDeleteOption();
@@ -269,6 +274,7 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
       backgroundColor={pkg.color || DEFAULT_PACKAGE_COLOR}
       contextMenu={contextMenu}
       editedByText={editedByText}
+      hasEditPermission={hasEditPermission}
       hasReadPermission
       icon={pkg.icon || DEFAULT_PACKAGE_ICON}
       isContextMenuOpen={false}

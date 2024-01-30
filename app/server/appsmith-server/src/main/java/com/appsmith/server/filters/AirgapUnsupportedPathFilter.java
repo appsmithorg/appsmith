@@ -17,7 +17,6 @@ import java.util.List;
 import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.APP_TEMPLATE_URL;
 import static com.appsmith.server.constants.Url.DATASOURCE_URL;
-import static com.appsmith.server.constants.Url.MARKETPLACE_URL;
 import static com.appsmith.server.constants.Url.SAAS_URL;
 import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
 import static com.appsmith.server.constants.ce.UrlCE.MOCKS;
@@ -39,7 +38,6 @@ public class AirgapUnsupportedPathFilter implements WebFilter {
 
     private static final List<String> blockedPaths = List.of(
             APP_TEMPLATE_URL + WILDCARD_SUFFIX,
-            MARKETPLACE_URL + WILDCARD_SUFFIX,
             DATASOURCE_URL + MOCKS,
             USAGE_PULSE_URL + WILDCARD_SUFFIX,
             APPLICATION_URL + RELEASE_ITEMS,

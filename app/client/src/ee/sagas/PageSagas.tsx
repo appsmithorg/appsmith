@@ -36,6 +36,7 @@ import {
   debounce,
   put,
   select,
+  take,
   takeEvery,
   takeLatest,
   takeLeading,
@@ -45,6 +46,7 @@ import {
   setupModuleInstanceForViewSaga,
   setupModuleInstanceSaga,
 } from "./moduleInstanceSagas";
+import { fetchPage, fetchPublishedPage } from "actions/pageActions";
 
 export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
   try {
@@ -64,10 +66,12 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
       });
     }
 
-    yield call(fetchPageSaga, {
-      type: ReduxActionTypes.FETCH_PAGE_INIT,
-      payload: { id, isFirstLoad },
-    });
+    /*
+      Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
+      Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
+    */
+    yield put(fetchPage(id, isFirstLoad));
+    yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
 
     yield put({
       type: ReduxActionTypes.SETUP_PAGE_SUCCESS,
@@ -103,10 +107,13 @@ export function* setupPublishedPageSaga(
         },
       });
     }
-    yield call(fetchPublishedPageSaga, {
-      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      payload: { bustCache, firstLoad, pageId },
-    });
+
+    /*
+      Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
+      Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
+    */
+    yield put(fetchPublishedPage(pageId, bustCache, firstLoad));
+    yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
 
     yield put({
       type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,

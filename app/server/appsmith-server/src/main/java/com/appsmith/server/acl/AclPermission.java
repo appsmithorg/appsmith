@@ -3,7 +3,6 @@ package com.appsmith.server.acl;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Environment;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApprovalRequest;
@@ -14,7 +13,6 @@ import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Package;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
@@ -166,9 +164,9 @@ public enum AclPermission {
     PACKAGE_READ_MODULE_INSTANCES("read:packageModuleInstances", Package.class),
     PACKAGE_CREATE_MODULES("create:modules", Package.class),
 
-    MANAGE_PAGES("manage:pages", Page.class),
-    READ_PAGES("read:pages", Page.class),
-    DELETE_PAGES("delete:pages", Page.class),
+    MANAGE_PAGES("manage:pages", NewPage.class),
+    READ_PAGES("read:pages", NewPage.class),
+    DELETE_PAGES("delete:pages", NewPage.class),
 
     MANAGE_MODULES("manage:modules", Module.class),
     READ_MODULES("read:modules", Module.class),
@@ -181,13 +179,13 @@ public enum AclPermission {
     // of creator
     CREATE_MODULE_EXECUTABLES("create:moduleExecutables", Module.class),
 
-    PAGE_CREATE_PAGE_ACTIONS("create:pageActions", Page.class),
-    PAGE_CREATE_MODULE_INSTANCES("create:moduleInstancesInPage", Page.class),
+    PAGE_CREATE_PAGE_ACTIONS("create:pageActions", NewPage.class),
+    PAGE_CREATE_MODULE_INSTANCES("create:moduleInstancesInPage", NewPage.class),
 
-    MANAGE_ACTIONS("manage:actions", Action.class),
-    READ_ACTIONS("read:actions", Action.class),
-    EXECUTE_ACTIONS("execute:actions", Action.class),
-    DELETE_ACTIONS("delete:actions", Action.class),
+    MANAGE_ACTIONS("manage:actions", NewAction.class),
+    READ_ACTIONS("read:actions", NewAction.class),
+    EXECUTE_ACTIONS("execute:actions", NewAction.class),
+    DELETE_ACTIONS("delete:actions", NewAction.class),
 
     MANAGE_MODULE_INSTANCES("manage:moduleInstances", ModuleInstance.class),
     READ_MODULE_INSTANCES("read:moduleInstances", ModuleInstance.class),
@@ -268,19 +266,14 @@ public enum AclPermission {
         return null;
     }
 
-    public static boolean isPermissionForEntity(AclPermission aclPermission, Class clazz) {
-        Class entityClass = clazz;
+    public static boolean isPermissionForEntity(AclPermission aclPermission, Class<?> clazz) {
+        Class<?> entityClass = clazz;
         /*
-         * Action class has been deprecated, and we have started using NewAction class instead.
-         * Page class has been deprecated, and we have started using NewPage class instead.
          * NewAction and ActionCollection are similar entities w.r.t. AclPermissions.
-         * Hence, whenever we want to check for any Permission w.r.t. NewAction or Action Collection, we use Action, and
-         * whenever we want to check for any Permission w.r.t. NewPage, we use Page.
+         * Hence, whenever we want to check for any Permission w.r.t. ActionCollection, we use NewAction.
          */
-        if (entityClass.equals(NewAction.class) || entityClass.equals(ActionCollection.class)) {
-            entityClass = Action.class;
-        } else if (entityClass.equals(NewPage.class)) {
-            entityClass = Page.class;
+        if (entityClass.equals(ActionCollection.class)) {
+            entityClass = NewAction.class;
         }
         return aclPermission.getEntity().equals(entityClass);
     }

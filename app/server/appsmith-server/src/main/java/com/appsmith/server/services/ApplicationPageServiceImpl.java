@@ -5,12 +5,14 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.clonepage.ClonePageService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -51,6 +53,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
     private final PermissionGroupService permissionGroupService;
     private final ApplicationPublishableService<ModuleInstance> moduleInstanceApplicationPublishableService;
     private final CrudModuleInstanceService crudModuleInstanceService;
+    private final ClonePageService<ModuleInstance> moduleInstanceClonePageService;
 
     public ApplicationPageServiceImpl(
             WorkspaceService workspaceService,
@@ -82,7 +85,10 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             ApplicationPublishableService<ModuleInstance> moduleInstanceApplicationPublishableService,
             DSLMigrationUtils dslMigrationUtils,
             GitAutoCommitHelper gitAutoCommitHelper,
-            CrudModuleInstanceService crudModuleInstanceService) {
+            CrudModuleInstanceService crudModuleInstanceService,
+            ClonePageService<NewAction> actionClonePageService,
+            ClonePageService<ActionCollection> actionCollectionClonePageService,
+            ClonePageService<ModuleInstance> moduleInstanceClonePageService) {
         super(
                 workspaceService,
                 applicationService,
@@ -111,10 +117,13 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 datasourceRepository,
                 datasourcePermission,
                 dslMigrationUtils,
-                gitAutoCommitHelper);
+                gitAutoCommitHelper,
+                actionClonePageService,
+                actionCollectionClonePageService);
         this.permissionGroupService = permissionGroupService;
         this.moduleInstanceApplicationPublishableService = moduleInstanceApplicationPublishableService;
         this.crudModuleInstanceService = crudModuleInstanceService;
+        this.moduleInstanceClonePageService = moduleInstanceClonePageService;
     }
 
     /**
@@ -174,14 +183,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
     }
 
     @Override
-    protected Flux<ActionCollection> getCloneableActionCollections(String pageId) {
-        return super.getCloneableActionCollections(pageId)
-                .filter(cloneableActionCollection -> cloneableActionCollection.getRootModuleInstanceId() == null);
-    }
-
-    @Override
-    protected Flux<NewAction> getCloneableActions(String pageId) {
-        return super.getCloneableActions(pageId)
-                .filter(cloneableAction -> cloneableAction.getRootModuleInstanceId() == null);
+    protected Mono<Void> clonePageDependentEntities(ClonePageMetaDTO clonePageMetaDTO) {
+        return super.clonePageDependentEntities(clonePageMetaDTO)
+                .then(Mono.defer(() -> moduleInstanceClonePageService.cloneEntities(clonePageMetaDTO)));
     }
 }

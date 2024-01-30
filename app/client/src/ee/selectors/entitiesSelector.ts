@@ -5,12 +5,14 @@ import {
   getAction as CE_getAction,
   getActionData as CE_getActionData,
   getActions,
-  getJSCollections,
-  selectFilesForExplorer as CE_selectFilesForExplorer,
   getCurrentJSCollections,
+  getJSCollections,
+  getJSSegmentItems as CE_getJSSegmentItems,
+  getQuerySegmentItems as CE_getQuerySegmentItems,
   selectDatasourceIdToNameMap,
+  selectFilesForExplorer as CE_selectFilesForExplorer,
 } from "ce/selectors/entitiesSelector";
-import { MODULE_TYPE, type Module } from "@appsmith/constants/ModuleConstants";
+import { type Module, MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import {
   getAllModules,
   getCurrentModuleId,
@@ -31,7 +33,7 @@ import {
   getModuleIdPackageNameMap,
 } from "@appsmith/utils/Packages/moduleHelpers";
 import type { ActionResponse } from "api/ActionAPI";
-import { PluginType, type Action } from "entities/Action";
+import { type Action, PluginType } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   isEmbeddedAIDataSource,
@@ -109,7 +111,6 @@ export const selectFilesForExplorer = createSelector(
     const filesSortedByGroupName = sortBy(
       [...filteredCEFiles, ...moduleInstanceFiles],
       [
-        (file) => file.entity?.isMainJSCollection,
         (file) => file.group?.toLowerCase(),
         (file: any) => file.entity?.name?.toLowerCase(),
       ],
@@ -143,6 +144,54 @@ export const selectFilesForExplorer = createSelector(
     );
 
     return groupedFiles.files;
+  },
+);
+
+export const getQuerySegmentItems = createSelector(
+  CE_getQuerySegmentItems,
+  getAllModuleInstances,
+  getAllModules,
+  getPackages,
+  (items, moduleInstances, modules, packages) => {
+    const modulesArray = convertModulesToArray(modules);
+    const modulePackageMap = getModuleIdPackageNameMap(modulesArray, packages);
+    const itemsWithQueryModules = [...items];
+    Object.values(moduleInstances).forEach((instance) => {
+      if (instance.type === MODULE_TYPE.QUERY) {
+        itemsWithQueryModules.push({
+          isModuleInstance: true,
+          key: instance.id,
+          title: instance.name,
+          group: modulePackageMap[instance.sourceModuleId] || "Packages",
+          type: PluginType.DB,
+        });
+      }
+    });
+    return itemsWithQueryModules;
+  },
+);
+
+export const getJSSegmentItems = createSelector(
+  CE_getJSSegmentItems,
+  getAllModuleInstances,
+  getAllModules,
+  getPackages,
+  (items, moduleInstances, modules, packages) => {
+    const modulesArray = convertModulesToArray(modules);
+    const modulePackageMap = getModuleIdPackageNameMap(modulesArray, packages);
+    const itemsWithJSModules = [...items];
+    Object.values(moduleInstances).forEach((instance) => {
+      if (instance.type === MODULE_TYPE.JS) {
+        itemsWithJSModules.push({
+          key: instance.id,
+          isModuleInstance: true,
+          title: instance.name,
+          group: modulePackageMap[instance.sourceModuleId] || "Packages",
+          type: PluginType.JS,
+        });
+      }
+    });
+    return itemsWithJSModules;
   },
 );
 
