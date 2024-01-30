@@ -366,6 +366,8 @@ export class HomePage {
       this.assertHelper.AssertNetworkStatus("@postLogout");
     }
     this.agHelper.AssertURL("/login");
+    this.agHelper.AssertElementVisibility(this._username);
+    this.agHelper.AssertElementVisibility(this._submitBtn);
   }
 
   public GotoProfileMenu() {
