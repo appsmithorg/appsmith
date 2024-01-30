@@ -26,8 +26,6 @@ public class Policy implements Serializable {
 
     public Policy(Policy other) {
         this.permission = other.permission;
-        this.users = new HashSet<>(other.users);
-        this.groups = new HashSet<>(other.groups);
         this.permissionGroups = new HashSet<>(other.permissionGroups);
     }
 }
