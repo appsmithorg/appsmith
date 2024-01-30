@@ -35,7 +35,9 @@ export const StatBoxComponent = (props: StatBoxComponentProps) => {
         )}
         {value && (
           <Flex alignItems="end" gap="spacing-1" isInner>
-            <Text variant="subtitle">{value}</Text>
+            <Text fontWeight={500} variant="subtitle">
+              {value}
+            </Text>
             {valueChange && (
               <Text color={valueImpact} variant="footnote">
                 {valueChange}
