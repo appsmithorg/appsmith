@@ -18,7 +18,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.N
 
 @Getter
 public class QueryAllParams<T extends BaseDomain> {
-    // TODO(Shri): There's a cyclic dependency between the repository and this class. Fix it.
+    // TODO(Shri): There's a cyclic dependency between the repository and this class. Remove it.
     private final BaseAppsmithRepositoryCEImpl<T> repo;
     private final List<Criteria> criteria = new ArrayList<>();
     private final List<String> fields = new ArrayList<>();
