@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   revokeGit,
   setDisconnectingGitApplication,
+  setGitSettingsModalOpenAction,
   setIsDisconnectGitModalOpen,
   setIsGitSyncModalOpen,
 } from "actions/gitSyncActions";
@@ -36,6 +37,7 @@ import { Space } from "./components/StyledComponents";
 import { GitSyncModalTab } from "entities/GitSync";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 
 function DisconnectGitModal() {
   const isGitConnectV2Enabled = useFeatureFlag(
@@ -50,14 +52,21 @@ function DisconnectGitModal() {
 
   const handleClickOnBack = useCallback(() => {
     dispatch(setIsDisconnectGitModalOpen(false));
-    dispatch(
-      setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: isGitConnectV2Enabled
-          ? GitSyncModalTab.SETTINGS
-          : GitSyncModalTab.GIT_CONNECTION,
-      }),
-    );
+    if (isGitConnectV2Enabled) {
+      dispatch(
+        setGitSettingsModalOpenAction({
+          open: true,
+          tab: GitSettingsTab.GENERAL,
+        }),
+      );
+    } else {
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.GIT_CONNECTION,
+        }),
+      );
+    }
     dispatch(setDisconnectingGitApplication({ id: "", name: "" }));
   }, [dispatch]);
 
