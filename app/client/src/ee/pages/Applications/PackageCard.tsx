@@ -44,7 +44,6 @@ import {
 } from "@appsmith/selectors/packageSelectors";
 import { ThemeContext } from "styled-components";
 import { getRandomPaletteColor } from "utils/AppsmithUtils";
-import { getDeletingMultipleApps } from "@appsmith/selectors/applicationSelectors";
 
 interface PackageCardProps {
   isFetchingPackages: boolean;
@@ -55,7 +54,6 @@ interface PackageCardProps {
 
 interface ContextMenuProps {
   handleMenuOnClose: (open: boolean) => void;
-  isHidden: boolean;
   isMenuOpen: boolean;
   moreActionItems: MenuItemProps[];
   onUpdatePackage: (val: string) => void;
@@ -66,7 +64,6 @@ interface ContextMenuProps {
 
 const ContextMenu = ({
   handleMenuOnClose,
-  isHidden,
   isMenuOpen,
   moreActionItems,
   onUpdatePackage,
@@ -86,7 +83,6 @@ const ContextMenu = ({
         <ContextMenuTrigger
           className="m-0.5"
           data-testid="t--application-card-context-menu"
-          isHidden={isHidden}
           isIconButton
           kind="tertiary"
           size="sm"
@@ -168,9 +164,6 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
   const hasDeletePermission = hasDeletePackagePermission(pkg.userPermissions);
 
   const hasEditPermission = hasManagePackagePermission(pkg.userPermissions);
-  const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
-  const isMultipleSelectionMode =
-    !!deleteMultipleApplicationObject.list?.length;
 
   useEffect(() => {
     addDeleteOption();
@@ -261,7 +254,6 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
     () => (
       <ContextMenu
         handleMenuOnClose={handleMenuOnClose}
-        isHidden={isMultipleSelectionMode}
         isMenuOpen={isMenuOpen}
         moreActionItems={moreActionItems}
         onUpdatePackage={onUpdatePackage}
@@ -270,7 +262,7 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
         updateColor={updateColor}
       />
     ),
-    [handleMenuOnClose, isMenuOpen, isMultipleSelectionMode, pkg.name],
+    [handleMenuOnClose, isMenuOpen, pkg.name],
   );
 
   const editPackage = useCallback(() => {
@@ -286,14 +278,13 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
       hasReadPermission
       icon={pkg.icon || DEFAULT_PACKAGE_ICON}
       isContextMenuOpen={false}
-      isEnabledMultipleSelection={false}
       isFetching={isFetchingPackages}
       isMobile={isMobile}
       moreActionItems={moreActionItems}
       primaryAction={noop}
       setShowOverlay={setShowOverlay}
       showGitBadge={false}
-      showOverlay={showOverlay && !isMultipleSelectionMode}
+      showOverlay={showOverlay}
       testId="t--package-card"
       title={pkg.name}
       titleTestId="t--app-card-name"

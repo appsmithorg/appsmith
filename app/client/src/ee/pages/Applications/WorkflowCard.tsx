@@ -33,7 +33,6 @@ import {
 } from "@appsmith/selectors/workflowSelectors";
 import type { Workflow } from "@appsmith/constants/WorkflowConstants";
 import { workflowEditorURL } from "@appsmith/RouteBuilder";
-import { getDeletingMultipleApps } from "@appsmith/selectors/applicationSelectors";
 
 interface WorkflowCardProps {
   isFetchingWorkflows: boolean;
@@ -44,7 +43,6 @@ interface WorkflowCardProps {
 
 interface ContextMenuProps {
   handleMenuOnClose: (open: boolean) => void;
-  isHidden: boolean;
   isMenuOpen: boolean;
   moreActionItems: MenuItemProps[];
   onUpdateWorkflow: (val: string) => void;
@@ -57,7 +55,6 @@ const DEFAULT_ICON = "workflow";
 
 const ContextMenu = ({
   handleMenuOnClose,
-  isHidden,
   isMenuOpen,
   moreActionItems,
   onUpdateWorkflow,
@@ -73,7 +70,6 @@ const ContextMenu = ({
         <ContextMenuTrigger
           className="m-0.5"
           data-testid="t--application-card-context-menu"
-          isHidden={isHidden}
           isIconButton
           kind="tertiary"
           size="sm"
@@ -154,9 +150,6 @@ function WorkflowCard({
   const hasEditPermission = hasManageWorkflowPermission(
     workflow.userPermissions,
   );
-  const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
-  const isMultipleSelectionMode =
-    !!deleteMultipleApplicationObject.list?.length;
 
   useEffect(() => {
     addDeleteOption();
@@ -233,7 +226,6 @@ function WorkflowCard({
     () => (
       <ContextMenu
         handleMenuOnClose={handleMenuOnClose}
-        isHidden={isMultipleSelectionMode}
         isMenuOpen={isMenuOpen}
         moreActionItems={moreActionItems}
         onUpdateWorkflow={onUpdateWorkflow}
@@ -241,7 +233,7 @@ function WorkflowCard({
         workflowName={workflow.name}
       />
     ),
-    [handleMenuOnClose, isMenuOpen, isMultipleSelectionMode, workflow.name],
+    [handleMenuOnClose, isMenuOpen, workflow.name],
   );
 
   const editWorkflow = useCallback(() => {
@@ -257,14 +249,13 @@ function WorkflowCard({
       hasReadPermission
       icon={workflow.icon || DEFAULT_ICON}
       isContextMenuOpen={false}
-      isEnabledMultipleSelection={false}
       isFetching={isFetchingWorkflows}
       isMobile={isMobile}
       moreActionItems={moreActionItems}
       primaryAction={noop}
       setShowOverlay={setShowOverlay}
       showGitBadge={false}
-      showOverlay={showOverlay && !isMultipleSelectionMode}
+      showOverlay={showOverlay}
       testId="t--workflow-card"
       title={workflow.name}
       titleTestId="t--app-card-name"
