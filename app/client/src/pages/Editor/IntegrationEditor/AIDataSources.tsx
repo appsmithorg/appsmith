@@ -8,7 +8,7 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import type { Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { createNewApiActionBasedOnEditorType } from "@appsmith/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";

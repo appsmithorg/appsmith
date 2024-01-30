@@ -298,7 +298,6 @@ const mapStateToProps = (
   let isLoading = false;
   let options = ownProps.fetchOptionsConditionally ? [] : ownProps.options;
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
-  console.log("DEBUG >>", formValues);
 
   try {
     if (ownProps.fetchOptionsConditionally) {
