@@ -125,7 +125,7 @@ export class HomePage {
     "div.t--applications-container div.t--workspace-section:not(:empty)";
   private _backToEditor = ".t--back-to-editor";
   private _editorSidebar = ".t--sidebar-Editor";
-  private _appViewPageLogo = `img[alt="Application's logo"]`;
+  private _appViewPageName = `div.t--app-viewer-application-name`;
 
   public _searchWorkspaceLocator = (workspaceName: string) =>
     `[data-testid="${workspaceName}"]`;
@@ -504,7 +504,7 @@ export class HomePage {
     this.agHelper.WaitUntilEleAppear(element ?? this.locator._backToEditor);
     this.agHelper.AssertElementExist(this._deployPageWidgets);
     this.agHelper.AssertElementVisibility(this._deployPageWidgets);
-    this.agHelper.AssertElementVisibility(this._appViewPageLogo);
+    this.agHelper.AssertElementVisibility(this._appViewPageName);
     this.assertHelper.AssertDocumentReady();
   }
 
