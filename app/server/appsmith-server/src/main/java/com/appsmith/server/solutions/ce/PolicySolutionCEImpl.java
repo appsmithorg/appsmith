@@ -11,7 +11,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -152,47 +151,6 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                 policyGenerator.getLateralPolicies(permission, Set.of(permissionGroupId), null);
         policiesForPermission.add(policyWithCurrentPermission);
         return policiesForPermission.stream().collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-    }
-
-    public Map<String, Policy> generatePolicyFromPermissionForMultipleUsers(
-            Set<AclPermission> permissions, List<User> users) {
-        Set<String> usernames = users.stream().map(user -> user.getUsername()).collect(Collectors.toSet());
-
-        return permissions.stream()
-                .map(perm -> {
-                    // Create a policy for the invited user using the permission as per the role
-                    Policy policyWithCurrentPermission = Policy.builder()
-                            .permission(perm.getValue())
-                            .users(usernames)
-                            .build();
-                    // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, usernames, null);
-                    policiesForUser.add(policyWithCurrentPermission);
-                    return policiesForUser;
-                })
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-    }
-
-    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(
-            Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
-
-        return datasourceRepository
-                .findAllByIds(ids, datasourcePermission.getEditPermission())
-                // In case we have come across a datasource the current user is not allowed to manage, move on.
-                .switchIfEmpty(Mono.empty())
-                .flatMap(datasource -> {
-                    Datasource updatedDatasource;
-                    if (addPolicyToObject) {
-                        updatedDatasource = addPoliciesToExistingObject(datasourcePolicyMap, datasource);
-                    } else {
-                        updatedDatasource = removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
-                    }
-
-                    return Mono.just(updatedDatasource);
-                })
-                .collectList()
-                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
     }
 
     @Override

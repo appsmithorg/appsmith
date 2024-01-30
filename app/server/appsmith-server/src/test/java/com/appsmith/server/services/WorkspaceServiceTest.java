@@ -587,16 +587,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void inValidupdateWorkspaceEmptyName() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
-        Policy manageWorkspacePolicy = Policy.builder()
-                .permission(MANAGE_WORKSPACES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
         Workspace workspace = new Workspace();
         workspace.setName("Test Update Name");
         workspace.setDomain("example.com");
@@ -618,16 +608,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceValidEmail() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
-        Policy manageWorkspacePolicy = Policy.builder()
-                .permission(MANAGE_WORKSPACES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
         for (String validEmail : validEmails) {
             Workspace workspace = new Workspace();
@@ -652,16 +632,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceInvalidEmail() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
-        Policy manageWorkspacePolicy = Policy.builder()
-                .permission(MANAGE_WORKSPACES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
         String[] invalidEmails = {"invalid@.com", "@invalid.com"};
         for (String invalidEmail : invalidEmails) {
             Workspace workspace = new Workspace();
@@ -686,16 +656,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceValidWebsite() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
-        Policy manageWorkspacePolicy = Policy.builder()
-                .permission(MANAGE_WORKSPACES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
         String[] validWebsites = {
             "https://www.valid.website.com",
             "http://www.valid.website.com",
@@ -739,16 +699,6 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceInvalidWebsite() {
-        Policy manageWorkspaceAppPolicy = Policy.builder()
-                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
-        Policy manageWorkspacePolicy = Policy.builder()
-                .permission(MANAGE_WORKSPACES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
         String[] invalidWebsites = {
             "htp://www.invalid.website.com", "htp://invalid.website.com", "htp://www", "www", "www."
         };
@@ -1666,14 +1616,10 @@ public class WorkspaceServiceTest {
     public void delete_WithoutManagePermission_ThrowsException() {
         Workspace workspace = new Workspace();
         workspace.setName("Test org to test delete org");
-        Policy readWorkspacePolicy = Policy.builder()
-                .permission(READ_WORKSPACES.getValue())
-                .users(Set.of("api_user", "test_user@example.com"))
-                .build();
-        Policy manageWorkspacePolicy = Policy.builder()
-                .permission(MANAGE_WORKSPACES.getValue())
-                .users(Set.of("test_user@example.com"))
-                .build();
+        Policy readWorkspacePolicy =
+                Policy.builder().permission(READ_WORKSPACES.getValue()).build();
+        Policy manageWorkspacePolicy =
+                Policy.builder().permission(MANAGE_WORKSPACES.getValue()).build();
 
         // api user has read org permission but no manage org permission
         workspace.setPolicies(new HashSet<>(Set.of(readWorkspacePolicy, manageWorkspacePolicy)));
