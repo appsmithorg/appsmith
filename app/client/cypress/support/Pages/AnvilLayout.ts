@@ -32,11 +32,11 @@ export class AnvilLayout {
       }
       if (dropTarget.name) {
         return `${getWidgetSelector(dropTarget.name.toLowerCase() as any)} ${
-          this.locator._dropHere
+          this.locator._canvasSlider
         }`;
       }
     }
-    return this.locator._dropHere;
+    return this.locator._canvasSlider;
   };
 
   private performDnDInAnvil(
@@ -69,10 +69,12 @@ export class AnvilLayout {
           eventConstructor: "MouseEvent",
           force: true,
         });
-        cy.get(this.locator._dropHere).first().trigger("mouseup", xPos, yPos, {
-          eventConstructor: "MouseEvent",
-          force: true,
-        });
+        cy.get(this.locator._canvasSlider)
+          .first()
+          .trigger("mouseup", xPos, yPos, {
+            eventConstructor: "MouseEvent",
+            force: true,
+          });
       });
   }
 

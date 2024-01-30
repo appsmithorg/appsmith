@@ -7,7 +7,6 @@ import ResizeObserver from "resize-observer-polyfill";
 interface StickyCanvasArenaProps {
   showCanvas: boolean;
   canvasId: string;
-  className?: string;
   sliderId: string;
   canvasPadding: number;
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
@@ -98,7 +97,6 @@ export const StickyCanvasArena = forwardRef(
     const {
       canvasId,
       canvasPadding,
-      className,
       dependencies = {},
       getRelativeScrollingParent,
       shouldObserveIntersection,
@@ -211,8 +209,8 @@ export const StickyCanvasArena = forwardRef(
           }}
         />
         <StyledCanvasSlider
-          className={className}
           data-testid={sliderId}
+          data-type={"canvas-slider"}
           id={sliderId}
           paddingBottom={canvasPadding}
           ref={slidingArenaRef}

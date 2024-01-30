@@ -47,7 +47,6 @@ export function AnvilHighlightingCanvas({
     <StickyCanvasArena
       canvasId={`canvas-dragging-${layoutId}`}
       canvasPadding={0}
-      className={`t--drop-target`}
       getRelativeScrollingParent={getNearestParentCanvas}
       ref={canvasRef}
       shouldObserveIntersection={anvilDragStates.isDragging}
