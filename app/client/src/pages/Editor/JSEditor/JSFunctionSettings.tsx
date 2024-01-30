@@ -8,7 +8,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, Radio, RadioGroup, Tooltip } from "design-system";
+import { Icon, Radio, RadioGroup, Tooltip, Switch } from "design-system";
 
 interface SettingsHeadingProps {
   text: string;
@@ -176,40 +176,62 @@ function SettingsItem({
         <span>{action.name}</span>
       </SettingColumn>
       <SettingColumn className={`${action.name}-on-page-load-setting`}>
-        <RadioGroup
-          defaultValue={executeOnPageLoad}
-          name={`execute-on-page-load-${action.id}`}
-          onChange={onChangeExecuteOnPageLoad}
-          orientation="horizontal"
-        >
-          {RADIO_OPTIONS.map((option) => (
-            <Radio
-              isDisabled={disabled}
-              key={option.label}
-              value={option.value}
-            >
-              {option.label}
-            </Radio>
-          ))}
-        </RadioGroup>
+        {RADIO_OPTIONS.length > 2 ? (
+          <RadioGroup
+            defaultValue={executeOnPageLoad}
+            name={`execute-on-page-load-${action.id}`}
+            onChange={onChangeExecuteOnPageLoad}
+            orientation="horizontal"
+          >
+            {RADIO_OPTIONS.map((option) => (
+              <Radio
+                isDisabled={disabled}
+                key={option.label}
+                value={option.value}
+              >
+                {option.label}
+              </Radio>
+            ))}
+          </RadioGroup>
+        ) : (
+          <Switch
+            defaultSelected={JSON.parse(executeOnPageLoad)}
+            name={`execute-on-page-load-${action.id}`}
+            onChange={(isSelected) =>
+              onChangeExecuteOnPageLoad(String(isSelected))
+            }
+          >
+            {executeOnPageLoad}
+          </Switch>
+        )}
       </SettingColumn>
       <SettingColumn className={`${action.name}-confirm-before-execute`}>
-        <RadioGroup
-          defaultValue={confirmBeforeExecute}
-          name={`confirm-before-execute-${action.id}`}
-          onChange={onChangeConfirmBeforeExecute}
-          orientation="horizontal"
-        >
-          {RADIO_OPTIONS.map((option) => (
-            <Radio
-              isDisabled={disabled}
-              key={option.label}
-              value={option.value}
-            >
-              {option.label}
-            </Radio>
-          ))}
-        </RadioGroup>
+        {RADIO_OPTIONS.length > 2 ? (
+          <RadioGroup
+            defaultValue={confirmBeforeExecute}
+            name={`confirm-before-execute-${action.id}`}
+            onChange={onChangeConfirmBeforeExecute}
+            orientation="horizontal"
+          >
+            {RADIO_OPTIONS.map((option) => (
+              <Radio
+                isDisabled={disabled}
+                key={option.label}
+                value={option.value}
+              >
+                {option.label}
+              </Radio>
+            ))}
+          </RadioGroup>
+        ) : (
+          <Switch
+            defaultSelected={JSON.parse(confirmBeforeExecute)}
+            name={`confirm-before-execute-${action.id}`}
+            onChange={(isSelected) =>
+              onChangeConfirmBeforeExecute(String(isSelected))
+            }
+          />
+        )}
       </SettingColumn>
       {renderAdditionalColumns?.(action)}
     </SettingRow>
