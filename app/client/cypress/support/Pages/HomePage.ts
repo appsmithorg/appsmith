@@ -491,12 +491,12 @@ export class HomePage {
   public EditAppFromSearch(appName: string, element?: string) {
     this.agHelper.WaitUntilEleAppear(`[data-testid="${appName}"]`);
     this.agHelper.GetNClick(`[data-testid="${appName}"]`);
+    this.assertHelper.AssertNetworkStatus("viewPage");
     this.AssertViewPageLoad(element);
     this.deployHelper.NavigateBacktoEditor();
   }
 
   public AssertViewPageLoad(element?: string) {
-    this.assertHelper.AssertNetworkStatus("viewPage");
     cy.url({ timeout: Cypress.config().pageLoadTimeout }).should(
       "not.include",
       "edit",
