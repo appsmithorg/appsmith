@@ -80,7 +80,8 @@ public class GitApplicationMetadata implements AppsmithDomain {
     AutoCommitConfig autoCommitConfig;
 
     /**
-     * Boolean flag to store whether auto commit is enabled for any branch of this application
+     * Boolean flag to store whether auto deployment is enabled for any branch of this application. 
+     If true, any branch of this application can be automatically deployed using git web hook.
      */
     @JsonView(Views.Metadata.class)
     boolean isAutoDeploymentEnabled;
