@@ -92,6 +92,11 @@ function ConnectionSuccess() {
 
   const handleOpenSettings = () => {
     dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: false,
+      }),
+    );
+    dispatch(
       setGitSettingsModalOpenAction({
         open: true,
         tab: GitSettingsTab.GENERAL,
@@ -136,14 +141,18 @@ function ConnectionSuccess() {
     return (
       <>
         <Button
-          data-testid="t--start-using-git-button"
+          data-testid="t--git-success-modal-start-using-git-cta"
           kind="secondary"
           onClick={handleStartGit}
           size="md"
         >
           {createMessage(START_USING_GIT)}
         </Button>
-        <Button onClick={handleOpenSettings} size="md">
+        <Button
+          data-testid="t--git-success-modal-open-settings-cta"
+          onClick={handleOpenSettings}
+          size="md"
+        >
           {createMessage(OPEN_GIT_SETTINGS)}
         </Button>
       </>
@@ -152,11 +161,15 @@ function ConnectionSuccess() {
 
   return (
     <>
-      <ModalBody>
+      <ModalBody data-testid="t--git-success-modal-body">
         <Container>
           <TitleContainer>
             <StyledIcon color="#059669" name="oval-check" size="lg" />
-            <TitleText kind="heading-s" renderAs="h3">
+            <TitleText
+              data-testid="t--git-success-modal-title"
+              kind="heading-s"
+              renderAs="h3"
+            >
               {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
             </TitleText>
           </TitleContainer>

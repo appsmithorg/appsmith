@@ -165,6 +165,7 @@ import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
+  isEnvironmentFetching,
 } from "@appsmith/selectors/environmentSelectors";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
@@ -1461,6 +1462,10 @@ function* fetchDatasourceStructureSaga(
     schemaFetchContext: DatasourceStructureContext;
   }>,
 ) {
+  const isLoadingEnv: boolean = yield select(isEnvironmentFetching);
+  if (isLoadingEnv) {
+    yield take(ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS);
+  }
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, action.payload.id),
     `Datasource not found for id - ${action.payload.id}`,
