@@ -46,7 +46,7 @@ export const propertyPaneContentConfig = [
       {
         propertyName: "iconAlign",
         label: "Position",
-        helpText: "Sets the icon alignment of the button",
+        helpText: "Sets the icon alignment",
         controlType: "ICON_TABS",
         defaultValue: "start",
         fullWidth: false,

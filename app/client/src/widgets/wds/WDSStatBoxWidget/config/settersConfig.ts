@@ -4,9 +4,5 @@ export const settersConfig = {
       path: "isVisible",
       type: "boolean",
     },
-    setDisabled: {
-      path: "isDisabled",
-      type: "boolean",
-    },
   },
 };
