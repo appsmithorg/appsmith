@@ -2,7 +2,6 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.domains.ce.AutoDeployment;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
@@ -11,7 +10,6 @@ import org.springframework.data.annotation.Transient;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
 @Data
@@ -82,14 +80,11 @@ public class GitApplicationMetadata implements AppsmithDomain {
     AutoCommitConfig autoCommitConfig;
 
     /**
-     * autoDeploymentConfigs field will hold the list of branches that are enabled for auto deployment.
-     * It'll also show the latest deployedAt date for the corresponding branch.
-     * If auto deployment is enabled for 2 branches - main and develop, autoDeploymentConfigs will have two entries
-     * each for one branch. This attribute will be present inside the root application only. The branched applications
-     * will not have this field set.
+     * Boolean flag to store whether auto deployment is enabled for any branch of this application.
+     * If true, any branch of this application can be automatically deployed using git web hook.
      */
     @JsonView(Views.Metadata.class)
-    Set<AutoDeployment> autoDeploymentConfigs;
+    boolean isAutoDeploymentEnabled;
 
     public AutoCommitConfig getAutoCommitConfig() {
         // by default, the auto commit should be enabled.
