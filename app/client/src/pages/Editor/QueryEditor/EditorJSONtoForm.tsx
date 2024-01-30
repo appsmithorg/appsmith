@@ -41,6 +41,8 @@ import {
   getDebuggerSelectedTab,
   showDebuggerFlag,
 } from "selectors/debuggerSelectors";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -100,7 +102,7 @@ const SecondaryWrapper = styled.div`
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px var(--ads-v2-spaces-7) var(--ads-v2-spaces-5)
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-5)
     var(--ads-v2-spaces-7);
   flex: 0;
 `;
@@ -146,7 +148,7 @@ const Wrapper = styled.div`
 const DocumentationButton = styled(Button)`
   position: absolute !important;
   right: 24px;
-  margin: 7px 0px 0px;
+  margin: 7px 0 0;
   z-index: 6;
 `;
 
@@ -189,7 +191,6 @@ interface QueryFormProps {
   settingConfig: any;
   formData: SaaSAction | QueryAction;
   responseDisplayFormat: { title: string; value: string };
-  responseDataTypes: { key: string; title: string }[];
   datasourceId: string;
   showCloseEditor: boolean;
 }
@@ -221,6 +222,7 @@ export function EditorJSONtoForm(props: Props) {
     onRunClick,
     plugin,
     responseDisplayFormat,
+    runErrorMessage,
     settingConfig,
     uiComponent,
   } = props;
@@ -296,6 +298,13 @@ export function EditorJSONtoForm(props: Props) {
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
   };
 
+  // action source for analytics.
+  const actionSource: SourceEntity = {
+    type: SOURCE_ENTITY_TYPE.ACTION,
+    name: currentActionConfig ? currentActionConfig.name : "",
+    id: currentActionConfig ? currentActionConfig.id : "",
+  };
+
   const { hasDependencies } = useEntityDependencies(props.actionName);
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
@@ -330,8 +339,11 @@ export function EditorJSONtoForm(props: Props) {
         title: "Response",
         panelComponent: (
           <QueryResponseTab
+            actionSource={actionSource}
             currentActionConfig={currentActionConfig}
+            isRunning={isRunning}
             onRunClick={onRunClick}
+            runErrorMessage={runErrorMessage}
           />
         ),
       });
@@ -437,9 +449,11 @@ export function EditorJSONtoForm(props: Props) {
                   <QueryDebuggerTabs
                     actionName={actionName}
                     actionResponse={actionResponse}
+                    actionSource={actionSource}
                     currentActionConfig={currentActionConfig}
                     isRunning={isRunning}
                     onRunClick={onRunClick}
+                    runErrorMessage={runErrorMessage}
                   />
                 )}
             </SecondaryWrapper>

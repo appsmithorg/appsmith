@@ -33,6 +33,7 @@ import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import type { ActionResponse } from "api/ActionAPI";
 import { isString } from "lodash";
+import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import QueryResponseTab from "./QueryResponseTab";
 
@@ -64,9 +65,11 @@ export const SegmentedControlContainer = styled.div`
 `;
 
 interface QueryDebuggerTabsProps {
+  actionSource: SourceEntity;
   currentActionConfig?: Action;
   isRunning: boolean;
   actionName: string; // Check what and how to get
+  runErrorMessage?: string;
   actionResponse?: ActionResponse;
   onRunClick: () => void;
 }
@@ -74,9 +77,11 @@ interface QueryDebuggerTabsProps {
 function QueryDebuggerTabs({
   actionName,
   actionResponse,
+  actionSource,
   currentActionConfig,
   isRunning,
   onRunClick,
+  runErrorMessage,
 }: QueryDebuggerTabsProps) {
   let output: Record<string, any>[] | null = null;
 
@@ -140,8 +145,11 @@ function QueryDebuggerTabs({
       title: "Response",
       panelComponent: (
         <QueryResponseTab
+          actionSource={actionSource}
           currentActionConfig={currentActionConfig}
+          isRunning={isRunning}
           onRunClick={onRunClick}
+          runErrorMessage={runErrorMessage}
         />
       ),
     });

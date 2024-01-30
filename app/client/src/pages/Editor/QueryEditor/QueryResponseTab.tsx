@@ -28,13 +28,8 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasExecuteActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { getResponsePaneHeight } from "selectors/debuggerSelectors";
-import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { isString } from "lodash";
-import {
-  getQueryIsRunning,
-  getQueryRunErrorMessage,
-} from "selectors/queryPaneSelectors";
 
 const HelpSection = styled.div``;
 
@@ -49,12 +44,21 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
 `;
 
 interface Props {
+  actionSource: SourceEntity;
+  isRunning: boolean;
   onRunClick: () => void;
   currentActionConfig: Action;
+  runErrorMessage?: string;
 }
 
 const QueryResponseTab = (props: Props) => {
-  const { currentActionConfig, onRunClick } = props;
+  const {
+    actionSource,
+    currentActionConfig,
+    isRunning,
+    onRunClick,
+    runErrorMessage,
+  } = props;
   const dispatch = useDispatch();
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -62,13 +66,6 @@ const QueryResponseTab = (props: Props) => {
   const isExecutePermitted = getHasExecuteActionPermission(
     isFeatureEnabled,
     currentActionConfig?.userPermissions,
-  );
-
-  const runErrorMessage = useSelector((state) =>
-    getQueryRunErrorMessage(state, currentActionConfig.id),
-  );
-  const isRunning = useSelector((state) =>
-    getQueryIsRunning(state, currentActionConfig.id),
   );
 
   const actionResponse = useSelector((state) =>
@@ -134,12 +131,6 @@ const QueryResponseTab = (props: Props) => {
     AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
       source: "QUERY_PANE",
     });
-  };
-
-  const actionSource: SourceEntity = {
-    type: SOURCE_ENTITY_TYPE.ACTION,
-    name: currentActionConfig ? currentActionConfig.name : "",
-    id: currentActionConfig ? currentActionConfig.id : "",
   };
 
   let error = runErrorMessage;
