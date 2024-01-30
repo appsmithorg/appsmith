@@ -89,7 +89,6 @@ import { QueryEditorContext } from "./QueryEditorContext";
 import QueryResponseTabView from "./QueryResponseView";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
-import { isAppsmithAIPlugin } from "utils/editorContextUtils";
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 
 const QueryFormContainer = styled.form`
@@ -620,11 +619,6 @@ export function EditorJSONtoForm(props: Props) {
     !!actionResponse ||
     currentActionPluginName !== PluginName.SMTP;
 
-  // Datasource selection is hidden for Appsmith AI Plugin and for plugins that don't require datasource
-  // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented (Only remove the AI Condition)
-  const showDatasourceSelector =
-    !isAppsmithAIPlugin(plugin?.packageName) && pluginRequireDatasource;
-
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -644,30 +638,26 @@ export function EditorJSONtoForm(props: Props) {
           </NameWrapper>
           <ActionsWrapper>
             {moreActionsMenu}
-            {showDatasourceSelector && (
-              <DropdownSelect>
-                <DropdownField
-                  className={"t--switch-datasource"}
-                  formName={formName}
-                  isDisabled={!isChangePermitted}
-                  name="datasource.id"
-                  options={DATASOURCES_OPTIONS}
-                  placeholder="Datasource"
-                >
-                  {canCreateDatasource && (
-                    // this additional div is here so that rc-select can render the child with the onClick correctly
-                    <div>
-                      <CreateDatasource
-                        onClick={() => onCreateDatasourceClick()}
-                      >
-                        <Icon className="createIcon" name="plus" size="md" />
-                        {createMessage(CREATE_NEW_DATASOURCE)}
-                      </CreateDatasource>
-                    </div>
-                  )}
-                </DropdownField>
-              </DropdownSelect>
-            )}
+            <DropdownSelect>
+              <DropdownField
+                className={"t--switch-datasource"}
+                formName={formName}
+                isDisabled={!isChangePermitted}
+                name="datasource.id"
+                options={DATASOURCES_OPTIONS}
+                placeholder="Datasource"
+              >
+                {canCreateDatasource && (
+                  // this additional div is here so that rc-select can render the child with the onClick correctly
+                  <div>
+                    <CreateDatasource onClick={() => onCreateDatasourceClick()}>
+                      <Icon className="createIcon" name="plus" size="md" />
+                      {createMessage(CREATE_NEW_DATASOURCE)}
+                    </CreateDatasource>
+                  </div>
+                )}
+              </DropdownField>
+            </DropdownSelect>
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
