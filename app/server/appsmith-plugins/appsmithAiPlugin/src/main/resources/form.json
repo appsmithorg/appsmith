@@ -18,12 +18,36 @@
           "initialValue": "https://ai.appsmith.com",
           "isRequired": true,
           "hidden": true
+        },
+        {
+          "label": "Files",
+          "configProperty": "datasourceConfiguration.properties[0].key",
+          "initialValue": "Files",
+          "hidden": true,
+          "controlType": "INPUT_TEXT"
+        },
+        {
+          "label": "Files",
+          "subtitle": "Choose files",
+          "buttonLabel": "Choose files",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "MULTIPLE_FILE_PICKER",
+          "allowedFileTypes": [
+            "application/pdf",
+            "text/plain",
+            "text/markdown"
+          ],
+          "maxFileSizeInBytes": 157286400,
+          "config": {
+            "uploadToTrigger": true,
+            "params": {
+              "requestType": "uploadFiles"
+            }
+          },
+          "isRequired": false
         }
       ]
     }
   ],
-  "formButton": [
-    "CANCEL",
-    "SAVE"
-  ]
+  "formButton": ["CANCEL", "SAVE"]
 }

@@ -3,6 +3,7 @@ import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
 import type { PluginPackageName, PluginType } from "entities/Action";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
+import { FILE_UPLOAD_TRIGGER_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 
 export type PluginId = string;
 export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;
@@ -83,6 +84,36 @@ class PluginsApi extends Api {
     AxiosPromise<ApiResponse<DefaultPlugin[]>>
   > {
     return Api.get(PluginsApi.url + `/default/icons`);
+  }
+
+  static async uploadFiles(
+    datasourceId: string,
+    files: File[],
+    params?: Record<string, any>,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const url = this.defaultDynamicTriggerURL(datasourceId);
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    if (params) {
+      Object.keys(params).forEach((key) => {
+        formData.append(key, params[key]);
+      });
+    }
+
+    return Api.post(
+      url,
+      formData,
+      {},
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: FILE_UPLOAD_TRIGGER_TIMEOUT_MS,
+      },
+    );
   }
 }
 
