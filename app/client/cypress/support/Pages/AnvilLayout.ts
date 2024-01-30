@@ -8,15 +8,15 @@ import {
   PagePaneSegment,
 } from "./EditorNavigation";
 
-type DropTargetDetails = {
+interface DropTargetDetails {
   id?: string;
   name?: string;
-};
+}
 
-type DragDropWidgetOptions = {
+interface DragDropWidgetOptions {
   skipWidgetSearch?: boolean;
   dropTargetDetails?: DropTargetDetails;
-};
+}
 
 export class AnvilLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
