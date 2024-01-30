@@ -2412,7 +2412,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -2495,7 +2495,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -2592,7 +2592,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -2665,7 +2665,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -2777,7 +2777,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -2844,7 +2844,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -2919,7 +2919,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -3028,7 +3028,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -3178,7 +3178,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -3371,7 +3371,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
@@ -3566,7 +3566,7 @@ public class ApplicationShareTest {
                 .containsExactlyInAnyOrderElementsOf(usersToInvite);
 
         Map<String, String> mapUsernameToUserId = userRepository
-                .findAllByEmails(new HashSet<>(usersToInvite))
+                .findAllByEmailIn(new HashSet<>(usersToInvite))
                 .collectMap(User::getUsername, BaseDomain::getId)
                 .block();
         Map<String, String> mapInvitedUsernameToUserId = memberInvitedInfoDTOS.stream()
