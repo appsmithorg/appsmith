@@ -362,6 +362,14 @@ export function EditorJSONtoForm(props: Props) {
             plugin={plugin}
           />
         }
+        settingsRender={
+          <SettingsWrapper>
+            <ActionSettings
+              actionSettingsConfig={settingConfig}
+              formName={formName}
+            />
+          </SettingsWrapper>
+        }
         tabs={responseTabs}
       >
         <FormRender
