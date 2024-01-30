@@ -18,7 +18,6 @@ import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.ce.AutoDeployment;
 import com.appsmith.server.dtos.ApiKeyRequestDto;
 import com.appsmith.server.dtos.GitDeployApplicationResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -49,7 +48,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -57,13 +55,11 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_UPDATE_DEFAULT_BRANCH;
-import static com.appsmith.external.constants.GitConstants.ERROR_APPLICATION_NOT_GIT_CONNECTED;
 import static com.appsmith.external.constants.GitConstants.ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED;
 import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.server.acl.AppsmithRole.GIT_WEB_HOOK_EXECUTOR;
@@ -356,9 +352,10 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             String defaultApplicationId, String branchName) {
         return getApplicationById(defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
-                    String error = validateAutoDeploymentState(application, branchName);
-                    if (error != null) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error));
+                    GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                    if (metadata == null || !metadata.isAutoDeploymentEnabled()) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION, ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED));
                     }
                     // return the application for the target branch
                     return applicationService.findByBranchNameAndDefaultApplicationId(
@@ -378,22 +375,6 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                     resultDTO.setRepoUrl(application.getGitApplicationMetadata().getRemoteUrl());
                     return resultDTO;
                 });
-    }
-
-    private String validateAutoDeploymentState(Application application, String targetBranchName) {
-        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-        String error = null;
-        if (gitApplicationMetadata == null) {
-            error = ERROR_APPLICATION_NOT_GIT_CONNECTED;
-        } else {
-            AutoDeployment autoDeployment = new AutoDeployment();
-            autoDeployment.setBranchName(targetBranchName);
-            if (CollectionUtils.isEmpty(gitApplicationMetadata.getAutoDeploymentConfigs())
-                    || !gitApplicationMetadata.getAutoDeploymentConfigs().contains(autoDeployment)) {
-                error = ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED + targetBranchName;
-            }
-        }
-        return error;
     }
 
     private Mono<PermissionGroup> getOrCreateGitBotRole(Application application, User user) {
@@ -442,46 +423,27 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
 
     /**
      * In order to enable or disable the auto deployment, user need to preconfigure this.
-     * The configuration will contain which branches of this application are enabled for auto deployment from webhook.
-     * This method is used to enable or disable a branch from auto deployment feature.
-     * The application's branch should be already checked in to perform this action.
+     * This method is used to enable or disable the option for the application.
      * @param defaultApplicationId ID of the default application
-     * @param branchName name of the branch, which should be enabled or disabled
-     * @param enabled boolean flag to set enabled or disabled.
-     *                If true, auto deployment will be enabled for the provided branch.
-     * @return A list of objects containing currently enabled branches
+     * @return Boolean true if enabled after this operation, false otherwise.
      */
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_git_continuous_delivery_enabled)
-    public Mono<Set<AutoDeployment>> configureAutoDeployment(
-            String defaultApplicationId, String branchName, boolean enabled) {
+    public Mono<Boolean> toggleAutoDeploymentSettings(String defaultApplicationId) {
         // try to find whether the target branch is already checked out, otherwise return error
-        return applicationService
-                .findByBranchNameAndDefaultApplicationId(
-                        branchName, defaultApplicationId, applicationPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND,
-                        FieldName.APPLICATION,
-                        defaultApplicationId + "," + branchName)))
-                // find the root application as auto deployment configuration is only stored in the root application
-                .then(getApplicationById(defaultApplicationId, applicationPermission.getEditPermission()))
+        return getApplicationById(defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    // update or create the configuration for the auto deployment
-                    if (gitApplicationMetadata.getAutoDeploymentConfigs() == null) {
-                        gitApplicationMetadata.setAutoDeploymentConfigs(new HashSet<>());
-                    }
-                    AutoDeployment autoDeployment = new AutoDeployment();
-                    autoDeployment.setBranchName(branchName);
-                    if (enabled) {
-                        gitApplicationMetadata.getAutoDeploymentConfigs().add(autoDeployment);
+                    // toggle the auto deployment flag
+                    if (gitApplicationMetadata.isAutoDeploymentEnabled()) {
+                        gitApplicationMetadata.setAutoDeploymentEnabled(false);
                     } else {
-                        gitApplicationMetadata.getAutoDeploymentConfigs().remove(autoDeployment);
+                        gitApplicationMetadata.setAutoDeploymentEnabled(true);
                     }
 
                     return applicationService
                             .save(application)
-                            .thenReturn(gitApplicationMetadata.getAutoDeploymentConfigs());
+                            .thenReturn(gitApplicationMetadata.isAutoDeploymentEnabled());
                 });
     }
 }

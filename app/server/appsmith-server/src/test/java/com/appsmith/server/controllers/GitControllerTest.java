@@ -37,7 +37,6 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 import static java.lang.Boolean.TRUE;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -146,9 +145,7 @@ public class GitControllerTest {
                         anyString(), any(ApplicationJson.class), anyString(), anyString()))
                 .thenReturn(Mono.just(application));
 
-        gitService
-                .configureAutoDeployment(application.getId(), mainBranch, true)
-                .block();
+        gitService.toggleAutoDeploymentSettings(application.getId()).block();
         String bearerToken = gitService
                 .generateBearerTokenForApplication(application.getId())
                 .block();
