@@ -98,7 +98,7 @@ const ExistingWidgetList = styled.div`
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 110px;
+    width: 105px;
     margin: 4px;
     border: 1px solid var(--ads-v2-color-gray-300);
     border-radius: var(--ads-v2-border-radius);
