@@ -7,7 +7,7 @@ import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import { debounce, uniq } from "lodash";
 import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import type { AnvilCanvasActivationStates } from "./useCanvasActivationStates";
+import { useCanvasActivationStates } from "./useCanvasActivationStates";
 import { canActivateCanvasForDraggedWidget } from "../utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 
@@ -39,16 +39,21 @@ const checkIfMousePositionIsInsideBlock = (
 const MAIN_CANVAS_BUFFER = 20;
 const SECTION_BUFFER = 20;
 
-export const useCanvasActivation = ({
-  activateOverlayWidgetDrop,
-  dragDetails,
-  draggedWidgetTypes,
-  isDragging,
-  isNewWidget,
-  layoutElementPositions,
-  mainCanvasLayoutId,
-  selectedWidgets,
-}: AnvilCanvasActivationStates) => {
+/**
+ * This hook handles the activation and deactivation of the canvas(Drop targets) while dragging.
+ */
+
+export const useCanvasActivation = () => {
+  const {
+    activateOverlayWidgetDrop,
+    dragDetails,
+    draggedWidgetTypes,
+    isDragging,
+    isNewWidget,
+    layoutElementPositions,
+    mainCanvasLayoutId,
+    selectedWidgets,
+  } = useCanvasActivationStates();
   // Getting the main canvas DOM node
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
 

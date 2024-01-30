@@ -3,8 +3,19 @@ import type { ComponentProps } from "react";
 
 export const CheckIcon = (props: ComponentProps<"svg">) => {
   return (
-    <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
-      <path d="m10 15.17 9.193-9.191 1.414 1.414-10.606 10.606-6.364-6.364 1.414-1.414 4.95 4.95Z" />
+    <svg
+      className="icon icon-tabler icon-tabler-check"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path d="M0 0h24v24H0z" fill="none" stroke="none" />
+      <path d="M5 12l5 5l10 -10" />
     </svg>
   );
 };

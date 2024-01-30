@@ -1190,6 +1190,14 @@ function* createDatasourceFromFormSaga(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
       );
 
+      // Set datasource page to view mode
+      yield put(
+        setDatasourceViewMode({
+          datasourceId: response?.data?.id,
+          viewMode: true,
+        }),
+      );
+
       // fetch the datasource structure.
       yield put(fetchDatasourceStructure(response?.data?.id, true));
 
