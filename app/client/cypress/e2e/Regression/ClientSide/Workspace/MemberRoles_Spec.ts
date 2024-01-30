@@ -13,7 +13,7 @@ describe(
       cy.get("@guid").then((uid) => {
         workspaceId = uid;
         appid = uid;
-        _.homePage.CreateNewWorkspace(workspaceId);
+        _.homePage.CreateNewWorkspace(workspaceId, true);
         _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
         _.homePage.InviteUserToWorkspaceErrorMessage(workspaceId, "abcdef");
         cy.visit("/applications", { timeout: 60000 });
