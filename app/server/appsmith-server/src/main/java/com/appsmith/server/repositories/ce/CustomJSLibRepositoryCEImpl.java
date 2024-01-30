@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.QCustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
@@ -13,7 +12,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,9 +44,6 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
         Criteria criteria =
                 Criteria.where(fieldName(QCustomJSLib.customJSLib.uidString)).in(uidStrings);
 
-        return queryAll()
-                .criteria(List.of(criteria))
-                .permission(Optional.<AclPermission>empty().orElse(null))
-                .submit();
+        return queryAll().criteria(List.of(criteria)).submit();
     }
 }
