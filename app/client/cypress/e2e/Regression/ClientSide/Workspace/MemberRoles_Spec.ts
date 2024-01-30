@@ -8,7 +8,7 @@ describe(
   { tags: ["@tag.Workspace"] },
   () => {
     it("1. Create new Workspace, Share with a user from UI & verify", () => {
-      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(true, true);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(true, false);
       _.agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         workspaceId = uid;
