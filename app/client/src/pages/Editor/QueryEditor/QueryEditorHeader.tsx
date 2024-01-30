@@ -1,17 +1,11 @@
 import React, { useContext } from "react";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import { Button, Icon } from "design-system";
-import {
-  CREATE_NEW_DATASOURCE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { Button } from "design-system";
 import { StyledFormRow } from "./EditorJSONtoForm";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasCreateDatasourcePermission,
   getHasExecuteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -19,17 +13,14 @@ import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import { useSelector } from "react-redux";
 import {
   getAction,
-  getPluginImages,
   getPluginNameFromId,
 } from "@appsmith/selectors/entitiesSelector";
 import { QueryEditorContext } from "./QueryEditorContext";
-import { isAppsmithAIPlugin } from "utils/editorContextUtils";
 import type { Plugin } from "api/PluginApi";
-import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 import type { Datasource } from "entities/Datasource";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
+import DatasourceSelector from "./DatasourceSelector";
 
 const NameWrapper = styled.div`
   display: flex;
@@ -49,15 +40,6 @@ const ActionsWrapper = styled.div`
   gap: var(--ads-v2-spaces-3);
 `;
 
-const DropdownSelect = styled.div`
-  font-size: 14px;
-  width: 230px;
-`;
-
-const CreateDatasource = styled.div`
-  display: flex;
-  gap: 8px;
-`;
 interface Props {
   plugin?: Plugin;
   formName: string;
@@ -65,12 +47,6 @@ interface Props {
   onCreateDatasourceClick: () => void;
   isRunning: boolean;
   onRunClick: () => void;
-}
-
-interface DATASOURCES_OPTIONS_TYPE {
-  label: string;
-  value: string;
-  image: string;
 }
 
 const QueryEditorHeader = (props: Props) => {
@@ -92,37 +68,6 @@ const QueryEditorHeader = (props: Props) => {
   const isChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
     currentActionConfig?.userPermissions,
-  );
-  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
-  // Datasource selection is hidden for Appsmith AI Plugin and for plugins that don't require datasource
-  // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented (Only remove the AI Condition)
-  const showDatasourceSelector =
-    !isAppsmithAIPlugin(plugin?.packageName) && pluginRequireDatasource;
-
-  const pluginImages = useSelector(getPluginImages);
-
-  const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> =
-    dataSources.reduce(
-      (acc: Array<DATASOURCES_OPTIONS_TYPE>, dataSource: Datasource) => {
-        if (dataSource.pluginId === plugin?.id) {
-          acc.push({
-            label: dataSource.name,
-            value: dataSource.id,
-            image: pluginImages[dataSource.pluginId],
-          });
-        }
-        return acc;
-      },
-      [],
-    );
-
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
-
-  const canCreateDatasource = getHasCreateDatasourcePermission(
-    isFeatureEnabled,
-    userWorkspacePermissions,
   );
 
   const isExecutePermitted = getHasExecuteActionPermission(
@@ -162,28 +107,13 @@ const QueryEditorHeader = (props: Props) => {
       </NameWrapper>
       <ActionsWrapper>
         {moreActionsMenu}
-        {showDatasourceSelector && (
-          <DropdownSelect>
-            <DropdownField
-              className={"t--switch-datasource"}
-              formName={formName}
-              isDisabled={!isChangePermitted}
-              name="datasource.id"
-              options={DATASOURCES_OPTIONS}
-              placeholder="Datasource"
-            >
-              {canCreateDatasource && (
-                // this additional div is here so that rc-select can render the child with the onClick correctly
-                <div>
-                  <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-                    <Icon className="createIcon" name="plus" size="md" />
-                    {createMessage(CREATE_NEW_DATASOURCE)}
-                  </CreateDatasource>
-                </div>
-              )}
-            </DropdownField>
-          </DropdownSelect>
-        )}
+        <DatasourceSelector
+          currentActionConfig={currentActionConfig}
+          dataSources={dataSources}
+          formName={formName}
+          onCreateDatasourceClick={onCreateDatasourceClick}
+          plugin={plugin}
+        />
         <Button
           className="t--run-query"
           data-guided-tour-iid="run-query"

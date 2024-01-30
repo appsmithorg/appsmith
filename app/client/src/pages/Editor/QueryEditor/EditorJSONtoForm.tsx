@@ -55,6 +55,7 @@ import FormRender from "./FormRender";
 import QueryEditorHeader from "./QueryEditorHeader";
 import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
 import QueryResponseTab from "./QueryResponseTab";
+import DatasourceSelector from "./DatasourceSelector";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -293,8 +294,7 @@ export function EditorJSONtoForm(props: Props) {
     }
   }, [currentActionConfig?.id]);
 
-  const handleDocumentationClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDocumentationClick = () => {
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
   };
 
@@ -351,7 +351,17 @@ export function EditorJSONtoForm(props: Props) {
     return (
       <ActionEditor
         isRunning={isRunning}
+        onDocsClick={handleDocumentationClick}
         onRunClick={onRunClick}
+        runOptionsSelector={
+          <DatasourceSelector
+            currentActionConfig={currentActionConfig}
+            dataSources={dataSources}
+            formName={formName}
+            onCreateDatasourceClick={onCreateDatasourceClick}
+            plugin={plugin}
+          />
+        }
         tabs={responseTabs}
       >
         <FormRender
@@ -433,9 +443,10 @@ export function EditorJSONtoForm(props: Props) {
                     <DocumentationButton
                       className="t--datasource-documentation-link"
                       kind="tertiary"
-                      onClick={(e: React.MouseEvent) =>
-                        handleDocumentationClick(e)
-                      }
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        handleDocumentationClick();
+                      }}
                       size="sm"
                       startIcon="book-line"
                     >

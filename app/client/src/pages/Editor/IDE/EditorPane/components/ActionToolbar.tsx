@@ -1,8 +1,12 @@
-import { Button, Flex } from "design-system";
+import { Button, Flex, Tooltip } from "design-system";
 import React from "react";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  createMessage,
+  DOCUMENTATION_TOOLTIP,
+} from "@appsmith/constants/messages";
 
 const MutedText = styled.span`
   opacity: 70%;
@@ -11,6 +15,8 @@ const MutedText = styled.span`
 interface Props {
   onSettingsClick: () => void;
   onRunClick: () => void;
+  runOptionSelector?: React.ReactNode;
+  onDocsClick?: () => void;
 }
 
 const ActionToolbar = (props: Props) => {
@@ -35,7 +41,20 @@ const ActionToolbar = (props: Props) => {
           size="sm"
           startIcon="settings-2-line"
         />
-        <Button isIconButton kind="tertiary" size="sm" startIcon="book-line" />
+        {props.onDocsClick ? (
+          <Tooltip
+            content={createMessage(DOCUMENTATION_TOOLTIP)}
+            placement="top"
+          >
+            <Button
+              isIconButton
+              kind="tertiary"
+              onClick={props.onDocsClick}
+              size="sm"
+              startIcon="book-line"
+            />
+          </Tooltip>
+        ) : null}
         <Button
           isIconButton
           kind="tertiary"
@@ -43,7 +62,8 @@ const ActionToolbar = (props: Props) => {
           startIcon="more-2-fill"
         />
       </Flex>
-      <Flex>
+      <Flex alignItems="center" gap="spaces-3">
+        {props.runOptionSelector}
         <Button kind="primary" onClick={props.onRunClick} size="sm">
           Run
           <MutedText>&nbsp;⌘⏎</MutedText>
