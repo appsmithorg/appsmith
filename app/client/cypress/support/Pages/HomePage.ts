@@ -745,7 +745,6 @@ export class HomePage {
 
   //Maps to leaveworkspace in command.js
   public LeaveWorkspace(workspaceName: string) {
-    this.SelectWorkspace(workspaceName);
     this.OpenWorkspaceOptions(workspaceName);
     this.agHelper.GetNClick(this._leaveWorkspace, 0, true);
     this.agHelper.GetNClick(this._leaveWorkspaceConfirm, 0, true);
