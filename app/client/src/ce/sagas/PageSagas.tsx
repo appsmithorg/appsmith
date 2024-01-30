@@ -13,7 +13,8 @@ import type {
   CreatePageActionPayload,
   FetchPageListPayload,
 } from "actions/pageActions";
-import { createPage,fetchPublishedPage } from "actions/pageActions";
+import { createPage,
+        fetchPublishedPage } from "actions/pageActions";
 import {
   clonePageSuccess,
   deletePageSuccess,
@@ -69,7 +70,8 @@ import {
   getEditorConfigs,
   getWidgets,
 }from "sagas/selectors";
-import { IncorrectBindingError,validateResponse } from "sagas/ErrorSagas";
+import { IncorrectBindingError,
+        validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
