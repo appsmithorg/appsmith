@@ -403,12 +403,12 @@ export class HomePage {
     role: "App Viewer" | "Developer" | "Administrator" = "Administrator",
   ) {
     this.agHelper.Sleep(); //waiting for window to load
-    cy.url().then((url: any) => {
-      if (url.indexOf("/user/login") !== -1) {
-        this.InvokeDispatchOnStore();
-        cy.wait("@postLogout");
-      }
-    });
+    this.InvokeDispatchOnStore();
+    cy.wait("@postLogout");
+    // cy.url().then((url: any) => {
+    //   if (url.indexOf("/user/login") !== -1) {
+    //   }
+    // });
     this.agHelper.VisitNAssert("/user/login", "getConsolidatedData");
     this.agHelper.AssertElementVisibility(this._username);
     this.agHelper.TypeText(this._username, uname);
