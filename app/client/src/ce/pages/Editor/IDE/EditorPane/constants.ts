@@ -10,7 +10,7 @@ import { SAAS_EDITOR_PATH } from "pages/Editor/SaaSEditor/constants";
 export const querySegmentRoutes = [
   CURL_IMPORT_PAGE_PATH,
   API_EDITOR_BASE_PATH,
-  SAAS_EDITOR_PATH,
+  `${SAAS_EDITOR_PATH}/api`,
   QUERIES_EDITOR_BASE_PATH,
 ];
 
