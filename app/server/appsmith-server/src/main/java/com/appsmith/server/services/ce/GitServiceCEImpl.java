@@ -3397,4 +3397,23 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         return Flux.merge(eventSenderMonos).then();
     }
+
+    protected Mono<Void> sendGitAnalyticsEvent(
+            AnalyticsEvents analyticsEvents, Application application, Map<String, Object> extraProps) {
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        Map<String, Object> analyticsProps = new HashMap<>();
+        analyticsProps.put("appId", gitData.getDefaultApplicationId());
+        analyticsProps.put("orgId", application.getWorkspaceId());
+        analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+        analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
+
+        if (extraProps != null) {
+            analyticsProps.putAll(extraProps);
+        }
+
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user ->
+                        analyticsService.sendEvent(analyticsEvents.getEventName(), user.getUsername(), analyticsProps));
+    }
 }
