@@ -125,6 +125,7 @@ export class HomePage {
     "div.t--applications-container div.t--workspace-section:not(:empty)";
   private _backToEditor = ".t--back-to-editor";
   private _editorSidebar = ".t--sidebar-Editor";
+  private _appViewPageLogo = `img[alt="Application's logo"]`;
 
   public _searchWorkspaceLocator = (workspaceName: string) =>
     `[data-testid="${workspaceName}"]`;
@@ -480,11 +481,17 @@ export class HomePage {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getConsolidatedData");
+    this.AssertViewPageLoad();
   }
 
   public EditAppFromSearch(appName: string, element?: string) {
     this.agHelper.WaitUntilEleAppear(`[data-testid="${appName}"]`);
     this.agHelper.GetNClick(`[data-testid="${appName}"]`);
+    this.AssertViewPageLoad(element);
+    this.deployHelper.NavigateBacktoEditor();
+  }
+
+  public AssertViewPageLoad(element?: string) {
     this.assertHelper.AssertNetworkStatus("viewPage");
     cy.url({ timeout: Cypress.config().pageLoadTimeout }).should(
       "not.include",
@@ -493,8 +500,8 @@ export class HomePage {
     this.agHelper.WaitUntilEleAppear(element ?? this.locator._backToEditor);
     this.agHelper.AssertElementExist(this._deployPageWidgets);
     this.agHelper.AssertElementVisibility(this._deployPageWidgets);
+    this.agHelper.AssertElementVisibility(this._appViewPageLogo);
     this.assertHelper.AssertDocumentReady();
-    this.deployHelper.NavigateBacktoEditor();
   }
 
   public EditAppFromAppHover(appName = "") {

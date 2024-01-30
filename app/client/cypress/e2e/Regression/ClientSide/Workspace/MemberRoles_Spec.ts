@@ -55,7 +55,6 @@ describe(
       );
       if (CURRENT_REPO === REPO.EE)
         _.adminSettings.EnableGAC(false, true, "home");
-      _.agHelper.RefreshPage();
       _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       cy.get(_.homePage._appHoverIcon("edit")).should("not.exist");
