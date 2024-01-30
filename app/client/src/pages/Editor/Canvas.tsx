@@ -26,19 +26,22 @@ interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
   canvasWidth: number;
   enableMainCanvasResizer?: boolean;
+  scale?: number;
 }
 
 const Wrapper = styled.section<{
   background: string;
   width: number;
   $enableMainCanvasResizer: boolean;
+  $scale?: number;
 }>`
   background: ${({ background }) => background};
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};
+  transform: ${({ $scale }) => ($scale ? `scale(${$scale})` : "")};
 `;
 const Canvas = (props: CanvasProps) => {
-  const { canvasWidth } = props;
+  const { canvasWidth, scale } = props;
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
@@ -88,6 +91,7 @@ const Canvas = (props: CanvasProps) => {
     return (
       <Wrapper
         $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
+        $scale={scale}
         background={isWDSEnabled ? "" : backgroundForCanvas}
         className={`relative t--canvas-artboard ${height} ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
           canvasWidth,
