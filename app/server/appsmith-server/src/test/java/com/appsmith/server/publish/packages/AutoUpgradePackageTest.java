@@ -14,6 +14,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.ModuleInstance;
@@ -81,6 +82,7 @@ import reactor.util.function.Tuple2;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -1328,6 +1330,8 @@ class AutoUpgradePackageTest {
                             .filter(instance -> ModuleType.QUERY_MODULE.equals(instance.getType()))
                             .findFirst();
                     assertThat(queryInstanceOptional).isPresent();
+                    assertThat(queryInstanceOptional.get().getDefaultResources().getModuleInstanceId())
+                            .isEqualTo(queryInstanceOptional.get().getId());
                     ModuleInstanceDTO queryInstanceDTO =
                             queryInstanceOptional.get().getUnpublishedModuleInstance();
                     assertThat(queryInstanceDTO.getName()).isEqualTo(queryModuleInstanceName);
@@ -1347,6 +1351,40 @@ class AutoUpgradePackageTest {
                     assertThat(jsInstanceDTO.getJsonPathKeys()).isEmpty();
                 })
                 .verifyComplete();
+
+        // Verify that moduleInstanceIds are retained in all the entities
+        List<ModuleInstanceDTO> moduleInstanceDTOs = layoutModuleInstanceService
+                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
+                        application.getPages().get(0).getId(), CreatorContextType.PAGE, ResourceModes.EDIT, null)
+                .block();
+
+        ModuleInstanceEntitiesDTO moduleInstanceEntitiesDTO = crudModuleInstanceService
+                .getAllEntities(application.getPages().get(0).getId(), CreatorContextType.PAGE, null, false)
+                .block();
+        Set<String> extractedModuleInstanceIdsFromActionSet = moduleInstanceEntitiesDTO.getActions().stream()
+                .map(actionViewDTO -> actionViewDTO.getRootModuleInstanceId())
+                .collect(Collectors.toSet());
+        Set<String> extractedModuleInstanceIdsFromActionCollectionSet =
+                moduleInstanceEntitiesDTO.getJsCollections().stream()
+                        .map(actionCollectionDTO -> actionCollectionDTO.getRootModuleInstanceId())
+                        .collect(Collectors.toSet());
+        Set<String> extractedModuleInstanceIdsFromChildJsActionSet =
+                moduleInstanceEntitiesDTO.getJsCollections().stream()
+                        .flatMap(actionCollectionDTO -> actionCollectionDTO.getActions().stream())
+                        .map(actionDTO -> actionDTO.getRootModuleInstanceId())
+                        .collect(Collectors.toSet());
+
+        Set<String> allExtractedRootModuleInstanceIdFromEntitiesSet =
+                new HashSet<>(extractedModuleInstanceIdsFromActionSet);
+        allExtractedRootModuleInstanceIdFromEntitiesSet.addAll(extractedModuleInstanceIdsFromActionCollectionSet);
+        allExtractedRootModuleInstanceIdFromEntitiesSet.addAll(extractedModuleInstanceIdsFromChildJsActionSet);
+
+        Set<String> allExtractedRootModuleInstanceIdFromModuleInstanceSet = moduleInstanceDTOs.stream()
+                .map(moduleInstanceDTO -> moduleInstanceDTO.getId())
+                .collect(Collectors.toSet());
+
+        assertThat(allExtractedRootModuleInstanceIdFromModuleInstanceSet)
+                .isEqualTo(allExtractedRootModuleInstanceIdFromEntitiesSet);
     }
 
     // TODO:
