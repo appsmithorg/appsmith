@@ -126,6 +126,7 @@ export class HomePage {
   private _backToEditor = ".t--back-to-editor";
   private _editorSidebar = ".t--sidebar-Editor";
   private _appViewPageName = `div.t--app-viewer-application-name`;
+  private _membersTab = "[data-testid=t--tab-members]";
 
   public _searchWorkspaceLocator = (workspaceName: string) =>
     `[data-testid="${workspaceName}"]`;
@@ -559,9 +560,7 @@ export class HomePage {
 
     cy.xpath(this._visibleTextSpan("Members")).last().click({ force: true });
     this.assertHelper.AssertNetworkStatus("getMembers");
-    this.agHelper.AssertElementVisibility(
-      this.locator._buttonByText("Members"),
-    );
+    this.agHelper.AssertElementVisibility(this._membersTab);
   }
 
   public UpdateUserRoleInWorkspace(
