@@ -558,13 +558,10 @@ export class HomePage {
       .click({ force: true });
 
     cy.xpath(this._visibleTextSpan("Members")).last().click({ force: true });
-    cy.wait("@getMembers").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
+    this.agHelper.AssertElementVisibility(
+      this.locator._buttonByText("Members"),
     );
-    this.agHelper.Sleep(2500);
-    //wait for members page to load!
+    this.assertHelper.AssertNetworkStatus("getMembers");
   }
 
   public UpdateUserRoleInWorkspace(
