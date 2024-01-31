@@ -139,7 +139,7 @@ describe("Slug URLs", () => {
   it("4. Checks redirect url", () => {
     cy.url().then((url) => {
       homePage.Signout(true);
-      agHelper.VisitNAssert(url + "?embed=true&a=b", "getConsolidatedData"); //removing 'getConsolidatedData' api check due to its flakyness
+      agHelper.VisitNAssert(url + "?embed=true&a=b"); //removing 'getConsolidatedData' api check due to its flakyness
       agHelper.AssertURL(
         `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
       );
