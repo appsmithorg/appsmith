@@ -1730,7 +1730,7 @@ export class AggregateHelper {
     // cy.window({ timeout: 60000 }).then((win) => {
     //   win.location.href = url;
     // });
-    this.Sleep(waitTime); //for new url to settle
+    //this.Sleep(waitTime); //for new url to settle
     if (
       apiToValidate.includes("getAllWorkspaces") &&
       Cypress.env("AIRGAPPED")
