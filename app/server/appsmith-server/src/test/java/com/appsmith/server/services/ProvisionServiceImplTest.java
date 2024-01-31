@@ -948,7 +948,7 @@ class ProvisionServiceImplTest {
                 .isEqualTo(200);
 
         User provisionedUser = userRepository
-                .findByCaseInsensitiveEmail(testName + "@_provisionedUser@appsmith.com")
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(testName + "@_provisionedUser@appsmith.com")
                 .block();
 
         List<PermissionGroup> defaultRoles = permissionGroupService

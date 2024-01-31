@@ -92,7 +92,7 @@ public class WorkflowHelperImpl implements WorkflowHelper {
                 .thenReturn(Boolean.TRUE);
 
         Mono<Boolean> updateWorkflowBotUserMono = userRepository
-                .findByCaseInsensitiveEmail(generateWorkflowBotUserEmail(actualWorkflow))
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(generateWorkflowBotUserEmail(actualWorkflow))
                 .flatMap(workflowBotUser -> {
                     workflowBotUser.setEmail(generateWorkflowBotUserEmail(updatedWorkflow));
                     workflowBotUser.setName(generateWorkflowBotUserName(updatedWorkflow));
@@ -140,7 +140,7 @@ public class WorkflowHelperImpl implements WorkflowHelper {
                 .thenReturn(Boolean.TRUE);
 
         Mono<Boolean> archiveWorkflowBotUserMono = userRepository
-                .findByCaseInsensitiveEmail(generateWorkflowBotUserEmail(workflow))
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(generateWorkflowBotUserEmail(workflow))
                 .flatMap(userRepository::delete)
                 .thenReturn(Boolean.TRUE);
 

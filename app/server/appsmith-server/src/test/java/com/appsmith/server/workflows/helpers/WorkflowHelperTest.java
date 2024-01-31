@@ -109,7 +109,9 @@ class WorkflowHelperTest {
         workflow =
                 crudWorkflowService.createWorkflow(workflow1, workspace.getId()).block();
 
-        User apiUser = userRepository.findByCaseInsensitiveEmail("api_user").block();
+        User apiUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc("api_user")
+                .block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
     }
 
@@ -161,7 +163,8 @@ class WorkflowHelperTest {
         workflowRole.getName().equals(workflowHelper.generateWorkflowBotRoleName(updateWorkflow));
 
         User updatedUser = userRepository
-                .findByCaseInsensitiveEmail(workflowHelper.generateWorkflowBotUserEmail(updateWorkflow))
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(
+                        workflowHelper.generateWorkflowBotUserEmail(updateWorkflow))
                 .block();
         assertThat(updatedUser).isNotNull();
     }

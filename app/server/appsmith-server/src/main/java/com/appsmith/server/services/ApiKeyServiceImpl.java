@@ -64,7 +64,7 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
     @Override
     public Mono<String> generateApiKeyWithoutPermissionCheck(ApiKeyRequestDto apiKeyRequestDto) {
         Mono<User> userMono = userRepository
-                .findByCaseInsensitiveEmail(apiKeyRequestDto.getEmail())
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(apiKeyRequestDto.getEmail())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail())));
 
@@ -104,7 +104,7 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
     @Override
     public Mono<Boolean> archiveAllApiKeysForUserWithoutPermissionCheck(String email) {
         Mono<User> userMono = userRepository
-                .findByCaseInsensitiveEmail(email)
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, email)));
 
         // Archive all API Keys which exist for the User.

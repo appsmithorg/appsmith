@@ -155,7 +155,9 @@ public class ProxyWorkflowServiceTest {
         workflow1.setName("CrudApprovalRequestServiceTest");
         workflow = workflowService.createWorkflow(workflow1, workspace.getId()).block();
 
-        User apiUser = userRepository.findByCaseInsensitiveEmail("api_user").block();
+        User apiUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc("api_user")
+                .block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
     }
 
