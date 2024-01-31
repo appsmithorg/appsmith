@@ -24,6 +24,7 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { Icon } from "design-system";
+import { createPortal } from "react-dom";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
@@ -31,18 +32,26 @@ const StyledSelectionBox = styled.div`
   cursor: grab;
 `;
 
-const StyledActionsContainer = styled.div`
-  position: relative;
-  height: 100%;
-  width: 100%;
-`;
+// const StyledActionsContainer = styled.div`
+//   position: relative;
+//   height: 100%;
+//   width: 100%;
+// `;
 
+// const StyledActions = styled.div`
+//   left: calc(100% - 38px);
+//   padding: 5px 0;
+//   width: max-content;
+//   z-index: ${Layers.contextMenu};
+//   position: absolute;
+//   background-color: ${(props) => props.theme.colors.appBackground};
+// `;
 const StyledActions = styled.div`
-  left: calc(100% - 38px);
+  margin-top: 5px;
   padding: 5px 0;
   width: max-content;
-  z-index: ${Layers.contextMenu};
   position: absolute;
+  z-index: ${Layers.contextMenu};
   background-color: ${(props) => props.theme.colors.appBackground};
 `;
 
@@ -151,6 +160,17 @@ const groupHelpText = (
   </>
 );
 
+const StyledActionsContainer = (props: any) => {
+  const { children, height, left, top } = props;
+
+  return createPortal(
+    <StyledActions style={{ left, top: top + height }}>
+      {children}
+    </StyledActions>,
+    document.body,
+  );
+};
+
 function WidgetsMultiSelectBox(props: {
   widgetId: string;
   widgetType: string;
@@ -247,7 +267,20 @@ function WidgetsMultiSelectBox(props: {
     props.snapRowSpace,
     props.noContainerOffset,
   ]);
-
+  /**
+   * calculate the position of the box relative to the window
+   * used for positioning the actions-context-menu
+   */
+  const { parentLeft, parentTop } = useMemo(() => {
+    if (shouldRender && draggableRef.current) {
+      const bounds = draggableRef.current.getBoundingClientRect();
+      return {
+        parentLeft: bounds.left,
+        parentTop: bounds.top,
+      };
+    }
+    return {};
+  }, [selectedWidgets, isDragging, height, width, top, left]);
   /**
    * copies the selected widgets
    *
@@ -328,69 +361,73 @@ function WidgetsMultiSelectBox(props: {
       <StyledSelectBoxHandleLeft />
       <StyledSelectBoxHandleRight />
       <StyledSelectBoxHandleBottom />
-      <StyledActionsContainer>
-        <StyledActions>
-          {/* copy widgets */}
-          <Tooltip
-            boundary="viewport"
-            content={copyHelpText}
-            maxWidth="400px"
-            modifiers={PopoverModifiers}
-            position="right"
+      <StyledActionsContainer
+        height={height}
+        left={parentLeft}
+        top={parentTop}
+        // left={(parentLeft ?? 0) + (width ?? 0) - (width ? 38 : 0)}
+        // top={(parentTop ?? 0) + (height ?? 0)}
+      >
+        {/* copy widgets */}
+        <Tooltip
+          boundary="viewport"
+          content={copyHelpText}
+          maxWidth="400px"
+          modifiers={PopoverModifiers}
+          position="right"
+        >
+          <StyledAction
+            onClick={stopEventPropagation}
+            onClickCapture={onCopySelectedWidgets}
           >
-            <StyledAction
-              onClick={stopEventPropagation}
-              onClickCapture={onCopySelectedWidgets}
-            >
-              <Icon name="duplicate" size="md" />
-            </StyledAction>
-          </Tooltip>
-          {/* cut widgets */}
-          <Tooltip
-            boundary="viewport"
-            content={cutHelpText}
-            maxWidth="400px"
-            modifiers={PopoverModifiers}
-            position="right"
+            <Icon name="duplicate" size="md" />
+          </StyledAction>
+        </Tooltip>
+        {/* cut widgets */}
+        <Tooltip
+          boundary="viewport"
+          content={cutHelpText}
+          maxWidth="400px"
+          modifiers={PopoverModifiers}
+          position="right"
+        >
+          <StyledAction
+            onClick={stopEventPropagation}
+            onClickCapture={onCutSelectedWidgets}
           >
-            <StyledAction
-              onClick={stopEventPropagation}
-              onClickCapture={onCutSelectedWidgets}
-            >
-              <Icon name="cut-control" size="md" />
-            </StyledAction>
-          </Tooltip>
-          {/* delete widgets */}
-          <Tooltip
-            boundary="viewport"
-            content={deleteHelpText}
-            maxWidth="400px"
-            modifiers={PopoverModifiers}
-            position="right"
+            <Icon name="cut-control" size="md" />
+          </StyledAction>
+        </Tooltip>
+        {/* delete widgets */}
+        <Tooltip
+          boundary="viewport"
+          content={deleteHelpText}
+          maxWidth="400px"
+          modifiers={PopoverModifiers}
+          position="right"
+        >
+          <StyledAction
+            onClick={stopEventPropagation}
+            onClickCapture={onDeleteSelectedWidgets}
           >
-            <StyledAction
-              onClick={stopEventPropagation}
-              onClickCapture={onDeleteSelectedWidgets}
-            >
-              <Icon name="delete-bin-line" size="md" />
-            </StyledAction>
-          </Tooltip>
-          {/* group widgets */}
-          <Tooltip
-            boundary="viewport"
-            content={groupHelpText}
-            maxWidth="400px"
-            modifiers={PopoverModifiers}
-            position="right"
+            <Icon name="delete-bin-line" size="md" />
+          </StyledAction>
+        </Tooltip>
+        {/* group widgets */}
+        <Tooltip
+          boundary="viewport"
+          content={groupHelpText}
+          maxWidth="400px"
+          modifiers={PopoverModifiers}
+          position="right"
+        >
+          <StyledAction
+            onClick={stopEventPropagation}
+            onClickCapture={onGroupWidgets}
           >
-            <StyledAction
-              onClick={stopEventPropagation}
-              onClickCapture={onGroupWidgets}
-            >
-              <Icon name="group-control" size="sm" />
-            </StyledAction>
-          </Tooltip>
-        </StyledActions>
+            <Icon name="group-control" size="sm" />
+          </StyledAction>
+        </Tooltip>
       </StyledActionsContainer>
     </StyledSelectionBox>
   );
