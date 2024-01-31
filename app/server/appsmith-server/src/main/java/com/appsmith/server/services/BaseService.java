@@ -117,14 +117,13 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
 
     @Override
     public Mono<T> getById(ID id) {
-        return Mono.empty(); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
         return repository
-                .findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));*/
+                .findById((String) id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
     @Override

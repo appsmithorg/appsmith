@@ -372,16 +372,16 @@ def main():
     convert("Asset")
     convert("UsagePulse")
 
-    print("Format cakes")
-    subprocess.check_call(
-        [
-            "mvn",
-            "-Dorg.slf4j.simpleLogger.defaultLogLevel=warn",
-            "spotless:apply",
-            # r"-DspotlessFiles=appsmith-server/src/main/java/com/appsmith/server/repositories/cakes/.*\.java",
-        ],
-        cwd=server_root,
-    )
+    # print("Format cakes")
+    # subprocess.check_call(
+    #     [
+    #         "mvn",
+    #         "-Dorg.slf4j.simpleLogger.defaultLogLevel=warn",
+    #         "spotless:apply",
+    #         # r"-DspotlessFiles=appsmith-server/src/main/java/com/appsmith/server/repositories/cakes/.*\.java",
+    #     ],
+    #     cwd=server_root,
+    # )
 
 
 if __name__ == "__main__":

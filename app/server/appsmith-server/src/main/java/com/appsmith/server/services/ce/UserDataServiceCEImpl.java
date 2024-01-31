@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
@@ -136,24 +135,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     @Override
     public Mono<UserData> update(String userId, UserData resource) {
-        if (userId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "userId"));
-        }
-
-        // In case the update is not used to update the policies, then set the policies to null to ensure that the
-        // existing policies are not overwritten.
-        if (CollectionUtils.isNullOrEmpty(resource.getPolicies())) {
-            resource.setPolicies(null);
-        }
-
-        return repository
-                .findByUserId(userId)
-                .map(userData -> {
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, userData);
-                    return userData;
-                })
-                .flatMap(repository::save)
-                .flatMap(analyticsService::sendUpdateEvent);
+        return update(userId, resource, "userId");
     }
 
     @Override
