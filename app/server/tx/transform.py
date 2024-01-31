@@ -1,3 +1,4 @@
+from collections import namedtuple
 from pathlib import Path
 import re
 from textwrap import dedent, indent
@@ -108,7 +109,8 @@ def switch_repo_types(domain):
 
 
 def generate_cake_class(domain):
-    methods = set()
+    Method = namedtuple("Method", "return_type signature ref")
+    methods: set[Method] = set()
     reactor_methods = []
 
     extra_repo_interfaces = ["BaseRepository"]
@@ -131,19 +133,40 @@ def generate_cake_class(domain):
         if domain not in full_path.name:
             content = re.sub(r"\bT\b", domain, content)
             content = re.sub(r"\bID\b", "String", content)
+
         # because of unambiguous error for this class with the one in `domains` package.
         content = re.sub(r"\bCollection<", "java.util.Collection<", content)
-        methods.update(
-            re.sub(r"\s+", " ", m.strip().replace("default ", "")).replace("( ", "(")
-            for m in re.findall(
-                r"^ {4}(?:default )?[\w<>?]+\s+\w+\([^)]*\)",
-                content,
-                re.DOTALL | re.MULTILINE,
-            )
-        )
 
-    for method in sorted(methods):
-        ret_type, signature = method.split(None, 1)
+        # Compute source of this method for reference.
+        package = next(re.finditer(r"^package (.+?);$", content, re.MULTILINE))[1]
+        class_name = next(
+            re.finditer(r"^public (interface|class) (\w+)", content, re.MULTILINE)
+        )[2]
+
+        match: re.Match
+        for match in re.finditer(
+            r"^ {4}(?:default )?[\w<>?]+\s+\w+\([^)]*\)",
+            content,
+            re.DOTALL | re.MULTILINE,
+        ):
+            full = re.sub(
+                r"\s+", " ", match[0].strip().replace("default ", "")
+            ).replace("( ", "(")
+            return_type, signature = full.split(None, 1)
+            signature_for_ref = re.sub(r" \w+([,)])", r"\1", signature)
+            signature_for_ref = re.sub(
+                r"\b" + domain + r"\b", "BaseDomain", signature_for_ref
+            )
+            methods.add(
+                Method(
+                    return_type=return_type,
+                    signature=signature,
+                    ref=f"{package}.{class_name}#{signature_for_ref}",
+                )
+            )
+
+    for method in sorted(methods, key=lambda m: m.signature):
+        ret_type, signature, *_ = method
 
         if ret_type.startswith("Optional"):
             ret_type = ret_type.replace("Optional", "Mono")
@@ -161,7 +184,8 @@ def generate_cake_class(domain):
             r"[A-Za-z.]+?(<[^<>]+?>|<[^\s]+?>)?\s(\w+)([,)])", r"\2\3", signature
         )
         reactor_methods.append(
-            "public "
+            f"/** @see {method.ref} */\n"
+            + "public "
             + ret_type
             + " "
             + signature

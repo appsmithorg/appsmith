@@ -26,7 +26,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -227,6 +226,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
+        return Flux.empty(); /*
         List<Criteria> criteriaList = searchableEntityFields.stream()
                 .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
                 .toList();
@@ -237,6 +237,6 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result;
+        return result;*/
     }
 }

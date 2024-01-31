@@ -4,7 +4,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserRepository;
 import org.springframework.data.jpa.repository.Query;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +19,6 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
     List<User> findAllByEmailIn(Set<String> emails);
 
     Optional<Long> countByDeletedAtNull();
-
-    Flux<User> findAllByEmailIn(Set<String> emails);
 
     /**
      * This method returns the count of all users that are not deleted and are not system generated.

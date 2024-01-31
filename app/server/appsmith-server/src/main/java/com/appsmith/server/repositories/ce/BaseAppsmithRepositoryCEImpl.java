@@ -517,12 +517,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             Sort sort,
             int limit,
             int skip) {
+        return Collections.emptyList(); /*
         Mono<Set<String>> permissionGroupsMono = ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getStrictPermissionGroupsForUser((User) principal));
         return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));
+                criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));*/
     }
 
     public List<T> queryAll(
