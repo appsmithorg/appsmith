@@ -499,6 +499,10 @@ function* generateBuildingBlockFromDatasourceTable(
 
       yield delay(3000);
 
+      yield put({
+        type: ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_SUCCESS,
+      });
+
       history.push(
         builderURL({
           pageId: pages[0],
@@ -506,7 +510,9 @@ function* generateBuildingBlockFromDatasourceTable(
       );
     }
   } catch (error) {
-    // console.log("🚀 ~ error:", error);
+    yield put({
+      type: ReduxActionErrorTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_ERROR,
+    });
   }
 }
 

@@ -57,6 +57,8 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
+import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
+import { isGeneratingBuildingBlockFromData } from "selectors/templatesSelectors";
 
 interface Props {
   datasource: Datasource;
@@ -117,6 +119,9 @@ const DatasourceViewModeSchema = (props: Props) => {
     useDatasourceQuery({ setPreviewData, setPreviewDataError });
 
   const isGeneratePageLoading = useSelector(getIsGeneratingTemplatePage);
+  const isGeneratingBuildingBlockFromDatasource = useSelector(
+    isGeneratingBuildingBlockFromData,
+  );
 
   // default table name to first table
   useEffect(() => {
@@ -268,6 +273,10 @@ const DatasourceViewModeSchema = (props: Props) => {
     canCreateDatasourceActions &&
     canCreatePages;
 
+  if (isGeneratingBuildingBlockFromDatasource) {
+    return <LoadingScreen text={"Generating Building Block"} />;
+  }
+
   return (
     <ViewModeSchemaContainer>
       <DataWrapperContainer data-testId="datasource-schema-container">
@@ -331,7 +340,7 @@ const DatasourceViewModeSchema = (props: Props) => {
             (buildingBlock) => (
               <Button
                 className="t--datasource-generate-page"
-                isLoading={isGeneratePageLoading}
+                isLoading={isGeneratingBuildingBlockFromDatasource}
                 key="datasource-generate-page"
                 kind="secondary"
                 onClick={() =>

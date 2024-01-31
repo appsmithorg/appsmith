@@ -11,6 +11,7 @@ const initialState: TemplatesReduxState = {
   isImportingTemplateToApp: false,
   isImportingStarterBuildingBlockToApp: false,
   starterBuildingBlockDatasourcePrompt: false,
+  isImportingBuildingBlockWithData: false,
   loadingFilters: false,
   gettingAllTemplates: false,
   gettingTemplate: false,
@@ -177,6 +178,38 @@ const templateReducer = createReducer(initialState, {
         activeLoadingTemplateId: null,
       };
     },
+  [ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_INIT]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingBuildingBlockWithData: true,
+    };
+  },
+  [ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_SUCCESS]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingBuildingBlockWithData: false,
+    };
+  },
+  [ReduxActionErrorTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_ERROR]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingBuildingBlockWithData: false,
+    };
+  },
+  [ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_INIT]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingBuildingBlockWithData: true,
+    };
+  },
   [ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT]: (
     state: TemplatesReduxState,
   ) => {
@@ -305,6 +338,7 @@ export interface TemplatesReduxState {
   isImportingTemplate: boolean;
   isImportingTemplateToApp: boolean;
   isImportingStarterBuildingBlockToApp: boolean;
+  isImportingBuildingBlockWithData: boolean;
   starterBuildingBlockDatasourcePrompt: boolean;
   buildingBlockSourcePageId?: string;
   templateNotificationSeen: boolean | null;
