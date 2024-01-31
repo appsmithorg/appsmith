@@ -14,8 +14,6 @@ public interface PermissionGroupRepositoryCE
 
     Flux<PermissionGroup> findAllById(Set<String> ids);
 
-    Mono<PermissionGroup> findById(String id, AclPermission permission);
-
     Flux<PermissionGroup> findByAssignedToUserIdsIn(String userId);
 
     Flux<PermissionGroup> findByDefaultWorkspaceId(String defaultWorkspaceId);
