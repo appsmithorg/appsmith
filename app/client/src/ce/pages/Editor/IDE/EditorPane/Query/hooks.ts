@@ -12,7 +12,7 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { getQueryAddUrl } from "./utils";
+import { getQueryAddUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
 
 export const useQueryAdd = () => {
   const location = useLocation();
