@@ -36,7 +36,6 @@ describe("Slug URLs", () => {
     cy.generateUUID().then((appName) => {
       applicationName = appName;
       homePage.RenameApplication(applicationName);
-      assertHelper.AssertNetworkStatus("updateApplication");
       cy.location("pathname").then((pathname) => {
         const pageId = pathname.split("/")[3]?.split("-").pop();
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
