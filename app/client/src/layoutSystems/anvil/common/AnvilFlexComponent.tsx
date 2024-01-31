@@ -14,12 +14,12 @@ import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import { Layers } from "constants/Layers";
 
 /**
- * Adds following functionalities to the widget:
- * 1. Click handler to select the widget and open property pane.
+ * Adds the following functionalities to the widget:
+ * 1. Click handler to select the widget and open the property pane.
  * 2. Widget size based on responsiveBehavior:
  *   2a. Hug widgets will stick to the size provided to them. (flex: 0 0 auto;)
  *   2b. Fill widgets will automatically take up all available width in the parent container. (flex: 1 1 0%;)
- * 3. Widgets can optionally have auto width or height which is dictated by the
+ * 3. Widgets can optionally have auto width or height which is dictated by the props.
  *
  * Uses Flex component provided by WDS.
  * @param props | AnvilFlexComponentProps
@@ -38,10 +38,14 @@ export const AnvilFlexComponent = forwardRef(
     }: AnvilFlexComponentProps,
     ref: any,
   ) => {
+    // State to manage whether the widget is a fill widget
     const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
+
+    // State to manage vertical alignment of the widget
     const [verticalAlignment, setVerticalAlignment] =
       useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
 
+    // Effect to update state based on widget type
     useEffect(() => {
       const widgetConfig:
         | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
@@ -76,6 +80,7 @@ export const AnvilFlexComponent = forwardRef(
       return data;
     }, [isFillWidget, widgetSize, verticalAlignment, flexGrow]);
 
+    // Memoize style properties
     const styleProps: CSSProperties = useMemo(() => {
       return {
         position: "relative",
@@ -87,6 +92,7 @@ export const AnvilFlexComponent = forwardRef(
       };
     }, [onHoverZIndex]);
 
+    // Render the Anvil Flex Component using the Flex component from WDS
     return (
       <Flex
         {...flexProps}
