@@ -307,6 +307,12 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   if (widgetIsModal || widgetIsChildOfModal) {
     yield put(showModal(modalWidgetToOpen));
   }
+  if (!widgetIsModal && !widgetIsChildOfModal) {
+    yield put({
+      type: ReduxActionTypes.CLOSE_MODAL,
+      payload: {},
+    });
+  }
 }
 
 function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
