@@ -4,8 +4,10 @@ import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { useAnvilFlexZIndex } from "./hooks/useAnvilFlexZIndex";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
-import { useAnvilFlexComponentStylesHook } from "./hooks/useAnvilFlexComponentStylesHook";
-import { useAnvilFlexComponentEventsHook } from "./hooks/useAnvilFlexComponentEventsHook";
+import { useAnvilFlexStyles } from "./hooks/useAnvilFlexStyles";
+import { useAnvilFlexClick } from "./hooks/useAnvilFlexClick";
+import { useAnvilFlexDrag } from "./hooks/useAnvilFlexDrag";
+import { useAnvilFlexHover } from "./hooks/useAnvilFlexHover";
 
 export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -32,13 +34,10 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
     { widgetId: props.widgetId, layoutId: props.layoutId },
     ref,
   );
-  useAnvilFlexComponentStylesHook(
-    props.widgetId,
-    props.widgetName,
-    props.isVisible,
-    ref,
-  );
-  useAnvilFlexComponentEventsHook(props.widgetId, props.layoutId, ref);
+  useAnvilFlexStyles(props.widgetId, props.widgetName, props.isVisible, ref);
+  useAnvilFlexClick(props.widgetId, ref);
+  useAnvilFlexDrag(props.widgetId, props.layoutId, ref);
+  useAnvilFlexHover(props.widgetId, ref);
   const onHoverZIndex = useAnvilFlexZIndex(props.widgetId, props.widgetType);
   return (
     <AnvilFlexComponent

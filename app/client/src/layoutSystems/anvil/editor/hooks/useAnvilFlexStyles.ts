@@ -4,7 +4,7 @@ import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 
-export const useAnvilFlexComponentStylesHook = (
+export const useAnvilFlexStyles = (
   widgetId: string,
   widgetName: string,
   isVisible = true,
