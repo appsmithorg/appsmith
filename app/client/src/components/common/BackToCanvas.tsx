@@ -10,7 +10,7 @@ import { builderURL } from "@appsmith/RouteBuilder";
 const BackToCanvasLink = styled(Link)`
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   margin-top: ${(props) => props.theme.spaces[11]}px;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  padding-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
 interface BackToCanvasProps {
