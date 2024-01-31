@@ -19,24 +19,24 @@ export const featureFlagIntercept = (
   };
   cy.intercept("GET", "/api/v1/users/features", response);
 
-  cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
-    req.reply((res: any) => {
-      if (res.statusCode === 200) {
-        const originalResponse = res?.body;
-        const updatedResponse = produce(originalResponse, (draft: any) => {
-          draft.data.featureFlags.data = { ...flags };
-          draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
-          draft.data.featureFlags.data[
-            "release_show_new_sidebar_pages_pane_enabled"
-          ] = true;
-          draft.data.featureFlags.data[
-            "rollout_consolidated_page_load_fetch_enabled"
-          ] = true;
-        });
-        return res.send(updatedResponse);
-      }
-    });
-  }).as("getConsolidatedData");
+  // cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+  //   req.reply((res: any) => {
+  //     if (res.statusCode === 200) {
+  //       const originalResponse = res?.body;
+  //       const updatedResponse = produce(originalResponse, (draft: any) => {
+  //         draft.data.featureFlags.data = { ...flags };
+  //         draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
+  //         draft.data.featureFlags.data[
+  //           "release_show_new_sidebar_pages_pane_enabled"
+  //         ] = true;
+  //         draft.data.featureFlags.data[
+  //           "rollout_consolidated_page_load_fetch_enabled"
+  //         ] = true;
+  //       });
+  //       return res.send(updatedResponse);
+  //     }
+  //   });
+  // }).as("getConsolidatedData");
 
   if (reload) {
     cy.reload();
@@ -77,6 +77,7 @@ export const featureFlagInterceptForLicenseFlags = () => {
       });
     },
   ).as("getLicenseFeatures");
+
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
       if (res.statusCode === 200) {

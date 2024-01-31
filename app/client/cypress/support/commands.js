@@ -41,6 +41,7 @@ const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
 import { featureFlagIntercept } from "./Objects/FeatureFlags";
+import produce from "immer";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -1122,6 +1123,24 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "schemaPreview",
   );
   cy.intercept("GET", "/api/v1/pages/*/view?v=*").as("templatePreview");
+  cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+    req.reply((res) => {
+      if (res.statusCode === 200) {
+        const originalResponse = res?.body;
+        const updatedResponse = produce(originalResponse, (draft) => {
+          draft.data.featureFlags.data = { ...flags };
+          draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
+          draft.data.featureFlags.data[
+            "release_show_new_sidebar_pages_pane_enabled"
+          ] = true;
+          draft.data.featureFlags.data[
+            "rollout_consolidated_page_load_fetch_enabled"
+          ] = true;
+        });
+        return res.send(updatedResponse);
+      }
+    });
+  }).as("getConsolidatedData");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
