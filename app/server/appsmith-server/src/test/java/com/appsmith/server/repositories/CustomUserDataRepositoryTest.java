@@ -161,11 +161,9 @@ public class CustomUserDataRepositoryTest {
         UserData userDataOne = new UserData();
         userDataOne.setUserId(firstId);
         userDataOne.setProfilePhotoAssetId(photoId);
-        userDataOne.setRecentlyUsedAppIds(List.of("abc"));
 
         UserData userDataTwo = new UserData();
         userDataTwo.setUserId(secondId);
-        userDataTwo.setRecentlyUsedAppIds(List.of("abc"));
 
         Flux<UserDataProfilePhotoProjection> userDataFlux = userDataRepository
                 .saveAll(List.of(userDataOne, userDataTwo))
@@ -175,7 +173,7 @@ public class CustomUserDataRepositoryTest {
 
         StepVerifier.create(userDataFlux.collectMap(UserDataProfilePhotoProjection::getUserId))
                 .assertNext(userDataMap -> {
-                    assertThat(userDataMap.size()).isEqualTo(2);
+                    assertThat(userDataMap).hasSize(2);
 
                     UserDataProfilePhotoProjection firstUserData = userDataMap.get(firstId);
                     assertThat(firstUserData.getProfilePhotoAssetId()).isEqualTo(photoId);
