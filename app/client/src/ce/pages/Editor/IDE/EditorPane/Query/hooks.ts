@@ -5,12 +5,6 @@ import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import { EditorEntityTabState } from "@appsmith/entities/IDE/constants";
-import {
-  apiEditorIdURL,
-  queryAddURL,
-  queryEditorIdURL,
-  saasEditorApiIdURL,
-} from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -20,7 +14,7 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { getQueryType, QueryType } from "./utils";
+import { getQueryAddUrl } from "./utils";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -28,27 +22,11 @@ export const useQueryAdd = () => {
   const { segmentMode } = useCurrentEditorState();
 
   const addButtonClickHandler = useCallback(() => {
-    let url = queryAddURL({});
     if (segmentMode === EditorEntityTabState.Edit) {
-      switch (getQueryType(currentEntityInfo)) {
-        case QueryType.QUERY:
-          url = queryEditorIdURL({ queryId: currentEntityInfo.id, add: true });
-          break;
-        case QueryType.API:
-          url = apiEditorIdURL({ apiId: currentEntityInfo.id, add: true });
-          break;
-        case QueryType.SAAS:
-          if (currentEntityInfo.params.pluginPackageName) {
-            url = saasEditorApiIdURL({
-              apiId: currentEntityInfo.id,
-              pluginPackageName: currentEntityInfo.params.pluginPackageName,
-              add: true,
-            });
-          }
-      }
+      const url = getQueryAddUrl(currentEntityInfo);
+      history.push(url);
     }
-    history.push(url);
-  }, [currentEntityInfo.id, location, segmentMode]);
+  }, [currentEntityInfo.id, segmentMode]);
 
   return addButtonClickHandler;
 };
