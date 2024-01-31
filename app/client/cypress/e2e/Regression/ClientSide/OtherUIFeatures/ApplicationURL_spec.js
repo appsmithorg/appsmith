@@ -127,6 +127,9 @@ describe("Slug URLs", () => {
                 `/app/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
               );
             });
+            agHelper.AssertElementVisibility(
+              locators._widgetInCanvas(draggableWidgets.TEXT),
+            );
           });
         });
       });
