@@ -7,30 +7,44 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export const useAnvilFlexHover = (
   widgetId: string,
-  ref: React.RefObject<HTMLDivElement>,
+  ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {
+  // Retrieve state from the Redux store
   const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
+
+  // Access the focusWidget function from the useWidgetSelection hook
   const { focusWidget } = useWidgetSelection();
+
+  // Callback function for handling mouseover events
   const handleMouseOver = (e: any) => {
+    // Check conditions before focusing the widget on mouseover
     focusWidget &&
       !isFocused &&
       !isDistributingSpace &&
       !isPreviewMode &&
       focusWidget(widgetId);
+
+    // Prevent the event from propagating further
     e.stopPropagation();
   };
 
+  // Callback function for handling mouseleave events
   const handleMouseLeave = () => {
-    // on leaving a widget, we reset the focused widget
+    // On leaving a widget, reset the focused widget
     focusWidget && focusWidget();
   };
+
+  // Effect hook to add and remove mouseover and mouseleave event listeners
   useEffect(() => {
     if (ref.current) {
+      // Add mouseover and mouseleave event listeners
       ref.current.addEventListener("mouseover", handleMouseOver);
       ref.current.addEventListener("mouseleave", handleMouseLeave);
     }
+
+    // Clean up event listeners when the component unmounts
     return () => {
       if (ref.current) {
         ref.current.removeEventListener("mouseover", handleMouseOver);
