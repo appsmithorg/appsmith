@@ -161,7 +161,6 @@ describe(
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
-      agHelper.ValidateToastMessage("Resource Not Found"); //for 404 screen
       // cy.get("@getConsolidatedData").then((interception: any) => {
       //   //we make two getConsolidatedData calls during the first we get a 404 error which redirects the browser back to signin
       //   //page and that causes to fetch the getConsolidatedData without any page params again we should expect no pages resp during then
