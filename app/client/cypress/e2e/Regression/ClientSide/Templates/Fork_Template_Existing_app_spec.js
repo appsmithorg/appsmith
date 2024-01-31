@@ -28,13 +28,15 @@ describe(
     it("1. Fork template from page section", () => {
       //Fork template button to be visible always
       PageList.AddNewPage("Add page from template");
-      agHelper.Sleep(5000);
       agHelper.AssertElementExist(template.templateDialogBox);
+      agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.AssertElementVisibility(templates.locators._templateCard);
-      agHelper.Sleep(4000);
+      assertHelper.AssertNetworkStatus("templatePreview");
       agHelper.GetNClick(template.vehicleMaintenenceApp);
-      agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
-      agHelper.Sleep();
+      agHelper.AssertElementAbsence(
+        "//*[text()='Loading template details']",
+        Cypress.config().pageLoadTimeout,
+      );
       agHelper.FailIfErrorToast(
         "Internal server error while processing request",
       );
@@ -45,10 +47,11 @@ describe(
           }
         }
       });
-      cy.get(widgetLocators.toastAction).should(
-        "contain",
-        "template added successfully",
+      _.agHelper.AssertElementAbsence(
+        _.locators._visibleTextSpan("Setting up the template"),
+        Cypress.config().pageLoadTimeout,
       );
+      agHelper.ValidateToastMessage("template added successfully");
       agHelper.AssertElementVisibility(locators._itemContainerWidget);
       agHelper.WaitUntilAllToastsDisappear();
     });
@@ -57,14 +60,24 @@ describe(
       PageList.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.AssertElementVisibility(templates.locators._templateCard);
+      assertHelper.AssertNetworkStatus("templatePreview");
       agHelper.GetNClick(template.vehicleMaintenenceApp);
-      //agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
-
+      agHelper.AssertElementAbsence(
+        "//*[text()='Loading template details']",
+        Cypress.config().pageLoadTimeout,
+      );
       assertHelper.AssertNetworkStatus("getTemplatePages");
 
-      //cy.xpath(template.selectAllPages).next().click();
-      // cy.xpath("//span[text()='CALENDAR MOBILE']").parent().next().click();
+      agHelper.CheckUncheck(template.selectAllPages, false);
+
+      agHelper.CheckUncheck("div:has(> span:contains('New vehicle')) + label");
+
+      //cy.xpath("//span[text()='CALENDAR MOBILE']").parent().next().click();
       agHelper.GetNClick(template.templateViewForkButton);
+      agHelper.AssertElementAbsence(
+        locators._visibleTextSpan("Setting up the template"),
+        Cypress.config().pageLoadTimeout,
+      );
       assertHelper.AssertNetworkStatus("fetchTemplate");
       agHelper.WaitUntilToastDisappear("template added successfully");
       agHelper.AssertElementVisibility(locators._itemContainerWidget);
