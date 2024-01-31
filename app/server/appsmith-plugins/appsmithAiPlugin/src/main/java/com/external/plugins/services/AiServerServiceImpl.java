@@ -1,72 +1,54 @@
 package com.external.plugins.services;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.plugins.dtos.AiServerRequestDTO;
+import com.external.plugins.dtos.AssociateDTO;
+import com.external.plugins.dtos.FileStatusDTO;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.constants.AppsmithAiErrorMessages.QUERY_FAILED_TO_EXECUTE;
+import static com.external.plugins.constants.AppsmithAiConstants.FILE_IDS;
 
 public class AiServerServiceImpl implements AiServerService {
     private final Gson gson = new GsonBuilder().create();
 
     @Override
-    public Mono<ArrayList<String>> createDatasource(ArrayList<String> files) {
-        return Mono.just(files);
+    public Mono<Void> associateDatasource(AssociateDTO associateDTO) {
+        URI uri = RequestUtils.getAssociateUri();
+        String jsonBody = gson.toJson(associateDTO);
+
+        return RequestUtils.makeRequest(HttpMethod.POST, uri, new HashMap<>(), BodyInserters.fromValue(jsonBody))
+                .flatMap(RequestUtils::handleResponse)
+                .then();
+    }
+
+    @Override
+    public Mono<Object> getFilesStatus(List<String> fileIds) {
+        Map<String, Object> body = new HashMap<>();
+        body.put(FILE_IDS, fileIds);
+        String jsonBody = gson.toJson(body);
+
+        return RequestUtils.makeRequest(
+                        HttpMethod.POST,
+                        RequestUtils.getFileStatusUri(),
+                        new HashMap<>(),
+                        BodyInserters.fromValue(jsonBody))
+                .flatMap(responseEntity -> RequestUtils.handleResponse(responseEntity, FileStatusDTO.class));
     }
 
     @Override
     public Mono<Object> uploadFiles(List<FilePart> fileParts) {
         return RequestUtils.makeRequest(HttpMethod.POST, RequestUtils.getFileUploadUri(), new HashMap<>(), fileParts)
-                .flatMap(responseEntity -> {
-                    HttpStatusCode statusCode = responseEntity.getStatusCode();
-
-                    if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
-                        String errorMessage = "";
-                        if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
-                            errorMessage = new String(responseEntity.getBody());
-                        }
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR, errorMessage));
-                    }
-                    if (HttpStatusCode.valueOf(429).isSameCodeAs(statusCode)) {
-                        String errorMessage = "";
-                        if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
-                            errorMessage = new String(responseEntity.getBody());
-                        }
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_RATE_LIMIT_ERROR, errorMessage));
-                    }
-
-                    if (statusCode.is4xxClientError()) {
-                        String errorMessage = "";
-                        if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
-                            errorMessage = new String(responseEntity.getBody());
-                        }
-                        return Mono.error(
-                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ERROR, errorMessage));
-                    }
-
-                    Object body = gson.fromJson(new String(responseEntity.getBody()), Object.class);
-                    if (!statusCode.is2xxSuccessful()) {
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, body));
-                    }
-                    return Mono.just(body);
-                });
+                .flatMap(RequestUtils::handleResponse);
     }
 
     @Override
@@ -75,41 +57,6 @@ public class AiServerServiceImpl implements AiServerService {
         String jsonBody = gson.toJson(aiServerRequestDTO);
 
         return RequestUtils.makeRequest(HttpMethod.POST, uri, headers, BodyInserters.fromValue(jsonBody))
-                .flatMap(responseEntity -> {
-                    HttpStatusCode statusCode = responseEntity.getStatusCode();
-
-                    if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
-                        String errorMessage = "";
-                        if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
-                            errorMessage = new String(responseEntity.getBody());
-                        }
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR, errorMessage));
-                    }
-                    if (HttpStatusCode.valueOf(429).isSameCodeAs(statusCode)) {
-                        String errorMessage = "";
-                        if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
-                            errorMessage = new String(responseEntity.getBody());
-                        }
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_RATE_LIMIT_ERROR, errorMessage));
-                    }
-
-                    if (statusCode.is4xxClientError()) {
-                        String errorMessage = "";
-                        if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
-                            errorMessage = new String(responseEntity.getBody());
-                        }
-                        return Mono.error(
-                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ERROR, errorMessage));
-                    }
-
-                    Object body = gson.fromJson(new String(responseEntity.getBody()), Object.class);
-                    if (!statusCode.is2xxSuccessful()) {
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, body));
-                    }
-                    return Mono.just(body);
-                });
+                .flatMap(RequestUtils::handleResponse);
     }
 }

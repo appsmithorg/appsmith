@@ -11,12 +11,14 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.dtos.AiServerRequestDTO;
+import com.external.plugins.dtos.AssociateDTO;
 import com.external.plugins.dtos.Query;
 import com.external.plugins.models.Feature;
 import com.external.plugins.services.AiFeatureService;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.external.plugins.constants.AppsmithAiConstants.LIST_FILES;
 import static com.external.plugins.constants.AppsmithAiConstants.SOURCE_DETAILS;
 import static com.external.plugins.constants.AppsmithAiConstants.UPLOAD_FILES;
 import static com.external.plugins.constants.AppsmithAiConstants.USECASE;
@@ -61,6 +64,9 @@ public class AppsmithAiPlugin extends BasePlugin {
                     .flatMap(apiKeyAuthentication -> Mono.just((APIConnection) apiKeyAuthentication));
         }
 
+        /**
+         * In list files trigger, if no files received from the AI server then show a disabled:true and `Upload files first in datasource configuration`.
+         */
         @Override
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
@@ -71,6 +77,14 @@ public class AppsmithAiPlugin extends BasePlugin {
                     triggerResultDTO.setTrigger(response);
                     return Mono.just(triggerResultDTO);
                 });
+            } else if (LIST_FILES.equals(requestType)) {
+                return aiServerService
+                        .getFilesStatus(getFileIds(datasourceConfiguration))
+                        .flatMap(response -> {
+                            TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                            triggerResultDTO.setTrigger(response);
+                            return Mono.just(triggerResultDTO);
+                        });
             }
             return super.trigger(connection, datasourceConfiguration, request);
         }
@@ -143,6 +157,29 @@ public class AppsmithAiPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration, boolean isEmbedded) {
             return Set.of();
+        }
+
+        @Override
+        public Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
+            DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+            String datasourceId = datasourceStorage.getDatasourceId();
+            String workspaceId = datasourceStorage.getWorkspaceId();
+            if (hasFiles(datasourceConfiguration)) {
+                AssociateDTO associateDTO = new AssociateDTO();
+                associateDTO.setWorkspaceId(workspaceId);
+                associateDTO.setDatasourceId(datasourceId);
+                associateDTO.setFileIds(getFileIds(datasourceConfiguration));
+                return aiServerService.associateDatasource(associateDTO).thenReturn(datasourceStorage);
+            }
+            return super.preSaveHook(datasourceStorage);
+        }
+
+        private boolean hasFiles(DatasourceConfiguration datasourceConfiguration) {
+            return true;
+        }
+
+        private List<String> getFileIds(DatasourceConfiguration datasourceConfiguration) {
+            return List.of("id1", "id2", "id3");
         }
     }
 }

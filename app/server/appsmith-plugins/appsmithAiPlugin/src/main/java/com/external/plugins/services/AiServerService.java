@@ -1,10 +1,10 @@
 package com.external.plugins.services;
 
 import com.external.plugins.dtos.AiServerRequestDTO;
+import com.external.plugins.dtos.AssociateDTO;
 import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +12,9 @@ public interface AiServerService {
     /**
      * Notify AI server about new datasource creation along with file context if provided
      */
-    Mono<ArrayList<String>> createDatasource(ArrayList<String> files);
+    Mono<Void> associateDatasource(AssociateDTO associateDTO);
+
+    Mono<Object> getFilesStatus(List<String> fileIds);
 
     /**
      * Upload files on AI server
