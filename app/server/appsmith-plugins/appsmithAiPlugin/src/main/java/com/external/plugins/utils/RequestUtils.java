@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.time.Duration;
 import java.util.List;
@@ -81,7 +82,7 @@ public class RequestUtils {
         return handleResponse(responseEntity, Object.class);
     }
 
-    public static Mono<Object> handleResponse(ResponseEntity<byte[]> responseEntity, Class<?> clazz) {
+    public static Mono<Object> handleResponse(ResponseEntity<byte[]> responseEntity, Type clazz) {
 
         HttpStatusCode statusCode = responseEntity.getStatusCode();
 

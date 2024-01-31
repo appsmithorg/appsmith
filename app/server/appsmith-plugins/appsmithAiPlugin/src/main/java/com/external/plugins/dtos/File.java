@@ -7,4 +7,6 @@ public class File {
     private String id;
     private String name;
     private boolean isProcessed;
+    private int size;
+    private String mimetype;
 }

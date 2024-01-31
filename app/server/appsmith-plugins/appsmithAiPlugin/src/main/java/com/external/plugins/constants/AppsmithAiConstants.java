@@ -24,6 +24,8 @@ public class AppsmithAiConstants {
     public static final String INPUT = "input";
     public static final String DATA = "data";
     public static final String LABELS = "labels";
+    public static final String LABEL = "label";
+    public static final String DISABLED = "disabled";
     public static final String INSTRUCTIONS = "instructions";
     public static final String IMAGE_FORMAT = "imageFormat";
     public static final String DATASOURCE_ID = "datasourceId";

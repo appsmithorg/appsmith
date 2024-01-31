@@ -42,6 +42,32 @@
       "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
       "initialValue": "",
       "isRequired": true
+    },
+    {
+      "label": "Use Files for context",
+      "tooltipText": "Select the files to use for file context",
+      "subtitle": "Files to use",
+      "isRequired": false,
+      "propertyName": "fileIds",
+      "configProperty": "actionConfiguration.formData.fileIds.data",
+      "controlType": "DROP_DOWN",
+      "initialValue": [],
+      "options": [],
+      "isMultiSelect": true,
+      "placeholderText": "Select files",
+      "fetchOptionsConditionally": true,
+      "conditionals": {
+        "enable": "{{true}}",
+        "fetchDynamicValues": {
+          "condition": "{{actionConfiguration.formData.usecase.data === 'TEXT_GENERATE'}}",
+          "config": {
+            "params": {
+              "requestType": "LIST_FILES",
+              "displayType": "DROP_DOWN"
+            }
+          }
+        }
+      }
     }
   ]
 }

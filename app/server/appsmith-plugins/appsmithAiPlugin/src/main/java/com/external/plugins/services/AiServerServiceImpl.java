@@ -3,7 +3,9 @@ package com.external.plugins.services;
 import com.external.plugins.dtos.AiServerRequestDTO;
 import com.external.plugins.dtos.AssociateDTO;
 import com.external.plugins.dtos.FileStatusDTO;
+import com.external.plugins.dtos.ResponseDTO;
 import com.external.plugins.utils.RequestUtils;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.http.HttpMethod;
@@ -11,6 +13,7 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
@@ -32,17 +35,19 @@ public class AiServerServiceImpl implements AiServerService {
     }
 
     @Override
-    public Mono<Object> getFilesStatus(List<String> fileIds) {
+    public Mono<FileStatusDTO> getFilesStatus(List<String> fileIds) {
         Map<String, Object> body = new HashMap<>();
         body.put(FILE_IDS, fileIds);
         String jsonBody = gson.toJson(body);
+        Type responseDTOType = new TypeToken<ResponseDTO<FileStatusDTO>>() {}.getType();
 
         return RequestUtils.makeRequest(
                         HttpMethod.POST,
                         RequestUtils.getFileStatusUri(),
                         new HashMap<>(),
                         BodyInserters.fromValue(jsonBody))
-                .flatMap(responseEntity -> RequestUtils.handleResponse(responseEntity, FileStatusDTO.class));
+                .flatMap(responseEntity -> RequestUtils.handleResponse(responseEntity, responseDTOType))
+                .map(responseDTO -> ((ResponseDTO<FileStatusDTO>) responseDTO).getData());
     }
 
     @Override

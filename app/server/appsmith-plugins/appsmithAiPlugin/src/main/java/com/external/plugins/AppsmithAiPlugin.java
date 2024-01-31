@@ -12,6 +12,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
@@ -19,6 +20,7 @@ import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.dtos.AiServerRequestDTO;
 import com.external.plugins.dtos.AssociateDTO;
+import com.external.plugins.dtos.File;
 import com.external.plugins.dtos.Query;
 import com.external.plugins.models.Feature;
 import com.external.plugins.services.AiFeatureService;
@@ -27,6 +29,8 @@ import com.external.plugins.services.AiServerService;
 import com.external.plugins.services.AiServerServiceImpl;
 import com.external.plugins.utils.HeadersUtil;
 import com.external.plugins.utils.RequestUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
@@ -37,6 +41,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.CommonFieldName.VALUE;
+import static com.external.plugins.constants.AppsmithAiConstants.DISABLED;
+import static com.external.plugins.constants.AppsmithAiConstants.LABEL;
 import static com.external.plugins.constants.AppsmithAiConstants.LIST_FILES;
 import static com.external.plugins.constants.AppsmithAiConstants.SOURCE_DETAILS;
 import static com.external.plugins.constants.AppsmithAiConstants.UPLOAD_FILES;
@@ -51,6 +58,7 @@ public class AppsmithAiPlugin extends BasePlugin {
 
     public static class AppsmithAiPluginExecutor extends BaseRestApiPluginExecutor {
         private static final AiServerService aiServerService = new AiServerServiceImpl();
+        private static final Gson gson = new GsonBuilder().create();
 
         public AppsmithAiPluginExecutor(SharedConfig config) {
             super(config);
@@ -78,13 +86,35 @@ public class AppsmithAiPlugin extends BasePlugin {
                     return Mono.just(triggerResultDTO);
                 });
             } else if (LIST_FILES.equals(requestType)) {
-                return aiServerService
-                        .getFilesStatus(getFileIds(datasourceConfiguration))
-                        .flatMap(response -> {
-                            TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
-                            triggerResultDTO.setTrigger(response);
-                            return Mono.just(triggerResultDTO);
-                        });
+                List<String> fileIds = getFileIds(datasourceConfiguration);
+                if (fileIds.isEmpty()) {
+                    TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                    triggerResultDTO.setTrigger(List.of(Map.of(
+                            DISABLED,
+                            true,
+                            LABEL,
+                            "Upload files first in datasource configuration",
+                            VALUE,
+                            "Upload files first in datasource configuration")));
+                    return Mono.just(triggerResultDTO);
+                }
+                return aiServerService.getFilesStatus(fileIds).flatMap(fileStatusDTO -> {
+                    List<Map<String, Object>> response = new ArrayList<>();
+                    fileStatusDTO.getFiles().forEach(file -> {
+                        Map<String, Object> dropdownOption = new HashMap<>();
+                        if (!file.isProcessed()) {
+                            dropdownOption.put(LABEL, "(Processing...) " + file.getName());
+                        } else {
+                            dropdownOption.put(LABEL, file.getName());
+                        }
+                        dropdownOption.put(VALUE, file.getId());
+                        dropdownOption.put(DISABLED, !file.isProcessed());
+                        response.add(dropdownOption);
+                    });
+                    TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                    triggerResultDTO.setTrigger(response);
+                    return Mono.just(triggerResultDTO);
+                });
             }
             return super.trigger(connection, datasourceConfiguration, request);
         }
@@ -118,7 +148,7 @@ public class AppsmithAiPlugin extends BasePlugin {
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
-
+            // TODO :: add fileIds in query only for those which are present in datasource configuration as well
             Feature feature =
                     Feature.valueOf(RequestUtils.extractDataFromFormData(actionConfiguration.getFormData(), USECASE));
             AiFeatureService aiFeatureService = AiFeatureServiceFactory.getAiFeatureService(feature);
@@ -175,11 +205,34 @@ public class AppsmithAiPlugin extends BasePlugin {
         }
 
         private boolean hasFiles(DatasourceConfiguration datasourceConfiguration) {
-            return true;
+            return getFileIds(datasourceConfiguration).size() > 0;
         }
 
         private List<String> getFileIds(DatasourceConfiguration datasourceConfiguration) {
-            return List.of("id1", "id2", "id3");
+            if (datasourceConfiguration.getProperties() != null
+                    && datasourceConfiguration.getProperties().size() > 0) {
+                Property fileProperty = datasourceConfiguration.getProperties().get(0);
+                if (fileProperty.getKey().equalsIgnoreCase("files")
+                        && fileProperty.getValue() != null
+                        && fileProperty.getValue() instanceof List) {
+                    List<File> files = convertIntoFiles((List<Map<String, Object>>) fileProperty.getValue());
+                    return files.stream().map(File::getId).toList();
+                }
+            }
+            return List.of();
+        }
+
+        private List<File> convertIntoFiles(List<Map<String, Object>> files) {
+            List<File> fileList = new ArrayList<>();
+            for (Map<String, Object> file : files) {
+                File fileObj = new File();
+                fileObj.setId((String) file.get("id"));
+                fileObj.setName((String) file.get("name"));
+                fileObj.setSize((Integer) file.get("size"));
+                fileObj.setMimetype((String) file.get("mimetype"));
+                fileList.add(fileObj);
+            }
+            return fileList;
         }
     }
 }

@@ -2,6 +2,7 @@ package com.external.plugins.services;
 
 import com.external.plugins.dtos.AiServerRequestDTO;
 import com.external.plugins.dtos.AssociateDTO;
+import com.external.plugins.dtos.FileStatusDTO;
 import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Mono;
 
@@ -14,7 +15,7 @@ public interface AiServerService {
      */
     Mono<Void> associateDatasource(AssociateDTO associateDTO);
 
-    Mono<Object> getFilesStatus(List<String> fileIds);
+    Mono<FileStatusDTO> getFilesStatus(List<String> fileIds);
 
     /**
      * Upload files on AI server
