@@ -49,7 +49,7 @@ describe(
         "contain",
         "template added successfully",
       );
-      this.agHelper.AssertElementVisibility(locators._itemContainerWidget);
+      agHelper.AssertElementVisibility(locators._itemContainerWidget);
       agHelper.WaitUntilAllToastsDisappear();
     });
 
@@ -67,7 +67,7 @@ describe(
       agHelper.GetNClick(template.templateViewForkButton);
       assertHelper.AssertNetworkStatus("fetchTemplate");
       agHelper.WaitUntilToastDisappear("template added successfully");
-      this.agHelper.AssertElementVisibility(locators._itemContainerWidget);
+      agHelper.AssertElementVisibility(locators._itemContainerWidget);
     });
 
     it("3. Templates card should take user to 'select pages from template' page", () => {
