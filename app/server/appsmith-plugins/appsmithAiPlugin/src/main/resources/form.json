@@ -41,7 +41,7 @@
           "config": {
             "uploadToTrigger": true,
             "params": {
-              "requestType": "uploadFiles"
+              "requestType": "UPLOAD_FILES"
             }
           },
           "isRequired": false
