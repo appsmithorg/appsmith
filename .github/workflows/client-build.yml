@@ -39,7 +39,7 @@ defaults:
 
 jobs:
   client-build:
-    runs-on: appsmith-self-hosted-deployment-runner-8cpu-16gb-ram
+    runs-on: ubuntu-latest-8-cores
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
