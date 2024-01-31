@@ -198,6 +198,7 @@ function NewApiScreen(props: Props) {
     props.createNewApiActionBasedOnEditorType(
       editorType,
       editorId,
+      // Set parentEntityId as (parentEntityId or if it is onboarding screen then set it as pageId) else empty string
       parentEntityId || (isOnboardingScreen && pageId) || "",
       parentEntityType,
       source === API_ACTION.CREATE_NEW_GRAPHQL_API
