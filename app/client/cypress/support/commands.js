@@ -724,7 +724,6 @@ Cypress.Commands.add("deleteDataSource", () => {
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   PageLeftPane.switchSegment(PagePaneSegment.UI);
   PageLeftPane.switchToAddNew();
-  cy.get("body").type("{esc}");
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(500);
   cy.get(selector)
