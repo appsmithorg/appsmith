@@ -23,6 +23,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { hasCreateDSActionPermissionInApp } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
+import ResizeObserver from "resize-observer-polyfill";
 
 interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
@@ -186,10 +187,28 @@ const DatasourceStructure = (props: DatasourceStructureProps) => {
   const [containerHeight, setContainerHeight] = useState<number>();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const updateContainerHeight = () => {
     if (containerRef.current?.offsetHeight) {
       setContainerHeight(containerRef.current?.offsetHeight);
     }
+  };
+
+  const resizeObserver = useRef(
+    new ResizeObserver(() => {
+      updateContainerHeight();
+    }),
+  );
+
+  useEffect(() => {
+    updateContainerHeight();
+    if (containerRef.current) {
+      resizeObserver.current.observe(containerRef.current);
+    }
+    return () => {
+      if (containerRef.current) {
+        resizeObserver.current.unobserve(containerRef.current);
+      }
+    };
   }, []);
 
   const Row = (index: number) => {
