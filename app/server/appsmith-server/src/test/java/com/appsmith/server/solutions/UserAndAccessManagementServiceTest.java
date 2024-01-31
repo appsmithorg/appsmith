@@ -403,7 +403,7 @@ public class UserAndAccessManagementServiceTest {
                 .inviteUsers(inviteUsersDTO, "origin")
                 .block();
         Set<String> userIds = userRepository
-                .findAllByEmails(new HashSet<>(usernames))
+                .findAllByEmailIn(new HashSet<>(usernames))
                 .map(User::getId)
                 .collect(Collectors.toSet())
                 .block();

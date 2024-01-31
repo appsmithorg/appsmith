@@ -9,6 +9,7 @@ import {
   apiEditorIdURL,
   queryAddURL,
   queryEditorIdURL,
+  saasEditorApiIdURL,
 } from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
@@ -19,6 +20,7 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { getQueryType, QueryType } from "./utils";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -28,13 +30,21 @@ export const useQueryAdd = () => {
   const addButtonClickHandler = useCallback(() => {
     let url = queryAddURL({});
     if (segmentMode === EditorEntityTabState.Edit) {
-      switch (currentEntityInfo.entity) {
-        case FocusEntity.QUERY:
+      switch (getQueryType(currentEntityInfo)) {
+        case QueryType.QUERY:
           url = queryEditorIdURL({ queryId: currentEntityInfo.id, add: true });
           break;
-        case FocusEntity.API:
+        case QueryType.API:
           url = apiEditorIdURL({ apiId: currentEntityInfo.id, add: true });
           break;
+        case QueryType.SAAS:
+          if (currentEntityInfo.params.pluginPackageName) {
+            url = saasEditorApiIdURL({
+              apiId: currentEntityInfo.id,
+              pluginPackageName: currentEntityInfo.params.pluginPackageName,
+              add: true,
+            });
+          }
       }
     }
     history.push(url);

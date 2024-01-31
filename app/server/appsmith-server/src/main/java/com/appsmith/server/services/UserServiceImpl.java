@@ -244,7 +244,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
 
     @Override
     public Flux<User> findAllByUsernameIn(Set<String> usernames) {
-        return repository.findAllByEmails(usernames);
+        return repository.findAllByEmailIn(usernames);
     }
 
     /**
