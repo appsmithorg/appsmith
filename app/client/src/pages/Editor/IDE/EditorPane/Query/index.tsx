@@ -25,6 +25,7 @@ const QueriesSegment = () => {
     <QueriesContainer
       className="ide-editor-left-pane__content-queries"
       flexDirection="column"
+      height="100%"
       overflow="hidden"
     >
       {isSideBySideEnabled ? (

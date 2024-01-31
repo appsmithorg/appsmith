@@ -116,14 +116,17 @@ export const saasEditorDatasourceIdURL = (
   });
 
 export const saasEditorApiIdURL = (
-  props: URLBuilderParams & {
-    pluginPackageName: string;
-    apiId: string;
-  },
+  props: URLBuilderParams &
+    WithAddView & {
+      pluginPackageName: string;
+      apiId: string;
+    },
 ): string =>
   urlBuilder.build({
     ...props,
-    suffix: `saas/${props.pluginPackageName}/api/${props.apiId}`,
+    suffix: `saas/${props.pluginPackageName}/api/${props.apiId}${
+      props.add ? ADD_PATH : ""
+    }`,
   });
 
 export const generateTemplateFormURL = (props: URLBuilderParams): string =>

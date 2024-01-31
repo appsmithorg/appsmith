@@ -32,6 +32,7 @@ describe(
 
       //Adding app and data to the selected sheet
       homePage.NavigateToHome();
+      homePage.SelectWorkspace(workspaceName);
       homePage.CreateAppInWorkspace(workspaceName);
       homePage.RenameApplication(appName);
       gsheetHelper.AddInsertOrUpdateQuery(
