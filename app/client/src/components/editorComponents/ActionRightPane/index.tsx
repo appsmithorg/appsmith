@@ -123,8 +123,10 @@ const DataStructureListWrapper = styled.div`
 export const CollapsibleSection = styled.div<{
   height: string;
   marginTop?: number;
+  paddingTop?: number;
 }>`
-  margin-top: ${(props) => props?.marginTop && `${props.marginTop}px`};
+  margin-top: ${(props) => props.marginTop && `${props.marginTop}px`};
+  padding-top: ${(props) => props.paddingTop && `${props.paddingTop}px`};
   height: auto;
   display: flex;
   width: 100%;
@@ -188,7 +190,8 @@ function ActionSidebar({
   const widgets = useSelector(getWidgets);
   const user = useSelector(getCurrentUser);
   const { pushFeature } = useContext(WalkthroughContext) || {};
-  const schemaRef = useRef(null);
+  const schemaRef = useRef<HTMLDivElement | null>(null);
+  const bindingRef = useRef<HTMLDivElement | null>(null);
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -268,6 +271,18 @@ function ActionSidebar({
       });
   };
 
+  const handleCustomCollapse = (openStatus: boolean) => {
+    if (schemaRef.current && bindingRef.current) {
+      if (openStatus) {
+        schemaRef.current.style.height = "";
+        bindingRef.current.style.height = "";
+      } else {
+        schemaRef.current.style.height = "auto";
+        bindingRef.current.style.height = "calc(90% - 40px)";
+      }
+    }
+  };
+
   useEffect(() => {
     if (showSchema) {
       checkAndShowWalkthrough();
@@ -328,9 +343,9 @@ function ActionSidebar({
               >
                 <Collapsible
                   CustomLabelComponent={DatasourceStructureHeader}
-                  containerRef={schemaRef}
                   datasource={{ id: datasourceId }}
                   expand={!suggestedWidgetsEnabled}
+                  handleCustomCollapse={handleCustomCollapse}
                   label="Schema"
                 >
                   <DataStructureListWrapper>
@@ -350,7 +365,7 @@ function ActionSidebar({
 
           {showSuggestedWidgets && showSchema && <StyledDivider />}
           {showSuggestedWidgets && suggestedWidgetsEnabled && (
-            <CollapsibleSection height={"40%"} marginTop={12}>
+            <CollapsibleSection height={"40%"} paddingTop={12} ref={bindingRef}>
               <SuggestedWidgets
                 actionName={actionName}
                 hasWidgets={hasWidgets}

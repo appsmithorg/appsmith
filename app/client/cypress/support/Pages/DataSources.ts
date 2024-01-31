@@ -34,6 +34,7 @@ export enum Widgets {
   Table,
   Chart,
   Text,
+  WDSTable,
 }
 type AppModes = "Edit" | "View";
 
@@ -430,9 +431,14 @@ export class DataSources {
     }).as("testDatasource");
   }
 
-  public CreatePlugIn(pluginName: string, waitForToastDisappear = false) {
+  public CreatePlugIn(
+    pluginName: string,
+    waitForToastDisappear = false,
+    index = 0,
+  ) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
+      .eq(index)
       .trigger("click", { force: true });
     this.agHelper.Sleep();
     //this.agHelper.WaitUntilEleAppear(this.locator._toastMsg);
@@ -1665,6 +1671,16 @@ export class DataSources {
         );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TABLE),
+        );
+        break;
+      case Widgets.WDSTable:
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TABLE_WIDGET_V2", parentClass),
+          index,
+          force,
+        );
+        this.agHelper.AssertElementVisibility(
+          this.locator._widgetInCanvas(WIDGET.WDSTABLE),
         );
         break;
       case Widgets.Chart:

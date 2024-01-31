@@ -20,3 +20,13 @@ export const getFirstQueryId = (state: AppState): QueryListState => {
     };
   }
 };
+
+export const getQueryRunErrorMessage = (state: AppState, id: string) => {
+  const { runErrorMessage } = state.ui.queryPane;
+  return runErrorMessage[id];
+};
+
+export const getQueryIsRunning = (state: AppState, id: string): boolean => {
+  const { isRunning } = state.ui.queryPane;
+  return !!isRunning[id];
+};
