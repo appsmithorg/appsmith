@@ -12,6 +12,21 @@ class GitExtendedApi extends Api {
       { params: { branchName } },
     );
   }
+
+  static async updateCDconfiguration(
+    applicationId: string,
+    enabled: boolean,
+    branchName?: string,
+  ) {
+    return Api.post(
+      `${GitExtendedApi.baseURL}/auto-deployment/config/app/${applicationId}`,
+      { enabled, branchName },
+    );
+  }
+
+  static async generateCDApiKey(applicationId: string) {
+    return Api.post(`/v1/api-key/git/${applicationId}`);
+  }
 }
 
 export default GitExtendedApi;
