@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.projections.ce.UserDataProfilePhotoProjection;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -166,23 +167,21 @@ public class CustomUserDataRepositoryTest {
         userDataTwo.setUserId(secondId);
         userDataTwo.setRecentlyUsedAppIds(List.of("abc"));
 
-        Flux<UserData> userDataFlux = userDataRepository
+        Flux<UserDataProfilePhotoProjection> userDataFlux = userDataRepository
                 .saveAll(List.of(userDataOne, userDataTwo))
                 .map(UserData::getUserId)
                 .collectList()
-                .flatMapMany(userDataRepository::findPhotoAssetsByUserIds);
+                .flatMapMany(userDataRepository::findByUserIdIn);
 
-        StepVerifier.create(userDataFlux.collectMap(UserData::getUserId))
+        StepVerifier.create(userDataFlux.collectMap(UserDataProfilePhotoProjection::getUserId))
                 .assertNext(userDataMap -> {
                     assertThat(userDataMap.size()).isEqualTo(2);
 
-                    UserData firstUserData = userDataMap.get(firstId);
+                    UserDataProfilePhotoProjection firstUserData = userDataMap.get(firstId);
                     assertThat(firstUserData.getProfilePhotoAssetId()).isEqualTo(photoId);
-                    assertThat(firstUserData.getRecentlyUsedAppIds()).isNull();
 
-                    UserData secondUserData = userDataMap.get(secondId);
+                    UserDataProfilePhotoProjection secondUserData = userDataMap.get(secondId);
                     assertThat(secondUserData.getProfilePhotoAssetId()).isNull();
-                    assertThat(secondUserData.getRecentlyUsedAppIds()).isNull();
                 })
                 .verifyComplete();
     }
