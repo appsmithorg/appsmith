@@ -1081,7 +1081,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       false,
     );
   } else {
-    featureFlagIntercept({}, true);
+    featureFlagIntercept({}, false);
   }
   cy.intercept(
     {
