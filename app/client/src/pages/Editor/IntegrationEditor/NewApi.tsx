@@ -141,6 +141,7 @@ interface ApiHomeScreenProps {
     parentEntityType: ActionParentEntityTypeInterface,
     apiType: string,
   ) => void;
+  isOnboardingScreen?: boolean;
 }
 
 type Props = ApiHomeScreenProps;
@@ -154,7 +155,14 @@ export const API_ACTION = {
 };
 
 function NewApiScreen(props: Props) {
-  const { history, isCreating, pageId, plugins, showSaasAPIs } = props;
+  const {
+    history,
+    isCreating,
+    isOnboardingScreen,
+    pageId,
+    plugins,
+    showSaasAPIs,
+  } = props;
   const editorType = useEditorType(location.pathname);
   const { editorId, parentEntityId, parentEntityType } =
     useParentEntityInfo(editorType);
@@ -190,7 +198,7 @@ function NewApiScreen(props: Props) {
     props.createNewApiActionBasedOnEditorType(
       editorType,
       editorId,
-      parentEntityId,
+      parentEntityId || (isOnboardingScreen && pageId) || "",
       parentEntityType,
       source === API_ACTION.CREATE_NEW_GRAPHQL_API
         ? PluginPackageName.GRAPHQL
