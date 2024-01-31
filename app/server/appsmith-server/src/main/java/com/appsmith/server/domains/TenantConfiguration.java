@@ -8,11 +8,13 @@ import com.appsmith.server.migrations.db.Migration009EE01CreateDefaultLogoAsset;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class TenantConfiguration extends TenantConfigurationCE {
 
     // To remove public internet dependency for airgap we have saved the default Appsmith logo to Asset collection. Also
