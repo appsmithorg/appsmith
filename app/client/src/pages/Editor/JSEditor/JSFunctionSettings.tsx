@@ -200,9 +200,7 @@ function SettingsItem({
             onChange={(isSelected) =>
               onChangeExecuteOnPageLoad(String(isSelected))
             }
-          >
-            {executeOnPageLoad}
-          </Switch>
+          />
         )}
       </SettingColumn>
       <SettingColumn className={`${action.name}-confirm-before-execute`}>
