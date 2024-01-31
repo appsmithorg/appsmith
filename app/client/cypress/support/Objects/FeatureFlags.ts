@@ -50,7 +50,7 @@ export const featureFlagIntercept = (
         .window({ timeout: Cypress.config().pageLoadTimeout })
         .then((win) => expect(win).haveOwnProperty("onload")),
     );
-    cy.wait(2000); //for the page to re-load finish for CI runs
+    //cy.wait(2000); //for the page to re-load finish for CI runs
   }
 };
 
