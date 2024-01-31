@@ -81,12 +81,13 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
             resource.setPolicies(null);
         }
 
-        // TODO: Don't `findById`, we have to `findBy{key}` instead.
-        return repository.findById((String) id).flatMap(dbResource -> {
-            dbResource.setUpdatedAt(Instant.now());
-            AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, dbResource);
-            return repository.save(dbResource);
-        });
+        return repository
+                .findOne((root, query, builder) -> builder.equal(root.get(key), id))
+                .flatMap(dbResource -> {
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, dbResource);
+                    dbResource.setUpdatedAt(Instant.now());
+                    return repository.save(dbResource);
+                });
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {

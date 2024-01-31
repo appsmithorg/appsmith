@@ -4,15 +4,14 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.BaseRepository;
 import com.querydsl.core.types.Predicate;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @RequiredArgsConstructor
 public abstract class BaseCake<T extends BaseDomain> {
-    private final EntityManager entityManager;
     private final BaseRepository<T, String> repository;
 
     public Mono<T> save(T entity) {
@@ -64,5 +63,13 @@ public abstract class BaseCake<T extends BaseDomain> {
         return Mono.fromSupplier(() -> repository.findAll(predicate))
                 .flatMapMany(Flux::fromIterable)
                 .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    // --------------------------------------------------
+    // Wrappers for methods from JpaSpecificationExecutor
+    // --------------------------------------------------
+
+    public Mono<T> findOne(Specification<T> spec) {
+        return Mono.fromSupplier(() -> repository.findOne(spec).orElse(null)).subscribeOn(Schedulers.boundedElastic());
     }
 }

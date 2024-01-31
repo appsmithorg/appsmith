@@ -199,7 +199,6 @@ def generate_cake_class(domain):
     import com.mongodb.bulk.BulkWriteResult;
     import com.mongodb.client.result.InsertManyResult;
     import com.querydsl.core.types.dsl.StringPath;
-    import jakarta.persistence.EntityManager;
     import reactor.core.scheduler.Schedulers;
     {imports_code}
 
@@ -212,8 +211,8 @@ def generate_cake_class(domain):
     public class {domain}RepositoryCake extends BaseCake<{domain}> {{
         private final {domain}Repository repository;
 
-        public {domain}RepositoryCake(EntityManager entityManager, {domain}Repository repository) {{
-            super(entityManager, repository);
+        public {domain}RepositoryCake({domain}Repository repository) {{
+            super(repository);
             this.repository = repository;
         }}
 
