@@ -236,12 +236,6 @@ function FilePicker(props: FilePickerProps) {
           type="file"
         />
       </div>
-      {props.maxFileSizeInBytes && (
-        <Text kind="body-s">
-          You can upload a maximum of {getFileSize(props.maxFileSizeInBytes)}
-        </Text>
-      )}
-
       <div className="flex gap-2 flex-col mt-2">
         {uploadedFiles.map((file) => (
           <Tag
