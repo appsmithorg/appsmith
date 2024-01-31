@@ -257,10 +257,15 @@ export function EditorJSONtoForm(props: Props) {
     FEATURE_FLAG.release_side_by_side_ide_enabled,
   );
 
+  const isEditorPaneSegmentsEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
+
   const showRightPane =
-    showSchema ||
-    showSuggestedWidgets ||
-    Boolean(actionRightPaneAdditionSections);
+    !isEditorPaneSegmentsEnabled &&
+    (showSchema ||
+      showSuggestedWidgets ||
+      Boolean(actionRightPaneAdditionSections));
 
   // get the current action's plugin name
   const currentActionPluginName = useSelector((state: AppState) =>

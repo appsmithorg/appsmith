@@ -583,6 +583,10 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
 
   const theme = EditorTheme.LIGHT;
 
+  const isEditorPaneSegmentsEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
+
   return (
     <MainContainer>
       {closeEditorLink}
@@ -749,21 +753,23 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
             )}
           </SecondaryWrapper>
-          <DataSourceList
-            actionName={actionName}
-            actionRightPaneBackLink={actionRightPaneBackLink}
-            additionalSections={actionRightPaneAdditionSections}
-            applicationId={props.applicationId}
-            currentActionDatasourceId={currentActionDatasourceId}
-            currentPageId={props.currentPageId}
-            datasourceId={props.currentActionDatasourceId}
-            datasources={props.datasources}
-            hasResponse={props.hasResponse}
-            onClick={updateDatasource}
-            pluginId={props.pluginId}
-            showTabbedSection={showRightPaneTabbedSection}
-            suggestedWidgets={props.suggestedWidgets}
-          />
+          {isEditorPaneSegmentsEnabled ? null : (
+            <DataSourceList
+              actionName={actionName}
+              actionRightPaneBackLink={actionRightPaneBackLink}
+              additionalSections={actionRightPaneAdditionSections}
+              applicationId={props.applicationId}
+              currentActionDatasourceId={currentActionDatasourceId}
+              currentPageId={props.currentPageId}
+              datasourceId={props.currentActionDatasourceId}
+              datasources={props.datasources}
+              hasResponse={props.hasResponse}
+              onClick={updateDatasource}
+              pluginId={props.pluginId}
+              showTabbedSection={showRightPaneTabbedSection}
+              suggestedWidgets={props.suggestedWidgets}
+            />
+          )}
         </Wrapper>
       </Form>
     </MainContainer>
