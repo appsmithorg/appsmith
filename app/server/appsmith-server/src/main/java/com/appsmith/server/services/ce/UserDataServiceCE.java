@@ -9,6 +9,7 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.Map;
 
 public interface UserDataServiceCE {
@@ -22,6 +23,8 @@ public interface UserDataServiceCE {
     Mono<UserData> getForCurrentUser();
 
     Mono<UserData> getForUserEmail(String email);
+
+    Mono<Map<String, String>> getProfileAssetIdsForUserIds(Collection<String> userIds);
 
     Mono<UserData> updateForCurrentUser(UserData updates);
 

@@ -1,12 +1,17 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -22,14 +27,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 
@@ -136,7 +147,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Override
     public Mono<MemberInfoDTO> updatePermissionGroupForMember(
             String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader) {
-        return Mono.empty(); /*
         if (changeUserGroupDTO.getUsername() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAME));
         }
@@ -179,7 +189,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
          * But here, since 2 DB operations were happening in parallel, we were observing an intermittent exception: "Command failed with error 251 (NoSuchTransaction)".
          *
          * The below operation is responsible for the first DB operation, if a user is removed from the workspace.
-         * /
+         */
         // Unassigned old permission group from user
         Mono<PermissionGroup> permissionGroupUnassignedMono = userMono.zipWhen(user -> oldDefaultPermissionGroupMono)
                 .flatMap(pair -> permissionGroupService.unAssignFromUserAndSendEvent(pair.getT2(), pair.getT1()));
@@ -211,7 +221,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         /*
          * The below operation is responsible for the first DB operation, if workspace role is changed ƒor the user,
          * hence we need to make this operation sequential as well.
-         * /
+         */
         return userMono.zipWhen(user -> changePermissionGroupsMono).map(pair -> {
             User user = pair.getT1();
             PermissionGroup role = pair.getT2();
@@ -223,12 +233,11 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     .name(user.getName())
                     .roles(List.of(roleInfoDTO))
                     .build();
-        });*/
+        });
     }
 
     @Override
     public Mono<List<MemberInfoDTO>> getWorkspaceMembers(String workspaceId) {
-        return Mono.empty(); /*
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = this.getPermissionGroupsForWorkspace(workspaceId);
@@ -251,27 +260,23 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 userIdsMono.flatMapMany(userRepository::findAllById).collectMap(User::getId);
 
         // Create a map of UserData.userUd to UserData
-        Mono<Map<String, UserData>> userDataMapMono = userIdsMono
+        Mono<Map<String, String>> userDataMapMono = userIdsMono
                 // get the profile photos of the list of users
-                .flatMapMany(userIdsSet -> userDataRepository.findPhotoAssetsByUserIds(
-                        userIdsSet.stream().toList()))
-                .collectMap(UserData::getUserId);
+                .flatMap(userIdsSet -> userDataService.getProfileAssetIdsForUserIds(
+                        userIdsSet.stream().toList()));
 
         // Update name and username in the list of UserAndGroupDTO
         userAndPermissionGroupDTOsMono = Mono.zip(userAndPermissionGroupDTOsMono, userMapMono, userDataMapMono)
                 .map(tuple -> {
                     List<MemberInfoDTO> workspaceMemberInfoDTOList = tuple.getT1();
                     Map<String, User> userMap = tuple.getT2();
-                    Map<String, UserData> userDataMap = tuple.getT3();
+                    Map<String, String> userDataMap = tuple.getT3();
                     workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
                         User user = userMap.get(userAndPermissionGroupDTO.getUserId());
-                        UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                         userAndPermissionGroupDTO.setName(
                                 Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                         userAndPermissionGroupDTO.setUsername(user.getUsername());
-                        if (userData != null) {
-                            userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
-                        }
+                        userAndPermissionGroupDTO.setPhotoId(userDataMap.get(userAndPermissionGroupDTO.getUserId()));
                     });
                     return workspaceMemberInfoDTOList;
                 });
@@ -284,12 +289,11 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             return userAndPermissionGroupDTOS;
         });
 
-        return sortedListMono;*/
+        return sortedListMono;
     }
 
     @Override
     public Mono<Map<String, List<MemberInfoDTO>>> getWorkspaceMembers(Set<String> workspaceIds) {
-        return Mono.empty(); /*
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = permissionGroupService
@@ -315,9 +319,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 userIdsMono.flatMapMany(userRepository::findAllById).collectMap(User::getId);
 
         // Create a map of UserData.userUd to UserData
-        Mono<Map<String, UserData>> userDataMapMono = userIdsMono
-                .flatMapMany(userDataRepository::findPhotoAssetsByUserIds)
-                .collectMap(UserData::getUserId);
+        Mono<Map<String, String>> userDataMapMono = userIdsMono
+                .flatMap(userDataService::getProfileAssetIdsForUserIds);
 
         Flux<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspaceFlux =
                 permissionGroupsByWorkspacesMono.repeat();
@@ -338,16 +341,13 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                             .map(tuple1 -> {
                                 List<MemberInfoDTO> workspaceMemberInfoDTOList = tuple1.getT1();
                                 Map<String, User> userMap = tuple1.getT2();
-                                Map<String, UserData> userDataMap = tuple1.getT3();
+                                Map<String, String> userDataMap = tuple1.getT3();
                                 workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
                                     User user = userMap.get(userAndPermissionGroupDTO.getUserId());
-                                    UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                                     userAndPermissionGroupDTO.setName(
                                             Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                                     userAndPermissionGroupDTO.setUsername(user.getUsername());
-                                    if (userData != null) {
-                                        userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
-                                    }
+                                    userAndPermissionGroupDTO.setPhotoId(userDataMap.get(userAndPermissionGroupDTO.getUserId()));
                                 });
                                 return workspaceMemberInfoDTOList;
                             });
@@ -356,12 +356,11 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 })
                 .collectMap(Tuple2::getT1, Tuple2::getT2);
 
-        return workspaceMembersMono;*/
+        return workspaceMembersMono;
     }
 
     private List<MemberInfoDTO> mapPermissionGroupListToUserAndPermissionGroupDTOList(
             List<PermissionGroup> permissionGroupList) {
-        return Collections.emptyList(); /*
         Set<String> userIds = new HashSet<>(); // Set of already collected users
         List<MemberInfoDTO> userAndGroupDTOList = new ArrayList<>();
         permissionGroupList.forEach(permissionGroup -> {
@@ -379,7 +378,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                         userIds.add(userId); // update set of already collected users
                     });
         });
-        return userAndGroupDTOList;*/
+        return userAndGroupDTOList;
     }
 
     protected Flux<PermissionGroup> getPermissionGroupsForWorkspace(String workspaceId) {

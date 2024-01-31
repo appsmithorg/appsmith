@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @Slf4j
 public class CustomUserDataRepositoryTest {
+    // XXX: Test failures here depend on deprecated fields of `UserData`, that are charted for removal. Revisit later.
 
     @Autowired
     private UserDataRepositoryCake userDataRepository;
@@ -171,7 +172,7 @@ public class CustomUserDataRepositoryTest {
                 .saveAll(List.of(userDataOne, userDataTwo))
                 .map(UserData::getUserId)
                 .collectList()
-                .flatMapMany(userDataRepository::findPhotoAssetsByUserIds);
+                .flatMapMany(userDataRepository::findByUserIdIn);
 
         StepVerifier.create(userDataFlux.collectMap(UserData::getUserId))
                 .assertNext(userDataMap -> {

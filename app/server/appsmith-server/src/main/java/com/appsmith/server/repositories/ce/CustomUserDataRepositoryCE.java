@@ -13,7 +13,5 @@ public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData>
 
     Optional<UpdateResult> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds);
 
-    List<UserData> findPhotoAssetsByUserIds(Iterable<String> userId);
-
     Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId);
 }

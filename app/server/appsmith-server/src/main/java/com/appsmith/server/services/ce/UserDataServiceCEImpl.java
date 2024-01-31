@@ -34,6 +34,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -112,6 +113,12 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
                 .getDefaultTenantId()
                 .flatMap(tenantId -> userRepository.findByEmailAndTenantId(email, tenantId))
                 .flatMap(this::getForUser);
+    }
+
+    @Override
+    public Mono<Map<String, String>> getProfileAssetIdsForUserIds(Collection<String> userIds) {
+        return repository.findByUserIdIn(userIds)
+                .collectMap(UserData::getUserId, UserData::getProfilePhotoAssetId);
     }
 
     @Override
