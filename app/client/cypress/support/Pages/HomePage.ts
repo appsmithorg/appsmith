@@ -558,10 +558,10 @@ export class HomePage {
       .click({ force: true });
 
     cy.xpath(this._visibleTextSpan("Members")).last().click({ force: true });
+    this.assertHelper.AssertNetworkStatus("getMembers");
     this.agHelper.AssertElementVisibility(
       this.locator._buttonByText("Members"),
     );
-    this.assertHelper.AssertNetworkStatus("getMembers");
   }
 
   public UpdateUserRoleInWorkspace(

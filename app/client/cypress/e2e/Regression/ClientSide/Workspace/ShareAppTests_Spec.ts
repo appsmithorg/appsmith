@@ -152,11 +152,12 @@ describe(
       );
       agHelper.Sleep(); //for CI
       agHelper.VisitNAssert(currentUrl);
-      cy.get("@getConsolidatedData").then((interception: any) => {
-        expect(
-          Number(interception.response.body.data.pages.responseMeta.status),
-        ).to.eq(404);
-      });
+      agHelper.ValidateToastMessage("Resource Not Found"); //for 404 screen
+      // cy.get("@getConsolidatedData").then((interception: any) => {
+      //   expect(
+      //     Number(interception.response.body.data.pages.responseMeta.status),
+      //   ).to.eq(404);
+      // });
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);

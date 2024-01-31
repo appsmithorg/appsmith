@@ -1,6 +1,11 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
-import { agHelper, templates } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  assertHelper,
+  locators,
+  templates,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
@@ -44,6 +49,7 @@ describe(
         "contain",
         "template added successfully",
       );
+      this.agHelper.AssertElementVisibility(locators._itemContainerWidget);
       agHelper.WaitUntilAllToastsDisappear();
     });
 
@@ -53,43 +59,23 @@ describe(
       agHelper.AssertElementVisibility(templates.locators._templateCard);
       agHelper.GetNClick(template.vehicleMaintenenceApp);
       //agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
-      cy.wait("@getTemplatePages").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+
+      assertHelper.AssertNetworkStatus("getTemplatePages");
 
       //cy.xpath(template.selectAllPages).next().click();
       // cy.xpath("//span[text()='CALENDAR MOBILE']").parent().next().click();
       agHelper.GetNClick(template.templateViewForkButton);
-      cy.wait("@fetchTemplate").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      agHelper.GetNAssertElementText(
-        widgetLocators.toastAction,
-        "template added successfully",
-        "contain.text",
-      );
+      assertHelper.AssertNetworkStatus("fetchTemplate");
+      agHelper.WaitUntilToastDisappear("template added successfully");
+      this.agHelper.AssertElementVisibility(locators._itemContainerWidget);
     });
 
     it("3. Templates card should take user to 'select pages from template' page", () => {
-      //agHelper.RefreshPage();
-
       PageList.AddNewPage("Add page from template");
-      agHelper.AssertElementVisibility(
-        templates.locators._templateCard,
-        true,
-        0,
-        30000,
-      );
+      agHelper.AssertElementVisibility(templates.locators._templateCard);
       agHelper.GetNClick(templates.locators._templateCard);
-      agHelper.Sleep(2000);
       agHelper.AssertElementVisibility(template.templateViewForkButton);
-      agHelper.Sleep(2000);
       agHelper.GetNClick(templates.locators._closeTemplateDialogBoxBtn);
-      agHelper.Sleep();
 
       //Similar templates add icon should take user to 'select pages from template'
       //agHelper.RefreshPage();
@@ -98,9 +84,7 @@ describe(
       agHelper.GetNClick(templates.locators._templateCard);
       // Here we are on template detail page, with similar templates at the bottom
       agHelper.GetNClick(templates.locators._templateCard);
-      agHelper.Sleep(2000);
       agHelper.AssertElementVisibility(template.templateViewForkButton);
-      agHelper.Sleep(2000);
       agHelper.GetNClick(templates.locators._closeTemplateDialogBoxBtn);
     });
 
