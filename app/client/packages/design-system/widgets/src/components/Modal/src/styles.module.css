@@ -11,8 +11,8 @@
   background: var(--color-bg);
   border-radius: var(--border-radius-1);
   box-shadow: var(--box-shadow-1);
-  max-width: calc(100vw - var(--outer-spacing-8));
-  max-height: calc(100vh - var(--outer-spacing-8));
+  max-width: calc(var(--provider-width) - var(--outer-spacing-8));
+  max-height: calc(var(--provider-width) - var(--outer-spacing-8));
   outline: none;
   display: flex;
   flex-direction: column;
