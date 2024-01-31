@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import QueryResponseView from "pages/Editor/QueryEditor/QueryResponseView";
+import QueryDebuggerTabs from "pages/Editor/QueryEditor/QueryDebuggerTabs";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getIsModuleInstanceRunningStatus,
@@ -96,16 +96,13 @@ function ResponseView({
   }
 
   return (
-    <QueryResponseView
+    <QueryDebuggerTabs
       actionName={moduleInstance.name}
       actionResponse={actionResponse}
       actionSource={actionSource}
       currentActionConfig={action}
-      isExecutePermitted={isExecutePermitted}
       isRunning={isRunning}
-      responseDataTypes={responseDataTypes}
-      responseDisplayFormat={responseDisplayFormat}
-      responseTabOnRunClick={onRunClick}
+      onRunClick={onRunClick}
       runErrorMessage={error}
     />
   );
