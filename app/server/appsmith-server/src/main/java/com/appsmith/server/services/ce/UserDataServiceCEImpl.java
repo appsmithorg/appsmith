@@ -311,7 +311,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         }
         // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
         if (srcIdList.size() > maxSize) {
-            srcIdList = srcIdList.subList(0, maxSize);
+            srcIdList.subList(maxSize, srcIdList.size()).clear();
         }
         return srcIdList;
     }
@@ -342,7 +342,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
         // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
         if (srcIdList.size() > maxSize) {
-            srcIdList = srcIdList.subList(0, maxSize);
+            srcIdList.subList(maxSize, srcIdList.size()).clear();
         }
         return srcIdList;
     }
