@@ -44,6 +44,7 @@ describe(
 
       //Adding query to insert a new spreadsheet
       homePage.NavigateToHome();
+      homePage.SelectWorkspace(workspaceName);
       homePage.CreateAppInWorkspace(workspaceName);
       homePage.RenameApplication(appName);
       gsheetHelper.AddNewSpreadsheetQuery(
@@ -272,7 +273,7 @@ describe(
     after("Delete spreadsheet and app", function () {
       // Delete spreadsheet and app
       homePage.NavigateToHome();
-      homePage.SearchAndOpenApp(appName);
+      homePage.EditAppFromAppHover(appName);
       gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
       cy.get("@postExecute", {
         timeout: Cypress.config("pageLoadTimeout"),

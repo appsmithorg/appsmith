@@ -21,6 +21,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
     isDisabled = false,
     isLoading = false,
     loadingText = "Loading...",
+    size = "medium",
     // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
     onKeyUp,
     variant = "filled",
@@ -62,6 +63,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}
       data-loading={isLoading ? "" : undefined}
+      data-size={Boolean(size) ? size : undefined}
       data-variant={variant}
       draggable
       isDisabled={isDisabled}

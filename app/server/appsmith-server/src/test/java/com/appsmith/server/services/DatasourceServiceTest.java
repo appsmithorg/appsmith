@@ -925,7 +925,6 @@ public class DatasourceServiceTest {
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
-                                                .users(Set.of("api_user"))
                                                 .build())));
                                         return applicationPageService.createPage(page);
                                     }));
@@ -1007,7 +1006,6 @@ public class DatasourceServiceTest {
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
-                                                .users(Set.of("api_user"))
                                                 .build())));
                                         return applicationPageService.createPage(page);
                                     }));

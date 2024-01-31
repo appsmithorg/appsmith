@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   hasDeleteApplicationPermission,
   isPermitted,
@@ -43,7 +42,6 @@ import type {
 import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
-  getDeletingMultipleApps,
 } from "@appsmith/selectors/applicationSelectors";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
@@ -56,10 +54,6 @@ import { addItemsInContextMenu } from "@appsmith/utils";
 import { getCurrentUser } from "actions/authActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";
-import {
-  NO_PERMISSION_TO_SELECT_FOR_DELETE,
-  createMessage,
-} from "@appsmith/constants/messages";
 import { noop } from "lodash";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -127,12 +121,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
-
-  const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
-  const isApplicationSelected =
-    deleteMultipleApplicationObject.list?.includes(applicationId);
-  const isEnabledMultipleSelection =
-    !!deleteMultipleApplicationObject.list?.length;
 
   useEffect(() => {
     let colorCode;
@@ -318,7 +306,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
           <ContextMenuTrigger
             className="m-0.5"
             data-testid="t--application-card-context-menu"
-            isHidden={isEnabledMultipleSelection}
             isIconButton
             kind="tertiary"
             size="sm"
@@ -479,40 +466,23 @@ export function ApplicationCard(props: ApplicationCardProps) {
     dispatch(getCurrentUser());
   }, [props.application.defaultPageId]);
 
-  const handleMultipleSelection = (event: MouseEvent) => {
-    if (typeof event === "object" && event.stopImmediatePropagation)
-      event.stopImmediatePropagation();
-    if (!hasDeletePermission) {
-      toast.show(createMessage(NO_PERMISSION_TO_SELECT_FOR_DELETE), {
-        kind: "error",
-      });
-      return;
-    }
-    dispatch({
-      type: ReduxActionTypes.DELETE_MULTIPLE_APPS_TOGGLE,
-      payload: { id: applicationId },
-    });
-  };
-
   return (
     <Card
       backgroundColor={selectedColor}
       contextMenu={contextMenu}
       editedByText={editedByText}
-      handleMultipleSelection={handleMultipleSelection}
+      hasEditPermission={hasEditPermission}
       hasReadPermission={hasReadPermission}
       icon={appIcon}
       isContextMenuOpen={isMenuOpen}
-      isEnabledMultipleSelection={isEnabledMultipleSelection}
       isFetching={isFetchingApplications}
       isMobile={props.isMobile}
-      isSelected={!!isApplicationSelected}
       moreActionItems={moreActionItems}
       primaryAction={props.isMobile ? launchApp : noop}
       setShowOverlay={setShowOverlay}
       showGitBadge={Boolean(showGitBadge)}
-      showOverlay={showOverlay && !isEnabledMultipleSelection}
-      testId="t--application-card"
+      showOverlay={showOverlay}
+      testId={`t--application-card ${props.application.name}`}
       title={props.application.name}
       titleTestId="t--app-card-name"
     >

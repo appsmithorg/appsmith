@@ -6,12 +6,16 @@ import EditorNavigation, {
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 import homePage from "../../../../locators/HomePage";
+import {
+  agHelper,
+  homePage as homePageHelpers,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
   it("1. Import application and Validate Migration on pageload", function () {
     // import application
-    cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon).first().click();
+    homePageHelpers.NavigateToHome();
+    agHelper.GetNClick(homePage.createNew, 0);
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo)

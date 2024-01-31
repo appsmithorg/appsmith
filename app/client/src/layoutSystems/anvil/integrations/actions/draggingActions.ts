@@ -16,6 +16,7 @@ export const addNewAnvilWidgetAction = (
     height: number;
     newWidgetId: string;
     type: string;
+    detachFromLayout: boolean;
   },
   highlight: AnvilHighlightInfo,
   dragMeta: AnvilDragMeta,

@@ -130,7 +130,6 @@ import { toast } from "design-system";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -145,6 +144,7 @@ import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/Layout
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,

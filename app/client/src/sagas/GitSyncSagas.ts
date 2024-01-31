@@ -109,7 +109,7 @@ import {
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
@@ -124,7 +124,7 @@ import {
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
-import { updateGitDefaultBranchSaga } from "@appsmith/sagas/GitExtendedSagas";
+import { gitExtendedSagas } from "@appsmith/sagas/GitExtendedSagas";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -834,7 +834,7 @@ function* disconnectGitSaga() {
         }),
       );
       yield put({
-        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+        type: ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
       });
 
       // while disconnecting another application, i.e. not the current one
@@ -879,7 +879,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === workspaceIdForImport,
       );
@@ -1290,7 +1290,6 @@ const gitRequestBlockingActions: Record<
   [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT]: generateSSHKeyPairSaga,
   [ReduxActionTypes.DELETE_BRANCH_INIT]: deleteBranch,
   [ReduxActionTypes.GIT_DISCARD_CHANGES]: discardChanges,
-  [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
   [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
     updateGitProtectedBranchesSaga,
 };
@@ -1299,6 +1298,7 @@ const gitRequestNonBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
 > = {
+  ...gitExtendedSagas,
   [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: fetchGlobalGitConfig,
   [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT]: fetchLocalGitConfig,
   [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,

@@ -44,6 +44,7 @@ describe("EditorContextProvider", () => {
       "checkContainersForAutoHeight",
       "updatePositionsOnTabChange",
       "updateOneClickBindingOptionsVisibility",
+      "unfocusWidget",
     ].sort();
 
     const testRenderer = TestRenderer.create(
@@ -79,6 +80,7 @@ describe("EditorContextProvider", () => {
       "updateWidgetDimension",
       "checkContainersForAutoHeight",
       "updatePositionsOnTabChange",
+      "unfocusWidget",
     ].sort();
 
     const testRenderer = TestRenderer.create(
