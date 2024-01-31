@@ -3,10 +3,7 @@ import type {
   ShowPropertyPanePayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  DEFAULT_PP_LARGE_WIDTH,
-  DEFAULT_PROPERTY_PANE_WIDTH,
-} from "constants/AppConstants";
+import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 
 export interface SelectedPropertyPanel {
@@ -18,10 +15,7 @@ const initialState: PropertyPaneReduxState = {
   widgetId: undefined,
   lastWidgetId: undefined,
   isNew: false,
-  width:
-    window.innerWidth > 1440
-      ? DEFAULT_PP_LARGE_WIDTH
-      : DEFAULT_PROPERTY_PANE_WIDTH,
+  width: DEFAULT_PROPERTY_PANE_WIDTH,
   selectedPropertyPanel: {},
 };
 

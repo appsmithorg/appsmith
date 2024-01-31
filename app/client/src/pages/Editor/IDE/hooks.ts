@@ -111,7 +111,7 @@ export const useEditorPaneWidth = (): number => {
       segment !== EditorEntityTab.UI
     ) {
       // 1px is propertypane border width
-      setWidth(DEFAULT_EDITOR_PANE_WIDTH + propertyPaneWidth + 1);
+      setWidth(DEFAULT_EDITOR_PANE_WIDTH + propertyPaneWidth);
     } else {
       setWidth(DEFAULT_EDITOR_PANE_WIDTH);
     }
