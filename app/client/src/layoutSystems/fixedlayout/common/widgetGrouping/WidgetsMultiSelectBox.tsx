@@ -32,22 +32,9 @@ const StyledSelectionBox = styled.div`
   cursor: grab;
 `;
 
-// const StyledActionsContainer = styled.div`
-//   position: relative;
-//   height: 100%;
-//   width: 100%;
-// `;
-
-// const StyledActions = styled.div`
-//   left: calc(100% - 38px);
-//   padding: 5px 0;
-//   width: max-content;
-//   z-index: ${Layers.contextMenu};
-//   position: absolute;
-//   background-color: ${(props) => props.theme.colors.appBackground};
-// `;
 const StyledActions = styled.div`
   margin-top: 5px;
+  margin-left: -38px;
   padding: 5px 0;
   width: max-content;
   position: absolute;
@@ -160,11 +147,25 @@ const groupHelpText = (
   </>
 );
 
-const StyledActionsContainer = (props: any) => {
-  const { children, height, left, top } = props;
+/**
+ * Component creates a portal to render the context menu container outside of the main component hierarchy.
+ */
+const StyledActionsContainer = (props: {
+  children: React.ReactNode;
+  height?: number;
+  left?: number;
+  top?: number;
+  width?: number;
+}) => {
+  const { children, height, left, top, width } = props;
 
   return createPortal(
-    <StyledActions style={{ left, top: top + height }}>
+    <StyledActions
+      style={{
+        left: Number(width) + Number(left),
+        top: Number(top) + Number(height),
+      }}
+    >
       {children}
     </StyledActions>,
     document.body,
@@ -365,8 +366,7 @@ function WidgetsMultiSelectBox(props: {
         height={height}
         left={parentLeft}
         top={parentTop}
-        // left={(parentLeft ?? 0) + (width ?? 0) - (width ? 38 : 0)}
-        // top={(parentTop ?? 0) + (height ?? 0)}
+        width={width}
       >
         {/* copy widgets */}
         <Tooltip
