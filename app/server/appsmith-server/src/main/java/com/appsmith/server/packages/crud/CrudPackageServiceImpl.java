@@ -318,17 +318,21 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<PackageDTO> deletePackage(String packageId) {
-        Mono<Package> packageMono = repository
+        Mono<Package> originPackageMono = repository
                 .findById(packageId, packagePermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, packageId)))
                 .cache();
 
-        return packageMono.flatMap(aPackage -> crudModuleService
-                .archiveModulesByPackageId(packageId)
-                .then(repository.archiveById(aPackage.getId()))
+        return originPackageMono.flatMap(originPackage -> repository
+                .findAllByPackageUUID(
+                        originPackage.getPackageUUID(), Optional.of(packagePermission.getDeletePermission()))
+                .flatMap(toBeDelPkg -> crudModuleService
+                        .archiveModulesByPackageId(toBeDelPkg.getId())
+                        .then(repository.archiveById(toBeDelPkg.getId())))
+                .collectList()
                 .as(transactionalOperator::transactional)
-                .then(setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getUnpublishedPackage())));
+                .then(setTransientFieldsFromPackageToPackageDTO(originPackage, originPackage.getUnpublishedPackage())));
     }
 
     @Override

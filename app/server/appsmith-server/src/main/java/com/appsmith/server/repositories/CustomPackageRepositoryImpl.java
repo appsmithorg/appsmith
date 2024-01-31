@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -159,5 +160,15 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 .is(true);
 
         return queryOne(List.of(originPackageCriteria), null, permission);
+    }
+
+    @Override
+    public Flux<Package> findAllByPackageUUID(String packageUUID, Optional<AclPermission> permission) {
+        Criteria packageUUIDCriterion =
+                Criteria.where(fieldName(QPackage.package$.packageUUID)).is(packageUUID);
+
+        List<Criteria> criteria = new ArrayList<>();
+        criteria.add(packageUUIDCriterion);
+        return queryAll(criteria, permission);
     }
 }

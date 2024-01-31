@@ -26,6 +26,7 @@ import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
+import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.FeatureFlagService;
@@ -55,6 +56,7 @@ import reactor.test.StepVerifier;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -74,6 +76,9 @@ import static org.mockito.Mockito.doReturn;
 @Slf4j
 @DirtiesContext
 class CrudPackageServiceTest {
+    @Autowired
+    private ModuleRepository moduleRepository;
+
     @Autowired
     private PackageRepository packageRepository;
 
@@ -697,5 +702,107 @@ class CrudPackageServiceTest {
                     assertThat(consumablePackagesAndModulesDTO.getModules()).isEmpty();
                 })
                 .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testConsumablePackagesAndModulesShouldReturnEmptyWhenPackageIsDeleted() {
+        final PackageDTO aPackage = new PackageDTO();
+        aPackage.setName("ConsumablePackageEmptyTestWhenPackageIsDeleted");
+        aPackage.setColor("#C2DAF0");
+        aPackage.setIcon("rupee");
+
+        AtomicReference<String> originPackageIdRef = new AtomicReference<>();
+        AtomicReference<PackageDTO> originPackageDTORef = new AtomicReference<>();
+
+        // create package
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, firstWorkspaceId);
+
+        StepVerifier.create(firstPackageMono)
+                .assertNext(createdPackage -> {
+                    assertThat(createdPackage.getId()).isNotEmpty();
+                    originPackageIdRef.set(createdPackage.getId());
+                    originPackageDTORef.set(createdPackage);
+                    assertThat(createdPackage.getName()).isEqualTo(aPackage.getName());
+                })
+                .verifyComplete();
+
+        // create a module
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("ModuleX");
+        moduleDTO.setPackageId(originPackageIdRef.get());
+        moduleDTO.setType(ModuleType.QUERY_MODULE);
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+
+        moduleDTO.setEntity(moduleActionDTO);
+
+        ModuleDTO firstModuleDTO = crudModuleService.createModule(moduleDTO).block();
+        assertThat(firstModuleDTO.getId()).isNotEmpty();
+
+        // create another module
+        ModuleDTO anotherModuleDTO = new ModuleDTO();
+        anotherModuleDTO.setName("ModuleY");
+        anotherModuleDTO.setPackageId(originPackageIdRef.get());
+        anotherModuleDTO.setType(ModuleType.QUERY_MODULE);
+
+        ModuleActionDTO anotherModuleActionDTO = new ModuleActionDTO();
+
+        anotherModuleDTO.setEntity(anotherModuleActionDTO);
+
+        ModuleDTO secondModuleDTO =
+                crudModuleService.createModule(anotherModuleDTO).block();
+        assertThat(secondModuleDTO.getId()).isNotEmpty();
+
+        publishPackageService.publishPackage(originPackageIdRef.get()).block();
+        publishPackageService.publishPackage(originPackageIdRef.get()).block();
+
+        // fetch all consumable packages and modules for the given `workspaceId`
+        Mono<ConsumablePackagesAndModulesDTO> packagesAndModulesDTOMono =
+                crudPackageService.getAllPackagesForConsumer(firstWorkspaceId);
+
+        // verify that there are consumable packages and modules as the package is already published
+        StepVerifier.create(packagesAndModulesDTOMono)
+                .assertNext(consumablePackagesAndModulesDTO -> {
+                    assertThat(consumablePackagesAndModulesDTO.getPackages()).hasSize(1);
+                    assertThat(consumablePackagesAndModulesDTO
+                                    .getPackages()
+                                    .get(0)
+                                    .getLatest())
+                            .isTrue();
+                    assertThat(consumablePackagesAndModulesDTO.getModules()).hasSize(2);
+                })
+                .verifyComplete();
+
+        // Delete the package
+        crudPackageService.deletePackage(originPackageIdRef.get()).block();
+
+        packagesAndModulesDTOMono = crudPackageService.getAllPackagesForConsumer(firstWorkspaceId);
+
+        // verify that there are no consumable packages and modules
+        StepVerifier.create(packagesAndModulesDTOMono)
+                .assertNext(consumablePackagesAndModulesDTO -> {
+                    assertThat(consumablePackagesAndModulesDTO.getPackages()).isEmpty();
+                    assertThat(consumablePackagesAndModulesDTO.getModules()).isEmpty();
+                })
+                .verifyComplete();
+
+        // Verify that all the published versions of the package and modules should also get deleted
+        List<Package> matchingPackages = packageRepository
+                .findAllByPackageUUID(originPackageDTORef.get().getPackageUUID(), Optional.empty())
+                .collectList()
+                .block();
+        List<Module> matchingFirstModules = moduleRepository
+                .findAllByModuleUUID(firstModuleDTO.getModuleUUID(), Optional.empty())
+                .collectList()
+                .block();
+        List<Module> matchingSecondModules = moduleRepository
+                .findAllByModuleUUID(secondModuleDTO.getModuleUUID(), Optional.empty())
+                .collectList()
+                .block();
+
+        assertThat(matchingPackages).hasSize(0);
+        assertThat(matchingFirstModules).hasSize(0);
+        assertThat(matchingSecondModules).hasSize(0);
     }
 }

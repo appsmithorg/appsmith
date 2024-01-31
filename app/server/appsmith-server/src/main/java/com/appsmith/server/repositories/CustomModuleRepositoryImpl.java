@@ -122,4 +122,14 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
         return queryAll(
                 criteria, Optional.ofNullable(projectionFields), permissionOptional, Optional.empty(), NO_RECORD_LIMIT);
     }
+
+    @Override
+    public Flux<Module> findAllByModuleUUID(String moduleUUID, Optional<AclPermission> permission) {
+        List<Criteria> criteria = new ArrayList<>();
+        Criteria moduleUUIDCriterion =
+                Criteria.where(fieldName(QModule.module.moduleUUID)).is(moduleUUID);
+        criteria.add(moduleUUIDCriterion);
+
+        return queryAll(criteria, permission);
+    }
 }

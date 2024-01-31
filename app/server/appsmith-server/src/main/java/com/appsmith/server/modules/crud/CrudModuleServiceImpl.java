@@ -363,25 +363,33 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleDTO> deleteModule(String moduleId) {
-        Mono<Module> moduleMono = repository
+        Mono<Module> originModuleMono = repository
                 .findById(moduleId, modulePermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_ID, moduleId)));
 
-        return moduleMono
-                .flatMap(module -> moduleInstancePermissionChecker
-                        .getModuleInstanceCountByModuleUUID(module.getModuleUUID())
+        return originModuleMono
+                .flatMap(originModule -> moduleInstancePermissionChecker
+                        .getModuleInstanceCountByModuleUUID(originModule.getModuleUUID())
                         .flatMap(numberOfModuleInstances -> {
                             if (numberOfModuleInstances > 0) {
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.MODULE_HAS_INSTANCES, numberOfModuleInstances));
                             }
 
-                            return repository.archive(module).flatMap(deletedModule -> newActionService
-                                    .archiveActionsByModuleId(moduleId)
-                                    .then(actionCollectionService.archiveActionCollectionsByModuleId(moduleId))
+                            return repository
+                                    .findAllByModuleUUID(
+                                            originModule.getModuleUUID(),
+                                            Optional.of(modulePermission.getDeletePermission()))
+                                    .flatMap(toBeDeletedModule -> repository
+                                            .archive(toBeDeletedModule)
+                                            .flatMap(deletedModule -> newActionService
+                                                    .archiveActionsByModuleId(moduleId)
+                                                    .then(actionCollectionService.archiveActionCollectionsByModuleId(
+                                                            moduleId))))
+                                    .collectList()
                                     .then(setTransientFieldsFromModuleToModuleDTO(
-                                            deletedModule, deletedModule.getUnpublishedModule())));
+                                            originModule, originModule.getUnpublishedModule()));
                         }))
                 .flatMap(moduleDTO -> packageMetadataService
                         .saveLastEditInformation(moduleDTO.getPackageId())
