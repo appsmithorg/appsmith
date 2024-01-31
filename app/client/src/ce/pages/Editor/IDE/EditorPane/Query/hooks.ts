@@ -3,8 +3,6 @@ import history from "utils/history";
 import { LIST_PATH } from "@appsmith/constants/routes/appRoutes";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
-import { EditorEntityTabState } from "@appsmith/entities/IDE/constants";
 import { useSelector } from "react-redux";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -19,14 +17,11 @@ import { getQueryAddUrl } from "./utils";
 export const useQueryAdd = () => {
   const location = useLocation();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
-  const { segmentMode } = useCurrentEditorState();
 
   const addButtonClickHandler = useCallback(() => {
-    if (segmentMode === EditorEntityTabState.Edit) {
-      const url = getQueryAddUrl(currentEntityInfo);
-      history.push(url);
-    }
-  }, [currentEntityInfo.id, segmentMode]);
+    const url = getQueryAddUrl(currentEntityInfo);
+    history.push(url);
+  }, [currentEntityInfo.id]);
 
   return addButtonClickHandler;
 };
