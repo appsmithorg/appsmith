@@ -177,7 +177,12 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
                         .getDefaultTenantId()
                         .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId())))
-                .flatMap(userId -> repository.saveReleaseNotesViewedVersion(userId, version))
+                .flatMap(repository::findByUserId)
+                .defaultIfEmpty(new UserData(user.getId()))
+                .flatMap(userData -> {
+                    userData.setReleaseNotesViewedVersion(version);
+                    return repository.save(userData);
+                })
                 .thenReturn(user);
     }
 
