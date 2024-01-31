@@ -33,6 +33,7 @@ describe(
 
       //Adding app
       homePage.NavigateToHome();
+      homePage.SelectWorkspace(workspaceName);
       homePage.CreateAppInWorkspace(workspaceName);
       homePage.RenameApplication(appName);
       gsheetHelper.AddNewSpreadsheetQuery(

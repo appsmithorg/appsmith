@@ -3,7 +3,7 @@ import Fuse from "fuse.js";
 import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getDefaultPlugins } from "@appsmith/selectors/entitiesSelector";
-import type { Filter } from "pages/Templates/Filters";
+import type { Filter } from "pages/Templates/TemplateFilters";
 import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";

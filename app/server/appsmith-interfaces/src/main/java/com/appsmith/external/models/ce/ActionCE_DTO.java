@@ -212,9 +212,13 @@ public class ActionCE_DTO implements Identifiable, Executable {
         }
         if (this.getUserPermissions() != null) {
             this.getUserPermissions().clear();
+        } else {
+            this.setUserPermissions(Set.of());
         }
         if (this.getPolicies() != null) {
             this.getPolicies().clear();
+        } else {
+            this.setPolicies(Set.of());
         }
     }
 
@@ -298,7 +302,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
         this.setPluginName(null);
         this.setPluginType(null);
         this.setErrorReports(null);
-        //        this.setMessages(null);
         this.setDocumentation(null);
     }
 }

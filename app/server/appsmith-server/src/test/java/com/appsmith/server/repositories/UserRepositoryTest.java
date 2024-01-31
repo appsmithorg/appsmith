@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -126,15 +125,11 @@ public class UserRepositoryTest {
                 .limit(countOfUsersToBeCreated)
                 .mapToObj(index -> uuid + "_" + index + "@gmail.com")
                 .toList();
-        List<String> sortedEmails = new ArrayList<>(unsortedEmails);
-        Collections.sort(sortedEmails);
-        List<User> createdUsers = unsortedEmails.stream()
-                .map(email -> {
-                    User user = new User();
-                    user.setEmail(email);
-                    return userRepository.save(user).block();
-                })
-                .toList();
+        unsortedEmails.forEach(email -> {
+            User user = new User();
+            user.setEmail(email);
+            userRepository.save(user).block();
+        });
 
         List<User> allCreatedUsers = userRepository
                 .findAllByEmailIn(new HashSet<>(unsortedEmails))

@@ -43,6 +43,8 @@ import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
 import GitSettingsModal from "./gitSync/GitSettingsModal";
+import ReconfigureCDKeyModal from "@appsmith/components/gitComponents/ReconfigureCDKeyModal";
+import DisableCDModal from "@appsmith/components/gitComponents/DisableCDModal";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -167,6 +169,8 @@ class Editor extends Component<Props> {
             <IDE />
             <GitSyncModal />
             <GitSettingsModal />
+            <DisableCDModal />
+            <ReconfigureCDKeyModal />
             <DisconnectGitModal />
             <DisableAutocommitModal />
             <RepoLimitExceededErrorModal />

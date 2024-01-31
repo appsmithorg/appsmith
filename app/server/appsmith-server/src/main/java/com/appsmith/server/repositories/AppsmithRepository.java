@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface AppsmithRepository<T> {
 
@@ -25,7 +24,13 @@ public interface AppsmithRepository<T> {
 
     List<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
 
-    T setUserPermissionsInObject(T obj, Set<String> permissionGroups);
+    List<T> queryAllWithStrictPermissionGroups(
+            List<Criteria> criterias,
+            Optional<List<String>> includeFields,
+            Optional<AclPermission> permission,
+            Sort sort,
+            int limit,
+            int skip);
 
     T setUserPermissionsInObject(T obj);
 
