@@ -4616,11 +4616,7 @@ public class ImportServiceTests {
                         })
                         .zipWith(applicationJson)
                         .flatMap(objects -> importService
-                                .restoreSnapshot(
-                                        workspaceId,
-                                        objects.getT2(),
-                                        objects.getT1().getId(),
-                                        null)
+                                .restoreSnapshot(workspaceId, objects.getT1().getId(), null, objects.getT2())
                                 .map(importableArtifact -> (Application) importableArtifact)
                                 .zipWith(Mono.just(objects.getT1())))
                         .flatMap(objects -> {

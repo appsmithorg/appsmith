@@ -164,8 +164,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     ImportableArtifact context = tuple2.getT2();
                     ArtifactExchangeJson artifactExchangeJson = tuple2.getT1();
-                    return getArtifactImportDTO(
-                            context.getWorkspaceId(), context.getId(), context, artifactExchangeJson);
+                    return getArtifactImportDTO(context.getWorkspaceId(), context.getId(), context, artifactJsonType);
                 });
 
         return Mono.create(
@@ -310,7 +309,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     @Override
     public Mono<? extends ImportableArtifact> restoreSnapshot(
-            String workspaceId, ArtifactExchangeJson artifactExchangeJson, String artifactId, String branchName) {
+            String workspaceId, String artifactId, String branchName, ArtifactExchangeJson artifactExchangeJson) {
 
         /**
          * Like Git, restore snapshot is a system level operation. So, we're not checking for any permissions here.
@@ -385,10 +384,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * @param workspaceId          ID in which the context is to be merged
-     * @param artifactId           default ID of the artifact where this artifactExchangeJson is going to get merged with
-     * @param importableArtifact   the context (i.e. application, packages which is imported)
-     * @param artifactExchangeJson the Json entity from which the import is happening
+     * @param workspaceId        ID in which the context is to be merged
+     * @param artifactId         default ID of the artifact where this artifactExchangeJson is going to get merged with
+     * @param importableArtifact the context (i.e. application, packages which is imported)
+     * @param artifactJsonType   the Json entity from which the import is happening
      * @return ImportableArtifactDTO
      */
     @Override
@@ -396,8 +395,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             String workspaceId,
             String artifactId,
             ImportableArtifact importableArtifact,
-            ArtifactExchangeJson artifactExchangeJson) {
-        return getContextBasedImportService(artifactExchangeJson)
+            ArtifactJsonType artifactJsonType) {
+        return getContextBasedImportService(artifactJsonType)
                 .getImportableArtifactDTO(workspaceId, artifactId, importableArtifact);
     }
 

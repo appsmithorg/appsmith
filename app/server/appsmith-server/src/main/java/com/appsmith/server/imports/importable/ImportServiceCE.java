@@ -87,13 +87,13 @@ public interface ImportServiceCE {
             List<String> entitiesToImport);
 
     Mono<? extends ImportableArtifact> restoreSnapshot(
-            String workspaceId, ArtifactExchangeJson artifactExchangeJson, String artifactId, String branchName);
+            String workspaceId, String artifactId, String branchName, ArtifactExchangeJson artifactExchangeJson);
 
     Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
             String workspaceId,
             String artifactId,
             ImportableArtifact importableArtifact,
-            ArtifactExchangeJson artifactExchangeJson);
+            ArtifactJsonType artifactJsonType);
 
     Mono<List<Datasource>> findDatasourceByArtifactId(
             String defaultArtifactId, String workspaceId, ArtifactJsonType artifactJsonType);
