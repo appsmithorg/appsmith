@@ -190,6 +190,27 @@ export function renderDatasourceSection(
               value = section.initialValue;
             }
 
+            if (controlType === "MULTIPLE_FILE_PICKER") {
+              if (value && Array.isArray(value) && value.length > 0) {
+                const isPlural = value.length > 1;
+
+                return (
+                  <FieldWrapper key={reactKey}>
+                    <Key>{label}: </Key>{" "}
+                    <Value>
+                      {value.length} File{isPlural ? "s" : ""} uploaded
+                    </Value>
+                  </FieldWrapper>
+                );
+              } else {
+                return (
+                  <FieldWrapper key={reactKey}>
+                    <Key>{label}: </Key> No Files Uploaded
+                  </FieldWrapper>
+                );
+              }
+            }
+
             if (!value || (isArray(value) && value.length < 1)) {
               return;
             }
