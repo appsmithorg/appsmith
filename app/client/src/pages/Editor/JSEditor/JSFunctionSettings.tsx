@@ -113,7 +113,9 @@ const SettingsBodyWrapper = styled.div`
   overflow: auto;
   max-height: calc(100% - 48px);
 `;
-
+const SwitchWrapper = styled.div`
+  margin-left: 6ch;
+`;
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
   return (
     <SettingColumn grow={grow} isHeading>
@@ -194,13 +196,15 @@ function SettingsItem({
             ))}
           </RadioGroup>
         ) : (
-          <Switch
-            defaultSelected={JSON.parse(executeOnPageLoad)}
-            name={`execute-on-page-load-${action.id}`}
-            onChange={(isSelected) =>
-              onChangeExecuteOnPageLoad(String(isSelected))
-            }
-          />
+          <SwitchWrapper>
+            <Switch
+              defaultSelected={JSON.parse(executeOnPageLoad)}
+              name={`execute-on-page-load-${action.id}`}
+              onChange={(isSelected) =>
+                onChangeExecuteOnPageLoad(String(isSelected))
+              }
+            />
+          </SwitchWrapper>
         )}
       </SettingColumn>
       <SettingColumn className={`${action.name}-confirm-before-execute`}>
@@ -222,13 +226,16 @@ function SettingsItem({
             ))}
           </RadioGroup>
         ) : (
-          <Switch
-            defaultSelected={JSON.parse(confirmBeforeExecute)}
-            name={`confirm-before-execute-${action.id}`}
-            onChange={(isSelected) =>
-              onChangeConfirmBeforeExecute(String(isSelected))
-            }
-          />
+          <SwitchWrapper>
+            <Switch
+              className="flex justify-center "
+              defaultSelected={JSON.parse(confirmBeforeExecute)}
+              name={`confirm-before-execute-${action.id}`}
+              onChange={(isSelected) =>
+                onChangeConfirmBeforeExecute(String(isSelected))
+              }
+            />
+          </SwitchWrapper>
         )}
       </SettingColumn>
       {renderAdditionalColumns?.(action)}
