@@ -12,7 +12,7 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
 
     Mono<User> findByEmail(String email);
 
-    Mono<User> findByCaseInsensitiveEmail(String email);
+    Mono<User> findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(String email);
 
     Flux<User> findAllByEmailIn(Set<String> emails);
 
