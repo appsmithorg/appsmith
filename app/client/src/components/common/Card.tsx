@@ -379,7 +379,7 @@ function Card({
           {Boolean(moreActionItems.length) && !isMobile && contextMenu}
         </CardFooter>
       </NameWrapper>
-      {showGitBadge && hasEditPermission && <GitConnectedBadge />}
+      {showGitBadge && <GitConnectedBadge />}
     </Container>
   );
 }

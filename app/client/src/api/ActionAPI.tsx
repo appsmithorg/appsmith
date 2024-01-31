@@ -99,7 +99,7 @@ export interface SuggestedWidget {
 }
 
 export interface ActionResponse {
-  body: unknown;
+  body: React.ReactNode;
   headers: Record<string, string[]>;
   request?: ActionApiResponseReq;
   statusCode: string;

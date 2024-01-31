@@ -65,6 +65,25 @@ function TemplateList(props: TemplateListProps) {
 
   return (
     <Wrapper isModalLayout={props.isModalLayout}>
+      {!onlyBuildingBlocksFilterSet && (
+        <>
+          <SubheadingText kind="heading-m">Use case templates</SubheadingText>
+
+          <TemplateGrid>
+            {useCaseTemplates.map((template) => (
+              <FixedHeightTemplate
+                hideForkTemplateButton={!props.isForkingEnabled}
+                key={template.id}
+                onClick={props.onTemplateClick}
+                onForkTemplateClick={props.onForkTemplateClick}
+                template={template}
+              />
+            ))}
+            <RequestTemplate />
+          </TemplateGrid>
+        </>
+      )}
+      {showHorizontalLine && <HorizontalLine />}
       {showBuildingBlocksSection && (
         <>
           <SubheadingText kind="heading-m">
@@ -82,27 +101,6 @@ function TemplateList(props: TemplateListProps) {
               />
             ))}
             {onlyBuildingBlocksFilterSet && <RequestTemplate isBuildingBlock />}
-          </TemplateGrid>
-        </>
-      )}
-
-      {showHorizontalLine && <HorizontalLine />}
-
-      {!onlyBuildingBlocksFilterSet && (
-        <>
-          <SubheadingText kind="heading-m">Use case templates</SubheadingText>
-
-          <TemplateGrid>
-            {useCaseTemplates.map((template) => (
-              <FixedHeightTemplate
-                hideForkTemplateButton={!props.isForkingEnabled}
-                key={template.id}
-                onClick={props.onTemplateClick}
-                onForkTemplateClick={props.onForkTemplateClick}
-                template={template}
-              />
-            ))}
-            <RequestTemplate />
           </TemplateGrid>
         </>
       )}
