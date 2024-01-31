@@ -146,31 +146,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> update(String userId, UserData resource) {
-        if (userId == null) {
-            return Mono.error(
-                    new AppsmithException(AppsmithError.INVALID_PARAMETER, fieldName(QUserData.userData.userId)));
-        }
-
-        Query query =
-                new Query(Criteria.where(fieldName(QUserData.userData.userId)).is(userId));
-
-        // In case the update is not used to update the policies, then set the policies to null to ensure that the
-        // existing policies are not overwritten.
-        if (resource.getPolicies().isEmpty()) {
-            resource.setPolicies(null);
-        }
-
-        DBObject update = getDbObject(resource);
-
-        Update updateObj = new Update();
-        Map<String, Object> updateMap = update.toMap();
-        updateMap.entrySet().stream().forEach(entry -> updateObj.set(entry.getKey(), entry.getValue()));
-
-        return mongoTemplate
-                .updateFirst(query, updateObj, resource.getClass())
-                .flatMap(updateResult ->
-                        updateResult.getMatchedCount() == 0 ? Mono.empty() : repository.findByUserId(userId))
-                .flatMap(analyticsService::sendUpdateEvent);
+        return update(userId, resource, "userId");
     }
 
     @Override
