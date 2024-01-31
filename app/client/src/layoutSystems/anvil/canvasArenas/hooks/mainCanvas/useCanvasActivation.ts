@@ -65,7 +65,6 @@ export const useCanvasActivation = () => {
   const draggedWidgetPositions = selectedWidgets.map((each) => {
     return layoutElementPositions[each];
   });
-
   /**
    * boolean ref that indicates if the mouse position is outside of main canvas while dragging
    * this is being tracked in order to activate/deactivate canvas.
