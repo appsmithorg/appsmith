@@ -11,11 +11,6 @@ interface State {
   hasError: boolean;
 }
 
-const ErrorBoundaryContainer = styled.div`
-  height: 100%;
-  width: 100%;
-`;
-
 const RetryLink = styled.span`
   color: ${(props) => props.theme.colors.primaryDarkest};
   cursor: pointer;
@@ -39,7 +34,7 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     return (
-      <ErrorBoundaryContainer className="error-boundary">
+      <div className="error-boundary">
         {this.state.hasError ? (
           <p>
             Oops, Something went wrong.
@@ -51,7 +46,7 @@ class ErrorBoundary extends React.Component<Props, State> {
         ) : (
           this.props.children
         )}
-      </ErrorBoundaryContainer>
+      </div>
     );
   }
 }

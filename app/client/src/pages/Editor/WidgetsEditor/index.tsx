@@ -9,6 +9,8 @@ import {
   getCurrentPageName,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import { LayoutSystemTypes } from "../../../layoutSystems/types";
+import { getLayoutSystemType } from "../../../selectors/layoutSystemSelectors";
 import NavigationPreview from "./NavigationPreview";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import PerformanceTracker, {
@@ -86,6 +88,9 @@ function WidgetsEditor() {
   const [enableOverlayCanvas] = checkLayoutSystemFeatures([
     LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI,
   ]);
+
+  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
+  const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -176,7 +181,7 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider renderMode="CANVAS">
-      <div className="relative flex flex-row w-full overflow-hidden">
+      <div className="relative flex flex-row h-full w-full overflow-hidden">
         <div
           className={classNames({
             "relative flex flex-col w-full overflow-hidden": true,
@@ -189,7 +194,7 @@ function WidgetsEditor() {
           )}
           <AnonymousDataPopup />
           <div
-            className="relative flex flex-row w-full overflow-hidden"
+            className="relative flex flex-row h-full w-full overflow-hidden"
             data-testid="widgets-editor"
             draggable
             id="widgets-editor"
@@ -218,9 +223,20 @@ function WidgetsEditor() {
               isPreview={isPreviewMode || isProtectedMode}
               isPublished={isPublished}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
+              style={
+                isAnvilLayout
+                  ? {
+                      //This is necessary in order to place WDS modal with position: fixed; relatively to the canvas.
+                      transform: "scale(1)",
+                    }
+                  : {}
+              }
             >
               {shouldShowSnapShotBanner && (
-                <div className="absolute top-0 z-1 w-full">
+                <div
+                  className="absolute top-0 w-full"
+                  style={{ zIndex: "calc(var(--on-canvas-ui-z-index) + 1)" }}
+                >
                   <SnapShotBannerCTA />
                 </div>
               )}

@@ -56,7 +56,10 @@ export function usePopover({
   const click = useClick(context, {
     enabled: controlledOpen == null,
   });
-  const dismiss = useDismiss(context);
+  const dismiss = useDismiss(context, {
+    outsidePress: (event) =>
+      Boolean((event?.target as HTMLElement).closest("[data-theme-provider]")),
+  });
   const role = useRole(context);
   const interactions = useInteractions([click, dismiss, role]);
 
