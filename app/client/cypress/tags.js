@@ -1,5 +1,6 @@
 module.exports = {
   Tag: [
+    "@tag.Anvil",
     "@tag.excludeForAirgap",
     "@tag.airgap",
     "@tag.Git",
