@@ -257,7 +257,7 @@ function FilePicker(props: FilePickerProps) {
                 className="min-w-[90px] max-w-[90px] inline-block text-right"
                 kind="body-s"
               >
-                ({getFileSize(file.size)} KB)
+                ({getFileSize(file.size)})
               </Text>
             </div>
           </Tag>
