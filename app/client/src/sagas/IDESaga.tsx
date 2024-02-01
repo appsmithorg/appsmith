@@ -40,11 +40,11 @@ function* getUpdatedTabs(newId: string, currentTabs: string[]) {
   return newTabs;
 }
 
-export function* handleJSEntityRedirect(deletedJSObjectId: string) {
+export function* handleJSEntityRedirect(deletedId: string) {
   const pageId: string = yield select(getCurrentPageId);
   const allJsObjects: EntityItem[] = yield select(getJSSegmentItems);
   const redirectAction = getNextEntityAfterDelete(
-    deletedJSObjectId,
+    deletedId,
     allJsObjects,
   );
   switch (redirectAction.action) {
