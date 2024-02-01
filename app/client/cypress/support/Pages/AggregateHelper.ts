@@ -1731,12 +1731,11 @@ export class AggregateHelper {
     });
   }
 
-  public VisitNAssert(url: string, apiToValidate = "", waitTime = 3000) {
+  public VisitNAssert(url: string, apiToValidate = "") {
     cy.visit(url, { timeout: 60000 });
     // cy.window({ timeout: 60000 }).then((win) => {
     //   win.location.href = url;
     // });
-    this.Sleep(waitTime); //for new url to settle
     if (
       apiToValidate.includes("getAllWorkspaces") &&
       Cypress.env("AIRGAPPED")
