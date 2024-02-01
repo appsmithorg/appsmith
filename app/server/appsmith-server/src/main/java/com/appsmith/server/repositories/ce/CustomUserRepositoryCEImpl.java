@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -27,15 +26,6 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-    }
-
-    @Override
-    public Mono<User> findByCaseInsensitiveEmail(String email) {
-        String findEmailRegex = String.format("^%s$", Pattern.quote(email));
-        Criteria emailCriteria = where(fieldName(QUser.user.email)).regex(findEmailRegex, "i");
-        Query query = new Query();
-        query.addCriteria(emailCriteria);
-        return mongoOperations.findOne(query, User.class);
     }
 
     @Override
