@@ -13,8 +13,7 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
 
     Optional<User> findByEmail(String email);
 
-    @Query("select u from User u where lower(u.email) = lower(?1) order by u.createdAt desc limit 1")
-    Optional<User> findByEmailIgnoreCase(String email);
+    Optional<User> findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(String email);
 
     List<User> findAllByEmailIn(Set<String> emails);
 

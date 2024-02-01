@@ -89,6 +89,7 @@ function CreateNewAPI({
   active,
   history,
   isCreating,
+  isOnboardingScreen,
   pageId,
   showUnsupportedPluginDialog,
 }: any) {
@@ -114,6 +115,7 @@ function CreateNewAPI({
       <NewApiScreen
         history={history}
         isCreating={isCreating}
+        isOnboardingScreen={isOnboardingScreen}
         location={location}
         pageId={pageId}
         showSaasAPIs={false}
@@ -318,6 +320,7 @@ class CreateNewDatasourceTab extends React.Component<
           active={false}
           history={history}
           isCreating={isCreating}
+          isOnboardingScreen={!!isOnboardingScreen}
           location={location}
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}

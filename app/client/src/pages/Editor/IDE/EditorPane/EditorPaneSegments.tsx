@@ -22,7 +22,12 @@ const EditorPaneSegments = () => {
   const { path } = useRouteMatch();
 
   return (
-    <Flex flexDirection="column" gap="spacing-2" overflow="hidden">
+    <Flex
+      flexDirection="column"
+      gap="spacing-2"
+      height="100%"
+      overflow="hidden"
+    >
       <SegmentedHeader />
       <EditorTabs />
       <Flex

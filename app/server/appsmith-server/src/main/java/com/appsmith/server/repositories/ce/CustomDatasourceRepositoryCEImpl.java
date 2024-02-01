@@ -30,17 +30,25 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     public List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
         return Collections.emptyList(); /*
         Criteria workspaceIdCriteria =
-                where("workspaceId").is(workspaceId);
-        return queryAll(List.of(workspaceIdCriteria), permission, Sort.by("name"));*/
+                where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        Sort sort = Sort.by(fieldName(QDatasource.datasource.name));
+        return queryAll()
+                .criteria(workspaceIdCriteria)
+                .permission(permission)
+                .sort(sort)
+                .submit();*/
     }
 
     // @Override
     public List<Datasource> findAllByWorkspaceId(Long workspaceId /*, Optional<AclPermission> permission*/) {
         return Collections.emptyList(); /*
         Criteria workspaceIdCriteria =
-                where("workspaceId").is(workspaceId);
-        return queryAll(
-                List.of(workspaceIdCriteria), permission, Optional.of(Sort.by("name")));*/
+                where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        return queryAll()
+                .criteria(workspaceIdCriteria)
+                .permission(permission.orElse(null))
+                .sort(Sort.by(fieldName(QDatasource.datasource.name)))
+                .submit();*/
     }
 
     @Override
@@ -65,18 +73,13 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     @Override
     public List<Datasource> findAllByIds(Set<String> ids, AclPermission permission) {
         Criteria idcriteria = where("id").in(ids);
-        return queryAll(List.of(idcriteria), permission);
+        return queryAll().criteria(idcriteria).permission(permission).submit();
     }
 
     @Override
     public List<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         return Collections.emptyList(); /*
         Criteria idCriteria = where("id").in(ids);
-        return queryAll(
-                List.of(idCriteria),
-                Optional.ofNullable(includeFields),
-                Optional.empty(),
-                Optional.empty(),
-                NO_RECORD_LIMIT);*/
+        return queryAll().criteria(idCriteria).fields(includeFields).submit();*/
     }
 }

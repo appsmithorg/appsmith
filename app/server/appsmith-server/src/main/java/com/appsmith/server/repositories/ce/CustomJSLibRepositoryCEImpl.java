@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,6 +40,6 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
 
         Criteria criteria = Criteria.where("uidString").in(uidStrings);
 
-        return this.queryAll(List.of(criteria), Optional.empty());
+        return queryAll().criteria(criteria).submit();
     }
 }

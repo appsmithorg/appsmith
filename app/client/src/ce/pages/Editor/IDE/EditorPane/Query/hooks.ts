@@ -3,13 +3,6 @@ import history from "utils/history";
 import { LIST_PATH } from "@appsmith/constants/routes/appRoutes";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
-import { EditorEntityTabState } from "@appsmith/entities/IDE/constants";
-import {
-  apiEditorIdURL,
-  queryAddURL,
-  queryEditorIdURL,
-} from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -19,26 +12,16 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { getQueryAddUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
 
 export const useQueryAdd = () => {
   const location = useLocation();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
-  const { segmentMode } = useCurrentEditorState();
 
   const addButtonClickHandler = useCallback(() => {
-    let url = queryAddURL({});
-    if (segmentMode === EditorEntityTabState.Edit) {
-      switch (currentEntityInfo.entity) {
-        case FocusEntity.QUERY:
-          url = queryEditorIdURL({ queryId: currentEntityInfo.id, add: true });
-          break;
-        case FocusEntity.API:
-          url = apiEditorIdURL({ apiId: currentEntityInfo.id, add: true });
-          break;
-      }
-    }
+    const url = getQueryAddUrl(currentEntityInfo);
     history.push(url);
-  }, [currentEntityInfo.id, location, segmentMode]);
+  }, [currentEntityInfo.id]);
 
   return addButtonClickHandler;
 };

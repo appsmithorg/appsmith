@@ -1,14 +1,18 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
@@ -45,9 +49,19 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
+    public List<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
+        // need to convert from Iterable to ArrayList because the "in" method of criteria takes a collection as input
+        Criteria criteria = where(fieldName(QUserData.userData.userId)).in(Lists.newArrayList(userId));
+        return queryAll()
+                .criteria(criteria)
+                .fields(fieldName(QUserData.userData.profilePhotoAssetId), fieldName(QUserData.userData.userId))
+                .submit();
+    }
+
+    @Override
     public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
         return Optional.empty(); /*
-        final Query query = query(where("userId").is(userId));
+        final Query query = query(where(fieldName(QUserData.userData.userId)).is(userId));
 
         query.fields().include(fieldName(QUserData.userData.recentlyUsedEntityIds));
 

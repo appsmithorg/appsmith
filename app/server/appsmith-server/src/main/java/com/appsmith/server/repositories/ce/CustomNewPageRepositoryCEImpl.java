@@ -42,13 +42,19 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return Collections.emptyList(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
-        return queryAll(List.of(applicationIdCriteria), aclPermission);*/
+        return queryAll()
+                .criteria(applicationIdCriteria)
+                .permission(aclPermission)
+                .submit();*/
     }
 
     @Override
     public List<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         Criteria applicationIdCriteria = where("applicationId").is(applicationId);
-        return queryAll(List.of(applicationIdCriteria), permission);
+        return queryAll()
+                .criteria(applicationIdCriteria)
+                .permission(permission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -61,7 +67,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria activeEditModeCriteria = where("unpublishedPage" + "."
                         + "deletedAt")
                 .is(null);
-        return queryAll(List.of(applicationIdCriteria, activeEditModeCriteria), aclPermission);*/
+        return queryAll()
+                .criteria(applicationIdCriteria, activeEditModeCriteria)
+                .permission(aclPermission)
+                .submit();*/
     }
 
     @Override
@@ -159,7 +168,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         Criteria idsCriterion = where("id").in(ids);
 
-        return this.queryAll(new ArrayList<>(List.of(idsCriterion)), includedFields, aclPermission, null);*/
+        return this.queryAll()
+                .criteria(idsCriterion)
+                .fields(includedFields)
+                .permission(aclPermission)
+                .submit();*/
     }
 
     private Criteria getNameCriterion(String name, Boolean viewMode) {
@@ -218,16 +231,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 "publishedPage", "customSlug");
         String applicationIdFieldPath = "applicationId";
 
-        return queryAll(
-                List.of(applicationIdCriteria),
-                List.of(
+        return queryAll()
+                .criteria(applicationIdCriteria)
+                .fields(
                         unpublishedSlugFieldPath,
                         unpublishedCustomSlugFieldPath,
                         publishedSlugFieldPath,
                         publishedCustomSlugFieldPath,
-                        applicationIdFieldPath),
-                aclPermission,
-                null);*/
+                        applicationIdFieldPath)
+                .permission(aclPermission)
+                .submit();*/
     }
 
     @Override
@@ -283,6 +296,6 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public List<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
-        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+        return queryAll().criteria(applicationCriteria).fields(includeFields).submit();
     }
 }

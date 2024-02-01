@@ -35,8 +35,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .is(workspaceId);
         Criteria defaultDomainTypeCriteria = where("defaultDomainType")
                 .is(Workspace.class.getSimpleName());
-        return queryAll(
-                List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);*/
+        return queryAll()
+                .criteria(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
+                .permission(permission)
+                .submit();*/
     }
 
     @Override
@@ -56,7 +58,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .is(workspaceId);
         Criteria defaultDomainTypeCriteria = where("defaultDomainType")
                 .is(Workspace.class.getSimpleName());
-        return queryAll(List.of(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);*/
+        return queryAll()
+                .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
+                .permission(permission)
+                .submit();*/
     }
 
     @Override
@@ -66,7 +71,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .in(workspaceIds);
         Criteria defaultDomainTypeCriteria = where("defaultDomainType")
                 .is(Workspace.class.getSimpleName());
-        return queryAll(List.of(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);*/
+        return queryAll()
+                .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
+                .permission(permission)
+                .submit();*/
     }
 
     @Override
@@ -97,7 +105,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         return Collections.emptyList(); /*
         Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
                 .in(userIds);
-        return queryAll(
-                List.of(assignedToUserIdCriteria), includeFields, permission, Optional.empty(), NO_RECORD_LIMIT);*/
+        return queryAll()
+                .criteria(assignedToUserIdCriteria)
+                .fields(includeFields.orElse(null))
+                .permission(permission.orElse(null))
+                .submit();*/
     }
 }

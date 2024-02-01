@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
