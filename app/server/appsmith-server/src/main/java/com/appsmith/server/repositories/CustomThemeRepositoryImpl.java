@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -31,6 +30,9 @@ public class CustomThemeRepositoryImpl extends CustomThemeRepositoryCEImpl imple
         Criteria notSystemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).ne(Boolean.TRUE);
         Criteria criteria = new Criteria().andOperator(appThemeCriteria, notSystemThemeCriteria);
-        return queryAll(List.of(criteria), aclPermission);
+        return queryAll()
+                .criteria(criteria)
+                .permission(aclPermission.orElse(null))
+                .submit();
     }
 }

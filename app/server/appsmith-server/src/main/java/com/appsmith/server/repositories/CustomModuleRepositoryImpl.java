@@ -6,6 +6,7 @@ import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.QModule;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,7 +34,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     public Flux<Module> getAllModulesByPackageId(String packageId, AclPermission permission) {
         Criteria packageCriteria = where(fieldName(QModule.module.packageId)).is(packageId);
 
-        return queryAll(List.of(packageCriteria), permission);
+        return queryAll().criteria(packageCriteria).permission(permission).submit();
     }
 
     @Override
@@ -41,19 +42,20 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
             List<String> packageIds, List<String> projectionFields, Optional<AclPermission> permissionOptional) {
         Criteria packageIdsCriteria = where(fieldName(QModule.module.packageId)).in(packageIds);
 
-        return queryAll(
-                List.of(packageIdsCriteria),
-                Optional.ofNullable(projectionFields),
-                permissionOptional,
-                Optional.empty(),
-                NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(packageIdsCriteria)
+                .fields(Optional.ofNullable(projectionFields).orElse(null))
+                .permission(permissionOptional.orElse(null))
+                .sort(Optional.<Sort>empty().orElse(null))
+                .limit(NO_RECORD_LIMIT)
+                .submit();
     }
 
     @Override
     public Flux<Module> getAllConsumableModulesByPackageIds(List<String> packageIds, AclPermission permission) {
         Criteria packageIdInCriteria =
                 where(fieldName(QModule.module.packageId)).in(packageIds);
-        return queryAll(List.of(packageIdInCriteria), Optional.of(permission));
+        return queryAll().criteria(packageIdInCriteria).permission(permission).submit();
     }
 
     @Override
@@ -90,12 +92,13 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     public Flux<Module> findAllByIds(
             Set<String> ids, List<String> projectionFields, Optional<AclPermission> permission) {
         Criteria idCriteria = where(fieldName(QModule.module.id)).in(ids);
-        return queryAll(
-                List.of(idCriteria),
-                Optional.ofNullable(projectionFields),
-                permission,
-                Optional.empty(),
-                NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(idCriteria)
+                .fields(Optional.ofNullable(projectionFields).orElse(null))
+                .permission(permission.orElse(null))
+                .sort(Optional.<Sort>empty().orElse(null))
+                .limit(NO_RECORD_LIMIT)
+                .submit();
     }
 
     @Override
@@ -119,8 +122,13 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
                 where(fieldName(QModule.module.originModuleId)).is(originModuleId);
 
         criteria.add(originModuleIdCriterion);
-        return queryAll(
-                criteria, Optional.ofNullable(projectionFields), permissionOptional, Optional.empty(), NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(criteria)
+                .fields(Optional.ofNullable(projectionFields).orElse(null))
+                .permission(permissionOptional.orElse(null))
+                .sort(Optional.<Sort>empty().orElse(null))
+                .limit(NO_RECORD_LIMIT)
+                .submit();
     }
 
     @Override
@@ -130,6 +138,6 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
                 Criteria.where(fieldName(QModule.module.moduleUUID)).is(moduleUUID);
         criteria.add(moduleUUIDCriterion);
 
-        return queryAll(criteria, permission);
+        return queryAll().criteria(criteria).permission(permission.orElse(null)).submit();
     }
 }

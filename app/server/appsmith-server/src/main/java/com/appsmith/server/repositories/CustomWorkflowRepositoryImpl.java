@@ -34,7 +34,10 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
         Criteria workspaceCriterion =
                 Criteria.where(fieldName(QWorkflow.workflow.workspaceId)).is(workspaceId);
 
-        return queryAll(List.of(workspaceCriterion), permission);
+        return queryAll()
+                .criteria(workspaceCriterion)
+                .permission(permission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -42,13 +45,23 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
             List<String> workflowIds, Optional<AclPermission> permission, Optional<List<String>> includeFields) {
         Criteria workflowIdCriteria =
                 Criteria.where(fieldName(QWorkflow.workflow.id)).in(workflowIds);
-        return queryAll(List.of(workflowIdCriteria), includeFields, permission, Optional.empty());
+        return queryAll()
+                .criteria(workflowIdCriteria)
+                .fields(includeFields.orElse(null))
+                .permission(permission.orElse(null))
+                .sort(Optional.<Sort>empty().orElse(null))
+                .submit();
     }
 
     @Override
     public Flux<Workflow> findAll(
             Optional<AclPermission> permission, Optional<List<String>> includeFields, Optional<Sort> sortBy) {
-        return queryAll(List.of(), includeFields, permission, sortBy);
+        return queryAll()
+                .criteria(List.of())
+                .fields(includeFields.orElse(null))
+                .permission(permission.orElse(null))
+                .sort(sortBy.orElse(null))
+                .submit();
     }
 
     @Override

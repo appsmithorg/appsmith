@@ -87,7 +87,14 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         }
         Sort sort = Sort.by(sortDirection, fieldName(QUser.user.email));
 
-        return queryAll(criteriaList, Optional.of(includedFields), aclPermission, sort, pageLimit, startIndex);
+        return queryAll()
+                .criteria(criteriaList)
+                .fields(includedFields)
+                .permission(aclPermission.orElse(null))
+                .sort(sort)
+                .limit(pageLimit)
+                .skip(startIndex)
+                .submit();
     }
 
     @Override
@@ -99,7 +106,13 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         if (CollectionUtils.isNotEmpty(filterEmails)) {
             criteriaList.add(where(fieldName(QUser.user.email)).regex(getStringsToRegex(filterEmails), "i"));
         }
-        Flux<User> userFlux = queryAll(criteriaList, Optional.empty(), aclPermission, sortWithEmail, count, startIndex);
+        Flux<User> userFlux = queryAll()
+                .criteria(criteriaList)
+                .permission(aclPermission.orElse(null))
+                .sort(sortWithEmail)
+                .limit(count)
+                .skip(startIndex)
+                .submit();
         Mono<Long> countMono = count(criteriaList, aclPermission);
         return Mono.zip(countMono, userFlux.collectList()).map(pair -> {
             Long totalFilteredUsers = pair.getT1();
@@ -115,11 +128,12 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         Criteria criteriaTenantId =
                 Criteria.where(fieldName(QUser.user.tenantId)).is(tenantId);
         List<String> includeFields = List.of(fieldName(QUser.user.email));
-        return queryAll(
-                        List.of(criteriaUserIds, criteriaTenantId),
-                        Optional.of(includeFields),
-                        aclPermission,
-                        Optional.empty())
+        return queryAll()
+                .criteria(criteriaUserIds, criteriaTenantId)
+                .fields(includeFields)
+                .permission(aclPermission.orElse(null))
+                .sort(Optional.<Sort>empty().orElse(null))
+                .submit()
                 .map(User::getEmail);
     }
 
@@ -144,7 +158,12 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
             boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =
                 Criteria.where(fieldName(QUser.user.isProvisioned)).is(isProvisioned);
-        return queryAll(List.of(criteriaIsProvisioned), includeFields, aclPermission, Optional.empty());
+        return queryAll()
+                .criteria(criteriaIsProvisioned)
+                .fields(includeFields.orElse(null))
+                .permission(aclPermission.orElse(null))
+                .sort(Optional.<Sort>empty().orElse(null))
+                .submit();
     }
 
     private List<Criteria> getCriteriaListFromFilters(MultiValueMap<String, String> filters) {

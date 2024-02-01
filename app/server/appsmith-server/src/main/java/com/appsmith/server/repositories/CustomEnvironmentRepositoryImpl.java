@@ -46,7 +46,11 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
 
     @Override
     public Flux<Environment> findByWorkspaceId(String workspaceId, AclPermission aclPermission) {
-        return queryAll(List.of(workspaceIdCriteria(workspaceId)), aclPermission)
+        List<Criteria> criterias = List.of(workspaceIdCriteria(workspaceId));
+        return queryAll()
+                .criteria(criterias)
+                .permission(aclPermission)
+                .submit()
                 .flatMap(this::setUserPermissionsInObject);
     }
 
@@ -70,6 +74,12 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
             Set<String> workspaceIds, List<String> includeFields) {
         Criteria workspaceCriteria = Criteria.where(FieldName.WORKSPACE_ID).in(workspaceIds);
 
-        return queryAll(List.of(workspaceCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(workspaceCriteria)
+                .fields(includeFields)
+                .permission(null)
+                .sort(null)
+                .limit(NO_RECORD_LIMIT)
+                .submit();
     }
 }

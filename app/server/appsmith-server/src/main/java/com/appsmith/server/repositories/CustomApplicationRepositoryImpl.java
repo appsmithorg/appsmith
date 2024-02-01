@@ -21,7 +21,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -127,6 +126,9 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
     public Flux<Application> getAllApplicationsInWorkspace(String workspaceId, Optional<AclPermission> aclPermission) {
         Criteria workspaceIdCriteria =
                 Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        return queryAll(List.of(workspaceIdCriteria), aclPermission);
+        return queryAll()
+                .criteria(workspaceIdCriteria)
+                .permission(aclPermission.orElse(null))
+                .submit();
     }
 }
