@@ -111,6 +111,19 @@ export const GENERATE_BUILDING_BLOCK_FROM_DATA_STARTER_APPS = [
       },
     ],
   },
+  {
+    id: 3,
+    title: "Filter Data",
+    templateId: GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_ID,
+    templateName: GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_NAME,
+    templatePageName: "Postgres - Sort and Filter",
+    templateQueriesConfig: [
+      {
+        name: "getData",
+        type: "SELECT",
+      },
+    ],
+  },
 ];
 
 export const CANVAS_STARTER_TEMPLATES_SEE_MORE_BUILDING_BLOCKS_PRE_FILTER = {
