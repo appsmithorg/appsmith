@@ -12,7 +12,6 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
@@ -20,7 +19,6 @@ import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.dtos.AiServerRequestDTO;
 import com.external.plugins.dtos.AssociateDTO;
-import com.external.plugins.dtos.File;
 import com.external.plugins.dtos.Query;
 import com.external.plugins.models.Feature;
 import com.external.plugins.services.AiFeatureService;
@@ -48,6 +46,8 @@ import static com.external.plugins.constants.AppsmithAiConstants.LIST_FILES;
 import static com.external.plugins.constants.AppsmithAiConstants.SOURCE_DETAILS;
 import static com.external.plugins.constants.AppsmithAiConstants.UPLOAD_FILES;
 import static com.external.plugins.constants.AppsmithAiConstants.USECASE;
+import static com.external.plugins.utils.FileUtils.getFileIds;
+import static com.external.plugins.utils.FileUtils.hasFiles;
 
 @Slf4j
 public class AppsmithAiPlugin extends BasePlugin {
@@ -148,7 +148,6 @@ public class AppsmithAiPlugin extends BasePlugin {
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
-            // TODO :: add fileIds in query only for those which are present in datasource configuration as well
             Feature feature =
                     Feature.valueOf(RequestUtils.extractDataFromFormData(actionConfiguration.getFormData(), USECASE));
             AiFeatureService aiFeatureService = AiFeatureServiceFactory.getAiFeatureService(feature);
@@ -202,37 +201,6 @@ public class AppsmithAiPlugin extends BasePlugin {
                 return aiServerService.associateDatasource(associateDTO).thenReturn(datasourceStorage);
             }
             return super.preSaveHook(datasourceStorage);
-        }
-
-        private boolean hasFiles(DatasourceConfiguration datasourceConfiguration) {
-            return getFileIds(datasourceConfiguration).size() > 0;
-        }
-
-        private List<String> getFileIds(DatasourceConfiguration datasourceConfiguration) {
-            if (datasourceConfiguration.getProperties() != null
-                    && datasourceConfiguration.getProperties().size() > 0) {
-                Property fileProperty = datasourceConfiguration.getProperties().get(0);
-                if (fileProperty.getKey().equalsIgnoreCase("files")
-                        && fileProperty.getValue() != null
-                        && fileProperty.getValue() instanceof List) {
-                    List<File> files = convertIntoFiles((List<Map<String, Object>>) fileProperty.getValue());
-                    return files.stream().map(File::getId).toList();
-                }
-            }
-            return List.of();
-        }
-
-        private List<File> convertIntoFiles(List<Map<String, Object>> files) {
-            List<File> fileList = new ArrayList<>();
-            for (Map<String, Object> file : files) {
-                File fileObj = new File();
-                fileObj.setId((String) file.get("id"));
-                fileObj.setName((String) file.get("name"));
-                fileObj.setSize((Integer) file.get("size"));
-                fileObj.setMimetype((String) file.get("mimetype"));
-                fileList.add(fileObj);
-            }
-            return fileList;
         }
     }
 }
