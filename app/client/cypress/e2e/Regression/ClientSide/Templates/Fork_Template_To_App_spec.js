@@ -14,7 +14,7 @@ describe(
   () => {
     it("1. Fork a template to the current app + Bug 17477", () => {
       PageList.AddNewPage("Add page from template");
-      cy.get(template.templateDialogBox).should("be.visible");
+      agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.GetNClick("//h1[text()='Applicant Tracker-test']");
       agHelper.FailIfErrorToast("INTERNAL_SERVER_ERROR");
       cy.get("body").then(($ele) => {
