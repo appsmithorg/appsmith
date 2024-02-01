@@ -596,8 +596,6 @@ export function* setWidgetDynamicPropertySaga(
     skipValidation = false,
     widgetId,
   } = action.payload;
-  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let widget = klona({ ...stateWidget });
   const update = {
     isDynamic,
     propertyPath,
