@@ -1,15 +1,22 @@
-import type { ReactNode } from "react";
 import React from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import * as log from "loglevel";
 
+import type { ReactNode, CSSProperties } from "react";
+
 interface Props {
   children: ReactNode;
+  style?: CSSProperties;
 }
 interface State {
   hasError: boolean;
 }
+
+const ErrorBoundaryContainer = styled.div`
+  height: 100%;
+  width: 100%;
+`;
 
 const RetryLink = styled.span`
   color: ${(props) => props.theme.colors.primaryDarkest};
@@ -34,7 +41,10 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     return (
-      <div className="error-boundary">
+      <ErrorBoundaryContainer
+        className="error-boundary"
+        style={this.props.style}
+      >
         {this.state.hasError ? (
           <p>
             Oops, Something went wrong.
@@ -46,7 +56,7 @@ class ErrorBoundary extends React.Component<Props, State> {
         ) : (
           this.props.children
         )}
-      </div>
+      </ErrorBoundaryContainer>
     );
   }
 }
