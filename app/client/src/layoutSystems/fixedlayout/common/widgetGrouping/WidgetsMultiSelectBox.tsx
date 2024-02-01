@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { get, minBy } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
@@ -189,6 +189,9 @@ function WidgetsMultiSelectBox(props: {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const [boundingClientRect, setBoundingClientRect] = useState<DOMRect | null>(
+    null,
+  );
   /**
    * the multi-selection bounding box should only render when:
    *
@@ -269,19 +272,20 @@ function WidgetsMultiSelectBox(props: {
     props.noContainerOffset,
   ]);
   /**
-   * calculate the position of the box relative to the window
-   * used for positioning the actions-context-menu
+   * Update the component positions whenever the component re-renders
    */
-  const { parentLeft, parentTop } = useMemo(() => {
-    if (shouldRender && draggableRef.current) {
-      const bounds = draggableRef.current.getBoundingClientRect();
-      return {
-        parentLeft: bounds.left,
-        parentTop: bounds.top,
-      };
-    }
-    return {};
-  }, [selectedWidgets, isDragging, height, width, top, left]);
+  useEffect(() => {
+    const updateBoundingClientRect = () => {
+      const node = draggableRef.current;
+      if (node) {
+        const rect = node.getBoundingClientRect();
+        setBoundingClientRect(rect);
+      }
+    };
+    // Update bounding client rectangle whenever component is re-rendered or position changes
+    updateBoundingClientRect();
+  }, [isDragging, shouldRender, selectedWidgets]);
+
   /**
    * copies the selected widgets
    *
@@ -364,8 +368,8 @@ function WidgetsMultiSelectBox(props: {
       <StyledSelectBoxHandleBottom />
       <StyledActionsContainer
         height={height}
-        left={parentLeft}
-        top={parentTop}
+        left={boundingClientRect?.left}
+        top={boundingClientRect?.top}
         width={width}
       >
         {/* copy widgets */}
