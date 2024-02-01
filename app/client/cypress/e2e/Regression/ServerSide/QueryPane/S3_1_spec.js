@@ -10,7 +10,6 @@ import {
   entityItems,
   draggableWidgets,
   propPane,
-  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
