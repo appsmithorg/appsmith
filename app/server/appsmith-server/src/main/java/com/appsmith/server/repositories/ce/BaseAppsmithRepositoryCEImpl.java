@@ -146,7 +146,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     @Deprecated
     public Optional<T> findById(String id, AclPermission permission) {
-        return Optional.empty(); // findById(id, null, permission);
+        return findById(id, null, permission);
     }
 
     public Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission) {
