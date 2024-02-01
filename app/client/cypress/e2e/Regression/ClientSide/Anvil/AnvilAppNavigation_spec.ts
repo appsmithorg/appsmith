@@ -70,8 +70,13 @@ describe(
       );
       agHelper.AssertElementExist(appSettings.locators._sideNavbar);
       agHelper.GetNClick(locators._canvas);
-      agHelper.AssertElementExist(locators._widgetInCanvas(WIDGET.WDSINPUT));
-      agHelper.AssertElementExist(locators._widgetInCanvas(WIDGET.WDSINPUT), 1);
+      agHelper.AssertElementExist(
+        locators._anvilWidgetInCanvas(WIDGET.WDSINPUT),
+      );
+      agHelper.AssertElementExist(
+        locators._anvilWidgetInCanvas(WIDGET.WDSINPUT),
+        1,
+      );
     });
   },
 );
