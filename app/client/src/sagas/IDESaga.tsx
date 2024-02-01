@@ -42,11 +42,8 @@ function* getUpdatedTabs(newId: string, currentTabs: string[]) {
 
 export function* handleJSEntityRedirect(deletedId: string) {
   const pageId: string = yield select(getCurrentPageId);
-  const allJsObjects: EntityItem[] = yield select(getJSSegmentItems);
-  const redirectAction = getNextEntityAfterDelete(
-    deletedId,
-    allJsObjects,
-  );
+  const allJsItems: EntityItem[] = yield select(getJSSegmentItems);
+  const redirectAction = getNextEntityAfterDelete(deletedId, allJsItems);
   switch (redirectAction.action) {
     case RedirectAction.CREATE:
       history.push(jsCollectionAddURL({}));
