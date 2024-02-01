@@ -239,11 +239,12 @@ function FilePicker(props: FilePickerProps) {
       <div className="flex gap-2 flex-col mt-2">
         {uploadedFiles.map((file) => (
           <Tag
-            className="w-max"
+            className="w-max !border-[color:var(--ads-v2\-color-gray-400)]"
             key={file.id}
             onClose={() => {
               onRemoveFile(file.id);
             }}
+            size="md"
           >
             <div className="flex items-center">
               <Text
@@ -252,7 +253,12 @@ function FilePicker(props: FilePickerProps) {
               >
                 {file.name}
               </Text>
-              ({getFileSize(file.size)} KB)
+              <Text
+                className="min-w-[90px] max-w-[90px] inline-block text-right"
+                kind="body-s"
+              >
+                ({getFileSize(file.size)} KB)
+              </Text>
             </div>
           </Tag>
         ))}

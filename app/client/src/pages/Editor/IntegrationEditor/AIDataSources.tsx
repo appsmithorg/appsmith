@@ -8,10 +8,17 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import type { Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { createNewApiActionBasedOnEditorType } from "@appsmith/actions/helpers";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import type { Datasource, DatasourceStorage } from "entities/Datasource";
+import {
+  DATASOURCE_NAME_DEFAULT_PREFIX,
+  TEMP_DATASOURCE_ID,
+} from "constants/Datasource";
+import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
+import { getDatasources } from "@appsmith/selectors/entitiesSelector";
 
 export const StyledContainer = styled.div`
   flex: 1;
@@ -109,7 +116,7 @@ export const CardContentWrapper = styled.div`
   padding-left: 13.5px;
 `;
 
-interface ApiHomeScreenProps {
+interface Props {
   history: {
     replace: (data: string) => void;
     push: (data: string) => void;
@@ -119,30 +126,47 @@ interface ApiHomeScreenProps {
   };
   pageId: string;
   plugins: Plugin[];
-  createDatasourceFromForm: (data: any) => void;
+  createDatasourceFromForm: typeof createDatasourceFromForm;
   isCreating: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
-  createNewApiActionBasedOnEditorType: (
-    editorType: string,
-    editorId: string,
-    parentEntityId: string,
-    parentEntityType: ActionParentEntityTypeInterface,
-    apiType: string,
-  ) => void;
+  workspaceId: string;
+  defaultEnvId: string;
+  datasources: Datasource[];
 }
 
-type Props = ApiHomeScreenProps;
-
 function AIDataSources(props: Props) {
-  const { plugins } = props;
+  const { datasources, defaultEnvId, plugins, workspaceId } = props;
 
   const handleOnClick = (plugin: Plugin) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       pluginName: plugin.name,
       pluginPackageName: plugin.packageName,
     });
+
+    if (plugin.packageName === PluginPackageName.APPSMITH_AI) {
+      props.createDatasourceFromForm({
+        name:
+          DATASOURCE_NAME_DEFAULT_PREFIX +
+          getUntitledDatasourceSequence(datasources),
+        pluginId: plugin.id,
+        type: plugin.type,
+        datasourceStorages: {
+          [defaultEnvId]: {
+            datasourceId: "",
+            environmentId: defaultEnvId,
+            datasourceConfiguration: {},
+            isValid: true,
+          },
+        } as Record<string, DatasourceStorage>,
+        workspaceId,
+        id: TEMP_DATASOURCE_ID,
+      });
+
+      return;
+    }
+
     props.createTempDatasourceFromForm({
       pluginId: plugin.id,
       type: plugin.type,
@@ -189,12 +213,14 @@ function AIDataSources(props: Props) {
 
 const mapStateToProps = (state: AppState) => ({
   plugins: state.entities.plugins.list,
+  workspaceId: getCurrentWorkspaceId(state),
+  defaultEnvId: getDefaultEnvironmentId(state),
+  datasources: getDatasources(state),
 });
 
 const mapDispatchToProps = {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
-  createNewApiActionBasedOnEditorType,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AIDataSources);
