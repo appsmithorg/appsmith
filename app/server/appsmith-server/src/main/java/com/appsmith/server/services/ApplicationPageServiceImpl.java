@@ -28,7 +28,6 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Service
 @Slf4j
@@ -54,7 +53,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            TransactionalOperator transactionalOperator,
             PermissionGroupService permissionGroupService,
             ActionCollectionRepositoryCake actionCollectionRepository,
             NewActionRepositoryCake newActionRepository,
@@ -86,7 +84,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 applicationPermission,
                 pagePermission,
                 actionPermission,
-                transactionalOperator,
                 permissionGroupService,
                 actionCollectionRepository,
                 newActionRepository,

@@ -28,7 +28,6 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Service
 public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitServiceCECompatible {
@@ -59,7 +58,6 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
             GitPrivateRepoHelper gitPrivateRepoHelper,
-            TransactionalOperator transactionalOperator,
             GitAutoCommitHelper gitAutoCommitHelper) {
         super(
                 userService,
@@ -87,7 +85,6 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
                 redisUtils,
                 observationRegistry,
                 gitPrivateRepoHelper,
-                transactionalOperator,
                 gitAutoCommitHelper);
     }
 }

@@ -44,7 +44,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -72,7 +71,6 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final Gson gson;
-    private final TransactionalOperator transactionalOperator;
     private final PermissionGroupRepositoryCake permissionGroupRepository;
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<Theme> themeImportableService;

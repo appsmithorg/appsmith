@@ -36,7 +36,6 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -58,7 +57,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final SessionUserService sessionUserService;
-    private final TransactionalOperator transactionalOperator;
     private final PermissionGroupRepositoryCake permissionGroupRepository;
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<NewPage> newPageImportableService;
@@ -82,102 +80,105 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
         // Extract file and get App Json
         Mono<Application> partiallyImportedAppMono = importApplicationService
-                .extractApplicationJson(file)
-                .zipWith(getImportApplicationPermissions())
-                .flatMap(tuple -> {
-                    ApplicationJson applicationJson = tuple.getT1();
-                    ImportArtifactPermissionProvider permissionProvider = tuple.getT2();
-                    // Set Application in App JSON, remove the pages other than the one to be imported in
-                    // Set the current page in the JSON to be imported
-                    // Debug and get the value from getImportApplicationMono method if any difference
-                    // Modify the Application set in JSON to be imported
+                        .extractApplicationJson(file)
+                        .zipWith(getImportApplicationPermissions())
+                        .flatMap(tuple -> {
+                            ApplicationJson applicationJson = tuple.getT1();
+                            ImportArtifactPermissionProvider permissionProvider = tuple.getT2();
+                            // Set Application in App JSON, remove the pages other than the one to be imported in
+                            // Set the current page in the JSON to be imported
+                            // Debug and get the value from getImportApplicationMono method if any difference
+                            // Modify the Application set in JSON to be imported
 
-                    Mono<Workspace> workspaceMono = workspaceService
-                            .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
-                            .switchIfEmpty(Mono.defer(() -> {
-                                log.error(
-                                        "No workspace found with id: {} and permission: {}",
-                                        workspaceId,
-                                        permissionProvider.getRequiredPermissionOnTargetWorkspace());
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId));
-                            }))
-                            .cache();
+                            Mono<Workspace> workspaceMono = workspaceService
+                                    .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
+                                    .switchIfEmpty(Mono.defer(() -> {
+                                        log.error(
+                                                "No workspace found with id: {} and permission: {}",
+                                                workspaceId,
+                                                permissionProvider.getRequiredPermissionOnTargetWorkspace());
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId));
+                                    }))
+                                    .cache();
 
-                    ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
-                            workspaceId, applicationId, branchName, false, true, permissionProvider, null);
+                            ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
+                                    workspaceId, applicationId, branchName, false, true, permissionProvider, null);
 
-                    // Get the Application from DB
-                    Mono<Application> importedApplicationMono = applicationService
-                            .findByBranchNameAndDefaultApplicationId(
-                                    branchName,
-                                    applicationId,
-                                    permissionProvider.getRequiredPermissionOnTargetApplication())
-                            .cache();
+                            // Get the Application from DB
+                            Mono<Application> importedApplicationMono = applicationService
+                                    .findByBranchNameAndDefaultApplicationId(
+                                            branchName,
+                                            applicationId,
+                                            permissionProvider.getRequiredPermissionOnTargetApplication())
+                                    .cache();
 
-                    return newPageService
-                            .findByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
-                            .flatMap(page -> {
-                                Layout layout =
-                                        page.getUnpublishedPage().getLayouts().get(0);
-                                return refactoringService.getAllExistingEntitiesMono(
-                                        page.getId(), CreatorContextType.PAGE, layout.getId(), false);
-                            })
-                            .flatMap(nameSet -> {
-                                // Fetch name of the existing resources in the page to avoid name clashing
-                                mappedImportableResourcesDTO.setRefactoringNameReference(nameSet);
-                                return importedApplicationMono;
-                            })
-                            .flatMap(application -> {
-                                applicationJson.setExportedApplication(application);
-                                return Mono.just(applicationJson);
-                            })
-                            // Import Custom Js Lib and Datasource
-                            .then(getApplicationImportableEntities(
-                                    importingMetaDTO,
-                                    mappedImportableResourcesDTO,
-                                    workspaceMono,
-                                    importedApplicationMono,
-                                    applicationJson))
-                            .thenReturn("done")
-                            // Update the pageName map for actions and action collection
-                            .then(paneNameMapForActionAndActionCollectionInAppJson(
-                                    branchedPageIdMono, applicationJson, mappedImportableResourcesDTO))
-                            .thenReturn("done")
-                            // Import Actions and action collection
-                            .then(getActionAndActionCollectionImport(
-                                    importingMetaDTO,
-                                    mappedImportableResourcesDTO,
-                                    workspaceMono,
-                                    importedApplicationMono,
-                                    applicationJson))
-                            .thenReturn("done")
-                            .flatMap(result -> {
-                                Application application = applicationJson.getExportedApplication();
-                                // Keep existing JS Libs and add the imported ones
-                                application
-                                        .getUnpublishedCustomJSLibs()
-                                        .addAll(new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
-                                if (mappedImportableResourcesDTO.getActionResultDTO() == null) {
-                                    return applicationService.update(application.getId(), application);
-                                }
-                                return newActionImportableService
-                                        .updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO)
-                                        .then(newPageImportableService.updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO))
-                                        .thenReturn(application);
-                            });
-                })
-                .flatMap(application -> {
-                    Map<String, Object> fieldNameValueMap = Map.of(
-                            FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
-                            application.getUnpublishedCustomJSLibs());
-                    return applicationService
-                            .update(applicationId, fieldNameValueMap, branchName)
-                            .then(Mono.just(application));
-                })
-                .as(transactionalOperator::transactional);
+                            return newPageService
+                                    .findByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
+                                    .flatMap(page -> {
+                                        Layout layout = page.getUnpublishedPage()
+                                                .getLayouts()
+                                                .get(0);
+                                        return refactoringService.getAllExistingEntitiesMono(
+                                                page.getId(), CreatorContextType.PAGE, layout.getId(), false);
+                                    })
+                                    .flatMap(nameSet -> {
+                                        // Fetch name of the existing resources in the page to avoid name clashing
+                                        mappedImportableResourcesDTO.setRefactoringNameReference(nameSet);
+                                        return importedApplicationMono;
+                                    })
+                                    .flatMap(application -> {
+                                        applicationJson.setExportedApplication(application);
+                                        return Mono.just(applicationJson);
+                                    })
+                                    // Import Custom Js Lib and Datasource
+                                    .then(getApplicationImportableEntities(
+                                            importingMetaDTO,
+                                            mappedImportableResourcesDTO,
+                                            workspaceMono,
+                                            importedApplicationMono,
+                                            applicationJson))
+                                    .thenReturn("done")
+                                    // Update the pageName map for actions and action collection
+                                    .then(paneNameMapForActionAndActionCollectionInAppJson(
+                                            branchedPageIdMono, applicationJson, mappedImportableResourcesDTO))
+                                    .thenReturn("done")
+                                    // Import Actions and action collection
+                                    .then(getActionAndActionCollectionImport(
+                                            importingMetaDTO,
+                                            mappedImportableResourcesDTO,
+                                            workspaceMono,
+                                            importedApplicationMono,
+                                            applicationJson))
+                                    .thenReturn("done")
+                                    .flatMap(result -> {
+                                        Application application = applicationJson.getExportedApplication();
+                                        // Keep existing JS Libs and add the imported ones
+                                        application
+                                                .getUnpublishedCustomJSLibs()
+                                                .addAll(new HashSet<>(
+                                                        mappedImportableResourcesDTO.getInstalledJsLibsList()));
+                                        if (mappedImportableResourcesDTO.getActionResultDTO() == null) {
+                                            return applicationService.update(application.getId(), application);
+                                        }
+                                        return newActionImportableService
+                                                .updateImportedEntities(
+                                                        application, importingMetaDTO, mappedImportableResourcesDTO)
+                                                .then(newPageImportableService.updateImportedEntities(
+                                                        application, importingMetaDTO, mappedImportableResourcesDTO))
+                                                .thenReturn(application);
+                                    });
+                        })
+                        .flatMap(application -> {
+                            Map<String, Object> fieldNameValueMap = Map.of(
+                                    FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
+                                    application.getUnpublishedCustomJSLibs());
+                            return applicationService
+                                    .update(applicationId, fieldNameValueMap, branchName)
+                                    .then(Mono.just(application));
+                        })
+                // .as(transactionalOperator::transactional)
+                ;
 
         // Send Analytics event
         return partiallyImportedAppMono.zipWith(currUserMono).flatMap(tuple -> {

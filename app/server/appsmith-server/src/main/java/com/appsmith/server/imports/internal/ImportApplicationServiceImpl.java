@@ -27,7 +27,6 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
@@ -48,7 +47,6 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
             PagePermission pagePermission,
             ActionPermission actionPermission,
             Gson gson,
-            TransactionalOperator transactionalOperator,
             PermissionGroupRepositoryCake permissionGroupRepository,
             ImportableService<Plugin> pluginImportableService,
             ImportableService<Theme> themeImportableService,
@@ -73,7 +71,6 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
                 pagePermission,
                 actionPermission,
                 gson,
-                transactionalOperator,
                 permissionGroupRepository,
                 pluginImportableService,
                 themeImportableService,

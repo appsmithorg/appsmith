@@ -12,7 +12,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Component
 public class ImportServiceImpl extends ImportServiceCEImpl implements ImportService {
@@ -23,7 +22,6 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
             WorkspaceService workspaceService,
             ImportableService<CustomJSLib> customJSLibImportableService,
             PermissionGroupRepositoryCake permissionGroupRepository,
-            TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ImportableService<Plugin> pluginImportableService,
             ImportableService<Datasource> datasourceImportableService,
@@ -34,7 +32,6 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
                 workspaceService,
                 customJSLibImportableService,
                 permissionGroupRepository,
-                transactionalOperator,
                 analyticsService,
                 pluginImportableService,
                 datasourceImportableService,

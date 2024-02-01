@@ -25,7 +25,6 @@ import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
@@ -57,7 +56,6 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
             GitPrivateRepoHelper gitPrivateRepoHelper,
-            TransactionalOperator transactionalOperator,
             GitAutoCommitHelper gitAutoCommitHelper) {
         super(
                 userService,
@@ -85,7 +83,6 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 redisUtils,
                 observationRegistry,
                 gitPrivateRepoHelper,
-                transactionalOperator,
                 gitAutoCommitHelper);
     }
 }

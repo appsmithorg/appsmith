@@ -14,6 +14,10 @@ import reactor.core.scheduler.Schedulers;
 public abstract class BaseCake<T extends BaseDomain> {
     private final BaseRepository<T, String> repository;
 
+    // ---------------------------------------------------
+    // Wrappers for methods from CRUDRepository
+    // ---------------------------------------------------
+
     public Mono<T> save(T entity) {
         return Mono.fromSupplier(() -> repository.save(entity)).subscribeOn(Schedulers.boundedElastic());
     }

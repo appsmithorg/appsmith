@@ -162,8 +162,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
 
-        return Optional.empty(); /*
-
         return getCurrentUserPermissionGroupsIfRequired(permission).flatMap(permissionGroups -> {
             Query query = new Query(getIdCriteria(id));
             query.addCriteria(notDeleted());
@@ -183,7 +181,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                     .matching(query.cursorBatchSize(10000))
                     .one()
                     .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-        });*/
+        });
     }
 
     public Optional<T> findById(String id, Optional<AclPermission> permission) {

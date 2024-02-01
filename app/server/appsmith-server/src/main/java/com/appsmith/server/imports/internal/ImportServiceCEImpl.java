@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -51,7 +50,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final WorkspaceService workspaceService;
     private final ImportableService<CustomJSLib> customJSLibImportableService;
     private final PermissionGroupRepositoryCake permissionGroupRepository;
-    private final TransactionalOperator transactionalOperator;
     private final AnalyticsService analyticsService;
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<Datasource> datasourceImportableService;
@@ -63,7 +61,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             WorkspaceService workspaceService,
             ImportableService<CustomJSLib> customJSLibImportableService,
             PermissionGroupRepositoryCake permissionGroupRepository,
-            TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ImportableService<Plugin> pluginImportableService,
             ImportableService<Datasource> datasourceImportableService,
@@ -73,7 +70,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         this.sessionUserService = sessionUserService;
         this.customJSLibImportableService = customJSLibImportableService;
         this.permissionGroupRepository = permissionGroupRepository;
-        this.transactionalOperator = transactionalOperator;
         this.analyticsService = analyticsService;
         this.pluginImportableService = pluginImportableService;
         this.datasourceImportableService = datasourceImportableService;
@@ -487,23 +483,28 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .cache();
 
         Mono<? extends ImportableArtifact> importMono = importedArtifactMono
-                .then(Mono.defer(() -> generateImportableEntities(
-                        importingMetaDTO,
-                        mappedImportableResourcesDTO,
-                        workspaceMono,
-                        importedArtifactMono,
-                        importedDoc)))
-                .then(importedArtifactMono)
-                .flatMap(importableArtifact -> updateImportableEntities(
-                        contextBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
-                .flatMap(importableArtifact -> updateImportableArtifact(contextBasedImportService, importableArtifact))
-                .onErrorResume(throwable -> {
-                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                    log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
-                })
-                .as(transactionalOperator::transactional);
+                        .then(Mono.defer(() -> generateImportableEntities(
+                                importingMetaDTO,
+                                mappedImportableResourcesDTO,
+                                workspaceMono,
+                                importedArtifactMono,
+                                importedDoc)))
+                        .then(importedArtifactMono)
+                        .flatMap(importableArtifact -> updateImportableEntities(
+                                contextBasedImportService,
+                                importableArtifact,
+                                mappedImportableResourcesDTO,
+                                importingMetaDTO))
+                        .flatMap(importableArtifact ->
+                                updateImportableArtifact(contextBasedImportService, importableArtifact))
+                        .onErrorResume(throwable -> {
+                            String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                            log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
+                        })
+                // .as(transactionalOperator::transactional)
+                ;
 
         final Mono<? extends ImportableArtifact> resultMono = importMono
                 .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(

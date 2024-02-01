@@ -78,7 +78,6 @@ import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.Exceptions;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -150,7 +149,6 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final RedisUtils redisUtils;
     private final ObservationRegistry observationRegistry;
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
-    private final TransactionalOperator transactionalOperator;
     private final GitAutoCommitHelper gitAutoCommitHelper;
 
     @Override
@@ -3297,7 +3295,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                 })
-                .as(transactionalOperator::transactional);
+        // .as(transactionalOperator::transactional)
+        ;
     }
 
     @Override

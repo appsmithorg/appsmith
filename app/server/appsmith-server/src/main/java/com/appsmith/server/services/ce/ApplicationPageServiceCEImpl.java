@@ -68,7 +68,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -116,7 +115,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
-    private final TransactionalOperator transactionalOperator;
 
     private final PermissionGroupService permissionGroupService;
     private final ActionCollectionRepositoryCake actionCollectionRepository;
@@ -1024,7 +1022,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getDeletePermission())
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
                 .map(responseUtils::updatePageDTOWithDefaultResources)
-                .as(transactionalOperator::transactional);
+        // .as(transactionalOperator::transactional)
+        ;
     }
 
     /**
