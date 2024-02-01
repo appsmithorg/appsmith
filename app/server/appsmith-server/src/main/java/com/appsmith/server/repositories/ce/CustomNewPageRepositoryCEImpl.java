@@ -225,7 +225,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
         return buildQuery()
-                .criteria(List.of(defaultPageIdCriteria, branchCriteria))
+                .criteria(defaultPageIdCriteria, branchCriteria)
                 .permission(permission)
                 .one();
     }
@@ -272,7 +272,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return buildQuery()
-                .criteria(List.of(defaultAppIdCriteria, gitSyncIdCriteria))
+                .criteria(defaultAppIdCriteria, gitSyncIdCriteria)
                 .permission(permission.orElse(null))
                 .first();
     }

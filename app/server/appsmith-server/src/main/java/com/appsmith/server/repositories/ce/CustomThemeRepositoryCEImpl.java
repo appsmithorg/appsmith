@@ -60,7 +60,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                 .and(fieldName(QTheme.theme.isSystemTheme))
                 .is(true);
         return buildQuery()
-                .criteria(List.of(criteria))
+                .criteria(criteria)
                 .permission(AclPermission.READ_THEMES)
                 .one();
     }

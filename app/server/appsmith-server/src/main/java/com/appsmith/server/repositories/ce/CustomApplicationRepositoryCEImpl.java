@@ -65,7 +65,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria idCriteria = getIdCriteria(id);
 
         return buildQuery()
-                .criteria(List.of(idCriteria, workspaceIdCriteria))
+                .criteria(idCriteria, workspaceIdCriteria)
                 .permission(permission)
                 .one();
     }
@@ -73,10 +73,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
         Criteria nameCriteria = where(fieldName(QApplication.application.name)).is(name);
-        return buildQuery()
-                .criteria(List.of(nameCriteria))
-                .permission(permission)
-                .one();
+        return buildQuery().criteria(nameCriteria).permission(permission).one();
     }
 
     @Override
@@ -199,7 +196,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         + fieldName(QApplication.application.gitApplicationMetadata.branchName))
                 .is(branchName);
         return buildQuery()
-                .criteria(List.of(defaultAppCriteria, branchNameCriteria))
+                .criteria(defaultAppCriteria, branchNameCriteria)
                 .fields(projectionFieldNames)
                 .permission(aclPermission)
                 .one();
@@ -218,7 +215,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         + fieldName(QApplication.application.gitApplicationMetadata.branchName))
                 .is(branchName);
         return buildQuery()
-                .criteria(List.of(defaultAppCriteria, branchNameCriteria))
+                .criteria(defaultAppCriteria, branchNameCriteria)
                 .fields((List<String>) null)
                 .permission(aclPermission.orElse(null))
                 .one();

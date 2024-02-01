@@ -94,7 +94,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .is(null);
 
         return buildQuery()
-                .criteria(List.of(nameCriteria, pageCriteria, deletedCriteria))
+                .criteria(nameCriteria, pageCriteria, deletedCriteria)
                 .permission(aclPermission)
                 .one();
     }
@@ -422,7 +422,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
         return buildQuery()
-                .criteria(List.of(defaultActionIdCriteria, branchCriteria))
+                .criteria(defaultActionIdCriteria, branchCriteria)
                 .permission(permission)
                 .one();
     }
@@ -441,7 +441,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return buildQuery()
-                .criteria(List.of(defaultAppIdCriteria, gitSyncIdCriteria))
+                .criteria(defaultAppIdCriteria, gitSyncIdCriteria)
                 .permission(permission.orElse(null))
                 .first();
     }

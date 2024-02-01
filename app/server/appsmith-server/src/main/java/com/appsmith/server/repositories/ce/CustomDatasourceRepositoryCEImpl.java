@@ -59,7 +59,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         return buildQuery()
-                .criteria(List.of(nameCriteria, workspaceIdCriteria))
+                .criteria(nameCriteria, workspaceIdCriteria)
                 .permission(aclPermission)
                 .one();
     }
@@ -71,7 +71,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         return buildQuery()
-                .criteria(List.of(nameCriteria, workspaceIdCriteria))
+                .criteria(nameCriteria, workspaceIdCriteria)
                 .fields((List<String>) null)
                 .permission(aclPermission.orElse(null))
                 .one();

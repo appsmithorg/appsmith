@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -40,10 +39,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QWorkspace.workspace.name)).is(name);
 
-        return buildQuery()
-                .criteria(List.of(nameCriteria))
-                .permission(aclPermission)
-                .one();
+        return buildQuery().criteria(nameCriteria).permission(aclPermission).one();
     }
 
     @Override

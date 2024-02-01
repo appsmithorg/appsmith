@@ -197,7 +197,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
         return buildQuery()
-                .criteria(List.of(defaultCollectionIdCriteria, branchCriteria))
+                .criteria(defaultCollectionIdCriteria, branchCriteria)
                 .permission(permission)
                 .one();
     }
@@ -216,7 +216,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return buildQuery()
-                .criteria(List.of(defaultAppIdCriteria, gitSyncIdCriteria))
+                .criteria(defaultAppIdCriteria, gitSyncIdCriteria)
                 .permission(permission.orElse(null))
                 .first();
     }
