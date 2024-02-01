@@ -6,7 +6,6 @@ import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +31,7 @@ public class QueryAllParams<T extends BaseDomain> {
         this.repo = repo;
     }
 
-    public Flux<T> submit() {
+    public List<T> submit() {
         return repo.queryAllExecute(this);
     }
 

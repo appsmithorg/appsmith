@@ -466,8 +466,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                    + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
+            Criteria deletedCriterion = where(
+                            fieldName(QNewAction.newAction.unpublishedAction) + "." + FieldName.DELETED_AT)
                     .is(null);
             criteria.add(deletedCriterion);
         }
@@ -490,24 +490,20 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String name, List<String> pageIds, Boolean viewMode) {
         List<Criteria> criteriaList = new ArrayList<>();
 
-        Criteria nonJsTypeCriteria =
-                where("pluginType").ne(PluginType.JS);
+        Criteria nonJsTypeCriteria = where("pluginType").ne(PluginType.JS);
         criteriaList.add(nonJsTypeCriteria);
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                Criteria nameCriteria = where("publishedAction" + "."
-                                + "name")
-                        .is(name);
+                Criteria nameCriteria = where("publishedAction" + "." + "name").is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where("publishedAction" + "."
-                                + "pageId")
-                        .in(pageIds);
+                Criteria pageCriteria =
+                        where("publishedAction" + "." + "pageId").in(pageIds);
                 criteriaList.add(pageCriteria);
             }
 
@@ -516,26 +512,24 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         else {
 
             if (name != null) {
-                Criteria nameCriteria = where("unpublishedAction" + "."
-                                + "name")
-                        .is(name);
+                Criteria nameCriteria =
+                        where("unpublishedAction" + "." + "name").is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where("unpublishedAction" + "."
-                                + "pageId")
-                        .in(pageIds);
+                Criteria pageCriteria =
+                        where("unpublishedAction" + "." + "pageId").in(pageIds);
                 criteriaList.add(pageCriteria);
             }
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where("unpublishedAction" + "."
-                            + "deletedAt")
-                    .is(null);
+            Criteria deletedCriteria =
+                    where("unpublishedAction" + "." + "deletedAt").is(null);
             criteriaList.add(deletedCriteria);
-        }*/
+        }
+        return criteriaList;
     }
 
     @Override

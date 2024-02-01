@@ -446,6 +446,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             Sort sort,
             int limit,
             int skip) {
+        return Collections.emptyList(); /*
         Mono<Set<String>> permissionGroupsMono = ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
@@ -458,10 +459,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .sort(sort)
                 .limit(limit)
                 .skip(skip)
-                .submit());
+                .submit());*/
     }
 
-    public Flux<T> queryAllWithPermissionGroups(
+    public List<T> queryAllWithPermissionGroups(
             List<Criteria> criterias,
             List<String> includeFields,
             AclPermission aclPermission,
@@ -469,6 +470,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             Set<String> permissionGroups,
             int limit,
             int skip) {
+        return Collections.emptyList(); /*
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         Query query = new Query();
         if (!CollectionUtils.isEmpty(includeFields)) {
@@ -491,7 +493,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations
                 .query(this.genericDomain)
                 .matching(query.cursorBatchSize(10000))
-                .all(); // .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
+                .all(); // .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));*/
     }
 
     public QueryAllParams<T> queryAll() {
@@ -499,22 +501,22 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public List<T> queryAllExecute(QueryAllParams<T> params) {
-        return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(
-                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
-                .flatMapMany(permissionGroups1 -> queryAllWithPermissionGroups(
-                        params.getCriteria(),
-                        params.getFields(),
-                        params.getPermission(),
-                        params.getSort(),
-                        permissionGroups1,
-                        params.getLimit(),
-                        params.getSkip()));
+        Set<String> permissionGroups = params.getPermissionGroups();
+        if (CollectionUtils.isEmpty(permissionGroups)) {
+            permissionGroups = getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()));
+        }
+        return queryAllWithPermissionGroups(
+                params.getCriteria(),
+                params.getFields(),
+                params.getPermission(),
+                params.getSort(),
+                permissionGroups,
+                params.getLimit(),
+                params.getSkip());
     }
 
-    public Mono<T> setUserPermissionsInObject(T obj) {
-        return getCurrentUserPermissionGroups()
-                .flatMap(permissionGroups -> setUserPermissionsInObject(obj, permissionGroups));
+    public T setUserPermissionsInObject(T obj) {
+        return setUserPermissionsInObject(obj, getCurrentUserPermissionGroups());
     }
 
     public T setUserPermissionsInObject(T obj, Set<String> permissionGroups) {
@@ -551,30 +553,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      * @return
      */
     protected Set<String> getAllPermissionGroupsForUser(User user) {
-
-        Mono<User> userMono = Mono.just(user);
         if (user.getTenantId() == null) {
-            userMono = cacheableRepositoryHelper.getDefaultTenantId().map(tenantId -> {
-                user.setTenantId(tenantId);
-                return user;
-            });
+            user.setTenantId(cacheableRepositoryHelper.getDefaultTenantId().block());
         }
 
-        return userMono.flatMap(userWithTenant -> Mono.zip(
-                        cacheableRepositoryHelper.getPermissionGroupsOfUser(userWithTenant),
-                        getAnonymousUserPermissionGroups()))
-                .map(tuple -> {
-                    Set<String> permissionGroups = new HashSet<>(tuple.getT1());
+        Set<String> permissionGroups = new HashSet<>(
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(user).block());
+        permissionGroups.addAll(getAnonymousUserPermissionGroups().block());
 
-                    Set<String> currentUserPermissionGroups = tuple.getT1();
-                    Set<String> anonymousUserPermissionGroups = tuple.getT2();
-
-                    permissionGroups.addAll(currentUserPermissionGroups);
-                    permissionGroups.addAll(anonymousUserPermissionGroups);
-
-                    return permissionGroups;
-                })
-                .block();
+        return permissionGroups;
     }
 
     /**

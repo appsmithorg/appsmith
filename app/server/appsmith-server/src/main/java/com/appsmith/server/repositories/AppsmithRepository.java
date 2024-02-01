@@ -21,9 +21,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     // Optional<T> updateById(String id, T resource, AclPermission permission);
 
-    List<T> queryAll(List<Criteria> criterias, AclPermission permission);
-
-    QueryAllParams<T> queryAll();
+    /*no-cake*/ QueryAllParams<T> queryAll();
 
     List<T> queryAllWithStrictPermissionGroups(
             List<Criteria> criterias,
@@ -34,6 +32,8 @@ public interface AppsmithRepository<T extends BaseDomain> {
             int skip);
 
     T setUserPermissionsInObject(T obj, Set<String> permissionGroups);
+
+    T setUserPermissionsInObject(T obj);
 
     T updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission);
 
