@@ -192,6 +192,7 @@ function WidgetsMultiSelectBox(props: {
   const [boundingClientRect, setBoundingClientRect] = useState<DOMRect | null>(
     null,
   );
+
   /**
    * the multi-selection bounding box should only render when:
    *
@@ -271,6 +272,7 @@ function WidgetsMultiSelectBox(props: {
     props.snapRowSpace,
     props.noContainerOffset,
   ]);
+
   /**
    * Update the component positions whenever the component re-renders
    */
@@ -282,10 +284,18 @@ function WidgetsMultiSelectBox(props: {
         setBoundingClientRect(rect);
       }
     };
-    // Update bounding client rectangle whenever component is re-rendered or position changes
-    updateBoundingClientRect();
-  }, [isDragging, shouldRender, selectedWidgets]);
+    if (shouldRender) updateBoundingClientRect();
+    // Update the bounding rectangle to handle scroll, resize events
+    const intervalId = shouldRender
+      ? setInterval(() => {
+          updateBoundingClientRect();
+        }, 100)
+      : null;
 
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [shouldRender]);
   /**
    * copies the selected widgets
    *
