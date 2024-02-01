@@ -15,20 +15,20 @@ describe(
   "Fork a template to the current app",
   { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
   () => {
-    afterEach(() => {
-      agHelper.SaveLocalStorageCache();
-    });
+    // afterEach(() => {
+    //   agHelper.SaveLocalStorageCache();
+    // });
 
-    beforeEach(() => {
-      agHelper.RestoreLocalStorageCache();
-      // Closes template dialog if it is already open - useful for retry
-      cy.get("body").then(($ele) => {
-        if ($ele.find(template.templateDialogBox).length) {
-          cy.xpath(template.closeButton).click();
-        }
-      });
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    });
+    // beforeEach(() => {
+    //   agHelper.RestoreLocalStorageCache();
+    //   // Closes template dialog if it is already open - useful for retry
+    //   cy.get("body").then(($ele) => {
+    //     if ($ele.find(template.templateDialogBox).length) {
+    //       cy.xpath(template.closeButton).click();
+    //     }
+    //   });
+    //   EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    // });
 
     it("1. Fork a template to the current app + Bug 17477", () => {
       PageList.AddNewPage("Add page from template");
