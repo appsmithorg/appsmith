@@ -3,17 +3,12 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.google.common.collect.Lists;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {

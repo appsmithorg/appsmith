@@ -117,8 +117,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     @Override
     public Mono<Map<String, String>> getProfileAssetIdsForUserIds(Collection<String> userIds) {
-        return repository.findByUserIdIn(userIds)
-                .collectMap(UserData::getUserId, UserData::getProfilePhotoAssetId);
+        return repository.findByUserIdIn(userIds).collectMap(UserData::getUserId, UserData::getProfilePhotoAssetId);
     }
 
     @Override

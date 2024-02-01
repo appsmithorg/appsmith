@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -262,8 +263,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Create a map of UserData.userUd to UserData
         Mono<Map<String, String>> userDataMapMono = userIdsMono
                 // get the profile photos of the list of users
-                .flatMap(userIdsSet -> userDataService.getProfileAssetIdsForUserIds(
-                        userIdsSet.stream().toList()));
+                .flatMap(userIdsSet ->
+                userDataService.getProfileAssetIdsForUserIds(userIdsSet.stream().toList()));
 
         // Update name and username in the list of UserAndGroupDTO
         userAndPermissionGroupDTOsMono = Mono.zip(userAndPermissionGroupDTOsMono, userMapMono, userDataMapMono)
@@ -319,8 +320,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 userIdsMono.flatMapMany(userRepository::findAllById).collectMap(User::getId);
 
         // Create a map of UserData.userUd to UserData
-        Mono<Map<String, String>> userDataMapMono = userIdsMono
-                .flatMap(userDataService::getProfileAssetIdsForUserIds);
+        Mono<Map<String, String>> userDataMapMono = userIdsMono.flatMap(userDataService::getProfileAssetIdsForUserIds);
 
         Flux<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspaceFlux =
                 permissionGroupsByWorkspacesMono.repeat();
@@ -347,7 +347,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                     userAndPermissionGroupDTO.setName(
                                             Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                                     userAndPermissionGroupDTO.setUsername(user.getUsername());
-                                    userAndPermissionGroupDTO.setPhotoId(userDataMap.get(userAndPermissionGroupDTO.getUserId()));
+                                    userAndPermissionGroupDTO.setPhotoId(
+                                            userDataMap.get(userAndPermissionGroupDTO.getUserId()));
                                 });
                                 return workspaceMemberInfoDTOList;
                             });
