@@ -1,4 +1,4 @@
-package com.appsmith.server.projections.ce;
+package com.appsmith.server.projections;
 
 public interface UserDataProfilePhotoProjection {
     String getUserId();

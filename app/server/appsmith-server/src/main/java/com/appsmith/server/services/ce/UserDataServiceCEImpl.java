@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.projections.ce.UserDataProfilePhotoProjection;
+import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;

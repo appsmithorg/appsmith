@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.projections.ce.UserDataProfilePhotoProjection;
+import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserDataRepository;
 import reactor.core.publisher.Flux;
