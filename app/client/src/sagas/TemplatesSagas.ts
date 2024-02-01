@@ -355,22 +355,9 @@ function* generateBuildingBlockFromDatasourceTable(
     templateQueryConfig: { name: string; type: string }[];
   }>,
 ) {
-  function generateSelectQuery(query: string, newTableName: string): string {
-    // Regular expression to match the FROM clause in the SELECT query
-    const fromClauseRegex = /FROM\s+(?:public\.)?"([^"]+)"/i;
-
-    // Find the current table name in the query using the regular expression
-    const match = query.match(fromClauseRegex);
-
-    if (match && match[1]) {
-      // Replace the current table name with the new table name
-      const currentTableName = match[1];
-      const updatedQuery = query.replace(currentTableName, newTableName);
-      return updatedQuery;
-    } else {
-      // Handle cases where the FROM clause or table name is not found
-      throw new Error("Table name not found in the query.");
-    }
+  function generateSelectQuery(tableName: string): string {
+    const selectQuery = `SELECT * FROM ${tableName} LIMIT 10;`;
+    return selectQuery;
   }
   function generateUpdateQuery(tableStructure: DatasourceTable): string {
     const tableName = tableStructure.name;
@@ -420,10 +407,7 @@ function* generateBuildingBlockFromDatasourceTable(
           ...getUsersAction.actionConfiguration,
           body:
             queryConfig.type === "SELECT"
-              ? generateSelectQuery(
-                  getUsersAction.actionConfiguration.body,
-                  action.payload.tableName.split(".")[1],
-                )
+              ? generateSelectQuery(action.payload.tableName)
               : generateUpdateQuery(tableStructure!),
         },
         datasource: {
