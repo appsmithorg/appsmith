@@ -19,7 +19,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -68,9 +67,10 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     public Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
         // need to convert from Iterable to ArrayList because the "in" method of criteria takes a collection as input
         Criteria criteria = where(fieldName(QUserData.userData.userId)).in(Lists.newArrayList(userId));
-        List<String> fieldsToInclude =
-                List.of(fieldName(QUserData.userData.profilePhotoAssetId), fieldName(QUserData.userData.userId));
-        return queryAll(List.of(criteria), Optional.of(fieldsToInclude), Optional.empty(), Optional.empty());
+        return queryAll()
+                .criteria(criteria)
+                .fields(fieldName(QUserData.userData.profilePhotoAssetId), fieldName(QUserData.userData.userId))
+                .submit();
     }
 
     @Override

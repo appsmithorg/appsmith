@@ -91,7 +91,6 @@ export class AnvilLayout {
       AppSidebar.navigate(AppSidebarButton.Editor);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.switchToAddNew();
-      cy.focused().blur();
     }
   }
 
