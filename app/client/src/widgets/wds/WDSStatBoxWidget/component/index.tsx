@@ -29,24 +29,30 @@ export const StatBoxComponent = (props: StatBoxComponentProps) => {
       )}
       <Flex direction="column" flexGrow={1} gap="spacing-3" isInner>
         {label && (
-          <Text color="neutral" variant="footnote">
+          <Text color="neutral" lineClamp={1} variant="footnote">
             {label}
           </Text>
         )}
         {value && (
-          <Flex alignItems="end" gap="spacing-1" isInner>
-            <Text fontWeight={500} variant="subtitle">
+          <Flex
+            alignItems="end"
+            flexShrink={0}
+            gap="spacing-1"
+            isInner
+            maxWidth="calc(100% - var(--sizing-1))"
+          >
+            <Text fontWeight={500} lineClamp={1} variant="subtitle">
               {value}
             </Text>
             {valueChange && (
-              <Text color={valueImpact} variant="footnote">
+              <Text color={valueImpact} lineClamp={1} variant="footnote">
                 {valueChange}
               </Text>
             )}
           </Flex>
         )}
         {sublabel && (
-          <Text color="neutral" variant="footnote">
+          <Text color="neutral" lineClamp={1} variant="footnote">
             {sublabel}
           </Text>
         )}

@@ -1,4 +1,5 @@
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export const defaultsConfig = {
   isVisible: true,
@@ -11,4 +12,5 @@ export const defaultsConfig = {
   label: "Active Users",
   sublabel: "Since 21 Jan 2022",
   icon: "user",
+  responsiveBehavior: ResponsiveBehavior.Fill,
 } as unknown as WidgetDefaultProps;
