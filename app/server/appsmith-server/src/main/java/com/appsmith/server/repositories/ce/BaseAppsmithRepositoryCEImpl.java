@@ -462,7 +462,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         .matching(createQueryWithPermission(
                                         params.getCriteria(),
                                         params.getFields(),
-                                        params.getPermissionGroups(),
+                                        permissionGroups1,
                                         params.getPermission())
                                 .cursorBatchSize(10_000))
                         .one()
@@ -476,10 +476,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .flatMap(permissionGroups1 -> mongoOperations
                         .query(this.genericDomain)
                         .matching(createQueryWithPermission(
-                                params.getCriteria(),
-                                params.getFields(),
-                                params.getPermissionGroups(),
-                                params.getPermission()))
+                                params.getCriteria(), params.getFields(), permissionGroups1, params.getPermission()))
                         .first()
                         .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups1)));
     }
