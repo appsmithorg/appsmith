@@ -1,5 +1,6 @@
-import EditorNavigation, {
-  EntityType,
+import {
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
