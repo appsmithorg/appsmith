@@ -98,8 +98,8 @@ export const useCurrentEditorState = () => {
   };
 };
 
-export const useEditorPaneWidth = (): number => {
-  const [width, setWidth] = useState(DEFAULT_EDITOR_PANE_WIDTH);
+export const useEditorPaneWidth = (): string => {
+  const [width, setWidth] = useState(DEFAULT_EDITOR_PANE_WIDTH + "px");
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
@@ -111,9 +111,9 @@ export const useEditorPaneWidth = (): number => {
       segment !== EditorEntityTab.UI
     ) {
       // 1px is propertypane border width
-      setWidth(DEFAULT_EDITOR_PANE_WIDTH + propertyPaneWidth);
+      setWidth("40.4vw");
     } else {
-      setWidth(DEFAULT_EDITOR_PANE_WIDTH);
+      setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
     }
   }, [isSideBySideEnabled, editorMode, segment, propertyPaneWidth]);
 
