@@ -10,6 +10,7 @@ import {
   entityItems,
   draggableWidgets,
   propPane,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -471,6 +472,8 @@ describe(
 
         cy.ClickGotIt();
 
+        agHelper.WaitUntilAllToastsDisappear();
+
         //Verifying Searching File from UI
         agHelper.TypeText(
           queryLocators.searchFilefield,
@@ -497,12 +500,13 @@ describe(
           .click(); //Verifies 8684
         cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
-        expect(
-          cy.xpath(
-            "//span[text()='Are you sure you want to delete the file?']",
-          ),
-        ).to.exist; //verify Delete File dialog appears
-        cy.clickButton("Confirm").wait(1000); //wait for Delete operation to be successfull, //Verifies 8684
+        agHelper.AssertElementVisibility(
+          "//span[text()='Are you sure you want to delete the file?']",
+        ); //verify Delete File dialog appears
+
+        agHelper.AssertElementVisibility(locators._buttonByText("Confirm"));
+        agHelper.ClickButton("Confirm"); //wait for Delete operation to be successfull, //Verifies 8684
+
         agHelper.AssertElementAbsence(".t--modal-widget", 10000);
         cy.wait("@postExecute").then(({ response }) => {
           expect(response.body.data.isExecutionSuccess).to.eq(true);
@@ -510,8 +514,8 @@ describe(
         cy.wait("@postExecute").then(({ response }) => {
           expect(response.body.data.isExecutionSuccess).to.eq(true);
         });
-        cy.wait(2000);
-        cy.get("span:contains('" + fileName + "')").should("not.exist"); //verify Deletion of file is success from UI also
+
+        agHelper.AssertElementAbsence("span:contains('" + fileName + "')"); //verify Deletion of file is success from UI also
       });
     });
 
