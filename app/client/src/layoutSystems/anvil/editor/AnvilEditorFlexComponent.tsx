@@ -45,8 +45,6 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   useAnvilWidgetDrag(props.widgetId, props.layoutId, ref);
   useAnvilWidgetHover(props.widgetId, ref);
 
-  // Calculate z-index based on widget type
-
   // Render the AnvilFlexComponent
   return <AnvilFlexComponent {...props} className={className} ref={ref} />;
 };
