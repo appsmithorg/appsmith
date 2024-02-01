@@ -251,15 +251,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
-  cy.AppSetupForRename();
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-
-  cy.wait("@updateApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  agHelper.RemoveUIElement("Tooltip", "Rename application");
+  homePageTS.RenameApplication(appname);
 });
 
 Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {

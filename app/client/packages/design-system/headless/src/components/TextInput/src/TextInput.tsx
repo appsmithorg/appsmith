@@ -13,15 +13,17 @@ function TextInput(props: TextInputProps, ref: TextInputRef) {
     defaultValue,
     isReadOnly = false,
     spellCheck,
+    type: typeProp,
     value,
     ...rest
   } = props;
 
   const isEmpty = isReadOnly && !Boolean(value) && !Boolean(defaultValue);
+  const type = typeProp === "password" && isEmpty ? "text" : typeProp;
 
   const { descriptionProps, errorMessageProps, inputProps, labelProps } =
     useTextField(
-      { ...rest, defaultValue, value: isEmpty ? "—" : value },
+      { ...rest, type, defaultValue, value: isEmpty ? "—" : value },
       inputRef,
     );
 

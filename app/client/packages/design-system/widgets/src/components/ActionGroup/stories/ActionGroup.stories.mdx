@@ -39,14 +39,16 @@ export const Template = (args) => {
 
 <Story name="Size">
   <Flex gap="spacing-2" direction="column">
-    {Object.keys(SIZES).map((size) => (
-      <ActionGroup size={size} key={size}>
-        <Item key="option-1">Option 1</Item>
-        <Item key="option-2">Option 2</Item>
-        <Item key="option-3">Option 3</Item>
-        <Item key="option-4">Option 4</Item>
-      </ActionGroup>
-    ))}
+    {Object.keys(SIZES)
+      .filter((size) => !["large"].includes(size))
+      .map((size) => (
+        <ActionGroup size={size} key={size}>
+          <Item key="option-1">Option 1</Item>
+          <Item key="option-2">Option 2</Item>
+          <Item key="option-3">Option 3</Item>
+          <Item key="option-4">Option 4</Item>
+        </ActionGroup>
+      ))}
   </Flex>
 </Story>
 
