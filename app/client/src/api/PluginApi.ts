@@ -87,11 +87,11 @@ class PluginsApi extends Api {
   }
 
   static async uploadFiles(
-    datasourceId: string,
+    pluginId: string,
     files: File[],
     params?: Record<string, any>,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const url = this.defaultDynamicTriggerURL(datasourceId);
+    const url = this.dynamicTriggerURLForInternalPlugins(pluginId);
     const formData = new FormData();
     files.forEach((file) => {
       formData.append("files", file);

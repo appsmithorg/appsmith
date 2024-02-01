@@ -8,16 +8,11 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import type { Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import type { Datasource, DatasourceStorage } from "entities/Datasource";
-import {
-  DATASOURCE_NAME_DEFAULT_PREFIX,
-  TEMP_DATASOURCE_ID,
-} from "constants/Datasource";
-import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
+import type { Datasource } from "entities/Datasource";
 import { getDatasources } from "@appsmith/selectors/entitiesSelector";
 
 export const StyledContainer = styled.div`
@@ -137,7 +132,7 @@ interface Props {
 }
 
 function AIDataSources(props: Props) {
-  const { datasources, defaultEnvId, plugins, workspaceId } = props;
+  const { plugins } = props;
 
   const handleOnClick = (plugin: Plugin) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
@@ -145,27 +140,27 @@ function AIDataSources(props: Props) {
       pluginPackageName: plugin.packageName,
     });
 
-    if (plugin.packageName === PluginPackageName.APPSMITH_AI) {
-      props.createDatasourceFromForm({
-        name:
-          DATASOURCE_NAME_DEFAULT_PREFIX +
-          getUntitledDatasourceSequence(datasources),
-        pluginId: plugin.id,
-        type: plugin.type,
-        datasourceStorages: {
-          [defaultEnvId]: {
-            datasourceId: "",
-            environmentId: defaultEnvId,
-            datasourceConfiguration: {},
-            isValid: true,
-          },
-        } as Record<string, DatasourceStorage>,
-        workspaceId,
-        id: TEMP_DATASOURCE_ID,
-      });
+    // if (plugin.packageName === PluginPackageName.APPSMITH_AI) {
+    //   props.createDatasourceFromForm({
+    //     name:
+    //       DATASOURCE_NAME_DEFAULT_PREFIX +
+    //       getUntitledDatasourceSequence(datasources),
+    //     pluginId: plugin.id,
+    //     type: plugin.type,
+    //     datasourceStorages: {
+    //       [defaultEnvId]: {
+    //         datasourceId: "",
+    //         environmentId: defaultEnvId,
+    //         datasourceConfiguration: {},
+    //         isValid: true,
+    //       },
+    //     } as Record<string, DatasourceStorage>,
+    //     workspaceId,
+    //     id: TEMP_DATASOURCE_ID,
+    //   });
 
-      return;
-    }
+    //   return;
+    // }
 
     props.createTempDatasourceFromForm({
       pluginId: plugin.id,

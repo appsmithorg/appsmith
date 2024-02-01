@@ -19,7 +19,7 @@ const HiddenFileInput = styled.input`
 `;
 
 interface ConnectProps {
-  datasourceId?: string;
+  pluginId?: string;
   currentFiles: FileMetadata[];
 }
 
@@ -27,7 +27,7 @@ export type MultipleFilePickerControlProps = ControlProps & {
   allowedFileTypes?: string[];
   maxFileSizeInBytes?: number;
   uploadFilesToTrigger?: boolean;
-  datasourceId?: string;
+  pluginId?: string;
   config?: {
     uploadToTrigger?: boolean;
     params?: Record<string, any>;
@@ -74,11 +74,11 @@ function FilePicker(props: FilePickerProps) {
   const uploadFilesToTriggerApi = async (
     files: File[],
   ): Promise<FileMetadata[]> => {
-    if (!props.datasourceId) return [];
+    if (!props.pluginId) return [];
 
     try {
       const response = await PluginsApi.uploadFiles(
-        props.datasourceId,
+        props.pluginId,
         files,
         uploadParams,
       );
@@ -296,10 +296,6 @@ export interface FilePickerComponentState {
   isOpen: boolean;
 }
 
-function isAction(value: any): value is Action {
-  return value && !!value.datasource && value.datasource.id;
-}
-
 const mapStateToProps = (
   state: AppState,
   ownProps: MultipleFilePickerControlProps,
@@ -310,11 +306,9 @@ const mapStateToProps = (
 
   const currentFiles = get(formValues, ownProps.configProperty, []);
 
-  const datasourceId = isAction(formValues)
-    ? formValues?.datasource?.id
-    : formValues?.id;
+  const pluginId = formValues.pluginId;
 
-  return { datasourceId, currentFiles };
+  return { pluginId, currentFiles };
 };
 
 export default connect(mapStateToProps)(MultipleFilePickerControl);
