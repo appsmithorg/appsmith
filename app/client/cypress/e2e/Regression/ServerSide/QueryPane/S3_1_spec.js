@@ -508,7 +508,10 @@ describe(
 
         agHelper.ClickButton("Confirm"); //wait for Delete operation to be successfull, //Verifies 8684
 
-        agHelper.AssertElementAbsence(".t--modal-widget", 10000);
+        agHelper.AssertElementAbsence(
+          ".t--modal-widget",
+          Cypress.config().pageLoadTimeout,
+        );
         cy.wait("@postExecute").then(({ response }) => {
           expect(response.body.data.isExecutionSuccess).to.eq(true);
         });
@@ -516,7 +519,10 @@ describe(
           expect(response.body.data.isExecutionSuccess).to.eq(true);
         });
 
-        agHelper.AssertElementAbsence("span:contains('" + fileName + "')"); //verify Deletion of file is success from UI also
+        agHelper.AssertElementAbsence(
+          "span:contains('" + fileName + "')",
+          Cypress.config().pageLoadTimeout,
+        ); //verify Deletion of file is success from UI also
       });
     });
 
