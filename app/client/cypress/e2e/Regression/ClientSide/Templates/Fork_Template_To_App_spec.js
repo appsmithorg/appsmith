@@ -17,17 +17,20 @@ describe(
       agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.GetNClick("//h1[text()='Applicant Tracker-test']");
       agHelper.FailIfErrorToast("INTERNAL_SERVER_ERROR");
-      cy.get("body").then(($ele) => {
-        if ($ele.find(widgetLocators.toastAction).length <= 0) {
-          if ($ele.find(template.templateViewForkButton).length > 0) {
-            cy.get(template.templateViewForkButton).click();
-          }
-        }
-      });
+      agHelper.GetNClick(template.templateViewForkButton);
+
+      // cy.get("body").then(($ele) => {
+      //   if ($ele.find(widgetLocators.toastAction).length <= 0) {
+      //     if ($ele.find(template.templateViewForkButton).length > 0) {
+      //       cy.get(template.templateViewForkButton).click();
+      //     }
+      //   }
+      // });
       agHelper.WaitUntilToastDisappear("template added successfully");
       assertHelper.AssertNetworkStatus("updateLayout");
       // [Bug]: Getting 'Resource not found' error on deploying template #17477
       deployMode.DeployApp();
+
       agHelper.GetNClickByContains(
         ".t--page-switch-tab",
         "1 Track Applications",
