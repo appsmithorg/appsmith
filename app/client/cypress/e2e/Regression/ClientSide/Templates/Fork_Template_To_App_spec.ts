@@ -26,6 +26,7 @@ describe(
         "1 Track Applications",
       );
       deployMode.NavigateBacktoEditor();
+      agHelper.WaitUntilAllToastsDisappear();
     });
 
     it("2. Add selected pages from template to an app", () => {
