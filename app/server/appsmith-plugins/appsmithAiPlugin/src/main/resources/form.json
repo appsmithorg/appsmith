@@ -37,7 +37,7 @@
             "text/plain",
             "text/markdown"
           ],
-          "maxFileSizeInBytes": 157286400,
+          "maxFileSizeInBytes": 20971520,
           "config": {
             "uploadToTrigger": true,
             "params": {
