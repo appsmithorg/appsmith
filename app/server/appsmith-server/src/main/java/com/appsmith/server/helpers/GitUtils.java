@@ -49,11 +49,11 @@ public class GitUtils {
     public static String getRepoName(String remoteUrl) {
         // Pattern to match git SSH URL
         final Matcher matcher = Pattern.compile(
-                        "((git|ssh|http(s)?)|([\\w\\-\\.]+@[\\w\\-\\.]+))(:(\\/\\/)?)([\\w.@:/\\-~]+)(\\.git|)(\\/)?")
+                        "((git|ssh)|([\\w\\-\\.]+@[\\w\\-\\.]+))(:(\\/\\/)?)([\\w.@:\\/\\-~\\(\\)\\%]+)(\\.git|)(\\/)?")
                 .matcher(remoteUrl);
         if (matcher.find()) {
             // To trim the postfix and prefix
-            return matcher.group(7).replaceFirst("\\.git$", "").replaceFirst("^(.*[\\\\\\/])", "");
+            return matcher.group(6).replaceFirst("\\.git$", "").replaceFirst("^(.*[\\\\\\/])", "");
         }
         throw new AppsmithException(
                 AppsmithError.INVALID_GIT_CONFIGURATION,
