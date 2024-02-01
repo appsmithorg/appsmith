@@ -1,7 +1,7 @@
 import * as configs from "@appsmith/configs";
 import * as featureFlagsSelectors from "@appsmith/selectors/featureFlagsSelectors";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
-import { getShowQueryModule } from "./moduleFeatureSelectors";
+import { getShowQueryModule, getShowUIModule } from "./moduleFeatureSelectors";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import type { AppsmithUIConfigs } from "@appsmith/configs/types";
 import type { AppState } from "@appsmith/reducers";
@@ -30,7 +30,7 @@ const mockCloudHosting = (value: boolean) => {
   );
 };
 
-describe("useShowQueryModuleFunctionality", () => {
+describe("getShowQueryModule selector", () => {
   it("returns false when cloudHosting is true and feature flag is disabled", () => {
     mockCloudHosting(true);
     mockFeatureFlag("release_query_module_enabled", false);
@@ -63,6 +63,44 @@ describe("useShowQueryModuleFunctionality", () => {
     mockFeatureFlag("release_query_module_enabled", true);
 
     const result = getShowQueryModule({} as AppState);
+
+    expect(result).toBe(true);
+  });
+});
+
+describe("getShowUIModule selector", () => {
+  it("returns false when cloudHosting is true and feature flag is disabled", () => {
+    mockCloudHosting(true);
+    mockFeatureFlag("release_ui_module_enabled", false);
+
+    const result = getShowUIModule({} as AppState);
+
+    expect(result).toBe(false);
+  });
+
+  it("returns false when cloudHosting is false and feature flag is disabled", () => {
+    mockCloudHosting(false);
+    mockFeatureFlag("release_ui_module_enabled", false);
+
+    const result = getShowUIModule({} as AppState);
+
+    expect(result).toBe(false);
+  });
+
+  it("returns true when cloudHosting is true feature flag is enabled", () => {
+    mockCloudHosting(true);
+    mockFeatureFlag("release_ui_module_enabled", true);
+
+    const result = getShowUIModule({} as AppState);
+
+    expect(result).toBe(false);
+  });
+
+  it("returns true when cloudHosting is false feature flag is enabled", () => {
+    mockCloudHosting(false);
+    mockFeatureFlag("release_ui_module_enabled", true);
+
+    const result = getShowUIModule({} as AppState);
 
     expect(result).toBe(true);
   });
