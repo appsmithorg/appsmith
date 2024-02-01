@@ -25,7 +25,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> updateById(String id, T resource, AclPermission permission);
 
-    QueryAllParams<T> queryAll();
+    QueryAllParams<T> buildQuery();
 
     Flux<T> queryAllWithStrictPermissionGroups(
             List<Criteria> criterias,

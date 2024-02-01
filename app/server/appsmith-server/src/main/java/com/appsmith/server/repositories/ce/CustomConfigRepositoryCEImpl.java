@@ -29,7 +29,10 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
     @Override
     public Mono<Config> findByName(String name, AclPermission permission) {
         Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
-        return queryOne(List.of(nameCriteria), permission);
+        return buildQuery()
+                .criteria(List.of(nameCriteria))
+                .permission(permission)
+                .one();
     }
 
     @Override

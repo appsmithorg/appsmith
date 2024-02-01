@@ -64,27 +64,33 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         Criteria idCriteria = getIdCriteria(id);
 
-        return queryOne(List.of(idCriteria, workspaceIdCriteria), permission);
+        return buildQuery()
+                .criteria(List.of(idCriteria, workspaceIdCriteria))
+                .permission(permission)
+                .one();
     }
 
     @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
         Criteria nameCriteria = where(fieldName(QApplication.application.name)).is(name);
-        return queryOne(List.of(nameCriteria), permission);
+        return buildQuery()
+                .criteria(List.of(nameCriteria))
+                .permission(permission)
+                .one();
     }
 
     @Override
     public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        return queryAll().criteria(workspaceIdCriteria).permission(permission).submit();
+        return buildQuery().criteria(workspaceIdCriteria).permission(permission).all();
     }
 
     @Override
     public Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QApplication.application.workspaceId)).in(workspaceIds);
-        return queryAll().criteria(workspaceIdCriteria).permission(permission).submit();
+        return buildQuery().criteria(workspaceIdCriteria).permission(permission).all();
     }
 
     @Override
@@ -104,17 +110,17 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         return currentUserWithTenantMono
                 .flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
-                .flatMapMany(permissionGroups -> queryAll()
+                .flatMapMany(permissionGroups -> buildQuery()
                         .permission(permission)
                         .permissionGroups(permissionGroups)
-                        .submit());
+                        .all());
     }
 
     @Override
     public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
         Criteria clonedFromCriteria = where(fieldName(QApplication.application.clonedFromApplicationId))
                 .is(applicationId);
-        return queryAll().criteria(clonedFromCriteria).permission(permission).submit();
+        return buildQuery().criteria(clonedFromCriteria).permission(permission).all();
     }
 
     @Override
@@ -192,7 +198,11 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria branchNameCriteria = where(gitApplicationMetadata + "."
                         + fieldName(QApplication.application.gitApplicationMetadata.branchName))
                 .is(branchName);
-        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), projectionFieldNames, aclPermission);
+        return buildQuery()
+                .criteria(List.of(defaultAppCriteria, branchNameCriteria))
+                .fields(projectionFieldNames)
+                .permission(aclPermission)
+                .one();
     }
 
     @Override
@@ -207,7 +217,11 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria branchNameCriteria = where(gitApplicationMetadata + "."
                         + fieldName(QApplication.application.gitApplicationMetadata.branchName))
                 .is(branchName);
-        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), null, aclPermission);
+        return buildQuery()
+                .criteria(List.of(defaultAppCriteria, branchNameCriteria))
+                .fields((List<String>) null)
+                .permission(aclPermission.orElse(null))
+                .one();
     }
 
     @Override
@@ -218,7 +232,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "."
                         + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId);
-        return queryAll().criteria(applicationIdCriteria).permission(permission).submit();
+        return buildQuery()
+                .criteria(applicationIdCriteria)
+                .permission(permission)
+                .all();
     }
 
     /**
@@ -271,10 +288,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria workspaceIdCriteria =
                 where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         AclPermission aclPermission = applicationPermission.getEditPermission();
-        return queryAll()
+        return buildQuery()
                 .criteria(workspaceIdCriteria, repoCriteria, gitAuthCriteria)
                 .permission(aclPermission)
-                .submit();
+                .all();
     }
 
     @Override

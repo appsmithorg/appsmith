@@ -32,12 +32,12 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
                 fieldName(QPlugin.plugin.name),
                 fieldName(QPlugin.plugin.packageName),
                 fieldName(QPlugin.plugin.iconLocation));
-        return queryAll().criteria(criteria).fields(projections).submit();
+        return buildQuery().criteria(criteria).fields(projections).all();
     }
 
     @Override
     public Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         Criteria idCriteria = where(fieldName(QPlugin.plugin.id)).in(ids);
-        return queryAll().criteria(idCriteria).fields(includeFields).submit();
+        return buildQuery().criteria(idCriteria).fields(includeFields).all();
     }
 }

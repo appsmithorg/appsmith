@@ -67,10 +67,10 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     public Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
         // need to convert from Iterable to ArrayList because the "in" method of criteria takes a collection as input
         Criteria criteria = where(fieldName(QUserData.userData.userId)).in(Lists.newArrayList(userId));
-        return queryAll()
+        return buildQuery()
                 .criteria(criteria)
                 .fields(fieldName(QUserData.userData.profilePhotoAssetId), fieldName(QUserData.userData.userId))
-                .submit();
+                .all();
     }
 
     @Override

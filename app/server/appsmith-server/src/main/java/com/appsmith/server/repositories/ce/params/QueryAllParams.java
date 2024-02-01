@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,8 +33,16 @@ public class QueryAllParams<T extends BaseDomain> {
         this.repo = repo;
     }
 
-    public Flux<T> submit() {
+    public Flux<T> all() {
         return repo.queryAllExecute(this);
+    }
+
+    public Mono<T> one() {
+        return repo.queryOneExecute(this);
+    }
+
+    public Mono<T> first() {
+        return repo.queryFirstExecute(this);
     }
 
     public QueryAllParams<T> criteria(Criteria... criteria) {
