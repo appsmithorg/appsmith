@@ -28,8 +28,8 @@
         },
         {
           "label": "Files",
-          "subtitle": "Choose files",
-          "buttonLabel": "Choose files",
+          "subtitle": "Upload files and use them as context for generating text",
+          "buttonLabel": "Upload Files",
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "MULTIPLE_FILE_PICKER",
           "allowedFileTypes": [

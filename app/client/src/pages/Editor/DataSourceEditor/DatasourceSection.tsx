@@ -15,6 +15,7 @@ import { EnvConfigSection } from "@appsmith/components/EnvConfigSection";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { isMultipleEnvEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { Text } from "design-system";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
@@ -152,7 +153,12 @@ export function renderDatasourceSection(
           );
         } else {
           try {
-            const { configProperty, controlType, label } = section;
+            const {
+              configProperty,
+              controlType,
+              label,
+              subtitle = "",
+            } = section;
             const customConfigProperty =
               `datasourceStorages.${currentEnvironment}.` + configProperty;
             const reactKey = datasource.id + "_" + label;
@@ -195,18 +201,23 @@ export function renderDatasourceSection(
                 const isPlural = value.length > 1;
 
                 return (
-                  <FieldWrapper key={reactKey}>
-                    <Key>{label}: </Key>{" "}
-                    <Value>
-                      {value.length} File{isPlural ? "s" : ""} uploaded
-                    </Value>
-                  </FieldWrapper>
+                  <div>
+                    <FieldWrapper key={reactKey}>
+                      <Key>{label}: </Key>{" "}
+                      <Value>
+                        {value.length} File{isPlural ? "s" : ""} uploaded
+                      </Value>
+                    </FieldWrapper>
+                  </div>
                 );
               } else {
                 return (
-                  <FieldWrapper key={reactKey}>
-                    <Key>{label}: </Key> No Files Uploaded
-                  </FieldWrapper>
+                  <div>
+                    <FieldWrapper key={reactKey}>
+                      <Key>{label}: </Key> No Files Uploaded
+                    </FieldWrapper>
+                    <Text kind="body-s">{subtitle}</Text>
+                  </div>
                 );
               }
             }

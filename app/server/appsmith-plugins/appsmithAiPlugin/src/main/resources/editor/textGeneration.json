@@ -44,9 +44,9 @@
       "isRequired": true
     },
     {
-      "label": "Use Files for context",
-      "tooltipText": "Select the files to use for file context",
-      "subtitle": "Files to use",
+      "label": "Use context from files",
+      "tooltipText": "Select the files to use as context for the text generation. The files can be managed in the Datasource edit page",
+      "subtitle": "Select the files to use as context for the text generation. The files can be managed in the Datasource edit page",
       "isRequired": false,
       "propertyName": "fileIds",
       "configProperty": "actionConfiguration.formData.fileIds.data",
