@@ -480,24 +480,27 @@ describe(
           fileName.substring(0, 14),
         );
 
-        agHelper
-          .AssertElementVisibility(
-            ".t--widget-textwidget span:contains('" + fileName + "')",
-          )
-          .should("have.length", 1);
+        agHelper.AssertElementVisibility(
+          ".t--widget-textwidget span:contains('" + fileName + "')",
+        );
+
+        agHelper.AssertElementLength(
+          ".t--widget-textwidget span:contains('" + fileName + "')",
+          1,
+        );
 
         //Verifying CopyFile URL icon from UI - Browser pop up appearing
         // cy.xpath(queryLocators.copyURLicon).click()
         // cy.window().its('navigator.clipboard').invoke('readText').should('contain', 'CRUDNewPageFile')
 
         //Verifying DeleteFile icon from UI
-        cy.xpath(
+        agHelper.GetNClick(
           "//span[text()='" +
             fileName +
             "']/ancestor::div[@type='CANVAS_WIDGET']//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]",
-        )
-          .eq(0)
-          .click(); //Verifies 8684
+        );
+
+        //Verifies 8684
         cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
         agHelper.AssertElementVisibility(
