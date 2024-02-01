@@ -5,7 +5,7 @@ import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
-export const useAnvilFlexHover = (
+export const useAnvilWidgetHover = (
   widgetId: string,
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {

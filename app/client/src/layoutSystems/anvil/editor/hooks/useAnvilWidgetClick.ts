@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
 
-export const useAnvilFlexClick = (
+export const useAnvilWidgetClick = (
   widgetId: string,
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {

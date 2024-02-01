@@ -10,7 +10,7 @@ import {
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
-export const useAnvilFlexDrag = (
+export const useAnvilWidgetDrag = (
   widgetId: string,
   layoutId: string,
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent

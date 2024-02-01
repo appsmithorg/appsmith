@@ -3,10 +3,10 @@ import type { AnvilFlexComponentProps } from "../utils/types";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
-import { useAnvilFlexStyles } from "./hooks/useAnvilFlexStyles";
-import { useAnvilFlexClick } from "./hooks/useAnvilFlexClick";
-import { useAnvilFlexDrag } from "./hooks/useAnvilFlexDrag";
-import { useAnvilFlexHover } from "./hooks/useAnvilFlexHover";
+import { useAnvilWidgetStyles } from "./hooks/useAnvilWidgetStyles";
+import { useAnvilWidgetClick } from "./hooks/useAnvilWidgetClick";
+import { useAnvilWidgetDrag } from "./hooks/useAnvilWidgetDrag";
+import { useAnvilWidgetHover } from "./hooks/useAnvilWidgetHover";
 
 export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   // Create a ref for the AnvilFlexComponent
@@ -40,10 +40,10 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   );
 
   // Use custom hooks to manage styles, click, drag, and hover behavior exclusive for Edit mode
-  useAnvilFlexStyles(props.widgetId, props.widgetName, props.isVisible, ref);
-  useAnvilFlexClick(props.widgetId, ref);
-  useAnvilFlexDrag(props.widgetId, props.layoutId, ref);
-  useAnvilFlexHover(props.widgetId, ref);
+  useAnvilWidgetStyles(props.widgetId, props.widgetName, props.isVisible, ref);
+  useAnvilWidgetClick(props.widgetId, ref);
+  useAnvilWidgetDrag(props.widgetId, props.layoutId, ref);
+  useAnvilWidgetHover(props.widgetId, ref);
 
   // Calculate z-index based on widget type
 
