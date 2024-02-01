@@ -82,11 +82,13 @@ There are 2 sizes of the button component. Default size is `medium`.
 
 <Story name="Size">
   <Flex gap="spacing-2">
-    {Object.keys(SIZES).map((size) => (
-      <div key={size} style={{ marginBottom: 10 }}>
-        <Button size={size} icon="star" children={size} />
-      </div>
-    ))}
+    {Object.keys(SIZES)
+      .filter((size) => !["large"].includes(size))
+      .map((size) => (
+        <div key={size} style={{ marginBottom: 10 }}>
+          <Button size={size} icon="star" children={size} />
+        </div>
+      ))}
   </Flex>
 </Story>
 

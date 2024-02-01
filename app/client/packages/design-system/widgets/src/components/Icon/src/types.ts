@@ -10,7 +10,7 @@ export type IconProps = Omit<HeadlessIconProps, "children"> & {
    *
    * Note: we need large size for the icon only
    */
-  size?: keyof typeof SIZES | "large";
+  size?: keyof typeof SIZES;
   /** custom icon component
    * Note: if custom icon is provided, name prop will be ignored
    */
