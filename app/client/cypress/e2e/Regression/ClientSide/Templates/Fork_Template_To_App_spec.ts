@@ -1,4 +1,3 @@
-import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 import {
   agHelper,
