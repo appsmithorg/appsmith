@@ -1,4 +1,4 @@
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 async function loadScript(src: string) {
   return new Promise(function (resolve, reject) {
@@ -14,7 +14,7 @@ async function loadScript(src: string) {
 }
 
 export const executeGoogleApi = async () => {
-  const { airGapped } = getAppsmithConfigs();
+  const { airGapped } = isAirgapped();
   if (airGapped) {
     return;
   }
