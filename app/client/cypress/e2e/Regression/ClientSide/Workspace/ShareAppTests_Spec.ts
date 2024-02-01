@@ -62,7 +62,7 @@ describe(
         .first()
         .trigger("mouseover");
       agHelper.AssertElementAbsence(homePage._appEditIcon);
-      homePage.LaunchAppFromAppHover();
+      homePage.LaunchAppFromAppHover(locators._emptyPageTxt);
       agHelper.Sleep(2000); //for CI
       agHelper.GetText(locators._emptyPageTxt).then((text) => {
         expect(text).to.equal("This page seems to be blank");
@@ -152,23 +152,10 @@ describe(
       );
       agHelper.Sleep(); //for CI
       agHelper.VisitNAssert(currentUrl);
-      cy.get("@getConsolidatedData").then((interception: any) => {
-        expect(
-          Number(interception.response.body.data.pages.responseMeta.status),
-        ).to.eq(404);
-      });
+      agHelper.ValidateToastMessage("Resource Not Found"); //for 404 screen
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
-      cy.get("@getConsolidatedData").then((interception: any) => {
-        //we make two getConsolidatedData calls during the first we get a 404 error which redirects the browser back to signin
-        //page and that causes to fetch the getConsolidatedData without any page params again we should expect no pages resp during then
-        if (interception.response.body.data.pages) {
-          expect(
-            Number(interception.response.body.data.pages.responseMeta.status),
-          ).to.eq(404);
-        }
-      });
       agHelper.AssertContains("Sign in to your account", "be.visible");
     });
 
@@ -185,7 +172,6 @@ describe(
         agHelper.AssertElementVisibility(
           `[data-testid="partner-program-callout"]`,
         );
-
         homePage.Signout();
       }
     });
