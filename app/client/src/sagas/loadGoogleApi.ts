@@ -1,0 +1,29 @@
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+async function loadScript(src: string) {
+  return new Promise(function (resolve, reject) {
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    s.crossOrigin = "anonymous";
+    s.id = "googleapis";
+    const headElement = document.getElementsByTagName("head")[0];
+    headElement && headElement.appendChild(s);
+  });
+}
+
+export const executeGoogleApi = async () => {
+  const { airGapped } = getAppsmithConfigs();
+  if (airGapped) {
+    return;
+  }
+  const gapiLoaded = () => {
+    (window as any).googleAPIsLoaded = true;
+  };
+  const onError = () => {
+    (window as any).googleAPIsLoaded = false;
+  };
+
+  loadScript("https://apis.google.com/js/api.js").then(gapiLoaded, onError);
+};
