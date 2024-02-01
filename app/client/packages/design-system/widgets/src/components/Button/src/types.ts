@@ -41,5 +41,5 @@ export interface ButtonProps extends HeadlessButtonProps {
   /** Size of the button
    * @default medium
    */
-  size?: keyof typeof SIZES;
+  size?: Omit<keyof typeof SIZES, "large">;
 }
