@@ -12,7 +12,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,6 +44,6 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
         Criteria criteria =
                 Criteria.where(fieldName(QCustomJSLib.customJSLib.uidString)).in(uidStrings);
 
-        return this.queryAll(List.of(criteria), Optional.empty());
+        return queryAll().criteria(criteria).submit();
     }
 }

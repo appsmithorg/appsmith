@@ -1,6 +1,8 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
@@ -13,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface AppsmithRepository<T> {
+public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> findById(String id, AclPermission permission);
 
@@ -23,9 +25,7 @@ public interface AppsmithRepository<T> {
 
     Mono<T> updateById(String id, T resource, AclPermission permission);
 
-    Flux<T> queryAll(List<Criteria> criterias, AclPermission permission);
-
-    Flux<T> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort);
+    QueryAllParams<T> queryAll();
 
     Flux<T> queryAllWithStrictPermissionGroups(
             List<Criteria> criterias,
@@ -34,8 +34,6 @@ public interface AppsmithRepository<T> {
             Sort sort,
             int limit,
             int skip);
-
-    Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
 
     Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
