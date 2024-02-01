@@ -14,7 +14,7 @@ async function loadScript(src: string) {
 }
 
 export const executeGoogleApi = async () => {
-  const { airGapped } = isAirgapped();
+  const airGapped = isAirgapped();
   if (airGapped) {
     return;
   }
