@@ -14,6 +14,8 @@ import {
 import { PluginType } from "entities/Action";
 import type { QueryListState } from "./FocusSelectors";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
+import type { FocusEntityInfo } from "navigation/FocusEntity";
+import { FocusEntity } from "navigation/FocusEntity";
 
 export function setSelectedDatasource(id: string | undefined) {
   if (id) {
@@ -74,11 +76,11 @@ export function setSelectedQuery(state: QueryListState) {
   }
 }
 
-export function setSelectedJSObject(id: string | undefined) {
-  if (id) {
+export function setSelectedJSObject(focusInfo: FocusEntityInfo) {
+  if (focusInfo.entity === FocusEntity.JS_OBJECT) {
     history.replace(
       jsCollectionIdURL({
-        collectionId: id,
+        collectionId: focusInfo.id,
       }),
     );
   }

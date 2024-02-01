@@ -41,13 +41,6 @@ export const getSelectedQueryId = (path: string): QueryListState => {
   }
 };
 
-export const getSelectedJSObjectId = (path: string): string | undefined => {
-  const entityInfo = identifyEntityFromPath(path);
-  if (entityInfo.entity === FocusEntity.JS_OBJECT) {
-    return entityInfo.id;
-  }
-};
-
 export const getSelectedSegment = (path: string): string | undefined => {
   const match = matchPath<{ entity: string }>(path, {
     path: [
