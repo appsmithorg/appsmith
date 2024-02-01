@@ -133,7 +133,7 @@ export const defaultNavigationSetting = {
 
 export const defaultThemeSetting: ThemeSetting = {
   fontFamily: "System Default",
-  accentColor: "#553DE9",
+  accentColor: "#0080ff",
   colorMode: "LIGHT",
   borderRadius: "6px",
   density: 1,
