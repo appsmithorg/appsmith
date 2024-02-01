@@ -7,7 +7,6 @@ import { useAnvilFlexStyles } from "./hooks/useAnvilFlexStyles";
 import { useAnvilFlexClick } from "./hooks/useAnvilFlexClick";
 import { useAnvilFlexDrag } from "./hooks/useAnvilFlexDrag";
 import { useAnvilFlexHover } from "./hooks/useAnvilFlexHover";
-import { useAnvilFlexZIndex } from "./hooks/useAnvilFlexZIndex";
 
 export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   // Create a ref for the AnvilFlexComponent
@@ -47,15 +46,7 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   useAnvilFlexHover(props.widgetId, ref);
 
   // Calculate z-index based on widget type
-  const onHoverZIndex = useAnvilFlexZIndex(props.widgetId, props.widgetType);
 
   // Render the AnvilFlexComponent
-  return (
-    <AnvilFlexComponent
-      {...props}
-      className={className}
-      onHoverZIndex={onHoverZIndex}
-      ref={ref}
-    />
-  );
+  return <AnvilFlexComponent {...props} className={className} ref={ref} />;
 };

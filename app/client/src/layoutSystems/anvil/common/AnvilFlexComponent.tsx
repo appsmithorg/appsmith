@@ -11,7 +11,12 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { Layers } from "constants/Layers";
+
+const anvilWidgetStyleProps: CSSProperties = {
+  position: "relative",
+  // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
+  overflow: "hidden",
+};
 
 /**
  * Adds the following functionalities to the widget:
@@ -31,7 +36,6 @@ export const AnvilFlexComponent = forwardRef(
       children,
       className,
       flexGrow,
-      onHoverZIndex = Layers.positionedWidget,
       widgetId,
       widgetSize,
       widgetType,
@@ -80,18 +84,6 @@ export const AnvilFlexComponent = forwardRef(
       return data;
     }, [isFillWidget, widgetSize, verticalAlignment, flexGrow]);
 
-    // Memoize style properties
-    const styleProps: CSSProperties = useMemo(() => {
-      return {
-        position: "relative",
-        // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
-        overflow: "hidden",
-        "&:hover": {
-          zIndex: onHoverZIndex,
-        },
-      };
-    }, [onHoverZIndex]);
-
     // Render the Anvil Flex Component using the Flex component from WDS
     return (
       <Flex
@@ -99,7 +91,7 @@ export const AnvilFlexComponent = forwardRef(
         className={className}
         id={getAnvilWidgetDOMId(widgetId)}
         ref={ref}
-        style={styleProps}
+        style={anvilWidgetStyleProps}
       >
         <div className="h-full w-full">{children}</div>
       </Flex>
