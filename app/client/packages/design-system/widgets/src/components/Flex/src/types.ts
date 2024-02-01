@@ -129,8 +129,7 @@ export interface FlexProps
     JustifyContent,
     JustifySelf,
     FlexDirection,
-    FlexWrap,
-    FlexInternalProps {
+    FlexWrap {
   /*
    * Layout props
    */
