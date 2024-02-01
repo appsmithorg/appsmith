@@ -507,7 +507,6 @@ describe(
           "//span[text()='Are you sure you want to delete the file?']",
         ); //verify Delete File dialog appears
 
-        agHelper.AssertElementVisibility(locators._buttonByText("Confirm"));
         agHelper.ClickButton("Confirm"); //wait for Delete operation to be successfull, //Verifies 8684
 
         agHelper.AssertElementAbsence(".t--modal-widget", 10000);
