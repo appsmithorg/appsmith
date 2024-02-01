@@ -33,7 +33,7 @@ export interface ActionGroupProps<T>
     >,
     InheritedActionButtonProps {
   orientation?: keyof typeof ACTION_GROUP_ORIENTATIONS;
-  size?: keyof typeof SIZES;
+  size?: Omit<keyof typeof SIZES, "large">;
 }
 
 export interface ActionGroupItemProps<T> extends ButtonProps {

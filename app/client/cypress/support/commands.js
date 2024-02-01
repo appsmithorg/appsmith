@@ -50,7 +50,6 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
-const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
