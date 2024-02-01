@@ -1,4 +1,4 @@
-import { updateCdConfigAction } from "@appsmith/actions/gitExtendedActions";
+import { toggleCdConfigAction } from "@appsmith/actions/gitExtendedActions";
 import {
   CONFIGURE_CD_TITLE,
   GIT_CD_CONFIGURE_ENDPOINT_CD,
@@ -8,17 +8,13 @@ import {
   GIT_CD_GENERATE_API_KEY_CTA,
   GIT_CD_GENERATE_API_KEY_DESC,
   GIT_CD_LICENSED_DESC,
-  GIT_CD_SELECT_BRANCH_TO_CONFIGURE,
   createMessage,
 } from "@appsmith/constants/messages";
 import { cdApiKeySelector } from "@appsmith/selectors/gitExtendedSelectors";
-import { Button, Checkbox, Option, Select, Text } from "design-system";
-import React, { useEffect, useMemo, useState } from "react";
+import { Button, Checkbox, Text } from "design-system";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getFetchingBranches,
-  getGitBranches,
-} from "selectors/gitSyncSelectors";
+import { getDefaultGitBranchName } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import GenerateAPIKey from "./GenerateAPIKey";
 import CDEndpoint from "./CDEndpoint";
@@ -44,9 +40,6 @@ const WellContainer = styled.div`
   border-radius: 4px;
   background-color: var(--ads-v2-color-gray-100);
   margin-bottom: 16px;
-  flex: 1;
-  flex-shrink: 1;
-  overflow-y: auto;
 `;
 
 const WellTitle = styled(Text)`
@@ -67,26 +60,8 @@ const StepNum = styled(Text)`
   padding-right: 4px;
 `;
 
-const BranchStepContainer = styled.div`
-  display: flex;
-  align-items: center;
-  flex: 1;
-`;
-
-const BranchStepText = styled(Text)`
-  flex: 1;
-`;
-
-const BranchStepSelectContainer = styled.div`
-  flex: 1;
-`;
-
-const StyledSelect = styled(Select)`
-  background-color: var(--ads-color-black-0);
-`;
-
-const ExpandingContainer = styled.div`
-  flex: 1;
+const StepBodyContainer = styled.div`
+  width: calc(100% - 32px);
 `;
 
 const Footer = styled.div`
@@ -102,24 +77,9 @@ const StyledCheckbox = styled(Checkbox)`
 function InitializeCD() {
   const [selectedBranch, setSelectedBranch] = useState<string>();
   const [confirmed, setConfirmed] = useState<boolean>(false);
+  const defaultBranchName = useSelector(getDefaultGitBranchName);
 
-  const gitBranches = useSelector(getGitBranches);
-  const isFetchingBranches = useSelector(getFetchingBranches);
   const cdApiKey = useSelector(cdApiKeySelector);
-
-  const branchList = useMemo(() => {
-    return gitBranches
-      .filter((branch) => !branch.branchName.includes("origin/"))
-      .map((branch) => ({
-        label: branch.branchName,
-        value: branch.branchName,
-      }));
-  }, [gitBranches]);
-
-  const defaultBranchName = useMemo(() => {
-    const defaultBranch = gitBranches.find((branch) => branch.default);
-    return defaultBranch?.branchName;
-  }, [gitBranches]);
 
   const dispatch = useDispatch();
 
@@ -130,13 +90,11 @@ function InitializeCD() {
   }, [selectedBranch, defaultBranchName]);
 
   const handleSubmit = () => {
-    if (selectedBranch) {
-      dispatch(updateCdConfigAction(true, selectedBranch));
-      AnalyticsUtil.logEvent("GS_CONTINUOUS_DELIVERY_SETUP", {
-        deploymentTool: "others",
-        branch: selectedBranch,
-      });
-    }
+    dispatch(toggleCdConfigAction());
+    AnalyticsUtil.logEvent("GS_CONTINUOUS_DELIVERY_SETUP", {
+      deploymentTool: "others",
+      branch: selectedBranch,
+    });
   };
 
   return (
@@ -151,42 +109,19 @@ function InitializeCD() {
         <WellTitle renderAs="p">
           {createMessage(GIT_CD_FOLLOW_TO_CONFIGURE)}
         </WellTitle>
-        <StepContainer alignCenter>
+        <StepContainer>
           <StepNum renderAs="p">1.</StepNum>
-          <BranchStepContainer>
-            <BranchStepText renderAs="p">
-              {createMessage(GIT_CD_SELECT_BRANCH_TO_CONFIGURE)}
-            </BranchStepText>
-            <BranchStepSelectContainer>
-              <StyledSelect
-                data-testid="t--git-settings-cd-branch-select"
-                dropdownMatchSelectWidth
-                getPopupContainer={(triggerNode) => triggerNode.parentNode}
-                isLoading={isFetchingBranches}
-                onChange={(value) => setSelectedBranch(value)}
-                showSearch
-                size="md"
-                value={selectedBranch}
-              >
-                {branchList.map((branch) => (
-                  <Option key={branch.value}>{branch.value}</Option>
-                ))}
-              </StyledSelect>
-            </BranchStepSelectContainer>
-          </BranchStepContainer>
+          <StepBodyContainer>
+            <CDEndpoint
+              descText={createMessage(GIT_CD_CONFIGURE_ENDPOINT_CD)}
+              selectedBranch={selectedBranch || "BRANCH"}
+              setSelectedBranch={setSelectedBranch}
+            />
+          </StepBodyContainer>
         </StepContainer>
         <StepContainer>
           <StepNum renderAs="p">2.</StepNum>
-          <ExpandingContainer>
-            <CDEndpoint
-              branchName={selectedBranch}
-              descText={createMessage(GIT_CD_CONFIGURE_ENDPOINT_CD)}
-            />
-          </ExpandingContainer>
-        </StepContainer>
-        <StepContainer>
-          <StepNum renderAs="p">3.</StepNum>
-          <ExpandingContainer>
+          <StepBodyContainer>
             <GenerateAPIKey
               ctaText={createMessage(GIT_CD_GENERATE_API_KEY_CTA)}
               descText={createMessage(GIT_CD_GENERATE_API_KEY_DESC)}
@@ -198,7 +133,7 @@ function InitializeCD() {
                 });
               }}
             />
-          </ExpandingContainer>
+          </StepBodyContainer>
         </StepContainer>
       </WellContainer>
       <Footer>

@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import LastDeployment from "./LastDeployment";
 import { Divider } from "design-system";
 import GenerateAPIKey from "./GenerateAPIKey";
 import CDEndpoint from "./CDEndpoint";
 import { useDispatch, useSelector } from "react-redux";
-import { getGitMetadataSelector } from "selectors/gitSyncSelectors";
+import { getDefaultGitBranchName } from "selectors/gitSyncSelectors";
 import { setShowReconfigureCdKeyAction } from "@appsmith/actions/gitExtendedActions";
 import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
 import {
@@ -16,11 +16,10 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function ExistingCD() {
-  const dispatch = useDispatch();
+  const [selectedBranch, setSelectedBranch] = useState<string>();
+  const defaultBranchName = useSelector(getDefaultGitBranchName);
 
-  const gitMetadata = useSelector(getGitMetadataSelector);
-  const cdConfigBranchName =
-    gitMetadata?.autoDeploymentConfigs?.[0]?.branchName;
+  const dispatch = useDispatch();
 
   const handleGenerateApiKey = () => {
     dispatch(setGitSettingsModalOpenAction({ open: false }));
@@ -30,6 +29,12 @@ function ExistingCD() {
       regenerated: true,
     });
   };
+
+  useEffect(() => {
+    if (!selectedBranch && defaultBranchName) {
+      setSelectedBranch(defaultBranchName);
+    }
+  }, [selectedBranch, defaultBranchName]);
 
   return (
     <div className="pt-2">
@@ -42,9 +47,10 @@ function ExistingCD() {
         onClickOverride={handleGenerateApiKey}
       />
       <CDEndpoint
-        branchName={cdConfigBranchName}
         compact
         descText={createMessage(GIT_CD_ENDPOINT_DESC)}
+        selectedBranch={selectedBranch || "BRANCH"}
+        setSelectedBranch={setSelectedBranch}
       />
     </div>
   );

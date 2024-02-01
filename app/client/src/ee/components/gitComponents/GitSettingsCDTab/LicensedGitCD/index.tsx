@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import { getGitMetadataSelector } from "selectors/gitSyncSelectors";
 import InitializeCD from "./InitializeCD";
@@ -6,11 +6,7 @@ import ExistingCD from "./ExistingCD";
 
 function LicensedCD() {
   const gitMetadata = useSelector(getGitMetadataSelector);
-
-  const isCdConfigInitialized = useMemo(() => {
-    const cdConfigs = gitMetadata?.autoDeploymentConfigs;
-    return !!cdConfigs && cdConfigs?.length > 0;
-  }, [gitMetadata]);
+  const isCdConfigInitialized = gitMetadata?.isAutoDeploymentEnabled;
 
   if (isCdConfigInitialized) return <ExistingCD />;
 

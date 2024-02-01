@@ -12,13 +12,12 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   showDisableCdModalSelector,
-  updateCdConfigLoadingSelector,
+  toggleCdLoadingSelector,
 } from "@appsmith/selectors/gitExtendedSelectors";
 import {
   setShowDisableCDModalAction,
-  updateCdConfigAction,
+  toggleCdConfigAction,
 } from "@appsmith/actions/gitExtendedActions";
-import { getGitMetadataSelector } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import {
   createMessage,
@@ -40,10 +39,7 @@ function DisableCDModal() {
   const [confirmed, setConfirmed] = useState(false);
 
   const showDisableCDModal = useSelector(showDisableCdModalSelector);
-  const isUpdateCdConfigLoading = useSelector(updateCdConfigLoadingSelector);
-  const gitMetadata = useSelector(getGitMetadataSelector);
-  const cdConfigBranchName =
-    gitMetadata?.autoDeploymentConfigs?.[0]?.branchName;
+  const toggleCdLoading = useSelector(toggleCdLoadingSelector);
 
   const dispatch = useDispatch();
 
@@ -52,13 +48,11 @@ function DisableCDModal() {
   };
 
   const handleDisable = () => {
-    if (cdConfigBranchName) {
-      dispatch(updateCdConfigAction(false, cdConfigBranchName));
-      dispatch(setShowDisableCDModalAction(false));
-      AnalyticsUtil.logEvent("GS_CONTINUOUS_DELIVERY_DISABLED", {
-        deplymentTool: "others",
-      });
-    }
+    dispatch(toggleCdConfigAction());
+    dispatch(setShowDisableCDModalAction(false));
+    AnalyticsUtil.logEvent("GS_CONTINUOUS_DELIVERY_DISABLED", {
+      deplymentTool: "others",
+    });
   };
 
   return (
@@ -93,7 +87,7 @@ function DisableCDModal() {
           <Button
             className="t--git-disable-cd-modal-btn"
             isDisabled={!confirmed}
-            isLoading={isUpdateCdConfigLoading}
+            isLoading={toggleCdLoading}
             kind="primary"
             onClick={handleDisable}
             size="md"

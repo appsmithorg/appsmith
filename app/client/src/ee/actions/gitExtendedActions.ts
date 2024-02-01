@@ -8,10 +8,9 @@ export const resetCdApiKeyAction = () => {
   return { type: ReduxActionTypes.GIT_EX_RESET_CD_API_KEY };
 };
 
-export const updateCdConfigAction = (enabled: boolean, branchName: string) => {
+export const toggleCdConfigAction = () => {
   return {
-    type: ReduxActionTypes.GIT_EX_UPDATE_CD_CONFIG_INIT,
-    payload: { enabled, branchName },
+    type: ReduxActionTypes.GIT_EX_TOGGLE_CD_INIT,
   };
 };
 

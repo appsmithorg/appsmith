@@ -8,7 +8,7 @@ import { createImmerReducer } from "utils/ReducerUtils";
 export interface GitExtendedState {
   generateCdApiKeyLoading: boolean;
   cdApiKey: string | null;
-  updateCdConfigLoading: boolean;
+  toggleCdLoading: boolean;
   showDisableCDModal: boolean;
   loadCdKeyOnMount: boolean;
   showReconfigureCdKeyModal: boolean;
@@ -17,7 +17,7 @@ export interface GitExtendedState {
 const initialState: GitExtendedState = {
   generateCdApiKeyLoading: false,
   cdApiKey: null,
-  updateCdConfigLoading: false,
+  toggleCdLoading: false,
   showDisableCDModal: false,
   loadCdKeyOnMount: false,
   showReconfigureCdKeyModal: false,
@@ -55,22 +55,20 @@ const handlers = {
   },
 
   // update CD config
-  [ReduxActionTypes.GIT_EX_UPDATE_CD_CONFIG_INIT]: (
-    draftState: GitExtendedState,
-  ) => {
-    draftState.updateCdConfigLoading = true;
+  [ReduxActionTypes.GIT_EX_TOGGLE_CD_INIT]: (draftState: GitExtendedState) => {
+    draftState.toggleCdLoading = true;
     return draftState;
   },
-  [ReduxActionTypes.GIT_EX_UPDATE_CD_CONFIG_SUCCESS]: (
+  [ReduxActionTypes.GIT_EX_TOGGLE_CD_SUCCESS]: (
     draftState: GitExtendedState,
   ) => {
-    draftState.updateCdConfigLoading = false;
+    draftState.toggleCdLoading = false;
     return draftState;
   },
-  [ReduxActionErrorTypes.GIT_EX_UPDATE_CD_CONFIG_ERROR]: (
+  [ReduxActionErrorTypes.GIT_EX_TOGGLE_CD_ERROR]: (
     draftState: GitExtendedState,
   ) => {
-    draftState.updateCdConfigLoading = false;
+    draftState.toggleCdLoading = false;
     return draftState;
   },
 

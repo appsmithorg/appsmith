@@ -22,8 +22,6 @@ import {
 
 const Container = styled.div`
   overflow: auto;
-  min-width: 320px;
-  max-width: 440px;
   margin-bottom: 16px;
 `;
 
@@ -106,7 +104,7 @@ function GenerateAPIKey({
               value={cdApiKey}
             />
           </CopyContainer>
-          <Callout className="mt-2" kind="warning">
+          <Callout className="mt-1" kind="warning">
             {createMessage(GIT_CD_API_KEY_WARNING)}
           </Callout>
         </>

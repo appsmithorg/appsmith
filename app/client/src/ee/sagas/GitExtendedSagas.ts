@@ -86,29 +86,22 @@ export function* generateCdApiKeySaga() {
   }
 }
 
-export function* updateCdConfigSaga({
-  payload,
-}: ReduxAction<{ enabled: boolean; branchName?: string }>) {
+export function* toggleCdSaga() {
   const applicationId: string = yield select(getCurrentApplicationId);
-  let response: ApiResponse<string> | undefined;
+  let response: ApiResponse<boolean>;
   try {
-    response = yield call(
-      GitExtendedApi.updateCDconfiguration,
-      applicationId,
-      payload.enabled,
-      payload.branchName,
-    );
+    response = yield call(GitExtendedApi.toggleAutoDeployment, applicationId);
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
-      yield put({ type: ReduxActionTypes.GIT_EX_UPDATE_CD_CONFIG_SUCCESS });
+      yield put({ type: ReduxActionTypes.GIT_EX_TOGGLE_CD_SUCCESS });
       yield put({ type: ReduxActionTypes.GIT_GET_METADATA_INIT });
       toast.show(
         createMessage(
-          payload.enabled ? GIT_CD_ENABLED_TOAST : GIT_CD_DISABLED_TOAST,
+          response.data ? GIT_CD_ENABLED_TOAST : GIT_CD_DISABLED_TOAST,
         ),
         {
           kind: "success",
@@ -116,13 +109,13 @@ export function* updateCdConfigSaga({
       );
     } else {
       yield put({
-        type: ReduxActionErrorTypes.GIT_EX_UPDATE_CD_CONFIG_ERROR,
+        type: ReduxActionErrorTypes.GIT_EX_TOGGLE_CD_ERROR,
         payload: { error: response?.responseMeta?.error?.message, show: true },
       });
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.GIT_EX_UPDATE_CD_CONFIG_ERROR,
+      type: ReduxActionErrorTypes.GIT_EX_TOGGLE_CD_ERROR,
       payload: { error, show: true },
     });
   }
@@ -131,5 +124,5 @@ export function* updateCdConfigSaga({
 export const gitExtendedSagas = {
   [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
   [ReduxActionTypes.GIT_EX_GENERATE_CD_API_KEY_INIT]: generateCdApiKeySaga,
-  [ReduxActionTypes.GIT_EX_UPDATE_CD_CONFIG_INIT]: updateCdConfigSaga,
+  [ReduxActionTypes.GIT_EX_TOGGLE_CD_INIT]: toggleCdSaga,
 };

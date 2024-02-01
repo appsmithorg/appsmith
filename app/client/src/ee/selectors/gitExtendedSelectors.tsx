@@ -6,8 +6,8 @@ export const generateCdApiKeyLoadingSelector = (state: AppState) =>
 export const cdApiKeySelector = (state: AppState) =>
   state.ui.gitExtended.cdApiKey;
 
-export const updateCdConfigLoadingSelector = (state: AppState) =>
-  state.ui.gitExtended.updateCdConfigLoading;
+export const toggleCdLoadingSelector = (state: AppState) =>
+  state.ui.gitExtended.toggleCdLoading;
 
 export const showDisableCdModalSelector = (state: AppState) => {
   return state.ui.gitExtended.showDisableCDModal;

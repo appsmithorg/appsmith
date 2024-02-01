@@ -491,19 +491,19 @@ export const GIT_CD_ENABLED_TOAST = () =>
   "Continuous deployment configured successfully.";
 export const GIT_CD_DISABLED_TOAST = () =>
   "Continuous deployment disabled successfully.";
-export const GIT_CD_COPY_ENDPOINT = () => "Copy endpoint URL";
-export const GIT_CD_RECONFIGURE_API_KEY_CTA = () => "Re-configure API key";
+export const GIT_CD_COPY_ENDPOINT = () => "Copy cURL";
+export const GIT_CD_RECONFIGURE_API_KEY_CTA = () => "Re-configure bearer token";
 export const GIT_CD_RECONFIGURE_API_KEY_DESC = () =>
-  "API key to authenticate requests";
-export const GIT_CD_ENDPOINT_DESC = () => "Pull API endpoint";
+  "Bearer token to authenticate requests";
+export const GIT_CD_ENDPOINT_DESC = () => "cURL";
 export const GIT_CD_API_KEY_WARNING = () =>
-  "Paste your API key right away. You can't do this later.";
-export const GIT_CD_COPY_API_KEY = () => "Copy API Key";
-export const GIT_CD_GENERATE_API_KEY_CTA = () => "Generate API key";
+  "Paste your bearer token right away. You can't do this later.";
+export const GIT_CD_COPY_API_KEY = () => "Copy bearer token";
+export const GIT_CD_GENERATE_API_KEY_CTA = () => "Generate bearer token";
 export const GIT_CD_GENERATE_API_KEY_DESC = () =>
-  "Generate an API key to authenticate requests to the above endpoint";
+  "Generate a bearer token to authenticate requests to the above endpoint";
 export const GIT_CD_CONFIGURE_ENDPOINT_CD = () =>
-  "Configure your pipeline to automatically call the below endpoint whenever changes are made to the branch. To learn more, Read Docs";
+  "Configure your pipeline to automatically call the below endpoint whenever modifications occur on the specified branch below. To learn more, Read docs";
 export const GIT_CD_FOLLOW_TO_CONFIGURE = () =>
   "Please follow these steps to configure...";
 export const GIT_CD_SELECT_BRANCH_TO_CONFIGURE = () =>
@@ -516,8 +516,10 @@ export const GIT_CD_DISABLE_CD = () => "Disable continuous delivery";
 export const GIT_CD_DISABLE_CD_DESC = () =>
   "Disabling continuous delivery will stop automatic deployments to your end users, necessitating manual pull and deploy.";
 export const GIT_CD_CONFIRM_DISABLE_CD = () => "I understand and confirm";
-export const GIT_CD_RECONFIGURE_KEY_MODAL_TITLE = () => "Re-configure API key";
+export const GIT_CD_RECONFIGURE_KEY_MODAL_TITLE = () =>
+  "Re-configure bearer token";
 export const GIT_CD_RECONFIGURE_KEY_MODAL_DESC = () =>
-  "Regenerating your API key will invalidate the current key, leading to API failures. Please proceed with key regeneration only if you intend to replace your existing key on your deployment tool.";
-export const GIT_CD_RECONFIGURE_KEY_MODAL_CTA = () => "Re-configure API key";
+  "Regenerating your bearer token will invalidate the current key, leading to API failures. Please proceed with key regeneration only if you intend to replace your existing key on your deployment tool.";
+export const GIT_CD_RECONFIGURE_KEY_MODAL_CTA = () =>
+  "Re-configure bearer token";
 // git END
