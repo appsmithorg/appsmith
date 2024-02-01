@@ -528,9 +528,8 @@ public class GitServiceCETest {
                 gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier.create(applicationMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_GIT_SSH_URL.getMessage()))
-                .verify();
+                .verifyErrorMessage(AppsmithError.INVALID_GIT_CONFIGURATION.getMessage("Remote URL is incorrect, "
+                        + "please add a URL in standard format. Example: git@example.com:username/reponame.git"));
     }
 
     @Test
