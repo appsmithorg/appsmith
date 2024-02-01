@@ -60,7 +60,7 @@ import {
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
 import {
-  getFirstQueryId,
+  getFirstQuery,
   getQueryPaneConfigSelectedTabIndex,
 } from "selectors/queryPaneSelectors";
 import { getDebuggerContext } from "selectors/debuggerSelectors";
@@ -70,7 +70,6 @@ import { NavigationMethod } from "../../../utils/history";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import {
   getSelectedDatasourceId,
-  getSelectedQueryId,
   getSelectedSegment,
 } from "@appsmith/navigation/FocusSelectors";
 import {
@@ -209,9 +208,9 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
     {
       type: FocusElementConfigType.URL,
       name: FocusElement.SelectedQuery,
-      selector: getSelectedQueryId,
+      selector: identifyEntityFromPath,
       setter: setSelectedQuery,
-      defaultValue: getFirstQueryId,
+      defaultValue: getFirstQuery,
     },
   ],
   [FocusEntity.JS_OBJECT_LIST]: [

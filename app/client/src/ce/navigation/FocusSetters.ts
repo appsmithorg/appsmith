@@ -1,21 +1,18 @@
 import history, { NavigationMethod } from "utils/history";
 import {
-  apiEditorIdURL,
   builderURL,
   curlImportPageURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
   jsCollectionListURL,
-  queryEditorIdURL,
   queryListURL,
-  saasEditorApiIdURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
 import { PluginType } from "entities/Action";
-import type { QueryListState } from "./FocusSelectors";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
+import { getQueryEntityItemUrl } from "../pages/Editor/IDE/EditorPane/Query/utils";
 
 export function setSelectedDatasource(id: string | undefined) {
   if (id) {
@@ -30,48 +27,28 @@ export function setSelectedDatasource(id: string | undefined) {
   }
 }
 
-export function setSelectedQuery(state: QueryListState) {
-  if (state) {
-    switch (state.type) {
-      case PluginType.SAAS:
-        if (state.pluginPackageName) {
-          history.replace(
-            saasEditorApiIdURL({
-              apiId: state.id,
-              pluginPackageName: state.pluginPackageName,
-            }),
-            {
-              invokedBy: NavigationMethod.ContextSwitching,
-            },
-          );
-        }
-        break;
-      case PluginType.DB:
-        history.replace(
-          queryEditorIdURL({
-            queryId: state.id,
-          }),
-          {
-            invokedBy: NavigationMethod.ContextSwitching,
-          },
-        );
-        break;
-      case PluginType.API:
-        if (state.id === "curl") {
-          history.replace(curlImportPageURL({}));
-        } else {
-          history.replace(
-            apiEditorIdURL({
-              apiId: state.id,
-            }),
-            {
-              invokedBy: NavigationMethod.ContextSwitching,
-            },
-          );
-        }
-        break;
-      default:
-        break;
+export function setSelectedQuery(entityInfo: FocusEntityInfo) {
+  if (entityInfo && entityInfo.params.pageId) {
+    if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
+      const { apiId, pluginPackageName, queryId } = entityInfo.params;
+      const key = apiId ? apiId : queryId;
+      if (!key) return undefined;
+      let type: PluginType = PluginType.API;
+      if (pluginPackageName) {
+        type = PluginType.SAAS;
+      } else if (queryId) {
+        type = PluginType.DB;
+      } else if (key === "curl") {
+        history.replace(curlImportPageURL({}), {
+          invokedBy: NavigationMethod.ContextSwitching,
+        });
+      }
+
+      const url = getQueryEntityItemUrl(
+        { type, key, title: key },
+        entityInfo.params.pageId,
+      );
+      history.replace(url, { invokedBy: NavigationMethod.ContextSwitching });
     }
   }
 }
