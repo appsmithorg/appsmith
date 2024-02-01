@@ -4,7 +4,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitProfile;
-import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
@@ -22,16 +21,12 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
-import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -44,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String>
         implements UserDataServiceCE {

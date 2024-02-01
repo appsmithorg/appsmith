@@ -99,7 +99,9 @@ public abstract class BaseService<
 
         return mongoTemplate
                 .updateFirst(query, updateObj, resource.getClass())
-                .flatMap(obj -> repository.findById(id))
+                .flatMap(updateResult -> updateResult.getMatchedCount() == 0
+                        ? Mono.empty()
+                        : mongoTemplate.findOne(query, (Class<T>) resource.getClass()))
                 .flatMap(savedResource ->
                         analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
