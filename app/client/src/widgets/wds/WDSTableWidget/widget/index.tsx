@@ -502,7 +502,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
         setData: {
           path: "tableData",
-          type: "object",
+          type: "array",
         },
       },
     };
