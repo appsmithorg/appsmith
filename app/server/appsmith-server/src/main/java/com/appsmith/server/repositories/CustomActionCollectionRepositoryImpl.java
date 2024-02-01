@@ -93,26 +93,6 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
                 .submit();
     }
 
-    @Override
-    public Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where(
-                        completeFieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
-                .in(pageIds);
-
-        Criteria notAModuleInstancePrivateEntity = new Criteria();
-
-        notAModuleInstancePrivateEntity.orOperator(
-                where(completeFieldName(QActionCollection.actionCollection.rootModuleInstanceId))
-                        .exists(false),
-                where(completeFieldName(QActionCollection.actionCollection.isPublic))
-                        .exists(true));
-
-        return queryAll()
-                .criteria(pageIdCriteria, notAModuleInstancePrivateEntity)
-                .permission(permission.orElse(null))
-                .submit();
-    }
-
     private Criteria getModuleInstanceNonExistenceCriterion() {
         Criteria nonModuleInstanceCollectionCriterion = where(
                         fieldName(QActionCollection.actionCollection.rootModuleInstanceId))

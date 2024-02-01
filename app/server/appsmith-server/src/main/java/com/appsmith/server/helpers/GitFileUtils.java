@@ -41,6 +41,7 @@ public class GitFileUtils extends GitFileUtilsCE {
             NewActionService newActionService,
             Gson gson) {
         super(fileUtils, analyticsService, sessionUserService, newActionService, gson);
+        this.gson = gson;
     }
 
     @Override

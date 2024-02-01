@@ -157,14 +157,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                         completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.pageId))
                 .in(pageIds);
 
-        Criteria notAModuleInstancePrivateEntity = where(
-                        completeFieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
-                .exists(false);
-
-        return queryAll()
-                .criteria(pageIdCriteria, notAModuleInstancePrivateEntity)
-                .permission(permission.orElse(null))
-                .submit();
+        return queryAll(List.of(pageIdCriteria), permission);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.appsmith.server.moduleinstances.crud;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -49,6 +50,7 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -157,7 +159,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         moduleInstantiatingMetaDTO.setBranchName(branchName);
 
         Mono<NewPage> cachedNewPageMono =
-                getNewPageMono(moduleInstanceReqDTO.getContextId(), branchName).cache();
+                getNewPageMono(moduleInstanceReqDTO, branchName).cache();
 
         return cachedNewPageMono
                 .zipWhen(page -> generateModuleInstance(
@@ -226,7 +228,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         moduleInstantiatingMetaDTO.setSimulation(true);
 
         Mono<NewPage> cachedNewPageMono =
-                getNewPageMono(moduleInstanceReqDTO.getContextId(), branchName).cache();
+                getNewPageMono(moduleInstanceReqDTO, branchName).cache();
 
         return generateModuleInstance(
                         moduleInstanceReqDTO,
@@ -450,6 +452,24 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                 })
                 .map(page -> {
                     moduleInstance.setApplicationId(page.getApplicationId());
+                    moduleInstance.getUnpublishedModuleInstance().setPageId(page.getId());
+
+                    if (page.getDefaultResources() != null) {
+                        DefaultResources defaultResources = moduleInstance.getDefaultResources();
+
+                        if (defaultResources == null) {
+                            defaultResources = new DefaultResources();
+                        }
+
+                        defaultResources.setApplicationId(
+                                page.getDefaultResources().getApplicationId());
+                        defaultResources.setPageId(page.getDefaultResources().getPageId());
+                        moduleInstance.setDefaultResources(defaultResources);
+                        moduleInstance.getUnpublishedModuleInstance().setDefaultResources(defaultResources);
+                    }
+
+                    this.setContextId(
+                            moduleInstance.getUnpublishedModuleInstance(), page.getId(), CreatorContextType.PAGE);
 
                     defaultResourcesService.initialize(moduleInstance, branchName, false);
                     dtoDefaultResourcesService.initialize(
@@ -490,7 +510,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
 
         Mono<NewPage> cachedNewPageMono =
-                getNewPageMono(moduleInstanceReqDTO.getContextId(), branchName).cache();
+                getNewPageMono(moduleInstanceReqDTO, branchName).cache();
 
         final ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO = new ModuleInstantiatingMetaDTO();
         moduleInstantiatingMetaDTO.setBranchName(branchName);
@@ -536,8 +556,6 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         moduleInstanceDTO.setName(moduleInstanceReqDTO.getName());
 
         moduleInstanceDTO.setContextType(moduleInstanceReqDTO.getContextType());
-        this.setContextId(
-                moduleInstanceDTO, moduleInstanceReqDTO.getContextId(), moduleInstanceReqDTO.getContextType());
 
         if (moduleInstanceReqDTO.getInputs() == null && sourceModuleDTO != null) {
             Map<String, String> inputs = transformModuleInputsToModuleInstance(sourceModuleDTO);
@@ -554,9 +572,14 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         return moduleInstanceDTO;
     }
 
-    private Mono<NewPage> getNewPageMono(String pageId, String branchName) {
+    private Mono<NewPage> getNewPageMono(ModuleInstanceDTO moduleInstanceDTO, String branchName) {
+        String pageId = moduleInstanceDTO.getContextId();
+        if (moduleInstanceDTO.getDefaultResources() != null
+                && StringUtils.hasText(moduleInstanceDTO.getDefaultResources().getPageId())) {
+            pageId = moduleInstanceDTO.getDefaultResources().getPageId();
+        }
         return newPageService
-                .findById(pageId, pagePermission.getActionCreatePermission())
+                .findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE_ID, pageId)));
     }
