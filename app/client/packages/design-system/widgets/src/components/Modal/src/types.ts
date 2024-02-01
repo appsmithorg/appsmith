@@ -14,7 +14,7 @@ export interface ModalProps
   /** Size of the Modal
    * @default medium
    */
-  size?: Omit<keyof typeof SIZES, "large">;
+  size?: keyof typeof SIZES;
   /** The children of the component. */
   children: ReactNode;
 }
