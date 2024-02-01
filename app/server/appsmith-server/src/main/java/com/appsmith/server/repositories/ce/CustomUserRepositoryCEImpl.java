@@ -32,12 +32,6 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Mono<User> findByEmail(String email, AclPermission aclPermission) {
-        Criteria emailCriteria = where(fieldName(QUser.user.email)).is(email);
-        return queryOne(List.of(emailCriteria), aclPermission);
-    }
-
-    @Override
     public Mono<User> findByCaseInsensitiveEmail(String email) {
         String findEmailRegex = String.format("^%s$", Pattern.quote(email));
         Criteria emailCriteria = where(fieldName(QUser.user.email)).regex(findEmailRegex, "i");

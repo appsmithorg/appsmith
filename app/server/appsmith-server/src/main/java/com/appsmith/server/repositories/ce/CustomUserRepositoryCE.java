@@ -7,8 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
-    Mono<User> findByEmail(String email, AclPermission aclPermission);
-
     Mono<User> findByCaseInsensitiveEmail(String email);
 
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
