@@ -122,10 +122,6 @@ export interface FlexWrap {
   wrap?: Responsive<boolean | "wrap" | "nowrap" | "wrap-reverse">;
 }
 
-export interface FlexInternalProps {
-  isInner?: boolean;
-}
-
 export interface FlexProps
   extends AlignContent,
     AlignItems,
@@ -214,6 +210,8 @@ export interface FlexProps
   style?: CSSProperties;
   /** Sets the HTML [id](https://developer.mozilla.org/en-US/docs/Web/API/Element/id) for the element. */
   id?: string;
+  /** used to specify what kind of spacing the component will use ( inner-spacing or outer-spacing) */
+  isInner?: boolean;
 
   /*
    * Events props
