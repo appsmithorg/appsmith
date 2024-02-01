@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import kebabCase from "lodash/kebabCase";
 
-import type { FlexCssProps, CssVarValues, FlexInternalProps } from "./types";
+import type { FlexCssProps, CssVarValues, FlexProps } from "./types";
 
 export const flexCss = (props: FlexCssProps) => {
   const { isInner, ...rest } = props;
@@ -18,7 +18,7 @@ export const flexCss = (props: FlexCssProps) => {
 const flexStyles = (
   cssProp: string,
   value: FlexCssProps[keyof FlexCssProps],
-  extraProps?: FlexInternalProps,
+  extraProps?: Pick<FlexProps, "isInner">,
 ): string => {
   if (value == null) return "";
 
@@ -87,8 +87,8 @@ const flexStyles = (
 export const containerDimensionStyles = <T = FlexCssProps[keyof FlexCssProps]>(
   cssProp: string,
   value: T,
-  callback?: (value: T, extraProps?: FlexInternalProps) => void,
-  extraProps?: FlexInternalProps,
+  callback?: (value: T, extraProps?: Pick<FlexProps, "isInner">) => void,
+  extraProps?: Pick<FlexProps, "isInner">,
 ) => {
   if (value == null) return;
 
@@ -138,7 +138,10 @@ export const flexWrapValue = (value: FlexCssProps["wrap"]) => {
   return value;
 };
 
-const cssVarValue = (value: CssVarValues, extraProps?: FlexInternalProps) => {
+const cssVarValue = (
+  value: CssVarValues,
+  extraProps?: Pick<FlexProps, "isInner">,
+) => {
   const isInner = Boolean(extraProps?.isInner);
 
   if (value == null) return;
