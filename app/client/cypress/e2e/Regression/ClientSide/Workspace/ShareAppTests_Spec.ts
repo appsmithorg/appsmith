@@ -6,10 +6,10 @@ import {
   assertHelper,
   inviteModal,
   onboarding,
+  adminSettings,
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe(
@@ -20,8 +20,7 @@ describe(
 
     it("1. Create workspace and then share with a user from Application share option within application", function () {
       homePage.NavigateToHome();
-      if (CURRENT_REPO == REPO.EE)
-        featureFlagIntercept({ license_gac_enabled: true });
+      if (CURRENT_REPO == REPO.EE) adminSettings.EnableGAC(false, true);
 
       agHelper.GenerateUUID();
       agHelper.GetElement("@guid").then((uid) => {
@@ -44,8 +43,7 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      if (CURRENT_REPO == REPO.EE)
-        featureFlagIntercept({ license_gac_enabled: true });
+      if (CURRENT_REPO == REPO.EE) adminSettings.EnableGAC(false, true);
 
       homePage.SelectWorkspace(workspaceId);
       agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
