@@ -34,11 +34,8 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
       //Renaming imported app!
       const uuid = () => Cypress._.random(0, 1e4);
       const name = uuid();
-      cy.wait(2000);
-      cy.AppSetupForRename();
-      cy.get(homePage.applicationName).type(`app${name}`);
+      homePageHelpers.RenameApplication(`app${name}`);
       cy.wrap(`app${name}`).as("appname");
-      cy.wait(2000);
 
       // Validating data binding for the imported application - Page1
 
