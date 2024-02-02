@@ -10,6 +10,7 @@ import {
   BUILDER_VIEWER_PATH_PREFIX,
 } from "constants/routes";
 import { matchPath } from "react-router";
+import { BASE_WORKFLOW_EDITOR_URL } from "@appsmith/constants/routes/workflowRoutes";
 
 export const EditorNames = {
   ...CE_EditorNames,
@@ -20,12 +21,14 @@ export const EditorNames = {
 export const editorType: EditorType = {
   ...CE_editorType,
   [BASE_PACKAGE_EDITOR_PATH]: EditorNames.PACKAGE,
+  [BASE_WORKFLOW_EDITOR_URL]: EditorNames.WORKFLOW,
 };
 
 export const useEditorType = (path: string) => {
   const basePath = matchPath(path, {
     path: [
       BASE_PACKAGE_EDITOR_PATH,
+      BASE_WORKFLOW_EDITOR_URL,
       BUILDER_VIEWER_PATH_PREFIX,
       BUILDER_BASE_PATH_DEPRECATED,
     ],

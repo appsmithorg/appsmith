@@ -7,12 +7,24 @@ import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import useCurrentWorkflowState from "../hooks";
 import { BottomButtons } from "../constants";
 import SidebarComponent from "pages/Editor/IDE/Sidebar/SidebarComponent";
-import { TopButtons } from "@appsmith/entities/IDE/constants";
+import { EditorState, TopButtons } from "@appsmith/entities/IDE/constants";
+import { getMainJsObjectIdOfCurrentWorkflow } from "@appsmith/selectors/workflowSelectors";
 
 function Sidebar() {
   const dispatch = useDispatch();
   const appState = useCurrentWorkflowState();
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const mainCollectionId = useSelector(getMainJsObjectIdOfCurrentWorkflow);
+
+  const updatedTopButtons = TopButtons.map((button) => {
+    if (button.state === EditorState.EDITOR) {
+      return {
+        ...button,
+        urlSuffix: `jsObjects/${mainCollectionId || ""}`,
+      };
+    }
+    return button;
+  });
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
@@ -31,7 +43,7 @@ function Sidebar() {
       bottomButtons={BottomButtons}
       isAppSidebarAnnouncementEnabled={false}
       onClick={onClick}
-      topButtons={TopButtons}
+      topButtons={updatedTopButtons}
     />
   );
 }

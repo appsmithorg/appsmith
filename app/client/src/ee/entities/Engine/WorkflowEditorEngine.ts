@@ -48,7 +48,11 @@ export default class WorkflowEditorEngine {
       },
     });
 
-    // Load the main js object id on workflow load
+    // get the current pathname without the trailing slash
+    const pathName = window.location.pathname.replace(/\/$/, "");
+    // Load the main js object id on workflow load only if the url is /workflow/:id
+    const isBaseURL = pathName === `/workflow/${workflowId}`;
+    if (!isBaseURL) return;
     try {
       const { mainJsObjectId } = response.data;
       history.replace(

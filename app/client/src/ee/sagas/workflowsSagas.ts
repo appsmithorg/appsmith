@@ -250,7 +250,10 @@ export function* updateWorkflowNameSaga(
 ) {
   try {
     const workflowId = action.payload.id;
-    const workflow: Workflow = yield select(getWorkflowById, workflowId || "");
+    const workflow: WorkflowMetadata = yield select(
+      getWorkflowById,
+      workflowId || "",
+    );
     const response: ApiResponse<Workflow> = yield call(
       WorkflowApi.updateWorkflow,
       { ...workflow, name: action.payload.name || "" },

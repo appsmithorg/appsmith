@@ -228,7 +228,6 @@ export function* fetchWorkflowJSCollectionsSaga(
 
     const mainJsObjectIdOfCurrentWorkflow: string = yield select(
       getMainJsObjectIdOfCurrentWorkflow,
-      workflowId,
     );
 
     let updatedResponse: JSCollection[] = [];

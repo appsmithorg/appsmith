@@ -155,7 +155,16 @@ export const getQuerySegmentItems = createSelector(
   (items, moduleInstances, modules, packages) => {
     const modulesArray = convertModulesToArray(modules);
     const modulePackageMap = getModuleIdPackageNameMap(modulesArray, packages);
-    const itemsWithQueryModules = [...items];
+    const itemsWithQueryModules = items.map((item) => {
+      if (item.type === PluginType.INTERNAL) {
+        // TODO: Add a group for internal actions, currently only Workflow actions are internal
+        return {
+          ...item,
+          group: "Workflows",
+        };
+      }
+      return item;
+    });
     Object.values(moduleInstances).forEach((instance) => {
       if (instance.type === MODULE_TYPE.QUERY) {
         itemsWithQueryModules.push({

@@ -247,7 +247,14 @@ const handlers = {
     const index = draftState.workflowsList.findIndex(
       (w) => w.id === workflow.id,
     );
-    if (index !== -1) draftState.workflowsList[index] = workflow;
+    if (index !== -1) {
+      draftState.workflowsList[index] = {
+        ...draftState.workflowsList[index],
+        name: workflow.name,
+        modifiedAt: workflow.modifiedAt,
+        modifiedBy: workflow.modifiedBy,
+      };
+    }
     draftState.isSavingWorkflowName = false;
     draftState.isErrorSavingWorkflowName = false;
 

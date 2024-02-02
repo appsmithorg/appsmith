@@ -12,7 +12,6 @@ import {
   getAction,
   getPluginSettingConfigs,
 } from "@appsmith/selectors/entitiesSelector";
-import { noop } from "lodash";
 import ActionEditorContextMenu from "../ModuleEditor/ActionEditorContextMenu";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import history from "utils/history";
@@ -22,6 +21,7 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getIsWorkflowEditorInitialized } from "@appsmith/selectors/workflowSelectors";
 import { saveWorkflowActionName } from "@appsmith/actions/workflowActions";
+import { deleteAction } from "actions/pluginActionActions";
 
 interface WorkflowQueryEditorRouteParams {
   pageId: string; // TODO: @ashit remove this and add generic key in the Editor
@@ -103,8 +103,17 @@ function WorkflowQueryEditor(props: WorkflowQueryEditorProps) {
     [workflowId, history, integrationEditorURL],
   );
 
+  const onDeleteWorkflowAction = useCallback(() => {
+    dispatch(deleteAction({ id: actionId, name: action?.name || "" }));
+  }, [actionId]);
+
   const moreActionsMenu = useMemo(() => {
-    return <ActionEditorContextMenu isDeletePermitted onDelete={noop} />;
+    return (
+      <ActionEditorContextMenu
+        isDeletePermitted
+        onDelete={onDeleteWorkflowAction}
+      />
+    );
   }, []);
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);

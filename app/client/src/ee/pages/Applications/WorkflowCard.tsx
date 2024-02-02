@@ -179,7 +179,7 @@ function WorkflowCard({
 
   const onUpdateWorkflow = (val: string) => {
     if (val !== workflow.name) {
-      dispatch(updateWorkflowName(val, workflow.id));
+      dispatch(updateWorkflowName(val, workflowId));
     }
   };
 

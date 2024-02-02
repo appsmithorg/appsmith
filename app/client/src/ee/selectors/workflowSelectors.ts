@@ -14,7 +14,7 @@ export const getIsCreatingWorkflow = (state: AppState, workspaceId: string) =>
   state.ui.workspaces.loadingStates.workflowCreationRequestMap[workspaceId];
 
 export const getWorkflowById = (state: AppState, workflowId: string) =>
-  state.entities.workflows[workflowId];
+  state.ui.workspaces.workflowsList.find((w) => w.id === workflowId);
 
 export const getWorkflowsList = (state: AppState) =>
   state.ui.workspaces.workflowsList;
@@ -46,12 +46,10 @@ export const getIsSavingWorkflowName = (state: AppState) =>
 export const getisErrorSavingWorkflowName = (state: AppState) =>
   state.ui.workspaces.isErrorSavingWorkflowName;
 
-export const getMainJsObjectIdOfCurrentWorkflow = (
-  state: AppState,
-  workflowId: string,
-) => {
-  const workflow = getWorkflowById(state, workflowId);
-  return workflow ? workflow.mainJsObjectId : "";
+export const getMainJsObjectIdOfCurrentWorkflow = (state: AppState) => {
+  const workflow = getCurrentWorkflow(state);
+  // return workflow.mainJsObjectId if workflow exists
+  return workflow?.mainJsObjectId || "";
 };
 
 /**

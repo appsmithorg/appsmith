@@ -2,7 +2,10 @@ import type {
   DeleteWorkflowPayload,
   PublishWorkflowPayload,
 } from "@appsmith/actions/workflowActions";
-import type { Workflow } from "@appsmith/constants/WorkflowConstants";
+import type {
+  Workflow,
+  WorkflowMetadata,
+} from "@appsmith/constants/WorkflowConstants";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
@@ -74,7 +77,7 @@ class WorkflowApi extends Api {
   }
 
   static async updateWorkflow(
-    payload: Workflow,
+    payload: WorkflowMetadata,
   ): Promise<AxiosPromise<ApiResponse<Workflow>>> {
     const url = `${BASE_URL}/${payload.id}`;
 

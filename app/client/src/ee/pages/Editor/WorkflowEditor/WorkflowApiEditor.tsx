@@ -17,13 +17,10 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ce/entities/FeatureFlag";
-import {
-  getHasDeleteActionPermission,
-  getHasManageActionPermission,
-} from "ce/utils/BusinessFeatures/permissionPageHelpers";
-import MoreActionsMenu from "pages/Editor/Explorer/Actions/MoreActionsMenu";
+import { getHasDeleteActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import ActionEditorContextMenu from "../ModuleEditor/ActionEditorContextMenu";
 
 interface WorkflowApiEditorRouteParams {
   workflowId: string;
@@ -52,28 +49,22 @@ function WorkflowApiEditor(props: WorkflowApiEditorProps) {
     getPluginSettingConfigs(state, pluginId),
   );
 
-  const isChangePermitted = getHasManageActionPermission(
-    isFeatureEnabled,
-    action?.userPermissions,
-  );
+  const onDeleteWorkflowAction = useCallback(() => {
+    dispatch(deleteAction({ id: action?.id || "", name: action?.name || "" }));
+  }, [action?.id]);
   const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
     action?.userPermissions,
   );
 
-  const moreActionsMenu = useMemo(
-    () => (
-      <MoreActionsMenu
-        className="t--more-action-menu"
-        id={action ? action.id : ""}
-        isChangePermitted={isChangePermitted}
+  const moreActionsMenu = useMemo(() => {
+    return (
+      <ActionEditorContextMenu
         isDeletePermitted={isDeletePermitted}
-        name={action ? action.name : ""}
-        pageId=""
+        onDelete={onDeleteWorkflowAction}
       />
-    ),
-    [action?.id, action?.name, isChangePermitted, isDeletePermitted],
-  );
+    );
+  }, []);
 
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {
