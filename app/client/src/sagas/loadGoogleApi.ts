@@ -15,7 +15,8 @@ async function loadScript(src: string) {
 
 export const executeGoogleApi = async () => {
   const airGapped = isAirgapped();
-  if (airGapped) {
+  // if the googleAPIsLoaded is already loaded, do not load it again.
+  if (airGapped || (window as any).googleAPIsLoaded) {
     return;
   }
   const gapiLoaded = () => {
