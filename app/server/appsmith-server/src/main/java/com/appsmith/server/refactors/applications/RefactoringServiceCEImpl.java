@@ -24,7 +24,6 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.validations.EntityValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -51,7 +50,6 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
     private final PagePermission pagePermission;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
-    private final TransactionalOperator transactionalOperator;
     private final EntityValidationService entityValidationService;
 
     protected final EntityRefactoringService<Void> jsActionEntityRefactoringService;
