@@ -48,16 +48,9 @@ describe(
       agHelper.WaitUntilEleAppear(homepagelocators.searchInput);
       agHelper.GetElement(homepagelocators.searchInput).type(appname);
       agHelper.WaitUntilEleAppear(homepagelocators.appMoreIcon);
-      agHelper
-        .GetElement(homepagelocators.appMoreIcon)
-        .first()
-        .click({ force: true });
-      agHelper
-        .GetElement(homepagelocators.forkAppFromMenu)
-        .click({ force: true });
-      agHelper
-        .GetElement(homepagelocators.forkAppWorkspaceButton)
-        .click({ force: true });
+      agHelper.GetNClick(homepagelocators.appMoreIcon, 0, true)
+      agHelper.GetNClick(homepagelocators.forkAppFromMenu, 0, true);
+      agHelper.GetNClick(homepagelocators.forkAppWorkspaceButton, 0, true);
       assertHelper.AssertNetworkStatus("@postForkAppWorkspace", 200);
       assertHelper.WaitForNetworkCall("@getConsolidatedData");
       cy.get("@getConsolidatedData").then((httpResponse) => {
