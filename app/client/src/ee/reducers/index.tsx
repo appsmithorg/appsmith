@@ -19,6 +19,7 @@ import type { WorkflowsReducerState } from "./entityReducers/workflowsReducer";
 import type { ModuleInstanceEntitiesReducerState } from "./entityReducers/moduleInstanceEntitiesReducer";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { GitExtendedState } from "./uiReducers/gitExtendedReducer";
+import type { WorkflowHistoryPaneState } from "./uiReducers/workflowHistoryPaneReducer";
 
 const appReducer = combineReducers({
   ...CE_AppReducer,
@@ -46,6 +47,7 @@ export interface AppState extends CE_AppState {
   ui: CE_AppState["ui"] & {
     moduleInstancePane: ModuleInstancePaneState;
     gitExtended: GitExtendedState;
+    workflowHistoryPane: WorkflowHistoryPaneState;
   };
 }
 

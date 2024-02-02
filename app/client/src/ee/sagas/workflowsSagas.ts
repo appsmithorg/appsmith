@@ -30,6 +30,8 @@ import type {
   CreateWorkflowApiKeysResponse,
   CreateWorkflowPayload,
   FetchWorkflowResponse,
+  FetchWorkflowRunDetailsResponse,
+  FetchWorkflowRunsResponse,
   FetchWorkflowsResponse,
 } from "@appsmith/api/WorkflowApi";
 import WorkflowApi from "@appsmith/api/WorkflowApi";
@@ -43,6 +45,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { workflowEditorURL } from "@appsmith/RouteBuilder";
 import { toast } from "design-system";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { HistoryStateFilterStates } from "@appsmith/pages/Editor/WorkflowEditor/BottomBar/WorkflowRunHistory/helpers";
 
 interface CreateWorkflowSagaProps {
   workspaceId: string;
@@ -345,6 +348,89 @@ export function* toggleWorkflowTokenSaga(
   }
 }
 
+export function* fetchWorkflowRunHistorySaga(
+  action: ReduxAction<{
+    workflowId: string;
+    filter: string;
+  }>,
+) {
+  try {
+    const { filter, workflowId } = action.payload;
+
+    const statusFilter =
+      filter === HistoryStateFilterStates.ALL_RUNS ? "" : filter;
+    const paramString = statusFilter.length > 0 ? "?status=FAILED" : "";
+    const response: ApiResponse<FetchWorkflowRunsResponse> = yield call(
+      WorkflowApi.fetchWorkflowRuns,
+      workflowId,
+      paramString,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const { data } = response;
+      yield put({
+        type: ReduxActionTypes.FETCH_WORKFLOW_RUN_HISTORY_SUCCESS,
+        payload: data.runs,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_WORKFLOW_RUN_HISTORY_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_WORKFLOW_RUN_HISTORY_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchWorkflowRunHistoryDetailsSaga(
+  action: ReduxAction<{
+    workflowId: string;
+    runId: string;
+  }>,
+) {
+  try {
+    const { runId, workflowId } = action.payload;
+
+    const response: ApiResponse<FetchWorkflowRunDetailsResponse> = yield call(
+      WorkflowApi.fetchWorkflowRunDetails,
+      workflowId,
+      runId,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const { data } = response;
+      yield put({
+        type: ReduxActionTypes.FETCH_WORKFLOW_RUN_HISTORY_DETAILS_SUCCESS,
+        payload: { [runId]: data.activities },
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_WORKFLOW_RUN_HISTORY_DETAILS_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_WORKFLOW_RUN_HISTORY_DETAILS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* workflowsSagas() {
   yield all([
     takeLatest(
@@ -362,5 +448,13 @@ export default function* workflowsSagas() {
     ),
     takeLatest(ReduxActionTypes.PUBLISH_WORKFLOW_INIT, publishWorkflowSaga),
     takeLatest(ReduxActionTypes.TOGGLE_WORKFLOW_TOKEN, toggleWorkflowTokenSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_WORKFLOW_RUN_HISTORY_INIT,
+      fetchWorkflowRunHistorySaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_WORKFLOW_RUN_HISTORY_DETAILS_INIT,
+      fetchWorkflowRunHistoryDetailsSaga,
+    ),
   ]);
 }

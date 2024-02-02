@@ -459,6 +459,12 @@ export const WEBHOOK_TRIGGER_SWITCH_LABEL_DESC = () =>
   "Use the endpoint URL and the generated bearer token to trigger the workflow";
 export const WEBHOOK_TRIGGER_TOKEN_WARNING = () =>
   "Save your bearer token right away. You won’t be able do this later.";
+export const WORKFLOW_RUN_HISTORY_PANE_TRIGGER_LABEL = () => "Run History";
+export const WORKFLOW_RUN_HISTORY_PANE_TRIGGER_SHOW_TOOLTIP = () =>
+  "Show previous runs of this workflow";
+export const WORKFLOW_RUN_HISTORY_PANE_TRIGGER_HIDE_TOOLTIP = () =>
+  "Hide previous runs of this workflow";
+export const WORKFLOW_RUN_HISTORY_PANE_TRIGGER_TAB = () => "Run History";
 // Workflows end
 
 // AI begin

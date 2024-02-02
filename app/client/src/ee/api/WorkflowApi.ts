@@ -6,6 +6,10 @@ import type {
   Workflow,
   WorkflowMetadata,
 } from "@appsmith/constants/WorkflowConstants";
+import type {
+  WorkflowRunDetailsData,
+  WorkflowRunHistoryData,
+} from "@appsmith/reducers/uiReducers/workflowHistoryPaneReducer";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
@@ -34,6 +38,14 @@ export interface CreateWorkflowQueryActionPayload {
   id: string;
   name: string;
   actionConfiguration: any;
+}
+
+export interface FetchWorkflowRunsResponse {
+  runs: Array<WorkflowRunHistoryData>;
+}
+
+export interface FetchWorkflowRunDetailsResponse {
+  activities: Array<WorkflowRunDetailsData>;
 }
 
 const BASE_URL = "v1/workflows";
@@ -117,6 +129,24 @@ class WorkflowApi extends Api {
     const url = `${BASE_URL}/token/${workflowId}`;
 
     return Api.delete(url);
+  }
+
+  static async fetchWorkflowRuns(
+    workflowId: string,
+    paramString: string,
+  ): Promise<AxiosPromise<ApiResponse<FetchWorkflowRunsResponse>>> {
+    const url = `${BASE_URL}/${workflowId}/runs${paramString}`;
+
+    return Api.get(url);
+  }
+
+  static async fetchWorkflowRunDetails(
+    workflowId: string,
+    runId: string,
+  ): Promise<AxiosPromise<ApiResponse<FetchWorkflowRunDetailsResponse>>> {
+    const url = `${BASE_URL}/${workflowId}/runs/${runId}/activities`;
+
+    return Api.get(url);
   }
 }
 
