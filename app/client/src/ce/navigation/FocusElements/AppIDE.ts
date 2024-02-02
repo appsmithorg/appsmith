@@ -40,7 +40,10 @@ import {
   setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
+import {
+  setQueryPaneConfigSelectedTabIndex,
+  setQueryPaneDebuggerState,
+} from "actions/queryPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   DEFAULT_ENTITY_EXPLORER_WIDTH,
@@ -62,6 +65,7 @@ import {
 import {
   getFirstQuery,
   getQueryPaneConfigSelectedTabIndex,
+  getQueryPaneDebuggerState,
 } from "selectors/queryPaneSelectors";
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
@@ -84,6 +88,7 @@ import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
 import { getIDETabs } from "selectors/ideSelectors";
 import { setIDETabs } from "actions/ideActions";
 import { IDETabsDefaultValue } from "reducers/uiReducers/ideReducer";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
@@ -156,6 +161,16 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.ApiRightPaneTabs,
       selector: getApiRightPaneSelectedTab,
       setter: setApiRightPaneSelectedTab,
+    },
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.QueryDebugger,
+      selector: getQueryPaneDebuggerState,
+      setter: setQueryPaneDebuggerState,
+      defaultValue: {
+        open: false,
+        responseTabHeight: ActionExecutionResizerHeight,
+      },
     },
   ],
   [FocusEntity.PROPERTY_PANE]: [

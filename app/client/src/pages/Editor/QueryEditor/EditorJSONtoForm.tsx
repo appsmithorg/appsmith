@@ -34,13 +34,15 @@ import type { UIComponentTypes } from "api/PluginApi";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
-import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import {
-  getDebuggerSelectedTab,
-  showDebuggerFlag,
-} from "selectors/debuggerSelectors";
+  getQueryPaneConfigSelectedTabIndex,
+  getQueryPaneDebuggerState,
+} from "selectors/queryPaneSelectors";
+import {
+  setQueryPaneConfigSelectedTabIndex,
+  setQueryPaneDebuggerState,
+} from "actions/queryPaneActions";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
@@ -48,7 +50,6 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 import FormRender from "./FormRender";
@@ -280,8 +281,12 @@ export function EditorJSONtoForm(props: Props) {
       actionResponse.isExecutionSuccess &&
       !showResponseOnFirstLoad
     ) {
-      dispatch(showDebugger(true));
-      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+      dispatch(
+        setQueryPaneDebuggerState({
+          open: true,
+          selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        }),
+      );
       setShowResponseOnFirstLoad(true);
     }
   }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
@@ -309,14 +314,13 @@ export function EditorJSONtoForm(props: Props) {
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
-  // Debugger render flag
-  const renderDebugger = useSelector(showDebuggerFlag);
+  // Debugger state
+  const { open: renderDebugger, selectedTab: selectedResponseTab } =
+    useSelector(getQueryPaneDebuggerState);
 
   const setSelectedConfigTab = useCallback((selectedIndex: string) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
-
-  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
 
   // here we check for normal conditions for opening action pane
   // or if any of the flags are true, We should open the actionpane by default.

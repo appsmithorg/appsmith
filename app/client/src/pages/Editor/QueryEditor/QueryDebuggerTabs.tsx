@@ -1,8 +1,3 @@
-import {
-  setDebuggerSelectedTab,
-  setResponsePaneHeight,
-  showDebugger,
-} from "actions/debuggerActions";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
@@ -10,11 +5,7 @@ import React, { useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import {
-  getDebuggerSelectedTab,
-  getErrorCount,
-  getResponsePaneHeight,
-} from "selectors/debuggerSelectors";
+import { getErrorCount } from "selectors/debuggerSelectors";
 import { Text, TextType } from "design-system-old";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import Resizable, {
@@ -25,17 +16,17 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers"
 import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
-  INSPECT_ENTITY,
   createMessage,
 } from "@appsmith/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import type { ActionResponse } from "api/ActionAPI";
 import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import QueryResponseTab from "./QueryResponseTab";
+import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
 
 const ResultsCount = styled.div`
   position: absolute;
@@ -88,8 +79,10 @@ function QueryDebuggerTabs({
   const panelRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
 
-  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
-  const responsePaneHeight = useSelector(getResponsePaneHeight);
+  const { responseTabHeight, selectedTab } = useSelector(
+    getQueryPaneDebuggerState,
+  );
+
   const errorCount = useSelector(getErrorCount);
 
   // Query is executed even once during the session, show the response data.
@@ -112,12 +105,15 @@ function QueryDebuggerTabs({
   }
 
   const setQueryResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setResponsePaneHeight(height));
+    dispatch(setQueryPaneDebuggerState({ responseTabHeight: height }));
   }, []);
 
-  const onClose = () => dispatch(showDebugger(false));
+  const onClose = useCallback(() => {
+    dispatch(setQueryPaneDebuggerState({ open: false }));
+  }, []);
+
   const setSelectedResponseTab = useCallback((tabKey: string) => {
-    dispatch(setDebuggerSelectedTab(tabKey));
+    dispatch(setQueryPaneDebuggerState({ selectedTab: tabKey }));
   }, []);
 
   const responseTabs: BottomTab[] = [
@@ -131,11 +127,6 @@ function QueryDebuggerTabs({
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={actionName} />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
     },
   ];
 
@@ -161,7 +152,7 @@ function QueryDebuggerTabs({
       ref={panelRef}
     >
       <Resizable
-        initialHeight={responsePaneHeight}
+        initialHeight={responseTabHeight}
         onResizeComplete={(height: number) =>
           setQueryResponsePaneHeight(height)
         }
@@ -190,7 +181,7 @@ function QueryDebuggerTabs({
       <EntityBottomTabs
         expandedHeight={`${ActionExecutionResizerHeight}px`}
         onSelect={setSelectedResponseTab}
-        selectedTabKey={selectedResponseTab}
+        selectedTabKey={selectedTab || ""}
         tabs={responseTabs}
       />
       <CloseDebugger
