@@ -155,8 +155,16 @@ export const EntityItem = styled.div<{
     align-items: center;
     visibility: hidden;
   }
-  &&&&:hover .${EntityClassNames.CONTEXT_MENU} {
+  &&&&:hover
+    .${EntityClassNames.CONTEXT_MENU},
+    &&&&.active
+    .${EntityClassNames.CONTEXT_MENU} {
     visibility: visible;
+  }
+
+  &&&&.active ${ContextMenuWrapper} {
+    min-width: 30px;
+    width: auto;
   }
 
   & .${EntityClassNames.RIGHT_ICON} {
