@@ -709,11 +709,19 @@ export function isKVArray(children: Array<any>) {
 }
 
 export const formatFileSize = (sizeInBytes: number) => {
-  if (sizeInBytes < 1024) {
-    return `${sizeInBytes} bytes`;
-  } else if (sizeInBytes < 1024 * 1024) {
-    return `${Math.round(sizeInBytes / 1024)} KB`;
-  } else {
-    return `${Math.round(sizeInBytes / (1024 * 1024))} MB`;
+  const FILE_SIZE = {
+    KB: 1024,
+    MB: 1024 * 1024,
+    GB: 1024 * 1024 * 1024,
+  };
+
+  if (sizeInBytes < FILE_SIZE.KB) {
+    return `${sizeInBytes} B`;
+  } else if (sizeInBytes < FILE_SIZE.MB) {
+    return `${Math.round(sizeInBytes / FILE_SIZE.KB)} KB`;
+  } else if (sizeInBytes < FILE_SIZE.GB) {
+    return `${Math.round(sizeInBytes / FILE_SIZE.MB)} MB`;
   }
+
+  return `${Math.round(sizeInBytes / FILE_SIZE.GB)} GB`;
 };
