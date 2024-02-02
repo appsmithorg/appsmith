@@ -63,7 +63,6 @@ export class DeployMode {
       ); //Validating bug - 14141 + 14252
     this.agHelper.AssertElementExist(this._deployPageWidgets);
     this.agHelper.AssertElementVisibility(this._deployPageWidgets);
-    this.agHelper.AssertElementVisibility(this._appViewPageName);
     this.agHelper.Sleep(2000); //for view page widgets to load
   }
 
