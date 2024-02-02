@@ -150,27 +150,29 @@ const groupHelpText = (
 /**
  * Component creates a portal to render the context menu container outside of the main component hierarchy.
  */
-const StyledActionsContainer = (props: {
-  children: React.ReactNode;
-  height?: number;
-  left?: number;
-  top?: number;
-  width?: number;
-}) => {
-  const { children, height, left, top, width } = props;
+const StyledActionsContainer = React.memo(
+  (props: {
+    children: React.ReactNode;
+    height?: number;
+    left?: number;
+    top?: number;
+    width?: number;
+  }) => {
+    const { children, height, left, top, width } = props;
 
-  return createPortal(
-    <StyledActions
-      style={{
-        left: Number(width) + Number(left),
-        top: Number(top) + Number(height),
-      }}
-    >
-      {children}
-    </StyledActions>,
-    document.body,
-  );
-};
+    return createPortal(
+      <StyledActions
+        style={{
+          left: Number(width) + Number(left),
+          top: Number(top) + Number(height),
+        }}
+      >
+        {children}
+      </StyledActions>,
+      document.body,
+    );
+  },
+);
 
 function WidgetsMultiSelectBox(props: {
   widgetId: string;
@@ -281,7 +283,11 @@ function WidgetsMultiSelectBox(props: {
       const node = draggableRef.current;
       if (node) {
         const rect = node.getBoundingClientRect();
-        setBoundingClientRect(rect);
+        setBoundingClientRect((prev) => {
+          return rect.left === prev?.left && rect.top === prev?.top
+            ? prev
+            : rect;
+        });
       }
     };
     if (shouldRender) updateBoundingClientRect();
