@@ -48,7 +48,7 @@ describe(
       agHelper.WaitUntilEleAppear(homepagelocators.searchInput);
       agHelper.GetElement(homepagelocators.searchInput).type(appname);
       agHelper.WaitUntilEleAppear(homepagelocators.appMoreIcon);
-      agHelper.GetNClick(homepagelocators.appMoreIcon, 0, true)
+      agHelper.GetNClick(homepagelocators.appMoreIcon, 0, true);
       agHelper.GetNClick(homepagelocators.forkAppFromMenu, 0, true);
       agHelper.GetNClick(homepagelocators.forkAppWorkspaceButton, 0, true);
       assertHelper.AssertNetworkStatus("@postForkAppWorkspace", 200);
