@@ -238,16 +238,18 @@ const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
   ignoreLargeKeys: any,
+  evalOrder: string[],
 ): DiffWithReferenceState[] => {
   const attachDirectly: DiffWithReferenceState[] = [];
   const ignoreLargeKeysHasBeenAttached = new Set();
+  const evalOrderSet = new Set(evalOrder);
   const attachLater: DiffWithReferenceState[] = [];
   const updates =
     diff(oldDataTree, dataTree, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
 
       const { path: setPath, segmentedPath } = generateWithKey(path, key);
-
+      if (!evalOrderSet.has(setPath)) return false;
       // if ignore path is present...this segment of code generates the data compression patches
       if (!!ignoreLargeKeys[setPath]) {
         const originalStateVal = get(oldDataTree, segmentedPath);
@@ -330,9 +332,15 @@ export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
   identicalEvalPathsPatches?: Record<string, string>,
+  evalOrder: string[] = [],
 ): DiffWithReferenceState[] => {
   const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
-  const updates = generateDiffUpdates(oldDataTree, dataTree, ignoreLargeKeys);
+  const updates = generateDiffUpdates(
+    oldDataTree,
+    dataTree,
+    ignoreLargeKeys,
+    evalOrder,
+  );
   return updates;
 };
 
@@ -340,6 +348,7 @@ export const generateSerialisedUpdates = (
   prevState: any,
   currentState: any,
   identicalEvalPathsPatches: any,
+  evalOrder?: any,
 ): {
   serialisedUpdates: string;
   error?: { type: string; message: string };
@@ -348,6 +357,7 @@ export const generateSerialisedUpdates = (
     prevState,
     currentState,
     identicalEvalPathsPatches,
+    evalOrder,
   );
 
   //remove lhs from diff to reduce the size of diff upload,
@@ -373,6 +383,7 @@ export const generateSerialisedUpdates = (
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
   dataTreeEvaluator: any,
+  evalOrder: string[] = [],
 ) => {
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
@@ -381,6 +392,7 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     dataTreeEvaluator.getPrevState(),
     dataTree,
     identicalEvalPathsPatches,
+    evalOrder,
   );
 
   if (error) {
