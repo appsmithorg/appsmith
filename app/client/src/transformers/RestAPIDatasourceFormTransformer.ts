@@ -183,6 +183,7 @@ const formToDatasourceAuthentication = (
         customAuthenticationParameters: cleanupProperties(
           authentication.customAuthenticationParameters,
         ),
+        authorizationExpiresIn: authentication.authorizationExpiresIn,
       };
     }
   }
@@ -281,6 +282,7 @@ const datasourceToFormAuthentication = (
           typeof authentication.isAuthorizationHeader === "undefined"
             ? true
             : !!authentication.isAuthorizationHeader,
+        authorizationExpiresIn: authentication.authorizationExpiresIn,
       };
     }
   }

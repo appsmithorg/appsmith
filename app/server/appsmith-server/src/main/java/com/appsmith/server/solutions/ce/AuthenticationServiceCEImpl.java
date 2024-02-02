@@ -294,15 +294,23 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 if (issuedAtResponse != null) {
                                     issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
                                 }
-                                // We expect at least one of the following to be present
-                                Object expiresAtResponse = response.get(Authentication.EXPIRES_AT);
-                                Object expiresInResponse = response.get(Authentication.EXPIRES_IN);
                                 Instant expiresAt = null;
-                                if (expiresAtResponse != null) {
-                                    expiresAt =
-                                            Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
-                                } else if (expiresInResponse != null) {
-                                    expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
+                                // If expires_in property in datasource form is left blank when creating ds,
+                                // We expect at least one of the following to be present
+                                if (StringUtils.isEmpty(oAuth2.getAuthorizationExpiresIn())) {
+                                    Object expiresAtResponse = response.get(Authentication.EXPIRES_AT);
+                                    Object expiresInResponse = response.get(Authentication.EXPIRES_IN);
+                                    if (expiresAtResponse != null) {
+                                        expiresAt = Instant.ofEpochSecond(
+                                                Long.parseLong(String.valueOf(expiresAtResponse)));
+                                    } else if (expiresInResponse != null) {
+                                        expiresAt =
+                                                issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
+                                    }
+                                } else {
+                                    // we have expires_in field from datasource config, we will always use that
+                                    String authorizationExpiresIn = oAuth2.getAuthorizationExpiresIn();
+                                    expiresAt = issuedAt.plusSeconds(Long.parseLong(authorizationExpiresIn));
                                 }
                                 authenticationResponse.setExpiresAt(expiresAt);
                                 // Replacing with returned scope instead

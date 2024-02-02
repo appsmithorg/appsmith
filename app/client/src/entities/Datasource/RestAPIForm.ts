@@ -88,6 +88,7 @@ export interface AuthorizationCode extends Oauth2Common {
   authorizationUrl: string;
   customAuthenticationParameters: Property[];
   isAuthorized: boolean;
+  authorizationExpiresIn: number;
 }
 
 export interface Basic {
