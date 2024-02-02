@@ -19,7 +19,6 @@ export const ENTITY_TYPE = {
   ...CE_ENTITY_TYPE,
   MODULE_INPUT: "MODULE_INPUT",
   MODULE_INSTANCE: "MODULE_INSTANCE",
-  MODULE_INPUT: "MODULE_INPUT",
 } as const;
 
 type ValueOf<T> = T[keyof T];
