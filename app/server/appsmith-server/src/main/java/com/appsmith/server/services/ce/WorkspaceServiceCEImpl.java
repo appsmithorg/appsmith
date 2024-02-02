@@ -17,6 +17,7 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -426,7 +427,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
-        if (resource.getPolicies().isEmpty()) {
+        if (CollectionUtils.isNullOrEmpty(resource.getPolicies())) {
             resource.setPolicies(null);
         }
 
