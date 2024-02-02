@@ -165,7 +165,7 @@ const HomepageHeaderAction = ({
                       APPSMITH_DISPLAY_VERSION,
                       appVersion.edition,
                       appVersion.id.endsWith("-SNAPSHOT")
-                        ? appVersion.sha
+                        ? appVersion.sha.substring(0, 8)
                         : appVersion.id,
                     )}
                   </div>
