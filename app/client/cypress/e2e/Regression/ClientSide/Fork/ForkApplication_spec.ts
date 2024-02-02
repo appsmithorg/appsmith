@@ -3,10 +3,11 @@ import signupPageLocators from "../../../../locators/SignupPage.json";
 import loginPageLocators from "../../../../locators/LoginPage.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import homepagelocators from "../../../../locators/HomePage";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import {
   agHelper,
   appSettings,
+  adminSettings,
   assertHelper,
   deployMode,
   embedSettings,
@@ -124,7 +125,7 @@ describe(
 
     it("3. Mark application as forkable", () => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
+      if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
 
       homePage.CreateNewApplication();
       appSettings.OpenAppSettings();
