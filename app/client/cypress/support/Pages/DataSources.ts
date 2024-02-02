@@ -1956,7 +1956,7 @@ export class DataSources {
     );
   }
 
-  private isTemplateMenuTriggerForSchemaTableVisible(index: number = 0) {
+  private IsTemplateMenuTriggerForSchemaTableVisible(index: number = 0) {
     this.agHelper
       .GetElement(`${this._dsSchemaContainer} ${this._dsSchemaEntityItem}`)
       .eq(index)
@@ -1964,17 +1964,17 @@ export class DataSources {
       .should("be.visible");
   }
 
-  public clickTemplateMenuForSchemaTable(index: number = 0) {
+  public ClickTemplateMenuForSchemaTable(index: number = 0) {
     this.agHelper
       .GetElement(`${this._dsSchemaContainer} ${this._dsSchemaEntityItem}`)
       .eq(index)
       .realHover();
-    this.isTemplateMenuTriggerForSchemaTableVisible(index);
+    this.IsTemplateMenuTriggerForSchemaTableVisible(index);
     this.agHelper
       .GetElement(`${this._dsSchemaContainer} ${this._dsSchemaEntityItem}`)
       .eq(index)
       .find(this._entityTriggerElement)
       .click();
-    this.isTemplateMenuTriggerForSchemaTableVisible(index);
+    this.IsTemplateMenuTriggerForSchemaTableVisible(index);
   }
 }

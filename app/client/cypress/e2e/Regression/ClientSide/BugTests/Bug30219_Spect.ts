@@ -15,7 +15,7 @@ describe(
         datasourceName = $dsName as unknown as string;
         dataSources.CreateQueryForDS(datasourceName);
         // This function asserts the visibility of plus icon before and after the templates menu is opened after clicking on it.
-        dataSources.clickTemplateMenuForSchemaTable(0);
+        dataSources.ClickTemplateMenuForSchemaTable(0);
       });
     });
   },
