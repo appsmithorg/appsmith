@@ -243,6 +243,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
     dataTreeEvaluator,
+    evalOrder,
   );
 
   const evalTreeResponse: EvalTreeResponseData = {
