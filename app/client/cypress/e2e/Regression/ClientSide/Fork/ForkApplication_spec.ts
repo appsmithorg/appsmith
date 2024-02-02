@@ -90,8 +90,7 @@ describe(
         cy.url().then((url) => {
           forkableAppUrl = url;
           homePage.LogOutviaAPI();
-        });
-        agHelper.VisitNAssert(forkableAppUrl);
+          agHelper.VisitNAssert(forkableAppUrl);
           agHelper.GetNClick(applicationLocators.forkButton, 0, true);
           agHelper.GetNClick(loginPageLocators.signupLink);
           agHelper.GenerateUUID();
@@ -104,6 +103,7 @@ describe(
             agHelper.AssertElementVisibility(homepagelocators.forkAppWorkspaceButton)
           });
         });
+      });
     });
 
     it("3. Mark application as forkable", () => {
