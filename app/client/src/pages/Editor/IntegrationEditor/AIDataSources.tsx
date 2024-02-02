@@ -1,19 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import {
-  createDatasourceFromForm,
-  createTempDatasourceFromForm,
-} from "actions/datasourceActions";
+import { createTempDatasourceFromForm } from "actions/datasourceActions";
 import type { AppState } from "@appsmith/reducers";
 import type { Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { PluginType } from "entities/Action";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import type { Datasource } from "entities/Datasource";
-import { getDatasources } from "@appsmith/selectors/entitiesSelector";
 
 export const StyledContainer = styled.div`
   flex: 1;
@@ -121,14 +114,10 @@ interface Props {
   };
   pageId: string;
   plugins: Plugin[];
-  createDatasourceFromForm: typeof createDatasourceFromForm;
   isCreating: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
-  workspaceId: string;
-  defaultEnvId: string;
-  datasources: Datasource[];
 }
 
 function AIDataSources(props: Props) {
@@ -139,28 +128,6 @@ function AIDataSources(props: Props) {
       pluginName: plugin.name,
       pluginPackageName: plugin.packageName,
     });
-
-    // if (plugin.packageName === PluginPackageName.APPSMITH_AI) {
-    //   props.createDatasourceFromForm({
-    //     name:
-    //       DATASOURCE_NAME_DEFAULT_PREFIX +
-    //       getUntitledDatasourceSequence(datasources),
-    //     pluginId: plugin.id,
-    //     type: plugin.type,
-    //     datasourceStorages: {
-    //       [defaultEnvId]: {
-    //         datasourceId: "",
-    //         environmentId: defaultEnvId,
-    //         datasourceConfiguration: {},
-    //         isValid: true,
-    //       },
-    //     } as Record<string, DatasourceStorage>,
-    //     workspaceId,
-    //     id: TEMP_DATASOURCE_ID,
-    //   });
-
-    //   return;
-    // }
 
     props.createTempDatasourceFromForm({
       pluginId: plugin.id,
@@ -178,7 +145,7 @@ function AIDataSources(props: Props) {
 
   return (
     <StyledContainer>
-      <DatasourceCardsContainer data-testid="newapi-datasource-card-container">
+      <DatasourceCardsContainer data-testid="newai-datasource-card-container">
         {aiPlugins.map((plugin) => (
           <DatasourceCard
             className={`t--createBlankApi-${plugin.packageName}`}
@@ -208,13 +175,9 @@ function AIDataSources(props: Props) {
 
 const mapStateToProps = (state: AppState) => ({
   plugins: state.entities.plugins.list,
-  workspaceId: getCurrentWorkspaceId(state),
-  defaultEnvId: getDefaultEnvironmentId(state),
-  datasources: getDatasources(state),
 });
 
 const mapDispatchToProps = {
-  createDatasourceFromForm,
   createTempDatasourceFromForm,
 };
 
