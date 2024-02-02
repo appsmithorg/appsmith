@@ -119,13 +119,10 @@ export class HomePage {
   private _applicationEditedText = (applicationName: string) =>
     this._appCard(applicationName) +
     "//div[contains(@class, 't--application-edited-text')]";
-  private _deployPageWidgets =
-    ".bp3-heading, section.canvas div.canvas:not(:empty)";
   public _homePageContainer =
     "div.t--applications-container div.t--workspace-section:not(:empty)";
   private _backToEditor = ".t--back-to-editor";
   private _editorSidebar = ".t--sidebar-Editor";
-  private _appViewPageName = `div.t--app-viewer-application-name`;
   private _membersTab = "[data-testid=t--tab-members]";
 
   public _searchWorkspaceLocator = (workspaceName: string) =>
@@ -500,9 +497,9 @@ export class HomePage {
       "edit",
     );
     this.agHelper.WaitUntilEleAppear(element ?? this.locator._backToEditor);
-    this.agHelper.AssertElementExist(this._deployPageWidgets);
-    this.agHelper.AssertElementVisibility(this._deployPageWidgets);
-    this.agHelper.AssertElementVisibility(this._appViewPageName);
+    this.agHelper.AssertElementExist(this.deployHelper._deployPageWidgets);
+    this.agHelper.AssertElementVisibility(this.deployHelper._deployPageWidgets);
+    this.agHelper.AssertElementVisibility(this.deployHelper._appViewPageName);
     this.assertHelper.AssertDocumentReady();
   }
 

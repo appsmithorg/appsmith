@@ -31,6 +31,9 @@ export class DeployMode {
   private _backtoHome =
     ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
+  public _deployPageWidgets =
+    ".bp3-heading, section.canvas div.canvas:not(:empty)";
+  public _appViewPageName = `div.t--app-viewer-application-name`;
 
   //refering PublishtheApp from command.js
   public DeployApp(
@@ -39,8 +42,6 @@ export class DeployMode {
     toValidateSavedState = true,
     addDebugFlag = true,
   ) {
-    //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
-
     // Wait before publish
     this.agHelper.Sleep(); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
@@ -51,13 +52,6 @@ export class DeployMode {
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
     //cy.get("@windowDeployStub").should("be.calledOnce");
     this.assertHelper.AssertDocumentReady();
-    cy.log("Pagename: " + localStorage.getItem("PageName"));
-
-    //Below url check throwing error - hence commenting!
-    // cy.wait("@publishApp")
-    //   .its("request.url")
-    //   .should("not.contain", "edit");
-    //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
 
     this.agHelper.WaitUntilEleAppear(
       eleToCheckInDeployPage ?? this.locator._backToEditor,
@@ -67,8 +61,10 @@ export class DeployMode {
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast("has failed"),
       ); //Validating bug - 14141 + 14252
-    this.agHelper.Sleep(2000); //for Depoy page to settle!
-    // });
+    this.agHelper.AssertElementExist(this._deployPageWidgets);
+    this.agHelper.AssertElementVisibility(this._deployPageWidgets);
+    this.agHelper.AssertElementVisibility(this._appViewPageName);
+    this.agHelper.Sleep(2000); //for view page widgets to load
   }
 
   // Stubbing window.open to open in the same tab

@@ -26,11 +26,11 @@ describe(
         "1 Track Applications",
       );
       deployMode.NavigateBacktoEditor();
+      homePage.NavigateToHome();
       agHelper.WaitUntilAllToastsDisappear();
     });
 
     it("2. Add selected pages from template to an app", () => {
-      homePage.NavigateToHome();
       homePage.CreateNewApplication();
       agHelper.GetNClick(template.startFromTemplateCard);
       agHelper.AssertElementVisibility(template.templateDialogBox);
