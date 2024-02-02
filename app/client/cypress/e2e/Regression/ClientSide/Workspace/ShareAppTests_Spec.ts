@@ -1,12 +1,12 @@
 import {
   agHelper,
+  adminSettings,
   locators,
   deployMode,
   homePage,
   assertHelper,
   inviteModal,
   onboarding,
-  adminSettings,
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
