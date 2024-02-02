@@ -45,8 +45,8 @@
     },
     {
       "label": "Use context from files",
-      "tooltipText": "Select the files to use as context for the text generation. The files can be managed in the Datasource edit page",
-      "subtitle": "Select the files to use as context for the text generation. The files can be managed in the Datasource edit page",
+      "tooltipText": "Enhance the AI response by providing custom context. Using this option will generate accurate responses that are grounded in file contents.",
+      "subtitle": "Select files for enhanced AI responses based on file contents. Upload files on the datasource (Data > your Appsmith AI Datasource > Edit > Upload files)",
       "isRequired": false,
       "propertyName": "fileIds",
       "configProperty": "actionConfiguration.formData.fileIds.data",

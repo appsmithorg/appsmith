@@ -2,7 +2,11 @@ import React from "react";
 import type { Datasource } from "entities/Datasource";
 import { map, get, isArray } from "lodash";
 import styled from "styled-components";
-import { isHidden, isKVArray } from "components/formControls/utils";
+import {
+  formatFileSize,
+  isHidden,
+  isKVArray,
+} from "components/formControls/utils";
 import log from "loglevel";
 import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
@@ -16,6 +20,7 @@ import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelector
 import { isMultipleEnvEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { Text } from "design-system";
+import { Table } from "design-system-old";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
@@ -205,9 +210,28 @@ export function renderDatasourceSection(
                     <FieldWrapper key={reactKey}>
                       <Key>{label}: </Key>{" "}
                       <Value>
-                        {value.length} File{isPlural ? "s" : ""} uploaded
+                        {value.length} file{isPlural ? "s" : ""} uploaded
                       </Value>
                     </FieldWrapper>
+                    <div className="mt-2 max-w-[50%]">
+                      <Table
+                        columns={[
+                          {
+                            Header: "Name",
+                            accessor: "name",
+                          },
+                          {
+                            Header: "Size",
+                            accessor: "size",
+                            Cell: (props: any) => formatFileSize(props.value),
+                          },
+                        ]}
+                        data={value}
+                      />
+                    </div>
+                    {section.labelVisibleWithFiles && (
+                      <Text kind="body-s">{section.labelVisibleWithFiles}</Text>
+                    )}
                   </div>
                 );
               } else {

@@ -707,3 +707,13 @@ export function isKVArray(children: Array<any>) {
     children[0].controlType && children[0].controlType === "KEYVALUE_ARRAY"
   );
 }
+
+export const formatFileSize = (sizeInBytes: number) => {
+  if (sizeInBytes < 1024) {
+    return `${sizeInBytes} bytes`;
+  } else if (sizeInBytes < 1024 * 1024) {
+    return `${Math.round(sizeInBytes / 1024)} KB`;
+  } else {
+    return `${Math.round(sizeInBytes / (1024 * 1024))} MB`;
+  }
+};
