@@ -30,6 +30,7 @@ describe("FirstTimeUserOnboarding", function () {
     cy.get("@guid").then((uid) => {
       homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
     });
+    agHelper.GetNClick(onboarding.locators.startFromDataCard);
   });
 
   it("1. onboarding flow - should check directly opening widget pane", function () {
