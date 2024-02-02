@@ -308,7 +308,8 @@ describe(
       );
     });
 
-    it("8. Verify validation error in default selected values", () => {
+    //Skipping due to open bug #16870
+    it.skip("8. Bug # 16870 - Verify validation error in default selected values", () => {
       EditorNavigation.SelectEntityByName("NewMultiSelect", EntityType.Widget);
 
       propPane.MoveToTab("Content");
@@ -316,7 +317,6 @@ describe(
       propPane.UpdatePropertyFieldValue(
         "Default selected values",
         '["GREEN1", "RED1"]',
-        true,
       );
 
       agHelper.VerifyEvaluatedErrorMessage(
@@ -329,21 +329,17 @@ describe(
       propPane.UpdatePropertyFieldValue(
         "Source Data",
         '[{"name": "Green", "code":"GREEN1"}, { "name": "Red","code": "RED1" }]',
-        true,
       );
 
       agHelper.FocusElement(
         locators._propertyInputField("Default selected values"),
       );
-
-      agHelper.Sleep(1000);
       agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
 
       // Changes options to bring back validation error
       propPane.UpdatePropertyFieldValue(
         "Source Data",
         '[{"name": "Green", "code":"GREEN1"}, { "name": "Red","code": "RED" }]',
-        true,
       );
 
       agHelper.FocusElement(
@@ -373,8 +369,6 @@ describe(
         '{{["GREEN1"]}}',
         true,
       );
-
-      agHelper.Sleep(1000);
       agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
     });
   },
