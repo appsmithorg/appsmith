@@ -4,7 +4,7 @@
 #cypress/e2e/Regression/ClientSide/EmbedSettings/EmbedSettings_spec.js
 #cypress/e2e/Regression/ServerSide/QueryPane/S3_1_spec.js
 cypress/e2e/Regression/ClientSide/Git/GitSync/SwitchBranches_spec.js
-
+cypress/e2e/Regression/ClientSide/Git/GitImport/GitImport_spec.js
 
 
 
