@@ -27,15 +27,6 @@ public enum WorkflowPluginError implements BasePluginError {
             ErrorType.WORKFLOW_ERROR,
             "",
             ""),
-    TRIGGER_DATA_MISSING(
-            400,
-            "PE-WF-4001",
-            "Trigger data missing",
-            "Trigger data missing",
-            AppsmithErrorAction.DEFAULT,
-            ErrorType.WORKFLOW_ERROR,
-            "",
-            ""),
     TRIGGER_DATA_INVALID_JSON(
             400,
             "PE-WF-4002",
@@ -45,19 +36,19 @@ public enum WorkflowPluginError implements BasePluginError {
             ErrorType.WORKFLOW_ERROR,
             "",
             ""),
-    APPROVAL_REQUEST_ID_MISSING(
+    REQUEST_ID_MISSING(
             400,
             "PE-WF-4003",
-            "Approval request id missing",
+            "Request id missing",
             "Request id missing",
             AppsmithErrorAction.DEFAULT,
             ErrorType.WORKFLOW_ERROR,
             "",
             ""),
-    APPROVAL_REQUEST_RESOLUTION_MISSING(
+    REQUEST_RESOLUTION_MISSING(
             400,
             "PE-WF-4004",
-            "Approval request resolution missing",
+            "Request resolution missing",
             "Resolution missing",
             AppsmithErrorAction.DEFAULT,
             ErrorType.WORKFLOW_ERROR,

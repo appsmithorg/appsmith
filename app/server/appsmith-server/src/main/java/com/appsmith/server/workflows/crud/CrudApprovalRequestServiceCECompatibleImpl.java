@@ -2,6 +2,7 @@ package com.appsmith.server.workflows.crud;
 
 import com.appsmith.server.domains.ApprovalRequest;
 import com.appsmith.server.dtos.ApprovalRequestCreationDTO;
+import com.appsmith.server.dtos.ApprovalRequestResponseDTO;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -30,7 +31,8 @@ public class CrudApprovalRequestServiceCECompatibleImpl extends BaseApprovalRequ
     }
 
     @Override
-    public Mono<ApprovalRequest> createApprovalRequest(ApprovalRequestCreationDTO approvalRequestCreationDTO) {
+    public Mono<ApprovalRequestResponseDTO> createApprovalRequest(
+            ApprovalRequestCreationDTO approvalRequestCreationDTO) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
@@ -40,7 +42,8 @@ public class CrudApprovalRequestServiceCECompatibleImpl extends BaseApprovalRequ
     }
 
     @Override
-    public Mono<PagedDomain<ApprovalRequest>> getPaginatedApprovalRequests(MultiValueMap<String, String> filters) {
+    public Mono<PagedDomain<ApprovalRequestResponseDTO>> getPaginatedApprovalRequests(
+            MultiValueMap<String, String> filters) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

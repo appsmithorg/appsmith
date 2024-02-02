@@ -40,7 +40,7 @@ public class WorkflowPluginTest {
     }
 
     WorkflowPlugin.WorkflowPluginExecutor workflowPluginExecutor =
-            new WorkflowPlugin.WorkflowPluginExecutor(new GetApprovalRequestWorkflowCommandTest.MockSharedConfig());
+            new WorkflowPlugin.WorkflowPluginExecutor(new GetRequestWorkflowCommandTest.MockSharedConfig());
 
     @Test
     public void testExecuteRequestWithoutRequestType() {

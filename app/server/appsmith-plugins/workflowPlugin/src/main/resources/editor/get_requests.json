@@ -1,17 +1,25 @@
 {
-  "identifier": "GET_APPROVAL_REQUESTS",
+  "identifier": "GET_REQUESTS",
   "controlType": "SECTION",
   "conditionals": {
-    "show": "{{!!actionConfiguration.formData.workflowId.data && !!actionConfiguration.formData.requestType.data && actionConfiguration.formData.requestType.data === 'GET_APPROVAL_REQUESTS'}}"
+    "show": "{{!!actionConfiguration.formData.workflowId.data && !!actionConfiguration.formData.requestType.data && actionConfiguration.formData.requestType.data === 'GET_REQUESTS'}}"
   },
   "children": [
     {
-      "label": "Request name",
-      "tooltipText": "Search approval requests by name",
+      "label": "Request names",
+      "tooltipText": "Search requests by name",
+      "subtitle": "Filter for these request names",
       "propertyName": "request_name",
-      "configProperty": "actionConfiguration.formData.requestName.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "placeholderText": "\"request 1\", \"request 2\"",
+      "configProperty": "actionConfiguration.formData.requestNames.data",
+      "controlType": "ARRAY_FIELD",
+      "alternateViewTypes": ["json"],
+      "addMoreButtonLabel": "Add request name",
+      "schema": [{
+          "label": "Request name",
+          "key": "requestName",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "requestName 1"
+      }],
       "isRequired": false
     },
     {

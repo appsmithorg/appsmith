@@ -39,21 +39,21 @@
           "controlType": "DROP_DOWN",
           "options": [
             {
-              "label": "Get approval requests",
-              "value": "GET_APPROVAL_REQUESTS"
-            },
-            {
               "label": "Trigger Workflow",
               "value": "TRIGGER_WORKFLOW"
             },
             {
-              "label": "Resolve approval requests",
-              "value": "RESOLVE_APPROVAL_REQUESTS"
+              "label": "Get requests",
+              "value": "GET_REQUESTS"
+            },
+            {
+              "label": "Resolve requests",
+              "value": "RESOLVE_REQUESTS"
             }
           ]
         }
       ]
     }
   ],
-  "files": ["get_approval_requests.json", "resolve_approval_request.json", "trigger_workflow.json"]
+  "files": ["get_requests.json", "resolve_request.json", "trigger_workflow.json"]
 }

@@ -151,4 +151,5 @@ public class FieldName extends FieldNameCE {
     public static final String GIT_WEB_HOOK_EXECUTOR = "Git Webhook Executor";
     public static final String GIT_WEB_HOOK_EXECUTOR_DESCRIPTION =
             "This role is an auto-created role, and will be have the permission to trigger the pull and deploy Git connected Application.";
+    public static final String REQUEST_NAME = "requestName";
 }

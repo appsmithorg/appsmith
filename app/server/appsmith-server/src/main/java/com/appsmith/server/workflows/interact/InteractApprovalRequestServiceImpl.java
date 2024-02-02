@@ -7,6 +7,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ApprovalRequestResolutionDTO;
 import com.appsmith.server.dtos.ApprovalRequestResolutionProxyDTO;
+import com.appsmith.server.dtos.ApprovalRequestResolvedResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -60,7 +61,8 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<JsonNode> resolveApprovalRequest(ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
+    public Mono<ApprovalRequestResolvedResponseDTO> resolveApprovalRequest(
+            ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         Mono<Workflow> workflowMono = workflowRepository
@@ -73,7 +75,7 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, REQUEST, approvalRequestResolutionDTO.getRequestId())));
 
-        Mono<JsonNode> resolveApprovalRequestMono = workflowMono
+        Mono<ApprovalRequestResolvedResponseDTO> resolveApprovalRequestMono = workflowMono
                 .flatMap(workflow -> approvalRequestMono)
                 .zipWith(currentUserMono)
                 .flatMap(pair -> {
@@ -93,7 +95,9 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
 
                     return validateApprovalRequestResolutionAgainstActualData(
                                     approvalRequestResolutionDTO, approvalRequest)
-                            .then(approvalRequestResolutionOnProxyMono.flatMap(updateApprovalRequestMono::thenReturn));
+                            .then(approvalRequestResolutionOnProxyMono.flatMap(resolutionOnProxy -> {
+                                return updateApprovalRequestMono.map(this::getResponseOnResolution);
+                            }));
                 });
 
         return validateApprovalResolutionRequest(approvalRequestResolutionDTO).then(resolveApprovalRequestMono);
@@ -146,7 +150,8 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
             ApprovalRequestResolutionDTO approvalRequestResolutionDTO, ApprovalRequest approvalRequest) {
         if (RESOLVED.equals(approvalRequest.getResolutionStatus())) {
             return Mono.error(new AppsmithException(
-                    AppsmithError.INVALID_APPROVAL_REQUEST_RESOLUTION, "Request already resolved."));
+                    AppsmithError.INVALID_APPROVAL_REQUEST_RESOLUTION,
+                    "Request already resolved." + approvalRequest.getId()));
         }
 
         if (!isResolutionAllowed(approvalRequest, approvalRequestResolutionDTO.getResolution())) {
@@ -177,5 +182,17 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
         approvalRequestResolutionProxyDTO.setWorkflowId(approvalRequest.getWorkflowId());
         approvalRequestResolutionProxyDTO.setResolution(approvalRequestResolutionDTO.getResolution());
         return approvalRequestResolutionProxyDTO;
+    }
+
+    private ApprovalRequestResolvedResponseDTO getResponseOnResolution(ApprovalRequest approvalRequest) {
+        return ApprovalRequestResolvedResponseDTO.builder()
+                .id(approvalRequest.getId())
+                .requestName(approvalRequest.getRequestName())
+                .message(approvalRequest.getMessage())
+                .metadata(approvalRequest.getCreationMetadata())
+                .resolution(approvalRequest.getResolution())
+                .resolvedAt(approvalRequest.getResolvedAt())
+                .resolvedBy(approvalRequest.getResolvedBy())
+                .build();
     }
 }
