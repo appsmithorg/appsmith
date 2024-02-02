@@ -13,6 +13,7 @@ import type { Action } from "entities/Action";
 import { connect } from "react-redux";
 import PluginsApi from "api/PluginApi";
 import { get, isArray } from "lodash";
+import { formatFileSize } from "./utils";
 
 const HiddenFileInput = styled.input`
   visibility: hidden;
@@ -113,7 +114,7 @@ function FilePicker(props: FilePickerProps) {
 
     if (totalSize > maxFileSizeInBytes) {
       toast.show(
-        `Total file sizes execceds the maximum allowed size of ${getFileSize(
+        `Total file sizes execceds the maximum allowed size of ${formatFileSize(
           maxFileSizeInBytes,
         )}`,
         {
@@ -189,16 +190,6 @@ function FilePicker(props: FilePickerProps) {
     );
   };
 
-  const getFileSize = (size: number) => {
-    if (size < 1024) {
-      return `${size} bytes`;
-    } else if (size < 1024 * 1024) {
-      return `${Math.round(size / 1024)} KB`;
-    } else {
-      return `${Math.round(size / (1024 * 1024))} MB`;
-    }
-  };
-
   useEffect(() => {
     props.input?.onChange(uploadedFiles);
   }, [uploadedFiles]);
@@ -257,7 +248,7 @@ function FilePicker(props: FilePickerProps) {
                 className="min-w-[90px] max-w-[90px] inline-block text-right"
                 kind="body-s"
               >
-                ({getFileSize(file.size)})
+                ({formatFileSize(file.size)})
               </Text>
             </div>
           </Tag>
