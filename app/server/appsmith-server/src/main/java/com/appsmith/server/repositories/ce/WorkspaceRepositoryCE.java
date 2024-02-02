@@ -6,7 +6,6 @@ import com.appsmith.server.repositories.CustomWorkspaceRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
-import java.util.List;
 
 public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>, CustomWorkspaceRepository {
 

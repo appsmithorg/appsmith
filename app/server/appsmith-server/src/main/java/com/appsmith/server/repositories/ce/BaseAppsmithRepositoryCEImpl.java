@@ -122,7 +122,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public static final Optional<Criteria> userAcl(Set<String> permissionGroups, Optional<AclPermission> permission) {
-        if (permission.isEmpty()) {
+        if (permission.isEmpty() || permissionGroups == null) {
             return Optional.empty();
         }
         // Check if the permission is being provided by any of the permission groups
@@ -162,26 +162,26 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
 
-        return getCurrentUserPermissionGroupsIfRequired(permission).flatMap(permissionGroups -> {
-            Query query = new Query(getIdCriteria(id));
-            query.addCriteria(notDeleted());
-            Optional<Criteria> userAcl = userAcl(permissionGroups, permission);
-            if (userAcl.isPresent()) {
-                query.addCriteria(userAcl.get());
-            }
+        final Set<String> permissionGroups = getCurrentUserPermissionGroupsIfRequired(permission);
+        Query query = new Query(getIdCriteria(id));
+        query.addCriteria(notDeleted());
+        Optional<Criteria> userAcl = userAcl(permissionGroups, permission);
+        if (userAcl.isPresent()) {
+            query.addCriteria(userAcl.get());
+        }
 
-            if (!isEmpty(projectionFieldNames)) {
-                projectionFieldNames.stream().forEach(projectionFieldName -> {
-                    query.fields().include(projectionFieldName);
-                });
-            }
+        if (!isEmpty(projectionFieldNames)) {
+            projectionFieldNames.stream().forEach(projectionFieldName -> {
+                query.fields().include(projectionFieldName);
+            });
+        }
 
-            return mongoOperations
-                    .query(this.genericDomain)
-                    .matching(query.cursorBatchSize(10000))
-                    .one()
-                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-        });
+        return mongoOperations
+                .query(this.genericDomain)
+                .matching(query.cursorBatchSize(10000))
+                .one()
+                .map(obj -> setUserPermissionsInObject(obj, permissionGroups))
+                .blockOptional();
     }
 
     public Optional<T> findById(String id, Optional<AclPermission> permission) {

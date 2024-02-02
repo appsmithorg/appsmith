@@ -5,7 +5,6 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomDatasourceStorageStructureRepository;
 
 import java.util.Optional;
-import java.util.List;
 
 public interface DatasourceStorageStructureRepositoryCE
         extends BaseRepository<DatasourceStorageStructure, String>, CustomDatasourceStorageStructureRepository {
