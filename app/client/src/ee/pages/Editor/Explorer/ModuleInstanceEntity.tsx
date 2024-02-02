@@ -65,6 +65,7 @@ export const ExplorerModuleInstanceEntity = (
       id={moduleInstance.id}
       name={moduleInstance.name}
       pageId={pageId}
+      type={moduleInstance.type}
     />
   );
   return (

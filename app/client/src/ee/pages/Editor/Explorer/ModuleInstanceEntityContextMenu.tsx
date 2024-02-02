@@ -14,10 +14,12 @@ import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import { deleteModuleInstance } from "@appsmith/actions/moduleInstanceActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 interface EntityContextMenuProps {
   id: string;
   name: string;
+  type: MODULE_TYPE;
   className?: string;
   pageId: string;
   canManage?: boolean;
@@ -42,8 +44,8 @@ export function ModuleInstanceEntityContextMenu(props: EntityContextMenuProps) {
     [],
   );
 
-  const deleteModuleInstanceFromPage = (id: string) => {
-    dispatch(deleteModuleInstance({ id }));
+  const deleteModuleInstanceFromPage = (id: string, type: MODULE_TYPE) => {
+    dispatch(deleteModuleInstance({ id, type }));
   };
 
   const editModuleInstanceName = useCallback(() => {
@@ -67,7 +69,7 @@ export function ModuleInstanceEntityContextMenu(props: EntityContextMenuProps) {
       value: "delete",
       onSelect: () => {
         confirmDelete
-          ? deleteModuleInstanceFromPage(props.id)
+          ? deleteModuleInstanceFromPage(props.id, props.type)
           : setConfirmDelete(true);
       },
       label: confirmDelete

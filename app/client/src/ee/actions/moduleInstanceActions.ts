@@ -54,6 +54,7 @@ export interface SaveModuleInstanceNamePayload {
 
 export interface DeleteModuleInstancePayload {
   id: string;
+  type: MODULE_TYPE;
 }
 
 export interface RunQueryModuleInstancePayload {
