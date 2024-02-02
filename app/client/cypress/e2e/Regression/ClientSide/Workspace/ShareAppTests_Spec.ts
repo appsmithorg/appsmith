@@ -43,7 +43,7 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      if (CURRENT_REPO == REPO.EE) adminSettings.EnableGAC(false, true);
+      if (CURRENT_REPO == REPO.EE) adminSettings.EnableGAC(false, true, "home");
 
       homePage.SelectWorkspace(workspaceId);
       agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
@@ -71,7 +71,6 @@ describe(
       agHelper.GetNClick(homePage._sharePublicToggle, 0, true);
       agHelper.GetNClick(locators._dialogCloseButton, 0, true);
       deployMode.DeployApp();
-      currentUrl = cy.url();
       cy.url().then((url) => {
         currentUrl = url;
         cy.log(currentUrl);
