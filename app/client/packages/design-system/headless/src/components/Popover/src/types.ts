@@ -47,6 +47,12 @@ export interface PopoverProps {
   triggerRef?: MutableRefObject<HTMLElement | null>;
   /** Which element to initially focus. Can be either a number (tabbable index as specified by the order) or a ref.  */
   initialFocus?: number | MutableRefObject<HTMLElement | null>;
+  /** Determines whether clickOutside is work or not.
+   * @default false
+   */
+  dismissClickOutside?: boolean;
+  /** Selectors that are clicked on do not close the popup. */
+  dismissCloseSelectors?: string | string[];
 }
 
 export interface PopoverContentProps {
