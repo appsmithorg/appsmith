@@ -44,12 +44,19 @@ describe(
       });
 
       homePage.NavigateToHome();
-      agHelper.WaitUntilEleAppear(homepagelocators.searchInput)
+      agHelper.WaitUntilEleAppear(homepagelocators.searchInput);
       agHelper.GetElement(homepagelocators.searchInput).type(appname);
       agHelper.WaitUntilEleAppear(homepagelocators.appMoreIcon);
-      agHelper.GetElement(homepagelocators.appMoreIcon).first().click({ force: true });
-      agHelper.GetElement(homepagelocators.forkAppFromMenu).click({ force: true });
-      agHelper.GetElement(homepagelocators.forkAppWorkspaceButton).click({ force: true });
+      agHelper
+        .GetElement(homepagelocators.appMoreIcon)
+        .first()
+        .click({ force: true });
+      agHelper
+        .GetElement(homepagelocators.forkAppFromMenu)
+        .click({ force: true });
+      agHelper
+        .GetElement(homepagelocators.forkAppWorkspaceButton)
+        .click({ force: true });
       assertHelper.AssertNetworkStatus("@postForkAppWorkspace", 200);
       assertHelper.WaitForNetworkCall("@getConsolidatedData");
       cy.get("@getConsolidatedData").then((httpResponse) => {
@@ -67,18 +74,23 @@ describe(
       homePage.NavigateToHome();
       agHelper.GetElement(homepagelocators.homeIcon).click();
       agHelper.GetNClick(homepagelocators.createNew, 0);
-      agHelper.GetElement(homepagelocators.workspaceImportAppOption).click({ force: true });
-      agHelper.GetElement(homepagelocators.workspaceImportAppModal).should("be.visible");
-      agHelper.GetElement(homepagelocators.uploadLogo).selectFile(
-        "cypress/fixtures/forkNonSignedInUser.json",
-        { force: true },
-      );
+      agHelper
+        .GetElement(homepagelocators.workspaceImportAppOption)
+        .click({ force: true });
+      agHelper
+        .GetElement(homepagelocators.workspaceImportAppModal)
+        .should("be.visible");
+      agHelper
+        .GetElement(homepagelocators.uploadLogo)
+        .selectFile("cypress/fixtures/forkNonSignedInUser.json", {
+          force: true,
+        });
       assertHelper.WaitForNetworkCall("@importNewApplication");
       cy.get("@importNewApplication").then((interception: any) => {
         const { isPartialImport } = interception.response?.body.data;
         cy.log("isPartialImport : ", isPartialImport);
         if (isPartialImport) {
-          agHelper.WaitUntilEleAppear(reconnectDatasourceModal.SkipToAppBtn)
+          agHelper.WaitUntilEleAppear(reconnectDatasourceModal.SkipToAppBtn);
           agHelper.GetNClick(reconnectDatasourceModal.SkipToAppBtn, 0, true);
           agHelper.WaitUntilEleDisappear(reconnectDatasourceModal.SkipToAppBtn);
         }
@@ -86,7 +98,7 @@ describe(
         deployMode.DeployApp();
         agHelper.GetNClick(appSettings.locators._shareButton, 0, true);
         cy.enablePublicAccess();
-        
+
         cy.url().then((url) => {
           forkableAppUrl = url;
           homePage.LogOutviaAPI();
@@ -95,12 +107,16 @@ describe(
           agHelper.GetNClick(loginPageLocators.signupLink);
           agHelper.GenerateUUID();
           cy.get("@guid").then((uid) => {
-            agHelper.GetElement(signupPageLocators.username).type(`${uid}@appsmith.com`);
+            agHelper
+              .GetElement(signupPageLocators.username)
+              .type(`${uid}@appsmith.com`);
             agHelper.GetElement(signupPageLocators.password).type(uid);
             agHelper.GetNClick(signupPageLocators.submitBtn);
             agHelper.WaitUntilEleAppear(applicationLocators.forkButton);
             agHelper.GetNClick(applicationLocators.forkButton, 0, true);
-            agHelper.AssertElementVisibility(homepagelocators.forkAppWorkspaceButton)
+            agHelper.AssertElementVisibility(
+              homepagelocators.forkAppWorkspaceButton,
+            );
           });
         });
       });
@@ -109,7 +125,7 @@ describe(
     it("3. Mark application as forkable", () => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       featureFlagIntercept({ license_gac_enabled: true });
-      
+
       homePage.CreateNewApplication();
       appSettings.OpenAppSettings();
       appSettings.GoToEmbedSettings();
