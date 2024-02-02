@@ -38,8 +38,6 @@
   *-----------------------------------------------------------------------------
   */
   & [data-field-necessity-indicator-icon] {
-    width: var(--inner-spacing-2);
-    height: var(--inner-spacing-2);
     color: var(--color-fg-negative);
     margin-left: var(--inner-spacing-1);
   }
