@@ -8,7 +8,7 @@ import BaseWidget from "widgets/BaseWidget";
 import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { WIDGET_PADDING, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type {
   AppThemeProperties,
@@ -32,6 +32,7 @@ import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 const StyledLink = styled(Link)`
   display: inline-block;
@@ -81,8 +82,9 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static getFeatures() {
     return {
       dynamicHeight: {
-        sectionIndex: 0,
+        sectionIndex: 2,
         active: true,
+        defaultValue: DynamicHeight.FIXED,
       },
     };
   }
@@ -378,15 +380,16 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         borderWidth={this.props.borderWidth}
         boxShadow={this.props.boxShadow}
+        dynamicHeight={this.props.dynamicHeight}
         execute={this.execute}
-        height={this.props.componentHeight}
+        height={this.props.componentHeight - WIDGET_PADDING * 2}
         model={this.props.model || {}}
         renderMode={this.getRenderMode()}
         srcDoc={this.props.srcDoc}
         theme={this.props.theme}
         update={this.update}
         widgetId={this.props.widgetId}
-        width={this.props.componentWidth}
+        width={this.props.componentWidth - WIDGET_PADDING * 2}
       />
     );
   }

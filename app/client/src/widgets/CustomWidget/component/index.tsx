@@ -23,10 +23,15 @@ import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
-const StyledIframe = styled.iframe<{ width: number; height: number }>`
-  width: ${(props) => props.width - 8}px;
-  height: ${(props) => props.height - 8}px;
+const StyledIframe = styled.iframe<{
+  componentWidth: number;
+  componentHeight: number;
+}>`
+  width: ${(props) => props.componentWidth}px;
+  height: ${(props) => props.componentHeight}px;
 `;
 
 const OverlayDiv = styled.div`
@@ -37,8 +42,7 @@ const OverlayDiv = styled.div`
   height: 100%;
 `;
 
-// this is the padding set by the canvas
-const WIDGET_PADDING = 8;
+const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
 function CustomComponent(props: CustomComponentProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
@@ -84,8 +88,8 @@ function CustomComponent(props: CustomComponentProps) {
                 type: EVENTS.CUSTOM_WIDGET_READY_ACK,
                 model: props.model,
                 ui: {
-                  width: props.width - WIDGET_PADDING,
-                  height: props.height - WIDGET_PADDING,
+                  width: props.width,
+                  height: props.height,
                 },
                 mode: props.renderMode,
                 theme,
@@ -112,7 +116,11 @@ function CustomComponent(props: CustomComponentProps) {
           case EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT:
             const height = message.data.height;
 
-            if (props.renderMode !== "BUILDER" && height) {
+            if (
+              props.renderMode !== "BUILDER" &&
+              height &&
+              props.dynamicHeight !== DynamicHeight.FIXED
+            ) {
               setHeight(height);
             }
             break;
@@ -147,12 +155,16 @@ function CustomComponent(props: CustomComponentProps) {
         {
           type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
           ui: {
-            width: props.width - 8,
-            height: props.height - 8,
+            width: props.width,
+            height: props.height,
           },
         },
         "*",
       );
+    }
+
+    if (props.dynamicHeight === DynamicHeight.FIXED) {
+      setHeight(props.height);
     }
   }, [props.width, props.height]);
 
@@ -213,15 +225,19 @@ function CustomComponent(props: CustomComponentProps) {
         widgetId={props.widgetId}
       >
         <StyledIframe
-          height={height}
+          componentHeight={height}
+          componentWidth={props.width}
           loading="lazy"
           onLoad={() => {
             setLoading(false);
           }}
           ref={iframe}
-          sandbox="allow-scripts allow-downloads"
+          sandbox={
+            disableIframeWidgetSandbox
+              ? undefined
+              : "allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts"
+          }
           srcDoc={srcDoc}
-          width={props.width}
         />
       </WidgetStyleContainer>
     </div>
@@ -250,6 +266,7 @@ export interface CustomComponentProps {
   borderRadius?: number;
   boxShadow?: BoxShadow;
   widgetId: string;
+  dynamicHeight: DynamicHeight;
 }
 
 /**

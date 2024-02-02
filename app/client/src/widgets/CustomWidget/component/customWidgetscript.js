@@ -120,8 +120,8 @@ export function main() {
   let isReady = false;
   let isReadyCalled = false;
 
-  const heightObserver = new ResizeObserver((entries) => {
-    const height = entries[0].contentRect.height;
+  const heightObserver = new ResizeObserver(() => {
+    const height = document.body.clientHeight;
 
     channel.postMessage(EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT, {
       height,
@@ -281,10 +281,6 @@ export function main() {
             onReady();
             isReadyCalled = true;
           }
-        },
-        observeHeight: (element) => {
-          heightObserver.disconnect();
-          heightObserver.observe(element);
         },
       },
     });
