@@ -1,8 +1,7 @@
 import clsx from "clsx";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import type { RefObject } from "react";
 import { injectGlobal } from "@emotion/css";
-import { useDebounce } from "@react-hook/debounce";
 
 import { useCssTokens } from "../../hooks";
 import { ThemeContext } from "./ThemeContext";
@@ -15,7 +14,7 @@ injectGlobal(globalFontStack());
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children, className, style, theme } = props;
-  const [width, setWidth] = useDebounce<number | null>(null, 100);
+  const [width, setWidth] = useState<number | null>(null);
   const providerRef = useRef(null);
 
   useResizeObserver(providerRef as RefObject<HTMLElement>, (entry) => {

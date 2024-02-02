@@ -22,7 +22,7 @@ const getFluidValue = (
 
   const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
 
-  const { maxSize, minSize, r, v } = calculateScales(
+  const { minSize } = calculateScales(
     {
       minV: minV * ratio,
       maxV: maxV * ratio,
@@ -32,7 +32,7 @@ const getFluidValue = (
     maxVw,
   )[0];
 
-  return `clamp(${minSize}px, calc(${v} * var(--provider-width) / 100 + ${r}px), ${maxSize}px)`;
+  return minSize;
 };
 
 export const getFluidSizing = (
@@ -55,7 +55,7 @@ export const getFluidSizing = (
     (acc, value, index) => {
       return {
         ...acc,
-        [index + 1]: `calc(${index + 1} * ${fluidValue})`,
+        [index + 1]: `${(index + 1) * fluidValue}px`,
       };
     },
     {
