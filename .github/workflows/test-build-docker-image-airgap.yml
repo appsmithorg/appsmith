@@ -239,6 +239,7 @@ jobs:
             KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY_RELEASE }}
             APPSMITH_AIRGAP_ENABLED=true
             APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.vars.outputs.branch_basename}}
 
@@ -253,6 +254,7 @@ jobs:
             APPSMITH_AIRGAP_ENABLED=true
             KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY }}
             APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{ github.sha }}
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:nightly
@@ -269,6 +271,7 @@ jobs:
             APPSMITH_AIRGAP_ENABLED=true
             KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY }}
             APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.airgap_vars.outputs.airgap_tag}}
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:latest
