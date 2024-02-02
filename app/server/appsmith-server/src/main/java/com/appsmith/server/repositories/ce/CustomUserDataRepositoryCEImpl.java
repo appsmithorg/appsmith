@@ -6,16 +6,13 @@ import com.appsmith.server.dtos.QRecentlyUsedEntityDTO;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -54,23 +51,6 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                 new BasicDBObject(fieldName(QRecentlyUsedEntityDTO.recentlyUsedEntityDTO.workspaceId), workspaceId));
         return mongoOperations.updateFirst(
                 query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class);
-    }
-
-    /**
-     * Fetches a list of UserData objects from DB where userId matches with the provided a list of userId.
-     * The returned UserData objects will have only the userId and photoAssetId fields.
-     *
-     * @param userId List of userId as a list
-     * @return Flux of UserData with only the photoAssetId and userId fields
-     */
-    @Override
-    public Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
-        // need to convert from Iterable to ArrayList because the "in" method of criteria takes a collection as input
-        Criteria criteria = where(fieldName(QUserData.userData.userId)).in(Lists.newArrayList(userId));
-        return buildQuery()
-                .criteria(criteria)
-                .fields(fieldName(QUserData.userData.profilePhotoAssetId), fieldName(QUserData.userData.userId))
-                .all();
     }
 
     @Override
