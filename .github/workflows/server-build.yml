@@ -184,7 +184,8 @@ jobs:
           if ! mvn test "${args[@]}"; then
             if [[ -s failed-server-tests.txt ]]; then
               {
-                echo "Failed tests:"
+                echo "## Failed tests"
+                echo
                 sed 's/^/- /' 'failed-server-tests.txt'
               } >> "$GITHUB_STEP_SUMMARY"
             fi
