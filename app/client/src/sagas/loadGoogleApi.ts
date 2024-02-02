@@ -25,5 +25,8 @@ export const executeGoogleApi = async () => {
     (window as any).googleAPIsLoaded = false;
   };
 
-  loadScript("https://apis.google.com/js/api.js").then(gapiLoaded, onError);
+  await loadScript("https://apis.google.com/js/api.js").then(
+    gapiLoaded,
+    onError,
+  );
 };
