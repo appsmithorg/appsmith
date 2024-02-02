@@ -230,7 +230,11 @@ export function renderDatasourceSection(
                       />
                     </div>
                     {section.labelVisibleWithFiles && (
-                      <Text kind="body-s">{section.labelVisibleWithFiles}</Text>
+                      <div className="mt-2 max-w-[50%]">
+                        <Text kind="body-s">
+                          {section.labelVisibleWithFiles}
+                        </Text>
+                      </div>
                     )}
                   </div>
                 );
