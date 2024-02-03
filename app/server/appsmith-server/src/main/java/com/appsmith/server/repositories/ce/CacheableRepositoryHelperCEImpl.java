@@ -4,16 +4,25 @@ import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -23,31 +32,24 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
-import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
-import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
     private final ReactiveMongoOperations mongoOperations;
+    private final EntityManager entityManager;
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
     private final Map<String, User> tenantAnonymousUserMap = new HashMap<>();
-
-    public CacheableRepositoryHelperCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
-        this.mongoOperations = mongoOperations;
-        this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
-    }
 
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
-        return Mono.empty(); /*
 
         // If the user is anonymous, then we don't need to fetch the permission groups from the database. We can just
         // return the cached permission group ids.
@@ -59,40 +61,37 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
         }
 
-        Mono<Query> createQueryMono = getInstanceAdminPermissionGroupId().map(instanceAdminPermissionGroupId -> {
-            Criteria assignedToUserIdsCriteria = Criteria.where(
-                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                    .is(user.getId());
+        return getInstanceAdminPermissionGroupId().map(instanceAdminPermissionGroupId -> {
+            final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            final CriteriaQuery<PermissionGroup> cq = cb.createQuery(PermissionGroup.class);
+            final Root<PermissionGroup> root = cq.from(PermissionGroup.class);
 
-            Criteria notDeletedCriteria = notDeleted();
+            Predicate predicate;
 
-            // The roles should be either workspace default roles, user management role, or instance admin role
-            Criteria ceSupportedRolesCriteria = new Criteria()
-                    .orOperator(
-                            Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                                    .is(Workspace.class.getSimpleName()),
-                            Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                                    .is(User.class.getSimpleName()),
-                            Criteria.where(fieldName(QPermissionGroup.permissionGroup.id))
-                                    .is(instanceAdminPermissionGroupId));
+            predicate = cb.and(
+                    cb.isNull(root.get(fieldName(QPermissionGroup.permissionGroup.deletedAt))),
+                    cb.isTrue(cb.function(
+                            "jsonb_path_exists",
+                            Boolean.class,
+                            root.get(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)),
+                            cb.literal("$[*] ? (@ == \"" + user.getId() + "\")"))),
+                    cb.or(
+                            cb.equal(
+                                    root.get(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)),
+                                    Workspace.class.getSimpleName()),
+                            cb.equal(
+                                    root.get(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)),
+                                    User.class.getSimpleName()),
+                            cb.equal(
+                                    root.get(fieldName(QPermissionGroup.permissionGroup.id)),
+                                    instanceAdminPermissionGroupId)));
 
-            Criteria andCriteria = new Criteria();
-            andCriteria.andOperator(assignedToUserIdsCriteria, notDeletedCriteria, ceSupportedRolesCriteria);
-
-            Query query = new Query();
-            query.addCriteria(andCriteria);
-
-            // Since we are only interested in the permission group ids, we can project only the id field.
-            query.fields().include(fieldName(QPermissionGroup.permissionGroup.id));
-
-            return query;
+            cq.where(predicate);
+            // cq.select(root.get(fieldName(QPermissionGroup.permissionGroup.id)));
+            return entityManager.createQuery(cq).getResultList().stream()
+                    .map(PermissionGroup::getId)
+                    .collect(Collectors.toSet());
         });
-
-        return createQueryMono
-                .map(query -> mongoOperations.find(query, PermissionGroup.class))
-                .flatMapMany(obj -> obj)
-                .map(permissionGroup -> permissionGroup.getId())
-                .collect(Collectors.toSet()); // */
     }
 
     @Override
@@ -106,14 +105,15 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         log.debug(
                 "In memory cache miss for anonymous user permission groups. Fetching from DB and adding it to in memory storage.");
 
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Config> cq = cb.createQuery(Config.class);
+        final Root<Config> config = cq.from(Config.class);
+        cq.where(cb.equal(config.get(fieldName(QConfig.config1.name)), FieldName.PUBLIC_PERMISSION_GROUP));
+        final TypedQuery<Config> query = entityManager.createQuery(cq);
+
         // All public access is via a single permission group. Fetch the same and set the cache with it.
-        return mongoOperations
-                .findOne(
-                        Query.query(
-                                Criteria.where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP)),
-                        Config.class)
-                .map(publicPermissionGroupConfig ->
-                        Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
+        return Mono.fromSupplier(query::getSingleResult)
+                .map(config1 -> Set.of(config1.getConfig().getAsString(PERMISSION_GROUP_ID)))
                 .doOnSuccess(inMemoryCacheableRepositoryHelper::setAnonymousUserPermissionGroupIds);
     }
 
@@ -199,19 +199,6 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Override
     public Mono<String> getInstanceAdminPermissionGroupId() {
         String instanceAdminPermissionGroupId = inMemoryCacheableRepositoryHelper.getInstanceAdminPermissionGroupId();
-        if (instanceAdminPermissionGroupId != null && !instanceAdminPermissionGroupId.isEmpty()) {
-            return Mono.just(instanceAdminPermissionGroupId);
-        }
-
-        Criteria configName = Criteria.where(fieldName(QConfig.config1.name)).is(INSTANCE_CONFIG);
-
-        return mongoOperations
-                .findOne(new Query().addCriteria(configName), Config.class)
-                .map(instanceConfig -> {
-                    JSONObject config = instanceConfig.getConfig();
-                    return (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
-                })
-                .doOnSuccess(permissionGroupId ->
-                        inMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(permissionGroupId));
+        return Mono.just(instanceAdminPermissionGroupId);
     }
 }

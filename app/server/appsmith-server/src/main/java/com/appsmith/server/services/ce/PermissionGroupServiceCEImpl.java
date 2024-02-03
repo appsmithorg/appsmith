@@ -6,9 +6,12 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -22,6 +25,8 @@ import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -31,6 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static java.lang.Boolean.TRUE;
 
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepositoryCake, PermissionGroup, String>
         implements PermissionGroupServiceCE {
@@ -121,8 +130,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Void> deleteWithoutPermission(String id) {
-        return Mono.empty(); /*
-
         return repository.findById(id).flatMap(permissionGroup -> {
             Mono<Void> returnMono = null;
 
@@ -136,7 +143,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
             }
 
             return returnMono;
-        });*/
+        });
     }
 
     @Override
@@ -149,14 +156,13 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
 
     private void ensureAssignedToUserIds(PermissionGroup permissionGroup) {
-        // if (permissionGroup.getAssignedToUserIds() == null) {
-        //     permissionGroup.setAssignedToUserIds(new HashSet<>());
-        // }
+        if (permissionGroup.getAssignedToUserIds() == null) {
+            permissionGroup.setAssignedToUserIds(new HashSet<>());
+        }
     }
 
     @Override
     public Mono<PermissionGroup> bulkAssignToUsers(PermissionGroup pg, List<User> users) {
-        return Mono.empty(); /*
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().addAll(userIds);
@@ -169,7 +175,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
         return permissionGroupUpdateMono
                 .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
-                .map(tuple -> tuple.getT1());*/
+                .map(tuple -> tuple.getT1());
     }
 
     @Override
@@ -382,8 +388,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Boolean> leaveExplicitlyAssignedSelfRole(String permissionGroupId) {
-        return Mono.empty(); /*
-
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         Mono<PermissionGroup> permissionGroupMono = repository.findById(permissionGroupId);
@@ -419,7 +423,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                             .updateById(permissionGroupId, updateObj)
                             .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
                 })
-                .map(tuple -> TRUE);*/
+                .map(tuple -> TRUE);
     }
 
     @Override

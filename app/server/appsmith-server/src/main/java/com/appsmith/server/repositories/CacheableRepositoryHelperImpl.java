@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce_compatible.CacheableRepositoryHelperCECompatibleImpl;
+import jakarta.persistence.EntityManager;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +12,8 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
 
     public CacheableRepositoryHelperImpl(
             ReactiveMongoOperations mongoOperations,
+            EntityManager entityManager,
             InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
-        super(mongoOperations, inMemoryCacheableRepositoryHelper);
+        super(mongoOperations, entityManager, inMemoryCacheableRepositoryHelper);
     }
 }

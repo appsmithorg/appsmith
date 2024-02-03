@@ -10,6 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,8 +65,18 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
-    @ToString.Exclude
     protected Set<Policy> policies;
+
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
+    @JsonView(Views.Internal.class)
+    protected PolicyMap policyMap;
+
+    @PrePersist
+    @PreUpdate
+    public void preUpdate() {
+        setPolicyMap(PolicyMap.fromPolicies(policies));
+    }
 
     @JsonView(Views.Public.class)
     public boolean isNew() {

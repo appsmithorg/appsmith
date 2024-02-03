@@ -15,10 +15,16 @@ import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -62,6 +68,9 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  * Ref: https://theappsmith.slack.com/archives/CPQNLFHTN/p1669100205502599?thread_ts=1668753437.497369&cid=CPQNLFHTN
  */
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
+
+    @Autowired
+    private EntityManager entityManager;
 
     protected final ReactiveMongoOperations mongoOperations;
 
@@ -126,7 +135,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return Optional.empty();
         }
         // Check if the permission is being provided by any of the permission groups
-        Criteria permissionGroupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+        Criteria permissionGroupCriteria = Criteria.where("policies")
                 .elemMatch(Criteria.where("permissionGroups")
                         .in(permissionGroups)
                         .and("permission")
@@ -176,10 +185,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             });
         }
 
-        return mongoOperations
-                .query(this.genericDomain)
-                .matching(query.cursorBatchSize(10000))
-                .one()
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+        final Root<T> root = cq.from(genericDomain);
+        cq.where(cb.equal(root.get(fieldName(QBaseDomain.baseDomain.id)), id));
+        final TypedQuery<T> q = entityManager.createQuery(cq);
+
+        // All public access is via a single permission group. Fetch the same and set the cache with it.
+        return Mono.fromSupplier(q::getSingleResult)
                 .map(obj -> setUserPermissionsInObject(obj, permissionGroups))
                 .blockOptional();
     }
@@ -332,6 +345,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .map(principal -> getAllPermissionGroupsForUser((User) principal))
+                .doOnError(err -> {
+                    System.out.println(err);
+                })
                 .block();
     }
 
@@ -499,18 +515,27 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public List<T> queryAllExecute(QueryAllParams<T> params) {
-        Set<String> permissionGroups = params.getPermissionGroups();
-        if (CollectionUtils.isEmpty(permissionGroups)) {
-            permissionGroups = getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()));
+        if (!params.getCriteria().isEmpty()) {
+            Set<String> permissionGroups = params.getPermissionGroups();
+            if (CollectionUtils.isEmpty(permissionGroups)) {
+                permissionGroups =
+                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()));
+            }
+            return queryAllWithPermissionGroups(
+                    params.getCriteria(),
+                    params.getFields(),
+                    params.getPermission(),
+                    params.getSort(),
+                    permissionGroups,
+                    params.getLimit(),
+                    params.getSkip());
         }
-        return queryAllWithPermissionGroups(
-                params.getCriteria(),
-                params.getFields(),
-                params.getPermission(),
-                params.getSort(),
-                permissionGroups,
-                params.getLimit(),
-                params.getSkip());
+
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+        final Root<T> root = cq.from(genericDomain);
+        cq.where(Specification.allOf(params.getSpecifications()).toPredicate(root, cq, cb));
+        return entityManager.createQuery(cq).getResultList();
     }
 
     public T setUserPermissionsInObject(T obj) {

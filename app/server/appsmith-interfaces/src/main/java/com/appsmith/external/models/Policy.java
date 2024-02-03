@@ -1,13 +1,10 @@
 package com.appsmith.external.models;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,8 +17,6 @@ import java.util.Set;
 public class Policy {
     String permission;
 
-    @Type(JsonBinaryType.class)
-    @Column(columnDefinition = "jsonb")
     @Builder.Default
     private Set<String> permissionGroups = new HashSet<>();
 }

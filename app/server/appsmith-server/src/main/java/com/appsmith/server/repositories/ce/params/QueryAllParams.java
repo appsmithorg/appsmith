@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class QueryAllParams<T extends BaseDomain> {
     // TODO(Shri): There's a cyclic dependency between the repository and this class. Remove it.
     private final BaseAppsmithRepositoryCEImpl<T> repo;
     private final List<Criteria> criteria = new ArrayList<>();
+    private final List<Specification<T>> specifications = new ArrayList<>();
     private final List<String> fields = new ArrayList<>();
     private AclPermission permission;
     private Set<String> permissionGroups;
@@ -47,6 +49,11 @@ public class QueryAllParams<T extends BaseDomain> {
             return this;
         }
         this.criteria.addAll(criterias);
+        return this;
+    }
+
+    public QueryAllParams<T> spec(Specification<T> spec) {
+        specifications.add(spec);
         return this;
     }
 

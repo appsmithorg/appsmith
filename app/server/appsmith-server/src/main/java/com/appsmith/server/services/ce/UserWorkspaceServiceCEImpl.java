@@ -246,6 +246,10 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Create a list of UserAndGroupDTO
         Mono<List<MemberInfoDTO>> userAndPermissionGroupDTOsMono = permissionGroupFlux
                 .collectList()
+                .map(x -> {
+                    System.out.println(x);
+                    return x;
+                })
                 .map(this::mapPermissionGroupListToUserAndPermissionGroupDTOList)
                 .cache();
 
