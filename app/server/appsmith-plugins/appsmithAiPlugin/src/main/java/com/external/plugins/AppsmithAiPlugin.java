@@ -74,6 +74,7 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         /**
          * In list files trigger, if no files received from the AI server then show a disabled:true and `Upload files first in datasource configuration`.
+         * In-case of upload files, datasource configuration will be null since we are triggering without creating any datasource.
          */
         @Override
         public Mono<TriggerResultDTO> trigger(

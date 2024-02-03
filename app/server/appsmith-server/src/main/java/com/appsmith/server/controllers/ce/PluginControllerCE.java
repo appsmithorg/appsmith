@@ -105,8 +105,7 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
         return filePartFlux.collectList().flatMap(fileParts -> {
             triggerRequestDTO.setFiles(fileParts);
             triggerRequestDTO.setRequestType(requestType);
-            // TODO :: Remove before merge
-            triggerRequestDTO.setParameters(Map.of("dummy", "dummy"));
+            triggerRequestDTO.setParameters(Map.of("request", "multipart"));
             return pluginTriggerSolution
                     .trigger(
                             pluginId,

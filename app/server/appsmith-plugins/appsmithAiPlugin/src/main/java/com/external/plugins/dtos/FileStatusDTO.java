@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class FileStatusDTO {
-    private List<File> files;
+    private List<FileMetadataDTO> files;
 }

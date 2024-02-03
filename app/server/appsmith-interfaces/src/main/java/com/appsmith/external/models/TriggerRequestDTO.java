@@ -36,6 +36,8 @@ public class TriggerRequestDTO {
 
     String datasourceId;
     String actionId;
+    String instanceId;
+    String tenantId;
 
     public TriggerRequestDTO(String requestType, Map<String, Object> parameters, ClientDataDisplayType displayType) {
         this.requestType = requestType;

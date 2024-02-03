@@ -3,7 +3,7 @@ package com.external.plugins.utils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
-import com.external.plugins.dtos.File;
+import com.external.plugins.dtos.FileMetadataDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +24,8 @@ public class FileUtils {
             if (fileProperty.getKey().equalsIgnoreCase("files")
                     && fileProperty.getValue() != null
                     && fileProperty.getValue() instanceof List) {
-                List<File> files = convertIntoFiles((List<Map<String, Object>>) fileProperty.getValue());
-                return files.stream().map(File::getId).toList();
+                List<FileMetadataDTO> files = convertIntoFiles((List<Map<String, Object>>) fileProperty.getValue());
+                return files.stream().map(FileMetadataDTO::getId).toList();
             }
         }
         return List.of();
@@ -43,16 +43,16 @@ public class FileUtils {
         return List.of();
     }
 
-    private static List<File> convertIntoFiles(List<Map<String, Object>> files) {
-        List<File> fileList = new ArrayList<>();
+    private static List<FileMetadataDTO> convertIntoFiles(List<Map<String, Object>> files) {
+        List<FileMetadataDTO> fileMetadataDTOList = new ArrayList<>();
         for (Map<String, Object> file : files) {
-            File fileObj = new File();
-            fileObj.setId((String) file.get("id"));
-            fileObj.setName((String) file.get("name"));
-            fileObj.setSize((Integer) file.get("size"));
-            fileObj.setMimetype((String) file.get("mimetype"));
-            fileList.add(fileObj);
+            FileMetadataDTO fileMetadataDTOObj = new FileMetadataDTO();
+            fileMetadataDTOObj.setId((String) file.get("id"));
+            fileMetadataDTOObj.setName((String) file.get("name"));
+            fileMetadataDTOObj.setSize((Integer) file.get("size"));
+            fileMetadataDTOObj.setMimetype((String) file.get("mimetype"));
+            fileMetadataDTOList.add(fileMetadataDTOObj);
         }
-        return fileList;
+        return fileMetadataDTOList;
     }
 }
