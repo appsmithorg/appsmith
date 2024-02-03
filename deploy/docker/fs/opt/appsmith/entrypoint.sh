@@ -267,9 +267,10 @@ is_empty_directory() {
 }
 
 setup-custom-ca-certificates() (
+  local bundle="$TMP/ca-certs.crt"
   local stacks_ca_certs_path="$stacks_path/ca-certs"
-  local store="$TMP/cacerts"
-  local opts_file="$TMP/java-cacerts-opts"
+  local store="$TMP/ca-certs.java-trust-store.jks"
+  local opts_file="$TMP/java-ca-certs-opts"
 
   rm -f "$store" "$opts_file"
 
@@ -282,25 +283,18 @@ setup-custom-ca-certificates() (
     return
   fi
 
-  # Import the system CA certificates into the store.
-  keytool -importkeystore \
-    -srckeystore /opt/java/lib/security/cacerts \
-    -destkeystore "$store" \
-    -srcstorepass changeit \
-    -deststorepass changeit
+  # Make the custom CA certificates available to other tools.
+  cat "$stacks_ca_certs_path"/*.crt /etc/ssl/certs/ca-certificates.crt >> "$bundle"
+  export CURL_CA_BUNDLE="$bundle"
+  export NODE_EXTRA_CA_CERTS="$bundle"
 
-  # Add the custom CA certificates to the store.
-  find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
-    -print \
-    -exec keytool -import -alias '{}' -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+  # Add the custom CA certificates to the Java trust store.
+  keytool -import -alias all -noprompt -keystore "$store" -file "$bundle" -storepass changeit
 
   {
     echo "-Djavax.net.ssl.trustStore=$store"
     echo "-Djavax.net.ssl.trustStorePassword=changeit"
   } > "$opts_file"
-
-  # Get certbot to use the combined trusted CA certs file.
-  export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 )
 
 configure_supervisord() {
