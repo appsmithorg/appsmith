@@ -14,26 +14,21 @@ describe(
       // Create new workspace to create App in
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        currentWorkspace = "CurrentWorkspace " + uid;
-        currentAppName = "MongoQueryApp " + uid;
-        homePage.CreateNewWorkspace(currentWorkspace, true);
-        homePage.CreateAppInWorkspace(currentWorkspace, currentAppName);
+        currentAppName = "MongoApp" + uid;
+        cy.get("@workspaceName").then((workspaceName: any) => {
+          currentWorkspace = workspaceName;
+        });
+        homePage.RenameApplication(currentAppName);
 
         // Create datasource and query
         dataSources.CreateDataSource("Mongo", true, false);
         dataSources.CreateQueryAfterDSSaved("", "Query1");
 
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(2000);
-
         agHelper.GenerateUUID();
         cy.get("@guid").then((uid) => {
-          forkWorkspaceName = "ForkApplication" + uid;
+          forkWorkspaceName = "ForkApp" + uid;
           homePage.CreateNewWorkspace(forkWorkspaceName, true);
-          homePage.FilterApplication(currentAppName);
-
-          agHelper.Sleep(500);
-
+          homePage.SelectWorkspace(currentWorkspace);
           homePage.ForkApplication(currentAppName, forkWorkspaceName);
 
           dataSources.FillMongoDatasourceFormWithURI();
@@ -44,9 +39,11 @@ describe(
 
     after(() => {
       homePage.NavigateToHome();
-      homePage.DeleteApplication(currentAppName);
-      homePage.DeleteApplication(currentAppName);
-      homePage.DeleteWorkspace(currentWorkspace);
+      homePage.DeleteApplication(currentAppName); //forked app
+      homePage.SelectWorkspace(currentWorkspace, false); //1st ws
+      homePage.DeleteApplication(currentAppName); //1st ws app
+      homePage.DeleteWorkspace(currentWorkspace); //1st ws
+      homePage.SelectWorkspace(forkWorkspaceName, false); //forked ws
       homePage.DeleteWorkspace(forkWorkspaceName);
     });
   },

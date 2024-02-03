@@ -4,7 +4,6 @@ import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -50,14 +49,20 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         Criteria applicationIdCriteria =
                 where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
-        return queryAll(List.of(applicationIdCriteria), aclPermission);
+        return queryAll()
+                .criteria(applicationIdCriteria)
+                .permission(aclPermission)
+                .submit();
     }
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         Criteria applicationIdCriteria =
                 where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
-        return queryAll(List.of(applicationIdCriteria), permission);
+        return queryAll()
+                .criteria(applicationIdCriteria)
+                .permission(permission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -69,7 +74,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria activeEditModeCriteria = where(fieldName(QNewPage.newPage.unpublishedPage) + "."
                         + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
                 .is(null);
-        return queryAll(List.of(applicationIdCriteria, activeEditModeCriteria), aclPermission);
+        return queryAll()
+                .criteria(applicationIdCriteria, activeEditModeCriteria)
+                .permission(aclPermission)
+                .submit();
     }
 
     @Override
@@ -96,7 +104,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                     .is(null);
             criteria.add(deletedCriterion);
         }
-        layoutsIdKey = layoutsKey + "." + fieldName(QLayout.layout.id);
+        layoutsIdKey = layoutsKey + "." + FieldName.ID;
 
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
         criteria.add(layoutCriterion);
@@ -172,7 +180,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         Criteria idsCriterion = where("id").in(ids);
 
-        return this.queryAll(new ArrayList<>(List.of(idsCriterion)), includedFields, aclPermission, null);
+        return this.queryAll()
+                .criteria(idsCriterion)
+                .fields(includedFields)
+                .permission(aclPermission)
+                .submit();
     }
 
     private Criteria getNameCriterion(String name, Boolean viewMode) {
@@ -231,16 +243,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.customSlug));
         String applicationIdFieldPath = fieldName(QNewPage.newPage.applicationId);
 
-        return queryAll(
-                List.of(applicationIdCriteria),
-                List.of(
+        return queryAll()
+                .criteria(applicationIdCriteria)
+                .fields(
                         unpublishedSlugFieldPath,
                         unpublishedCustomSlugFieldPath,
                         publishedSlugFieldPath,
                         publishedCustomSlugFieldPath,
-                        applicationIdFieldPath),
-                aclPermission,
-                null);
+                        applicationIdFieldPath)
+                .permission(aclPermission)
+                .submit();
     }
 
     @Override
@@ -295,6 +307,6 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Flux<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
-        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+        return queryAll().criteria(applicationCriteria).fields(includeFields).submit();
     }
 }

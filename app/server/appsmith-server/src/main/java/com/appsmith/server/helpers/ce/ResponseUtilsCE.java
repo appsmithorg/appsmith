@@ -105,6 +105,9 @@ public class ResponseUtilsCE {
     }
 
     public ActionDTO updateActionDTOWithDefaultResources(ActionDTO action) {
+        log.debug(
+                "Updating action DTO with default resources with action id: {} ",
+                action != null ? action.getId() : null);
         DefaultResources defaultResourceIds = action.getDefaultResources();
         if (defaultResourceIds == null) {
             return action;
@@ -258,8 +261,14 @@ public class ResponseUtilsCE {
         collection.setId(defaultResourceIds.getCollectionId());
 
         // Update actions within the collection
-        collection.getActions().forEach(this::updateActionDTOWithDefaultResources);
-        collection.getArchivedActions().forEach(this::updateActionDTOWithDefaultResources);
+        collection.getActions().forEach(actionDto -> {
+            actionDto.setCollectionId(defaultResourceIds.getCollectionId());
+            this.updateActionDTOWithDefaultResources(actionDto);
+        });
+        collection.getArchivedActions().forEach(actionDto -> {
+            actionDto.setCollectionId(defaultResourceIds.getCollectionId());
+            this.updateActionDTOWithDefaultResources(actionDto);
+        });
 
         return collection;
     }

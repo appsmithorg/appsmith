@@ -87,8 +87,6 @@ import {
 import {
   addEventToHighlightedElement,
   getInputValue,
-  isActionEntity,
-  isWidgetEntity,
   removeEventFromHighlightedElement,
   removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
@@ -97,7 +95,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
@@ -165,6 +163,7 @@ import {
   setActiveEditorField,
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1287,7 +1286,7 @@ class CodeEditor extends Component<Props, State> {
   getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, expected } = this.props;
     const configTree = ConfigTreeActions.getConfigTree();
-    const entityInformation: FieldEntityInformation = {
+    let entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
       example: expected?.example,
       mode: this.props.mode,
@@ -1306,18 +1305,11 @@ class CodeEditor extends Component<Props, State> {
     const entityType = entity.ENTITY_TYPE;
     entityInformation.entityType = entityType;
 
-    if (isActionEntity(entity)) {
-      entityInformation.entityId = entity.actionId;
-    } else if (isWidgetEntity(entity)) {
-      const isTriggerPath = entity.triggerPaths[propertyPath];
-      entityInformation.entityId = entity.widgetId;
-      if (isTriggerPath)
-        entityInformation.expectedType = AutocompleteDataType.FUNCTION;
-      entityInformation.isTriggerPath = isTriggerPath;
-      entityInformation.widgetType = entity.type;
-    } else {
-      entityInformation.isTriggerPath = true;
-    }
+    entityInformation = getEachEntityInformation[entityType](
+      entity,
+      entityInformation,
+      propertyPath,
+    );
     return entityInformation;
   };
 

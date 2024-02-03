@@ -13,7 +13,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
-import { all, takeLatest, put, select } from "redux-saga/effects";
+import { all, takeLatest, put, select, call } from "redux-saga/effects";
 import { toast } from "design-system";
 import {
   CHANGE_APP_THEME,
@@ -46,6 +46,7 @@ import { Severity } from "@sentry/react";
 import { getAllPageIds } from "./selectors";
 import type { SagaIterator } from "@redux-saga/types";
 import type { AxiosPromise } from "axios";
+import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 /**
  * init app theming
@@ -73,9 +74,13 @@ export function* initAppTheming() {
 // eslint-disable-next-line
 export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
-    const { applicationId } = action.payload;
-    const response: ApiResponse<AppTheme> =
-      yield ThemingApi.fetchThemes(applicationId);
+    const { applicationId, themes } = action.payload;
+
+    const response: ApiResponse<AppTheme> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      themes,
+      async () => ThemingApi.fetchThemes(applicationId),
+    );
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
@@ -99,18 +104,19 @@ export function* fetchAppSelectedTheme(
   // eslint-disable-next-line
   action: ReduxAction<FetchSelectedAppThemeAction>,
 ): SagaIterator | AxiosPromise {
-  const { applicationId } = action.payload;
+  const { applicationId, currentTheme } = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
 
   const pageIds = yield select(getAllPageIds);
   const userDetails = yield select(getCurrentUser);
   const applicationVersion = yield select(selectApplicationVersion);
   try {
-    // eslint-disable-next-line
-    const response: ApiResponse<AppTheme[]> = yield ThemingApi.fetchSelected(
-      applicationId,
-      mode,
+    const response: ApiResponse<AppTheme[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      currentTheme,
+      async () => ThemingApi.fetchSelected(applicationId, mode),
     );
+
     if (response?.data) {
       yield put({
         type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,

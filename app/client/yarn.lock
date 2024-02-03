@@ -3007,7 +3007,6 @@ __metadata:
     "@design-system/widgets": "workspace:^"
     "@design-system/widgets-old": "workspace:^"
     "@storybook/addon-a11y": ^7.3.1
-    "@storybook/addon-actions": ^7.3.1
     "@storybook/addon-controls": ^7.3.1
     "@storybook/addon-docs": ^7.3.1
     "@storybook/addon-measure": ^7.3.1
@@ -3032,7 +3031,7 @@ __metadata:
     postcss-modules-values: "*"
     react-docgen-typescript: ^2.2.2
     storybook: ^7.3.1
-    vite: ^4.4.12
+    vite: ^4.5.2
     vite-plugin-svgr: ^3.2.0
   languageName: unknown
   linkType: soft
@@ -9203,38 +9202,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-actions@npm:^7.3.1":
-  version: 7.3.1
-  resolution: "@storybook/addon-actions@npm:7.3.1"
-  dependencies:
-    "@storybook/client-logger": 7.3.1
-    "@storybook/components": 7.3.1
-    "@storybook/core-events": 7.3.1
-    "@storybook/global": ^5.0.0
-    "@storybook/manager-api": 7.3.1
-    "@storybook/preview-api": 7.3.1
-    "@storybook/theming": 7.3.1
-    "@storybook/types": 7.3.1
-    dequal: ^2.0.2
-    lodash: ^4.17.21
-    polished: ^4.2.2
-    prop-types: ^15.7.2
-    react-inspector: ^6.0.0
-    telejson: ^7.0.3
-    ts-dedent: ^2.0.0
-    uuid: ^9.0.0
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-dom:
-      optional: true
-  checksum: bb76f10802a231843b96de156dbc0e7a65e5706377cd557516dc8b2baadb54626ee088edbea633f5977a47e3564996a2c880813b5a43d32e1c8c57ee206467ff
-  languageName: node
-  linkType: hard
-
 "@storybook/addon-controls@npm:^7.3.1":
   version: 7.3.1
   resolution: "@storybook/addon-controls@npm:7.3.1"
@@ -11281,13 +11248,6 @@ __metadata:
   version: 16.18.40
   resolution: "@types/node@npm:16.18.40"
   checksum: a683930491b4fd7cb2dc7684e32bbeedc4a83fb1949a7b15ea724fbfaa9988cec59091f169a3f1090cb91992caba8c1a7d50315b2c67c6e2579a3788bb09eec4
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^18.17.5":
-  version: 18.17.15
-  resolution: "@types/node@npm:18.17.15"
-  checksum: eed11d4398ccdb999a4c65658ee75de621a4ad57aece48ed2fb8803b1e2711fadf58d8aefbdb0a447d69cf3cba602ca32fe0fc92077575950a796e1dc13baa0f
   languageName: node
   linkType: hard
 
@@ -13384,7 +13344,7 @@ __metadata:
     craco-babel-loader: ^1.0.4
     cssnano: ^6.0.1
     cy-verify-downloads: ^0.0.5
-    cypress: 13.6.1
+    cypress: 13.6.4
     cypress-file-upload: ^4.1.1
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
@@ -16990,13 +16950,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:13.6.1":
-  version: 13.6.1
-  resolution: "cypress@npm:13.6.1"
+"cypress@npm:13.6.4":
+  version: 13.6.4
+  resolution: "cypress@npm:13.6.4"
   dependencies:
     "@cypress/request": ^3.0.0
     "@cypress/xvfb": ^1.2.4
-    "@types/node": ^18.17.5
     "@types/sinonjs__fake-timers": 8.1.1
     "@types/sizzle": ^2.3.2
     arch: ^2.2.0
@@ -17039,7 +16998,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: b701d61f7aadb478fcbe12f114dcbf19657b762592d0feb94d65702862c5156b30686b01104bb6b82b3f48aa7635a5db8fa5b4ca4706515d38ffe655baf0939c
+  checksum: 39daef291ccd18d7d724d7f8c1f5a2ed2b3d24c5c1eab1e00642c5db232fcc4dbd3fd30db3a2dce4e8b737d510355d135eb43034d800198d2867ecde4cdd696a
   languageName: node
   linkType: hard
 
@@ -29369,15 +29328,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-inspector@npm:^6.0.0":
-  version: 6.0.2
-  resolution: "react-inspector@npm:6.0.2"
-  peerDependencies:
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
-  checksum: dab7a7daf570c283fdc5d4e07ee8941ee8670af698ab5a27a704602b248e29ab911b117310d64c30a4af93931b2d6ee2a729369e3f5ab7f02df4651692e195a5
-  languageName: node
-  linkType: hard
-
 "react-instantsearch-core@npm:^6.7.0":
   version: 6.7.0
   resolution: "react-instantsearch-core@npm:6.7.0"
@@ -34341,9 +34291,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.4.12":
-  version: 4.5.1
-  resolution: "vite@npm:4.5.1"
+"vite@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "vite@npm:4.5.2"
   dependencies:
     esbuild: ^0.18.10
     fsevents: ~2.3.2
@@ -34377,7 +34327,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 72b3584b3d3b8d14e8a37f0248e47fb8b4d02ab35de5b5a8e5ca8ae55c3be2aab73760dc36edac4fa722de182f78cc492eb44888fcb4a9a0712c4605dad644f9
+  checksum: 9d1f84f703c2660aced34deee7f309278ed368880f66e9570ac115c793d91f7fffb80ab19c602b3c8bc1341fe23437d86a3fcca2a9ef82f7ef0cdac5a40d0c86
   languageName: node
   linkType: hard
 

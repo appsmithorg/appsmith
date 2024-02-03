@@ -11,7 +11,6 @@ export enum UIComponentTypes {
   DbEditorForm = "DbEditorForm",
   UQIDbEditorForm = "UQIDbEditorForm",
   ApiEditorForm = "ApiEditorForm",
-  RapidApiEditorForm = "RapidApiEditorForm",
   JsEditorForm = "JsEditorForm",
 }
 
@@ -32,6 +31,8 @@ export interface Plugin {
   responseType?: "TABLE" | "JSON";
   documentationLink?: string;
   generateCRUDPageComponent?: string;
+  // We need to know if the plugin requires a datasource (Eg Workflows plugin does not require a datasource to create queries)
+  requiresDatasource: boolean;
 }
 
 export interface PluginFormPayload {
@@ -54,6 +55,9 @@ class PluginsApi extends Api {
   static url = "v1/plugins";
   static defaultDynamicTriggerURL(datasourceId: string): string {
     return `/v1/datasources/${datasourceId}/trigger`;
+  }
+  static dynamicTriggerURLForInternalPlugins(pluginId: string): string {
+    return `/${PluginsApi.url}/${pluginId}/trigger`;
   }
   static async fetchPlugins(
     workspaceId: string,

@@ -6,7 +6,6 @@ import {
   entityExplorer,
   jsEditor,
   deployMode,
-  homePage,
   gitSync,
   apiPage,
   dataSources,
@@ -25,18 +24,10 @@ let parentBranchKey = "ParentBranch",
 let repoName;
 describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   before(() => {
-    homePage.NavigateToHome();
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      const newWorkspaceName = interception.response.body.data.name;
-      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-    });
-
     gitSync.CreateNConnectToGit();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-    cy.wait(3000);
   });
 
   it("1. create branch input", function () {
@@ -164,7 +155,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
         urlObject.searchParams.set(branchQueryKey, parentBranchKey);
         cy.visit(urlObject.toString(), { timeout: 60000 });
 
-        cy.wait("@getPagesForViewApp").should(
+        cy.wait("@getConsolidatedData").should(
           "have.nested.property",
           "response.body.responseMeta.status",
           200,

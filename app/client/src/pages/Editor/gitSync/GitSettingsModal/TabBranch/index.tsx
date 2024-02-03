@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { ModalBody } from "design-system";
 import GitDefaultBranch from "./GitDefaultBranch";
 import GitProtectedBranches from "./GitProtectedBranches";
 import {
@@ -10,7 +9,6 @@ import {
 
 const Container = styled.div`
   overflow: auto;
-  min-height: calc(360px + 52px);
 `;
 
 function TabBranch() {
@@ -22,12 +20,10 @@ function TabBranch() {
   const showProtectedBranches = isManageProtectedBranchesPermitted;
 
   return (
-    <ModalBody>
-      <Container>
-        {showDefaultBranch && <GitDefaultBranch />}
-        {showProtectedBranches && <GitProtectedBranches />}
-      </Container>
-    </ModalBody>
+    <Container>
+      {showDefaultBranch && <GitDefaultBranch />}
+      {showProtectedBranches && <GitProtectedBranches />}
+    </Container>
   );
 }
 

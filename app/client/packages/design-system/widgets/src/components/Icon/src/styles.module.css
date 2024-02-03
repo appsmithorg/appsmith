@@ -1,16 +1,13 @@
 .icon {
   &[data-size="small"] {
-    inline-size: 1rem;
-    block-size: 1rem;
+    inline-size: var(--icon-size-1);
   }
 
   &[data-size="medium"] {
-    inline-size: 1.5rem;
-    block-size: 1.5rem;
+    inline-size: var(--icon-size-2);
   }
 
   &[data-size="large"] {
-    inline-size: 2rem;
-    block-size: 2rem;
+    inline-size: var(--icon-size-3);
   }
 }

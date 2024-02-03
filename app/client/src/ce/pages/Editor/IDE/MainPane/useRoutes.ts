@@ -17,7 +17,6 @@ import {
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   LIST_PATH,
-  PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -41,7 +40,6 @@ import {
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
-import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
 import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
@@ -131,12 +129,6 @@ function useRoutes(path: string): RouteReturnType[] {
         path: `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
       },
       {
-        key: "ProviderTemplates",
-        component: ProviderTemplates,
-        exact: true,
-        path: `${path}${PROVIDER_TEMPLATE_PATH}`,
-      },
-      {
         key: "GeneratePage",
         component: GeneratePage,
         exact: true,
@@ -219,7 +211,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "JSEditor File",
       component: JSEditor,
       exact: true,
-      path: `${path}${JS_COLLECTION_ID_PATH}`,
+      path: [
+        `${path}${JS_COLLECTION_ID_PATH}`,
+        `${path}${JS_COLLECTION_ID_PATH}${ADD_PATH}`,
+      ],
     },
     {
       key: "CurlImportEditor",
@@ -262,12 +257,6 @@ function useRoutes(path: string): RouteReturnType[] {
       component: DatasourceBlankState,
       exact: true,
       path: `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
-    },
-    {
-      key: "ProviderTemplates",
-      component: ProviderTemplates,
-      exact: true,
-      path: `${path}${PROVIDER_TEMPLATE_PATH}`,
     },
     {
       key: "GeneratePage",

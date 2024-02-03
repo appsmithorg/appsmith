@@ -377,7 +377,7 @@ init_postgres() {
 
       # Initialize the postgres db file system
       su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
-      echo "unix_socket_directories = '/tmp/appsmith/pg-runtime'" >> "$POSTGRES_DB_PATH/postgresql.conf"
+      sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
 
       # Start the postgres server in daemon mode
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl start -D $POSTGRES_DB_PATH"

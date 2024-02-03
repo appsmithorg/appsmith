@@ -9,6 +9,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.bulk.BulkWriteResult;
@@ -78,9 +79,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     protected final CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    protected static final int NO_RECORD_LIMIT = -1;
+    public static final int NO_RECORD_LIMIT = -1;
 
-    protected static final int NO_SKIP = 0;
+    public static final int NO_SKIP = 0;
 
     @Autowired
     @SuppressWarnings("unchecked")
@@ -437,114 +438,41 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return count(criteriaList, Optional.empty());
     }
 
-    @Deprecated
-    public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
-        return queryAll(
-                criterias, Optional.empty(), Optional.ofNullable(aclPermission), Optional.empty(), NO_RECORD_LIMIT);
-    }
-
-    public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission) {
-        return queryAll(criterias, permission, Optional.empty());
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission, Sort sort) {
-        return queryAll(
-                criterias,
-                Optional.empty(),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                NO_RECORD_LIMIT);
-    }
-
-    public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission, Optional<Sort> sort) {
-        return queryAll(criterias, Optional.empty(), permission, sort, NO_RECORD_LIMIT);
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort) {
-        return queryAll(
-                criterias,
-                Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                NO_RECORD_LIMIT);
-    }
-
-    public Flux<T> queryAll(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> aclPermission,
-            Optional<Sort> sort) {
-        return queryAll(criterias, includeFields, aclPermission, sort, NO_RECORD_LIMIT);
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort, int limit) {
-        return queryAll(
-                criterias,
-                Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                limit);
-    }
-
-    public Flux<T> queryAll(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> permission,
-            Optional<Sort> sort,
-            int limit) {
-        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, sort, permissionGroups, limit, NO_SKIP));
-    }
-
-    public Flux<T> queryAll(
+    public Flux<T> queryAllWithStrictPermissionGroups(
             List<Criteria> criterias,
             Optional<List<String>> includeFields,
             Optional<AclPermission> permission,
             Sort sort,
             int limit,
             int skip) {
-        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));
+        Mono<Set<String>> permissionGroupsMono = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> getStrictPermissionGroupsForUser((User) principal));
+        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAll()
+                .criteria(criterias)
+                .fields(includeFields.orElse(null))
+                .permission(permission.orElse(null))
+                .permissionGroups(permissionGroups)
+                .sort(sort)
+                .limit(limit)
+                .skip(skip)
+                .submit());
     }
 
-    @Deprecated
     public Flux<T> queryAllWithPermissionGroups(
             List<Criteria> criterias,
             List<String> includeFields,
             AclPermission aclPermission,
             Sort sort,
             Set<String> permissionGroups,
-            int limit) {
-        return queryAllWithPermissionGroups(
-                criterias,
-                Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                permissionGroups,
-                limit,
-                NO_SKIP);
-    }
-
-    public Flux<T> queryAllWithPermissionGroups(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> aclPermission,
-            Optional<Sort> sortOptional,
-            Set<String> permissionGroups,
             int limit,
             int skip) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         Query query = new Query();
-        includeFields.ifPresent(fields -> {
-            fields.forEach(field -> query.fields().include(field));
-        });
+        if (!CollectionUtils.isEmpty(includeFields)) {
+            query.fields().include(includeFields.toArray(new String[0]));
+        }
         if (skip > NO_SKIP) {
             query.skip(skip);
         }
@@ -553,15 +481,35 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         }
         Criteria andCriteria = new Criteria();
         criteriaList.add(notDeleted());
-        userAcl(permissionGroups, aclPermission).ifPresent(criteria -> criteriaList.add(criteria));
+        userAcl(permissionGroups, Optional.ofNullable(aclPermission)).ifPresent(criteria -> criteriaList.add(criteria));
         andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
         query.addCriteria(andCriteria);
-        sortOptional.ifPresent(sort -> query.with(sort));
+        if (sort != null) {
+            query.with(sort);
+        }
         return mongoOperations
                 .query(this.genericDomain)
                 .matching(query.cursorBatchSize(10000))
                 .all()
                 .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
+    }
+
+    public QueryAllParams<T> queryAll() {
+        return new QueryAllParams<>(this);
+    }
+
+    public Flux<T> queryAllExecute(QueryAllParams<T> params) {
+        return Mono.justOrEmpty(params.getPermissionGroups())
+                .switchIfEmpty(Mono.defer(
+                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .flatMapMany(permissionGroups1 -> queryAllWithPermissionGroups(
+                        params.getCriteria(),
+                        params.getFields(),
+                        params.getPermission(),
+                        params.getSort(),
+                        permissionGroups1,
+                        params.getLimit(),
+                        params.getSkip()));
     }
 
     public Mono<T> setUserPermissionsInObject(T obj) {
@@ -625,6 +573,28 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
                     return permissionGroups;
                 });
+    }
+
+    /**
+     * 1. Get all the user groups associated with the user
+     * 2. Get all the permission groups associated with anonymous user
+     * 3. Return the set of all the permission groups.
+     *
+     * @param user
+     * @return
+     */
+    protected Mono<Set<String>> getStrictPermissionGroupsForUser(User user) {
+
+        Mono<User> userMono = Mono.just(user);
+        if (user.getTenantId() == null) {
+            userMono = cacheableRepositoryHelper.getDefaultTenantId().map(tenantId -> {
+                user.setTenantId(tenantId);
+                return user;
+            });
+        }
+
+        return userMono.flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
+                .map(HashSet::new);
     }
 
     protected Mono<Set<String>> getAnonymousUserPermissionGroups() {

@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @NoArgsConstructor
 @Document
 public class ActionCollection extends ActionCollectionCE {}

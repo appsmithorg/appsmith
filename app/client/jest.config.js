@@ -78,7 +78,6 @@ module.exports = {
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
-      enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
         ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),
@@ -108,6 +107,7 @@ module.exports = {
       cloudHosting: "CLOUD_HOSTING",
       appVersion: {
         id: parseConfig("__APPSMITH_VERSION_ID__"),
+        sha: parseConfig("__APPSMITH_VERSION_SHA__"),
         releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__"),
       },
       intercomAppID: "APP_ID",

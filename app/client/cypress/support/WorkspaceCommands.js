@@ -8,7 +8,6 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
 import { ObjectsRegistry } from "../support/Objects/Registry";
-import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const assertHelper = ObjectsRegistry.AssertHelper;
@@ -209,7 +208,7 @@ Cypress.Commands.add(
 Cypress.Commands.add("launchApp", () => {
   cy.get(homePage.appView).should("be.visible").first().click();
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPagesForViewApp").should(
+  cy.wait("@getConsolidatedData").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -234,9 +233,13 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
       .concat(workspaceName)
       .concat(homePage.createAppFrWorkspace),
   )
+    .first()
     .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
+
+  agHelper.GetNClick(homePage.newButtonCreateApplication, 0, true);
+
   cy.wait("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
@@ -248,15 +251,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
-  cy.AppSetupForRename();
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-
-  cy.wait("@updateApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  agHelper.RemoveUIElement("Tooltip", "Rename application");
+  homePageTS.RenameApplication(appname);
 });
 
 Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
@@ -274,9 +269,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     localStorage.setItem("workspaceName", workspaceName);
     homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
   });
-
-  featureFlagIntercept({ release_custom_widgets_enabled: true });
-
   cy.get("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
@@ -295,8 +287,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     });
   });
   AppSidebar.assertVisible();
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 
   // If the intro modal is open, close it
   cy.skipSignposting();
@@ -314,6 +304,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
    */
   //cy.wait("@updateLayout");
 });
+
 Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
   cy.openWorkspaceOptionsPopup(newWorkspaceName);
   cy.get(homePage.workspaceNamePopoverContent)

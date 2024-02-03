@@ -50,7 +50,7 @@ describe(
       featureFlagIntercept({ license_gac_enabled: true });
       agHelper.Sleep(3000);
 
-      homePage.FilterApplication(appid, workspaceId, false);
+      homePage.SelectWorkspace(workspaceId);
       // // eslint-disable-next-line cypress/no-unnecessary-waiting
       agHelper.Sleep(2000);
       agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
@@ -62,7 +62,7 @@ describe(
         .first()
         .trigger("mouseover");
       agHelper.AssertElementAbsence(homePage._appEditIcon);
-      homePage.LaunchAppFromAppHover();
+      homePage.LaunchAppFromAppHover(locators._emptyPageTxt);
       agHelper.Sleep(2000); //for CI
       agHelper.GetText(locators._emptyPageTxt).then((text) => {
         expect(text).to.equal("This page seems to be blank");
@@ -77,7 +77,7 @@ describe(
       agHelper.Sleep(2000);
       homePage.EditAppFromAppHover();
       agHelper.AssertElementAbsence(locators._loading);
-      assertHelper.AssertNetworkStatus("@getPagesForCreateApp");
+      assertHelper.AssertNetworkStatus("@getConsolidatedData");
       agHelper.GetNClick(inviteModal.locators._shareButton, 0, true);
       agHelper.GetNClick(homePage._sharePublicToggle, 0, true);
       agHelper.Sleep(5000);
@@ -94,7 +94,7 @@ describe(
     });
 
     it("4. Open the app without login and validate public access of Application", function () {
-      agHelper.VisitNAssert(currentUrl, "@getPagesForViewApp");
+      agHelper.VisitNAssert(currentUrl, "@getConsolidatedData");
       agHelper.Sleep(3000);
       agHelper.GetText(locators._emptyPageTxt).then((text) => {
         expect(text).to.equal("This page seems to be blank");
@@ -114,7 +114,7 @@ describe(
         Cypress.env("TESTUSERNAME2"),
         Cypress.env("TESTPASSWORD2"),
       );
-      agHelper.VisitNAssert(currentUrl, "@getPagesForViewApp");
+      agHelper.VisitNAssert(currentUrl, "@getConsolidatedData");
       agHelper.GetText(locators._emptyPageTxt).then((text) => {
         expect(text).to.equal("This page seems to be blank");
       });
@@ -152,11 +152,10 @@ describe(
       );
       agHelper.Sleep(); //for CI
       agHelper.VisitNAssert(currentUrl);
-      assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
+      agHelper.ValidateToastMessage("Resource Not Found"); //for 404 screen
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
-      assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
       agHelper.AssertContains("Sign in to your account", "be.visible");
     });
 
@@ -173,7 +172,6 @@ describe(
         agHelper.AssertElementVisibility(
           `[data-testid="partner-program-callout"]`,
         );
-
         homePage.Signout();
       }
     });

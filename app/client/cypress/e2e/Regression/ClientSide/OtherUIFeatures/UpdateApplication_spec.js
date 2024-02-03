@@ -1,4 +1,5 @@
 import homePage from "../../../../locators/HomePage";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Update Application", () => {
@@ -76,7 +77,7 @@ describe("Update Application", () => {
     cy.wait(2000);
     cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.applicationName).type(veryLongAppName + "{enter}");
-    cy.get(homePage.appsContainer).click({ force: true });
+    agHelper.GetNClick(homePage.workspaceCompleteSection, 0, true);
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
