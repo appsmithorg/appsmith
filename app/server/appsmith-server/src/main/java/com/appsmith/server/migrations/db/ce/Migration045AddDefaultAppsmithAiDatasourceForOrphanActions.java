@@ -12,8 +12,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.PluginConstants.DEFAULT_APPSMITH_AI_DATASOURCE;
 import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
@@ -43,14 +43,6 @@ public class Migration045AddDefaultAppsmithAiDatasourceForOrphanActions {
      */
     @Execution
     public void addDefaultAppsmithAiDatasourceForOrphanActions() {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("unpublishedAction.datasource.name").is(DEFAULT_APPSMITH_AI_DATASOURCE));
-        List<NewAction> newActions = mongoTemplate.find(query, NewAction.class);
-
-        if (newActions.size() == 0) {
-            // no need to create a new datasource
-            return;
-        }
         // find Appsmith AI plugin id and then find if any existing Appsmith AI datasource
         Query pluginQuery = new Query();
         pluginQuery.addCriteria(Criteria.where(PACKAGE_NAME).is(APPSMITH_AI_PLUGIN));
@@ -61,32 +53,40 @@ public class Migration045AddDefaultAppsmithAiDatasourceForOrphanActions {
         }
         String pluginId = plugin.getId();
 
+        Query query = new Query();
+        query.addCriteria(Criteria.where("unpublishedAction.datasource.name").is(DEFAULT_APPSMITH_AI_DATASOURCE));
         Map<String, Datasource> workspaceToDatasourceMap = new HashMap<>();
 
         // for each action, find the workspace id and check if there is a datasource associated with it
         // if yes, then associate the action with that datasource
         // if no, then create a new datasource and associate the action with that datasource
-        for (NewAction newAction : newActions) {
-            String workspaceId = newAction.getWorkspaceId();
-            if (workspaceToDatasourceMap.containsKey(workspaceId)) {
-                newAction.getUnpublishedAction().setDatasource(workspaceToDatasourceMap.get(workspaceId));
-                mongoTemplate.save(newAction);
-            } else {
-                Query datasourceQuery = new Query();
-                datasourceQuery.addCriteria(Criteria.where(PLUGIN_ID).is(pluginId));
-                datasourceQuery.addCriteria(Criteria.where(WORKSPACE_ID).is(workspaceId));
-                Datasource datasource = mongoTemplate.findOne(datasourceQuery, Datasource.class);
-                if (datasource == null) {
-                    datasource = new Datasource();
-                    datasource.setName(DEFAULT_APPSMITH_AI_DATASOURCE);
-                    datasource.setPluginId(pluginId);
-                    datasource.setWorkspaceId(workspaceId);
-                    datasource = mongoTemplate.insert(datasource);
+        try (Stream<NewAction> newActionsStream = mongoTemplate.stream(query, NewAction.class)) {
+            newActionsStream.forEach(newAction -> {
+                String workspaceId = newAction.getWorkspaceId();
+                if (workspaceToDatasourceMap.containsKey(workspaceId)) {
+                    newAction.getUnpublishedAction().setDatasource(workspaceToDatasourceMap.get(workspaceId));
+                    newAction.getPublishedAction().setDatasource(workspaceToDatasourceMap.get(workspaceId));
+                    mongoTemplate.save(newAction);
+                } else {
+                    Query datasourceQuery = new Query();
+                    datasourceQuery.addCriteria(Criteria.where(PLUGIN_ID).is(pluginId));
+                    datasourceQuery.addCriteria(Criteria.where(WORKSPACE_ID).is(workspaceId));
+                    Datasource datasource = mongoTemplate.findOne(datasourceQuery, Datasource.class);
+                    if (datasource == null) {
+                        datasource = new Datasource();
+                        datasource.setName(DEFAULT_APPSMITH_AI_DATASOURCE);
+                        datasource.setPluginId(pluginId);
+                        datasource.setWorkspaceId(workspaceId);
+                        datasource = mongoTemplate.insert(datasource);
+                    }
+                    workspaceToDatasourceMap.put(workspaceId, datasource);
+                    newAction.getUnpublishedAction().setDatasource(datasource);
+                    newAction.getPublishedAction().setDatasource(datasource);
+                    mongoTemplate.save(newAction);
                 }
-                workspaceToDatasourceMap.put(workspaceId, datasource);
-                newAction.getUnpublishedAction().setDatasource(datasource);
-                mongoTemplate.save(newAction);
-            }
+            });
+        } catch (Exception e) {
+            log.error("Error processing Appsmith AI actions during migration", e);
         }
     }
 }
