@@ -12,7 +12,9 @@ export const getFirstQuery = (state: AppState): FocusEntityInfo | undefined => {
   const queryItems = getQuerySegmentItems(state);
   const pageId = getCurrentPageId(state);
   if (queryItems.length) {
-    return identifyEntityFromPath(getQueryEntityItemUrl(queryItems[0], pageId));
+    const url = getQueryEntityItemUrl(queryItems[0], pageId);
+    const urlWithoutQueryParams = url.split("?")[0];
+    return identifyEntityFromPath(urlWithoutQueryParams);
   }
 };
 
