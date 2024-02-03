@@ -94,9 +94,9 @@ public class AppsmithAiPlugin extends BasePlugin {
                             DISABLED,
                             true,
                             LABEL,
-                            "Upload files first in datasource configuration",
+                            "No files available in the datasource",
                             VALUE,
-                            "Upload files first in datasource configuration")));
+                            "NO_FILES_AVAILABLE")));
                     return Mono.just(triggerResultDTO);
                 }
                 return aiServerService.getFilesStatus(fileIds).flatMap(fileStatusDTO -> {
