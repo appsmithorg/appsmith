@@ -14,6 +14,7 @@ import { connect } from "react-redux";
 import PluginsApi from "api/PluginApi";
 import { get, isArray } from "lodash";
 import { formatFileSize } from "./utils";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const HiddenFileInput = styled.input`
   visibility: hidden;
@@ -22,6 +23,7 @@ const HiddenFileInput = styled.input`
 interface ConnectProps {
   pluginId?: string;
   currentFiles: FileMetadata[];
+  workpaceId: string;
 }
 
 export type MultipleFilePickerControlProps = ControlProps & {
@@ -78,11 +80,10 @@ function FilePicker(props: FilePickerProps) {
     if (!props.pluginId) return [];
 
     try {
-      const response = await PluginsApi.uploadFiles(
-        props.pluginId,
-        files,
-        uploadParams,
-      );
+      const response = await PluginsApi.uploadFiles(props.pluginId, files, {
+        ...uploadParams,
+        workspaceId: props.workpaceId,
+      });
 
       if ("trigger" in response.data) {
         const {
@@ -296,10 +297,10 @@ const mapStateToProps = (
   )(state);
 
   const currentFiles = get(formValues, ownProps.configProperty, []);
-
   const pluginId = formValues.pluginId;
+  const workpaceId = getCurrentWorkspaceId(state);
 
-  return { pluginId, currentFiles };
+  return { pluginId, currentFiles, workpaceId };
 };
 
 export default connect(mapStateToProps)(MultipleFilePickerControl);
