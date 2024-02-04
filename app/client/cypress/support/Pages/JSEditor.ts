@@ -43,7 +43,8 @@ export class JSEditor {
       onLoad ? "Yes" : "No"
     }) input`;
   private _onPageLoadSwitch = (functionName: string) =>
-    `.${functionName}-on-page-load-setting label input`;
+    `.${functionName}-on-page-load-setting 
+    input[role="switch"]`;
   private _onPageLoadRadioButtonStatus = (
     functionName: string,
     onLoad: boolean,
@@ -61,7 +62,8 @@ export class JSEditor {
       shouldConfirm ? "Yes" : "No"
     }) input`;
   private _confirmBeforeExecuteSwitch = (functionName: string) =>
-    `.${functionName}-confirm-before-execute label input`;
+    `.${functionName}-confirm-before-execute 
+    input[role="switch"]`;
   private _confirmBeforeExecuteRadioButtonStatus = (
     functionName: string,
     shouldConfirm: boolean,
@@ -342,9 +344,12 @@ export class JSEditor {
     // Navigate to Settings tab
     this.agHelper.GetNClick(this._settingsTab);
     // Set onPageLoad
-    this.agHelper.GetNClick(this._onPageLoadSwitch(funName));
+    this.agHelper.CheckUncheck(this._onPageLoadSwitch(funName), onLoad);
     // Set confirmBeforeExecute
-    this.agHelper.GetNClick(this._confirmBeforeExecuteSwitch(funName));
+    this.agHelper.CheckUncheck(
+      this._confirmBeforeExecuteSwitch(funName),
+      bfrCalling,
+    );
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);
   }
