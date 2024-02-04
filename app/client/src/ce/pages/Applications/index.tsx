@@ -489,8 +489,14 @@ export const WorkspaceSelectorWrapper = styled.div`
 `;
 
 export function ApplicationsSection(props: any) {
-  const { activeWorkspaceId, applications, packages, workflows, workspaces } =
-    props;
+  const {
+    activeWorkspaceId,
+    applications,
+    onStartFromTemplateClick,
+    packages,
+    workflows,
+    workspaces,
+  } = props;
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
@@ -674,6 +680,7 @@ export function ApplicationsSection(props: any) {
     const renderManageEnvironmentMenu =
       isManageEnvironmentEnabled &&
       hasManageWorkspaceEnvironmentPermission(activeWorkspace.userPermissions);
+
     const onClickAddNewAppButton = (workspaceId: string) => {
       if (
         Object.entries(creatingApplicationMap).length === 0 ||
@@ -742,6 +749,7 @@ export function ApplicationsSection(props: any) {
                   enableImportExport={enableImportExport}
                   isMobile={isMobile}
                   onCreateNewApplication={onClickAddNewAppButton}
+                  onStartFromTemplate={onStartFromTemplateClick}
                   setSelectedWorkspaceIdForImportApplication={
                     setSelectedWorkspaceIdForImportApplication
                   }
@@ -935,6 +943,7 @@ export const ApplictionsMainPage = (props: any) => {
             <ApplicationsSection
               activeWorkspaceId={activeWorkspaceId}
               applications={fetchedApplications}
+              onStartFromTemplateClick={props.onStartFromTemplateClick}
               packages={packagesOfWorkspace}
               searchKeyword={searchKeyword}
               workflows={workflowsOfWorkspace}
@@ -976,8 +985,7 @@ export interface ApplicationProps {
 }
 
 export interface ApplicationState {
-  selectedWorkspaceId: string;
-  showOnboardingForm: boolean;
+  startFromTemplate: boolean;
 }
 
 export class Applications<
@@ -988,8 +996,7 @@ export class Applications<
     super(props);
 
     this.state = {
-      selectedWorkspaceId: "",
-      showOnboardingForm: false,
+      startFromTemplate: false,
     } as State;
   }
 
@@ -1015,23 +1022,34 @@ export class Applications<
   }
 
   public render() {
-    return this.props.currentApplicationIdForCreateNewApp ? (
+    if (this.props.currentApplicationIdForCreateNewApp) {
+      // FOR NEW USER
       // Workspace id condition is added to ensure that we have workspace id present before we show 3 options
       // as workspace id is required to fetch plugins
-      !!this.props.currentWorkspaceId ? (
+      if (!this.props.currentWorkspaceId) return null;
+
+      return (
         <CreateNewAppsOption
           currentApplicationIdForCreateNewApp={
             this.props.currentApplicationIdForCreateNewApp
           }
           onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
         />
-      ) : null
-    ) : (
-      <ApplictionsMainPage
-        searchApplications={this.props.searchApplications}
-        searchKeyword={this.props.searchKeyword}
-      />
-    );
+      );
+    } else {
+      if (this.state.startFromTemplate) {
+        return <div>Rahul</div>;
+      }
+      return (
+        <ApplictionsMainPage
+          onStartFromTemplateClick={() => {
+            this.setState({ startFromTemplate: true });
+          }}
+          searchApplications={this.props.searchApplications}
+          searchKeyword={this.props.searchKeyword}
+        />
+      );
+    }
   }
 }
 

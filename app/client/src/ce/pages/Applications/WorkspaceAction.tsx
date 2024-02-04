@@ -13,6 +13,7 @@ import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/appli
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import {
   IMPORT_BTN_LABEL,
+  NEW_APP_FROM_TEMPLATE,
   WORKSPACE_ACTION_BUTTON,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -26,6 +27,7 @@ export interface WorkspaceActionProps {
   enableImportExport: boolean;
   workspaceId: string;
   onCreateNewApplication: (workspaceId: string) => void;
+  onStartFromTemplate: (workspaceId: string) => void;
   setSelectedWorkspaceIdForImportApplication: (workspaceId?: string) => void;
 }
 
@@ -33,8 +35,10 @@ function WorkspaceAction({
   enableImportExport,
   isMobile,
   onCreateNewApplication,
+  onStartFromTemplate,
   setSelectedWorkspaceIdForImportApplication,
   workspace,
+  workspaceId,
 }: WorkspaceActionProps) {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
@@ -86,6 +90,15 @@ function WorkspaceAction({
           startIcon="group-control"
         >
           {createMessage(NEW_APP)}
+        </MenuItem>
+        <Divider className="!block mb-[2px]" />
+        <MenuItem
+          data-testid="t--workspace-action-start-from-template"
+          disabled={!hasCreateNewApplicationPermission}
+          onSelect={() => onStartFromTemplate(workspaceId)}
+          startIcon="group-control"
+        >
+          {createMessage(NEW_APP_FROM_TEMPLATE)}
         </MenuItem>
         <Divider className="!block mb-[2px]" />
         {enableImportExport && hasCreateNewApplicationPermission && (
