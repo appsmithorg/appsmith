@@ -16,8 +16,8 @@ export const getFirstJSObject = (
   const currentJSActions = getJSSegmentItems(state);
   const pageId = getCurrentPageId(state);
   if (currentJSActions.length) {
-    return identifyEntityFromPath(
-      getJSEntityItemUrl(currentJSActions[0], pageId),
-    );
+    const url = getJSEntityItemUrl(currentJSActions[0], pageId);
+    const urlWithoutQueryParams = url.split("?")[0];
+    return identifyEntityFromPath(urlWithoutQueryParams);
   }
 };
