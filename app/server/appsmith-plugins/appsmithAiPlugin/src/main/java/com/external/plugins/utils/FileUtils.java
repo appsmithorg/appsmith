@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.external.plugins.constants.AppsmithAiConstants.DATA;
+import static com.external.plugins.constants.AppsmithAiConstants.FILES;
 import static com.external.plugins.constants.AppsmithAiConstants.FILE_IDS;
 
 public class FileUtils {
@@ -21,7 +22,7 @@ public class FileUtils {
         if (datasourceConfiguration.getProperties() != null
                 && datasourceConfiguration.getProperties().size() > 0) {
             Property fileProperty = datasourceConfiguration.getProperties().get(0);
-            if (fileProperty.getKey().equalsIgnoreCase("files")
+            if (fileProperty.getKey().equalsIgnoreCase(FILES)
                     && fileProperty.getValue() != null
                     && fileProperty.getValue() instanceof List) {
                 List<FileMetadataDTO> files = convertIntoFiles((List<Map<String, Object>>) fileProperty.getValue());

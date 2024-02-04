@@ -99,13 +99,15 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
             @RequestPart("files") Flux<FilePart> filePartFlux,
             @RequestPart("requestType") String requestType,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
+            @RequestPart(name = FieldName.WORKSPACE_ID, required = false) String workspaceId,
             ServerWebExchange serverWebExchange) {
         log.debug("Trigger received for plugin {}", pluginId);
         TriggerRequestDTO triggerRequestDTO = new TriggerRequestDTO();
         return filePartFlux.collectList().flatMap(fileParts -> {
             triggerRequestDTO.setFiles(fileParts);
             triggerRequestDTO.setRequestType(requestType);
-            triggerRequestDTO.setParameters(Map.of("request", "multipart"));
+            triggerRequestDTO.setParameters(Map.of("triggerSource", "multipartRequest"));
+            triggerRequestDTO.setWorkspaceId(workspaceId);
             return pluginTriggerSolution
                     .trigger(
                             pluginId,

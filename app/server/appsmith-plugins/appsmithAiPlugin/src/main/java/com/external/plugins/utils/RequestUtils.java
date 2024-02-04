@@ -67,13 +67,14 @@ public class RequestUtils {
     public static Mono<ResponseEntity<byte[]>> makeRequest(
             HttpMethod httpMethod,
             URI uri,
+            MediaType contentType,
             @NotNull Map<String, String> headers,
             BodyInserter<?, ? super ClientHttpRequest> body) {
         return webClient
                 .method(httpMethod)
                 .uri(uri)
                 .headers(httpHeaders -> headers.forEach(httpHeaders::add))
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(contentType)
                 .body(body)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class));
     }
@@ -121,13 +122,12 @@ public class RequestUtils {
 
     public static Mono<ResponseEntity<byte[]>> makeRequest(
             HttpMethod httpMethod, URI uri, @NotNull Map<String, String> headers, List<FilePart> fileParts) {
-        return webClient
-                .method(httpMethod)
-                .uri(uri)
-                .headers(httpHeaders -> headers.forEach(httpHeaders::add))
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(BodyInserters.fromMultipartData(new LinkedMultiValueMap<>(Map.of(FILES, fileParts))))
-                .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class));
+        return makeRequest(
+                httpMethod,
+                uri,
+                MediaType.MULTIPART_FORM_DATA,
+                headers,
+                BodyInserters.fromMultipartData(new LinkedMultiValueMap<>(Map.of(FILES, fileParts))));
     }
 
     private static WebClient createWebClient() {

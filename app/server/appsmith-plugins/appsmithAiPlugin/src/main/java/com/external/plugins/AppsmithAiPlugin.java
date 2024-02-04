@@ -20,12 +20,12 @@ import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.dtos.AiServerRequestDTO;
 import com.external.plugins.dtos.AssociateDTO;
 import com.external.plugins.dtos.Query;
+import com.external.plugins.dtos.SourceDetails;
 import com.external.plugins.models.Feature;
 import com.external.plugins.services.AiFeatureService;
 import com.external.plugins.services.AiFeatureServiceFactory;
 import com.external.plugins.services.AiServerService;
 import com.external.plugins.services.AiServerServiceImpl;
-import com.external.plugins.utils.HeadersUtil;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,7 +43,6 @@ import static com.appsmith.external.constants.CommonFieldName.VALUE;
 import static com.external.plugins.constants.AppsmithAiConstants.DISABLED;
 import static com.external.plugins.constants.AppsmithAiConstants.LABEL;
 import static com.external.plugins.constants.AppsmithAiConstants.LIST_FILES;
-import static com.external.plugins.constants.AppsmithAiConstants.SOURCE_DETAILS;
 import static com.external.plugins.constants.AppsmithAiConstants.UPLOAD_FILES;
 import static com.external.plugins.constants.AppsmithAiConstants.USECASE;
 import static com.external.plugins.utils.FileUtils.getFileIds;
@@ -79,13 +78,16 @@ public class AppsmithAiPlugin extends BasePlugin {
         @Override
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            SourceDetails sourceDetails = SourceDetails.createSourceDetails(request);
             String requestType = request.getRequestType();
             if (UPLOAD_FILES.equals(requestType)) {
-                return aiServerService.uploadFiles(request.getFiles()).flatMap(response -> {
-                    TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
-                    triggerResultDTO.setTrigger(response);
-                    return Mono.just(triggerResultDTO);
-                });
+                return aiServerService
+                        .uploadFiles(request.getFiles(), sourceDetails)
+                        .flatMap(response -> {
+                            TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                            triggerResultDTO.setTrigger(response);
+                            return Mono.just(triggerResultDTO);
+                        });
             } else if (LIST_FILES.equals(requestType)) {
                 List<String> fileIds = getFileIds(datasourceConfiguration);
                 if (fileIds.isEmpty()) {
@@ -99,7 +101,7 @@ public class AppsmithAiPlugin extends BasePlugin {
                             "NO_FILES_AVAILABLE")));
                     return Mono.just(triggerResultDTO);
                 }
-                return aiServerService.getFilesStatus(fileIds).flatMap(fileStatusDTO -> {
+                return aiServerService.getFilesStatus(fileIds, sourceDetails).flatMap(fileStatusDTO -> {
                     List<Map<String, Object>> response = new ArrayList<>();
                     fileStatusDTO.getFiles().forEach(file -> {
                         Map<String, Object> dropdownOption = new HashMap<>();
@@ -159,11 +161,8 @@ public class AppsmithAiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
                     actionConfiguration, RequestUtils.getQueryUri(), insertedParams, objectMapper);
 
-            Map<String, String> headers = new HashMap<>();
-            headers.put(SOURCE_DETAILS, HeadersUtil.createSourceDetailsHeader(executeActionDTO));
-
             return aiServerService
-                    .executeQuery(aiServerRequestDTO, headers)
+                    .executeQuery(aiServerRequestDTO, SourceDetails.createSourceDetails(executeActionDTO))
                     .map(response -> {
                         actionExecutionResult.setIsExecutionSuccess(true);
                         actionExecutionResult.setBody(response);

@@ -38,6 +38,8 @@ public class TriggerRequestDTO {
     String actionId;
     String instanceId;
     String tenantId;
+    // this param is expected to be sent by the client if needed
+    String workspaceId;
 
     public TriggerRequestDTO(String requestType, Map<String, Object> parameters, ClientDataDisplayType displayType) {
         this.requestType = requestType;
