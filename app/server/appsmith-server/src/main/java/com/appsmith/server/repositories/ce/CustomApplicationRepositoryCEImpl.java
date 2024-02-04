@@ -4,13 +4,25 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.helpers.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -27,16 +39,19 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepositoryCE {
 
+    private final EntityManager entityManager;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final ApplicationPermission applicationPermission;
 
     @Autowired
     public CustomApplicationRepositoryCEImpl(
+            EntityManager entityManager,
             @NonNull ReactiveMongoOperations mongoOperations,
             @NonNull MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ApplicationPermission applicationPermission) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.entityManager = entityManager;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.applicationPermission = applicationPermission;
     }
@@ -108,18 +123,39 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return queryAll().criteria(clonedFromCriteria).permission(permission).submit();*/
     }
 
+    @SneakyThrows
+    @Transactional
+    @Modifying
     @Override
-    public Optional<UpdateResult> addPageToApplication(
+    public Optional<Integer> addPageToApplication(
             String applicationId, String pageId, boolean isDefault, String defaultPageId) {
-        return Optional.empty(); /*
         final ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setIsDefault(isDefault);
         applicationPage.setDefaultPageId(defaultPageId);
-        // applicationPage.setId(pageId);
-        return mongoOperations.updateFirst(
-                Query.query(getIdCriteria(applicationId)),
-                new Update().push("pages", applicationPage),
-                Application.class);*/
+        applicationPage.setId(pageId);
+
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaUpdate<Application> cu = cb.createCriteriaUpdate(genericDomain);
+        final Root<Application> root = cu.getRoot();
+        final Path<Expression<?>> pagesField = root.get("pages");
+        cu.set(
+                pagesField,
+                cb.function(
+                        "jsonb_insert",
+                        Object.class,
+                        cb.function("coalesce", List.class, pagesField, cb.literal("[]")),
+                        cb.literal("{-1}"), // at end of array
+                        cb.literal(new ObjectMapper().writeValueAsString(applicationPage)),
+                        cb.literal(true)));
+        cu.where(cb.equal(root.get("id"), applicationId));
+
+        return Optional.of(entityManager.createQuery(cu).executeUpdate());
+
+        /* TODO: Imagined bridge update API:
+        return bridgeOperations.updateFirst(
+            Query.query(getIdCriteria(applicationId)),
+            new Update().push("pages", applicationPage),
+            Application.class);*/
     }
 
     @Override
@@ -179,13 +215,14 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             List<String> projectionFieldNames,
             String branchName,
             AclPermission aclPermission) {
-
-        String gitApplicationMetadata = "gitApplicationMetadata";
-        Criteria defaultAppCriteria =
-                where(gitApplicationMetadata + "." + "defaultApplicationId").is(defaultApplicationId);
-        Criteria branchNameCriteria =
-                where(gitApplicationMetadata + "." + "branchName").is(branchName);
-        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), projectionFieldNames, aclPermission);
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+        Bridge<Application> defaultAppCriteria = Bridge.<Application>where(
+                        gitApplicationMetadata + "." + "defaultApplicationId")
+                .is(defaultApplicationId);
+        Bridge<Application> branchNameCriteria = Bridge.<Application>where(gitApplicationMetadata + "." + "branchName")
+                .is(branchName);
+        return queryOne2(List.of(defaultAppCriteria, branchNameCriteria), projectionFieldNames, aclPermission)
+                .blockOptional();
     }
 
     @Override

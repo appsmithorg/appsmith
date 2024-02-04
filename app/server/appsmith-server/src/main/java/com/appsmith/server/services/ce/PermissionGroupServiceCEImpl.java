@@ -38,6 +38,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.PERMISSION_GROUP_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GROUP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
@@ -295,7 +297,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> getPublicPermissionGroup() {
-        return Mono.empty(); /*
 
         if (publicPermissionGroup != null) {
             return Mono.just(publicPermissionGroup);
@@ -305,7 +306,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .findByName(PUBLIC_PERMISSION_GROUP)
                 .map(configObj -> configObj.getConfig().getAsString(PERMISSION_GROUP_ID))
                 .flatMap(permissionGroupId -> repository.findById(permissionGroupId))
-                .doOnNext(permissionGroup -> publicPermissionGroup = permissionGroup);*/
+                .doOnNext(permissionGroup -> publicPermissionGroup = permissionGroup);
     }
 
     @Override

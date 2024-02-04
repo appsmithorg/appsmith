@@ -1,10 +1,12 @@
 package com.appsmith.server.newpages.base;
 
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -13,6 +15,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -30,15 +33,22 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, NewPage, String>
@@ -76,8 +86,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Mono<PageDTO> getPageByViewMode(NewPage newPage, Boolean viewMode) {
-        return Mono.empty(); /*
-
         PageDTO page = null;
         if (Boolean.TRUE.equals(viewMode)) {
             if (newPage.getPublishedPage() != null) {
@@ -107,13 +115,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
         }
 
         // We shouldn't reach here.
-        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));*/
+        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
     }
 
     @Override
     public Mono<NewPage> findById(String pageId, AclPermission aclPermission) {
-        return Mono.empty(); /*
-        return repository.findById(pageId, aclPermission);*/
+        return repository.findById(pageId, aclPermission);
     }
 
     @Override
@@ -123,8 +130,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
-        return Mono.empty(); /*
-        return repository.findById(pageId, aclPermission);*/
+        return repository.findById(pageId, aclPermission.orElse(null));
     }
 
     @Override
@@ -140,8 +146,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Mono<PageDTO> saveUnpublishedPage(PageDTO page) {
-        return Mono.empty(); /*
-
         return findById(page.getId(), pagePermission.getEditPermission())
                 .flatMap(newPage -> {
                     newPage.setUnpublishedPage(page);
@@ -151,12 +155,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                     }
                     return repository.save(newPage);
                 })
-                .flatMap(savedPage -> getPageByViewMode(savedPage, false));*/
+                .flatMap(savedPage -> getPageByViewMode(savedPage, false));
     }
 
     @Override
     public Mono<PageDTO> createDefault(PageDTO object) {
-        return Mono.empty(); /*
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(object);
         newPage.setApplicationId(object.getApplicationId());
@@ -184,7 +187,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                     return Mono.just(savedPage);
                 })
                 .flatMap(repository::setUserPermissionsInObject)
-                .flatMap(page -> getPageByViewMode(page, false));*/
+                .flatMap(page -> getPageByViewMode(page, false));
     }
 
     @Override
@@ -223,7 +226,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
     @Override
     public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(
             String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed) {
-        return Mono.empty(); /*
 
         AclPermission permission;
         if (view) {
@@ -378,7 +380,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
             applicationPagesDTO.setPages(nameIdDTOList);
             applicationPagesDTO.setApplication(application);
             return applicationPagesDTO;
-        });*/
+        });
     }
 
     public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewModeAndBranch(

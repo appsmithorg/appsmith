@@ -110,8 +110,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                         return updateNonGitConnectedAppFromJson(workspaceId, applicationId, applicationJson);
                     }
                 })
-                .flatMap(application -> getApplicationImportDTO(
-                        application.getId(), application.getWorkspace().getId(), application));
+                .flatMap(application ->
+                        getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
 
         return Mono.create(
                 sink -> importedApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));

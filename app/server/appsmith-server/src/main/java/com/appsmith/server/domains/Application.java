@@ -42,28 +42,24 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     @NotNull @JsonView(Views.Public.class)
     String name;
 
-    @ManyToOne
-    @JoinColumn(name = "workspace_id", referencedColumnName = "id", insertable = false, updatable = false)
     @JsonView(Views.Public.class)
-    private Workspace workspace;
-
-    @Column(name = "workspace_id")
     String workspaceId;
 
+    // TODO: remove default values from application
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Deprecated(forRemoval = true)
     @JsonView(Views.Public.class)
     Boolean isPublic;
 
-    @OneToMany
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
-    @ToString.Exclude
-    private List<ApplicationPage> pages;
+    List<ApplicationPage> pages;
 
-    @OneToMany
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
-    @ToString.Exclude
-    private List<ApplicationPage> publishedPages;
+    List<ApplicationPage> publishedPages;
 
     @JsonView(Views.Internal.class)
     @Transient
@@ -83,12 +79,12 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
-    private ApplicationDetail unpublishedApplicationDetail;
+    ApplicationDetail unpublishedApplicationDetail;
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
-    private ApplicationDetail publishedApplicationDetail;
+    ApplicationDetail publishedApplicationDetail;
 
     @JsonView(Views.Public.class)
     String color;
@@ -118,7 +114,7 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
-    private GitApplicationMetadata gitApplicationMetadata;
+    GitApplicationMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
@@ -149,7 +145,7 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
-    private EmbedSetting embedSetting;
+    EmbedSetting embedSetting;
 
     Boolean collapseInvisibleWidgets;
 
@@ -224,7 +220,7 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
         super();
-        this.workspace = application.getWorkspace();
+        this.workspaceId = application.getWorkspaceId();
         this.pages = new ArrayList<>();
         this.publishedPages = new ArrayList<>();
         this.clonedFromApplicationId = application.getId();
@@ -293,7 +289,7 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
 
     @Override
     public void sanitiseToExportDBObject() {
-        this.setWorkspace(null);
+        this.setWorkspaceId(null);
         this.setModifiedBy(null);
         this.setCreatedBy(null);
         this.setLastDeployedAt(null);

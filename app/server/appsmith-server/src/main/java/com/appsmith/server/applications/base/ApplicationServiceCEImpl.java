@@ -697,7 +697,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
     }
 
     private Flux<Application> setTransientFields(Flux<Application> applicationsFlux) {
-        return Flux.empty(); /*
         Flux<String> publicPermissionGroupIdFlux =
                 permissionGroupService.getPublicPermissionGroupId().cache().repeat();
 
@@ -719,7 +718,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                     return application;
                 });
 
-        return updatedApplicationWithIsPublicFlux;*/
+        return updatedApplicationWithIsPublicFlux;
     }
 
     /**

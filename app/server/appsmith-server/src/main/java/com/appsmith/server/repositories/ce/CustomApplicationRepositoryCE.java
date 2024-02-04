@@ -33,7 +33,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     List<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
-    Optional<UpdateResult> addPageToApplication(
+    Optional<Integer> addPageToApplication(
             String applicationId, String pageId, boolean isDefault, String defaultPageId);
 
     /*@Modifying

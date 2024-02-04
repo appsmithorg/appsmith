@@ -7,6 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.Bridge;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
@@ -37,6 +38,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -379,6 +381,20 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         });*/
     }
 
+    protected Mono<T> queryOne2(Specification<T> spec, List<String> fields, AclPermission permission) {
+        return queryOne2(Collections.singletonList(spec), fields, permission);
+    }
+
+    protected Mono<T> queryOne2(List<Specification<T>> spec, List<String> fields, AclPermission permission) {
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+        final Root<T> root = cq.from(genericDomain);
+        cq.where(Bridge.allOf(spec).toPredicate(root, cq, cb));
+        final TypedQuery<T> query = entityManager.createQuery(cq);
+
+        return Mono.fromSupplier(query::getSingleResult).subscribeOn(Schedulers.boundedElastic());
+    }
+
     @Deprecated
     protected Optional<T> queryFirst(List<Criteria> criterias, AclPermission aclPermission) {
         return queryFirst(criterias, Optional.ofNullable(aclPermission));
@@ -535,6 +551,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
         final Root<T> root = cq.from(genericDomain);
         cq.where(Specification.allOf(params.getSpecifications()).toPredicate(root, cq, cb));
+        // TODO: set projection fields
         return entityManager.createQuery(cq).getResultList();
     }
 
