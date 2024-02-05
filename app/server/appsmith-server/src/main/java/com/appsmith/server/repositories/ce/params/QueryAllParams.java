@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce.params;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import lombok.NonNull;
@@ -66,7 +67,7 @@ public class QueryAllParams<T extends BaseDomain> {
     }
 
     public QueryAllParams<T> byId(@NonNull String id) {
-        return criteria(Criteria.where(id).is(id));
+        return criteria(Criteria.where(FieldName.ID).is(id));
     }
 
     public QueryAllParams<T> fields(String... fields) {
