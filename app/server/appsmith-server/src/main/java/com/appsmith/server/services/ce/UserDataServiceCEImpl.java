@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -343,7 +344,9 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
 
         return applicationRepository
-                .getAllApplicationId(workspaceId)
+                .findIdsByWorkspaceId(workspaceId)
+                .map(IdOnly::id)
+                .collectList()
                 .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
     }
 

@@ -1,12 +1,23 @@
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentJSCollections } from "@appsmith/selectors/entitiesSelector";
+import {
+  getCurrentPageId,
+  getJSSegmentItems,
+} from "@appsmith/selectors/entitiesSelector";
+import { getJSEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
+import type { FocusEntityInfo } from "navigation/FocusEntity";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
 
 export const getJSPaneConfigSelectedTab = (state: AppState) =>
   state.ui.jsPane.selectedConfigTab;
 
-export const getFirstJSObjectId = (state: AppState) => {
-  const currentJSActions = getCurrentJSCollections(state);
+export const getFirstJSObject = (
+  state: AppState,
+): FocusEntityInfo | undefined => {
+  const currentJSActions = getJSSegmentItems(state);
+  const pageId = getCurrentPageId(state);
   if (currentJSActions.length) {
-    return currentJSActions[0].config.id;
+    const url = getJSEntityItemUrl(currentJSActions[0], pageId);
+    const urlWithoutQueryParams = url.split("?")[0];
+    return identifyEntityFromPath(urlWithoutQueryParams);
   }
 };
