@@ -12,4 +12,5 @@ public class Query {
     String input;
     List<String> labels;
     String instructions; // instruction for AI model about input and labels
+    List<String> fileIds;
 }
