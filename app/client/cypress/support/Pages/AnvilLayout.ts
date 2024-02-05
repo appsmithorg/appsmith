@@ -114,7 +114,9 @@ export class AnvilLayout {
   ) {
     this.DragNDropAnvilWidget(widgetType, x, y, options);
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
-    this.agHelper.AssertElementExist(this.locator._widgetInCanvas(widgetType));
+    this.agHelper.AssertElementExist(
+      this.locator._anvilWidgetInCanvas(widgetType),
+    );
     this.agHelper.Sleep(200); //waiting a bit for widget properties to open
   }
 }
