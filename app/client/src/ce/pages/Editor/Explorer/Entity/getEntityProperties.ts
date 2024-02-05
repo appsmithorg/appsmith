@@ -5,32 +5,43 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import type {
   DataTreeEntityObject,
+  JSActionEntityConfig,
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
 import { isEmpty, isFunction } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import ConfigTreeActions from "utils/configTree";
+import store from "store";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 export const getPropsForJSActionEntity = (
   jsActionEntity: JSActionEntity,
+  entityName: string,
 ): Record<string, string> => {
   const properties: Record<string, any> = {};
-  const actions = jsActionEntity.actions;
-  if (actions && actions.length > 0)
-    for (let i = 0; i < jsActionEntity.actions.length; i++) {
-      const action = jsActionEntity.actions[i];
-      properties[action.name + "()"] = "Function";
-      const data = jsActionEntity[action.name]?.data;
-      if (data) {
-        properties[action.name + ".data"] = data[action.id];
-      }
-    }
-  const variablesProps = jsActionEntity.variables;
+
+  const configTree = ConfigTreeActions.getConfigTree();
+  const jsActionEntityConfig = configTree[entityName] as JSActionEntityConfig;
+
+  const variablesProps = jsActionEntityConfig.variables;
   if (variablesProps && variablesProps.length > 0) {
     for (let i = 0; i < variablesProps.length; i++) {
       const variableName = variablesProps[i];
       properties[variableName] = jsActionEntity[variableName];
     }
   }
+
+  const jsActions = store.getState().entities.jsActions as JSCollectionData[];
+  const jsCollection = jsActions.find((js) => js.config.name === entityName);
+
+  const actions = jsCollection?.config.actions;
+  if (actions && actions.length > 0)
+    for (let i = 0; i < jsCollection.config.actions.length; i++) {
+      const action = jsCollection.config.actions[i];
+      properties[action.name + "()"] = "Function";
+      properties[action.name + ".data"] = jsCollection?.data?.[action.id];
+    }
+
   return properties;
 };
 
@@ -38,15 +49,16 @@ const getJSActionBindings = (
   entity: DataTreeEntityObject,
   entityProperties: any,
   entityType: string,
+  entityName: string,
 ) => {
   const jsCollection = entity as JSActionEntity;
-  const properties = getPropsForJSActionEntity(jsCollection);
+  const properties = getPropsForJSActionEntity(jsCollection, entityName);
   if (properties) {
     entityProperties = Object.keys(properties).map((actionProperty: string) => {
       const value = properties[actionProperty];
       return {
         propertyName: actionProperty,
-        entityName: jsCollection.config.name,
+        entityName: entityName,
         value: value,
         entityType,
       };
@@ -59,7 +71,7 @@ const getActionBindings = (
   entity: any,
   entityProperties: any,
   entityType: string,
-  entityName?: string,
+  entityName: string,
 ) => {
   const config = (entityDefinitions.ACTION as any)(entity as any);
 
@@ -97,54 +109,64 @@ const getActionBindings = (
   return entityProperties;
 };
 
+function getWidgetBindings(
+  entity: DataTreeEntityObject,
+  entityProperties: any,
+  entityType: string,
+) {
+  const widgetEntity = entity as WidgetEntity;
+  const type = widgetEntity.type;
+  let config = WidgetFactory.getAutocompleteDefinitions(type);
+  if (!config) return entityProperties;
+
+  if (isFunction(config)) config = config(widgetEntity);
+  const settersConfig = WidgetFactory.getWidgetSetterConfig(type)?.__setters;
+
+  entityProperties = Object.keys(config)
+    .filter((k) => k.indexOf("!") === -1)
+    .filter((k) => settersConfig && !settersConfig[k])
+    .map((widgetProperty) => {
+      return {
+        propertyName: widgetProperty,
+        entityName: widgetEntity.widgetName,
+        value: widgetEntity[widgetProperty],
+        entityType,
+      };
+    });
+  return entityProperties;
+}
+
 export function getEntityProperties({
   entity,
   entityName,
   entityType,
 }: {
-  entityType?: string;
+  entityType: string;
   entity: DataTreeEntityObject;
-  entityName?: string;
+  entityName: string;
 }) {
   let entityProperties: any[] = [];
-  switch (entityType) {
-    case ENTITY_TYPE.JSACTION:
-      entityProperties = getJSActionBindings(
-        entity,
-        entityProperties,
-        entityType,
-      );
-      break;
-    case ENTITY_TYPE.ACTION:
-      entityProperties = getActionBindings(
-        entity,
-        entityProperties,
-        entityType,
-        entityName,
-      );
-      break;
-    case ENTITY_TYPE.WIDGET:
-      const widgetEntity = entity as WidgetEntity;
-      const type = widgetEntity.type;
-      let config = WidgetFactory.getAutocompleteDefinitions(type);
-      if (!config) break;
-
-      if (isFunction(config)) config = config(widgetEntity);
-      const settersConfig =
-        WidgetFactory.getWidgetSetterConfig(type)?.__setters;
-
-      entityProperties = Object.keys(config)
-        .filter((k) => k.indexOf("!") === -1)
-        .filter((k) => settersConfig && !settersConfig[k])
-        .map((widgetProperty) => {
-          return {
-            propertyName: widgetProperty,
-            entityName: widgetEntity.widgetName,
-            value: widgetEntity[widgetProperty],
-            entityType,
-          };
-        });
-      break;
+  if (entityType in getEntityPropertiesMap) {
+    entityProperties = getEntityPropertiesMap[entityType](
+      entity,
+      entityProperties,
+      entityType,
+      entityName,
+    );
   }
   return entityProperties;
 }
+
+export const getEntityPropertiesMap: Record<
+  string,
+  (
+    entity: DataTreeEntityObject,
+    entityProperties: any,
+    entityType: string,
+    entityName: string,
+  ) => any
+> = {
+  [ENTITY_TYPE.JSACTION]: getJSActionBindings,
+  [ENTITY_TYPE.ACTION]: getActionBindings,
+  [ENTITY_TYPE.WIDGET]: getWidgetBindings,
+};

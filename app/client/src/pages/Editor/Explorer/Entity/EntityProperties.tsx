@@ -13,7 +13,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
 import { Button } from "design-system";
-import { getEntityProperties } from "./getEntityProperties";
+import { getEntityProperties } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;
@@ -51,7 +51,6 @@ export function EntityProperties() {
 
   useEffect(() => {
     document.addEventListener("click", handleOutsideClick);
-
     return () => document.removeEventListener("click", handleOutsideClick);
   }, [show]);
 
@@ -73,6 +72,7 @@ export function EntityProperties() {
   }, []);
 
   const handleOutsideClick = (e: MouseEvent) => {
+    e.stopPropagation();
     const entityPropertiesContainer = document.getElementById(
       "entity-properties-container",
     ) as HTMLElement;
@@ -103,7 +103,7 @@ export function EntityProperties() {
     }
   }, [entityId]);
 
-  if (!entity) return null;
+  if (!entity || !entityName || !entityType) return null;
 
   const entityProperties = getEntityProperties({
     entity,
