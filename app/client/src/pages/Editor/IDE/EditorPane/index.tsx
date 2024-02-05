@@ -25,7 +25,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       gap="spacing-2"
       height="100%"
       overflow="hidden"
-      width={width + "px"}
+      width={width}
     >
       {/** Entity Properties component is needed to render
         the Bindings popover in the context menu. Will be removed eventually **/}
