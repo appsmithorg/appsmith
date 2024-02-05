@@ -35,6 +35,6 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
                 fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder),
                 fieldName(QApplicationSnapshot.applicationSnapshot.createdAt),
                 fieldName(QApplicationSnapshot.applicationSnapshot.updatedAt));
-        return queryOne(criteriaList, fieldNames);
+        return queryBuilder().criteria(criteriaList).fields(fieldNames).one();
     }
 }
