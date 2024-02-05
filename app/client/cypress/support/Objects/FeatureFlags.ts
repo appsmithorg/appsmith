@@ -19,7 +19,7 @@ export const featureFlagIntercept = (
   };
   cy.intercept("GET", "/api/v1/users/features", response);
 
-  if (reload) ReloadAfterIntercept();
+  getConsolidatedDataApi({}, reload);
 };
 
 export const getConsolidatedDataApi = (
