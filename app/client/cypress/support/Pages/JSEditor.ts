@@ -42,6 +42,9 @@ export class JSEditor {
     `.${functionName}-on-page-load-setting label:contains(${
       onLoad ? "Yes" : "No"
     }) input`;
+  private _onPageLoadSwitch = (functionName: string) =>
+    `.${functionName}-on-page-load-setting 
+    input[role="switch"]`;
   private _onPageLoadRadioButtonStatus = (
     functionName: string,
     onLoad: boolean,
@@ -49,6 +52,8 @@ export class JSEditor {
     `//div[contains(@class, '${functionName}-on-page-load-setting')]//label[text()='${
       onLoad ? "Yes" : "No"
     }']/parent::div`;
+  private _onPageLoadSwitchStatus = (functionName: string) =>
+    `//div[contains(@class, '${functionName}-on-page-load-setting')]//label/input`;
   private _confirmBeforeExecuteRadioButton = (
     functionName: string,
     shouldConfirm: boolean,
@@ -56,6 +61,9 @@ export class JSEditor {
     `.${functionName}-confirm-before-execute label:contains(${
       shouldConfirm ? "Yes" : "No"
     }) input`;
+  private _confirmBeforeExecuteSwitch = (functionName: string) =>
+    `.${functionName}-confirm-before-execute 
+    input[role="switch"]`;
   private _confirmBeforeExecuteRadioButtonStatus = (
     functionName: string,
     shouldConfirm: boolean,
@@ -63,6 +71,8 @@ export class JSEditor {
     `//div[contains(@class, '${functionName}-confirm-before-execute')]//label[text()='${
       shouldConfirm ? "Yes" : "No"
     }']/parent::div`;
+  private _confirmBeforeExecuteSwitchStatus = (functionName: string) =>
+    `//div[contains(@class, '${functionName}-confirm-before-execute')]//label/input`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
@@ -317,11 +327,11 @@ export class JSEditor {
 
     this.agHelper.GetNClick(this._settingsTab);
     this.agHelper.AssertExistingCheckedState(
-      this._onPageLoadRadioButtonStatus(funName, onLoad),
+      this._onPageLoadSwitchStatus(funName),
       onLoad.toString(),
     );
     this.agHelper.AssertExistingCheckedState(
-      this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling),
+      this._confirmBeforeExecuteSwitchStatus(funName),
       bfrCalling.toString(),
     );
   }
@@ -334,10 +344,11 @@ export class JSEditor {
     // Navigate to Settings tab
     this.agHelper.GetNClick(this._settingsTab);
     // Set onPageLoad
-    this.agHelper.GetNClick(this._onPageLoadRadioButton(funName, onLoad));
+    this.agHelper.CheckUncheck(this._onPageLoadSwitch(funName), onLoad);
     // Set confirmBeforeExecute
-    this.agHelper.GetNClick(
-      this._confirmBeforeExecuteRadioButton(funName, bfrCalling),
+    this.agHelper.CheckUncheck(
+      this._confirmBeforeExecuteSwitch(funName),
+      bfrCalling,
     );
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);
