@@ -1,6 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
+import { ANVIL_EDITOR_TEST } from "./Constants.js";
 
 import EditorNavigation, {
   EntityType,
@@ -49,7 +50,6 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
-const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -724,7 +724,6 @@ Cypress.Commands.add("deleteDataSource", () => {
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   PageLeftPane.switchSegment(PagePaneSegment.UI);
   PageLeftPane.switchToAddNew();
-  cy.get("body").type("{esc}");
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(500);
   cy.get(selector)
@@ -1074,7 +1073,15 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("postTenant");
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
-  featureFlagIntercept({}, false);
+  if (Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST)) {
+    // intercept features call for creating pages that support Anvil + WDS tests
+    featureFlagIntercept(
+      { release_anvil_enabled: true, ab_wds_enabled: true },
+      false,
+    );
+  } else {
+    featureFlagIntercept({}, false);
+  }
   cy.intercept(
     {
       method: "GET",

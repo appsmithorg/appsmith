@@ -26,7 +26,7 @@ describe(
     });
 
     it("1. onboarding flow - create datasource and save, it should take me to datasource page with view mode", function () {
-      agHelper.Sleep(1000);
+      assertHelper.AssertNetworkStatus("@getPlugins");
       dataSources.CreateDataSource("Postgres", false);
       dataSources.selectTabOnDatasourcePage("View data");
       agHelper.TypeText(dataSources._datasourceStructureSearchInput, "users");

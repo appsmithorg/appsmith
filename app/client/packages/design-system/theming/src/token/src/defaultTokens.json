@@ -1,5 +1,5 @@
 {
-  "seedColor": "#553de9",
+  "seedColor": "#0080ff",
   "fluid": {
     "minVw": 360,
     "maxVw": 1920,
@@ -80,6 +80,7 @@
   },
   "iconSize": {
     "1": "16px",
-    "2": "24px"
+    "2": "24px",
+    "3": "32px"
   }
 }

@@ -51,14 +51,16 @@ TextInput is a component that allows users to input text.
 
 <Story name="Size">
   <Flex direction="column" gap="spacing-2">
-    {Object.keys(SIZES).map((size) => (
-      <TextInput
-        placeholder={size}
-        size={size}
-        startIcon={<Icon name="user" />}
-        key={size}
-      />
-    ))}
+    {Object.keys(SIZES)
+      .filter((size) => !["large"].includes(size))
+      .map((size) => (
+        <TextInput
+          placeholder={size}
+          size={size}
+          startIcon={<Icon name="user" />}
+          key={size}
+        />
+      ))}
   </Flex>
 </Story>
 
