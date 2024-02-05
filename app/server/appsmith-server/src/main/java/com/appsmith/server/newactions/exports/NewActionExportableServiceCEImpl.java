@@ -94,7 +94,7 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                         }
                         newAction.sanitiseToExportDBObject();
                     });
-                    applicationJson.getUpdatedResources().put(FieldName.ACTION_LIST, updatedActionSet);
+                    applicationJson.getModifiedResources().putResource(FieldName.ACTION_LIST, updatedActionSet);
                     applicationJson.setActionList(actionList);
 
                     // This is where we're removing global datasources that are unused in this application

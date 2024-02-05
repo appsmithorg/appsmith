@@ -107,6 +107,7 @@ module.exports = {
       cloudHosting: "CLOUD_HOSTING",
       appVersion: {
         id: parseConfig("__APPSMITH_VERSION_ID__"),
+        sha: parseConfig("__APPSMITH_VERSION_SHA__"),
         releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__"),
       },
       intercomAppID: "APP_ID",

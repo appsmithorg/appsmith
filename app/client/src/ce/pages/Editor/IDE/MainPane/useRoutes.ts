@@ -211,7 +211,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "JSEditor File",
       component: JSEditor,
       exact: true,
-      path: `${path}${JS_COLLECTION_ID_PATH}`,
+      path: [
+        `${path}${JS_COLLECTION_ID_PATH}`,
+        `${path}${JS_COLLECTION_ID_PATH}${ADD_PATH}`,
+      ],
     },
     {
       key: "CurlImportEditor",

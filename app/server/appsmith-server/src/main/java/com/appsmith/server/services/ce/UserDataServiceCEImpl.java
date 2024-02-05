@@ -11,6 +11,8 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.projections.IdOnly;
+import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -40,6 +42,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -123,6 +126,15 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .getDefaultTenantId()
                 .flatMap(tenantId -> userRepository.findByEmailAndTenantId(email, tenantId))
                 .flatMap(this::getForUser);
+    }
+
+    @Override
+    public Mono<Map<String, String>> getProfilePhotoAssetIdsForUserIds(Collection<String> userIds) {
+        return repository
+                .findByUserIdIn(userIds)
+                .collectMap(
+                        UserDataProfilePhotoProjection::getUserId,
+                        UserDataProfilePhotoProjection::getProfilePhotoAssetId);
     }
 
     @Override
@@ -362,7 +374,9 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
 
         return applicationRepository
-                .getAllApplicationId(workspaceId)
+                .findIdsByWorkspaceId(workspaceId)
+                .map(IdOnly::id)
+                .collectList()
                 .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
     }
 

@@ -13,7 +13,7 @@ export default function Editor() {
   const { isReferenceOpen } = useContext(CustomWidgetBuilderContext);
 
   return (
-    <div className={styles.contentRight}>
+    <div>
       <div className={styles.headerControls}>
         <Header />
       </div>
