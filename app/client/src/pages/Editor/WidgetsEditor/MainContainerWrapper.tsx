@@ -210,7 +210,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         navigationHeight={navigationHeight}
         style={{
-          height: isPreviewMode ? `calc(100% - ${headerHeight})` : "100%",
+          height: isPreviewMode ? `calc(100% - ${headerHeight})` : "auto",
           fontFamily: fontFamily,
           pointerEvents: isAutoCanvasResizing ? "none" : "auto",
         }}
