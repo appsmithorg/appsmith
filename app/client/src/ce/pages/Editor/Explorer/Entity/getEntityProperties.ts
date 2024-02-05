@@ -14,11 +14,18 @@ import ConfigTreeActions from "utils/configTree";
 import store from "store";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
+interface EntityProperty {
+  propertyName: string;
+  entityName: string;
+  value: unknown;
+  entityType: string;
+}
+
 export const getPropsForJSActionEntity = (
   jsActionEntity: JSActionEntity,
   entityName: string,
-): Record<string, string> => {
-  const properties: Record<string, any> = {};
+) => {
+  const properties: Record<string, unknown> = {};
 
   const configTree = ConfigTreeActions.getConfigTree();
   const jsActionEntityConfig = configTree[entityName] as JSActionEntityConfig;
@@ -47,7 +54,7 @@ export const getPropsForJSActionEntity = (
 
 const getJSActionBindings = (
   entity: DataTreeEntityObject,
-  entityProperties: any,
+  entityProperties: EntityProperty[],
   entityType: string,
   entityName: string,
 ) => {
@@ -69,7 +76,7 @@ const getJSActionBindings = (
 
 const getActionBindings = (
   entity: any,
-  entityProperties: any,
+  entityProperties: EntityProperty[],
   entityType: string,
   entityName: string,
 ) => {
@@ -111,7 +118,7 @@ const getActionBindings = (
 
 function getWidgetBindings(
   entity: DataTreeEntityObject,
-  entityProperties: any,
+  entityProperties: EntityProperty[],
   entityType: string,
 ) {
   const widgetEntity = entity as WidgetEntity;
@@ -145,7 +152,7 @@ export function getEntityProperties({
   entity: DataTreeEntityObject;
   entityName: string;
 }) {
-  let entityProperties: any[] = [];
+  let entityProperties: EntityProperty[] = [];
   if (entityType in getEntityPropertiesMap) {
     entityProperties = getEntityPropertiesMap[entityType](
       entity,
@@ -164,7 +171,7 @@ export const getEntityPropertiesMap: Record<
     entityProperties: any,
     entityType: string,
     entityName: string,
-  ) => any
+  ) => EntityProperty[]
 > = {
   [ENTITY_TYPE.JSACTION]: getJSActionBindings,
   [ENTITY_TYPE.ACTION]: getActionBindings,
