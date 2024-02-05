@@ -1,5 +1,6 @@
 package com.appsmith.server.applications.exports;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -29,7 +30,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -122,7 +122,7 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
         exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
         exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
         applicationJson.setExportedApplication(application);
-        applicationJson.setUpdatedResources(new ConcurrentHashMap<>());
+        applicationJson.setModifiedResources(new ModifiedResources());
 
         List<String> unpublishedPages =
                 application.getPages().stream().map(ApplicationPage::getId).collect(Collectors.toList());
