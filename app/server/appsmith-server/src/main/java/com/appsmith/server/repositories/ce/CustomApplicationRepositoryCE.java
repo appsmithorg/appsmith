@@ -58,8 +58,6 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
-    Mono<List<String>> getAllApplicationId(String workspaceId);
-
     Mono<UpdateResult> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 
