@@ -30,7 +30,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
     public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
         Criteria criteria = where(fieldName(QCustomJSLib.customJSLib.uidString)).is(customJSLib.getUidString());
 
-        return buildQuery().criteria(criteria).one();
+        return queryBuilder().criteria(criteria).one();
     }
 
     @Override
@@ -43,6 +43,6 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
         Criteria criteria =
                 Criteria.where(fieldName(QCustomJSLib.customJSLib.uidString)).in(uidStrings);
 
-        return buildQuery().criteria(criteria).all();
+        return queryBuilder().criteria(criteria).all();
     }
 }

@@ -44,7 +44,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .is(workspaceId);
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(Workspace.class.getSimpleName());
-        return buildQuery()
+        return queryBuilder()
                 .criteria(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
                 .all();
@@ -65,7 +65,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .is(workspaceId);
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(Workspace.class.getSimpleName());
-        return buildQuery()
+        return queryBuilder()
                 .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
                 .all();
@@ -77,7 +77,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .in(workspaceIds);
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(Workspace.class.getSimpleName());
-        return buildQuery()
+        return queryBuilder()
                 .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
                 .all();
@@ -108,7 +108,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
         Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
                 .in(userIds);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(assignedToUserIdCriteria)
                 .fields(includeFields.orElse(null))
                 .permission(permission.orElse(null))

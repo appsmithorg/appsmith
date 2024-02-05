@@ -34,7 +34,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         Sort sort = Sort.by(fieldName(QDatasource.datasource.name));
-        return buildQuery()
+        return queryBuilder()
                 .criteria(workspaceIdCriteria)
                 .permission(permission)
                 .sort(sort)
@@ -45,7 +45,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(workspaceIdCriteria)
                 .permission(permission.orElse(null))
                 .sort(Sort.by(fieldName(QDatasource.datasource.name)))
@@ -58,7 +58,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(nameCriteria, workspaceIdCriteria)
                 .permission(aclPermission)
                 .one();
@@ -70,7 +70,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(nameCriteria, workspaceIdCriteria)
                 .fields((List<String>) null)
                 .permission(aclPermission.orElse(null))
@@ -80,12 +80,12 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     @Override
     public Flux<Datasource> findAllByIds(Set<String> ids, AclPermission permission) {
         Criteria idcriteria = where(fieldName(QDatasource.datasource.id)).in(ids);
-        return buildQuery().criteria(idcriteria).permission(permission).all();
+        return queryBuilder().criteria(idcriteria).permission(permission).all();
     }
 
     @Override
     public Flux<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         Criteria idCriteria = where(fieldName(QDatasource.datasource.id)).in(ids);
-        return buildQuery().criteria(idCriteria).fields(includeFields).all();
+        return queryBuilder().criteria(idCriteria).fields(includeFields).all();
     }
 }

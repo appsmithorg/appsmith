@@ -390,7 +390,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getStrictPermissionGroupsForUser((User) principal));
-        return permissionGroupsMono.flatMapMany(permissionGroups -> buildQuery()
+        return permissionGroupsMono.flatMapMany(permissionGroups -> queryBuilder()
                 .criteria(criterias)
                 .fields(includeFields.orElse(null))
                 .permission(permission.orElse(null))
@@ -435,7 +435,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
     }
 
-    public QueryAllParams<T> buildQuery() {
+    public QueryAllParams<T> queryBuilder() {
         return new QueryAllParams<>(this);
     }
 

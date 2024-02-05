@@ -117,7 +117,7 @@ public abstract class BaseService<
                     .collect(Collectors.toList());
         }
         return repository
-                .buildQuery()
+                .queryBuilder()
                 .criteria(criterias)
                 .permission(aclPermission)
                 .all();
@@ -216,7 +216,7 @@ public abstract class BaseService<
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
         Flux<T> result = repository
-                .buildQuery()
+                .queryBuilder()
                 .criteria(criteria)
                 .permission(permission)
                 .sort(sort)

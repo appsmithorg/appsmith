@@ -39,14 +39,14 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         Criteria systemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
         Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
-        return buildQuery().criteria(criteria).permission(aclPermission).all();
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     @Override
     public Flux<Theme> getSystemThemes() {
         Criteria systemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(systemThemeCriteria)
                 .permission(AclPermission.READ_THEMES)
                 .all();
@@ -59,7 +59,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                 .regex(findNameRegex, "i")
                 .and(fieldName(QTheme.theme.isSystemTheme))
                 .is(true);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(criteria)
                 .permission(AclPermission.READ_THEMES)
                 .one();

@@ -49,7 +49,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         Criteria applicationIdCriteria =
                 where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(applicationIdCriteria)
                 .permission(aclPermission)
                 .all();
@@ -59,7 +59,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Flux<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         Criteria applicationIdCriteria =
                 where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(applicationIdCriteria)
                 .permission(permission.orElse(null))
                 .all();
@@ -74,7 +74,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria activeEditModeCriteria = where(fieldName(QNewPage.newPage.unpublishedPage) + "."
                         + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
                 .is(null);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(applicationIdCriteria, activeEditModeCriteria)
                 .permission(aclPermission)
                 .all();
@@ -109,7 +109,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
         criteria.add(layoutCriterion);
 
-        return buildQuery().criteria(criteria).permission(aclPermission).one();
+        return queryBuilder().criteria(criteria).permission(aclPermission).one();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             criteria.add(deletedCriterion);
         }
 
-        return buildQuery().criteria(criteria).permission(aclPermission).one();
+        return queryBuilder().criteria(criteria).permission(aclPermission).one();
     }
 
     @Override
@@ -154,7 +154,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             criteria.add(deletedCriteria);
         }
 
-        return buildQuery().criteria(criteria).permission(aclPermission).one();
+        return queryBuilder().criteria(criteria).permission(aclPermission).one();
     }
 
     @Override
@@ -180,7 +180,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         Criteria idsCriterion = where("id").in(ids);
 
-        return this.buildQuery()
+        return this.queryBuilder()
                 .criteria(idsCriterion)
                 .fields(includedFields)
                 .permission(aclPermission)
@@ -224,7 +224,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 where(defaultResources + "." + FieldName.PAGE_ID).is(defaultPageId);
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(defaultPageIdCriteria, branchCriteria)
                 .permission(permission)
                 .one();
@@ -246,7 +246,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.customSlug));
         String applicationIdFieldPath = fieldName(QNewPage.newPage.applicationId);
 
-        return buildQuery()
+        return queryBuilder()
                 .criteria(applicationIdCriteria)
                 .fields(
                         unpublishedSlugFieldPath,
@@ -271,7 +271,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return buildQuery()
+        return queryBuilder()
                 .criteria(defaultAppIdCriteria, gitSyncIdCriteria)
                 .permission(permission.orElse(null))
                 .first();
@@ -313,6 +313,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Flux<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
-        return buildQuery().criteria(applicationCriteria).fields(includeFields).all();
+        return queryBuilder()
+                .criteria(applicationCriteria)
+                .fields(includeFields)
+                .all();
     }
 }
