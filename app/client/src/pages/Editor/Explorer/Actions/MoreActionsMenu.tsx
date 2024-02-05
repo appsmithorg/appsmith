@@ -71,6 +71,10 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
   const deleteActionFromPage = useCallback(
     (actionId: string, actionName: string) => {
       dispatch(deleteAction({ id: actionId, name: actionName }));
+      // Reset the delete confirmation state because it can navigate to another action
+      // which will not remount this component
+      setConfirmDelete(false);
+      toggleMenuOpen(false);
     },
     [dispatch],
   );

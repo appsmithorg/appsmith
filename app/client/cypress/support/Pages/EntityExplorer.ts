@@ -196,7 +196,7 @@ export class EntityExplorer {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.switchToAddNew();
-    cy.focused().blur();
+
     this.DragNDropWidget(
       widgetType,
       x,

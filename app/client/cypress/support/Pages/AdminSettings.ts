@@ -36,6 +36,8 @@ export class AdminSettings {
         this.enableGACFeatureFlag();
         this.assertHelper.AssertDocumentReady();
         this.agHelper.WaitUntilEleAppear(this.rolesTab);
+        this.agHelper.AssertElementExist(this.rolesTab);
+        this.agHelper.AssertElementVisibility(this.rolesTab);
         toNavigateBackToHome && this.homePage.NavigateToHome();
         break;
       case "home":

@@ -12,7 +12,7 @@ export type EditorSegmentList = Array<{
   items: EntityItem[];
 }>;
 
-const groupAndSortEntitySegmentList = (
+export const groupAndSortEntitySegmentList = (
   items: EntityItem[],
 ): EditorSegmentList => {
   const groups = groupBy(items, (item) => {

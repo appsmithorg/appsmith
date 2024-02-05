@@ -33,15 +33,23 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return queryAll(List.of(workspaceIdCriteria), permission, Sort.by(fieldName(QDatasource.datasource.name)));
+        Sort sort = Sort.by(fieldName(QDatasource.datasource.name));
+        return queryAll()
+                .criteria(workspaceIdCriteria)
+                .permission(permission)
+                .sort(sort)
+                .submit();
     }
 
     @Override
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return queryAll(
-                List.of(workspaceIdCriteria), permission, Optional.of(Sort.by(fieldName(QDatasource.datasource.name))));
+        return queryAll()
+                .criteria(workspaceIdCriteria)
+                .permission(permission.orElse(null))
+                .sort(Sort.by(fieldName(QDatasource.datasource.name)))
+                .submit();
     }
 
     @Override
@@ -65,17 +73,12 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     @Override
     public Flux<Datasource> findAllByIds(Set<String> ids, AclPermission permission) {
         Criteria idcriteria = where(fieldName(QDatasource.datasource.id)).in(ids);
-        return queryAll(List.of(idcriteria), permission);
+        return queryAll().criteria(idcriteria).permission(permission).submit();
     }
 
     @Override
     public Flux<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         Criteria idCriteria = where(fieldName(QDatasource.datasource.id)).in(ids);
-        return queryAll(
-                List.of(idCriteria),
-                Optional.ofNullable(includeFields),
-                Optional.empty(),
-                Optional.empty(),
-                NO_RECORD_LIMIT);
+        return queryAll().criteria(idCriteria).fields(includeFields).submit();
     }
 }

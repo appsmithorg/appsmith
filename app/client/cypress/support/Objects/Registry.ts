@@ -28,6 +28,7 @@ import { AssertHelper } from "../Pages/AssertHelper";
 import { Tabs } from "../Pages/Tabs";
 import { GsheetHelper } from "../Pages/GSheetHelper";
 import { CommunityTemplates } from "../Pages/CommunityTemplates";
+import { AnvilLayout } from "../Pages/AnvilLayout";
 import PartialImportExport from "../Pages/PartialImportExport";
 
 export class ObjectsRegistry {
@@ -245,6 +246,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.autoLayout__ = new AutoLayout();
     }
     return ObjectsRegistry.autoLayout__;
+  }
+
+  private static anvilLayout__: AnvilLayout;
+  static get AnvilLayout(): AnvilLayout {
+    if (ObjectsRegistry.anvilLayout__ === undefined) {
+      ObjectsRegistry.anvilLayout__ = new AnvilLayout();
+    }
+    return ObjectsRegistry.anvilLayout__;
   }
 
   private static dataManager__: DataManager;

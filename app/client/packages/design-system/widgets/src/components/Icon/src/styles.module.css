@@ -6,4 +6,8 @@
   &[data-size="medium"] {
     inline-size: var(--icon-size-2);
   }
+
+  &[data-size="large"] {
+    inline-size: var(--icon-size-3);
+  }
 }

@@ -23,7 +23,7 @@ export interface TextInputProps extends HeadlessTextInputProps {
    *
    * @default medium
    */
-  size?: keyof typeof SIZES;
+  size?: Omit<keyof typeof SIZES, "large">;
 }
 
 const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {

@@ -12,5 +12,6 @@
   "vehicleMaintenenceApp": "//h1[text()='Vehicle Maintenance App']",
   "applicationTrackerDashboard": "//h1[text()='Applicant Tracker-test']",
   "startFromTemplateOnboardingCard": "[data-testid=t--start-from-template]",
-  "templateLoadState": "div.template-content:not(:empty)"
+  "templateLoadState": "div.template-content:not(:empty)",
+  "selectAllPages": "label:contains('Select all') > input[type='checkbox']"
 }
