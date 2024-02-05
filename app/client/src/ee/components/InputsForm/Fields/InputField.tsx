@@ -1,3 +1,4 @@
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { InputText } from "components/propertyControls/InputTextControl";
 import React from "react";
 
@@ -7,9 +8,15 @@ interface InputFieldProps {
   name: string;
   evaluatedValue: unknown;
   dataTreePath?: string;
+  blockCompletions?: FieldEntityInformation["blockCompletions"];
 }
 
-function InputField({ dataTreePath, evaluatedValue, name }: InputFieldProps) {
+function InputField({
+  blockCompletions,
+  dataTreePath,
+  evaluatedValue,
+  name,
+}: InputFieldProps) {
   const {
     field: { onBlur, onChange, value },
   } = useController({
@@ -18,6 +25,7 @@ function InputField({ dataTreePath, evaluatedValue, name }: InputFieldProps) {
 
   return (
     <InputText
+      blockCompletions={blockCompletions}
       dataTreePath={dataTreePath}
       enableAI={false}
       evaluatedValue={evaluatedValue}

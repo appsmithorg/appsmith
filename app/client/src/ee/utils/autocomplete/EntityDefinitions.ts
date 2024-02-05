@@ -112,6 +112,7 @@ export const getEachEntityInformation = {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     propertyPath: string,
   ): FieldEntityInformation => {
+    entityInformation.isTriggerPath = false;
     return entityInformation;
   },
   [ENTITY_TYPE.MODULE_INSTANCE]: (
@@ -121,6 +122,7 @@ export const getEachEntityInformation = {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     propertyPath: string,
   ): FieldEntityInformation => {
+    entityInformation.isTriggerPath = false;
     return entityInformation;
   },
 };

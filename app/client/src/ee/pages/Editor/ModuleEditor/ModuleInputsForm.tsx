@@ -8,9 +8,12 @@ import { klona } from "klona";
 import Form from "@appsmith/components/InputsForm/Form";
 import SectionField from "@appsmith/components/InputsForm/Fields/SectionField";
 import { updateModuleInputs } from "@appsmith/actions/moduleActions";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+import { MODULE_TYPE, type Module } from "@appsmith/constants/ModuleConstants";
 import { generateDefaultInputSection } from "@appsmith/components/InputsForm/Fields/helper";
-import { getModuleInputsEvalValues } from "@appsmith/selectors/modulesSelector";
+import {
+  getCurrentModule,
+  getModuleInputsEvalValues,
+} from "@appsmith/selectors/modulesSelector";
 
 const StyledHeading = styled(Text)`
   margin-bottom: var(--ads-v2-spaces-3);
@@ -64,6 +67,40 @@ function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
     getModuleInputsEvalValues,
   ) as Record<string, unknown>;
 
+  const currentModule = useSelector(getCurrentModule);
+
+  const blockCompletions = useMemo(() => {
+    if (!!currentModule && currentModule.type === MODULE_TYPE.QUERY) {
+      return [
+        {
+          parentPath: `${currentModule?.name}`,
+          subPath: `${currentModule?.name}`,
+        },
+        {
+          parentPath: `${currentModule?.name}`,
+          subPath: `${currentModule?.name}.run()`,
+        },
+        {
+          parentPath: `${currentModule?.name}`,
+          subPath: `${currentModule?.name}.data`,
+        },
+        {
+          parentPath: `${currentModule?.name}`,
+          subPath: `${currentModule?.name}.responseMeta`,
+        },
+        {
+          parentPath: `${currentModule?.name}`,
+          subPath: `${currentModule?.name}.clear()`,
+        },
+        {
+          parentPath: `${currentModule?.name}`,
+          subPath: `${currentModule?.name}.isLoading`,
+        },
+      ];
+    }
+    return [];
+  }, [currentModule?.name]);
+
   const onUpdateInputsForm = useMemo(() => {
     const onUpdate = (values: { inputsForm: Module["inputsForm"] }) => {
       if (!moduleId) return;
@@ -101,6 +138,7 @@ function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
           <StyledExample kind="code">{`{{ inputs.input_name }}`}</StyledExample>
         </InstructionsWrapper>
         <Form
+          blockCompletions={blockCompletions}
           dataTreePathPrefix="inputs"
           defaultValues={defaultValues || generateDefaultInputForm()}
           evaluatedValues={inputsEvaluatedValues}

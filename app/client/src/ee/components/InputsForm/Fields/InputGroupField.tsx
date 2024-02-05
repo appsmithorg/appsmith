@@ -38,7 +38,8 @@ function isValidObjectKey(str: string): boolean {
 
 function InputGroupField({ name }: InputGroupFieldProps) {
   const { control, getValues } = useFormContext();
-  const { dataTreePathPrefix, evaluatedValues } = useContext(InputsFormContext);
+  const { blockCompletions, dataTreePathPrefix, evaluatedValues } =
+    useContext(InputsFormContext);
   const { append, fields, remove } = useFieldArray({
     control,
     name,
@@ -103,6 +104,7 @@ function InputGroupField({ name }: InputGroupFieldProps) {
               validate={validateLabel}
             />
             <InputField
+              blockCompletions={blockCompletions}
               dataTreePath={`${dataTreePathPrefix}.${evalKey}`}
               evaluatedValue={evaluatedValue}
               name={`${name}.${index}.defaultValue`}

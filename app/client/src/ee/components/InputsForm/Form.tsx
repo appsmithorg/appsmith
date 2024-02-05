@@ -5,6 +5,7 @@ import type { PropsWithChildren } from "react";
 import { InputsFormContextProvider } from "./InputsFormContext";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export type FormProps<TValues> = PropsWithChildren<{
   dataTreePathPrefix?: string;
@@ -13,9 +14,11 @@ export type FormProps<TValues> = PropsWithChildren<{
   evaluatedValues?: Record<string, unknown>;
   triggerReset?: boolean;
   onResetComplete?: () => void;
+  blockCompletions?: FieldEntityInformation["blockCompletions"];
 }>;
 
 function Form<TValues extends FieldValues>({
+  blockCompletions,
   children,
   dataTreePathPrefix,
   defaultValues,
@@ -53,6 +56,7 @@ function Form<TValues extends FieldValues>({
 
   return (
     <InputsFormContextProvider
+      blockCompletions={blockCompletions}
       dataTreePathPrefix={dataTreePathPrefix}
       evaluatedValues={evaluatedValues}
     >
