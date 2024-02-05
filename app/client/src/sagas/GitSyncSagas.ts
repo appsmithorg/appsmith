@@ -1256,10 +1256,12 @@ function* pollAutocommitProgressSaga(): any {
           if (!response?.data?.isRunning) {
             yield put({
               type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
-              payload: response.data,
             });
           }
         } else {
+          yield put({
+            type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+          });
           yield put({
             type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
             payload: {
@@ -1273,10 +1275,12 @@ function* pollAutocommitProgressSaga(): any {
     } else {
       yield put({
         type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
-        payload: response?.data,
       });
     }
   } catch (error) {
+    yield put({
+      type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+    });
     yield put({
       type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
       payload: { error },
