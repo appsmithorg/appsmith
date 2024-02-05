@@ -28,10 +28,10 @@ public class CustomWorkspaceRepositoryImpl extends CustomWorkspaceRepositoryCEIm
 
     @Override
     public Flux<Workspace> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields) {
-        return queryAll()
+        return queryBuilder()
                 .criteria(
                         Criteria.where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId))
                 .fields(includeFields)
-                .submit();
+                .all();
     }
 }

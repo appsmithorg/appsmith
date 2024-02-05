@@ -30,9 +30,9 @@ public class CustomThemeRepositoryImpl extends CustomThemeRepositoryCEImpl imple
         Criteria notSystemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).ne(Boolean.TRUE);
         Criteria criteria = new Criteria().andOperator(appThemeCriteria, notSystemThemeCriteria);
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteria)
                 .permission(aclPermission.orElse(null))
-                .submit();
+                .all();
     }
 }

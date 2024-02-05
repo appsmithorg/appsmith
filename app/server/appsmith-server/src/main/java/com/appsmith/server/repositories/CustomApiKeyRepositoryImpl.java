@@ -23,9 +23,9 @@ public class CustomApiKeyRepositoryImpl extends BaseAppsmithRepositoryImpl<UserA
     public Flux<UserApiKey> getByUserIdWithoutPermission(String userId) {
         Criteria criteriaUserId =
                 Criteria.where(fieldName(QUserApiKey.userApiKey.userId)).is(userId);
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteriaUserId)
                 .permission(Optional.<AclPermission>empty().orElse(null))
-                .submit();
+                .all();
     }
 }

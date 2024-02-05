@@ -28,12 +28,12 @@ public class CustomDatasourceRepositoryImpl extends CustomDatasourceRepositoryCE
             Set<String> workspaceIds, List<String> includeFields) {
         Criteria workspaceCriteria = Criteria.where(FieldName.WORKSPACE_ID).in(workspaceIds);
 
-        return queryAll()
+        return queryBuilder()
                 .criteria(workspaceCriteria)
                 .fields(includeFields)
                 .permission(null)
                 .sort(null)
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 }

@@ -88,13 +88,13 @@ public class CustomAuditLogRepositoryImpl extends BaseAppsmithRepositoryImpl<Aud
                 criteriaList.add(where(fieldName(QAuditLog.auditLog.id)).lt(new ObjectId(cursor)));
             }
         }
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteriaList)
                 .fields((List<String>) null)
                 .permission(aclPermission)
                 .sort(sort)
                 .limit(recordLimit)
-                .submit();
+                .all();
     }
 
     @Override

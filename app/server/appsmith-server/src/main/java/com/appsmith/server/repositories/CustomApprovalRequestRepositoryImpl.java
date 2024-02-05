@@ -56,13 +56,13 @@ public class CustomApprovalRequestRepositoryImpl extends BaseAppsmithRepositoryI
         Sort sort =
                 sortWith.orElse(Sort.by(Sort.Direction.DESC, fieldName(QApprovalRequest.approvalRequest.createdAt)));
         Mono<Long> countMono = count(criteriaList, aclPermission);
-        Flux<ApprovalRequest> approvalRequestFlux = queryAll()
+        Flux<ApprovalRequest> approvalRequestFlux = queryBuilder()
                 .criteria(criteriaList)
                 .permission(aclPermission.orElse(null))
                 .sort(sort)
                 .limit(count)
                 .skip(startIndex)
-                .submit();
+                .all();
         return Mono.zip(countMono, approvalRequestFlux.collectList()).map(pair -> {
             Long totalFilteredApprovalRequests = pair.getT1();
             List<ApprovalRequest> approvalRequestsPage = pair.getT2();
