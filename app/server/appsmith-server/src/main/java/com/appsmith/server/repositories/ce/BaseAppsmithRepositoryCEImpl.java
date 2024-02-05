@@ -356,7 +356,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                     final ArrayList<Criteria> criteriaList = new ArrayList<>(params.getCriteria());
                     criteriaList.add(notDeleted());
 
-                    final Criteria permissionCriteria = userAcl(params.getPermissionGroups(), params.getPermission());
+                    final Criteria permissionCriteria = userAcl(permissionGroups, params.getPermission());
                     if (permissionCriteria != null) {
                         criteriaList.add(permissionCriteria);
                     }
