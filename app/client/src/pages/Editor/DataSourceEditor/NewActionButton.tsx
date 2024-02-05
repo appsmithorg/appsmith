@@ -14,6 +14,7 @@ import {
 import {
   createMessage,
   ERROR_ADD_API_INVALID_URL,
+  NEW_AI_BUTTON_TEXT,
   NEW_API_BUTTON_TEXT,
   NEW_QUERY_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
@@ -104,6 +105,19 @@ function NewActionButton(props: NewActionButtonProps) {
     },
     [pages, createQueryAction, disabled, isLoading],
   );
+
+  const getCreateButtonText = () => {
+    switch (pluginType) {
+      case PluginType.DB:
+      case PluginType.SAAS:
+        return createMessage(NEW_QUERY_BUTTON_TEXT);
+      case PluginType.AI:
+        return createMessage(NEW_AI_BUTTON_TEXT);
+      default:
+        return createMessage(NEW_API_BUTTON_TEXT);
+    }
+  };
+
   return (
     <Menu onOpenChange={handleOnInteraction} open={isPageSelectionOpen}>
       <MenuTrigger disabled={disabled}>
@@ -117,9 +131,7 @@ function NewActionButton(props: NewActionButtonProps) {
           size="md"
           startIcon="plus"
         >
-          {pluginType === PluginType.DB || pluginType === PluginType.SAAS
-            ? createMessage(NEW_QUERY_BUTTON_TEXT)
-            : createMessage(NEW_API_BUTTON_TEXT)}
+          {getCreateButtonText()}
         </Button>
       </MenuTrigger>
       <MenuContent

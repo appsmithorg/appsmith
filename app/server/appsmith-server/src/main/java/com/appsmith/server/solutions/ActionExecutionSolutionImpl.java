@@ -19,6 +19,7 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.VariableReplacementService;
 import com.appsmith.server.solutions.ce.ActionExecutionSolutionCEImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,7 +57,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             VariableReplacementService variableReplacementService,
-            ConfigService configService) {
+            ConfigService configService,
+            TenantService tenantService) {
         super(
                 newActionService,
                 actionPermission,
@@ -75,7 +77,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 analyticsService,
                 datasourceStorageService,
                 environmentPermission,
-                configService);
+                configService,
+                tenantService);
 
         this.variableReplacementService = variableReplacementService;
     }
