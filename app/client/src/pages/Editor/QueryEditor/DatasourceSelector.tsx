@@ -15,7 +15,6 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { Action } from "entities/Action";
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
-import { isAppsmithAIPlugin } from "utils/editorContextUtils";
 import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
@@ -66,12 +65,7 @@ const DatasourceSelector = (props: Props) => {
     isFeatureEnabled,
     userWorkspacePermissions,
   );
-  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
-  // Datasource selection is hidden for Appsmith AI Plugin and for plugins that don't require datasource
-  // TODO: @Diljit Remove this condition when knowledge retrieval for Appsmith AI is implemented (Only remove the AI Condition)
-  const showDatasourceSelector =
-    !isAppsmithAIPlugin(plugin?.packageName) && pluginRequireDatasource;
-
+  const showDatasourceSelector = doesPluginRequireDatasource(plugin);
   const pluginImages = useSelector(getPluginImages);
 
   const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> =
