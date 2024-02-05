@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ee;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -4869,7 +4870,8 @@ public class ImportExportApplicationServiceGACTest {
         // verify that the exported json has the updated page name, and the queries are in the updated resources
         StepVerifier.create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
+                    ModifiedResources modifiedResources = applicationJson.getModifiedResources();
+                    Map<String, Set<String>> updatedResources = modifiedResources.getModifiedResourceMap();
                     assertThat(updatedResources).isNotNull();
                     Set<String> updatedPageNames = updatedResources.get(FieldName.PAGE_LIST);
                     Set<String> updatedActionNames = updatedResources.get(FieldName.ACTION_LIST);
@@ -4968,7 +4970,8 @@ public class ImportExportApplicationServiceGACTest {
         // verify that the exported json has the updated page name, and the queries are in the updated resources
         StepVerifier.create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
+                    ModifiedResources modifiedResources = applicationJson.getModifiedResources();
+                    Map<String, Set<String>> updatedResources = modifiedResources.getModifiedResourceMap();
                     assertThat(updatedResources).isNotNull();
                     Set<String> updatedActionNames = updatedResources.get(FieldName.ACTION_LIST);
                     assertThat(updatedActionNames).isNotNull();

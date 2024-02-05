@@ -1,5 +1,6 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.ApplicationGitReference;
@@ -11,7 +12,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -43,8 +43,7 @@ public class FileUtilsImpl extends FileUtilsCEImpl implements FileInterface {
             ApplicationGitReference applicationGitReference, Path baseRepo, Gson gson) {
 
         Set<String> validPages = super.updateEntitiesInRepo(applicationGitReference, baseRepo, gson);
-
-        Map<String, Set<String>> updatedResources = applicationGitReference.getUpdatedResources();
+        ModifiedResources modifiedResources = applicationGitReference.getModifiedResources();
         Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
 
         // Create HashMap for valid module instances
@@ -71,10 +70,9 @@ public class FileUtilsImpl extends FileUtilsCEImpl implements FileInterface {
                         validModuleInstancesMap.put(pageName, new HashSet<>());
                     }
                     validModuleInstancesMap.get(pageName).add(moduleInstanceName + CommonConstants.JSON_EXTENSION);
-                    Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(MODULE_INSTANCE_LIST))
-                            ? updatedResources.get(MODULE_INSTANCE_LIST).contains(resource.getKey())
-                            : Boolean.FALSE;
-                    if (Boolean.TRUE.equals(isResourceUpdated)) {
+                    boolean isResourceUpdated = modifiedResources != null
+                            && modifiedResources.isResourceUpdated(MODULE_INSTANCE_LIST, resource.getKey());
+                    if (isResourceUpdated) {
                         saveResource(
                                 resource.getValue(),
                                 moduleInstanceSpecificDirectory.resolve(

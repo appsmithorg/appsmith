@@ -135,8 +135,8 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
                     if (!moduleInstanceList.isEmpty()) {
                         if (!updatedModuleInstancesSet.isEmpty()) {
                             applicationJson
-                                    .getUpdatedResources()
-                                    .put(FieldName.MODULE_INSTANCE_LIST, updatedModuleInstancesSet);
+                                    .getModifiedResources()
+                                    .putResource(FieldName.MODULE_INSTANCE_LIST, updatedModuleInstancesSet);
                         }
                         applicationJson.setModuleInstanceList(moduleInstanceList);
                     }
