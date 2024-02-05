@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -33,7 +32,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     @Override
     public Mono<User> findByEmail(String email, AclPermission aclPermission) {
         Criteria emailCriteria = where(fieldName(QUser.user.email)).is(email);
-        return queryOne(List.of(emailCriteria), aclPermission);
+        return queryBuilder().criteria(emailCriteria).permission(aclPermission).one();
     }
 
     @Override
