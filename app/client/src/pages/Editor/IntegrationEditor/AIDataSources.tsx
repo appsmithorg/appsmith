@@ -1,17 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import {
-  createDatasourceFromForm,
-  createTempDatasourceFromForm,
-} from "actions/datasourceActions";
+import { createTempDatasourceFromForm } from "actions/datasourceActions";
 import type { AppState } from "@appsmith/reducers";
 import type { Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { createNewApiActionBasedOnEditorType } from "@appsmith/actions/helpers";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export const StyledContainer = styled.div`
   flex: 1;
@@ -109,7 +104,7 @@ export const CardContentWrapper = styled.div`
   padding-left: 13.5px;
 `;
 
-interface ApiHomeScreenProps {
+interface Props {
   history: {
     replace: (data: string) => void;
     push: (data: string) => void;
@@ -119,21 +114,11 @@ interface ApiHomeScreenProps {
   };
   pageId: string;
   plugins: Plugin[];
-  createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
-  createNewApiActionBasedOnEditorType: (
-    editorType: string,
-    editorId: string,
-    parentEntityId: string,
-    parentEntityType: ActionParentEntityTypeInterface,
-    apiType: string,
-  ) => void;
 }
-
-type Props = ApiHomeScreenProps;
 
 function AIDataSources(props: Props) {
   const { plugins } = props;
@@ -143,6 +128,7 @@ function AIDataSources(props: Props) {
       pluginName: plugin.name,
       pluginPackageName: plugin.packageName,
     });
+
     props.createTempDatasourceFromForm({
       pluginId: plugin.id,
       type: plugin.type,
@@ -151,11 +137,6 @@ function AIDataSources(props: Props) {
 
   // AI Plugins
   const aiPlugins = plugins
-    .filter((p) => {
-      // Remove Appsmith AI Plugin from Datasources page
-      // TODO: @Diljit Remove this when knowledge retrieval for Appsmith AI is implemented
-      return p.packageName !== PluginPackageName.APPSMITH_AI;
-    })
     .sort((a, b) => {
       // Sort the AI plugins alphabetically
       return a.name.localeCompare(b.name);
@@ -164,7 +145,7 @@ function AIDataSources(props: Props) {
 
   return (
     <StyledContainer>
-      <DatasourceCardsContainer data-testid="newapi-datasource-card-container">
+      <DatasourceCardsContainer data-testid="newai-datasource-card-container">
         {aiPlugins.map((plugin) => (
           <DatasourceCard
             className={`t--createBlankApi-${plugin.packageName}`}
@@ -197,9 +178,7 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = {
-  createDatasourceFromForm,
   createTempDatasourceFromForm,
-  createNewApiActionBasedOnEditorType,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AIDataSources);
