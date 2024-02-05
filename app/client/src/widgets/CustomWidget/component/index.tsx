@@ -121,6 +121,7 @@ function CustomComponent(props: CustomComponentProps) {
               height &&
               props.dynamicHeight !== DynamicHeight.FIXED
             ) {
+              iframe.current?.style.setProperty("height", `${height}px`);
               setHeight(height);
             }
             break;
@@ -211,9 +212,6 @@ function CustomComponent(props: CustomComponentProps) {
       className={clsx({
         "bp3-skeleton": loading,
       })}
-      style={{
-        height: height + "px",
-      }}
     >
       {props.needsOverlay && <OverlayDiv data-testid="iframe-overlay" />}
       <WidgetStyleContainer

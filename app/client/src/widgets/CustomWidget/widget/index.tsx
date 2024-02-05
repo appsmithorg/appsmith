@@ -89,6 +89,31 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     };
   }
 
+  static getAutoLayoutConfig() {
+    return {
+      autoDimension: {
+        height: true,
+      },
+      disabledPropsDefaults: {
+        dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (widget: CustomWidgetProps, extraDefsToDefine?: ExtraDef) => ({
       isVisible: DefaultAutocompleteDefinitions.isVisible,
