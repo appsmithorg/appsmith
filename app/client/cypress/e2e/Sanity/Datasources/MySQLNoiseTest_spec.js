@@ -1,6 +1,5 @@
-import {
-  PageLeftPane,
-  PagePaneSegment,
+import EditorNavigation, {
+  EntityType,
 } from "../../../support/Pages/EditorNavigation";
 
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
@@ -48,7 +47,7 @@ describe(
       );
       cy.SaveAndRunAPI();
       cy.ResponseCheck("killed");
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       cy.wait(2000);
       // run kill query
       cy.get(".bp3-button-text:contains('Kill Session')").should("be.visible");
