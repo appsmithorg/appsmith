@@ -19,8 +19,8 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.VariableReplacementService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.VariableReplacementService;
 import com.appsmith.server.solutions.ce.ActionExecutionSolutionCEImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
@@ -34,8 +34,7 @@ import java.util.Objects;
 import static com.appsmith.server.constants.FieldName.COOKIE;
 
 @Service
-public class
-ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl implements ActionExecutionSolution {
+public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl implements ActionExecutionSolution {
 
     private final VariableReplacementService variableReplacementService;
 
