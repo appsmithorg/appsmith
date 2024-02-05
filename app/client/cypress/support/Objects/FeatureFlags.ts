@@ -24,7 +24,7 @@ export const featureFlagIntercept = (
 
 export const getConsolidatedDataApi = (
   flags: Record<string, boolean> = {},
-  reload = true,
+  reload = false,
 ) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
