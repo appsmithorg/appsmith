@@ -6,23 +6,25 @@ public class WorkflowDefaultExecutables {
             export default {
                 // This is a main file for building your workflows. All activities to be executed should be defined within the executeWorkflow
                 // function.
-                function executeWorkflow(args) {
-                    // This function takes in a json object as arguments (args) which can be passed when you trigger the workflow.
+                async executeWorkflow(data) {
+                    // This function takes in a json object as arguments (data) which can be passed when you trigger the workflow.
                     // Complete the following line to set up your first activity. Place the cursor after activities, and select the action you'd like"
                     // to execute from the list menu that appears.
 
-                    // console.log(args)
+                    // await Query1.run();
+                    // await Api1.run();
 
-                    // await activities;
+                    return true;
+                    }
                 }
-            }
             """;
     public static final String EXECUTE_WORKFLOW_ACTION_BODY =
             """
-            function executeWorkflow(args) {
-                // console.log(args)
+            async executeWorkflow(data) {
+                // await Query1.run();
+                // await Api1.run();
 
-                // await activities;
+                return true;
             }
             """;
 }
