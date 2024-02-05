@@ -249,7 +249,15 @@ function* handleWidgetSelectionSaga(
 }
 
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
-  if (action.payload.widgetIds.length !== 1) return;
+  const widgetsToSelect = action.payload.widgetIds;
+  if (widgetsToSelect.length !== 1) return;
+  if (
+    widgetsToSelect.length === 1 &&
+    widgetsToSelect[0] === MAIN_CONTAINER_WIDGET_ID
+  ) {
+    // for cases where a widget inside modal is deleted and main canvas gets selected post that.
+    return;
+  }
 
   // Let's assume that the payload widgetId is a modal widget and we need to open the modal as it is selected
   let modalWidgetToOpen: string = action.payload.widgetIds[0];
