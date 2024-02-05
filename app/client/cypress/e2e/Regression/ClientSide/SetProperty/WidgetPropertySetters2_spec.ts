@@ -11,8 +11,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
-  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -136,7 +134,6 @@ describe(
       );
       jsEditor.RunJSObj();
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +

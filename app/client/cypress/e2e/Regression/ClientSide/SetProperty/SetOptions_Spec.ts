@@ -11,8 +11,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
-  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -39,7 +37,7 @@ describe(
         },
       );
       jsEditor.RunJSObj();
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -62,7 +60,7 @@ describe(
         false,
       );
       jsEditor.RunJSObj();
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -85,7 +83,7 @@ describe(
         false,
       );
       jsEditor.RunJSObj();
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -108,7 +106,7 @@ describe(
         false,
       );
       jsEditor.RunJSObj();
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -131,7 +129,7 @@ describe(
         false,
       );
       jsEditor.RunJSObj();
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -160,7 +158,7 @@ describe(
         }
     }`);
       jsEditor.RunJSObj();
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
