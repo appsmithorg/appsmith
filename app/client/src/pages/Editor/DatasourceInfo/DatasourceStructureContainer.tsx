@@ -7,7 +7,7 @@ import {
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import type { ReactElement } from "react";
-import React, { memo, useEffect, useState, useContext } from "react";
+import React, { memo, useContext, useEffect, useState } from "react";
 import EntityPlaceholder from "../Explorer/Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
 import { SearchInput, Text } from "design-system";
@@ -17,11 +17,10 @@ import type { AppState } from "@appsmith/reducers";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { PluginName } from "entities/Action";
+import { PluginName, SCHEMA_SECTION_ID } from "entities/Action";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { setFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { SCHEMA_SECTION_ID } from "entities/Action";
 import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
 
 interface Props {
@@ -135,8 +134,11 @@ const Container = (props: Props) => {
               context={props.context}
               currentActionId={props.currentActionId || ""}
               datasourceId={props.datasourceId}
-              // If set, then it doesn't set the context menu to generate query from templates
               onEntityTableClick={props.onEntityTableClick}
+              showTemplates={
+                props.context !==
+                DatasourceStructureContext.DATASOURCE_VIEW_MODE
+              }
               step={props.step + 1}
               // Selected table name for the view mode datasource preview data page
               tableName={props.tableName}

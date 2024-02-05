@@ -31,18 +31,12 @@ import {
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
+import Schema from "components/editorComponents/Debugger/Schema";
 import type { ActionResponse } from "api/ActionAPI";
 import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import QueryResponseTab from "./QueryResponseTab";
-import { DatasourceStructureContainer } from "../DatasourceInfo/DatasourceStructureContainer";
-import { DatasourceStructureContext } from "entities/Datasource";
-import {
-  getDatasourceStructureById,
-  getPluginNameFromId,
-} from "@appsmith/selectors/entitiesSelector";
-import { Flex } from "design-system";
 
 const ResultsCount = styled.div`
   position: absolute;
@@ -100,14 +94,6 @@ function QueryDebuggerTabs({
   const selectedResponseTab = useSelector(getDebuggerSelectedTab);
   const responsePaneHeight = useSelector(getResponsePaneHeight);
   const errorCount = useSelector(getErrorCount);
-
-  const datasourceStructure = useSelector((state) =>
-    getDatasourceStructureById(state, currentActionConfig?.datasource.id || ""),
-  );
-
-  const pluginName = useSelector((state) =>
-    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
-  );
 
   // Query is executed even once during the session, show the response data.
   if (actionResponse) {
@@ -177,20 +163,10 @@ function QueryDebuggerTabs({
       key: "schema",
       title: "Schema",
       panelComponent: (
-        <Flex
-          flexDirection="column"
-          height={`${responsePaneHeight - 40}px`}
-          px="spaces-3"
-        >
-          <DatasourceStructureContainer
-            context={DatasourceStructureContext.QUERY_EDITOR}
-            currentActionId={currentActionConfig.id}
-            datasourceId={currentActionConfig.datasource.id || ""}
-            datasourceStructure={datasourceStructure}
-            pluginName={pluginName}
-            step={0}
-          />
-        </Flex>
+        <Schema
+          currentActionId={currentActionConfig.id}
+          datasourceId={currentActionConfig.datasource.id || ""}
+        />
       ),
     });
   }

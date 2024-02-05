@@ -2,7 +2,6 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import Entity, { EntityClassNames } from "../Explorer/Entity";
 import { datasourceTableIcon } from "../Explorer/ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
-import DatasourceField from "./DatasourceField";
 import type { DatasourceTable } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
@@ -34,6 +33,7 @@ interface DatasourceStructureItemProps {
   currentActionId: string;
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
+  showTemplates: boolean;
 }
 
 const StyledMenuContent = styled(MenuContent)`
@@ -84,8 +84,6 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
       pluginName: plugin?.name,
     });
 
-    canCreateDatasourceActions && setActive(!active);
-
     if (!!props?.onEntityTableClick) {
       props?.onEntityTableClick(entity.target.outerText);
     }
@@ -131,16 +129,12 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
       </Menu>
     ) : null;
 
-  if (dbStructure.templates && !props?.onEntityTableClick)
+  if (dbStructure.templates && props.showTemplates) {
     templateMenu = lightningMenu;
-  const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);
+  }
 
   const activeState = useMemo(() => {
-    if (props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE) {
-      return props.tableName === dbStructure.name;
-    } else {
-      return active;
-    }
+    return props.tableName === dbStructure.name || active;
   }, [active, props.tableName]);
 
   return (
@@ -158,19 +152,7 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
       isDefaultExpanded={props?.isDefaultOpen}
       name={dbStructure.name}
       step={props.step}
-    >
-      <>
-        {columnsAndKeys.map((field, index) => {
-          return (
-            <DatasourceField
-              field={field}
-              key={`${field.name}${index}`}
-              step={props.step + 1}
-            />
-          );
-        })}
-      </>
-    </Entity>
+    />
   );
 });
 
@@ -181,6 +163,7 @@ type DatasourceStructureProps = Partial<DatasourceStructureItemProps> & {
   context: DatasourceStructureContext;
   isDefaultOpen?: boolean;
   currentActionId: string;
+  showTemplates: boolean;
 };
 
 const DatasourceStructure = (props: DatasourceStructureProps) => {
@@ -219,6 +202,7 @@ const DatasourceStructure = (props: DatasourceStructureProps) => {
         {...omit(props, ["tables"])}
         dbStructure={structure}
         key={`${props.datasourceId}${structure.name}-${props.context}`}
+        showTemplates={props.showTemplates}
       />
     );
   };
