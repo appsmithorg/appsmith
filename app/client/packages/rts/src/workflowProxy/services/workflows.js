@@ -97,7 +97,7 @@ export async function executeWorkflow(runRequest, workflowInstanceId) {
   //   "executeWorkflow - workflowObjectGeneratorCode",
   //   workflowObjectGeneratorCode,
   // );
-  const workflowObjectGenerator = eval(workflowObjectGeneratorCode);
+  const workflowObjectGenerator = (0, eval)(workflowObjectGeneratorCode);
 
   const workflowObject = workflowObjectGenerator(...actionValues, appsmith);
 
