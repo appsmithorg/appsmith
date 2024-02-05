@@ -39,6 +39,7 @@ export interface INJECTED_CONFIGS {
   logLevel: "debug" | "error";
   appVersion: {
     id: string;
+    sha: string;
     releaseDate: string;
     edition: string;
   };
@@ -106,8 +107,9 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       ? process.env.REACT_APP_CLOUD_HOSTING.length > 0
       : false,
     appVersion: {
-      id: process.env.REACT_APP_VERSION_ID || "",
-      releaseDate: process.env.REACT_APP_VERSION_RELEASE_DATE || "",
+      id: "",
+      sha: "",
+      releaseDate: "",
       edition: process.env.REACT_APP_VERSION_EDITION || "",
     },
     intercomAppID: process.env.REACT_APP_INTERCOM_APP_ID || "",
@@ -291,14 +293,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     logLevel:
       ENV_CONFIG.logLevel || APPSMITH_FEATURE_CONFIGS?.logLevel || false,
     appVersion: {
-      id:
-        APPSMITH_FEATURE_CONFIGS?.appVersion?.id ||
-        ENV_CONFIG.appVersion?.id ||
-        "",
-      releaseDate:
-        APPSMITH_FEATURE_CONFIGS?.appVersion?.releaseDate ||
-        ENV_CONFIG.appVersion?.releaseDate ||
-        "",
+      id: APPSMITH_FEATURE_CONFIGS?.appVersion?.id || "",
+      sha: APPSMITH_FEATURE_CONFIGS?.appVersion?.sha || "",
+      releaseDate: APPSMITH_FEATURE_CONFIGS?.appVersion?.releaseDate || "",
       edition:
         ENV_CONFIG.appVersion?.edition ||
         APPSMITH_FEATURE_CONFIGS?.appVersion?.edition ||
