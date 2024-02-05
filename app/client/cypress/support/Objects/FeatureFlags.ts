@@ -22,7 +22,10 @@ export const featureFlagIntercept = (
   if (reload) ReloadAfterIntercept();
 };
 
-export const getConsolidatedDataApi = (flags: Record<string, boolean> = {}) => {
+export const getConsolidatedDataApi = (
+  flags: Record<string, boolean> = {},
+  reload = true,
+) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
       if (res.statusCode === 200) {
@@ -41,7 +44,7 @@ export const getConsolidatedDataApi = (flags: Record<string, boolean> = {}) => {
       }
     });
   }).as("getConsolidatedData");
-  ReloadAfterIntercept();
+  if (reload) ReloadAfterIntercept();
 };
 
 export const featureFlagInterceptForLicenseFlags = () => {

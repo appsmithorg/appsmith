@@ -1085,7 +1085,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   } else {
     featureFlagIntercept({}, false);
   }
-  getConsolidatedDataApi({});
+  getConsolidatedDataApi({}, false);
   cy.intercept(
     {
       method: "GET",
