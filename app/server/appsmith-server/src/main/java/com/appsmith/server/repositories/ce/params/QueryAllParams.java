@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
+import lombok.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
@@ -45,6 +46,10 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.queryFirstExecute(this);
     }
 
+    public Mono<Long> count() {
+        return repo.countExecute(this);
+    }
+
     public QueryAllParams<T> criteria(Criteria... criteria) {
         if (criteria == null) {
             return this;
@@ -58,6 +63,10 @@ public class QueryAllParams<T extends BaseDomain> {
         }
         this.criteria.addAll(criterias);
         return this;
+    }
+
+    public QueryAllParams<T> byId(@NonNull String id) {
+        return criteria(Criteria.where(id).is(id));
     }
 
     public QueryAllParams<T> fields(String... fields) {
