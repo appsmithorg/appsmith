@@ -1,5 +1,5 @@
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
@@ -18,23 +18,26 @@ export const useAnvilWidgetHover = (
   const { focusWidget } = useWidgetSelection();
 
   // Callback function for handling mouseover events
-  const handleMouseOver = (e: any) => {
-    // Check conditions before focusing the widget on mouseover
-    focusWidget &&
-      !isFocused &&
-      !isDistributingSpace &&
-      !isPreviewMode &&
-      focusWidget(widgetId);
+  const handleMouseOver = useCallback(
+    (e: any) => {
+      // Check conditions before focusing the widget on mouseover
+      focusWidget &&
+        !isFocused &&
+        !isDistributingSpace &&
+        !isPreviewMode &&
+        focusWidget(widgetId);
 
-    // Prevent the event from propagating further
-    e.stopPropagation();
-  };
+      // Prevent the event from propagating further
+      e.stopPropagation();
+    },
+    [focusWidget, isFocused, isDistributingSpace, isPreviewMode, widgetId],
+  );
 
   // Callback function for handling mouseleave events
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     // On leaving a widget, reset the focused widget
     focusWidget && focusWidget();
-  };
+  }, [focusWidget]);
 
   // Effect hook to add and remove mouseover and mouseleave event listeners
   useEffect(() => {
