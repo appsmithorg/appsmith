@@ -5,7 +5,6 @@ import {
   entityExplorer,
   propPane,
   draggableWidgets,
-  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -79,7 +78,6 @@ describe(
       // Select from dropdown
       agHelper.GetNClick(`${locators._propertyControl}icon`);
       agHelper.GetElement(propPane._iconDropdown).scrollTo("top");
-      agHelper.Sleep();
       agHelper.GetNClick(propPane._dataIcon("airplane"));
       agHelper.AssertElementVisibility(
         `${locators._widgetInDeployed("iconbuttonwidget")} ${propPane._dataIcon(
