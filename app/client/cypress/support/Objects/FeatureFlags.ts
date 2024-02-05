@@ -19,6 +19,10 @@ export const featureFlagIntercept = (
   };
   cy.intercept("GET", "/api/v1/users/features", response);
 
+  if (reload) ReloadAfterIntercept();
+};
+
+export const getConsolidatedDataApi = (flags: Record<string, boolean> = {}) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
       if (res.statusCode === 200) {
@@ -37,20 +41,7 @@ export const featureFlagIntercept = (
       }
     });
   }).as("getConsolidatedData");
-
-  if (reload) {
-    cy.reload();
-    cy.waitUntil(() =>
-      cy.document().should((doc) => {
-        expect(doc.readyState).to.equal("complete");
-      }),
-    );
-    cy.waitUntil(() =>
-      cy
-        .window({ timeout: Cypress.config().pageLoadTimeout })
-        .then((win) => expect(win).haveOwnProperty("onload")),
-    );
-  }
+  ReloadAfterIntercept();
 };
 
 export const featureFlagInterceptForLicenseFlags = () => {
@@ -114,3 +105,17 @@ export const featureFlagInterceptForLicenseFlags = () => {
   cy.reload();
   cy.wait(2000); //for the page to re-load finish for CI runs
 };
+
+function ReloadAfterIntercept() {
+  cy.reload();
+  cy.waitUntil(() =>
+    cy.document().should((doc) => {
+      expect(doc.readyState).to.equal("complete");
+    }),
+  );
+  cy.waitUntil(() =>
+    cy
+      .window({ timeout: Cypress.config().pageLoadTimeout })
+      .then((win) => expect(win).haveOwnProperty("onload")),
+  );
+}
