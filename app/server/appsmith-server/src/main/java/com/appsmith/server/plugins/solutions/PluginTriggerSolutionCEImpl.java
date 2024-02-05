@@ -8,11 +8,15 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.DatasourceTriggerSolution;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -22,15 +26,20 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
     private final DatasourceTriggerSolution datasourceTriggerSolution;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PluginRepository pluginRepository;
+    private final ConfigService configService;
+    private final TenantService tenantService;
 
     public PluginTriggerSolutionCEImpl(
             DatasourceTriggerSolution datasourceTriggerSolution,
             PluginExecutorHelper pluginExecutorHelper,
-            PluginRepository pluginRepository) {
-
+            PluginRepository pluginRepository,
+            ConfigService configService,
+            TenantService tenantService) {
         this.datasourceTriggerSolution = datasourceTriggerSolution;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.pluginRepository = pluginRepository;
+        this.configService = configService;
+        this.tenantService = tenantService;
     }
 
     /**
@@ -73,8 +82,39 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
             Plugin plugin = pair.getT1();
             PluginExecutor pluginExecutor = pair.getT2();
             setHeadersToTriggerRequest(plugin, httpHeaders, triggerRequestDTO);
-            return ((PluginExecutor<Object>) pluginExecutor).trigger(null, null, triggerRequestDTO);
+            return setTenantAndInstanceId(triggerRequestDTO)
+                    .flatMap(updatedTriggerRequestDTO ->
+                            ((PluginExecutor<Object>) pluginExecutor).trigger(null, null, updatedTriggerRequestDTO));
         });
+    }
+
+    @Override
+    public Mono<TriggerResultDTO> trigger(
+            String pluginId,
+            String environmentId,
+            String workspaceId,
+            Flux<FilePart> filePartFlux,
+            String requestType,
+            HttpHeaders httpHeaders) {
+        TriggerRequestDTO triggerRequestDTO = new TriggerRequestDTO();
+        return filePartFlux.collectList().flatMap(fileParts -> {
+            triggerRequestDTO.setFiles(fileParts);
+            triggerRequestDTO.setRequestType(requestType);
+            triggerRequestDTO.setParameters(Map.of("triggerSource", "multipartRequest"));
+            triggerRequestDTO.setWorkspaceId(workspaceId);
+            return this.trigger(pluginId, environmentId, triggerRequestDTO, httpHeaders);
+        });
+    }
+
+    private Mono<TriggerRequestDTO> setTenantAndInstanceId(TriggerRequestDTO triggerRequestDTO) {
+        return tenantService
+                .getDefaultTenantId()
+                .zipWith(configService.getInstanceId())
+                .map(tuple -> {
+                    triggerRequestDTO.setTenantId(tuple.getT1());
+                    triggerRequestDTO.setInstanceId(tuple.getT2());
+                    return triggerRequestDTO;
+                });
     }
 
     protected void setHeadersToTriggerRequest(
