@@ -36,6 +36,13 @@ import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import QueryResponseTab from "./QueryResponseTab";
+import { DatasourceStructureContainer } from "../DatasourceInfo/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "entities/Datasource";
+import {
+  getDatasourceStructureById,
+  getPluginNameFromId,
+} from "@appsmith/selectors/entitiesSelector";
+import { Flex } from "design-system";
 
 const ResultsCount = styled.div`
   position: absolute;
@@ -72,6 +79,7 @@ interface QueryDebuggerTabsProps {
   runErrorMessage?: string;
   actionResponse?: ActionResponse;
   onRunClick: () => void;
+  showSchema: boolean;
 }
 
 function QueryDebuggerTabs({
@@ -82,6 +90,7 @@ function QueryDebuggerTabs({
   isRunning,
   onRunClick,
   runErrorMessage,
+  showSchema,
 }: QueryDebuggerTabsProps) {
   let output: Record<string, any>[] | null = null;
 
@@ -91,6 +100,14 @@ function QueryDebuggerTabs({
   const selectedResponseTab = useSelector(getDebuggerSelectedTab);
   const responsePaneHeight = useSelector(getResponsePaneHeight);
   const errorCount = useSelector(getErrorCount);
+
+  const datasourceStructure = useSelector((state) =>
+    getDatasourceStructureById(state, currentActionConfig?.datasource.id || ""),
+  );
+
+  const pluginName = useSelector((state) =>
+    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
+  );
 
   // Query is executed even once during the session, show the response data.
   if (actionResponse) {
@@ -151,6 +168,29 @@ function QueryDebuggerTabs({
           onRunClick={onRunClick}
           runErrorMessage={runErrorMessage}
         />
+      ),
+    });
+  }
+
+  if (showSchema && currentActionConfig) {
+    responseTabs.unshift({
+      key: "schema",
+      title: "Schema",
+      panelComponent: (
+        <Flex
+          flexDirection="column"
+          height={`${responsePaneHeight - 40}px`}
+          px="spaces-3"
+        >
+          <DatasourceStructureContainer
+            context={DatasourceStructureContext.QUERY_EDITOR}
+            currentActionId={currentActionConfig.id}
+            datasourceId={currentActionConfig.datasource.id || ""}
+            datasourceStructure={datasourceStructure}
+            pluginName={pluginName}
+            step={0}
+          />
+        </Flex>
       ),
     });
   }

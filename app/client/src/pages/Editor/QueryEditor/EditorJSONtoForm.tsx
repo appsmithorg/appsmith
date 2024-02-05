@@ -473,6 +473,7 @@ export function EditorJSONtoForm(props: Props) {
                     isRunning={isRunning}
                     onRunClick={onRunClick}
                     runErrorMessage={runErrorMessage}
+                    showSchema={showSchema}
                   />
                 )}
             </SecondaryWrapper>
