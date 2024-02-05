@@ -13,10 +13,15 @@ import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
 import {
+  builderURL,
   jsCollectionListURL,
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
+import isEmpty from "lodash/isEmpty";
+import pickBy from "lodash/pickBy";
+import { getFocusInfo } from "selectors/focusHistorySelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
 
 export const useCurrentAppState = () => {
@@ -153,4 +158,43 @@ export const useSegmentNavigation = (): {
   };
 
   return { onSegmentChange };
+};
+
+export const useGetPageFocusUrl = (pageId: string): string => {
+  const editorStateString = "EDITOR_STATE.";
+  const focusInfo = useSelector(getFocusInfo);
+  const branch = useSelector(getCurrentGitBranch);
+  const [focusPageUrl, setFocusPageUrl] = useState(
+    builderURL({ pageId: pageId }),
+  );
+
+  useEffect(() => {
+    const editorState = pickBy(
+      focusInfo,
+      (v, k) =>
+        k === editorStateString + pageId + "#" + (branch || "undefined"),
+    );
+
+    if (isEmpty(editorState)) {
+      return;
+    }
+
+    const segment =
+      Object.values(editorState)[0].state?.SelectedSegment ||
+      EditorEntityTab.UI;
+
+    switch (segment) {
+      case EditorEntityTab.UI:
+        setFocusPageUrl(widgetListURL({ pageId: pageId }));
+        break;
+      case EditorEntityTab.JS:
+        setFocusPageUrl(jsCollectionListURL({ pageId: pageId }));
+        break;
+      case EditorEntityTab.QUERIES:
+        setFocusPageUrl(queryListURL({ pageId: pageId }));
+        break;
+    }
+  }, [focusInfo, branch]);
+
+  return focusPageUrl;
 };
