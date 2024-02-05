@@ -51,8 +51,6 @@ export interface PopoverProps {
    * @default false
    */
   dismissClickOutside?: boolean;
-  /** Selectors that are clicked on do not close the popup. */
-  dismissCloseSelectors?: string | string[];
 }
 
 export interface PopoverContentProps {

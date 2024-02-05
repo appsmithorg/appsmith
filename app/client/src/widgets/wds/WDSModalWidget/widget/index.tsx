@@ -15,7 +15,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ModalBody } from "@design-system/widgets";
 import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
-import { WIDGET_NAME_CANVAS } from "layoutSystems/common/WidgetNamesCanvas/WidgetNameConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
@@ -120,8 +119,6 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
     return (
       <Modal
-        // don't close modal by clicking on the widget name
-        dismissCloseSelectors={`#${WIDGET_NAME_CANVAS}`}
         isOpen={this.state.isVisible as boolean}
         onClose={this.onModalClose}
         setOpen={(val) => this.setState({ isVisible: val })}

@@ -14,7 +14,6 @@ export interface ModalProps
       | "triggerRef"
       | "initialFocus"
       | "dismissClickOutside"
-      | "dismissCloseSelectors"
     >,
     Pick<PopoverModalContentProps, "overlayClassName"> {
   /** Size of the Modal
