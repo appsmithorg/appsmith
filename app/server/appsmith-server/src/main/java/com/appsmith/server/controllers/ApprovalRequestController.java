@@ -5,12 +5,13 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ApprovalRequest;
 import com.appsmith.server.dtos.ApprovalRequestCreationDTO;
 import com.appsmith.server.dtos.ApprovalRequestResolutionDTO;
+import com.appsmith.server.dtos.ApprovalRequestResolvedResponseDTO;
+import com.appsmith.server.dtos.ApprovalRequestResponseDTO;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.workflows.crud.CrudApprovalRequestService;
 import com.appsmith.server.workflows.interact.InteractApprovalRequestService;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
@@ -43,7 +44,7 @@ public class ApprovalRequestController {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<ApprovalRequest>> create(
+    public Mono<ResponseDTO<ApprovalRequestResponseDTO>> create(
             @RequestBody ApprovalRequestCreationDTO approvalRequestCreationDTO) {
         return crudApprovalRequestService
                 .createApprovalRequest(approvalRequestCreationDTO)
@@ -53,7 +54,7 @@ public class ApprovalRequestController {
     @JsonView(Views.Public.class)
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<PagedDomain<ApprovalRequest>>> getAll(
+    public Mono<ResponseDTO<PagedDomain<ApprovalRequestResponseDTO>>> getAll(
             @RequestParam MultiValueMap<String, String> queryParams) {
         return crudApprovalRequestService
                 .getPaginatedApprovalRequests(queryParams)
@@ -72,7 +73,8 @@ public class ApprovalRequestController {
     @JsonView(Views.Public.class)
     @PutMapping("/resolve")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<JsonNode>> resolve(@RequestBody ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
+    public Mono<ResponseDTO<ApprovalRequestResolvedResponseDTO>> resolve(
+            @RequestBody ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
         return interactApprovalRequestService
                 .resolveApprovalRequest(approvalRequestResolutionDTO)
                 .map(resolved -> new ResponseDTO<>(HttpStatus.OK.value(), resolved, null));

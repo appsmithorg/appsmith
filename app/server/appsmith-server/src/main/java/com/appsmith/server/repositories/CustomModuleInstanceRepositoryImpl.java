@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.QModuleInstance;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -58,7 +59,10 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 .and(completeFieldName(QModuleInstance.moduleInstance.publishedModuleInstance.contextType))
                 .is(contextType);
 
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.ofNullable(permission));
+        return queryAll()
+                .criteria(contextIdAndContextTypeCriteria)
+                .permission(Optional.ofNullable(permission).orElse(null))
+                .submit();
     }
 
     @Override
@@ -76,7 +80,10 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 .isNull();
         criteria.add(deletedAtNullCriterion);
 
-        return queryAll(criteria, Optional.ofNullable(permission));
+        return queryAll()
+                .criteria(criteria)
+                .permission(Optional.ofNullable(permission).orElse(null))
+                .submit();
     }
 
     @Override
@@ -97,18 +104,25 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         Criteria rootModuleInstanceIdCriterion = where(fieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
                 .is(rootModuleInstanceId);
 
-        return queryAll(
-                List.of(rootModuleInstanceIdCriterion),
-                Optional.ofNullable(projectionFields),
-                permission,
-                Optional.empty());
+        return queryAll()
+                .criteria(rootModuleInstanceIdCriterion)
+                .fields(Optional.ofNullable(projectionFields).orElse(null))
+                .permission(permission.orElse(null))
+                .sort(Optional.<Sort>empty().orElse(null))
+                .submit();
     }
 
     @Override
     public Flux<ModuleInstance> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
         Criteria applicationCriteria = Criteria.where(fieldName(QModuleInstance.moduleInstance.applicationId))
                 .in(applicationIds);
-        return queryAll(List.of(applicationCriteria), includedFields, null, null, NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(applicationCriteria)
+                .fields(includedFields)
+                .permission(null)
+                .sort(null)
+                .limit(NO_RECORD_LIMIT)
+                .submit();
     }
 
     @Override
@@ -117,7 +131,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
         List<Criteria> criteria = new ArrayList<>();
         criteria.add(applicationIdCriterion);
-        return queryAll(criteria, permission);
+        return queryAll().criteria(criteria).permission(permission.orElse(null)).submit();
     }
 
     @Override
@@ -143,11 +157,10 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                         completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.pageId))
                 .in(pageIds);
 
-        Criteria notAModuleInstancePrivateEntity = where(
-                        completeFieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
-                .exists(false);
-
-        return queryAll(List.of(pageIdCriteria, notAModuleInstancePrivateEntity), permission);
+        return queryAll()
+                .criteria(pageIdCriteria)
+                .permission(permission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -172,7 +185,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         criteria.add(originModuleIdCriterion);
         criteria.add(notDeletedCriterion);
 
-        return queryAll(criteria, permission);
+        return queryAll().criteria(criteria).permission(permission.orElse(null)).submit();
     }
 
     @Override
@@ -181,7 +194,10 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         final String defaultResources = fieldName(QModuleInstance.moduleInstance.defaultResources);
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
-        return queryAll(List.of(defaultAppIdCriteria), permissionOptional);
+        return queryAll()
+                .criteria(defaultAppIdCriteria)
+                .permission(permissionOptional.orElse(null))
+                .submit();
     }
 
     @Override
@@ -201,7 +217,12 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         Criteria notComposedCriteria = Criteria.where(fieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
                 .exists(false);
 
-        return queryAll(
-                List.of(applicationCriteria, notComposedCriteria), projectionFields, null, null, NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(applicationCriteria, notComposedCriteria)
+                .fields(projectionFields)
+                .permission(null)
+                .sort(null)
+                .limit(NO_RECORD_LIMIT)
+                .submit();
     }
 }

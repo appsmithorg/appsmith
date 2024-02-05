@@ -19,7 +19,7 @@ import static com.external.plugins.constants.FieldNames.RESOLUTION_METADATA;
 import static com.external.plugins.constants.FieldNames.WORKFLOW_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ResolveApprovalRequestWorkflowCommandTest {
+public class ResolveRequestWorkflowCommandTest {
     public static class MockSharedConfig implements SharedConfig {
 
         @Override
@@ -39,13 +39,13 @@ public class ResolveApprovalRequestWorkflowCommandTest {
     }
 
     WorkflowPlugin.WorkflowPluginExecutor workflowPluginExecutor =
-            new WorkflowPlugin.WorkflowPluginExecutor(new GetApprovalRequestWorkflowCommandTest.MockSharedConfig());
+            new WorkflowPlugin.WorkflowPluginExecutor(new GetRequestWorkflowCommandTest.MockSharedConfig());
 
     @Test
     public void testExecuteRequestWithoutWorkflowId() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Map<String, Object> formData = new HashMap<>();
-        formData.put(REQUEST_TYPE, Map.of("data", "RESOLVE_APPROVAL_REQUESTS"));
+        formData.put(REQUEST_TYPE, Map.of("data", "RESOLVE_REQUESTS"));
         actionConfiguration.setFormData(formData);
 
         Mono<ActionExecutionResult> executionResultMono =
@@ -68,7 +68,7 @@ public class ResolveApprovalRequestWorkflowCommandTest {
     public void testExecuteRequestWithoutApprovalRequestId() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Map<String, Object> formData = new HashMap<>();
-        formData.put(REQUEST_TYPE, Map.of("data", "RESOLVE_APPROVAL_REQUESTS"));
+        formData.put(REQUEST_TYPE, Map.of("data", "RESOLVE_REQUESTS"));
         formData.put(WORKFLOW_ID, Map.of("data", "WORKFLOW_ID"));
         actionConfiguration.setFormData(formData);
 
@@ -79,12 +79,11 @@ public class ResolveApprovalRequestWorkflowCommandTest {
                 .assertNext(executionResult -> {
                     assertThat(executionResult.getIsExecutionSuccess()).isFalse();
                     assertThat(executionResult.getErrorType()).isEqualTo(WORKFLOW_ERROR.toString());
-                    assertThat(executionResult.getTitle())
-                            .isEqualTo(WorkflowPluginError.APPROVAL_REQUEST_ID_MISSING.getTitle());
+                    assertThat(executionResult.getTitle()).isEqualTo(WorkflowPluginError.REQUEST_ID_MISSING.getTitle());
                     assertThat(executionResult.getBody())
-                            .isEqualTo(WorkflowPluginError.APPROVAL_REQUEST_ID_MISSING.getMessage());
+                            .isEqualTo(WorkflowPluginError.REQUEST_ID_MISSING.getMessage());
                     assertThat(executionResult.getStatusCode())
-                            .isEqualTo(WorkflowPluginError.APPROVAL_REQUEST_ID_MISSING.getAppErrorCode());
+                            .isEqualTo(WorkflowPluginError.REQUEST_ID_MISSING.getAppErrorCode());
                 })
                 .verifyComplete();
     }
@@ -93,7 +92,7 @@ public class ResolveApprovalRequestWorkflowCommandTest {
     public void testExecuteRequestWithoutResolution() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Map<String, Object> formData = new HashMap<>();
-        formData.put(REQUEST_TYPE, Map.of("data", "RESOLVE_APPROVAL_REQUESTS"));
+        formData.put(REQUEST_TYPE, Map.of("data", "RESOLVE_REQUESTS"));
         formData.put(WORKFLOW_ID, Map.of("data", "WORKFLOW_ID"));
         formData.put(REQUEST_ID, Map.of("data", "REQUEST_ID"));
         actionConfiguration.setFormData(formData);
@@ -106,11 +105,11 @@ public class ResolveApprovalRequestWorkflowCommandTest {
                     assertThat(executionResult.getIsExecutionSuccess()).isFalse();
                     assertThat(executionResult.getErrorType()).isEqualTo(WORKFLOW_ERROR.toString());
                     assertThat(executionResult.getTitle())
-                            .isEqualTo(WorkflowPluginError.APPROVAL_REQUEST_RESOLUTION_MISSING.getTitle());
+                            .isEqualTo(WorkflowPluginError.REQUEST_RESOLUTION_MISSING.getTitle());
                     assertThat(executionResult.getBody())
-                            .isEqualTo(WorkflowPluginError.APPROVAL_REQUEST_RESOLUTION_MISSING.getMessage());
+                            .isEqualTo(WorkflowPluginError.REQUEST_RESOLUTION_MISSING.getMessage());
                     assertThat(executionResult.getStatusCode())
-                            .isEqualTo(WorkflowPluginError.APPROVAL_REQUEST_RESOLUTION_MISSING.getAppErrorCode());
+                            .isEqualTo(WorkflowPluginError.REQUEST_RESOLUTION_MISSING.getAppErrorCode());
                 })
                 .verifyComplete();
     }
@@ -119,7 +118,7 @@ public class ResolveApprovalRequestWorkflowCommandTest {
     public void testExecuteRequestWithInvalidResolutionMetadata() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Map<String, Object> formData = new HashMap<>();
-        formData.put(REQUEST_TYPE, Map.of("data", "RESOLVE_APPROVAL_REQUESTS"));
+        formData.put(REQUEST_TYPE, Map.of("data", "RESOLVE_REQUESTS"));
         formData.put(WORKFLOW_ID, Map.of("data", "WORKFLOW_ID"));
         formData.put(REQUEST_ID, Map.of("data", "REQUEST_ID"));
         formData.put(RESOLUTION, Map.of("data", "RESOLUTION"));

@@ -6,6 +6,7 @@ public class FieldNames {
     public static final String WORKFLOW_ID = "workflowId";
     public static final String WORKSPACE_ID = "workspaceId";
     public static final String REQUEST_ID = "requestId";
+    public static final String REQUEST_NAMES = "requestNames";
     public static final String REQUEST_NAME = "requestName";
     public static final String RESOLUTION = "requestResolution";
     public static final String RESOLUTION_REASON = "requestResolutionReason";

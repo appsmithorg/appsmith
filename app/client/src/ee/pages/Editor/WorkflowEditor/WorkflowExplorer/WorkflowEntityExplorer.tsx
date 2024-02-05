@@ -11,11 +11,7 @@ import {
   ActionEntityContextMenuItemsEnum,
   FilesContextProvider,
 } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import {
-  getCurrentWorkflowId,
-  getWorkflowById,
-} from "@appsmith/selectors/workflowSelectors";
-import type { AppState } from "@appsmith/reducers";
+import { getCurrentWorkflow } from "@appsmith/selectors/workflowSelectors";
 import { hasCreateWorkflowActionsPermission } from "@appsmith/utils/permissionHelpers";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
@@ -32,25 +28,22 @@ function WorkflowEntityExplorer({ isActive }: { isActive: boolean }) {
     dispatch(fetchWorkspace(currentWorkspaceId));
   }, [currentWorkspaceId]);
 
-  const workflowId = useSelector(getCurrentWorkflowId) || "";
-  const workflow = useSelector((state: AppState) =>
-    getWorkflowById(state, workflowId),
-  );
+  const workflow = useSelector(getCurrentWorkflow);
 
   const canCreateActions = hasCreateWorkflowActionsPermission(
-    workflow.userPermissions,
+    workflow?.userPermissions || [],
   );
 
   return (
     <EntityExplorerWrapper explorerRef={explorerRef} isActive={isActive}>
       <FilesContextProvider
         canCreateActions={canCreateActions}
-        editorId={workflowId}
+        editorId={workflow?.id || ""}
         menuItems={[
           ActionEntityContextMenuItemsEnum.EDIT_NAME,
           ActionEntityContextMenuItemsEnum.DELETE,
         ]}
-        parentEntityId={workflowId}
+        parentEntityId={workflow?.id || ""}
         parentEntityType={ActionParentEntityType.WORKFLOW}
       >
         <Files />

@@ -32,4 +32,6 @@ public interface CustomModuleRepository extends AppsmithRepository<Module> {
 
     Flux<Module> findAllByOriginModuleId(
             String originModuleId, List<String> projectionFields, Optional<AclPermission> permissionOptional);
+
+    Flux<Module> findAllByModuleUUID(String moduleUUID, Optional<AclPermission> permission);
 }

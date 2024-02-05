@@ -2,6 +2,7 @@ package com.appsmith.server.workflows.crud;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.server.constants.ApprovalRequestStatus;
 import com.appsmith.server.domains.ApprovalRequest;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QApprovalRequest;
@@ -9,8 +10,12 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ApprovalRequestCreationDTO;
+import com.appsmith.server.dtos.ApprovalRequestResolutionMetadata;
+import com.appsmith.server.dtos.ApprovalRequestResponseDTO;
 import com.appsmith.server.dtos.PagedDomain;
+import com.appsmith.server.dtos.PendingApprovalRequestResponseDTO;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.dtos.ResolvedApprovalRequestResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -87,7 +92,8 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<ApprovalRequest> createApprovalRequest(ApprovalRequestCreationDTO approvalRequestCreationDTO) {
+    public Mono<ApprovalRequestResponseDTO> createApprovalRequest(
+            ApprovalRequestCreationDTO approvalRequestCreationDTO) {
         Mono<Tuple2<List<User>, List<UserGroup>>> requestToUsersAndGroupsFromDbMono = getUsersAndUserGroups(
                         approvalRequestCreationDTO)
                 .flatMap(pair -> {
@@ -106,17 +112,18 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, WORKFLOW, approvalRequestCreationDTO.getWorkflowId())));
 
-        Mono<ApprovalRequest> approvalRequestCreateMono =
+        Mono<ApprovalRequestResponseDTO> approvalRequestCreateResponseMono =
                 workflowMono.flatMap(workflow -> requestToUsersAndGroupsFromDbMono.flatMap(pair -> {
                     List<User> requestToUsers = pair.getT1();
                     List<UserGroup> requestToGroups = pair.getT2();
                     ApprovalRequest approvalRequest = createApprovalRequestFromDTO(approvalRequestCreationDTO);
                     return super.create(approvalRequest)
                             .flatMap(created ->
-                                    addPoliciesToApprovalRequestAndSave(created, requestToUsers, requestToGroups));
+                                    addPoliciesToApprovalRequestAndSave(created, requestToUsers, requestToGroups))
+                            .map(this::getApprovalRequestResponseDTO);
                 }));
 
-        return validateApprovalCreationRequest(approvalRequestCreationDTO).then(approvalRequestCreateMono);
+        return validateApprovalCreationRequest(approvalRequestCreationDTO).then(approvalRequestCreateResponseMono);
     }
 
     private Mono<ApprovalRequestCreationDTO> validateApprovalCreationRequest(
@@ -166,23 +173,34 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<PagedDomain<ApprovalRequest>> getPaginatedApprovalRequests(MultiValueMap<String, String> filters) {
-        return repository.getAllWithFilters(
-                filters, Optional.of(READ_APPROVAL_REQUESTS), getSortForGetApprovalRequests(filters));
+    public Mono<PagedDomain<ApprovalRequestResponseDTO>> getPaginatedApprovalRequests(
+            MultiValueMap<String, String> filters) {
+        return repository
+                .getAllWithFilters(filters, Optional.of(READ_APPROVAL_REQUESTS), getSortForGetApprovalRequests(filters))
+                .map(approvalRequestPagedDomain -> {
+                    PagedDomain<ApprovalRequestResponseDTO> approvalRequestResponseDTOPagedDomain = new PagedDomain<>();
+                    approvalRequestResponseDTOPagedDomain.setContent(approvalRequestPagedDomain.getContent().stream()
+                            .map(this::getApprovalRequestResponseDTO)
+                            .toList());
+                    approvalRequestResponseDTOPagedDomain.setStartIndex(approvalRequestPagedDomain.getStartIndex());
+                    approvalRequestResponseDTOPagedDomain.setCount(approvalRequestPagedDomain.getCount());
+                    approvalRequestResponseDTOPagedDomain.setTotal(approvalRequestPagedDomain.getTotal());
+                    return approvalRequestResponseDTOPagedDomain;
+                });
     }
 
     private ApprovalRequest createApprovalRequestFromDTO(ApprovalRequestCreationDTO approvalRequestCreationDTO) {
         ApprovalRequest approvalRequest = new ApprovalRequest();
-        approvalRequest.setTitle(approvalRequestCreationDTO.getTitle());
-        approvalRequest.setDescription(approvalRequestCreationDTO.getDescription());
+        approvalRequest.setRequestName(approvalRequestCreationDTO.getRequestName());
+        approvalRequest.setMessage(approvalRequestCreationDTO.getMessage());
         approvalRequest.setWorkflowId(approvalRequestCreationDTO.getWorkflowId());
-        approvalRequest.setUserInfo(approvalRequestCreationDTO.getUserInfo());
+        approvalRequest.setCreationMetadata(approvalRequestCreationDTO.getMetadata());
         approvalRequest.setAllowedResolutions(approvalRequestCreationDTO.getAllowedResolutions());
         approvalRequest.setRunId(approvalRequestCreationDTO.getRunId());
         return approvalRequest;
     }
 
-    Optional<Sort> getSortForGetApprovalRequests(MultiValueMap<String, String> filters) {
+    private Optional<Sort> getSortForGetApprovalRequests(MultiValueMap<String, String> filters) {
         Sort defaultSort = Sort.by(Sort.Direction.DESC, fieldName(QApprovalRequest.approvalRequest.createdAt));
         if (filters.containsKey(SORT) && StringUtils.isEmpty(filters.getFirst(SORT))) {
             String sortOrder = filters.getFirst(SORT);
@@ -193,7 +211,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
         return Optional.of(defaultSort);
     }
 
-    Mono<ApprovalRequest> addPoliciesToApprovalRequestAndSave(
+    private Mono<ApprovalRequest> addPoliciesToApprovalRequestAndSave(
             ApprovalRequest approvalRequest, List<User> users, List<UserGroup> groups) {
         PermissionGroup approvalRequestRole = new PermissionGroup();
         approvalRequestRole.setName(String.format(APPROVAL_REQUEST_ROLE_PREFIX, approvalRequest.getId()));
@@ -222,5 +240,32 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
                 .flatMap(role -> permissionGroupService.bulkAssignUsersAndUserGroupsToPermissionGroupsWithoutPermission(
                         users, groups, List.of(role)))
                 .then(approvalRequestWithUpdatedPoliciesMono);
+    }
+
+    private ApprovalRequestResponseDTO getApprovalRequestResponseDTO(ApprovalRequest approvalRequest) {
+        if (ApprovalRequestStatus.PENDING.equals(approvalRequest.getResolutionStatus())) {
+            return PendingApprovalRequestResponseDTO.builder()
+                    .id(approvalRequest.getId())
+                    .requestName(approvalRequest.getRequestName())
+                    .message(approvalRequest.getMessage())
+                    .createdAt(approvalRequest.getCreatedAt())
+                    .metadata(approvalRequest.getCreationMetadata())
+                    .allowedResolutions(approvalRequest.getAllowedResolutions())
+                    .build();
+        } else {
+            return ResolvedApprovalRequestResponseDTO.builder()
+                    .id(approvalRequest.getId())
+                    .requestName(approvalRequest.getRequestName())
+                    .message(approvalRequest.getMessage())
+                    .createdAt(approvalRequest.getCreatedAt())
+                    .metadata(approvalRequest.getCreationMetadata())
+                    .resolvedBy(approvalRequest.getResolvedBy())
+                    .resolvedAt(approvalRequest.getResolvedAt())
+                    .resolution(ApprovalRequestResolutionMetadata.builder()
+                            .resolution(approvalRequest.getResolution())
+                            .metadata(approvalRequest.getResolutionMetadata())
+                            .build())
+                    .build();
+        }
     }
 }

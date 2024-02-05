@@ -15,7 +15,7 @@ import static com.appsmith.external.models.ErrorType.WORKFLOW_ERROR;
 import static com.external.plugins.constants.FieldNames.REQUEST_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class GetApprovalRequestWorkflowCommandTest {
+class GetRequestWorkflowCommandTest {
 
     public static class MockSharedConfig implements SharedConfig {
 
@@ -42,7 +42,7 @@ class GetApprovalRequestWorkflowCommandTest {
     public void testExecuteRequestWithoutWorkflowId() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Map<String, Object> formData = new HashMap<>();
-        formData.put(REQUEST_TYPE, Map.of("data", "GET_APPROVAL_REQUESTS"));
+        formData.put(REQUEST_TYPE, Map.of("data", "GET_REQUESTS"));
         actionConfiguration.setFormData(formData);
 
         Mono<ActionExecutionResult> executionResultMono =

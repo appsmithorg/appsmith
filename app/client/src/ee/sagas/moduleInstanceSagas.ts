@@ -1,12 +1,10 @@
 import { builderURL, moduleInstanceEditorURL } from "@appsmith/RouteBuilder";
 import type {
   ConvertEntityToInstanceActionPayload,
-  RunQueryModuleInstancePayload,
-} from "@appsmith/actions/moduleInstanceActions";
-import type {
   CreateQueryModuleInstancePayload,
   DeleteModuleInstancePayload,
   FetchModuleInstancesPayload,
+  RunQueryModuleInstancePayload,
   SaveModuleInstanceNamePayload,
   SetupModuleInstancePayload,
   UpdateModuleInstanceOnPageLoadSettingsPayload,
@@ -49,8 +47,8 @@ import {
 } from "selectors/editorSelectors";
 import { toast } from "design-system";
 import {
-  MODULE_INSTANCE_RENAME_ERROR,
   createMessage,
+  MODULE_INSTANCE_RENAME_ERROR,
 } from "@appsmith/constants/messages";
 import * as log from "loglevel";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
@@ -61,11 +59,18 @@ import { updateActionData } from "actions/pluginActionActions";
 import { fetchAllPackagesSaga } from "./packagesSagas";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
-import { MODULE_TYPE, type Module } from "@appsmith/constants/ModuleConstants";
+import { type Module, MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import { getNewEntityName } from "@appsmith/selectors/entitiesSelector";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 import analytics from "@appsmith/utils/Packages/analytics";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  handleJSEntityRedirect,
+  handleQueryEntityRedirect,
+} from "sagas/IDESaga";
+import { removeFocusHistoryRequest } from "actions/focusHistoryActions";
 
 export interface RefactorModuleInstanceNameProps {
   id: string;
@@ -393,7 +398,21 @@ function* deleteModuleInstanceSaga(
 
       analytics.deleteModuleInstance(action.payload.id);
 
-      history.push(builderURL({ pageId: currentPageId }));
+      const currentUrl = window.location.pathname;
+      const isPagePaneSegmentsEnabled: boolean = yield select(
+        selectFeatureFlagCheck,
+        FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+      );
+      if (isPagePaneSegmentsEnabled) {
+        if (action.payload.type === MODULE_TYPE.JS) {
+          yield call(handleJSEntityRedirect, action.payload.id);
+        } else if (action.payload.type === MODULE_TYPE.QUERY) {
+          yield call(handleQueryEntityRedirect, action.payload.id);
+        }
+      } else if (currentPageId) {
+        history.push(builderURL({ pageId: currentPageId }));
+      }
+      yield put(removeFocusHistoryRequest(currentUrl));
     }
   } catch (error) {
     yield put({

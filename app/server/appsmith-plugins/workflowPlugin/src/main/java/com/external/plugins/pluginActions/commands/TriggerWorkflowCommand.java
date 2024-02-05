@@ -11,10 +11,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.Map;
 
+import static com.appsmith.external.helpers.PluginUtils.getTrimmedStringDataValueSafelyFromFormData;
 import static com.external.plugins.constants.FieldNames.TRIGGER_DATA;
 import static com.external.plugins.constants.FieldNames.WORKFLOW_ID;
 import static com.external.plugins.constants.Urls.TRIGGER_WORKFLOW_URL;
-import static com.external.plugins.utils.RequestUtility.extractStringFromFormData;
 
 public class TriggerWorkflowCommand extends BaseWorkflowCommand {
 
@@ -30,7 +30,7 @@ public class TriggerWorkflowCommand extends BaseWorkflowCommand {
     @Override
     public URI getExecutionUri() {
         Map<String, Object> formData = actionConfiguration.getFormData();
-        String workflowId = extractStringFromFormData(formData, WORKFLOW_ID);
+        String workflowId = getTrimmedStringDataValueSafelyFromFormData(formData, WORKFLOW_ID);
         if (StringUtils.isEmpty(workflowId)) {
             throw new AppsmithPluginException(WorkflowPluginError.WORKFLOW_UNDEFINED);
         }
@@ -42,14 +42,13 @@ public class TriggerWorkflowCommand extends BaseWorkflowCommand {
     @Override
     protected String getRequestBody() {
         Map<String, Object> formData = actionConfiguration.getFormData();
-        String triggerData = extractStringFromFormData(formData, TRIGGER_DATA);
-        if (StringUtils.isEmpty(triggerData)) {
-            throw new AppsmithPluginException(WorkflowPluginError.TRIGGER_DATA_MISSING);
-        }
-        try {
-            objectMapper.readTree(triggerData);
-        } catch (Exception exception) {
-            throw new AppsmithPluginException(WorkflowPluginError.TRIGGER_DATA_INVALID_JSON);
+        String triggerData = getTrimmedStringDataValueSafelyFromFormData(formData, TRIGGER_DATA);
+        if (!StringUtils.isEmpty(triggerData)) {
+            try {
+                objectMapper.readTree(triggerData);
+            } catch (Exception exception) {
+                throw new AppsmithPluginException(WorkflowPluginError.TRIGGER_DATA_INVALID_JSON);
+            }
         }
 
         return triggerData;

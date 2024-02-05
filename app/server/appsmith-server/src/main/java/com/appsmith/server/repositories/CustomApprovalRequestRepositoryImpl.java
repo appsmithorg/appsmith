@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.appsmith.server.constants.FieldName.REQUEST_NAME;
+import static com.appsmith.server.constants.FieldName.WORKFLOW_ID;
 import static com.appsmith.server.constants.QueryParams.COUNT;
 import static com.appsmith.server.constants.QueryParams.RESOLUTION;
 import static com.appsmith.server.constants.QueryParams.RESOLVED_BY;
@@ -54,8 +56,13 @@ public class CustomApprovalRequestRepositoryImpl extends BaseAppsmithRepositoryI
         Sort sort =
                 sortWith.orElse(Sort.by(Sort.Direction.DESC, fieldName(QApprovalRequest.approvalRequest.createdAt)));
         Mono<Long> countMono = count(criteriaList, aclPermission);
-        Flux<ApprovalRequest> approvalRequestFlux =
-                queryAll(criteriaList, Optional.empty(), aclPermission, sort, count, startIndex);
+        Flux<ApprovalRequest> approvalRequestFlux = queryAll()
+                .criteria(criteriaList)
+                .permission(aclPermission.orElse(null))
+                .sort(sort)
+                .limit(count)
+                .skip(startIndex)
+                .submit();
         return Mono.zip(countMono, approvalRequestFlux.collectList()).map(pair -> {
             Long totalFilteredApprovalRequests = pair.getT1();
             List<ApprovalRequest> approvalRequestsPage = pair.getT2();
@@ -85,10 +92,16 @@ public class CustomApprovalRequestRepositoryImpl extends BaseAppsmithRepositoryI
                         .in(approvalRequestStatus));
             }
 
-            if (filters.containsKey("workflowId")) {
-                List<String> approvalRequestsForWorkflowId = filters.get("workflowId");
+            if (filters.containsKey(WORKFLOW_ID)) {
+                List<String> approvalRequestsForWorkflowId = filters.get(WORKFLOW_ID);
                 criteriaList.add(Criteria.where(fieldName(QApprovalRequest.approvalRequest.workflowId))
                         .in(approvalRequestsForWorkflowId));
+            }
+
+            if (filters.containsKey(REQUEST_NAME)) {
+                List<String> approvalRequestsForRequestName = filters.get(REQUEST_NAME);
+                criteriaList.add(Criteria.where(fieldName(QApprovalRequest.approvalRequest.requestName))
+                        .in(approvalRequestsForRequestName));
             }
         }
         return criteriaList;

@@ -11,7 +11,6 @@ import com.appsmith.server.domains.ProvisionResourceMetadata;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -30,7 +29,6 @@ import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupHelper;
 import com.appsmith.server.helpers.ProvisionUtils;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce_compatible.UserGroupServiceCECompatibleImpl;
@@ -102,7 +100,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
 
     private final ModelMapper modelMapper;
     private final PermissionGroupHelper permissionGroupHelper;
-    private final UserDataRepository userDataRepository;
+    private final UserDataService userDataService;
     private final UserUtils userUtils;
     private final PolicySolution policySolution;
     private final UserRepository userRepository;
@@ -124,7 +122,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
             UserService userService,
             ModelMapper modelMapper,
             PermissionGroupHelper permissionGroupHelper,
-            UserDataRepository userDataRepository,
+            UserDataService userDataService,
             UserUtils userUtils,
             PolicySolution policySolution,
             UserRepository userRepository,
@@ -139,7 +137,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
         this.userService = userService;
         this.modelMapper = modelMapper;
         this.permissionGroupHelper = permissionGroupHelper;
-        this.userDataRepository = userDataRepository;
+        this.userDataService = userDataService;
         this.userUtils = userUtils;
         this.policySolution = policySolution;
         this.userRepository = userRepository;
@@ -222,21 +220,19 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
             Mono<List<PermissionGroupInfoDTO>> groupRolesMono = getRoleDTOsForTheGroup(id);
             Mono<List<UserCompactDTO>> usersMono =
                     getUsersCompactForTheGroup(userGroup).cache();
-            Mono<Map<String, UserData>> userIdUserDataMapMono = usersMono.flatMap(users -> {
+            Mono<Map<String, String>> userIdUserDataMapMono = usersMono.flatMap(users -> {
                 List<String> userIds = users.stream().map(UserCompactDTO::getId).toList();
-                return userDataRepository.findPhotoAssetsByUserIds(userIds).collectMap(UserData::getUserId);
+                return userDataService.getProfilePhotoAssetIdsForUserIds(userIds);
             });
 
             return Mono.zip(groupRolesMono, usersMono, userIdUserDataMapMono).flatMap(tuple -> {
                 List<PermissionGroupInfoDTO> rolesInfoList = tuple.getT1();
                 List<UserCompactDTO> usersList = tuple.getT2();
-                Map<String, UserData> userIdUserDataMap = tuple.getT3();
+                Map<String, String> picIdByUserId = tuple.getT3();
                 usersList.forEach(user -> {
                     String userId = user.getId();
-                    if (userIdUserDataMap.containsKey(userId)
-                            && StringUtils.hasLength(
-                                    userIdUserDataMap.get(userId).getProfilePhotoAssetId())) {
-                        user.setPhotoId(userIdUserDataMap.get(userId).getProfilePhotoAssetId());
+                    if (StringUtils.hasLength(picIdByUserId.get(userId))) {
+                        user.setPhotoId(picIdByUserId.get(userId));
                     }
                 });
                 return generateUserGroupDTO(userGroup, rolesInfoList, usersList);

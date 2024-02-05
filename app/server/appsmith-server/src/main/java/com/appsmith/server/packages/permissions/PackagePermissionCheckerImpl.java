@@ -44,6 +44,11 @@ public class PackagePermissionCheckerImpl implements PackagePermissionChecker {
                 completeFieldName(QPackage.package$.unpublishedPackage.name),
                 fieldName(QPackage.package$.workspaceId));
 
-        return packageRepository.queryAll(List.of(workspaceIdCriterion), projectionFieldNames, permission, null);
+        return packageRepository
+                .queryAll()
+                .criteria(workspaceIdCriterion)
+                .fields(projectionFieldNames)
+                .permission(permission)
+                .submit();
     }
 }

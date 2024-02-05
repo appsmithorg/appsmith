@@ -10,6 +10,8 @@ import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApprovalRequestCreationDTO;
 import com.appsmith.server.dtos.ApprovalRequestResolutionDTO;
+import com.appsmith.server.dtos.ApprovalRequestResolvedResponseDTO;
+import com.appsmith.server.dtos.ApprovalRequestResponseDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.UserGroupDTO;
@@ -182,7 +184,9 @@ class CrudApprovalRequestServiceTest {
         workflow1.setName("CrudApprovalRequestServiceTest");
         workflow = workflowService.createWorkflow(workflow1, workspace.getId()).block();
 
-        User apiUser = userRepository.findByCaseInsensitiveEmail("api_user").block();
+        User apiUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc("api_user")
+                .block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
     }
 
@@ -200,7 +204,7 @@ class CrudApprovalRequestServiceTest {
         String testName = "testInvalidCreateApprovalRequest_emptyWorkflowId";
 
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
-        Mono<ApprovalRequest> approvalRequestMono =
+        Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
 
         StepVerifier.create(approvalRequestMono)
@@ -221,7 +225,7 @@ class CrudApprovalRequestServiceTest {
 
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
         approvalRequestCreationDTO.setWorkflowId("random-workflow-id");
-        Mono<ApprovalRequest> approvalRequestMono =
+        Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
 
         StepVerifier.create(approvalRequestMono)
@@ -243,7 +247,7 @@ class CrudApprovalRequestServiceTest {
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
         approvalRequestCreationDTO.setWorkflowId("random-workflow-id");
         approvalRequestCreationDTO.setRequestToUsers(Set.of("random"));
-        Mono<ApprovalRequest> approvalRequestMono =
+        Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
 
         StepVerifier.create(approvalRequestMono)
@@ -266,7 +270,7 @@ class CrudApprovalRequestServiceTest {
         approvalRequestCreationDTO.setWorkflowId("random-workflow-id");
         approvalRequestCreationDTO.setRequestToUsers(Set.of("random"));
         approvalRequestCreationDTO.setAllowedResolutions(Set.of("resolution1", "resolution2"));
-        Mono<ApprovalRequest> approvalRequestMono =
+        Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
 
         StepVerifier.create(approvalRequestMono)
@@ -291,7 +295,7 @@ class CrudApprovalRequestServiceTest {
         Set<String> allowedResolutions = Set.of("resolution1, resolution2");
         approvalRequestCreationDTO.setAllowedResolutions(allowedResolutions);
         approvalRequestCreationDTO.setRunId("random-run-id");
-        Mono<ApprovalRequest> approvalRequestMono =
+        Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
 
         StepVerifier.create(approvalRequestMono)
@@ -315,7 +319,7 @@ class CrudApprovalRequestServiceTest {
         Set<String> allowedResolutions = Set.of("resolution1", "resolution2");
         approvalRequestCreationDTO.setAllowedResolutions(allowedResolutions);
         approvalRequestCreationDTO.setRunId("random-run-id");
-        Mono<ApprovalRequest> approvalRequestMono =
+        Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
 
         StepVerifier.create(approvalRequestMono)
@@ -340,7 +344,7 @@ class CrudApprovalRequestServiceTest {
         Set<String> allowedResolutions = Set.of("resolution1", "resolution2");
         approvalRequestCreationDTO.setAllowedResolutions(allowedResolutions);
         approvalRequestCreationDTO.setRunId("random-run-id");
-        Mono<ApprovalRequest> approvalRequestMono =
+        Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
 
         StepVerifier.create(approvalRequestMono)
@@ -376,7 +380,7 @@ class CrudApprovalRequestServiceTest {
         String approvalRequestMessage = "Message: " + testName;
         String approvalRequestRunId = "Run ID: " + testName;
 
-        ApprovalRequest approvalRequest = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestResponseDTO = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
@@ -384,10 +388,15 @@ class CrudApprovalRequestServiceTest {
                 createdUser,
                 createdUserGroupDTO);
 
-        assertThat(approvalRequest).isNotNull();
-        assertThat(approvalRequest.getId()).isNotEmpty();
-        assertThat(approvalRequest.getTitle()).isEqualTo(approvalRequestTitle);
-        assertThat(approvalRequest.getDescription()).isEqualTo(approvalRequestMessage);
+        assertThat(approvalRequestResponseDTO).isNotNull();
+        assertThat(approvalRequestResponseDTO.getId()).isNotEmpty();
+        assertThat(approvalRequestResponseDTO.getRequestName()).isEqualTo(approvalRequestTitle);
+        assertThat(approvalRequestResponseDTO.getMessage()).isEqualTo(approvalRequestMessage);
+
+        ApprovalRequest approvalRequest = approvalRequestRepository
+                .findById(approvalRequestResponseDTO.getId())
+                .block();
+
         assertThat(approvalRequest.getWorkflowId()).isEqualTo(workflow.getId());
         assertThat(approvalRequest.getResolutionStatus()).isEqualTo(PENDING);
         assertThat(approvalRequest.getAllowedResolutions()).containsExactlyInAnyOrderElementsOf(allowedResolutions);
@@ -395,14 +404,14 @@ class CrudApprovalRequestServiceTest {
 
         List<PermissionGroup> approvalRequestRoles = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(
-                        approvalRequest.getId(), ApprovalRequest.class.getSimpleName())
+                        approvalRequestResponseDTO.getId(), ApprovalRequest.class.getSimpleName())
                 .collectList()
                 .block();
         assertThat(approvalRequestRoles).hasSize(1);
         PermissionGroup approvalRequestRole = approvalRequestRoles.get(0);
         assertThat(approvalRequestRole.getId()).isNotEmpty();
         assertThat(approvalRequestRole.getName())
-                .isEqualTo(String.format(APPROVAL_REQUEST_ROLE_PREFIX, approvalRequest.getId()));
+                .isEqualTo(String.format(APPROVAL_REQUEST_ROLE_PREFIX, approvalRequestResponseDTO.getId()));
         assertThat(approvalRequestRole.getAssignedToUserIds()).containsOnly(createdUser.getId());
         assertThat(approvalRequestRole.getAssignedToGroupIds()).containsOnly(createdUserGroupDTO.getId());
 
@@ -453,7 +462,7 @@ class CrudApprovalRequestServiceTest {
         String approvalRequestMessage = "Message: " + testName;
         String approvalRequestRunId = "Run ID: " + testName;
 
-        ApprovalRequest approvalRequest = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestResponseDTO = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
@@ -461,10 +470,15 @@ class CrudApprovalRequestServiceTest {
                 createdUser,
                 createdUserGroupDTO2);
 
-        assertThat(approvalRequest).isNotNull();
-        assertThat(approvalRequest.getId()).isNotEmpty();
-        assertThat(approvalRequest.getTitle()).isEqualTo(approvalRequestTitle);
-        assertThat(approvalRequest.getDescription()).isEqualTo(approvalRequestMessage);
+        assertThat(approvalRequestResponseDTO).isNotNull();
+        assertThat(approvalRequestResponseDTO.getId()).isNotEmpty();
+        assertThat(approvalRequestResponseDTO.getRequestName()).isEqualTo(approvalRequestTitle);
+        assertThat(approvalRequestResponseDTO.getMessage()).isEqualTo(approvalRequestMessage);
+
+        ApprovalRequest approvalRequest = approvalRequestRepository
+                .findById(approvalRequestResponseDTO.getId())
+                .block();
+
         assertThat(approvalRequest.getWorkflowId()).isEqualTo(workflow.getId());
         assertThat(approvalRequest.getResolutionStatus()).isEqualTo(PENDING);
         assertThat(approvalRequest.getAllowedResolutions()).containsExactlyInAnyOrderElementsOf(allowedResolutions);
@@ -548,70 +562,70 @@ class CrudApprovalRequestServiceTest {
         String approvalRequestMessage = "Message: " + testName;
         String approvalRequestRunId = "Run ID: " + testName;
 
-        ApprovalRequest approvalRequestUser1Resolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestUser1Resolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 createdUser1,
                 null);
-        ApprovalRequest approvalRequestUser1Unresolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestUser1Unresolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 createdUser1,
                 null);
-        ApprovalRequest approvalRequestUser2Resolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestUser2Resolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 createdUser2,
                 null);
-        ApprovalRequest approvalRequestUser2Unresolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestUser2Unresolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 createdUser2,
                 null);
-        ApprovalRequest approvalRequestGroup1Resolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestGroup1Resolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO1);
-        ApprovalRequest approvalRequestGroup1Unresolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestGroup1Unresolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO1);
-        ApprovalRequest approvalRequestGroup2Resolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestGroup2Resolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO2);
-        ApprovalRequest approvalRequestGroup2Unresolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestGroup2Unresolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO2);
-        ApprovalRequest approvalRequestGroup3Resolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestGroup3Resolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO3);
-        ApprovalRequest approvalRequestGroup3Unresolved = createTestApprovalRequest(
+        ApprovalRequestResponseDTO approvalRequestGroup3Unresolved = createTestApprovalRequest(
                 approvalRequestTitle,
                 approvalRequestMessage,
                 allowedResolutions,
@@ -619,12 +633,12 @@ class CrudApprovalRequestServiceTest {
                 null,
                 createdUserGroupDTO3);
 
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser1_noFilters = runAs(
+        PagedDomain<ApprovalRequestResponseDTO> approvalRequestPageCreatedUser1_noFilters = runAs(
                         crudApprovalRequestService.getPaginatedApprovalRequests(new LinkedMultiValueMap<>()),
                         createdUser1,
                         testName)
                 .block();
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser2_noFilters = runAs(
+        PagedDomain<ApprovalRequestResponseDTO> approvalRequestPageCreatedUser2_noFilters = runAs(
                         crudApprovalRequestService.getPaginatedApprovalRequests(new LinkedMultiValueMap<>()),
                         createdUser2,
                         testName)
@@ -647,14 +661,14 @@ class CrudApprovalRequestServiceTest {
         MultiValueMap<String, String> resolutionStatusResolvedFilter = new LinkedMultiValueMap<>();
         resolutionStatusResolvedFilter.add(STATUS, "RESOLVED");
 
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser1_resolutionStatusResolvedFilter_beforeResolution =
-                runAs(
+        PagedDomain<ApprovalRequestResponseDTO>
+                approvalRequestPageCreatedUser1_resolutionStatusResolvedFilter_beforeResolution = runAs(
                                 crudApprovalRequestService.getPaginatedApprovalRequests(resolutionStatusResolvedFilter),
                                 createdUser1,
                                 testName)
                         .block();
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser2_resolutionStatusResolvedFilter_beforeResolution =
-                runAs(
+        PagedDomain<ApprovalRequestResponseDTO>
+                approvalRequestPageCreatedUser2_resolutionStatusResolvedFilter_beforeResolution = runAs(
                                 crudApprovalRequestService.getPaginatedApprovalRequests(resolutionStatusResolvedFilter),
                                 createdUser2,
                                 testName)
@@ -695,14 +709,14 @@ class CrudApprovalRequestServiceTest {
         resolveApprovalRequestInviteUser(approvalRequestGroup3Resolved, "", resolution2, createdUser1, testName)
                 .block();
 
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser1_resolutionStatusResolvedFilter_afterResolution =
-                runAs(
+        PagedDomain<ApprovalRequestResponseDTO>
+                approvalRequestPageCreatedUser1_resolutionStatusResolvedFilter_afterResolution = runAs(
                                 crudApprovalRequestService.getPaginatedApprovalRequests(resolutionStatusResolvedFilter),
                                 createdUser1,
                                 testName)
                         .block();
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser2_resolutionStatusResolvedFilter_afterResolution =
-                runAs(
+        PagedDomain<ApprovalRequestResponseDTO>
+                approvalRequestPageCreatedUser2_resolutionStatusResolvedFilter_afterResolution = runAs(
                                 crudApprovalRequestService.getPaginatedApprovalRequests(resolutionStatusResolvedFilter),
                                 createdUser2,
                                 testName)
@@ -735,12 +749,12 @@ class CrudApprovalRequestServiceTest {
         MultiValueMap<String, String> resolutionResolution1Filter = new LinkedMultiValueMap<>();
         resolutionResolution1Filter.add(RESOLUTION, "resolution1");
 
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser1_resolutionResolution1Filter = runAs(
+        PagedDomain<ApprovalRequestResponseDTO> approvalRequestPageCreatedUser1_resolutionResolution1Filter = runAs(
                         crudApprovalRequestService.getPaginatedApprovalRequests(resolutionResolution1Filter),
                         createdUser1,
                         testName)
                 .block();
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser2_resolutionResolution1Filter = runAs(
+        PagedDomain<ApprovalRequestResponseDTO> approvalRequestPageCreatedUser2_resolutionResolution1Filter = runAs(
                         crudApprovalRequestService.getPaginatedApprovalRequests(resolutionResolution1Filter),
                         createdUser2,
                         testName)
@@ -771,12 +785,12 @@ class CrudApprovalRequestServiceTest {
         MultiValueMap<String, String> resolutionResolution2Filter = new LinkedMultiValueMap<>();
         resolutionResolution2Filter.add(RESOLUTION, "resolution2");
 
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser1_resolutionResolution2Filter = runAs(
+        PagedDomain<ApprovalRequestResponseDTO> approvalRequestPageCreatedUser1_resolutionResolution2Filter = runAs(
                         crudApprovalRequestService.getPaginatedApprovalRequests(resolutionResolution2Filter),
                         createdUser1,
                         testName)
                 .block();
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser2_resolutionResolution2Filter = runAs(
+        PagedDomain<ApprovalRequestResponseDTO> approvalRequestPageCreatedUser2_resolutionResolution2Filter = runAs(
                         crudApprovalRequestService.getPaginatedApprovalRequests(resolutionResolution2Filter),
                         createdUser2,
                         testName)
@@ -807,12 +821,12 @@ class CrudApprovalRequestServiceTest {
         MultiValueMap<String, String> resolvedByCreatedUser1Filter = new LinkedMultiValueMap<>();
         resolvedByCreatedUser1Filter.add(RESOLVED_BY, createdUser1.getUsername());
 
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser1_resolvedByCreatedUser1Filter = runAs(
+        PagedDomain<ApprovalRequestResponseDTO> approvalRequestPageCreatedUser1_resolvedByCreatedUser1Filter = runAs(
                         crudApprovalRequestService.getPaginatedApprovalRequests(resolvedByCreatedUser1Filter),
                         createdUser1,
                         testName)
                 .block();
-        PagedDomain<ApprovalRequest> approvalRequestPageCreatedUser2_resolvedByCreatedUser1Filter = runAs(
+        PagedDomain<ApprovalRequestResponseDTO> approvalRequestPageCreatedUser2_resolvedByCreatedUser1Filter = runAs(
                         crudApprovalRequestService.getPaginatedApprovalRequests(resolvedByCreatedUser1Filter),
                         createdUser2,
                         testName)
@@ -841,7 +855,7 @@ class CrudApprovalRequestServiceTest {
                 .hasSize(1);
     }
 
-    private ApprovalRequest createTestApprovalRequest(
+    private ApprovalRequestResponseDTO createTestApprovalRequest(
             String approvalRequestTitle,
             String approvalRequestMessage,
             Set<String> allowedResolutions,
@@ -849,8 +863,8 @@ class CrudApprovalRequestServiceTest {
             User user,
             UserGroupDTO userGroupDTO) {
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
-        approvalRequestCreationDTO.setTitle(approvalRequestTitle);
-        approvalRequestCreationDTO.setDescription(approvalRequestMessage);
+        approvalRequestCreationDTO.setRequestName(approvalRequestTitle);
+        approvalRequestCreationDTO.setMessage(approvalRequestMessage);
         approvalRequestCreationDTO.setAllowedResolutions(allowedResolutions);
         approvalRequestCreationDTO.setWorkflowId(workflow.getId());
         approvalRequestCreationDTO.setRunId(approvalRequestRunId);
@@ -866,8 +880,8 @@ class CrudApprovalRequestServiceTest {
                 .block();
     }
 
-    private Mono<JsonNode> resolveApprovalRequestInviteUser(
-            ApprovalRequest approvalRequest,
+    private Mono<ApprovalRequestResolvedResponseDTO> resolveApprovalRequestInviteUser(
+            ApprovalRequestResponseDTO approvalRequest,
             String approvalRequestResolutionReason,
             String resolution,
             User user,

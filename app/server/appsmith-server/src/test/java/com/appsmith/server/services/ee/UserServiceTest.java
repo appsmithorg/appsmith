@@ -753,7 +753,7 @@ public class UserServiceTest {
                 .block();
 
         User userWithUpdatedEmail = userRepository
-                .findByCaseInsensitiveEmail(testName + "_UpdatedProvisioned@appsmith.com")
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(testName + "_UpdatedProvisioned@appsmith.com")
                 .block();
 
         assertThat(userWithUpdatedEmail.getId())
@@ -785,7 +785,7 @@ public class UserServiceTest {
                 .block();
 
         User userWithEmail = userRepository
-                .findByCaseInsensitiveEmail(testName + "_Provisioned@appsmith.com")
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(testName + "_Provisioned@appsmith.com")
                 .block();
 
         assertThat(userWithEmail.getId()).isEqualTo(provisionUser.getResource().getId());

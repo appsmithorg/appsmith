@@ -459,6 +459,12 @@ export const WEBHOOK_TRIGGER_SWITCH_LABEL_DESC = () =>
   "Use the endpoint URL and the generated bearer token to trigger the workflow";
 export const WEBHOOK_TRIGGER_TOKEN_WARNING = () =>
   "Save your bearer token right away. You won’t be able do this later.";
+export const WORKFLOW_RUN_HISTORY_PANE_TRIGGER_LABEL = () => "Run History";
+export const WORKFLOW_RUN_HISTORY_PANE_TRIGGER_SHOW_TOOLTIP = () =>
+  "Show previous runs of this workflow";
+export const WORKFLOW_RUN_HISTORY_PANE_TRIGGER_HIDE_TOOLTIP = () =>
+  "Hide previous runs of this workflow";
+export const WORKFLOW_RUN_HISTORY_PANE_TRIGGER_TAB = () => "Run History";
 // Workflows end
 
 // AI begin
@@ -483,3 +489,43 @@ export const AI_PROMPT_HELP_TEXT = () => "Press enter to send the prompt";
 export const AI_PROMPT_EXAMPLE_PREFIX = () => "Example: ";
 export const AI_INCORRECT_FEEDBACK_BUTTON_LABEL = () => "Incorrect response";
 // AI end
+
+// git START
+export const GIT_CD_LICENSED_DESC = () =>
+  "Automatically deploy updates to end users by triggering pulls from your preferred deployment tool.";
+export const GIT_CD_ENABLED_TOAST = () =>
+  "Continuous deployment configured successfully.";
+export const GIT_CD_DISABLED_TOAST = () =>
+  "Continuous deployment disabled successfully.";
+export const GIT_CD_COPY_ENDPOINT = () => "Copy cURL";
+export const GIT_CD_RECONFIGURE_API_KEY_CTA = () => "Re-configure bearer token";
+export const GIT_CD_RECONFIGURE_API_KEY_DESC = () =>
+  "Bearer token to authenticate requests";
+export const GIT_CD_ENDPOINT_DESC = () => "cURL";
+export const GIT_CD_API_KEY_WARNING = () =>
+  "Paste your bearer token right away. You can't do this later.";
+export const GIT_CD_COPY_API_KEY = () => "Copy bearer token";
+export const GIT_CD_GENERATE_API_KEY_CTA = () => "Generate bearer token";
+export const GIT_CD_GENERATE_API_KEY_DESC = () =>
+  "Generate a bearer token to authenticate requests to the above endpoint";
+export const GIT_CD_CONFIGURE_ENDPOINT_CD = () =>
+  "Configure your pipeline to automatically call the below endpoint whenever modifications occur on the specified branch below. To learn more, Read docs";
+export const GIT_CD_FOLLOW_TO_CONFIGURE = () =>
+  "Please follow these steps to configure...";
+export const GIT_CD_SELECT_BRANCH_TO_CONFIGURE = () =>
+  "Select a branch to configure";
+export const GIT_CD_CONFIRM_CONFIGURATION = () =>
+  "I've configured the pipeline in my deployment tool";
+export const GIT_CD_FINISH_CONFIGURATION_CTA = () => "Finish setup";
+export const GIT_CD_LAST_DEPLOYMENT = () => "Last deployment";
+export const GIT_CD_DISABLE_CD = () => "Disable continuous delivery";
+export const GIT_CD_DISABLE_CD_DESC = () =>
+  "Disabling continuous delivery will stop automatic deployments to your end users, necessitating manual pull and deploy.";
+export const GIT_CD_CONFIRM_DISABLE_CD = () => "I understand and confirm";
+export const GIT_CD_RECONFIGURE_KEY_MODAL_TITLE = () =>
+  "Re-configure bearer token";
+export const GIT_CD_RECONFIGURE_KEY_MODAL_DESC = () =>
+  "Regenerating your bearer token will invalidate the current key, leading to API failures. Please proceed with key regeneration only if you intend to replace your existing key on your deployment tool.";
+export const GIT_CD_RECONFIGURE_KEY_MODAL_CTA = () =>
+  "Re-configure bearer token";
+// git END

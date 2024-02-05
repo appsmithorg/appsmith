@@ -4,8 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.enums.WorkflowPluginCommandRequestType;
-import com.external.plugins.pluginActions.commands.GetApprovalRequestWorkflowCommand;
-import com.external.plugins.pluginActions.commands.ResolveApprovalRequestWorkflowCommand;
+import com.external.plugins.pluginActions.commands.GetRequestWorkflowCommand;
+import com.external.plugins.pluginActions.commands.ResolveRequestWorkflowCommand;
 import com.external.plugins.pluginActions.commands.TriggerWorkflowCommand;
 import com.external.plugins.pluginActions.commands.WorkflowCommand;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,10 +34,9 @@ public class WorkflowCommandStrategy {
         WorkflowPluginCommandRequestType requestType =
                 getRequestType(extractStringFromFormData(formData, REQUEST_TYPE));
         return switch (requestType) {
-            case GET_APPROVAL_REQUESTS -> new GetApprovalRequestWorkflowCommand(actionConfiguration, objectMapper);
+            case GET_REQUESTS -> new GetRequestWorkflowCommand(actionConfiguration, objectMapper);
             case TRIGGER_WORKFLOW -> new TriggerWorkflowCommand(actionConfiguration, objectMapper);
-            case RESOLVE_APPROVAL_REQUESTS -> new ResolveApprovalRequestWorkflowCommand(
-                    actionConfiguration, objectMapper, gson);
+            case RESOLVE_REQUESTS -> new ResolveRequestWorkflowCommand(actionConfiguration, objectMapper, gson);
         };
     }
 }

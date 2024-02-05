@@ -60,12 +60,10 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         Criteria notComposedCriteria = Criteria.where(fieldName(QNewAction.newAction.rootModuleInstanceId))
                 .exists(false);
 
-        return queryAll(
-                List.of(applicationCriteria, nonJsActionCriteria, notComposedCriteria),
-                includeFields,
-                null,
-                null,
-                NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(applicationCriteria, nonJsActionCriteria, notComposedCriteria)
+                .fields(includeFields)
+                .submit();
     }
 
     @Override
@@ -75,7 +73,10 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
                 + fieldName(QNewAction.newAction.unpublishedAction.collectionId);
         Criteria actionCollectionCriteria =
                 Criteria.where(actionCollectionCriteriaQueryString).in(collectionIds);
-        return queryAll(List.of(actionCollectionCriteria), includeFields, null, null);
+        return queryAll()
+                .criteria(actionCollectionCriteria)
+                .fields(includeFields)
+                .submit();
     }
 
     @Override
@@ -91,7 +92,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteria.add(moduleIdCriteria);
         criteria.add(nonJsTypeCriteria);
-        return queryAll(criteria, Optional.empty());
+        return queryAll().criteria(criteria).submit();
     }
 
     @Override
@@ -139,7 +140,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteria.add(moduleInstanceIdCriteria);
 
-        return queryAll(criteria, Optional.ofNullable(projectionFields), permission, Optional.empty());
+        return queryAll()
+                .criteria(criteria)
+                .fields(projectionFields)
+                .permission(permission.orElse(null))
+                .submit();
     }
 
     public Flux<NewAction> findUnpublishedActionsByModuleIdAndExecuteOnLoadSetByUserTrue(
@@ -168,7 +173,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
                 .is(null);
         criteriaList.add(deletedCriteria);
 
-        return queryAll(criteriaList, permission);
+        return queryAll().criteria(criteriaList).permission(permission).submit();
     }
 
     @Override
@@ -196,7 +201,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             criteria.add(nonJsTypeCriteria);
         }
 
-        return queryAll(criteria, includeFields, aclPermission, Optional.empty());
+        return queryAll()
+                .criteria(criteria)
+                .fields(includeFields.orElse(null))
+                .permission(aclPermission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -233,7 +242,10 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
                 .and((fieldName(QNewAction.newAction.isPublic)))
                 .is(Boolean.TRUE);
 
-        return queryAll(List.of(publicActionInModuleInstanceCriteria), permission);
+        return queryAll()
+                .criteria(publicActionInModuleInstanceCriteria)
+                .permission(permission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -248,7 +260,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         List<Criteria> criteria = new ArrayList<>();
         Criteria collectionIdCriterion = where(collectionIdPath).in(collectionIds);
         criteria.add(collectionIdCriterion);
-        return queryAll(criteria, includeFields, null, null);
+        return queryAll().criteria(criteria).fields(includeFields).submit();
     }
 
     @Override
@@ -289,7 +301,10 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         }
         criteria.add(jsInclusionOrExclusionCriteria);
 
-        return queryAll(criteria, optionalPermission);
+        return queryAll()
+                .criteria(criteria)
+                .permission(optionalPermission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -318,7 +333,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
-        return queryAll(criteriaList, Optional.ofNullable(permission));
+        return queryAll().criteria(criteriaList).permission(permission).submit();
     }
 
     @Override
@@ -352,7 +367,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
-        return queryAll(criteriaList, Optional.ofNullable(permission));
+        return queryAll().criteria(criteriaList).permission(permission).submit();
     }
 
     @Override
@@ -363,7 +378,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteria.add(getModuleInstanceNonExistenceCriterion());
 
-        return queryAll(criteria, aclPermission);
+        return queryAll().criteria(criteria).permission(aclPermission).submit();
     }
 
     private Criteria getModuleInstanceNonExistenceCriterion() {
@@ -382,21 +397,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteria.add(getModuleInstanceNonExistenceCriterion());
 
-        return queryAll(criteria, aclPermission);
-    }
-
-    @Override
-    public Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where(completeFieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .in(pageIds);
-
-        Criteria notAModuleInstancePrivateEntity = new Criteria();
-        notAModuleInstancePrivateEntity.orOperator(
-                where(completeFieldName(QNewAction.newAction.rootModuleInstanceId))
-                        .exists(false),
-                where(completeFieldName(QNewAction.newAction.isPublic)).exists(true));
-
-        return queryAll(List.of(pageIdCriteria, notAModuleInstancePrivateEntity), permission);
+        return queryAll().criteria(criteria).permission(aclPermission).submit();
     }
 
     @Override
@@ -407,7 +408,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteria.add(getModuleInstanceNonExistenceCriterion());
 
-        return queryAll(criteria, aclPermission, sort);
+        return queryAll()
+                .criteria(criteria)
+                .permission(aclPermission)
+                .sort(sort)
+                .submit();
     }
 
     @Override
@@ -418,7 +423,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         criteria.add(getModuleInstanceNonExistenceCriterion());
 
-        return queryAll(criteria, aclPermission, sort);
+        return queryAll()
+                .criteria(criteria)
+                .permission(aclPermission)
+                .sort(sort)
+                .submit();
     }
 
     @Override
@@ -430,7 +439,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         criteria.add(applicationIdCriterion);
         criteria.add(getModuleInstanceNonExistenceCriterion());
 
-        return queryAll(criteria, aclPermission, sort);
+        return queryAll()
+                .criteria(criteria)
+                .permission(aclPermission)
+                .sort(sort)
+                .submit();
     }
 
     @Override

@@ -1,13 +1,13 @@
 {
-  "identifier": "RESOLVE_APPROVAL_REQUESTS",
+  "identifier": "RESOLVE_REQUESTS",
   "controlType": "SECTION",
   "conditionals": {
-    "show": "{{!!actionConfiguration.formData.workflowId.data && !!actionConfiguration.formData.requestType.data && actionConfiguration.formData.requestType.data === 'RESOLVE_APPROVAL_REQUESTS'}}"
+    "show": "{{!!actionConfiguration.formData.workflowId.data && !!actionConfiguration.formData.requestType.data && actionConfiguration.formData.requestType.data === 'RESOLVE_REQUESTS'}}"
   },
   "children": [
     {
       "label": "Request Id",
-      "tooltipText": "Id of approval request for which resolution is required",
+      "tooltipText": "Id of request for which resolution is required",
       "propertyName": "request_id",
       "configProperty": "actionConfiguration.formData.requestId.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
@@ -15,27 +15,19 @@
     },
     {
       "label": "Resolution",
-      "tooltipText": "Resolution which will be applied for approval request",
+      "tooltipText": "Resolution which will be applied for request",
       "propertyName": "request_resolution",
       "configProperty": "actionConfiguration.formData.requestResolution.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "isRequired": true
     },
     {
-      "label": "Resolution Reason",
-      "tooltipText": "Comments on the resolution",
-      "propertyName": "request_resolution_reason",
-      "configProperty": "actionConfiguration.formData.requestResolutionReason.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "isRequired": false
-    },
-    {
-      "label": "Resolution Metadata",
-      "tooltipText": "Resolution metadata",
+      "label": "Metadata",
+      "tooltipText": "Additional metadata for resolution.",
       "propertyName": "request_resolution_metadata",
       "configProperty": "actionConfiguration.formData.requestResolutionMetadata.data",
       "placeholderText": "{\n\t\"metadata_label_1\": \"metadata_value_1\",\n\t\"metadata_label_2\": \"metadata_value_2\"\n}",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "controlType": "QUERY_DYNAMIC_TEXT",
       "isRequired": false
     }
   ]

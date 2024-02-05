@@ -62,7 +62,12 @@ function Header({
   };
 
   const onDelete = () => {
-    dispatch(deleteModuleInstance({ id: moduleInstance.id }));
+    dispatch(
+      deleteModuleInstance({
+        id: moduleInstance.id,
+        type: moduleInstance.type,
+      }),
+    );
   };
 
   const onGoToModuleClick = () => {

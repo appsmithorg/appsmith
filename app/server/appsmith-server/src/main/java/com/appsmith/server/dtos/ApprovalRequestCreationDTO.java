@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Map;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -15,9 +16,9 @@ public class ApprovalRequestCreationDTO {
     String workflowId;
     Set<String> requestToUsers;
     Set<String> requestToGroups;
-    String title;
-    String description;
-    ApprovalRequestUserInfo userInfo;
+    String requestName;
+    String message;
+    Map<String, Object> metadata;
     Set<String> allowedResolutions;
     String runId;
 }

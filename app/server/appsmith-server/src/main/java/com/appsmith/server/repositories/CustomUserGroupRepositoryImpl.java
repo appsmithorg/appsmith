@@ -53,13 +53,13 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
         List<Criteria> allCriteria = new ArrayList<>();
         allCriteria.add(criteria);
         allCriteria.addAll(criteriaListFromFilters);
-        return queryAll(allCriteria, aclPermission);
+        return queryAll().criteria(allCriteria).permission(aclPermission).submit();
     }
 
     @Override
     public Flux<UserGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields) {
         Criteria criteria = where(fieldName(QUserGroup.userGroup.tenantId)).is(tenantId);
-        return queryAll(List.of(criteria), includeFields, null, null, NO_RECORD_LIMIT);
+        return queryAll().criteria(criteria).fields(includeFields).submit();
     }
 
     @Override
@@ -79,12 +79,12 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     @Override
     public Flux<UserGroup> findAllByIds(Set<String> ids, AclPermission aclPermission) {
         Criteria criteria = where(fieldName(QUserGroup.userGroup.id)).in(ids);
-        return queryAll(List.of(criteria), aclPermission);
+        return queryAll().criteria(criteria).permission(aclPermission).submit();
     }
 
     public Flux<UserGroup> findAllByUsersIn(Set<String> userIds, AclPermission aclPermission) {
         Criteria criteria = where(fieldName(QUserGroup.userGroup.users)).in(userIds);
-        return queryAll(List.of(criteria), aclPermission);
+        return queryAll().criteria(criteria).permission(aclPermission).submit();
     }
 
     @Override
@@ -106,7 +106,11 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
         Criteria criteriaUserIdsIn =
                 where(fieldName(QUserGroup.userGroup.users)).in(userIds);
-        return queryAll(List.of(criteriaUserIdsIn), includeFields, permission, Optional.empty(), NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(criteriaUserIdsIn)
+                .fields(includeFields.orElse(null))
+                .permission(permission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -126,8 +130,13 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
         if (!Optional.ofNullable(filterUserIds).isEmpty() && filterUserIds.size() > 0) {
             criteriaList.add(where(fieldName(QUserGroup.userGroup.users)).in(filterUserIds));
         }
-        Flux<UserGroup> userFlux =
-                queryAll(criteriaList, Optional.empty(), aclPermission, sortWithEmail, count, startIndex);
+        Flux<UserGroup> userFlux = queryAll()
+                .criteria(criteriaList)
+                .permission(aclPermission.orElse(null))
+                .sort(sortWithEmail)
+                .limit(count)
+                .skip(startIndex)
+                .submit();
         Mono<Long> countMono = count(criteriaList, aclPermission);
         return Mono.zip(countMono, userFlux.collectList()).map(pair -> {
             Long totalFilteredUserGroups = pair.getT1();
@@ -148,7 +157,11 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
             boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =
                 Criteria.where(fieldName(QUserGroup.userGroup.isProvisioned)).is(isProvisioned);
-        return queryAll(List.of(criteriaIsProvisioned), includeFields, aclPermission, Optional.empty());
+        return queryAll()
+                .criteria(criteriaIsProvisioned)
+                .fields(includeFields.orElse(null))
+                .permission(aclPermission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -167,7 +180,11 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     public Flux<UserGroup> findAllByUsersIn(
             Set<String> userIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
         Criteria criteria = where(fieldName(QUserGroup.userGroup.users)).in(userIds);
-        return queryAll(List.of(criteria), includeFields, aclPermission, Optional.empty());
+        return queryAll()
+                .criteria(criteria)
+                .fields(includeFields.orElse(null))
+                .permission(aclPermission.orElse(null))
+                .submit();
     }
 
     private List<Criteria> getCriteriaListFromFilters(MultiValueMap<String, String> filters) {

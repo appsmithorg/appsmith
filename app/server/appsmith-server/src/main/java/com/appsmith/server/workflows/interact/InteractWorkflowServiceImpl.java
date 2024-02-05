@@ -328,7 +328,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
     private Mono<User> getWorkflowBotUser(Workflow workflow, String tenantId) {
         String userEmail = workflowHelper.generateWorkflowBotUserEmail(workflow);
         return userRepository
-                .findByCaseInsensitiveEmail(userEmail)
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(userEmail)
                 .filter(user1 -> tenantId.equals(user1.getTenantId()));
     }
 

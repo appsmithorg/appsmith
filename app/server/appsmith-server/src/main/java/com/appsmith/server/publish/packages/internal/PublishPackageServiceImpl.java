@@ -218,6 +218,8 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
         setContextTypeAndContextId(oldModuleInstance.getUnpublishedModuleInstance(), moduleInstanceReqDTO);
         moduleInstanceReqDTO.setSourceModuleId(newSourceModule.getId());
         moduleInstanceReqDTO.setId(oldModuleInstance.getId());
+        moduleInstanceReqDTO.setDefaultResources(
+                oldModuleInstance.getUnpublishedModuleInstance().getDefaultResources());
         return moduleInstanceReqDTO;
     }
 

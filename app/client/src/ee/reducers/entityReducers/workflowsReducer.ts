@@ -44,6 +44,8 @@ const workflowReducer = createImmerReducer(INITIAL_STATE, {
       ...draftState[workflowData.id],
       name: workflowData.name,
       slug: action.payload.slug,
+      modifiedAt: workflowData.modifiedAt,
+      modifiedBy: workflowData.modifiedBy,
     };
 
     return draftState;

@@ -6,6 +6,7 @@ import com.appsmith.server.domains.QPackage;
 import com.appsmith.server.dtos.ExportableModule;
 import com.mongodb.client.result.UpdateResult;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +34,10 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
     public Flux<Package> findAllEditablePackages(AclPermission permission) {
         Criteria onlyUnpublishedPackages = where(completeFieldName(QPackage.package$.publishedPackage.name))
                 .exists(false);
-        return queryAll(List.of(onlyUnpublishedPackages), Optional.ofNullable(permission));
+        return queryAll()
+                .criteria(onlyUnpublishedPackages)
+                .permission(Optional.ofNullable(permission).orElse(null))
+                .submit();
     }
 
     @Override
@@ -42,7 +47,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 .and(fieldName(QPackage.package$.latest))
                 .is(true);
 
-        return queryAll(List.of(criteria), Optional.of(permission));
+        return queryAll().criteria(criteria).permission(permission).submit();
     }
 
     @NotNull private Flux<Package> findAllOriginPackages(String workspaceId, Optional<AclPermission> permission) {
@@ -53,7 +58,10 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 .and(fieldName(QPackage.package$.workspaceId))
                 .is(workspaceId);
 
-        return queryAll(List.of(originPackageCriteria), permission);
+        return queryAll()
+                .criteria(originPackageCriteria)
+                .permission(permission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -82,12 +90,13 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
     @Override
     public Flux<Package> findAllByIds(List<String> packageIds, List<String> projectionFields) {
         Criteria idCriteria = where(fieldName(QPackage.package$.id)).in(packageIds);
-        return queryAll(
-                List.of(idCriteria),
-                Optional.ofNullable(projectionFields),
-                Optional.empty(),
-                Optional.empty(),
-                NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(idCriteria)
+                .fields(Optional.ofNullable(projectionFields).orElse(null))
+                .permission(Optional.<AclPermission>empty().orElse(null))
+                .sort(Optional.<Sort>empty().orElse(null))
+                .limit(NO_RECORD_LIMIT)
+                .submit();
     }
 
     @Override
@@ -112,7 +121,10 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
             packageRefCriteria.orOperator(criteriaList);
         }
 
-        return queryAll(List.of(originPackageCriteria, packageRefCriteria), aclPermission);
+        return queryAll()
+                .criteria(originPackageCriteria, packageRefCriteria)
+                .permission(aclPermission.orElse(null))
+                .submit();
     }
 
     @Override
@@ -130,12 +142,13 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
     public Flux<Package> findAllPackagesByWorkspaceId(
             String workspaceId, List<String> projectionFields, Optional<AclPermission> permissionOptional) {
         Criteria idCriteria = where(fieldName(QPackage.package$.workspaceId)).is(workspaceId);
-        return queryAll(
-                List.of(idCriteria),
-                Optional.ofNullable(projectionFields),
-                permissionOptional,
-                Optional.empty(),
-                NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(idCriteria)
+                .fields(Optional.ofNullable(projectionFields).orElse(null))
+                .permission(permissionOptional.orElse(null))
+                .sort(Optional.<Sort>empty().orElse(null))
+                .limit(NO_RECORD_LIMIT)
+                .submit();
     }
 
     @Override
@@ -159,5 +172,15 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 .is(true);
 
         return queryOne(List.of(originPackageCriteria), null, permission);
+    }
+
+    @Override
+    public Flux<Package> findAllByPackageUUID(String packageUUID, Optional<AclPermission> permission) {
+        Criteria packageUUIDCriterion =
+                Criteria.where(fieldName(QPackage.package$.packageUUID)).is(packageUUID);
+
+        List<Criteria> criteria = new ArrayList<>();
+        criteria.add(packageUUIDCriterion);
+        return queryAll().criteria(criteria).permission(permission.orElse(null)).submit();
     }
 }

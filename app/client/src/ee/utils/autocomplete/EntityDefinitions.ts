@@ -1,11 +1,17 @@
 export * from "ce/utils/autocomplete/EntityDefinitions";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
-import type {
-  JSModuleInstanceEntity,
-  JSModuleInstanceEntityConfig,
+import {
+  type DataTreeEntityConfig,
+  ENTITY_TYPE,
+  type JSModuleInstanceEntity,
+  type JSModuleInstanceEntityConfig,
 } from "@appsmith/entities/DataTree/types";
-import { GLOBAL_FUNCTIONS as CE_GLOBAL_FUNCTIONS } from "ce/utils/autocomplete/EntityDefinitions";
+import {
+  GLOBAL_FUNCTIONS as CE_GLOBAL_FUNCTIONS,
+  getEachEntityInformation as CE_getEachEntityInformation,
+} from "ce/utils/autocomplete/EntityDefinitions";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { isString } from "lodash";
 import type { Def } from "tern";
 import {
@@ -94,5 +100,27 @@ export const ModuleInstanceDefMap = {
     }
 
     return jsPropertiesDef;
+  },
+};
+
+export const getEachEntityInformation = {
+  ...CE_getEachEntityInformation,
+  [ENTITY_TYPE.MODULE_INPUT]: (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    entity: DataTreeEntityConfig,
+    entityInformation: FieldEntityInformation,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    propertyPath: string,
+  ): FieldEntityInformation => {
+    return entityInformation;
+  },
+  [ENTITY_TYPE.MODULE_INSTANCE]: (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    entity: DataTreeEntityConfig,
+    entityInformation: FieldEntityInformation,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    propertyPath: string,
+  ): FieldEntityInformation => {
+    return entityInformation;
   },
 };

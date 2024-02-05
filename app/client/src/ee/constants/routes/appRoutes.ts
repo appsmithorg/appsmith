@@ -10,6 +10,7 @@ import {
 import { MODULE_EDITOR_PATH, PACKAGE_EDITOR_PATH } from "./packageRoutes";
 import { matchPath } from "react-router";
 import { WorkflowSettingsTabs } from "@appsmith/pages/Editor/WorkflowEditor/WorkflowSettingsPane/WorkflowSettings";
+import { WORKFLOW_EDITOR_URL } from "./workflowRoutes";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { match } = require("path-to-regexp");
@@ -42,6 +43,7 @@ export const MODULE_INSTANCE_ID_PATH =
 export const basePathForActiveAction = [
   ...CE_basePathForActiveAction,
   MODULE_EDITOR_PATH,
+  WORKFLOW_EDITOR_URL,
 ];
 
 export const WORKFLOW_TRIGGER_SETTINGS_PATH = (path: string) =>

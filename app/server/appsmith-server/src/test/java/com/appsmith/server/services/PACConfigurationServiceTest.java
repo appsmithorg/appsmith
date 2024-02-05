@@ -74,7 +74,9 @@ class PACConfigurationServiceTest {
 
     @BeforeEach
     public void setup() {
-        User apiUser = userRepository.findByCaseInsensitiveEmail("api_user").block();
+        User apiUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc("api_user")
+                .block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
 
         Mockito.when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled))
@@ -167,7 +169,9 @@ class PACConfigurationServiceTest {
     @WithUserDetails(value = "api_user")
     public void test_setRolesAndGroups_validateRoleNamesFromGroup() {
         String testName = "test_setRolesAndGroups_validateRoleNamesFromGroup";
-        User apiUser = userRepository.findByCaseInsensitiveEmail("api_user").block();
+        User apiUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc("api_user")
+                .block();
 
         // Setup
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_gac_enabled)))

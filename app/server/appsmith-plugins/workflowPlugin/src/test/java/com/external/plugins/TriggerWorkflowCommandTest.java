@@ -37,7 +37,7 @@ public class TriggerWorkflowCommandTest {
     }
 
     WorkflowPlugin.WorkflowPluginExecutor workflowPluginExecutor =
-            new WorkflowPlugin.WorkflowPluginExecutor(new GetApprovalRequestWorkflowCommandTest.MockSharedConfig());
+            new WorkflowPlugin.WorkflowPluginExecutor(new GetRequestWorkflowCommandTest.MockSharedConfig());
 
     @Test
     public void testExecuteRequestWithoutWorkflowId() {
@@ -58,31 +58,6 @@ public class TriggerWorkflowCommandTest {
                             .isEqualTo(WorkflowPluginError.WORKFLOW_UNDEFINED.getMessage());
                     assertThat(executionResult.getStatusCode())
                             .isEqualTo(WorkflowPluginError.WORKFLOW_UNDEFINED.getAppErrorCode());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testExecuteRequestWithoutTriggerData() {
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        Map<String, Object> formData = new HashMap<>();
-        formData.put(REQUEST_TYPE, Map.of("data", "TRIGGER_WORKFLOW"));
-        formData.put(WORKFLOW_ID, Map.of("data", "WORKFLOW_ID"));
-        actionConfiguration.setFormData(formData);
-
-        Mono<ActionExecutionResult> executionResultMono =
-                workflowPluginExecutor.execute(null, null, actionConfiguration);
-
-        StepVerifier.create(executionResultMono)
-                .assertNext(executionResult -> {
-                    assertThat(executionResult.getIsExecutionSuccess()).isFalse();
-                    assertThat(executionResult.getErrorType()).isEqualTo(WORKFLOW_ERROR.toString());
-                    assertThat(executionResult.getTitle())
-                            .isEqualTo(WorkflowPluginError.TRIGGER_DATA_MISSING.getTitle());
-                    assertThat(executionResult.getBody())
-                            .isEqualTo(WorkflowPluginError.TRIGGER_DATA_MISSING.getMessage());
-                    assertThat(executionResult.getStatusCode())
-                            .isEqualTo(WorkflowPluginError.TRIGGER_DATA_MISSING.getAppErrorCode());
                 })
                 .verifyComplete();
     }

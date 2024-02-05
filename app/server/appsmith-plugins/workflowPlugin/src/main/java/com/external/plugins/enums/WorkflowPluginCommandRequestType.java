@@ -6,9 +6,9 @@ import lombok.Getter;
 
 @Getter
 public enum WorkflowPluginCommandRequestType {
-    GET_APPROVAL_REQUESTS("GET_APPROVAL_REQUESTS"),
+    GET_REQUESTS("GET_REQUESTS"),
     TRIGGER_WORKFLOW("TRIGGER_WORKFLOW"),
-    RESOLVE_APPROVAL_REQUESTS("RESOLVE_APPROVAL_REQUESTS"),
+    RESOLVE_REQUESTS("RESOLVE_REQUESTS"),
     ;
 
     private final String value;

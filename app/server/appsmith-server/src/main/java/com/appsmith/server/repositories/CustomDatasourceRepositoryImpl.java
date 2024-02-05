@@ -12,8 +12,6 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
-
 @Component
 public class CustomDatasourceRepositoryImpl extends CustomDatasourceRepositoryCEImpl
         implements CustomDatasourceRepository {
@@ -30,6 +28,12 @@ public class CustomDatasourceRepositoryImpl extends CustomDatasourceRepositoryCE
             Set<String> workspaceIds, List<String> includeFields) {
         Criteria workspaceCriteria = Criteria.where(FieldName.WORKSPACE_ID).in(workspaceIds);
 
-        return queryAll(List.of(workspaceCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+        return queryAll()
+                .criteria(workspaceCriteria)
+                .fields(includeFields)
+                .permission(null)
+                .sort(null)
+                .limit(NO_RECORD_LIMIT)
+                .submit();
     }
 }

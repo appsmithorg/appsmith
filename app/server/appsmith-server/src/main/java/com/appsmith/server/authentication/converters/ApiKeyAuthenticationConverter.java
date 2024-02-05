@@ -82,7 +82,7 @@ public class ApiKeyAuthenticationConverter implements ServerAuthenticationConver
                 })
                 .onErrorResume(error -> {
                     log.error(error.getMessage());
-                    return userRepository.findByCaseInsensitiveEmail(FieldName.ANONYMOUS_USER);
+                    return userRepository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(FieldName.ANONYMOUS_USER);
                 })
                 .map(user -> new ApiKeyAuthentication(apiKey, user));
     }

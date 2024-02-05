@@ -458,7 +458,6 @@ describe("workspaceReducer", () => {
     const payload = [workflow1, workflow2];
     const updatedWorkflow = {
       ...workflow2,
-      color: "#000",
       name: "test2 updated",
     };
     const initialState = klona(DEFAULT_STATE);
@@ -479,7 +478,6 @@ describe("workspaceReducer", () => {
     const payload = [workflow1, workflow2];
     const updatedWorkflow = {
       ...workflow2,
-      color: "#000",
       name: "test2 updated",
     };
     const initialState = klona(DEFAULT_STATE);

@@ -3,6 +3,7 @@ import { Route, Switch, useRouteMatch } from "react-router";
 import * as Sentry from "@sentry/react";
 import useRoutes from "@appsmith/pages/Editor/IDE/MainPane/useRoutes";
 import { WORKFLOW_EDITOR_URL } from "@appsmith/constants/routes/workflowRoutes";
+import RunHistory from "../../BottomBar/WorkflowRunHistory/RunHistoryTrigger";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 export const MainPane = (props: { id: string }) => {
@@ -19,6 +20,7 @@ export const MainPane = (props: { id: string }) => {
           <SentryRoute {...route} key={route.key} />
         ))}
       </Switch>
+      <RunHistory />
     </div>
   );
 };

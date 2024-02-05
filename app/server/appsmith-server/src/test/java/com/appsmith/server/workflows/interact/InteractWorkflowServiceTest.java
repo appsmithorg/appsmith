@@ -181,7 +181,9 @@ class InteractWorkflowServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
-        User apiUser = userRepository.findByCaseInsensitiveEmail("api_user").block();
+        User apiUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc("api_user")
+                .block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_workflows_enabled)))
                 .thenReturn(Mono.just(TRUE));
@@ -271,8 +273,9 @@ class InteractWorkflowServiceTest {
                 .generateBearerTokenForWebhook(workflow.getId())
                 .block();
         String userEmail = workflowHelper.generateWorkflowBotUserEmail(workflow).toLowerCase();
-        User workflowBotUser =
-                userRepository.findByCaseInsensitiveEmail(userEmail).block();
+        User workflowBotUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(userEmail)
+                .block();
         assertThat(workflowBotUser).isNotNull();
         assertThat(workflowBotUser.getIsSystemGenerated()).isTrue();
         List<PermissionGroup> workflowBotRoles = permissionGroupRepository
@@ -387,8 +390,9 @@ class InteractWorkflowServiceTest {
     void testArchiveBearerTokenForWebhook() {
         interactWorkflowService.generateBearerTokenForWebhook(workflow.getId()).block();
         String userEmail = workflowHelper.generateWorkflowBotUserEmail(workflow).toLowerCase();
-        User workflowBotUser =
-                userRepository.findByCaseInsensitiveEmail(userEmail).block();
+        User workflowBotUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(userEmail)
+                .block();
         Criteria userEmailCriteria = Criteria.where(fieldName(QUser.user.email)).is(userEmail);
         Query userEmailQuery = Query.query(userEmailCriteria);
 
@@ -445,8 +449,9 @@ class InteractWorkflowServiceTest {
                 .generateBearerTokenForWebhook(workflow.getId())
                 .block();
         String userEmail = workflowHelper.generateWorkflowBotUserEmail(workflow).toLowerCase();
-        User workflowBotUser =
-                userRepository.findByCaseInsensitiveEmail(userEmail).block();
+        User workflowBotUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(userEmail)
+                .block();
         assertThat(workflowBotUser).isNotNull();
         assertThat(workflowBotUser.getIsSystemGenerated()).isTrue();
         List<PermissionGroup> workflowBotRoles = permissionGroupRepository
@@ -561,8 +566,9 @@ class InteractWorkflowServiceTest {
     void testArchiveBearerTokenForWebhook_nonAdminUser() {
         interactWorkflowService.generateBearerTokenForWebhook(workflow.getId()).block();
         String userEmail = workflowHelper.generateWorkflowBotUserEmail(workflow).toLowerCase();
-        User workflowBotUser =
-                userRepository.findByCaseInsensitiveEmail(userEmail).block();
+        User workflowBotUser = userRepository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(userEmail)
+                .block();
         Criteria userEmailCriteria = Criteria.where(fieldName(QUser.user.email)).is(userEmail);
         Query userEmailQuery = Query.query(userEmailCriteria);
 

@@ -16,6 +16,8 @@ import {
 import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
 import { getCurrentPackageId } from "@appsmith/selectors/packageSelectors";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { getCurrentWorkflowId } from "@appsmith/selectors/workflowSelectors";
+import NewActionButton from "@appsmith/pages/Editor/WorkflowEditor/DataSourceEditor/NewActionButton";
 
 export const useHeaderActions = (
   editorType: string,
@@ -54,6 +56,19 @@ export const useHeaderActions = (
       newActionButton,
       generatePageButton: null,
     };
+  } else if (editorType === EditorNames.WORKFLOW) {
+    const newActionButton = (
+      <NewActionButton
+        datasource={datasource as Datasource}
+        disabled={!canCreateDatasourceActions || !isPluginAuthorized}
+        eventFrom="datasource-pane"
+        pluginType={pluginType}
+      />
+    );
+    return {
+      newActionButton,
+      generatePageButton: null,
+    };
   }
 
   return {};
@@ -64,12 +79,19 @@ export const useParentEntityInfo = (editorType: string) => {
   const pageId = useSelector(getCurrentPageId);
   const packageId = useSelector(getCurrentPackageId);
   const moduleId = useSelector(getCurrentModuleId);
+  const workflowId = useSelector(getCurrentWorkflowId);
 
   if (editorType === EditorNames.PACKAGE) {
     return {
       editorId: packageId || "",
       parentEntityId: moduleId || "",
       parentEntityType: ActionParentEntityType.MODULE,
+    };
+  } else if (editorType === EditorNames.WORKFLOW) {
+    return {
+      editorId: workflowId || "",
+      parentEntityId: workflowId || "",
+      parentEntityType: ActionParentEntityType.WORKFLOW,
     };
   } else {
     return {
