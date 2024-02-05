@@ -108,7 +108,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                             // Now that we have the context (connection details), execute the action.
                             // datasource remains unevaluated for datasource of DBAuth Type Authentication,
                             // However the context comes from evaluated datasource.
-                            .flatMap(resourceContext -> setTenantDetails(triggerRequestDTO)
+                            .flatMap(resourceContext -> setTenantAndInstanceId(triggerRequestDTO)
                                     .flatMap(updatedTriggerRequestDTO -> ((PluginExecutor<Object>) pluginExecutor)
                                             .trigger(
                                                     resourceContext.getConnection(),
@@ -146,7 +146,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
         return resultFromPluginMono.switchIfEmpty(defaultResultMono);
     }
 
-    private Mono<TriggerRequestDTO> setTenantDetails(TriggerRequestDTO triggerRequestDTO) {
+    private Mono<TriggerRequestDTO> setTenantAndInstanceId(TriggerRequestDTO triggerRequestDTO) {
         return tenantService
                 .getDefaultTenantId()
                 .zipWith(configService.getInstanceId())

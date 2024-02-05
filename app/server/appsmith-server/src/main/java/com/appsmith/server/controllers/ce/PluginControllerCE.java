@@ -31,7 +31,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 
 @RequestMapping(Url.PLUGIN_URL)
 @Slf4j
@@ -102,19 +101,14 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
             @RequestPart(name = FieldName.WORKSPACE_ID, required = false) String workspaceId,
             ServerWebExchange serverWebExchange) {
         log.debug("Trigger received for plugin {}", pluginId);
-        TriggerRequestDTO triggerRequestDTO = new TriggerRequestDTO();
-        return filePartFlux.collectList().flatMap(fileParts -> {
-            triggerRequestDTO.setFiles(fileParts);
-            triggerRequestDTO.setRequestType(requestType);
-            triggerRequestDTO.setParameters(Map.of("triggerSource", "multipartRequest"));
-            triggerRequestDTO.setWorkspaceId(workspaceId);
-            return pluginTriggerSolution
-                    .trigger(
-                            pluginId,
-                            environmentId,
-                            triggerRequestDTO,
-                            serverWebExchange.getRequest().getHeaders())
-                    .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
-        });
+        return pluginTriggerSolution
+                .trigger(
+                        pluginId,
+                        environmentId,
+                        workspaceId,
+                        filePartFlux,
+                        requestType,
+                        serverWebExchange.getRequest().getHeaders())
+                .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
 }
