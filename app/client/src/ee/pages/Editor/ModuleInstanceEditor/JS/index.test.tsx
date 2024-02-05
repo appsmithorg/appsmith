@@ -346,9 +346,9 @@ describe("JSModuleInstanceEditor", () => {
     const outerElement = document.getElementsByClassName(
       `${jsAction.name}-on-page-load-setting`,
     );
-    const inputWithYes = outerElement[0].getElementsByTagName("input")[0];
+    const switchEl = outerElement[0].getElementsByTagName("input")[0];
     // Turn on execute on load
-    fireEvent.click(inputWithYes);
+    fireEvent.click(switchEl);
 
     expect(mockDispatch).toHaveBeenCalledWith({
       type: "UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_INIT",
@@ -358,10 +358,8 @@ describe("JSModuleInstanceEditor", () => {
       },
     });
 
-    const inputWithNo = outerElement[0].getElementsByTagName("input")[1];
-
     // Turn off execute on load
-    fireEvent.click(inputWithNo);
+    fireEvent.click(switchEl);
     expect(mockDispatch).toHaveBeenCalledWith({
       type: "UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_INIT",
       payload: {
