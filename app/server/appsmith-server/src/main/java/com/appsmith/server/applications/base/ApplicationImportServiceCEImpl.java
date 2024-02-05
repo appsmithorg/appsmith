@@ -57,9 +57,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
 import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicationProperties;
 
-/**
- * This service is currently not in use, however this service will replace ImportApplicationService
- */
 @Slf4j
 public class ApplicationImportServiceCEImpl implements ApplicationImportServiceCE {
 

@@ -487,7 +487,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         currUserMono)))
                 .cache();
 
-        Mono<? extends ImportableArtifact> importMono = importedArtifactMono
+        final Mono<? extends ImportableArtifact> importMono = importedArtifactMono
                 .then(Mono.defer(() -> generateImportableEntities(
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
@@ -668,16 +668,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 artifactExchangeJson,
                 true));
 
-        // Directly updates required theme information in DB
-        Mono<Void> importedThemesMono = themeImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedArtifactMono,
-                artifactExchangeJson,
-                true);
-
-        return Flux.merge(List.of(importedDatasourcesMono, importedThemesMono));
+        return Flux.merge(List.of(importedDatasourcesMono));
     }
 
     /**
