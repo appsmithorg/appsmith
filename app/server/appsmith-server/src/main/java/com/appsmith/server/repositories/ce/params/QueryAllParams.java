@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.NO_RECORD_LIMIT;
@@ -33,8 +34,16 @@ public class QueryAllParams<T extends BaseDomain> {
         this.repo = repo;
     }
 
-    public List<T> submit() {
+    public List<T> all() {
         return repo.queryAllExecute(this);
+    }
+
+    public Optional<T> one() {
+        return repo.queryOneExecute(this).blockOptional();
+    }
+
+    public Optional<T> first() {
+        return repo.queryFirstExecute(this).blockOptional();
     }
 
     public QueryAllParams<T> criteria(Criteria... criteria) {

@@ -24,7 +24,7 @@ public interface UserDataServiceCE {
 
     Mono<UserData> getForUserEmail(String email);
 
-    Mono<Map<String, String>> getProfileAssetIdsForUserIds(Collection<String> userIds);
+    Mono<Map<String, String>> getProfilePhotoAssetIdsForUserIds(Collection<String> userIds);
 
     Mono<UserData> updateForCurrentUser(UserData updates);
 

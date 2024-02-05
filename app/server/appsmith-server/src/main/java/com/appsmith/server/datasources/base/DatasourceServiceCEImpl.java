@@ -761,7 +761,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(Long workspaceId, Optional<AclPermission> permission) {
+    public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission) {
         return repository.findAllByWorkspaceId(workspaceId /*, permission*/);
     }
 

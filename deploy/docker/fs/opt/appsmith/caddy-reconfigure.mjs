@@ -165,6 +165,7 @@ function finalizeIndexHtml() {
   const info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
   const extraEnv = {
     APPSMITH_VERSION_ID: info.version ?? "",
+    APPSMITH_VERSION_SHA: info.commitSha ?? "",
     APPSMITH_VERSION_RELEASE_DATE: info.imageBuiltAt ?? "",
   }
 

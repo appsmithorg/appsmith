@@ -5,7 +5,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.helpers.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -66,29 +65,35 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
         Criteria idCriteria = getIdCriteria(id);
 
-        return queryOne(List.of(idCriteria, workspaceIdCriteria), permission);
+        return queryBuilder()
+                .criteria(idCriteria, workspaceIdCriteria)
+                .permission(permission)
+                .one();
     }
 
     @Override
     public Optional<Application> findByName(String name, AclPermission permission) {
         Criteria nameCriteria = where("name").is(name);
-        return queryOne(List.of(nameCriteria), permission);
+        return queryBuilder().criteria(nameCriteria).permission(permission).one();
     }
 
     @Override
     public List<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
-        return Collections.emptyList();
-        // Criteria workspaceIdCriteria =
-        //         where("workspaceId").is(workspaceId);
-        // return queryAll().criteria(workspaceIdCriteria).permission(permission).submit();
+        Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
+        return queryBuilder()
+                .criteria(workspaceIdCriteria)
+                .permission(permission)
+                .all();
     }
 
     @Override
     public List<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
-        return Collections.emptyList(); /*
         Criteria workspaceIdCriteria =
-                where("workspaceId").in(workspaceIds);
-        return queryAll().criteria(workspaceIdCriteria).permission(permission).submit();*/
+                where(fieldName(QApplication.application.workspaceId)).in(workspaceIds);
+        return queryBuilder()
+                .criteria(workspaceIdCriteria)
+                .permission(permission)
+                .all();
     }
 
     @Override
@@ -105,22 +110,24 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         });
                     }
                     return Mono.just(user);
-                });
+                })
+            .blockOptional();
 
         return currentUserWithTenantMono
                 .flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
-                .flatMapMany(permissionGroups -> queryAll()
+                .flatMapMany(permissionGroups -> queryBuilder()
                         .permission(permission)
                         .permissionGroups(permissionGroups)
-                        .submit());*/
+                        .all());*/
     }
 
     @Override
     public List<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
-        return Collections.emptyList(); /*
-        Criteria clonedFromCriteria = where("clonedFromApplicationId")
-                .is(applicationId);
-        return queryAll().criteria(clonedFromCriteria).permission(permission).submit();*/
+        Criteria clonedFromCriteria = where("clonedFromApplicationId").is(applicationId);
+        return queryBuilder()
+                .criteria(clonedFromCriteria)
+                .permission(permission)
+                .all();
     }
 
     @SneakyThrows
@@ -215,14 +222,19 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             List<String> projectionFieldNames,
             String branchName,
             AclPermission aclPermission) {
+        return Optional.empty(); /*
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         Bridge<Application> defaultAppCriteria = Bridge.<Application>where(
                         gitApplicationMetadata + "." + "defaultApplicationId")
                 .is(defaultApplicationId);
         Bridge<Application> branchNameCriteria = Bridge.<Application>where(gitApplicationMetadata + "." + "branchName")
                 .is(branchName);
-        return queryOne2(List.of(defaultAppCriteria, branchNameCriteria), projectionFieldNames, aclPermission)
-                .blockOptional();
+        return queryBuilder()
+                .criteria(defaultAppCriteria, branchNameCriteria)
+                .fields(projectionFieldNames)
+                .permission(aclPermission)
+                .one()
+                .blockOptional();*/
     }
 
     @Override
@@ -232,40 +244,27 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         String gitApplicationMetadata = "gitApplicationMetadata";
 
         Criteria defaultAppCriteria =
-                where(gitApplicationMetadata + "." + "defaultApplicationId").is(defaultApplicationId);
+                where(gitApplicationMetadata + ".defaultApplicationId").is(defaultApplicationId);
         Criteria branchNameCriteria =
-                where(gitApplicationMetadata + "." + "branchName").is(branchName);
-        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), null, aclPermission);
+                where(gitApplicationMetadata + ".branchName").is(branchName);
+        return queryBuilder()
+                .criteria(defaultAppCriteria, branchNameCriteria)
+                .fields((List<String>) null)
+                .permission(aclPermission.orElse(null))
+                .one();
     }
 
     @Override
     public List<Application> getApplicationByGitDefaultApplicationId(
             String defaultApplicationId, AclPermission permission) {
-        return Collections.emptyList(); /*
         String gitApplicationMetadata = "gitApplicationMetadata";
 
-        Criteria applicationIdCriteria = where(gitApplicationMetadata + "."
-                        + "defaultApplicationId")
-                .is(defaultApplicationId);
-        return queryAll().criteria(applicationIdCriteria).permission(permission).submit();*/
-    }
-
-    /**
-     * Returns a list of application ids which are under the workspace with provided workspaceId
-     *
-     * @param workspaceId workspace id
-     * @return list of String
-     */
-    @Override
-    public List<String> getAllApplicationId(String workspaceId) {
-        return Collections.emptyList(); /*
-        Query query = new Query();
-        query.addCriteria(where("workspaceId").is(workspaceId));
-        query.fields().include("id");
-        return mongoOperations
-                .find(query, Application.class)
-                .map(BaseDomain::getId)
-                .collectList();*/
+        Criteria applicationIdCriteria =
+                where(gitApplicationMetadata + "." + "defaultApplicationId").is(defaultApplicationId);
+        return queryBuilder()
+                .criteria(applicationIdCriteria)
+                .permission(permission)
+                .all();
     }
 
     @Override
@@ -288,23 +287,19 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public List<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId) {
-        return Collections.emptyList(); /*
         String gitApplicationMetadata = "gitApplicationMetadata";
         // isRepoPrivate and gitAuth will be stored only with default application which ensures we will have only single
         // application per repo
-        Criteria repoCriteria = where(gitApplicationMetadata + "."
-                        + "isRepoPrivate")
-                .exists(Boolean.TRUE);
-        Criteria gitAuthCriteria = where(gitApplicationMetadata + "."
-                        + "gitAuth")
-                .exists(Boolean.TRUE);
-        Criteria workspaceIdCriteria =
-                where("workspaceId").is(workspaceId);
+        Criteria repoCriteria =
+                where(gitApplicationMetadata + "." + "isRepoPrivate").exists(Boolean.TRUE);
+        Criteria gitAuthCriteria =
+                where(gitApplicationMetadata + "." + "gitAuth").exists(Boolean.TRUE);
+        Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
         AclPermission aclPermission = applicationPermission.getEditPermission();
-        return queryAll()
+        return queryBuilder()
                 .criteria(workspaceIdCriteria, repoCriteria, gitAuthCriteria)
                 .permission(aclPermission)
-                .submit();*/
+                .all();
     }
 
     @Override

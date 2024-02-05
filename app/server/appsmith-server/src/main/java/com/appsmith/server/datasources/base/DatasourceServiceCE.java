@@ -50,7 +50,7 @@ public interface DatasourceServiceCE {
      */
     Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params);
 
-    Flux<Datasource> getAllByWorkspaceIdWithoutStorages(Long workspaceId, Optional<AclPermission> permission);
+    Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission);
 
     /**
      * Retrieves all datasources based on workspaceId. The retrieved datasources will contain

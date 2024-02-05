@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.exceptions.AppsmithException;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
@@ -13,6 +14,7 @@ import static com.appsmith.server.helpers.GitUtils.isApplicationConnectedToGit;
 import static com.appsmith.server.helpers.GitUtils.isDefaultBranchedApplication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GitUtilsTest {
@@ -65,7 +67,7 @@ public class GitUtilsTest {
     }
 
     @Test
-    public void getRepoName() {
+    public void getRepoName_WhenUrlIsValid_RepoNameReturned() {
         assertThat(GitUtils.getRepoName("git@example.test.net:user/test/tests/lakechope.git"))
                 .isEqualTo("lakechope");
         assertThat(GitUtils.getRepoName("git@example.com:test/ParkMyrtlows.git"))
@@ -78,6 +80,68 @@ public class GitUtilsTest {
                 .isEqualTo("SpaceJunk");
         assertThat(GitUtils.getRepoName("git@examplelab-abcd.test.org:org_org/testNewRepo.git"))
                 .isEqualTo("testNewRepo");
+
+        assertThat(GitUtils.getRepoName("git@github.com:user/project.git")).isEqualTo("project");
+        assertThat(GitUtils.getRepoName("git://a@b:c/d.git")).isEqualTo("d");
+        assertThat(GitUtils.getRepoName("git@192.168.101.127:user/project.git")).isEqualTo("project");
+        assertThat(GitUtils.getRepoName("ssh://user@host.xz:port/path/to/repo.git"))
+                .isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("ssh://user@host.xz/path/to/repo.git")).isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("ssh://host.xz:port/path/to/repo.git")).isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("ssh://host.xz/path/to/repo.git")).isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("ssh://user@host.xz/path/to/repo.git")).isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("ssh://host.xz/path/to/repo.git")).isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("ssh://user@host.xz/~user/path/to/repo.git"))
+                .isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("ssh://host.xz/~user/path/to/repo.git")).isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("ssh://user@host.xz/~/path/to/repo.git"))
+                .isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("ssh://host.xz/~/path/to/repo.git")).isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("git@ssh.dev.azure.com:v3/something/other/thing.git"))
+                .isEqualTo("thing");
+        assertThat(GitUtils.getRepoName("git@ssh.dev.azure.com:v3/something/other/(thing).git"))
+                .isEqualTo("(thing)");
+        assertThat(GitUtils.getRepoName("git@ssh.dev.azure.com:v3/(((something)/(other)/(thing).git"))
+                .isEqualTo("(thing)");
+        assertThat(GitUtils.getRepoName("git@abcd.org:org__v3/(((something)/(other)/(thing).git"))
+                .isEqualTo("(thing)");
+        assertThat(GitUtils.getRepoName("git@gitlab-abcd.test.org:org__org/repoName.git"))
+                .isEqualTo("repoName");
+        assertThat(GitUtils.getRepoName("git@gitlab__abcd.test.org:org__org/repoName.git"))
+                .isEqualTo("repoName");
+        assertThat(GitUtils.getRepoName("git@ssh.dev.azure.com:v3/something/with%20space%20(some)/geo-mantis"))
+                .isEqualTo("geo-mantis");
+        assertThat(GitUtils.getRepoName("git@ssh.dev.azure.com:v3/something/with%20space%20some/geo-mantis"))
+                .isEqualTo("geo-mantis");
+        assertThat(GitUtils.getRepoName("user@host.xz:path/to/repo.git")).isEqualTo("repo");
+        assertThat(GitUtils.getRepoName("org-987654321@github.com:org_name/repository_name.git"))
+                .isEqualTo("repository_name");
+    }
+
+    @Test
+    public void getRepoName_WhenURLIsInvalid_ThrowsException() {
+        String[] invalidUrls = {
+            "https://github.com/user/project.git",
+            "http://github.com/user/project.git",
+            "https://192.168.101.127/user/project.git",
+            "http://192.168.101.127/user/project.git",
+            "git@ssh.dev.azure.(com):v3/(((something)/(other)/(thing).git",
+            "http://host.xz/path/to/repo.git/",
+            "https://host.xz/path/to/repo.git/",
+            "/path/to/repo.git/",
+            "path/to/repo.git/",
+            "~/path/to/repo.git",
+            "file:///path/to/repo.git/",
+            "file://~/path/to/repo.git/",
+            "host.xz:/path/to/repo.git/",
+            "host.xz:~user/path/to/repo.git/",
+            "host.xz:path/to/repo.git",
+            "rsync://host.xz/path/to/repo.git/"
+        };
+
+        for (String url : invalidUrls) {
+            assertThrows(AppsmithException.class, () -> GitUtils.getRepoName(url), url + " is not invalid");
+        }
     }
 
     @Test

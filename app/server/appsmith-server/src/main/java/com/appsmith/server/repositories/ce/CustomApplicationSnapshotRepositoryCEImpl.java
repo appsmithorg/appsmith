@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
+import com.appsmith.server.domains.QApplicationSnapshot;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -27,7 +28,11 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
         criteriaList.add(Criteria.where("applicationId").is(applicationId));
         criteriaList.add(Criteria.where("chunkOrder").is(1));
 
-        List<String> fieldNames = List.of("applicationId", "chunkOrder", "createdAt", "updatedAt");
-        return queryOne(criteriaList, fieldNames);
+        List<String> fieldNames = List.of(
+                fieldName(QApplicationSnapshot.applicationSnapshot.applicationId),
+                fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder),
+                fieldName(QApplicationSnapshot.applicationSnapshot.createdAt),
+                fieldName(QApplicationSnapshot.applicationSnapshot.updatedAt));
+        return queryBuilder().criteria(criteriaList).fields(fieldNames).one();
     }
 }

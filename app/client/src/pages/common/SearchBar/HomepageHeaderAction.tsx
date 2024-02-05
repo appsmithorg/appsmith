@@ -164,7 +164,9 @@ const HomepageHeaderAction = ({
                     {createMessage(
                       APPSMITH_DISPLAY_VERSION,
                       appVersion.edition,
-                      appVersion.id,
+                      appVersion.id.endsWith("-SNAPSHOT")
+                        ? appVersion.sha.substring(0, 8)
+                        : appVersion.id,
                     )}
                   </div>
                   {howMuchTimeBefore !== "" && (

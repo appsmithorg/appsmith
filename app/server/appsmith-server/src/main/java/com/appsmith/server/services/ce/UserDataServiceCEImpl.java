@@ -11,6 +11,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.projections.IdOnly;
+import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -117,8 +118,12 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
     }
 
     @Override
-    public Mono<Map<String, String>> getProfileAssetIdsForUserIds(Collection<String> userIds) {
-        return repository.findByUserIdIn(userIds).collectMap(UserData::getUserId, UserData::getProfilePhotoAssetId);
+    public Mono<Map<String, String>> getProfilePhotoAssetIdsForUserIds(Collection<String> userIds) {
+        return repository
+                .findByUserIdIn(userIds)
+                .collectMap(
+                        UserDataProfilePhotoProjection::getUserId,
+                        UserDataProfilePhotoProjection::getProfilePhotoAssetId);
     }
 
     @Override

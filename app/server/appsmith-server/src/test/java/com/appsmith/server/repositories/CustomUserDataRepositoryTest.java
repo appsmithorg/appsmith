@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -162,29 +163,25 @@ public class CustomUserDataRepositoryTest {
         UserData userDataOne = new UserData();
         userDataOne.setUserId(firstId);
         userDataOne.setProfilePhotoAssetId(photoId);
-        userDataOne.setRecentlyUsedAppIds(List.of("abc"));
 
         UserData userDataTwo = new UserData();
         userDataTwo.setUserId(secondId);
-        userDataTwo.setRecentlyUsedAppIds(List.of("abc"));
 
-        Flux<UserData> userDataFlux = userDataRepository
+        Flux<UserDataProfilePhotoProjection> userDataFlux = userDataRepository
                 .saveAll(List.of(userDataOne, userDataTwo))
                 .map(UserData::getUserId)
                 .collectList()
                 .flatMapMany(userDataRepository::findByUserIdIn);
 
-        StepVerifier.create(userDataFlux.collectMap(UserData::getUserId))
+        StepVerifier.create(userDataFlux.collectMap(UserDataProfilePhotoProjection::getUserId))
                 .assertNext(userDataMap -> {
-                    assertThat(userDataMap.size()).isEqualTo(2);
+                    assertThat(userDataMap).hasSize(2);
 
-                    UserData firstUserData = userDataMap.get(firstId);
+                    UserDataProfilePhotoProjection firstUserData = userDataMap.get(firstId);
                     assertThat(firstUserData.getProfilePhotoAssetId()).isEqualTo(photoId);
-                    assertThat(firstUserData.getRecentlyUsedAppIds()).isNull();
 
-                    UserData secondUserData = userDataMap.get(secondId);
+                    UserDataProfilePhotoProjection secondUserData = userDataMap.get(secondId);
                     assertThat(secondUserData.getProfilePhotoAssetId()).isNull();
-                    assertThat(secondUserData.getRecentlyUsedAppIds()).isNull();
                 })
                 .verifyComplete();
     }

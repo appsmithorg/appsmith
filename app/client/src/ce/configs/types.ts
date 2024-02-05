@@ -2,6 +2,7 @@ import type { LogLevelDesc } from "loglevel";
 
 export interface AppVersionData {
   id: string;
+  sha: string;
   releaseDate: string;
   edition: string;
 }

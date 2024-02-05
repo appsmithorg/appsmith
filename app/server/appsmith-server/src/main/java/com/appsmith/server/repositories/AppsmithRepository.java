@@ -21,7 +21,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     // Optional<T> updateById(String id, T resource, AclPermission permission);
 
-    /*no-cake*/ QueryAllParams<T> queryAll();
+    /*no-cake*/ QueryAllParams<T> queryBuilder();
 
     List<T> queryAllWithStrictPermissionGroups(
             List<Criteria> criterias,

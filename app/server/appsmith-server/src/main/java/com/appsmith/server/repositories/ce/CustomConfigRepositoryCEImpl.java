@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -9,7 +10,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -26,8 +26,8 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
 
     @Override
     public Optional<Config> findByName(String name, AclPermission permission) {
-        Criteria nameCriteria = where("name").is(name);
-        return queryOne(List.of(nameCriteria), permission);
+        Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
+        return queryBuilder().criteria(nameCriteria).permission(permission).one();
     }
 
     @Override

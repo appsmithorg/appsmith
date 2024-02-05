@@ -99,7 +99,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                         newPage.sanitiseToExportDBObject();
                     });
                     applicationJson.setPageList(newPageList);
-                    applicationJson.getUpdatedResources().put(FieldName.PAGE_LIST, updatedPageSet);
+                    applicationJson.getModifiedResources().putResource(FieldName.PAGE_LIST, updatedPageSet);
 
                     return newPageList;
                 })

@@ -104,10 +104,10 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
                     .collect(Collectors.toList());
         }
         return repository
-                .queryAll()
+                .queryBuilder()
                 .criteria(criterias)
                 .permission(aclPermission)
-                .submit();*/
+                .all();*/
     }
 
     @Override
@@ -203,11 +203,11 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
         Flux<T> result = repository
-                .queryAll()
+                .queryBuilder()
                 .criteria(criteria)
                 .permission(permission)
                 .sort(sort)
-                .submit();
+                .all();
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

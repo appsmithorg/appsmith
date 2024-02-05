@@ -37,7 +37,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
         Criteria nameCriteria = where("name").is(name);
 
-        return queryOne(List.of(nameCriteria), aclPermission);
+        return queryBuilder().criteria(nameCriteria).permission(aclPermission).one();
     }
 
     @Override
@@ -48,11 +48,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria tenantIdCriteria =
                 where("tenantId").is(tenantId);
 
-        return queryAll()
+        return queryBuilder()
                 .criteria(workspaceIdCriteria, tenantIdCriteria)
                 .permission(aclPermission)
                 .sort(sort)
-                .submit();*/
+                .all();*/
     }
 
     @Override
@@ -67,7 +67,10 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
             Criteria tenantIdCriteria =
                     where("tenantId").is(user.getTenantId());
-            return queryAll().criteria(tenantIdCriteria).permission(permission).submit();
+            return queryBuilder()
+                    .criteria(tenantIdCriteria)
+                    .permission(permission)
+                    .all();
         });*/
     }
 }

@@ -10,15 +10,15 @@ import java.util.Set;
 
 public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasource> {
 
-    List<Datasource> findAllByWorkspaceId(Long workspaceId);
+    List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission);
 
     // List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission);
 
     // List<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission);
 
-    Datasource findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission);
+    Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission);
 
-    Datasource findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
+    Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
 
     List<Datasource> findAllByIds(Set<String> ids, AclPermission permission);
 

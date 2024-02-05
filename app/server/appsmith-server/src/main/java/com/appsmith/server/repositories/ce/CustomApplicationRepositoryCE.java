@@ -62,8 +62,6 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     List<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
-    List<String> getAllApplicationId(String workspaceId);
-
     Optional<UpdateResult> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 

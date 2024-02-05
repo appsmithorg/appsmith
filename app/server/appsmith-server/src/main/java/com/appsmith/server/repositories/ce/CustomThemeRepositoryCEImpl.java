@@ -40,7 +40,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         Criteria systemThemeCriteria =
                 Criteria.where("isSystemTheme").is(Boolean.TRUE);
         Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
-        return queryAll().criteria(criteria).permission(aclPermission).submit();*/
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();*/
     }
 
     @Override
@@ -48,10 +48,10 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         return Collections.emptyList(); /*
         Criteria systemThemeCriteria =
                 Criteria.where("isSystemTheme").is(Boolean.TRUE);
-        return queryAll()
+        return queryBuilder()
                 .criteria(systemThemeCriteria)
                 .permission(AclPermission.READ_THEMES)
-                .submit();*/
+                .all();*/
     }
 
     @Override
@@ -59,7 +59,10 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         String findNameRegex = String.format("^%s$", Pattern.quote(themeName));
         Criteria criteria =
                 where("name").regex(findNameRegex, "i").and("isSystemTheme").is(true);
-        return queryOne(List.of(criteria), AclPermission.READ_THEMES);
+        return queryBuilder()
+                .criteria(criteria)
+                .permission(AclPermission.READ_THEMES)
+                .one();
     }
 
     private Optional<Boolean> archiveThemeByCriteria(Criteria criteria) {

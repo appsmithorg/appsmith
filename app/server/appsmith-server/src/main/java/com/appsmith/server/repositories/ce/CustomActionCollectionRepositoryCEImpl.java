@@ -2,17 +2,22 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
         implements CustomActionCollectionRepositoryCE {
@@ -27,34 +32,32 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     @Deprecated
     public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
-        return Collections.emptyList(); /*
 
         Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId))
                 .is(applicationId);
 
-        return queryAll()
+        return queryBuilder()
                 .criteria(applicationCriteria)
                 .permission(aclPermission)
                 .sort(sort)
-                .submit();*/
+                .all();
     }
 
     @Override
     public List<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
-        return Collections.emptyList(); /*
 
-        Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId)).is(applicationId);
+        Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId))
+                .is(applicationId);
 
-        return queryAll()
+        return queryBuilder()
                 .criteria(applicationCriteria)
                 .permission(aclPermission.orElse(null))
                 .sort(sort.orElse(null))
-                .submit();*/
+                .all();
     }
 
     protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, boolean viewMode) {
-        return Collections.emptyList(); /*
         List<Criteria> criteria = new ArrayList<>();
 
         Criteria applicationCriterion = where(fieldName(QActionCollection.actionCollection.applicationId))
@@ -64,32 +67,30 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriterion = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
--                            + fieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
+            Criteria deletedCriterion = where(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "deletedAt")
                     .is(null);
             criteria.add(deletedCriterion);
         }
-        return criteria;*/
+        return criteria;
     }
 
     @Override
     public List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
 
         List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
-        return queryAll().criteria(criteria).permission(aclPermission).submit();*/
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     protected List<Criteria> getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String branchName, boolean viewMode, String name, List<String> pageIds) {
-        return Collections.emptyList(); /*
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
          * all possible fields
-         * /
+         */
         List<Criteria> criteriaList = new ArrayList<>();
 
         if (!StringUtils.isEmpty(branchName)) {
@@ -101,8 +102,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QActionCollection.actionCollection.publishedCollection) + "."
--                            + fieldName(QActionCollection.actionCollection.publishedCollection.name))
+                Criteria nameCriteria = where(
+                                fieldName(QActionCollection.actionCollection.publishedCollection) + "." + "name")
                         .is(name);
                 criteriaList.add(nameCriteria);
             }
@@ -111,8 +112,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 String pageIdFieldPath = String.format(
                         "%s.%s.%s",
                         fieldName(QActionCollection.actionCollection.publishedCollection),
-                        fieldName(QActionCollection.actionCollection.publishedCollection.defaultResources),
-                        fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
+                        "defaultResources",
+                        "pageId");
                 Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
@@ -121,8 +122,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         else {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
--                            + fieldName(QActionCollection.actionCollection.unpublishedCollection.name))
+                Criteria nameCriteria = where(
+                                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "name")
                         .is(name);
                 criteriaList.add(nameCriteria);
             }
@@ -131,20 +132,20 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 String pageIdFieldPath = String.format(
                         "%s.%s.%s",
                         fieldName(QActionCollection.actionCollection.unpublishedCollection),
-                        fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultResources),
-                        fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId));
+                        "defaultResources",
+                        "pageId");
                 Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
--                            + fieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
+            Criteria deletedCriteria = where(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "deletedAt")
                     .is(null);
             criteriaList.add(deletedCriteria);
         }
-        return criteriaList;*/
+        return criteriaList;
     }
 
     @Override
@@ -155,30 +156,26 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             String branchName,
             AclPermission aclPermission,
             Sort sort) {
-        return Collections.emptyList(); /*
         List<Criteria> criteriaList = this.getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                 branchName, viewMode, name, pageIds);
 
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteriaList)
                 .permission(aclPermission)
                 .sort(sort)
-                .submit();*/
+                .all();
     }
 
     @Override
     public List<ActionCollection> findByPageId(String pageId, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
-        String unpublishedPage = "unpublishedCollection" + "."
-                + "pageId";
-        String publishedPage = "publishedCollection" + "."
-                + "pageId";
+        String unpublishedPage = "unpublishedCollection" + "." + "pageId";
+        String publishedPage = "publishedCollection" + "." + "pageId";
 
         Criteria pageCriteria = new Criteria()
                 .orOperator(
                         where(unpublishedPage).is(pageId), where(publishedPage).is(pageId));
 
-        return queryAll().criteria(pageCriteria).permission(aclPermission).submit();*/
+        return queryBuilder().criteria(pageCriteria).permission(aclPermission).all();
     }
 
     @Override
@@ -189,13 +186,15 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public Optional<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission) {
-        return Optional.empty(); /*
         final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
         Criteria defaultCollectionIdCriteria =
                 where(defaultResources + "." + FieldName.COLLECTION_ID).is(defaultCollectionId);
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
-        return queryOne(List.of(defaultCollectionIdCriteria, branchCriteria), permission);*/
+        return queryBuilder()
+                .criteria(defaultCollectionIdCriteria, branchCriteria)
+                .permission(permission)
+                .one();
     }
 
     @Override
@@ -207,110 +206,104 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public Optional<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        return Optional.empty(); /*
         final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);*/
+        return queryBuilder()
+                .criteria(defaultAppIdCriteria, gitSyncIdCriteria)
+                .permission(permission.orElse(null))
+                .first();
     }
 
     @Override
     public List<ActionCollection> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permission) {
-        return Collections.emptyList(); /*
         final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
-        return queryAll()
+        return queryBuilder()
                 .criteria(defaultAppIdCriteria)
                 .permission(permission.orElse(null))
-                .submit();*/
+                .all();
     }
 
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
-        return Collections.emptyList(); /*
-        Criteria pageIdCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                             + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
+        Criteria pageIdCriteria = where(
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "pageId")
                 .in(pageIds);
-        return queryAll().criteria(pageIdCriteria).permission(permission).submit();*/
+        return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
     }
 
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        return Collections.emptyList(); /*
-        Criteria pageIdCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                        + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
+        Criteria pageIdCriteria = where(
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "pageId")
                 .in(pageIds);
-        return queryAll()
+        return queryBuilder()
                 .criteria(pageIdCriteria)
                 .permission(permission.orElse(null))
-                .submit();*/
+                .all();
     }
 
     @Override
     public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
-        return Collections.emptyList(); /*
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
-        return queryAll().criteria(applicationCriteria).fields(includeFields).submit();*/
+        return queryBuilder()
+                .criteria(applicationCriteria)
+                .fields(includeFields)
+                .all();
     }
 
     @Override
     public List<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
-        return Collections.emptyList(); /*
         String contextIdPath = "unpublishedCollection" + "." + "pageId";
         String contextTypePath = "unpublishedCollection" + "." + "contextType";
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll()
+        return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
                 .permission(Optional.ofNullable(permission).orElse(null))
-                .submit();*/
+                .all();
     }
 
     @Override
     public List<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
-        return Collections.emptyList(); /*
         String contextIdPath = "publishedCollection" + "." + "pageId";
         String contextTypePath = "publishedCollection" + "." + "contextType";
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll()
+        return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
                 .permission(Optional.ofNullable(permission).orElse(null))
-                .submit();*/
+                .all();
     }
 
     @Override
     public List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
-        return Collections.emptyList(); /*
         List<Criteria> criteria = new ArrayList<>();
 
         Criteria pageCriterion;
 
         // Fetch published action collections
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriterion = where(completeFieldName(QActionCollection.actionCollection.publishedCollection.pageId))
-                    .is(pageId);
+            pageCriterion = where("publishedCollection.pageId").is(pageId);
             criteria.add(pageCriterion);
         }
         // Fetch unpublished action collections
         else {
-            pageCriterion = where(completeFieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
-                    .is(pageId);
+            pageCriterion = where("unpublishedCollection.pageId").is(pageId);
             criteria.add(pageCriterion);
 
             // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
             // ActionCollection object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(
-                            completeFieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
-                    .is(null);
+            Criteria deletedCriteria = where("unpublishedCollection.deletedAt").is(null);
             criteria.add(deletedCriteria);
         }
-        return queryAll().criteria(criteria).permission(permission).submit();*/
+        return queryBuilder().criteria(criteria).permission(permission).all();
     }
 }

@@ -12,8 +12,6 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
-import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -21,7 +19,6 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -52,9 +49,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
     private final UserRepositoryCake userRepository;
-    private final UserDataRepositoryCake userDataRepository;
-    private final PolicySolution policySolution;
-    private final EmailSender emailSender;
     private final UserDataService userDataService;
     private final PermissionGroupService permissionGroupService;
     private final TenantService tenantService;
@@ -66,9 +60,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
             UserRepositoryCake userRepository,
-            UserDataRepositoryCake userDataRepository,
-            PolicySolution policySolution,
-            EmailSender emailSender,
             UserDataService userDataService,
             PermissionGroupService permissionGroupService,
             TenantService tenantService,
@@ -77,9 +68,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.sessionUserService = sessionUserService;
         this.workspaceService = workspaceService;
         this.userRepository = userRepository;
-        this.userDataRepository = userDataRepository;
-        this.policySolution = policySolution;
-        this.emailSender = emailSender;
         this.userDataService = userDataService;
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
@@ -276,12 +264,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Create a map of UserData.userUd to UserData
         Mono<Map<String, String>> userDataMapMono = userIdsMono
                 // get the profile photos of the list of users
-                .flatMap(userIdsSet -> userDataService.getProfileAssetIdsForUserIds(
-                        userIdsSet.stream().toList()))
-                .map(x -> {
-                    System.out.println(x);
-                    return x;
-                });
+                .flatMap(userIdsSet -> userDataService.getProfilePhotoAssetIdsForUserIds(
+                userIdsSet.stream().toList()));
 
         // Update name and username in the list of UserAndGroupDTO
         userAndPermissionGroupDTOsMono = Mono.zip(userAndPermissionGroupDTOsMono, userMapMono, userDataMapMono)
@@ -337,7 +321,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 userIdsMono.flatMapMany(userRepository::findAllById).collectMap(User::getId);
 
         // Create a map of UserData.userUd to UserData
-        Mono<Map<String, String>> userDataMapMono = userIdsMono.flatMap(userDataService::getProfileAssetIdsForUserIds);
+        Mono<Map<String, String>> userDataMapMono =
+                userIdsMono.flatMap(userDataService::getProfilePhotoAssetIdsForUserIds);
 
         Flux<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspaceFlux =
                 permissionGroupsByWorkspacesMono.repeat();

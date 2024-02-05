@@ -22,15 +22,6 @@ import EditorNavigation, {
 import PageList from "../../../../../support/Pages/PageList";
 
 describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
-  before(() => {
-    homePage.NavigateToHome();
-    homePage.CreateNewWorkspace();
-    cy.get("@workspaceName").then((workspaceName) => {
-      newWorkspaceName = workspaceName;
-      homePage.CreateAppInWorkspace(workspaceName);
-    });
-  });
-
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
     homePage.NavigateToHome();
     agHelper.GetNClick(homePageLocators.createNew, 0);

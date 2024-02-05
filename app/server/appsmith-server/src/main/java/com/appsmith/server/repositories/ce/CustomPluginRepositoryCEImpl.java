@@ -32,12 +32,12 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
                 "name",
                 "packageName",
                 "iconLocation");
-        return queryAll().criteria(criteria).fields(projections).submit();*/
+        return queryBuilder().criteria(criteria).fields(projections).all();*/
     }
 
     @Override
     public List<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         Criteria idCriteria = where("id").in(ids);
-        return queryAll().criteria(idCriteria).fields(includeFields).submit();
+        return queryBuilder().criteria(idCriteria).fields(includeFields).all();
     }
 }

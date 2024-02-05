@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
@@ -15,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                         cb.function("coalesce", List.class, recentlyUsedWorkspaceIdsField, cb.literal("[]")),
                         cb.literal(workspaceId).as(String.class)));
 
-        if (!CollectionUtils.isNullOrEmpty(applicationIds)) {
+        if (!CollectionUtils.isEmpty(applicationIds)) {
             final Path<Expression<?>> recentlyUsedAppIdsField =
                     root.get(fieldName(QUserData.userData.recentlyUsedAppIds));
             final List<String> parts = new ArrayList<>();

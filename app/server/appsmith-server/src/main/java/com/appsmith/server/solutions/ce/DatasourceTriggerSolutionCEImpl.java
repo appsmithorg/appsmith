@@ -15,7 +15,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AuthenticationValidator;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -48,6 +50,8 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
     private final EnvironmentPermission environmentPermission;
+    private final ConfigService configService;
+    private final TenantService tenantService;
 
     public Mono<TriggerResultDTO> trigger(
             String datasourceId, String environmentId, TriggerRequestDTO triggerRequestDTO) {
@@ -104,11 +108,12 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                             // Now that we have the context (connection details), execute the action.
                             // datasource remains unevaluated for datasource of DBAuth Type Authentication,
                             // However the context comes from evaluated datasource.
-                            .flatMap(resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
-                                    .trigger(
-                                            resourceContext.getConnection(),
-                                            datasourceStorage.getDatasourceConfiguration(),
-                                            triggerRequestDTO));
+                            .flatMap(resourceContext -> setTenantAndInstanceId(triggerRequestDTO)
+                                    .flatMap(updatedTriggerRequestDTO -> ((PluginExecutor<Object>) pluginExecutor)
+                                            .trigger(
+                                                    resourceContext.getConnection(),
+                                                    datasourceStorage.getDatasourceConfiguration(),
+                                                    updatedTriggerRequestDTO)));
                 });
 
         // If the plugin hasn't implemented the trigger function, go for the default implementation
@@ -139,6 +144,17 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                 });
 
         return resultFromPluginMono.switchIfEmpty(defaultResultMono);
+    }
+
+    private Mono<TriggerRequestDTO> setTenantAndInstanceId(TriggerRequestDTO triggerRequestDTO) {
+        return tenantService
+                .getDefaultTenantId()
+                .zipWith(configService.getInstanceId())
+                .map(tuple -> {
+                    triggerRequestDTO.setTenantId(tuple.getT1());
+                    triggerRequestDTO.setInstanceId(tuple.getT2());
+                    return triggerRequestDTO;
+                });
     }
 
     private Mono<Set<String>> entitySelectorTriggerSolution(

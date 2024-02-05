@@ -29,7 +29,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
     public Optional<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
         Criteria criteria = where("uidString").is(customJSLib.getUidString());
 
-        return this.queryOne(List.of(criteria));
+        return queryBuilder().criteria(criteria).one();
     }
 
     @Override
@@ -41,6 +41,6 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
 
         Criteria criteria = Criteria.where("uidString").in(uidStrings);
 
-        return queryAll().criteria(criteria).submit();
+        return queryBuilder().criteria(criteria).all();
     }
 }
