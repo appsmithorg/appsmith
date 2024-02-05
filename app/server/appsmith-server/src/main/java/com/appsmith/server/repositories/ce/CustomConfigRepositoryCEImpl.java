@@ -12,8 +12,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Config>
@@ -29,7 +27,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
     @Override
     public Mono<Config> findByName(String name, AclPermission permission) {
         Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
-        return queryOne(List.of(nameCriteria), permission);
+        return queryBuilder().criteria(nameCriteria).permission(permission).one();
     }
 
     @Override
