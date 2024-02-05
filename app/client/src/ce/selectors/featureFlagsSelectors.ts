@@ -1,8 +1,11 @@
 import type { AppState } from "@appsmith/reducers";
-import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import {
+  DEFAULT_FEATURE_FLAG_VALUE,
+  type FeatureFlag,
+} from "@appsmith/entities/FeatureFlag";
 
 export const selectFeatureFlags = (state: AppState) =>
-  state.ui.users.featureFlag.data;
+  state ? DEFAULT_FEATURE_FLAG_VALUE : DEFAULT_FEATURE_FLAG_VALUE;
 
 // React hooks should not be placed in a selectors file.
 export const selectFeatureFlagCheck = (
