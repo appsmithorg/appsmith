@@ -5,7 +5,6 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -26,7 +25,7 @@ public class DomainSorter {
             return domainFlux;
         }
         return domainFlux
-                .collect(Collectors.toMap(Domain::getId, Function.identity(), (key1, key2) -> key1, LinkedHashMap::new))
+                .collect(Collectors.toMap(Domain::getId, Function.identity()))
                 .map(domainMap -> {
                     List<Domain> sortedDomains = new ArrayList<>();
                     for (String id : sortedDomainIds) {
