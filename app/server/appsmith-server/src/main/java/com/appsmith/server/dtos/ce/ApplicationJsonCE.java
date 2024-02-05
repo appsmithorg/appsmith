@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
@@ -9,6 +10,7 @@ import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -85,7 +87,7 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
      * are updated in the database.
      */
     @JsonView(Views.Internal.class)
-    Map<String, Set<String>> updatedResources;
+    ModifiedResources modifiedResources;
 
     // TODO remove the plain text fields during the export once we have a way to address sample apps DB authentication
     @JsonView(Views.Public.class)
@@ -122,6 +124,11 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
 
     @Override
     public ImportableArtifact getImportableArtifact() {
+        return this.getExportedApplication();
+    }
+
+    @Override
+    public ExportableArtifact getExportableArtifact() {
         return this.getExportedApplication();
     }
 

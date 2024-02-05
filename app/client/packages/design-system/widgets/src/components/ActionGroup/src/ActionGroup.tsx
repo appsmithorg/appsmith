@@ -6,7 +6,6 @@ import { Item, Menu, MenuList } from "../../Menu";
 import { useListState } from "@react-stately/list";
 
 import styles from "./styles.module.css";
-import { MoreIcon } from "./icons/MoreIcon";
 import type { ActionGroupProps } from "./types";
 import { useActionGroup } from "./useActionGroup";
 import { IconButton } from "../../IconButton";
@@ -23,6 +22,7 @@ const _ActionGroup = <T extends object>(
     onAction,
     orientation = "horizontal",
     overflowMode = "collapse",
+    size = "medium",
     variant = "filled",
     ...others
   } = props;
@@ -72,6 +72,7 @@ const _ActionGroup = <T extends object>(
                 item={item}
                 key={item.key}
                 onPress={() => onAction?.(item.key)}
+                size={Boolean(size) ? size : undefined}
                 state={state}
                 variant={variant}
               />
@@ -79,22 +80,10 @@ const _ActionGroup = <T extends object>(
           })}
           {menuChildren?.length > 0 && (
             <Menu onAction={onAction}>
-              <IconButton
-                color={color}
-                icon={MoreIcon}
-                size="large"
-                variant={variant}
-              />
+              <IconButton color={color} icon="dots" variant={variant} />
               <MenuList>
                 {menuChildren.map((item) => (
-                  <Item
-                    data-color={item.props.color}
-                    icon={item.props.icon}
-                    iconPosition={item.props.iconPosition}
-                    key={item.key}
-                  >
-                    {item.rendered}
-                  </Item>
+                  <Item key={item.key}>{item.rendered}</Item>
                 ))}
               </MenuList>
             </Menu>

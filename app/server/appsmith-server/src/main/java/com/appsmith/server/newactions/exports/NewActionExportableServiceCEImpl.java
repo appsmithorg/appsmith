@@ -50,15 +50,16 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
         Optional<AclPermission> optionalPermission = Optional.ofNullable(actionPermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
-        Flux<NewAction> actionFlux =
-                newActionService.findByPageIdsForExport(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
+        Flux<NewAction> actionFlux = newActionService.findByPageIdsForExport(
+                exportingMetaDTO.getUnpublishedModulesOrPages(), optionalPermission);
 
         return actionFlux
                 .collectList()
                 .flatMap(newActionList -> {
                     Set<String> dbNamesUsedInActions =
                             mapNameToIdForExportableEntities(mappedExportableResourcesDTO, newActionList);
-                    return Mono.zip(Mono.just(newActionList), Mono.just(dbNamesUsedInActions));
+                    List<NewAction> exportableNewActions = getExportableNewActions(newActionList);
+                    return Mono.zip(Mono.just(exportableNewActions), Mono.just(dbNamesUsedInActions));
                 })
                 .map(tuple -> {
                     List<NewAction> actionList = tuple.getT1();
@@ -77,25 +78,23 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                         boolean isDatasourceUpdated = ImportExportUtils.isDatasourceUpdatedSinceLastCommit(
                                 mappedExportableResourcesDTO.getDatasourceNameToUpdatedAtMap(),
                                 actionDTO,
-                                exportingMetaDTO.getApplicationLastCommittedAt());
+                                exportingMetaDTO.getArtifactLastCommittedAt());
 
                         boolean isPageUpdated = ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
                         Instant newActionUpdatedAt = newAction.getUpdatedAt();
                         boolean isNewActionUpdated = exportingMetaDTO.isClientSchemaMigrated()
                                 || exportingMetaDTO.isServerSchemaMigrated()
-                                || exportingMetaDTO.getApplicationLastCommittedAt() == null
+                                || exportingMetaDTO.getArtifactLastCommittedAt() == null
                                 || isPageUpdated
                                 || isDatasourceUpdated
                                 || newActionUpdatedAt == null
-                                || exportingMetaDTO
-                                        .getApplicationLastCommittedAt()
-                                        .isBefore(newActionUpdatedAt);
+                                || exportingMetaDTO.getArtifactLastCommittedAt().isBefore(newActionUpdatedAt);
                         if (isNewActionUpdated && newActionName != null) {
                             updatedActionSet.add(newActionName);
                         }
                         newAction.sanitiseToExportDBObject();
                     });
-                    applicationJson.getUpdatedResources().put(FieldName.ACTION_LIST, updatedActionSet);
+                    applicationJson.getModifiedResources().putResource(FieldName.ACTION_LIST, updatedActionSet);
                     applicationJson.setActionList(actionList);
 
                     // This is where we're removing global datasources that are unused in this application
@@ -106,6 +105,10 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                     return actionList;
                 })
                 .then();
+    }
+
+    protected List<NewAction> getExportableNewActions(List<NewAction> newActionList) {
+        return newActionList;
     }
 
     @Override
@@ -136,8 +139,9 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             // Set unique id for action
             if (newAction.getUnpublishedAction() != null) {
                 ActionDTO actionDTO = newAction.getUnpublishedAction();
-                actionDTO.setPageId(
-                        mappedExportableResourcesDTO.getPageIdToNameMap().get(actionDTO.getPageId() + EDIT));
+                actionDTO.setPageId(mappedExportableResourcesDTO
+                        .getPageOrModuleIdToNameMap()
+                        .get(actionDTO.getPageId() + EDIT));
 
                 if (!StringUtils.isEmpty(actionDTO.getCollectionId())
                         && mappedExportableResourcesDTO
@@ -154,8 +158,9 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             }
             if (newAction.getPublishedAction() != null) {
                 ActionDTO actionDTO = newAction.getPublishedAction();
-                actionDTO.setPageId(
-                        mappedExportableResourcesDTO.getPageIdToNameMap().get(actionDTO.getPageId() + VIEW));
+                actionDTO.setPageId(mappedExportableResourcesDTO
+                        .getPageOrModuleIdToNameMap()
+                        .get(actionDTO.getPageId() + VIEW));
 
                 if (!StringUtils.isEmpty(actionDTO.getCollectionId())
                         && mappedExportableResourcesDTO

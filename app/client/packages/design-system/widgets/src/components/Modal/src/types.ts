@@ -3,6 +3,7 @@ import type {
   PopoverProps,
 } from "@design-system/headless";
 import type { ReactNode } from "react";
+import type { SIZES } from "../../../shared";
 
 export interface ModalProps
   extends Pick<
@@ -13,7 +14,7 @@ export interface ModalProps
   /** Size of the Modal
    * @default medium
    */
-  size?: "small" | "medium" | "large";
+  size?: keyof typeof SIZES;
   /** The children of the component. */
   children: ReactNode;
 }
@@ -45,4 +46,6 @@ export interface ModalFooterProps {
 
 export interface ModalBodyProps {
   children: ReactNode;
+  style?: React.CSSProperties;
+  className?: string;
 }

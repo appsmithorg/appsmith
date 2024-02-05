@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -89,6 +89,7 @@ function CreateNewAPI({
   active,
   history,
   isCreating,
+  isOnboardingScreen,
   pageId,
   showUnsupportedPluginDialog,
 }: any) {
@@ -114,6 +115,7 @@ function CreateNewAPI({
       <NewApiScreen
         history={history}
         isCreating={isCreating}
+        isOnboardingScreen={isOnboardingScreen}
         location={location}
         pageId={pageId}
         showSaasAPIs={false}
@@ -127,6 +129,8 @@ function CreateNewDatasource({
   active,
   history,
   isCreating,
+  isOnboardingScreen,
+  pageId,
   showMostPopularPlugins,
   showUnsupportedPluginDialog,
 }: any) {
@@ -158,7 +162,7 @@ function CreateNewDatasource({
         history={history}
         isCreating={isCreating}
         location={location}
-        parentEntityId={parentEntityId}
+        parentEntityId={parentEntityId || (isOnboardingScreen && pageId) || ""}
         parentEntityType={parentEntityType}
         showMostPopularPlugins={showMostPopularPlugins}
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
@@ -239,6 +243,7 @@ interface CreateNewDatasourceScreenProps {
   pageId: string;
   isAppSidebarEnabled: boolean;
   isEnabledForCreateNew: boolean;
+  isOnboardingScreen?: boolean;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -271,6 +276,7 @@ class CreateNewDatasourceTab extends React.Component<
       isAppSidebarEnabled,
       isCreating,
       isEnabledForCreateNew,
+      isOnboardingScreen,
       pageId,
     } = this.props;
     if (!canCreateDatasource) return null;
@@ -301,6 +307,7 @@ class CreateNewDatasourceTab extends React.Component<
               active={false}
               history={history}
               isCreating={isCreating}
+              isOnboardingScreen={!!isOnboardingScreen}
               location={location}
               pageId={pageId}
               showMostPopularPlugins
@@ -313,6 +320,7 @@ class CreateNewDatasourceTab extends React.Component<
           active={false}
           history={history}
           isCreating={isCreating}
+          isOnboardingScreen={!!isOnboardingScreen}
           location={location}
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}

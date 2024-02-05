@@ -158,8 +158,8 @@ export class AggregateHelper {
             this.RefreshPage();
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-            //this.Sleep(2000); //settling time for dsl
-            this.assertHelper.AssertNetworkResponseData("@getPluginForm");
+            // this.Sleep(5000); //settling time for dsl
+            this.assertHelper.AssertNetworkResponseData("@getConsolidatedData");
             this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
             this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
           });
@@ -770,9 +770,10 @@ export class AggregateHelper {
     waitTimeInterval = 500,
     ctrlKey = false,
     metaKey = false,
+    position: Cypress.PositionType = "center",
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({
+      .click(position, {
         force: force,
         ctrlKey: ctrlKey,
         metaKey,
@@ -1736,13 +1737,15 @@ export class AggregateHelper {
     });
   }
 
-  public VisitNAssert(url: string, apiToValidate = "", waitTime = 3000) {
+  public VisitNAssert(url: string, apiToValidate = "") {
     cy.visit(url, { timeout: 60000 });
     // cy.window({ timeout: 60000 }).then((win) => {
     //   win.location.href = url;
     // });
-    this.Sleep(waitTime); //for new url to settle
-    if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
+    if (
+      apiToValidate.includes("getAllWorkspaces") &&
+      Cypress.env("AIRGAPPED")
+    ) {
       this.Sleep(2000);
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);

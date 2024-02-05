@@ -203,7 +203,7 @@ public class DatasourceControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/{datasourceId}/trigger")
+    @PostMapping(value = "/{datasourceId}/trigger")
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(
             @PathVariable String datasourceId,
             @RequestBody TriggerRequestDTO triggerRequestDTO,

@@ -61,7 +61,7 @@ import {
   integrationEditorURL,
 } from "@appsmith/RouteBuilder";
 import { PluginPackageName } from "entities/Action";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";

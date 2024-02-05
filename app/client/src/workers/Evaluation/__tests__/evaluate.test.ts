@@ -43,6 +43,7 @@ describe("evaluateSync", () => {
       data: {
         cloudHosting: false,
       },
+      webworkerTelemetry: {},
     });
     resetJSLibraries();
   });

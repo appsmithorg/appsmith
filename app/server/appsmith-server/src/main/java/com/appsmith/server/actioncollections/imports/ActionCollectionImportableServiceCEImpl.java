@@ -53,8 +53,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
         List<ActionCollection> importedActionCollectionList =
                 CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
                         ? new ArrayList<>()
@@ -156,6 +155,15 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                         actionCollectionsInBranchesMono = Mono.just(Collections.emptyMap());
                     }
 
+                    // update the action name in the json to avoid duplicate names for the partial import
+                    // It is page level action and hence the action name should be unique
+                    if (Boolean.TRUE.equals(importingMetaDTO.getIsPartialImport())
+                            && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
+                        updateActionCollectionNameBeforeMerge(
+                                importedActionCollectionList,
+                                mappedImportableResourcesDTO.getRefactoringNameReference());
+                    }
+
                     return Mono.zip(actionCollectionsInCurrentAppMono, actionCollectionsInBranchesMono)
                             .flatMap(objects -> {
                                 Map<String, ActionCollection> actionsCollectionsInCurrentApp = objects.getT1();
@@ -227,7 +235,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .getDefaultApplicationId();
                                         if (actionsCollectionsInBranches.containsKey(actionCollection.getGitSyncId())) {
                                             ActionCollection branchedActionCollection =
-                                                    getExistingCollectionForImportedCollection(
+                                                    getExistingCollectionInOtherBranchesForImportedCollection(
                                                             mappedImportableResourcesDTO,
                                                             actionsCollectionsInBranches,
                                                             actionCollection);
@@ -258,7 +266,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
                                         // Since the resource is already present in DB, just update resource
                                         ActionCollection existingActionCollection =
-                                                getExistingCollectionForImportedCollection(
+                                                getExistingCollectionInCurrentBranchForImportedCollection(
                                                         mappedImportableResourcesDTO,
                                                         actionsCollectionsInCurrentApp,
                                                         actionCollection);
@@ -323,6 +331,28 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                 });
     }
 
+    private void updateActionCollectionNameBeforeMerge(
+            List<ActionCollection> importedNewActionCollectionList, Set<String> refactoringNameSet) {
+
+        for (ActionCollection actionCollection : importedNewActionCollectionList) {
+            String
+                    oldNameActionCollection =
+                            actionCollection.getUnpublishedCollection().getName(),
+                    newNameActionCollection =
+                            actionCollection.getUnpublishedCollection().getName();
+            int i = 1;
+            while (refactoringNameSet.contains(newNameActionCollection)) {
+                newNameActionCollection = oldNameActionCollection + i++;
+            }
+            String oldId = actionCollection.getId().split("_")[1];
+            actionCollection.setId(newNameActionCollection + "_" + oldId);
+            actionCollection.getUnpublishedCollection().setName(newNameActionCollection);
+            if (actionCollection.getPublishedCollection() != null) {
+                actionCollection.getPublishedCollection().setName(newNameActionCollection);
+            }
+        }
+    }
+
     protected Flux<ActionCollection> getCollectionsInCurrentAppFlux(Application importedApplication) {
         return repository.findByApplicationId(importedApplication.getId());
     }
@@ -361,7 +391,14 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         // Nothing to update from the existing action collection
     }
 
-    protected ActionCollection getExistingCollectionForImportedCollection(
+    protected ActionCollection getExistingCollectionInCurrentBranchForImportedCollection(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp,
+            ActionCollection actionCollection) {
+        return actionsCollectionsInCurrentApp.get(actionCollection.getGitSyncId());
+    }
+
+    protected ActionCollection getExistingCollectionInOtherBranchesForImportedCollection(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Map<String, ActionCollection> actionsCollectionsInCurrentApp,
             ActionCollection actionCollection) {

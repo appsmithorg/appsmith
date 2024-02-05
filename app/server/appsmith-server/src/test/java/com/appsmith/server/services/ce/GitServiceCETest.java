@@ -528,9 +528,8 @@ public class GitServiceCETest {
                 gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier.create(applicationMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_GIT_SSH_URL.getMessage()))
-                .verify();
+                .verifyErrorMessage(AppsmithError.INVALID_GIT_CONFIGURATION.getMessage("Remote URL is incorrect, "
+                        + "please add a URL in standard format. Example: git@example.com:username/reponame.git"));
     }
 
     @Test
@@ -2864,6 +2863,7 @@ public class GitServiceCETest {
                     themeSettings.setAccentColor("#FFFFFF");
                     themeSettings.setFontFamily("#000000");
                     themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+                    themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
                     branchedApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
                     return Mono.just(branchedApplication);
                 })
@@ -2892,6 +2892,7 @@ public class GitServiceCETest {
                     assertThat(themes.getDensity()).isEqualTo(1);
                     assertThat(themes.getFontFamily()).isEqualTo("#000000");
                     assertThat(themes.getSizing()).isEqualTo(1);
+                    assertThat(themes.getIconStyle()).isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
                 })
                 .verifyComplete();
     }

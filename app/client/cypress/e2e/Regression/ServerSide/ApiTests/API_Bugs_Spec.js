@@ -1,5 +1,7 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -54,7 +56,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     );
     agHelper.PressEscape();
 
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     agHelper.ClickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 

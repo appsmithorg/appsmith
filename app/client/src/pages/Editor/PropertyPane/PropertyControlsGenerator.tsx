@@ -9,8 +9,6 @@ import React from "react";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import Boxed from "../GuidedTour/Boxed";
-import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import { EmptySearchResult } from "./EmptySearchResult";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
@@ -43,55 +41,38 @@ const generatePropertyControl = (
       const sectionConfig: PropertyPaneSectionConfig =
         config as PropertyPaneSectionConfig;
       return (
-        <Boxed
+        <PropertySection
+          childrenId={sectionConfig.childrenId}
+          collapsible={sectionConfig.collapsible ?? true}
+          hidden={sectionConfig.hidden}
+          id={config.id || sectionConfig.sectionName}
+          isDefaultOpen={sectionConfig.isDefaultOpen}
           key={config.id + props.id}
-          show={
-            sectionConfig.sectionName !== "General" &&
-            props.type === "TABLE_WIDGET"
-          }
-          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
+          name={sectionConfig.sectionName}
+          panelPropertyPath={props.panelPropertyPath}
+          propertyPath={sectionConfig.propertySectionPath}
+          tag={sectionConfig.tag}
         >
-          <PropertySection
-            childrenId={sectionConfig.childrenId}
-            collapsible={sectionConfig.collapsible ?? true}
-            hidden={sectionConfig.hidden}
-            id={config.id || sectionConfig.sectionName}
-            isDefaultOpen={sectionConfig.isDefaultOpen}
-            name={sectionConfig.sectionName}
-            panelPropertyPath={props.panelPropertyPath}
-            propertyPath={sectionConfig.propertySectionPath}
-            tag={sectionConfig.tag}
-          >
-            {config.children &&
-              generatePropertyControl(
-                config.children,
-                props,
-                isSearchResult,
-                enhancements,
-              )}
-          </PropertySection>
-        </Boxed>
+          {config.children &&
+            generatePropertyControl(
+              config.children,
+              props,
+              isSearchResult,
+              enhancements,
+            )}
+        </PropertySection>
       );
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
-        <Boxed
+        <PropertyControl
+          isPanelProperty={!!props.isPanelProperty}
           key={config.id + props.id}
-          show={
-            (config as PropertyPaneControlConfig).propertyName !==
-              "tableData" && props.type === "TABLE_WIDGET"
-          }
-          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
-        >
-          <PropertyControl
-            isPanelProperty={!!props.isPanelProperty}
-            key={config.id + props.id}
-            {...(config as PropertyPaneControlConfig)}
-            enhancements={enhancements}
-            isSearchResult={isSearchResult}
-            panel={props.panel}
-            theme={props.theme}
-          />
-        </Boxed>
+          {...(config as PropertyPaneControlConfig)}
+          enhancements={enhancements}
+          isSearchResult={isSearchResult}
+          panel={props.panel}
+          theme={props.theme}
+        />
       );
     }
     throw Error("Unknown configuration provided: " + props.type);

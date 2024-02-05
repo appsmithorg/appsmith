@@ -48,8 +48,12 @@ import history, { NavigationMethod } from "utils/history";
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
+  getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
+import { getModalWidgetType } from "selectors/widgetSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -245,15 +249,25 @@ function* handleWidgetSelectionSaga(
 }
 
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
-  if (action.payload.widgetIds.length !== 1) return;
+  const widgetsToSelect = action.payload.widgetIds;
+  if (widgetsToSelect.length !== 1) return;
+  if (
+    widgetsToSelect.length === 1 &&
+    widgetsToSelect[0] === MAIN_CONTAINER_WIDGET_ID
+  ) {
+    // for cases where a widget inside modal is deleted and main canvas gets selected post that.
+    return;
+  }
 
   // Let's assume that the payload widgetId is a modal widget and we need to open the modal as it is selected
   let modalWidgetToOpen: string = action.payload.widgetIds[0];
 
+  const modalWidgetType: string = yield select(getModalWidgetType);
+
   // Get all modal widget ids
   const modalWidgetIds: string[] = yield select(
     getWidgetIdsByType,
-    "MODAL_WIDGET",
+    modalWidgetType,
   );
 
   // Get all widgets
@@ -281,9 +295,31 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
       modalWidgetToOpen = widgetAncestry[indexOfParentModalWidget];
     }
   }
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+  if (featureFlags.ab_wds_enabled) {
+    // If widget is modal and modal is already open, skip opening it
+    const modalProps = allWidgets[modalWidgetToOpen];
+    const metaProps: Record<string, unknown> = yield select(
+      getWidgetMetaProps,
+      modalProps,
+    );
+
+    if (
+      (widgetIsModal || widgetIsChildOfModal) &&
+      metaProps?.isVisible === true
+    ) {
+      return;
+    }
+  }
 
   if (widgetIsModal || widgetIsChildOfModal) {
     yield put(showModal(modalWidgetToOpen));
+  }
+  if (!widgetIsModal && !widgetIsChildOfModal) {
+    yield put({
+      type: ReduxActionTypes.CLOSE_MODAL,
+      payload: {},
+    });
   }
 }
 

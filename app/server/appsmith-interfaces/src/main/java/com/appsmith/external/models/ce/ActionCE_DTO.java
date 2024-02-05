@@ -5,7 +5,6 @@ import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.AnalyticsInfo;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
@@ -126,18 +125,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Internal.class)
     String cacheResponse;
 
-    @Transient
-    @JsonView(Views.Public.class)
-    String templateId; // If action is created via a template, store the id here.
-
-    @Transient
-    @JsonView(Views.Public.class)
-    String providerId; // If action is created via a template, store the template's provider id here.
-
-    @Transient
-    @JsonView(Views.Public.class)
-    ActionProvider provider;
-
     @JsonView(Views.Internal.class)
     Boolean userSetOnLoad = false;
 
@@ -225,9 +212,13 @@ public class ActionCE_DTO implements Identifiable, Executable {
         }
         if (this.getUserPermissions() != null) {
             this.getUserPermissions().clear();
+        } else {
+            this.setUserPermissions(Set.of());
         }
         if (this.getPolicies() != null) {
             this.getPolicies().clear();
+        } else {
+            this.setPolicies(Set.of());
         }
     }
 
@@ -311,10 +302,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
         this.setPluginName(null);
         this.setPluginType(null);
         this.setErrorReports(null);
-        //        this.setMessages(null);
-        this.setTemplateId(null);
-        this.setProvider(null);
-        this.setProviderId(null);
         this.setDocumentation(null);
     }
 }

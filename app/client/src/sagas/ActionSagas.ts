@@ -64,9 +64,6 @@ import {
   SlashCommand,
 } from "entities/Action";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
-import type { EntityItem } from "@appsmith/selectors/entitiesSelector";
-import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -77,7 +74,6 @@ import {
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-  getPageActions,
   getNewEntityName,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
@@ -112,7 +108,6 @@ import {
   apiEditorIdURL,
   builderURL,
   integrationEditorURL,
-  queryAddURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "@appsmith/RouteBuilder";
@@ -120,6 +115,7 @@ import {
   RequestPayloadAnalyticsPath,
   checkAndLogErrorsIfCyclicDependency,
   enhanceRequestPayloadWithEventData,
+  getFromServerWhenNoPrefetchedResult,
 } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
@@ -140,9 +136,8 @@ import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { identifyEntityFromPath } from "../navigation/FocusEntity";
-import { getActionConfig } from "../pages/Editor/Explorer/Actions/helpers";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
+import { handleQueryEntityRedirect } from "./IDESaga";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -172,6 +167,7 @@ export function* createDefaultActionPayload({
   datasourceId,
   from,
   newActionName,
+  queryDefaultTableName,
 }: CreateActionDefaultsParams) {
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
@@ -200,9 +196,16 @@ export function* createDefaultActionPayload({
 
   const defaultActionConfig: any = getDefaultTemplateActionConfig(
     plugin,
+    queryDefaultTableName,
     dsStructure,
     datasource?.isMock,
   );
+
+  // since table name has been consumed, we no longer need it, hence resetting it
+  yield put({
+    type: ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME,
+    payload: "",
+  });
 
   const defaultAction: Partial<Action> = {
     pluginId: datasource?.pluginId,
@@ -365,15 +368,18 @@ export function* fetchActionDatasourceStructure(
 export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, unpublishedActions } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: ApiResponse<Action[]> = yield ActionAPI.fetchActions({
-      applicationId,
-    });
+    const response: ApiResponse<Action[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      unpublishedActions,
+      async () => ActionAPI.fetchActions({ applicationId }),
+    );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -400,14 +406,18 @@ export function* fetchActionsSaga(
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, publishedActions } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
   );
   try {
-    const response: ApiResponse<ActionViewMode[]> =
-      yield ActionAPI.fetchActionsForViewMode(applicationId);
+    const response: ApiResponse<ActionViewMode[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      publishedActions,
+      async () => ActionAPI.fetchActionsForViewMode(applicationId),
+    );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const correctFormatResponse = response.data.map((action) => {
@@ -556,66 +566,6 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-/**
- * Adds custom redirect logic to redirect after an item is deleted
- * 1. Do not navigate if the deleted item is not selected
- * 2. If it is the only item, navigate to a list url
- * 3. If there are other items, navigate to an item close to the current one
- * **/
-function* handleDeleteActionRedirect(deletedAction: Action) {
-  const pageId: string = yield select(getCurrentPageId);
-  const allActions: ActionData[] = yield select(getPageActions(pageId));
-  const currentSelectedEntity = identifyEntityFromPath(
-    window.location.pathname,
-  );
-  const isSelectedActionDeleted = currentSelectedEntity.id === deletedAction.id;
-
-  // If deleted item is not currently selected, don't redirect
-  if (!isSelectedActionDeleted) {
-    return;
-  }
-
-  const otherActions = allActions.filter(
-    (a) => deletedAction.id !== a.config.id,
-  );
-  // If no other action is remaining, navigate to the query add url
-  if (otherActions.length === 0) {
-    history.push(queryAddURL({ pageId }));
-    return;
-  }
-
-  // Check if another action is present in the group and redirect to it, orelse
-  // navigate to tht top of the list
-  const currentSortedList: EditorSegmentList = yield select(
-    selectQuerySegmentEditorList,
-  );
-  let remainingGroupActions: EntityItem[] = [];
-  for (const { items } of currentSortedList) {
-    if (items.find((a) => a.key === deletedAction.id)) {
-      remainingGroupActions = items.filter((a) => a.key !== deletedAction.id);
-      break;
-    }
-  }
-
-  let url;
-  if (remainingGroupActions.length === 0) {
-    const toRedirect = otherActions[0];
-    const config = getActionConfig(toRedirect.config.pluginType);
-    url = config?.getURL(
-      pageId,
-      toRedirect.config.id,
-      toRedirect.config.pluginType,
-    );
-  } else {
-    const toRedirect = remainingGroupActions[0];
-    const config = getActionConfig(toRedirect.type);
-    url = config?.getURL(pageId, toRedirect.key, toRedirect.type);
-  }
-  if (url) {
-    history.push(url);
-  }
-}
-
 export function* deleteActionSaga(
   actionPayload: ReduxAction<{
     id: string;
@@ -668,7 +618,7 @@ export function* deleteActionSaga(
     );
 
     if (isPagePaneSegmentsEnabled) {
-      yield call(handleDeleteActionRedirect, action);
+      yield call(handleQueryEntityRedirect, action.id);
     } else {
       if (!!actionPayload.payload.onSuccess) {
         actionPayload.payload.onSuccess();

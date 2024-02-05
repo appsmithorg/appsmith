@@ -98,7 +98,7 @@ const ExistingWidgetList = styled.div`
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 110px;
+    width: 105px;
     margin: 4px;
     border: 1px solid var(--ads-v2-color-gray-300);
     border-radius: var(--ads-v2-border-radius);
@@ -135,9 +135,7 @@ const ItemWrapper = styled.div`
 `;
 
 const SubSection = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
-  overflow-y: scroll;
-  height: 100%;
+  padding-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const HeadingWrapper = styled.div`

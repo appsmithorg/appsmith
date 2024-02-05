@@ -18,6 +18,8 @@ public class IntegrationDTO {
 
     String datasourceId;
 
+    String workspaceId;
+
     String applicationId;
 
     String pageId;

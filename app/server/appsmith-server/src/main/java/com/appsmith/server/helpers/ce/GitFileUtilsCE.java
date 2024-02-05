@@ -23,6 +23,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
@@ -76,7 +77,7 @@ public class GitFileUtilsCE {
     private final FileInterface fileUtils;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
-
+    private final NewActionService newActionService;
     private final Gson gson;
 
     // Number of seconds after lock file is stale
@@ -184,7 +185,7 @@ public class GitFileUtilsCE {
      */
     public ApplicationGitReference createApplicationReference(ApplicationJson applicationJson) {
         ApplicationGitReference applicationReference = new ApplicationGitReference();
-        applicationReference.setUpdatedResources(applicationJson.getUpdatedResources());
+        applicationReference.setModifiedResources(applicationJson.getModifiedResources());
 
         setApplicationInApplicationReference(applicationJson, applicationReference);
 
@@ -222,7 +223,7 @@ public class GitFileUtilsCE {
                 .collect(Collectors.toList());
 
         ApplicationJson applicationMetadata = new ApplicationJson();
-        applicationJson.setUpdatedResources(null);
+        applicationJson.setModifiedResources(null);
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
     }
@@ -332,6 +333,7 @@ public class GitFileUtilsCE {
                 // assume if the unpublished version is deleted entity should not be committed to git
                 .filter(newAction -> newAction.getUnpublishedAction() != null
                         && newAction.getUnpublishedAction().getDeletedAt() == null)
+                .peek(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .forEach(newAction -> {
                     String prefix;
                     if (newAction.getUnpublishedAction() != null) {

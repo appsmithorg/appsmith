@@ -23,12 +23,11 @@ import {
   generateCreateNewDSOption,
   isMatching,
   SEARCH_ITEM_TYPES,
-  appsmithAIActionOperation,
 } from "./utils";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
@@ -39,22 +38,25 @@ import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { createNewQueryBasedOnParentEntity } from "@appsmith/actions/helpers";
+import { useWorkflowOptions } from "@appsmith/utils/workflowHelpers";
 
 export interface FilterFileOperationsProps {
   canCreateActions: boolean;
   query?: string;
   showModules?: boolean;
+  showWorkflows?: boolean;
 }
 
 export const useFilteredFileOperations = ({
   canCreateActions,
   query = "",
   showModules = true,
+  showWorkflows = true,
 }: FilterFileOperationsProps) => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
   const moduleOptions = useModuleOptions();
-  const showAppsmithAIQuery = useFeatureFlag(FEATURE_FLAG.ab_appsmith_ai_query);
+  const workflowOptions = useWorkflowOptions();
 
   // helper map for sorting based on recent usage
   const recentlyUsedDSMap = useRecentlyUsedDSMap();
@@ -84,10 +86,10 @@ export const useFilteredFileOperations = ({
     canCreateActions,
     canCreateDatasource,
     moduleOptions: showModules ? moduleOptions : [],
+    workflowOptions: showWorkflows ? workflowOptions : [],
     plugins,
     recentlyUsedDSMap,
     query,
-    showAppsmithAIQuery,
   });
 };
 
@@ -99,31 +101,31 @@ export const useFilteredAndSortedFileOperations = ({
   plugins = [],
   query,
   recentlyUsedDSMap = {},
-  showAppsmithAIQuery = false,
+  workflowOptions = [],
 }: {
   allDatasources?: Datasource[];
   canCreateActions?: boolean;
   canCreateDatasource?: boolean;
   moduleOptions?: ActionOperation[];
   plugins?: Plugin[];
-  recentlyUsedDSMap?: Record<string, number>;
   query: string;
-  showAppsmithAIQuery?: boolean;
+  recentlyUsedDSMap?: Record<string, number>;
+  workflowOptions?: ActionOperation[];
 }) => {
   const fileOperations: ActionOperation[] = [];
 
   if (!canCreateActions) return fileOperations;
 
-  // Add appsmith AI operation if the feature flag is enabled
-  const allActionOperations = showAppsmithAIQuery
-    ? [...actionOperations, appsmithAIActionOperation]
-    : actionOperations;
+  // Add Workflow operations
+  if (workflowOptions.length > 0) {
+    workflowOptions.map((workflowOp) => fileOperations.push(workflowOp));
+  }
 
   /**
    *  Work around to get the rest api cloud image.
    *  We don't have it store as a svg
    */
-  const actionOps = updateActionOperations(plugins, allActionOperations);
+  const actionOps = updateActionOperations(plugins, actionOperations);
 
   // Add JS Object operation
   fileOperations.push(actionOps[2]);

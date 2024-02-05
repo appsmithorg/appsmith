@@ -26,6 +26,7 @@ interface FilesContextContextProps {
   parentEntityId: string; // page, workflow or module
   parentEntityType: ActionParentEntityTypeInterface;
   showModules?: boolean;
+  showWorkflows?: boolean;
   selectFilesForExplorer?: (state: any) => any;
 }
 
@@ -51,6 +52,7 @@ export const FilesContextProvider = ({
   parentEntityType,
   selectFilesForExplorer,
   showModules,
+  showWorkflows,
 }: FilesContextProviderProps) => {
   const value = useMemo(() => {
     return {
@@ -61,6 +63,7 @@ export const FilesContextProvider = ({
       menuItems: menuItems || defaultMenuItems,
       selectFilesForExplorer,
       showModules,
+      showWorkflows,
     };
   }, [
     canCreateActions,
@@ -68,6 +71,7 @@ export const FilesContextProvider = ({
     parentEntityType,
     menuItems,
     showModules,
+    showWorkflows,
     selectFilesForExplorer,
     editorId,
   ]);

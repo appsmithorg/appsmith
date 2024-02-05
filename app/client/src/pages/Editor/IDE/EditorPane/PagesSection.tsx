@@ -35,7 +35,7 @@ import { createNewPageFromEntities, updatePage } from "actions/pageActions";
 import { setIdeEditorPagesActiveStatus } from "actions/ideActions";
 import AddPageContextMenu from "pages/Editor/Explorer/Pages/AddPageContextMenu";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 const AnimatedFlex = animated(Flex);

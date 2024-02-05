@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -115,7 +116,11 @@ public abstract class BaseService<
                     })
                     .collect(Collectors.toList());
         }
-        return repository.queryAll(criterias, aclPermission);
+        return repository
+                .queryBuilder()
+                .criteria(criterias)
+                .permission(aclPermission)
+                .all();
     }
 
     @Override
@@ -210,7 +215,45 @@ public abstract class BaseService<
                 .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
-        Flux<T> result = repository.queryAll(List.of(criteria), permission, sort);
+        Flux<T> result = repository
+                .queryBuilder()
+                .criteria(criteria)
+                .permission(permission)
+                .sort(sort)
+                .all();
+        if (pageable != null) {
+            return result.skip(pageable.getOffset()).take(pageable.getPageSize());
+        }
+        return result;
+    }
+
+    /**
+     * This function is used to filter the entities based on the entity fields and the search string.
+     * The search is performed with contains operator on the entity fields and is case-insensitive.
+     * @param searchableEntityFields  The list of entity fields to search for. If null or empty, all entities are searched.
+     * @param searchString  The string to search for in the entity fields.
+     * @param pageable      The page number of the results to return.
+     * @param sort          The sort order of the results to return.
+     * @param permission    The permission to check for the entity.
+     * @return  A Flux of entities.
+     */
+    public Flux<T> filterByEntityFieldsWithoutPublicAccess(
+            List<String> searchableEntityFields,
+            String searchString,
+            Pageable pageable,
+            Sort sort,
+            AclPermission permission) {
+
+        if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
+        }
+        List<Criteria> criteriaList = searchableEntityFields.stream()
+                .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
+                .toList();
+        Criteria criteria = new Criteria().orOperator(criteriaList);
+
+        Flux<T> result = repository.queryAllWithStrictPermissionGroups(
+                List.of(criteria), Optional.empty(), Optional.ofNullable(permission), sort, -1, 0);
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

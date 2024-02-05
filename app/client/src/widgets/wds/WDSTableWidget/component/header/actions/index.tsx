@@ -1,5 +1,4 @@
 import { TextInput, Text, Flex, IconButton } from "@design-system/widgets";
-import { importSvg } from "design-system-old";
 import React from "react";
 import { TableFilters } from "./filter";
 import type {
@@ -13,7 +12,6 @@ import { PageNumberInput } from "./PageNumberInput";
 import { Icon as BIcon } from "@blueprintjs/core";
 
 import { Button, Tooltip } from "@design-system/widgets";
-const AddIcon = importSvg(async () => import("assets/icons/control/add.svg"));
 
 const MIN_WIDTH_TO_SHOW_PAGE_ITEMS = 676;
 
@@ -97,7 +95,7 @@ export const Actions = (props: ActionsPropsType) => {
               >
                 <Button
                   data-testid="t--add-new-row"
-                  icon={AddIcon}
+                  icon="plus"
                   isDisabled={props.disableAddNewRow}
                   onPress={props.onAddNewRow}
                   variant="ghost"
@@ -120,7 +118,7 @@ export const Actions = (props: ActionsPropsType) => {
                 </Text>
               )}
             <IconButton
-              icon={() => <BIcon icon="chevron-left" />}
+              icon="chevron-left"
               isDisabled={props.pageNo === 0}
               onPress={props.prevPageClick}
               size="small"
@@ -129,7 +127,7 @@ export const Actions = (props: ActionsPropsType) => {
               Page {pageCount}
             </Text>
             <IconButton
-              icon={() => <BIcon icon="chevron-right" />}
+              icon="chevron-right"
               isDisabled={
                 !!props.totalRecordsCount &&
                 props.pageNo === props.pageCount - 1
@@ -149,7 +147,7 @@ export const Actions = (props: ActionsPropsType) => {
               </Text>
             )}
             <IconButton
-              icon={() => <BIcon icon="chevron-left" />}
+              icon="chevron-left"
               isDisabled={props.currentPageIndex === 0}
               onPress={() => {
                 const pageNo =
@@ -172,7 +170,7 @@ export const Actions = (props: ActionsPropsType) => {
               of {props.pageCount}
             </Text>
             <IconButton
-              icon={() => <BIcon icon="chevron-right" />}
+              icon="chevron-right"
               isDisabled={props.currentPageIndex === props.pageCount - 1}
               onPress={() => {
                 const pageNo =

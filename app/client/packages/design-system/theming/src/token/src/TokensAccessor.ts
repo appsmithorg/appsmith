@@ -9,6 +9,7 @@ import type {
   TokenType,
   FontFamily,
   Typography,
+  IconStyle,
 } from "./types";
 
 export class TokensAccessor {
@@ -24,6 +25,9 @@ export class TokensAccessor {
   private innerSpacing?: TokenObj;
   private sizing?: TokenObj;
   private zIndex?: TokenObj;
+  private iconStyle?: IconStyle;
+  private strokeWidth?: TokenObj;
+  private iconSize?: TokenObj;
 
   constructor({
     borderRadius,
@@ -31,11 +35,14 @@ export class TokensAccessor {
     boxShadow,
     colorMode,
     fontFamily,
+    iconSize,
+    iconStyle,
     innerSpacing,
     opacity,
     outerSpacing,
     seedColor,
     sizing,
+    strokeWidth,
     typography,
     zIndex,
   }: TokenSource) {
@@ -51,6 +58,9 @@ export class TokensAccessor {
     this.innerSpacing = innerSpacing;
     this.typography = typography;
     this.zIndex = zIndex;
+    this.iconStyle = iconStyle;
+    this.strokeWidth = strokeWidth;
+    this.iconSize = iconSize;
   }
 
   updateFontFamily = (fontFamily?: FontFamily) => {
@@ -101,6 +111,18 @@ export class TokensAccessor {
     this.sizing = sizing;
   };
 
+  updateIconStyle = (iconStyle: IconStyle) => {
+    this.iconStyle = iconStyle;
+  };
+
+  updateStrokeWidth = (strokeWidth: TokenObj) => {
+    this.strokeWidth = strokeWidth;
+  };
+
+  updateIconSize = (iconSize: TokenObj) => {
+    this.iconSize = iconSize;
+  };
+
   getAllTokens = () => {
     return {
       typography: this.getTypography(),
@@ -114,7 +136,10 @@ export class TokensAccessor {
       ...this.getBorderWidth(),
       ...this.getOpacity(),
       ...this.getZIndex(),
+      ...this.getStrokeWidth(),
+      ...this.getIconSize(),
       colorMode: this.getColorMode(),
+      iconStyle: this.getIconStyle(),
     };
   };
 
@@ -198,6 +223,22 @@ export class TokensAccessor {
 
   getColorMode = () => {
     return this.colorMode;
+  };
+
+  getIconStyle = () => {
+    return this.iconStyle;
+  };
+
+  getStrokeWidth = () => {
+    if (this.strokeWidth == null) return {} as ThemeToken;
+
+    return this.createTokenObject(this.strokeWidth, "strokeWidth");
+  };
+
+  getIconSize = () => {
+    if (this.iconSize == null) return {} as ThemeToken;
+
+    return this.createTokenObject(this.iconSize, "iconSize");
   };
 
   private get isLightMode() {

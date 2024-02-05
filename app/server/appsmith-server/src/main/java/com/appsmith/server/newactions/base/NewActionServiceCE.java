@@ -31,7 +31,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction);
 
-    Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode);
+    ActionDTO generateActionByViewMode(NewAction newAction, Boolean viewMode);
 
     void generateAndSetActionPolicies(NewPage page, NewAction action);
 
@@ -90,6 +90,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
             MultiValueMap<String, String> params, String branchName, Boolean includeJsActions);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
+
+    Flux<ActionDTO> getUnpublishedActionsByPageId(String pageId, AclPermission permission);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName);
 

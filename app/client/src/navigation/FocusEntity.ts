@@ -9,6 +9,7 @@ import {
   getIDETypeByUrl,
 } from "@appsmith/entities/IDE/utils";
 import { memoize } from "lodash";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export enum FocusEntity {
   API = "API",
@@ -29,13 +30,18 @@ export enum FocusEntity {
   EDITOR = "EDITOR",
   QUERY_ADD = "QUERY_ADD",
   DATASOURCE_CREATE = "DATASOURCE_CREATE",
+  QUERY_MODULE_INSTANCE = "QUERY_MODULE_INSTANCE",
+  JS_MODULE_INSTANCE = "JS_MODULE_INSTANCE",
+  JS_OBJECT_ADD = "JS_OBJECT_ADD",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
   [FocusEntity.PROPERTY_PANE]: FocusEntity.WIDGET_LIST,
   [FocusEntity.DATASOURCE]: FocusEntity.DATASOURCE_LIST,
   [FocusEntity.JS_OBJECT]: FocusEntity.JS_OBJECT_LIST,
+  [FocusEntity.JS_MODULE_INSTANCE]: FocusEntity.JS_OBJECT_LIST,
   [FocusEntity.QUERY]: FocusEntity.QUERY_LIST,
+  [FocusEntity.QUERY_MODULE_INSTANCE]: FocusEntity.QUERY_LIST,
 };
 
 export interface FocusEntityInfo {
@@ -70,10 +76,14 @@ export interface MatchEntityFromPath {
   collectionId?: string;
   widgetIds?: string;
   selectedTab?: string;
+  moduleType?: string;
+  moduleInstanceId?: string;
   entity?: string;
 }
 
-function matchEntityFromPath(path: string): match<MatchEntityFromPath> | null {
+export function matchEntityFromPath(
+  path: string,
+): match<MatchEntityFromPath> | null {
   const ideType = getIDETypeByUrl(path);
   const matchPaths = getMatchPaths(ideType);
   return matchPath(path, {
@@ -157,7 +167,33 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+  if (match.params.moduleType && match.params.moduleInstanceId) {
+    if (match.params.moduleType === MODULE_TYPE.QUERY) {
+      return {
+        entity: FocusEntity.QUERY_MODULE_INSTANCE,
+        id: match.params.moduleInstanceId,
+        appState: EditorState.EDITOR,
+        params: match.params,
+      };
+    }
+    if (match.params.moduleType === MODULE_TYPE.JS) {
+      return {
+        entity: FocusEntity.JS_MODULE_INSTANCE,
+        id: match.params.moduleInstanceId,
+        appState: EditorState.EDITOR,
+        params: match.params,
+      };
+    }
+  }
   if (match.params.collectionId) {
+    if (match.params.collectionId == "add") {
+      return {
+        entity: FocusEntity.JS_OBJECT_ADD,
+        id: "",
+        appState: EditorState.EDITOR,
+        params: match.params,
+      };
+    }
     return {
       entity: FocusEntity.JS_OBJECT,
       id: match.params.collectionId,

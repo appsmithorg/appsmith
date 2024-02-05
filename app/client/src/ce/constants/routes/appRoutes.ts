@@ -58,7 +58,6 @@ export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const APP_LIBRARIES_EDITOR_PATH = `/libraries`;
 export const APP_SETTINGS_EDITOR_PATH = `/settings`;
 export const SAAS_GSHEET_EDITOR_ID_PATH = `/saas/google-sheets-plugin/datasources/:datasourceId`;
-export const PROVIDER_TEMPLATE_PATH = `/provider/:providerId`;
 export const GEN_TEMPLATE_URL = "generate-page";
 export const GENERATE_TEMPLATE_PATH = `/${GEN_TEMPLATE_URL}`;
 export const GEN_TEMPLATE_FORM_ROUTE = "/form";
@@ -136,11 +135,6 @@ export interface AppViewerRouteParams {
 export interface APIEditorRouteParams {
   pageId: string;
   apiId?: string;
-}
-
-export interface ProviderViewerRouteParams {
-  pageId: string;
-  providerId: string;
 }
 
 export interface QueryEditorRouteParams {

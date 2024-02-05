@@ -12,6 +12,35 @@ import { call } from "redux-saga/effects";
 
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import { anvilWidgets } from "widgets/anvil/constants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  addNewWidgetToDsl,
+  getCreateWidgetPayload,
+} from "../../widgetAdditionUtils";
+
+/**
+ * This function adds a detached widget to the main canvas.
+ * This is a different saga because we don't need to generate sections, zones, etc
+ * As well as the fact that all detached widgets are children of the MainContainer.
+ * @param allWidgets | CanvasWidgetsReduxState : All widgets in the canvas.
+ * @param draggedWidget | { widgetId: string; type: string } : Widget to be added.
+ * @returns CanvasWidgetsReduxState : Updated widgets.
+ */
+export function* addDetachedWidgetToMainCanvas(
+  allWidgets: CanvasWidgetsReduxState,
+  draggedWidget: { widgetId: string; type: string },
+) {
+  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    addNewWidgetToDsl,
+    allWidgets,
+    getCreateWidgetPayload(
+      draggedWidget.widgetId,
+      draggedWidget.type,
+      MAIN_CONTAINER_WIDGET_ID,
+    ),
+  );
+  return updatedWidgets;
+}
 
 export function* addWidgetsToMainCanvasLayout(
   allWidgets: CanvasWidgetsReduxState,
@@ -23,6 +52,7 @@ export function* addWidgetsToMainCanvasLayout(
    * Step 1: Get layout for MainCanvas.
    */
   let mainCanvasWidget: WidgetProps = allWidgets[highlight.canvasId];
+
   let mainCanvasPreset: LayoutProps[] = mainCanvasWidget.layout;
   let mainCanvasLayout: LayoutProps | undefined = getAffectedLayout(
     mainCanvasPreset,
@@ -39,12 +69,12 @@ export function* addWidgetsToMainCanvasLayout(
   /**
    * Step 3: Add section widgets to the MainCanvasLayout.
    */
-  sections.forEach((section: WidgetLayoutProps) => {
+  sections.forEach((section: WidgetLayoutProps, index: number) => {
     const res: { canvas: WidgetProps; canvasLayout: LayoutProps } =
       addSectionToMainCanvasLayout(
         mainCanvasWidget,
         mainCanvasLayout as LayoutProps,
-        highlight,
+        { ...highlight, rowIndex: highlight.rowIndex + index },
         section,
       );
     mainCanvasWidget = res.canvas;

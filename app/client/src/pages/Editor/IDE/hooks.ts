@@ -17,6 +17,7 @@ import {
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
+import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -47,6 +48,7 @@ export const useCurrentEditorState = () => {
     switch (currentEntityInfo.entity) {
       case FocusEntity.QUERY:
       case FocusEntity.API:
+      case FocusEntity.QUERY_MODULE_INSTANCE:
         setSelectedSegment(EditorEntityTab.QUERIES);
         setSelectedSegmentState(EditorEntityTabState.Edit);
         break;
@@ -59,8 +61,13 @@ export const useCurrentEditorState = () => {
         setSelectedSegmentState(EditorEntityTabState.Add);
         break;
       case FocusEntity.JS_OBJECT:
+      case FocusEntity.JS_MODULE_INSTANCE:
         setSelectedSegment(EditorEntityTab.JS);
         setSelectedSegmentState(EditorEntityTabState.Edit);
+        break;
+      case FocusEntity.JS_OBJECT_ADD:
+        setSelectedSegment(EditorEntityTab.JS);
+        setSelectedSegmentState(EditorEntityTabState.Add);
         break;
       case FocusEntity.JS_OBJECT_LIST:
         setSelectedSegment(EditorEntityTab.JS);
@@ -91,8 +98,8 @@ export const useCurrentEditorState = () => {
   };
 };
 
-export const useEditorPaneWidth = (): number => {
-  const [width, setWidth] = useState(255);
+export const useEditorPaneWidth = (): string => {
+  const [width, setWidth] = useState(DEFAULT_EDITOR_PANE_WIDTH + "px");
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
@@ -103,9 +110,10 @@ export const useEditorPaneWidth = (): number => {
       editorMode === EditorViewMode.SplitScreen &&
       segment !== EditorEntityTab.UI
     ) {
-      setWidth(255 + propertyPaneWidth);
+      // 1px is propertypane border width
+      setWidth("40.4vw");
     } else {
-      setWidth(255);
+      setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
     }
   }, [isSideBySideEnabled, editorMode, segment, propertyPaneWidth]);
 

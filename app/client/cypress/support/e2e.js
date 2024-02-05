@@ -14,6 +14,7 @@
 // ***********************************************************
 /// <reference types="Cypress" />
 /// <reference types='cypress-tags' />
+import "cypress-real-events";
 import "cypress-real-events/support";
 import "cypress-wait-until";
 import "cypress-network-idle";
@@ -90,7 +91,8 @@ before(function () {
     window.indexedDB.deleteDatabase("Appsmith");
   });
   cy.visit("/setup/welcome", { timeout: 60000 });
-  cy.wait("@getMe");
+  cy.wait("@getConsolidatedData");
+
   cy.wait(2000);
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
