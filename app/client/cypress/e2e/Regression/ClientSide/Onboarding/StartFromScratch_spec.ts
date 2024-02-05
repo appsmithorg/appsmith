@@ -7,7 +7,6 @@ import {
   dataSources,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
-import FirstTimeUserOnboardingLocators from "../../../../locators/FirstTimeUserOnboarding.json";
 import {
   AppSidebar,
   AppSidebarButton,
