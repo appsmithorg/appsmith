@@ -268,6 +268,7 @@ describe(
     });
 
     it("7. Verify onClick", () => {
+      propPane.MoveToTab("Content");
       propPane.ToggleJSMode("onClick", true);
       propPane.UpdatePropertyFieldValue(
         "onClick",
