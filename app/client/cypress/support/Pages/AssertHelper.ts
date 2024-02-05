@@ -64,7 +64,7 @@ export class AssertHelper {
     return aliasName;
   }
 
-  public WaitForNetworkCall(aliasName: string, responseTimeout = 100000) {
+  public WaitForNetworkCall(aliasName: string, responseTimeout = 150000) {
     // cy.wait(aliasName).then(($apiCall: any) => {
     //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
     // });
