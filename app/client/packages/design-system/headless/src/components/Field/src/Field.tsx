@@ -75,7 +75,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
             includeNecessityIndicatorInAccessibilityName
           }
           isRequired={isRequired}
-          necessityIndicator={necessityIndicator}
+          necessityIndicator={!Boolean(isReadOnly) && necessityIndicator}
         >
           <span>{label}</span>
         </Label>
