@@ -19,13 +19,10 @@ describe(
   function () {
     beforeEach(() => {
       homePage.LogOutviaAPI();
-      featureFlagIntercept(
-        {
-          ab_show_templates_instead_of_blank_canvas_enabled: true,
-          ab_create_new_apps_enabled: true,
-        },
-        true,
-      );
+      featureFlagIntercept({
+        ab_show_templates_instead_of_blank_canvas_enabled: true,
+        ab_create_new_apps_enabled: true,
+      });
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
@@ -35,12 +32,9 @@ describe(
 
       agHelper.GetNClick(FirstTimeUserOnboardingLocators.introModalCloseBtn);
 
-      featureFlagIntercept(
-        {
-          ab_show_templates_instead_of_blank_canvas_enabled: true,
-        },
-        true,
-      );
+      featureFlagIntercept({
+        ab_show_templates_instead_of_blank_canvas_enabled: true,
+      });
       agHelper.AssertElementLength(
         templates.locators._buildingBlockCardOnCanvas,
         3,
