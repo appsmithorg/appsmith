@@ -6,8 +6,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
 
-import GitErrorPopup from "../components/GitErrorPopup";
-
 import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import styled from "styled-components";
 import Menu from "../Menu";
@@ -95,35 +93,32 @@ function GitSettingsModal() {
   };
 
   return (
-    <>
-      <Modal
-        onOpenChange={(open) => {
-          if (!open) {
-            handleClose();
+    <Modal
+      onOpenChange={(open) => {
+        if (!open) {
+          handleClose();
+        }
+      }}
+      open={isModalOpen}
+    >
+      <StyledModalContent data-testid="t--git-settings-modal">
+        <ModalHeader>{createMessage(SETTINGS_GIT)}</ModalHeader>
+        <Menu
+          activeTabKey={activeTabKey}
+          onSelect={(tabKey: string) =>
+            setActiveTabKey(tabKey as GitSettingsTab)
           }
-        }}
-        open={isModalOpen}
-      >
-        <StyledModalContent data-testid="t--git-settings-modal">
-          <ModalHeader>{createMessage(SETTINGS_GIT)}</ModalHeader>
-          <Menu
-            activeTabKey={activeTabKey}
-            onSelect={(tabKey: string) =>
-              setActiveTabKey(tabKey as GitSettingsTab)
-            }
-            options={menuOptions}
-          />
-          <ModalBody>
-            {activeTabKey === GitSettingsTab.GENERAL && <TabGeneral />}
-            {activeTabKey === GitSettingsTab.BRANCH && <TabBranch />}
-            {isGitCDEnabled && activeTabKey === GitSettingsTab.CD && (
-              <GitSettingsCDTab />
-            )}
-          </ModalBody>
-        </StyledModalContent>
-      </Modal>
-      <GitErrorPopup />
-    </>
+          options={menuOptions}
+        />
+        <ModalBody>
+          {activeTabKey === GitSettingsTab.GENERAL && <TabGeneral />}
+          {activeTabKey === GitSettingsTab.BRANCH && <TabBranch />}
+          {isGitCDEnabled && activeTabKey === GitSettingsTab.CD && (
+            <GitSettingsCDTab />
+          )}
+        </ModalBody>
+      </StyledModalContent>
+    </Modal>
   );
 }
 
