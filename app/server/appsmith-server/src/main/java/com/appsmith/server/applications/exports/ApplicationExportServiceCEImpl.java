@@ -22,6 +22,7 @@ import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -75,14 +76,19 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
     @Override
     public Mono<Application> findExistingArtifactByIdAndBranchName(
             String artifactId, String branchName, AclPermission aclPermission) {
+
+        if (StringUtils.hasText(branchName)) {
+            return applicationService.findByBranchNameAndDefaultApplicationId(branchName, artifactId, aclPermission);
+        }
+
         // find the application with appropriate permission
         return applicationService
-                .findByBranchNameAndDefaultApplicationId(branchName, artifactId, aclPermission)
+                .findById(artifactId, aclPermission)
                 // Find the application without permissions if it is a template application
                 .switchIfEmpty(
                         Mono.defer(() -> applicationService.findByIdAndExportWithConfiguration(artifactId, TRUE)))
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, artifactId)));
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, artifactId)));
     }
 
     @Override
