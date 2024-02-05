@@ -181,7 +181,16 @@ jobs:
             args+=("-DfailIfNoTests=false" "-Dtest=${failed_tests}")
           fi
           args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
-          mvn test "${args[@]}"
+          if ! mvn test "${args[@]}"; then
+            if [[ -s failed-server-tests.txt ]]; then
+              {
+                echo "## Failed tests"
+                echo
+                sed 's/^/- /' 'failed-server-tests.txt'
+              } >> "$GITHUB_STEP_SUMMARY"
+            fi
+            exit 1
+          fi
 
       # Set status = failedtest
       - name: Set fail if there are test failures
