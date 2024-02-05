@@ -1,5 +1,5 @@
 package com.appsmith.server.projections;
 
-public interface IdOnly {
-    String getId();
-}
+import lombok.NonNull;
+
+public record IdOnly(@NonNull String id) {}

@@ -23,6 +23,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -88,7 +89,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     @Override
     public Mono<User> leaveWorkspace(String workspaceId) {
-        return Mono.empty(); /*
         // Read the workspace
         Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, workspacePermission.getReadPermission())
@@ -108,7 +108,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                  * The below switchIfEmpty will be invoked in 2 cases.
                  * 1. Explicit Backend Invocation: The user actually didn't have access to the Workspace.
                  * 2. User Interaction: User who is part of a UserGroup.
-                 * /
+                 */
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Workspace is not assigned to the user.")))
                 // User must be assigned to a single default role of the workspace. We can safely use single() here.
@@ -132,7 +132,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         Mono<Boolean> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono.flatMap(
                 permissionGroup -> permissionGroupService.leaveExplicitlyAssignedSelfRole(permissionGroup.getId()));
 
-        return removeUserFromOldPermissionGroupMono.then(updateUserDataMono).then(userMono);*/
+        return removeUserFromOldPermissionGroupMono.then(updateUserDataMono).then(userMono);
     }
 
     /**

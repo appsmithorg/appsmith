@@ -64,7 +64,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
             return Mono.just(tenantId);
         }
 
-        return repository.findIdBySlug(FieldName.DEFAULT).map(IdOnly::getId).map(tenantId -> {
+        return repository.findIdBySlug(FieldName.DEFAULT).map(IdOnly::id).map(tenantId -> {
             // Set the cache value before returning.
             this.tenantId = tenantId;
             return tenantId;

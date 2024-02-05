@@ -5,7 +5,10 @@ from textwrap import dedent, indent
 from itertools import chain
 import subprocess
 
-root = Path("~/work/appsmith-ce").expanduser()
+root = Path(__file__).parent
+while not (root / ".git").exists() and root != Path("/"):
+    root = root.parent
+
 server_root = root / "app/server"
 FILE_CONTENTS_CACHE = {}
 

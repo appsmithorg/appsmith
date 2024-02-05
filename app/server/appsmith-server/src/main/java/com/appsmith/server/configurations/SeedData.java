@@ -19,10 +19,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.Modifying;
 
 import java.util.HashSet;
 import java.util.List;
@@ -189,5 +191,15 @@ public class SeedData {
                     new JSONObject(Map.of(FieldName.PERMISSION_GROUP_ID, publicPermissionGroup.getId())),
                     FieldName.PUBLIC_PERMISSION_GROUP));
         });
+    }
+
+    @Bean
+    @Transactional
+    @Modifying
+    public boolean opFunctionsReady(EntityManager entityManager) {
+        entityManager
+                .createNativeQuery("CREATE OR REPLACE FUNCTION jsonb_minus(l jsonb, r text) RETURNS jsonb RETURN l - r")
+                .executeUpdate();
+        return true;
     }
 }

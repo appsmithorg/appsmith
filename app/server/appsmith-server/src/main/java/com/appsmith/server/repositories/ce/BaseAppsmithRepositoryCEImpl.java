@@ -17,11 +17,13 @@ import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -71,7 +73,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  */
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
-    @Autowired
+    @Autowired // TODO: Add constructor parameter.
+    @Getter
     private EntityManager entityManager;
 
     protected final ReactiveMongoOperations mongoOperations;
@@ -195,6 +198,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
         // All public access is via a single permission group. Fetch the same and set the cache with it.
         return Mono.fromSupplier(q::getSingleResult)
+                .onErrorResume(NoResultException.class, e -> Mono.empty())
                 .map(obj -> setUserPermissionsInObject(obj, permissionGroups))
                 .blockOptional();
     }

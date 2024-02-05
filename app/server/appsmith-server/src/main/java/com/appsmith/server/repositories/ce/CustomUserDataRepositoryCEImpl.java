@@ -1,12 +1,22 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,18 +40,56 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
+    @Transactional
+    @Modifying
     public Optional<UpdateResult> removeIdFromRecentlyUsedList(
             String userId, String workspaceId, List<String> applicationIds) {
-        return Optional.empty(); /*
-        Update update = new Update().pull("recentlyUsedWorkspaceIds", workspaceId);
-        if (!CollectionUtils.isEmpty(applicationIds)) {
-            update = update.pullAll("recentlyUsedAppIds", applicationIds.toArray());
+
+        var entityManager = getEntityManager();
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaUpdate<UserData> cu = cb.createCriteriaUpdate(UserData.class);
+        final Root<UserData> root = cu.getRoot();
+
+        final Path<Expression<?>> recentlyUsedEntityIdsField =
+                root.get(fieldName(QUserData.userData.recentlyUsedEntityIds));
+        cu.set(
+                recentlyUsedEntityIdsField,
+                cb.function(
+                        "jsonb_path_query_array",
+                        Object.class,
+                        cb.function("coalesce", List.class, recentlyUsedEntityIdsField, cb.literal("[]")),
+                        cb.literal("$[*] ? (@.workspaceId != \"" + workspaceId + "\")")));
+
+        final Path<Expression<?>> recentlyUsedWorkspaceIdsField =
+                root.get(fieldName(QUserData.userData.recentlyUsedWorkspaceIds));
+        cu.set(
+                recentlyUsedWorkspaceIdsField,
+                cb.function(
+                        "jsonb_minus",
+                        Object.class,
+                        cb.function("coalesce", List.class, recentlyUsedWorkspaceIdsField, cb.literal("[]")),
+                        cb.literal(workspaceId).as(String.class)));
+
+        if (!CollectionUtils.isNullOrEmpty(applicationIds)) {
+            final Path<Expression<?>> recentlyUsedAppIdsField =
+                    root.get(fieldName(QUserData.userData.recentlyUsedAppIds));
+            final List<String> parts = new ArrayList<>();
+            for (String applicationId : applicationIds) {
+                parts.add("@ != \"" + applicationId + "\"");
+            }
+            cu.set(
+                    recentlyUsedAppIdsField,
+                    cb.function(
+                            "jsonb_path_query_array",
+                            Object.class,
+                            cb.function("coalesce", List.class, recentlyUsedAppIdsField, cb.literal("[]")),
+                            cb.literal("$[*] ? (" + String.join(" && ", parts) + ")")));
         }
-        update.pull(
-                fieldName(QUserData.userData.recentlyUsedEntityIds),
-                new BasicDBObject(fieldName(QRecentlyUsedEntityDTO.recentlyUsedEntityDTO.workspaceId), workspaceId));
-        return mongoOperations.updateFirst(
-                query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class);*/
+
+        cu.where(cb.equal(root.get(fieldName(QUserData.userData.userId)), userId));
+
+        final int count = entityManager.createQuery(cu).executeUpdate();
+        return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
     }
 
     @Override
