@@ -18,6 +18,7 @@ import {
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
+import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
 import isEmpty from "lodash/isEmpty";
 import pickBy from "lodash/pickBy";
 import { getFocusInfo } from "selectors/focusHistorySelectors";
@@ -102,8 +103,8 @@ export const useCurrentEditorState = () => {
   };
 };
 
-export const useEditorPaneWidth = (): number => {
-  const [width, setWidth] = useState(255);
+export const useEditorPaneWidth = (): string => {
+  const [width, setWidth] = useState(DEFAULT_EDITOR_PANE_WIDTH + "px");
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
@@ -114,9 +115,10 @@ export const useEditorPaneWidth = (): number => {
       editorMode === EditorViewMode.SplitScreen &&
       segment !== EditorEntityTab.UI
     ) {
-      setWidth(255 + propertyPaneWidth);
+      // 1px is propertypane border width
+      setWidth("40.4vw");
     } else {
-      setWidth(255);
+      setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
     }
   }, [isSideBySideEnabled, editorMode, segment, propertyPaneWidth]);
 
