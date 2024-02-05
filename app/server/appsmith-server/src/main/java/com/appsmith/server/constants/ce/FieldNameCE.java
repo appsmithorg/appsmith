@@ -198,4 +198,5 @@ public class FieldNameCE {
     public static final String PUBLISHED = "published";
     public static final String UNPUBLISHED = "unpublished";
     public static final String ARTIFACT_CONTEXT = "artifactContext";
+    public static final String HEADER_EXECUTE_ACTION_WITHOUT_PERMISSION = "X-Appsmith-ExecuteActionWithoutPermission";
 }

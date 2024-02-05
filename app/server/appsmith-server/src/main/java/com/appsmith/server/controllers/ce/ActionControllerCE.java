@@ -98,6 +98,8 @@ public class ActionControllerCE {
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
             @RequestHeader(value = OtlpTelemetry.OTLP_HEADER_KEY, required = false) String traceparent,
+            @RequestHeader(value = FieldName.HEADER_EXECUTE_ACTION_WITHOUT_PERMISSION, required = false)
+                    Boolean executeWithoutPermission,
             ServerWebExchange serverWebExchange) {
         Span span = this.otlpTelemetry.startOtlpSpanFromTraceparent("action service execute", traceparent);
 
@@ -106,6 +108,7 @@ public class ActionControllerCE {
                         partFlux,
                         branchName,
                         environmentId,
+                        executeWithoutPermission,
                         serverWebExchange.getRequest().getHeaders())
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null))
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(span));

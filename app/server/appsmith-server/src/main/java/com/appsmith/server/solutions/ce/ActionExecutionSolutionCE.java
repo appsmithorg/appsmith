@@ -12,12 +12,19 @@ import java.util.Map;
 
 public interface ActionExecutionSolutionCE {
     Mono<ActionExecutionResult> executeAction(
-            Flux<Part> partFlux, String branchName, String environmentId, HttpHeaders httpHeaders);
+            Flux<Part> partFlux,
+            String branchName,
+            String environmentId,
+            Boolean operateWithoutPermission,
+            HttpHeaders httpHeaders);
 
     Mono<ActionExecutionResult> executeAction(
-            ExecuteActionDTO executeActionDTO, String environmentId, HttpHeaders httpHeaders);
+            ExecuteActionDTO executeActionDTO,
+            String environmentId,
+            Boolean operateWithoutPermission,
+            HttpHeaders httpHeaders);
 
-    Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO);
+    Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, Boolean operateWithoutPermission);
 
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 }

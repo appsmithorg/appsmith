@@ -883,7 +883,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<String> getTrueEnvironmentId(
             String workspaceId, String environmentId, String pluginId, AclPermission aclPermission) {
-        return this.getTrueEnvironmentId(workspaceId, environmentId, pluginId, aclPermission, false);
+        return this.getTrueEnvironmentId(workspaceId, environmentId, pluginId, aclPermission, false, false);
     }
 
     @Override
@@ -892,7 +892,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             String environmentId,
             String pluginId,
             AclPermission aclPermission,
-            boolean isEmbedded) {
+            boolean isEmbedded,
+            Boolean operateWithoutPermission) {
         return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
     }
 

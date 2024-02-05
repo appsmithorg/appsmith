@@ -17,6 +17,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
@@ -181,11 +182,18 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      */
     @Override
     public Mono<ActionExecutionResult> executeAction(
-            Flux<Part> partFlux, String branchName, String environmentId, HttpHeaders httpHeaders) {
+            Flux<Part> partFlux,
+            String branchName,
+            String environmentId,
+            Boolean operateWithoutPermission,
+            HttpHeaders httpHeaders) {
         return createExecuteActionDTO(partFlux)
                 .flatMap(executeActionDTO -> newActionService
                         .findByBranchNameAndDefaultActionId(
-                                branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
+                                branchName,
+                                executeActionDTO.getActionId(),
+                                getAclPermissionOrNull(
+                                        actionPermission.getExecutePermission(), operateWithoutPermission))
                         .zipWith(configService.getInstanceId().zipWith(tenantService.getDefaultTenantId()))
                         .flatMap(tuple -> {
                             NewAction branchedAction = tuple.getT1();
@@ -217,12 +225,20 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                             environmentId,
                                             branchedAction.getPluginId(),
                                             environmentPermission.getExecutePermission(),
-                                            isEmbedded));
+                                            isEmbedded,
+                                            operateWithoutPermission));
                         }))
-                .flatMap(tuple2 ->
-                        this.executeAction(tuple2.getT1(), tuple2.getT2(), httpHeaders)) // getTrue is temporary call
+                .flatMap(tuple2 -> this.executeAction(
+                        tuple2.getT1(),
+                        tuple2.getT2(),
+                        operateWithoutPermission,
+                        httpHeaders)) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
+    }
+
+    protected AclPermission getAclPermissionOrNull(AclPermission aclPermission, Boolean operateWithoutPermission) {
+        return aclPermission;
     }
 
     /**
@@ -233,7 +249,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * @return actionExecutionResult if query succeeds, error messages otherwise
      */
     public Mono<ActionExecutionResult> executeAction(
-            ExecuteActionDTO executeActionDTO, String environmentId, HttpHeaders httpHeaders) {
+            ExecuteActionDTO executeActionDTO,
+            String environmentId,
+            Boolean operateWithoutPermission,
+            HttpHeaders httpHeaders) {
 
         // 1. Validate input parameters which are required for mustache replacements
         replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
@@ -243,11 +262,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         actionName.set("");
 
         // 2. Fetch the action from the DB and check if it can be executed
-        Mono<ActionDTO> actionDTOMono =
-                getValidActionForExecution(executeActionDTO).cache();
+        Mono<ActionDTO> actionDTOMono = getValidActionForExecution(executeActionDTO, operateWithoutPermission)
+                .cache();
 
         // 3. Instantiate the implementation class based on the query type
-        Mono<DatasourceStorage> datasourceStorageMono = getCachedDatasourceStorage(actionDTOMono, environmentId);
+        Mono<DatasourceStorage> datasourceStorageMono =
+                getCachedDatasourceStorage(actionDTOMono, environmentId, operateWithoutPermission);
         Mono<Plugin> pluginMono = getCachedPluginForActionExecution(datasourceStorageMono);
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
@@ -525,7 +545,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * @param actionDTOMono
      * @return datasourceStorageMono
      */
-    protected Mono<DatasourceStorage> getCachedDatasourceStorage(Mono<ActionDTO> actionDTOMono, String environmentId) {
+    protected Mono<DatasourceStorage> getCachedDatasourceStorage(
+            Mono<ActionDTO> actionDTOMono, String environmentId, Boolean operateWithoutPermission) {
 
         return actionDTOMono
                 .flatMap(actionDTO -> {
@@ -535,7 +556,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         // This is an action with a global datasource,
                         // we need to find the entry from db and populate storage
                         datasourceStorageMono = datasourceService
-                                .findById(datasource.getId(), datasourcePermission.getExecutePermission())
+                                .findById(
+                                        datasource.getId(),
+                                        getAclPermissionOrNull(
+                                                datasourcePermission.getExecutePermission(), operateWithoutPermission))
                                 .flatMap(datasource1 ->
                                         datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
                                                 datasource1, environmentId));
@@ -773,12 +797,13 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     @Override
-    public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO) {
+    public Mono<ActionDTO> getValidActionForExecution(
+            ExecuteActionDTO executeActionDTO, Boolean operateWithoutPermission) {
         return newActionService
                 .findActionDTObyIdAndViewMode(
                         executeActionDTO.getActionId(),
                         executeActionDTO.getViewMode(),
-                        actionPermission.getExecutePermission())
+                        getAclPermissionOrNull(actionPermission.getExecutePermission(), operateWithoutPermission))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, executeActionDTO.getActionId())))
                 .flatMap(action -> {
