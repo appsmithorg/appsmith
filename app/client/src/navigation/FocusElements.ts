@@ -27,6 +27,7 @@ export enum FocusElement {
   SelectedSegment = "SelectedSegment",
   IDETabs = "IDETabs",
   QueryDebugger = "QueryDebugger",
+  ApiDebugger = "ApiDebugger",
 }
 
 export enum FocusElementConfigType {

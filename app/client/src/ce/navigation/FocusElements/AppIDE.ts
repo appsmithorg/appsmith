@@ -1,5 +1,6 @@
 import {
   setApiPaneConfigSelectedTabIndex,
+  setApiPaneDebuggerState,
   setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import {
@@ -13,6 +14,7 @@ import {
 } from "actions/editorContextActions";
 import {
   getApiPaneConfigSelectedTabIndex,
+  getApiPaneDebuggerState,
   getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
@@ -167,6 +169,16 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.QueryDebugger,
       selector: getQueryPaneDebuggerState,
       setter: setQueryPaneDebuggerState,
+      defaultValue: {
+        open: false,
+        responseTabHeight: ActionExecutionResizerHeight,
+      },
+    },
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.ApiDebugger,
+      selector: getApiPaneDebuggerState,
+      setter: setApiPaneDebuggerState,
       defaultValue: {
         open: false,
         responseTabHeight: ActionExecutionResizerHeight,
