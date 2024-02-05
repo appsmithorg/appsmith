@@ -41,12 +41,12 @@ describe(
       cy.get(".t--property-pane-section-general").then(() => {
         // changing the icon to arrow-up
         agHelper.GetNClick(".bp3-button-text");
-        agHelper.GetNClick(".bp3-icon");
+        agHelper.GetNClick(".bp3-icon", 0, true);
         // opening modal from onClick action of icon button
         cy.createModal("Modal", "onClick");
       });
       // verifying the changed icon
-      agHelper.GetNClick(".bp3-icon");
+      agHelper.GetNClick(".bp3-icon", 0, true);
       // verifying modal has been added
       cy.get(".t--modal-widget .t--draggable-iconbuttonwidget").click({
         force: true,
