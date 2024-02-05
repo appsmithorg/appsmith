@@ -24,6 +24,10 @@ import TabBranch from "./TabBranch";
 import GitSettingsCDTab from "@appsmith/components/gitComponents/GitSettingsCDTab";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import {
+  useHasManageDefaultBranchPermission,
+  useHasManageProtectedBranchesPermission,
+} from "../hooks/gitPermissionHooks";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -36,6 +40,15 @@ const StyledModalContent = styled(ModalContent)`
 `;
 
 function GitSettingsModal() {
+  const isManageProtectedBranchesPermitted =
+    useHasManageProtectedBranchesPermission();
+  const isManageDefaultBranchPermitted = useHasManageDefaultBranchPermission();
+
+  const showDefaultBranch = isManageDefaultBranchPermitted;
+  const showProtectedBranches = isManageProtectedBranchesPermitted;
+
+  const showBranchTab = showDefaultBranch || showProtectedBranches;
+
   const isModalOpen = useSelector(isGitSettingsModalOpenSelector);
   const activeTabKey = useSelector(activeGitSettingsModalTabSelector);
 
@@ -49,11 +62,14 @@ function GitSettingsModal() {
         key: GitSettingsTab.GENERAL,
         title: createMessage(GENERAL),
       },
-      {
+    ];
+
+    if (showBranchTab) {
+      menuOptions.push({
         key: GitSettingsTab.BRANCH,
         title: createMessage(BRANCH),
-      },
-    ];
+      });
+    }
 
     if (isGitCDEnabled) {
       menuOptions.push({
