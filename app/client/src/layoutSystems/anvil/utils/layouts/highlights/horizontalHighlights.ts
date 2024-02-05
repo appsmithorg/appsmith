@@ -397,7 +397,6 @@ export function generateHighlights(
       HIGHLIGHT_SIZE / 2,
     );
   }
-
   return arr.map((alignment: FlexLayerAlignment, index: number) => ({
     ...baseHighlight,
     alignment,
@@ -405,5 +404,13 @@ export function generateHighlights(
     posY,
     rowIndex,
     width,
+    ...(isInitialHighlight && isLastHighlight && !hasFillWidget
+      ? {
+          isVertical: true,
+          height: 40,
+          width: HIGHLIGHT_SIZE,
+          posX: ((layoutDimension.width - HIGHLIGHT_SIZE) * index) / 2,
+        }
+      : {}),
   }));
 }
