@@ -44,10 +44,8 @@ function GitSettingsModal() {
     useHasManageProtectedBranchesPermission();
   const isManageDefaultBranchPermitted = useHasManageDefaultBranchPermission();
 
-  const showDefaultBranch = isManageDefaultBranchPermitted;
-  const showProtectedBranches = isManageProtectedBranchesPermitted;
-
-  const showBranchTab = showDefaultBranch || showProtectedBranches;
+  const showBranchTab =
+    isManageDefaultBranchPermitted || isManageProtectedBranchesPermitted;
 
   const isModalOpen = useSelector(isGitSettingsModalOpenSelector);
   const activeTabKey = useSelector(activeGitSettingsModalTabSelector);
