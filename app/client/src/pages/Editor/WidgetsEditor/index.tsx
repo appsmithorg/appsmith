@@ -9,6 +9,7 @@ import {
   getCurrentPageName,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import styled from "styled-components";
 import { LayoutSystemTypes } from "../../../layoutSystems/types";
 import { getLayoutSystemType } from "../../../selectors/layoutSystemSelectors";
 import NavigationPreview from "./NavigationPreview";
@@ -50,6 +51,10 @@ import {
 } from "layoutSystems/common/useLayoutSystemFeatures";
 import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+
+const BannerWrapper = styled.div`
+  z-index: calc(var(--on-canvas-ui-z-index) + 1);
+`;
 
 function WidgetsEditor() {
   const dispatch = useDispatch();
@@ -233,12 +238,9 @@ function WidgetsEditor() {
               }
             >
               {shouldShowSnapShotBanner && (
-                <div
-                  className="absolute top-0 w-full"
-                  style={{ zIndex: "calc(var(--on-canvas-ui-z-index) + 1)" }}
-                >
+                <BannerWrapper className="absolute top-0 w-full">
                   <SnapShotBannerCTA />
-                </div>
+                </BannerWrapper>
               )}
               <MainContainerWrapper
                 canvasWidth={canvasWidth}

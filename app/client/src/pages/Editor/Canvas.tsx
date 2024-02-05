@@ -26,6 +26,11 @@ interface CanvasProps {
   enableMainCanvasResizer?: boolean;
 }
 
+const StyledWDSThemeProvider = styled(WDSThemeProvider)`
+  min-height: 100%;
+  display: flex;
+`;
+
 const Wrapper = styled.section<{
   background: string;
   width: number;
@@ -102,12 +107,9 @@ const Canvas = (props: CanvasProps) => {
   try {
     if (isWDSEnabled) {
       return (
-        <WDSThemeProvider
-          style={{ minHeight: "100%", display: "flex" }}
-          theme={theme}
-        >
+        <StyledWDSThemeProvider theme={theme}>
           {renderChildren()}
-        </WDSThemeProvider>
+        </StyledWDSThemeProvider>
       );
     }
 

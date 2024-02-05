@@ -138,6 +138,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     useMainContainerResizer();
   const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
   const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
+  const headerHeight = "40px";
 
   useEffect(() => {
     return () => {
@@ -209,7 +210,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         navigationHeight={navigationHeight}
         style={{
-          height: isPreviewMode ? `calc(100% - 40px)` : "100%",
+          height: isPreviewMode ? `calc(100% - ${headerHeight})` : "100%",
           fontFamily: fontFamily,
           pointerEvents: isAutoCanvasResizing ? "none" : "auto",
         }}
