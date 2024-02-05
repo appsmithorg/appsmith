@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
@@ -219,23 +218,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId);
         return queryAll().criteria(applicationIdCriteria).permission(permission).submit();
-    }
-
-    /**
-     * Returns a list of application ids which are under the workspace with provided workspaceId
-     *
-     * @param workspaceId workspace id
-     * @return list of String
-     */
-    @Override
-    public Mono<List<String>> getAllApplicationId(String workspaceId) {
-        Query query = new Query();
-        query.addCriteria(where(fieldName(QApplication.application.workspaceId)).is(workspaceId));
-        query.fields().include(fieldName(QApplication.application.id));
-        return mongoOperations
-                .find(query, Application.class)
-                .map(BaseDomain::getId)
-                .collectList();
     }
 
     @Override
