@@ -55,8 +55,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
+import static com.appsmith.external.constants.Authentication.BEARER_HEADER_PREFIX;
 import static com.appsmith.server.acl.AppsmithRole.WORKFLOW_EXECUTOR;
-import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_HEADER;
 import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_QUERY_PARAM;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -415,7 +416,9 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
         if (!CollectionUtils.isEmpty(queryParams)
                 && queryParams.containsKey(APPSMITH_API_KEY_QUERY_PARAM)
                 && StringUtils.isNotEmpty(queryParams.getFirst(APPSMITH_API_KEY_QUERY_PARAM))) {
-            newHeaders.set(APPSMITH_API_KEY_HEADER, queryParams.getFirst(APPSMITH_API_KEY_QUERY_PARAM));
+            newHeaders.set(
+                    AUTHORIZATION_HEADER,
+                    BEARER_HEADER_PREFIX + " " + queryParams.getFirst(APPSMITH_API_KEY_QUERY_PARAM));
         }
         newHeaders.putAll(headers);
         return newHeaders;

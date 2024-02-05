@@ -22,7 +22,8 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_HEADER;
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
+import static com.appsmith.external.constants.Authentication.BEARER_HEADER_PREFIX;
 import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_QUERY_PARAM;
 
 @Slf4j
@@ -37,16 +38,14 @@ public class ApiKeyAuthenticationConverter implements ServerAuthenticationConver
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         return Mono.justOrEmpty(exchange)
                 .flatMap(serverWebExchange -> {
-                    List<String> apiKeyHeaderList = serverWebExchange
-                            .getRequest()
-                            .getHeaders()
-                            .getOrDefault(APPSMITH_API_KEY_HEADER, List.of());
+                    List<String> authorizationHeaders =
+                            serverWebExchange.getRequest().getHeaders().getOrDefault(AUTHORIZATION_HEADER, List.of());
                     List<String> apiKeyQueryParamList = serverWebExchange
                             .getRequest()
                             .getQueryParams()
                             .getOrDefault(APPSMITH_API_KEY_QUERY_PARAM, List.of());
-                    if (isApiKeyPresent(apiKeyHeaderList)) {
-                        return Mono.just(getApiKey(apiKeyHeaderList));
+                    if (isApiKeyPresent(authorizationHeaders)) {
+                        return Mono.just(getApiKeyFromAuthorizationHeader(authorizationHeaders));
                     } else if (isApiKeyPresent(apiKeyQueryParamList)) {
                         return Mono.just(getApiKey(apiKeyQueryParamList));
                     } else {
@@ -110,5 +109,14 @@ public class ApiKeyAuthenticationConverter implements ServerAuthenticationConver
 
     private String getApiKey(List<String> apiKeyList) {
         return apiKeyList.get(0);
+    }
+
+    private String getApiKeyFromAuthorizationHeader(List<String> apiKeyList) {
+        String headerValue = apiKeyList.get(0);
+        if (headerValue.startsWith(BEARER_HEADER_PREFIX)) {
+            return headerValue.replaceFirst(BEARER_HEADER_PREFIX, "").strip();
+        } else {
+            throw new AppsmithException(AppsmithError.INVALID_AUTHORIZATION_TOKEN);
+        }
     }
 }

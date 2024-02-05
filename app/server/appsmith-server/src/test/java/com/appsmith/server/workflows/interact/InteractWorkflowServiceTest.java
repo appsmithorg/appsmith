@@ -77,6 +77,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
+import static com.appsmith.external.constants.Authentication.BEARER_HEADER_PREFIX;
 import static com.appsmith.external.models.CreatorContextType.WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -87,7 +89,6 @@ import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
-import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_HEADER;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -801,7 +802,7 @@ class InteractWorkflowServiceTest {
                 .generateBearerTokenForWebhook(workflow.getId())
                 .block();
         HttpHeaders headers = new HttpHeaders();
-        headers.add(APPSMITH_API_KEY_HEADER, apiKey);
+        headers.add(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + apiKey);
         JsonNode triggered = interactWorkflowService
                 .triggerWorkflow(workflow.getId(), null, headers, null)
                 .block();

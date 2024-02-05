@@ -37,6 +37,7 @@ public enum AppsmithErrorCode {
     VALIDATION_FAILURE("AE-APP-4028", "Validation failure"),
     WORKSPACE_ID_NOT_GIVEN("AE-APP-4031", "Workspace id not given"),
     INVALID_API_KEY("AE-APP-4032", "Invalid Api Key"),
+    INVALID_AUTHORIZATION_HEADER("AE-APP-4035", "Invalid Authorization Header"),
     API_KEY_ALREADY_EXISTS("AE-APP-4033", "Can't create a new API key. There already exists an API Key"),
     API_KEY_NOT_MAPPED("AE-APP-4034", "Api Key not mapped. It may have already been disabled."),
     REMOVE_LAST_WORKSPACE_ADMIN_ERROR("AE-APP-4038", "Remove last workspace admin error"),

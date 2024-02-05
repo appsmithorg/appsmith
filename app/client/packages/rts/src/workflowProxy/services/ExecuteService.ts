@@ -24,7 +24,7 @@ export class ExecuteService {
     headers: Record<string, any>,
   ): Promise<any> {
     try {
-      if (!headers["cookie"] && !headers["x-appsmith-key"]) {
+      if (!headers["cookie"] && !headers["Authorization"]) {
         throw new Error("Cookie or Token not found in request");
       }
 
@@ -91,8 +91,8 @@ export class ExecuteService {
         reqHeaders["cookie"] = headers["cookie"];
       }
 
-      if (headers["x-appsmith-key"]) {
-        reqHeaders["x-appsmith-key"] = headers["x-appsmith-key"];
+      if (headers["Authorization"]) {
+        reqHeaders["Authorization"] = headers["Authorization"];
       }
 
       const response = await axios.post(EXECUTE_ACTION_ENDPOINT, formData, {
@@ -133,7 +133,7 @@ export class ExecuteService {
   ): Promise<any> {
     try {
       //check if cookie is present in the request, if not throw error
-      if (!headers["cookie"] && !headers["x-appsmith-key"]) {
+      if (!headers["cookie"] && !headers["Authorization"]) {
         throw new Error("Cookie or Token not found in request");
       }
 
@@ -146,8 +146,8 @@ export class ExecuteService {
         reqHeaders["cookie"] = headers["cookie"];
       }
 
-      if (headers["x-appsmith-key"]) {
-        reqHeaders["x-appsmith-key"] = headers["x-appsmith-key"];
+      if (headers["Authorization"]) {
+        reqHeaders["Authorization"] = headers["Authorization"];
       }
 
       //send the request to appsmith api

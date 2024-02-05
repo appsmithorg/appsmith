@@ -52,11 +52,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
+import static com.appsmith.external.constants.Authentication.BEARER_HEADER_PREFIX;
 import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
-import static com.appsmith.server.authentication.constants.ApiKeyConstants.APPSMITH_API_KEY_HEADER;
 import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -775,7 +776,7 @@ class ProvisionServiceImplTest {
         webTestClient
                 .get()
                 .uri(Url.PROVISION_USER_URL)
-                .header(APPSMITH_API_KEY_HEADER, provisionToken)
+                .header(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + provisionToken)
                 .exchange()
                 .expectStatus()
                 .isEqualTo(200);
@@ -809,7 +810,7 @@ class ProvisionServiceImplTest {
         webTestClient
                 .post()
                 .uri(Url.PROVISION_USER_URL)
-                .header(APPSMITH_API_KEY_HEADER, provisionToken)
+                .header(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + provisionToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(createUserBody))
                 .exchange()
@@ -845,7 +846,7 @@ class ProvisionServiceImplTest {
         webTestClient
                 .post()
                 .uri(Url.PROVISION_GROUP_URL)
-                .header(APPSMITH_API_KEY_HEADER, provisionToken)
+                .header(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + provisionToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(createGroupBody))
                 .exchange()
@@ -878,7 +879,7 @@ class ProvisionServiceImplTest {
         webTestClient
                 .get()
                 .uri(Url.PROVISION_USER_URL)
-                .header(APPSMITH_API_KEY_HEADER, provisionToken)
+                .header(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + provisionToken)
                 .exchange()
                 .expectStatus()
                 .isEqualTo(200);
@@ -940,7 +941,7 @@ class ProvisionServiceImplTest {
         webTestClient
                 .post()
                 .uri(Url.PROVISION_USER_URL)
-                .header(APPSMITH_API_KEY_HEADER, provisionToken)
+                .header(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + provisionToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(createUserBody))
                 .exchange()
@@ -974,7 +975,7 @@ class ProvisionServiceImplTest {
         webTestClient
                 .delete()
                 .uri(Url.PROVISION_USER_URL + "/" + provisionedUser.getId())
-                .header(APPSMITH_API_KEY_HEADER, provisionToken)
+                .header(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + provisionToken)
                 .header("X-Requested-By", "Appsmith")
                 .exchange()
                 .expectStatus()

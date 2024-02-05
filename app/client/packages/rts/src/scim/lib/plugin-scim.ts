@@ -141,7 +141,7 @@ const getServiceClient = async (
             "Content-Type": "application/json",
             // Auth PassThrough or configuration, using ctx "AS-IS" header for PassThrough. For more advanced logic use getCtxAuth(ctx) - see examples in other plugins
             // Authorization: ctx?.request?.header?.authorization ? ctx.request.header.authorization : 'Basic ' + Buffer.from(`${config.entity[baseEntity].username}:${scimGateway.getPassword(`endpoint.entity.${baseEntity}.password`, configFile)}`).toString('base64'),
-            "x-appsmith-key": apiKey,
+            Authorization: `Bearer ${apiKey}`,
             "x-requested-by": "Appsmith",
           },
           host: urlObj.hostname,

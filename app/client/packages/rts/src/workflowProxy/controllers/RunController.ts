@@ -13,7 +13,7 @@ export default class RunController extends BaseController {
   async runWorkflow(req: Request, res: Response) {
     try {
       //check if cookie is present in the request, if not throw error
-      if (!req.headers["cookie"] && !req.headers["x-appsmith-key"]) {
+      if (!req.headers["cookie"] && !req.headers["Authorization"]) {
         throw new Error("workflow-proxy Cookie or Token not found in request");
       }
 
@@ -25,8 +25,8 @@ export default class RunController extends BaseController {
         reqHeaders["cookie"] = req.headers["cookie"];
       }
 
-      if (req.headers["x-appsmith-key"]) {
-        reqHeaders["x-appsmith-key"] = req.headers["x-appsmith-key"];
+      if (req.headers["Authorization"]) {
+        reqHeaders["Authorization"] = req.headers["Authorization"];
       }
 
       // Use deploy service to deploy the workflow

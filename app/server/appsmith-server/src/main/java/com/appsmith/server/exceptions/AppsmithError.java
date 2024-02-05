@@ -1078,6 +1078,14 @@ public enum AppsmithError {
             "Invalid Api Key",
             ErrorType.AUTHENTICATION_ERROR,
             null),
+    INVALID_AUTHORIZATION_TOKEN(
+            401,
+            AppsmithErrorCode.INVALID_AUTHORIZATION_HEADER.getCode(),
+            "Invalid Authorization header",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid Authorization header",
+            ErrorType.AUTHENTICATION_ERROR,
+            null),
     API_KEY_ALREADY_EXISTS(
             403,
             AppsmithErrorCode.API_KEY_ALREADY_EXISTS.getCode(),

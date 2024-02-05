@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.User;
@@ -17,7 +18,9 @@ import com.appsmith.server.services.ApiKeyService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.GitService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -34,8 +37,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
+import static com.appsmith.external.constants.Authentication.BEARER_HEADER_PREFIX;
 import static java.lang.Boolean.TRUE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -79,6 +85,12 @@ public class GitControllerTest {
     @MockBean
     private ImportApplicationService importApplicationService;
 
+    @Autowired
+    private PermissionGroupService permissionGroupService;
+
+    @Autowired
+    private ApplicationPermission applicationPermission;
+
     private static final String mainBranch = "main";
 
     @Test
@@ -119,7 +131,7 @@ public class GitControllerTest {
                 .post()
                 .uri("/api/v1/git/deploy/app/" + application.getId() + "?branchName=" + mainBranch)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("x-appsmith-key", apiKey)
+                .header(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + apiKey)
                 .body(BodyInserters.fromValue("{}"))
                 .exchange()
                 .expectStatus()
@@ -150,11 +162,25 @@ public class GitControllerTest {
                 .generateBearerTokenForApplication(application.getId())
                 .block();
 
+        // fetch the application again as the policies field has been changed after bot user is added
+        application = applicationRepository.findById(application.getId()).block();
+        // remove the edit permission for api_user from application
+        Set<String> apiUserPermissionGroups =
+                permissionGroupService.getSessionUserPermissionGroupIds().block();
+        assert apiUserPermissionGroups != null;
+        for (Policy policy : application.getPolicies()) {
+            if (policy.getPermission()
+                    .equals(applicationPermission.getEditPermission().getValue())) {
+                policy.getPermissionGroups().removeAll(apiUserPermissionGroups);
+            }
+        }
+        applicationRepository.save(application).block();
+
         webTestClient
                 .post()
                 .uri("/api/v1/git/deploy/app/" + application.getId() + "?branchName=" + mainBranch)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("x-appsmith-key", bearerToken)
+                .header(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + bearerToken)
                 .body(BodyInserters.fromValue("{}"))
                 .exchange()
                 .expectStatus()
