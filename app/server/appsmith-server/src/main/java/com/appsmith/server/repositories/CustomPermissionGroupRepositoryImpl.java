@@ -34,20 +34,20 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
 
     @Override
     public Flux<PermissionGroup> findAll(AclPermission aclPermission) {
-        return queryAll().criteria(List.of()).permission(aclPermission).submit();
+        return queryBuilder().criteria(List.of()).permission(aclPermission).all();
     }
 
     @Override
     public Flux<PermissionGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields) {
         Criteria criteria =
                 where(fieldName(QPermissionGroup.permissionGroup.tenantId)).is(tenantId);
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteria)
                 .fields(includeFields)
                 .permission(null)
                 .sort(null)
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 
     @Override
@@ -59,36 +59,36 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 .is(workspaceId);
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(Workspace.class.getSimpleName());
-        return queryAll()
+        return queryBuilder()
                 .criteria(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
-                .submit();
+                .all();
     }
 
     @Override
     public Flux<PermissionGroup> findAllById(Set<String> ids, AclPermission permission) {
         Criteria criteria =
                 where(fieldName(QPermissionGroup.permissionGroup.id)).in(ids);
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteria)
                 .fields((List<String>) null)
                 .permission(permission)
                 .sort(null)
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission permission) {
         Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
                 .in(userIds);
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteria)
                 .fields((List<String>) null)
                 .permission(permission)
                 .sort(null)
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 
     @Override
@@ -99,13 +99,13 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     public Flux<PermissionGroup> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         Criteria criteria =
                 where(fieldName(QPermissionGroup.permissionGroup.id)).in(ids);
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteria)
                 .fields(includeFields)
                 .permission(null)
                 .sort(null)
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 
     @Override
@@ -134,10 +134,10 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 .in(applicationIds);
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(Application.class.getSimpleName());
-        return queryAll()
+        return queryBuilder()
                 .criteria(defaultApplicationIdsCriteria, defaultDomainTypeCriteria)
                 .permission(permission.orElse(null))
-                .submit();
+                .all();
     }
 
     @Override
@@ -149,10 +149,10 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 .is(defaultDomainId);
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(defaultDomainType);
-        return queryAll()
+        return queryBuilder()
                 .criteria(assignedToUserIdCriteria, defaultApplicationIdsCriteria, defaultDomainTypeCriteria)
                 .permission(aclPermission.orElse(null))
-                .submit();
+                .all();
     }
 
     @Override
@@ -164,10 +164,10 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 .is(defaultDomainId);
         Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
                 .is(defaultDomainType);
-        return queryAll()
+        return queryBuilder()
                 .criteria(assignedToGroupIdCriteria, defaultApplicationIdsCriteria, defaultDomainTypeCriteria)
                 .permission(aclPermission.orElse(null))
-                .submit();
+                .all();
     }
 
     @Override
@@ -175,13 +175,13 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
             Set<String> userIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission) {
         Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
                 .in(userIds);
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteria)
                 .fields(listIncludeFields.orElse(null))
                 .permission(aclPermission.orElse(null))
                 .sort(Optional.<Sort>empty().orElse(null))
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 
     @Override
@@ -189,12 +189,12 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
             Set<String> groupIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission) {
         Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds))
                 .in(groupIds);
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteria)
                 .fields(listIncludeFields.orElse(null))
                 .permission(aclPermission.orElse(null))
                 .sort(Optional.<Sort>empty().orElse(null))
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 }

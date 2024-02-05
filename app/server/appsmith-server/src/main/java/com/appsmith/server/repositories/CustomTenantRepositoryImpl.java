@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 public class CustomTenantRepositoryImpl extends CustomTenantRepositoryCEImpl implements CustomTenantRepository {
 
     public CustomTenantRepositoryImpl(
@@ -25,6 +23,6 @@ public class CustomTenantRepositoryImpl extends CustomTenantRepositoryCEImpl imp
     public Mono<Tenant> findBySlug(String slug, AclPermission aclPermission) {
         Criteria slugCriteria = Criteria.where(fieldName(QTenant.tenant.slug)).is(slug);
 
-        return queryOne(List.of(slugCriteria), aclPermission);
+        return queryBuilder().criteria(slugCriteria).permission(aclPermission).one();
     }
 }

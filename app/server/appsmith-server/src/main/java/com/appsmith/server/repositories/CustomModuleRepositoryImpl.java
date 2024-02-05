@@ -34,7 +34,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     public Flux<Module> getAllModulesByPackageId(String packageId, AclPermission permission) {
         Criteria packageCriteria = where(fieldName(QModule.module.packageId)).is(packageId);
 
-        return queryAll().criteria(packageCriteria).permission(permission).submit();
+        return queryBuilder().criteria(packageCriteria).permission(permission).all();
     }
 
     @Override
@@ -42,20 +42,23 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
             List<String> packageIds, List<String> projectionFields, Optional<AclPermission> permissionOptional) {
         Criteria packageIdsCriteria = where(fieldName(QModule.module.packageId)).in(packageIds);
 
-        return queryAll()
+        return queryBuilder()
                 .criteria(packageIdsCriteria)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
                 .permission(permissionOptional.orElse(null))
                 .sort(Optional.<Sort>empty().orElse(null))
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 
     @Override
     public Flux<Module> getAllConsumableModulesByPackageIds(List<String> packageIds, AclPermission permission) {
         Criteria packageIdInCriteria =
                 where(fieldName(QModule.module.packageId)).in(packageIds);
-        return queryAll().criteria(packageIdInCriteria).permission(permission).submit();
+        return queryBuilder()
+                .criteria(packageIdInCriteria)
+                .permission(permission)
+                .all();
     }
 
     @Override
@@ -85,20 +88,20 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
         criteria.add(layoutCriterion);
 
-        return queryOne(criteria, permission);
+        return queryBuilder().criteria(criteria).permission(permission).one();
     }
 
     @Override
     public Flux<Module> findAllByIds(
             Set<String> ids, List<String> projectionFields, Optional<AclPermission> permission) {
         Criteria idCriteria = where(fieldName(QModule.module.id)).in(ids);
-        return queryAll()
+        return queryBuilder()
                 .criteria(idCriteria)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
                 .permission(permission.orElse(null))
                 .sort(Optional.<Sort>empty().orElse(null))
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 
     @Override
@@ -111,7 +114,10 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
                 .is(originModuleId);
 
         criteria.add(packageIdAndOriginModuleIdCriterion);
-        return queryOne(criteria, null, permission);
+        return queryBuilder()
+                .criteria(criteria)
+                .permission(permission.orElse(null))
+                .one();
     }
 
     @Override
@@ -122,13 +128,13 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
                 where(fieldName(QModule.module.originModuleId)).is(originModuleId);
 
         criteria.add(originModuleIdCriterion);
-        return queryAll()
+        return queryBuilder()
                 .criteria(criteria)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
                 .permission(permissionOptional.orElse(null))
                 .sort(Optional.<Sort>empty().orElse(null))
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 
     @Override
@@ -138,6 +144,9 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
                 Criteria.where(fieldName(QModule.module.moduleUUID)).is(moduleUUID);
         criteria.add(moduleUUIDCriterion);
 
-        return queryAll().criteria(criteria).permission(permission.orElse(null)).submit();
+        return queryBuilder()
+                .criteria(criteria)
+                .permission(permission.orElse(null))
+                .all();
     }
 }

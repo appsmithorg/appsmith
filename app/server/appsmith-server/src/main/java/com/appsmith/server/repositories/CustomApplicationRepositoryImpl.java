@@ -126,9 +126,9 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
     public Flux<Application> getAllApplicationsInWorkspace(String workspaceId, Optional<AclPermission> aclPermission) {
         Criteria workspaceIdCriteria =
                 Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        return queryAll()
+        return queryBuilder()
                 .criteria(workspaceIdCriteria)
                 .permission(aclPermission.orElse(null))
-                .submit();
+                .all();
     }
 }

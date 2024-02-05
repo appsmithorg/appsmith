@@ -47,26 +47,33 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
     @Override
     public Flux<Environment> findByWorkspaceId(String workspaceId, AclPermission aclPermission) {
         List<Criteria> criterias = List.of(workspaceIdCriteria(workspaceId));
-        return queryAll()
+        return queryBuilder()
                 .criteria(criterias)
                 .permission(aclPermission)
-                .submit()
+                .all()
                 .flatMap(this::setUserPermissionsInObject);
     }
 
     @Override
     public Mono<Environment> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
-        return queryOne(List.of(notDeleted(), workspaceIdCriteria(workspaceId), nameCriteria(name)), aclPermission);
+        return queryBuilder()
+                .criteria(notDeleted(), workspaceIdCriteria(workspaceId), nameCriteria(name))
+                .permission(aclPermission)
+                .one();
     }
 
     @Override
     public Flux<Environment> findByWorkspaceId(String workspaceId) {
-        return queryMany(List.of(workspaceIdCriteria(workspaceId), notDeleted()));
+        return queryBuilder()
+                .criteria(workspaceIdCriteria(workspaceId), notDeleted())
+                .all();
     }
 
     @Override
     public Mono<Environment> findByNameAndWorkspaceId(String name, String workspaceId) {
-        return queryOne(List.of(notDeleted(), workspaceIdCriteria(workspaceId), nameCriteria(name)));
+        return queryBuilder()
+                .criteria(notDeleted(), workspaceIdCriteria(workspaceId), nameCriteria(name))
+                .one();
     }
 
     @Override
@@ -74,12 +81,12 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
             Set<String> workspaceIds, List<String> includeFields) {
         Criteria workspaceCriteria = Criteria.where(FieldName.WORKSPACE_ID).in(workspaceIds);
 
-        return queryAll()
+        return queryBuilder()
                 .criteria(workspaceCriteria)
                 .fields(includeFields)
                 .permission(null)
                 .sort(null)
                 .limit(NO_RECORD_LIMIT)
-                .submit();
+                .all();
     }
 }
