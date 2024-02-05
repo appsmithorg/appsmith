@@ -2,6 +2,7 @@
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ClientSide/Widgets/Others/StatboxDsl_spec.js
 cypress/e2e/Regression/ClientSide/BugTests/AbortAction_Spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/Others/IconButton_2_spec.ts
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
