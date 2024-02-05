@@ -119,8 +119,10 @@ describe(
     it("3. Mark application as forkable", () => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
+      let workSpaceName: string = fakerHelper.GetRandomText(5) + " workspace";
 
-      homePage.CreateNewApplication();
+      homePage.CreateNewWorkspace(workSpaceName, true);
+      homePage.CreateAppInWorkspace(workSpaceName);
       appSettings.OpenAppSettings();
       appSettings.GoToEmbedSettings();
       embedSettings.ToggleMarkForkable();
