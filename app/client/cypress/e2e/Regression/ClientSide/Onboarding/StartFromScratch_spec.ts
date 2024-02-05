@@ -29,6 +29,7 @@ describe(
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
+        onboarding.closeIntroModal();
       });
       agHelper.GetNClick(onboarding.locators.startFromScratchCard);
 
