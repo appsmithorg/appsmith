@@ -1,7 +1,6 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ClientSide/DynamicHeight/Text_With_Different_Size_spec.ts
-cypress/e2e/Regression/ClientSide/Workspace/MemberRoles_Spec.ts
 cypress/e2e/Regression/ClientSide/Onboarding/StartFromScratch_spec.ts
 
 
