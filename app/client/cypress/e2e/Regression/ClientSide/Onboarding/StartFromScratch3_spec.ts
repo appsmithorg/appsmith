@@ -17,13 +17,13 @@ describe(
   function () {
     before(() => {
       homePage.LogOutviaAPI();
-      featureFlagIntercept({
-        ab_show_templates_instead_of_blank_canvas_enabled: true,
-        ab_create_new_apps_enabled: true,
-      });
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
+        featureFlagIntercept({
+          ab_show_templates_instead_of_blank_canvas_enabled: true,
+          ab_create_new_apps_enabled: true,
+        });
       });
       agHelper.GetNClick(onboarding.locators.startFromScratchCard);
       onboarding.closeIntroModal();
