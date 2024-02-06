@@ -40,6 +40,10 @@ export function EntityProperties() {
     (state) => entityName && state.evaluations.tree[entityName],
   );
 
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+  );
+
   PerformanceTracker.startTracking(
     PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
   );
@@ -62,6 +66,15 @@ export function EntityProperties() {
       });
     }
   }, [entityId]);
+
+  useEffect(() => {
+    if (selectedWidget) {
+      dispatch({
+        type: ReduxActionTypes.SET_ENTITY_INFO,
+        payload: { show: false },
+      });
+    }
+  }, [selectedWidget]);
 
   const closeContainer = useCallback((e) => {
     e.stopPropagation();
