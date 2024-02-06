@@ -41,6 +41,15 @@ export const getConsolidatedDataApi = (
           ] = true;
         });
         return res.send(updatedResponse);
+      } else {
+        return res.send({
+          responseMeta: {
+            status: 200,
+            success: false,
+          },
+          data: null,
+          errorDisplay: "Original response status code was not 200.",
+        });
       }
     });
   }).as("getConsolidatedData");
