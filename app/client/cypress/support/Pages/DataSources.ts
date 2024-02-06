@@ -367,7 +367,7 @@ export class DataSources {
         currentURL = url;
         const myRegexp = /applications(.*)/;
         const match = myRegexp.exec(currentURL);
-        cy.log(currentURL + "currentURL from intercept is");
+        // cy.log(currentURL + "currentURL from intercept is");
         currentAppId = match ? match[1].split("/")[1] : null;
         data.data.page.applicationId = currentAppId;
         cy.writeFile(fixtureFile, JSON.stringify(data));
@@ -1736,13 +1736,13 @@ export class DataSources {
   public StopNDeleteContainer(containerName: string) {
     // Stop the container
     cy.exec(`docker stop ${containerName}`).then((stopResult) => {
-      cy.log("Output from stopping container:" + stopResult.stdout);
-      cy.log("Error from stopping container:" + stopResult.stderr);
+      // cy.log("Output from stopping container:" + stopResult.stdout);
+      // cy.log("Error from stopping container:" + stopResult.stderr);
 
       // Delete the container
       cy.exec(`docker rm ${containerName}`).then((deleteResult) => {
-        cy.log("Output from deleting container:" + deleteResult.stdout);
-        cy.log("Error from deleting container:" + deleteResult.stderr);
+        // cy.log("Output from deleting container:" + deleteResult.stdout);
+        // cy.log("Error from deleting container:" + deleteResult.stderr);
       });
     });
   }
@@ -1782,13 +1782,13 @@ export class DataSources {
         timeout: 60000,
       }).then((isReady) => {
         if (isReady) {
-          cy.log("Run id of started container is:" + result.stdout);
+          //cy.log("Run id of started container is:" + result.stdout);
           this.agHelper.Sleep(sleepTime); //allow some time for container to settle start for CI
         } else
-          cy.log(
-            `Error from ${containerName} container start action:` +
-              result.stderr,
-          ); // Container did not start properly within the timeout
+          // cy.log(
+          //   `Error from ${containerName} container start action:` +
+          //     result.stderr,
+          // ); // Container did not start properly within the timeout
       });
     });
   }
@@ -1903,7 +1903,7 @@ export class DataSources {
               );
               // Total height of the parent container holding the tables in the dom normally without virtualization rendering
               const totalScroll = tables.length * elementHeight;
-              cy.log(JSON.stringify({ heightOfParentElement, totalScroll }));
+              // cy.log(JSON.stringify({ heightOfParentElement, totalScroll }));
               if (heightOfParentElement < totalScroll) {
                 // Index of the table present in the array of tables which will determine the presence of element inside the parent container
                 let offset = indexOfTable * elementHeight;
