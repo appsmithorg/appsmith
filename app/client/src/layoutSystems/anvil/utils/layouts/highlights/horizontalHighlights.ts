@@ -179,7 +179,7 @@ export function getHighlightsForLayouts(
        */
       highlights = updateHighlights(
         highlights,
-        baseHighlight,
+        skipEntity ? { ...baseHighlight, layoutId } : baseHighlight,
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
@@ -422,6 +422,7 @@ export function generateHighlights(
           height: isInitialHighlight ? 40 : currentDimension.height,
           width: HIGHLIGHT_SIZE,
           posX: ((layoutDimension.width - HIGHLIGHT_SIZE) * index) / 2,
+          posY: isFirstHighlight ? 0 : posY + HIGHLIGHT_SIZE / 2,
         }
       : {}),
   }));
