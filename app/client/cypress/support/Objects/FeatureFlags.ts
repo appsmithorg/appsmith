@@ -42,14 +42,13 @@ export const getConsolidatedDataApi = (
         });
         return res.send(updatedResponse);
       } else if (res.statusCode === 401) {
-        {
         return res.send({
           responseMeta: {
             status: 200,
             success: true,
           },
-          data: null,
-          errorDisplay: "Original response status code was not 200.",
+          data: res?.body,
+          errorDisplay: "",
         });
       }
     });
@@ -111,12 +110,20 @@ export const featureFlagInterceptForLicenseFlags = () => {
           ] = true;
         });
         return res.send(updatedResponse);
+      } else if (res.statusCode === 401) {
+        return res.send({
+          responseMeta: {
+            status: 200,
+            success: true,
+          },
+          data: res?.body,
+          errorDisplay: "",
+        });
       }
     });
   }).as("getConsolidatedData");
 
-  cy.reload();
-  cy.wait(2000); //for the page to re-load finish for CI runs
+  ReloadAfterIntercept();
 };
 
 function ReloadAfterIntercept() {
