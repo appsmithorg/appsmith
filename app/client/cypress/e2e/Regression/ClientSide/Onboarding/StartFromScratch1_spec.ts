@@ -3,9 +3,14 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   onboarding,
+  dataSources,
   templates,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Start with scratch userflow",
@@ -49,5 +54,30 @@ describe(
         .should("have.text", "Building Blocks");
       agHelper.GetNClick(template.closeButton);
     });
+
+    // it("2. `Connect your data` pop up should come up when we fork a building block from canvas.", function () {
+    //   agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas);
+
+    //   agHelper.WaitUntilEleDisappear("Importing template");
+    //   agHelper.AssertElementVisibility(
+    //     templates.locators._datasourceConnectPromptSubmitBtn,
+    //   );
+    //   agHelper.GetNClick(templates.locators._datasourceConnectPromptSubmitBtn);
+    //   cy.url().should("include", "datasources/NEW");
+    // });
+
+    // it("3. `Connect your data` pop up should NOT come up when user already has a datasource.", function () {
+    //   dataSources.CreateMockDB("Users");
+    //   AppSidebar.navigate(AppSidebarButton.Editor);
+
+    //   agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas, 0);
+
+    //   agHelper.WaitUntilEleDisappear("Importing template");
+
+    //   agHelper.AssertElementAbsence(
+    //     templates.locators._datasourceConnectPromptSubmitBtn,
+    //     4000,
+    //   );
+    // });
   },
 );
