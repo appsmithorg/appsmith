@@ -41,16 +41,16 @@ export const getConsolidatedDataApi = (
           ] = true;
         });
         return res.send(updatedResponse);
-      } else if (res.statusCode === 401 || res.statusCode === 500) {
-        return res.send({
-          responseMeta: {
-            status: 200,
-            success: true,
-          },
-          data: res?.body,
-          errorDisplay: "",
-        });
-      }
+      } // else if (res.statusCode === 401 || res.statusCode === 500) {
+      //   return res.send({
+      //     responseMeta: {
+      //       status: 200,
+      //       success: true,
+      //     },
+      //     data: res?.body,
+      //     errorDisplay: "",
+      //   });
+      // }
     });
   }).as("getConsolidatedData");
   if (reload) ReloadAfterIntercept();
@@ -110,16 +110,16 @@ export const featureFlagInterceptForLicenseFlags = () => {
           ] = true;
         });
         return res.send(updatedResponse);
-      } else if (res.statusCode === 401 || res.statusCode === 500) {
-        return res.send({
-          responseMeta: {
-            status: 200,
-            success: true,
-          },
-          data: res?.body,
-          errorDisplay: "",
-        });
-      }
+      } // else if (res.statusCode === 401 || res.statusCode === 500) {
+      //   return res.send({
+      //     responseMeta: {
+      //       status: 200,
+      //       success: true,
+      //     },
+      //     data: res?.body,
+      //     errorDisplay: "",
+      //   });
+      // }
     });
   }).as("getConsolidatedData");
 
