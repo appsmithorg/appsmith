@@ -1736,13 +1736,13 @@ export class DataSources {
   public StopNDeleteContainer(containerName: string) {
     // Stop the container
     cy.exec(`docker stop ${containerName}`).then((stopResult) => {
-      // cy.log("Output from stopping container:" + stopResult.stdout);
-      // cy.log("Error from stopping container:" + stopResult.stderr);
+      cy.log("Output from stopping container:" + stopResult.stdout);
+      cy.log("Error from stopping container:" + stopResult.stderr);
 
       // Delete the container
       cy.exec(`docker rm ${containerName}`).then((deleteResult) => {
-        // cy.log("Output from deleting container:" + deleteResult.stdout);
-        // cy.log("Error from deleting container:" + deleteResult.stderr);
+        cy.log("Output from deleting container:" + deleteResult.stdout);
+        cy.log("Error from deleting container:" + deleteResult.stderr);
       });
     });
   }
@@ -1785,10 +1785,10 @@ export class DataSources {
           //cy.log("Run id of started container is:" + result.stdout);
           this.agHelper.Sleep(sleepTime); //allow some time for container to settle start for CI
         } else
-          // cy.log(
-          //   `Error from ${containerName} container start action:` +
-          //     result.stderr,
-          // ); // Container did not start properly within the timeout
+          cy.log(
+            `Error from ${containerName} container start action:` +
+              result.stderr,
+          ); // Container did not start properly within the timeout
       });
     });
   }
