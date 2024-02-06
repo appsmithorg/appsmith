@@ -8,7 +8,6 @@ import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ImportableArtifact;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -37,11 +36,11 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class ImportServiceCEImpl implements ImportServiceCE {
@@ -730,25 +729,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     @Override
     public Mono<List<Datasource>> findDatasourceByArtifactId(
             String defaultArtifactId, String workspaceId, ArtifactJsonType artifactJsonType) {
-        Mono<List<Datasource>> datasourceListMono =
-                datasourceImportableService.getEntitiesPresentInWorkspace(workspaceId);
-        ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(artifactJsonType);
 
-        return contextBasedImportService
-                .getNewActionByArtifactId(defaultArtifactId)
-                .zipWith(datasourceListMono)
-                .flatMap(objects -> {
-                    List<Datasource> datasourceList = objects.getT2();
-                    List<NewAction> actionList = objects.getT1();
-                    List<String> usedDatasource = actionList.stream()
-                            .map(newAction -> newAction
-                                    .getUnpublishedAction()
-                                    .getDatasource()
-                                    .getId())
-                            .collect(Collectors.toList());
-
-                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
-                    return Mono.just(datasourceList);
-                });
+        return getContextBasedImportService(artifactJsonType)
+                .getDatasourceIdSetConsumedInArtifact(defaultArtifactId)
+                .flatMap(datasourceIdSet -> {
+                    return datasourceImportableService
+                            .getEntitiesPresentInWorkspace(workspaceId)
+                            .filter(datasource -> datasourceIdSet.contains(datasource.getId()))
+                            .collectList();
+                })
+                // if we didn't receive any actions then the list of importable datasource should be zero.
+                .switchIfEmpty(Mono.just(new ArrayList<>()));
     }
 }

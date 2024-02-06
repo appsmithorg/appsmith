@@ -1,7 +1,6 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.server.domains.ImportableArtifact;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -152,5 +151,5 @@ public interface ContextBasedImportServiceCE<
      */
     Map<String, String> getArtifactSpecificConstantsMap();
 
-    Mono<List<NewAction>> getNewActionByArtifactId(String defaultArtifactId);
+    Mono<Set<String>> getDatasourceIdSetConsumedInArtifact(String defaultArtifactId);
 }

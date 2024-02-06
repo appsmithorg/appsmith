@@ -8,9 +8,8 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 public interface ImportableServiceCE<T extends BaseDomain> {
 
@@ -38,7 +37,7 @@ public interface ImportableServiceCE<T extends BaseDomain> {
         return null;
     }
 
-    default Mono<List<T>> getEntitiesPresentInWorkspace(String workspaceId) {
+    default Flux<T> getEntitiesPresentInWorkspace(String workspaceId) {
         return null;
     }
 }
