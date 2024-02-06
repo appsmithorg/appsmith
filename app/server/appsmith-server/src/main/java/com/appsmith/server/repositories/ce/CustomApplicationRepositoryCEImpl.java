@@ -25,6 +25,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +62,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Optional<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
+    public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
         Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
         Criteria idCriteria = getIdCriteria(id);
 
@@ -72,7 +73,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Optional<Application> findByName(String name, AclPermission permission) {
+    public Mono<Application> findByName(String name, AclPermission permission) {
         Criteria nameCriteria = where("name").is(name);
         return queryBuilder().criteria(nameCriteria).permission(permission).one();
     }
@@ -238,7 +239,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
             String defaultApplicationId, String branchName, Optional<AclPermission> aclPermission) {
 
         String gitApplicationMetadata = "gitApplicationMetadata";
@@ -249,7 +250,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 where(gitApplicationMetadata + ".branchName").is(branchName);
         return queryBuilder()
                 .criteria(defaultAppCriteria, branchNameCriteria)
-                .fields((List<String>) null)
                 .permission(aclPermission.orElse(null))
                 .one();
     }
@@ -271,7 +271,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Optional<Long> countByWorkspaceId(String workspaceId) {
         return Optional.empty(); /*
         Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
-        return this.count(List.of(workspaceIdCriteria));*/
+        return queryBuilder().criteria(workspaceIdCriteria).count();*/
     }
 
     @Override
@@ -350,7 +350,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
         Criteria applicationNameCriteria = where("name").is(applicationName);
 
-        return count(List.of(workspaceIdCriteria, applicationNameCriteria), permission);*/
+        return queryBuilder()
+                .criteria(workspaceIdCriteria, applicationNameCriteria)
+                .permission(permission)
+                .count();*/
     }
 
     @Override

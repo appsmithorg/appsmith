@@ -12,13 +12,16 @@ while not (root / ".git").exists() and root != Path("/"):
 server_root = root / "app/server"
 FILE_CONTENTS_CACHE = {}
 
+SUBSCRIBE_WRAPPER = (
+    "%s.subscribeOn(Schedulers.boundedElastic())"
+)
 MONO_WRAPPER = (
-    "Mono.fromSupplier(() -> %s.orElse(null)).subscribeOn(Schedulers.boundedElastic())"
+    SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s.orElse(null))"
 )
 MONO_WRAPPER_NON_OPTIONAL = (
-    "Mono.fromSupplier(() -> %s).subscribeOn(Schedulers.boundedElastic())"
+    SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
 )
-FLUX_WRAPPER = "Mono.fromSupplier(() -> %s).flatMapMany(Flux::fromIterable).subscribeOn(Schedulers.boundedElastic())"
+FLUX_WRAPPER = SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s).flatMapMany(Flux::fromIterable)"
 
 
 def apply(p, tx):
@@ -177,8 +180,10 @@ def generate_cake_class(domain):
         elif ret_type.startswith(("List", "Iterable")):
             ret_type = ret_type.replace("List", "Flux").replace("Iterable", "Flux")
             wrapper = FLUX_WRAPPER
+        elif ret_type.startswith("Mono<"):
+            wrapper = SUBSCRIBE_WRAPPER
         elif not ret_type.islower():
-            ret_type = "Mono<" + ret_type + ">"
+            ret_type = ("Mono<" + ret_type + ">")
             wrapper = MONO_WRAPPER_NON_OPTIONAL
         else:
             wrapper = "%s"
@@ -343,7 +348,7 @@ def convert(domain):
         raise ValueError(f"{domain} is not a DB Document")
 
     to_entity(domain)
-    switch_repo_types(domain)
+    #switch_repo_types(domain)
     generate_cake_class(domain)
     use_cake(domain)
 

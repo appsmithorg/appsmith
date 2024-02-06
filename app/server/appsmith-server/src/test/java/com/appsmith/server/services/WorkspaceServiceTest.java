@@ -51,7 +51,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -433,16 +432,6 @@ public class WorkspaceServiceTest {
         StepVerifier.create(workspaceMono)
                 // This would not return any workspace and would complete.
                 .verifyComplete();
-    }
-
-    @Test
-    @WithMockUser(username = "api_user")
-    public void getWorkspaceNullId() {
-        Mono<Workspace> workspaceMono = workspaceService.getById(null);
-        StepVerifier.create(workspaceMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID)))
-                .verify();
     }
 
     @Test

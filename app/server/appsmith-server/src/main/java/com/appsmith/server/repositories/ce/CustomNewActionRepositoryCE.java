@@ -8,6 +8,7 @@ import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission);
 
-    Optional<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
+    Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
 
     List<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
@@ -50,7 +51,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Optional<Long> countByDatasourceId(String datasourceId);
 
-    Optional<NewAction> findByBranchNameAndDefaultActionId(
+    Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission);
 
     Optional<NewAction> findByGitSyncIdAndDefaultApplicationId(

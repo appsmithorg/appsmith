@@ -20,10 +20,10 @@ interface Props {
 }
 
 const ActionToolbar = (props: Props) => {
-  const isSideBySideEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_side_by_side_ide_enabled,
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
   );
-  if (!isSideBySideEnabled) return null;
+  if (!isActionRedesignEnabled) return null;
   return (
     <Flex
       alignItems="center"

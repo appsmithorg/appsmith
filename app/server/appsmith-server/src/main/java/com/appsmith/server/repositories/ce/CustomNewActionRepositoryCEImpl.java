@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Optional<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
+    public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
         Criteria nameCriteria = where("unpublishedAction" + "." + "name").is(name);
         Criteria pageCriteria = where("unpublishedAction" + "." + "pageId").is(pageId);
         // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
@@ -400,7 +401,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Optional<NewAction> findByBranchNameAndDefaultActionId(
+    public Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission) {
         final String defaultResources = "defaultResources";
         Criteria defaultActionIdCriteria =

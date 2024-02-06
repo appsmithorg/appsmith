@@ -2,11 +2,13 @@ package com.appsmith.server.repositories.ce.params;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.mongodb.core.query.Criteria;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,12 +40,16 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.queryAllExecute(this);
     }
 
-    public Optional<T> one() {
-        return repo.queryOneExecute(this).blockOptional();
+    public Mono<T> one() {
+        return repo.queryOneExecute(this);
     }
 
     public Optional<T> first() {
         return repo.queryFirstExecute(this).blockOptional();
+    }
+
+    public Mono<Long> count() {
+        return repo.countExecute(this);
     }
 
     public QueryAllParams<T> criteria(Criteria... criteria) {
@@ -64,6 +70,11 @@ public class QueryAllParams<T extends BaseDomain> {
     public QueryAllParams<T> spec(Specification<T> spec) {
         specifications.add(spec);
         return this;
+    }
+
+    public QueryAllParams<T> byId(String id) {
+        final Criteria w = Criteria.where(FieldName.ID);
+        return criteria(id == null ? w.isNull() : w.is(id));
     }
 
     public QueryAllParams<T> fields(String... fields) {

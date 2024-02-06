@@ -635,10 +635,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository.findById(
-                    defaultPageId,
-                    List.of(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES),
-                    pagePermission.getReadPermission());
+            getPageMono = repository
+                    .queryBuilder()
+                    .byId(defaultPageId)
+                    .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
+                    .permission(pagePermission.getReadPermission())
+                    .one();
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(
                     branchName, defaultPageId, pagePermission.getReadPermission());

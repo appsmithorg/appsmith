@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.AppsmithRepository;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +17,9 @@ public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasou
 
     // List<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission);
 
-    Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission);
+    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission);
 
-    Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
+    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
 
     List<Datasource> findAllByIds(Set<String> ids, AclPermission permission);
 

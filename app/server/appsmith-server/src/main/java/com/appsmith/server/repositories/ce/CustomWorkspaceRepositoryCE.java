@@ -4,14 +4,14 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public interface CustomWorkspaceRepositoryCE extends AppsmithRepository<Workspace> {
 
-    Optional<Workspace> findByName(String name, AclPermission aclPermission);
+    Mono<Workspace> findByName(String name, AclPermission aclPermission);
 
     List<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort);
 

@@ -6,6 +6,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.client.result.UpdateResult;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -14,9 +15,9 @@ import java.util.Set;
 
 public interface CustomApplicationRepositoryCE extends AppsmithRepository<Application> {
 
-    Optional<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
+    Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
 
-    Optional<Application> findByName(String name, AclPermission permission);
+    Mono<Application> findByName(String name, AclPermission permission);
 
     List<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
@@ -48,7 +49,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Optional<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission);
 
-    Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
+    Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
             String defaultApplicationId, String branchName, Optional<AclPermission> permission);
 
     Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(

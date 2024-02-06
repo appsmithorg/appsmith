@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +32,7 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
 
     List<ActionCollection> findByPageId(String pageId);
 
-    Optional<ActionCollection> findByBranchNameAndDefaultCollectionId(
+    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission);
 
     Optional<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
