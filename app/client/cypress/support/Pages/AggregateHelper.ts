@@ -1727,10 +1727,10 @@ export class AggregateHelper {
   }
 
   public VisitNAssert(url: string, apiToValidate = "") {
-    // cy.visit(url, { timeout: Cypress.config().pageLoadTimeout });
-    cy.window({ timeout: Cypress.config().pageLoadTimeout }).then((win) => {
-      win.location.href = url;
-    });
+    cy.visit(url, { timeout: Cypress.config().pageLoadTimeout });
+    // cy.window({ timeout: Cypress.config().pageLoadTimeout }).then((win) => {
+    //   win.location.href = url;
+    // });
     this.WaitForCondition(() => cy.url().should("contain", url));
 
     if (
