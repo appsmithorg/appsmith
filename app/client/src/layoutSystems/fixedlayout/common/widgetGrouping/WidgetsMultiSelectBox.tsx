@@ -34,7 +34,11 @@ const StyledSelectionBox = styled.div`
 
 const StyledActions = styled.div`
   margin-top: 5px;
-  margin-left: -38px;
+  margin-left: 5px;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 50ms ease-in-out;
   padding: 5px 0;
   width: max-content;
   position: absolute;
@@ -156,15 +160,17 @@ const StyledActionsContainer = React.memo(
     height?: number;
     left?: number;
     top?: number;
-    width?: number;
+    visibility: boolean;
   }) => {
-    const { children, height, left, top, width } = props;
+    const { children, height, left, top } = props;
 
     return createPortal(
       <StyledActions
         style={{
-          left: Number(width) + Number(left),
-          top: Number(top) + Number(height),
+          left: Number(left),
+          top: Number(top),
+          visibility: !props.visibility ? "hidden" : "visible",
+          flexDirection: height && height < 160 ? "row" : "column",
         }}
       >
         {children}
@@ -191,10 +197,17 @@ function WidgetsMultiSelectBox(props: {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const [boundingClientRect, setBoundingClientRect] = useState<DOMRect | null>(
-    null,
-  );
-
+  const [boundTop, setBoundTop] = useState<number | null>(null);
+  const [boundLeft, setBoundLeft] = useState<number | null>(null);
+  const [menuVisible, setMenuVisible] = React.useState<boolean>(false);
+  const updateBoundingClientRect = () => {
+    const node = draggableRef.current;
+    if (node) {
+      const rect = node.getBoundingClientRect();
+      setBoundLeft(rect.left);
+      setBoundTop(rect.top);
+    }
+  };
   /**
    * the multi-selection bounding box should only render when:
    *
@@ -279,27 +292,37 @@ function WidgetsMultiSelectBox(props: {
    * Update the component positions whenever the component re-renders
    */
   useEffect(() => {
-    const updateBoundingClientRect = () => {
-      const node = draggableRef.current;
-      if (node) {
-        const rect = node.getBoundingClientRect();
-        setBoundingClientRect((prev) => {
-          return rect.left === prev?.left && rect.top === prev?.top
-            ? prev
-            : rect;
-        });
-      }
-    };
-    if (shouldRender) updateBoundingClientRect();
+    if (shouldRender && menuVisible) updateBoundingClientRect();
     // Update the bounding rectangle to handle scroll, resize events
-    const intervalId = shouldRender
-      ? setInterval(() => {
-          updateBoundingClientRect();
-        }, 100)
-      : null;
+    const intervalId =
+      shouldRender && menuVisible
+        ? setInterval(() => {
+            updateBoundingClientRect();
+          }, 100)
+        : null;
 
     return () => {
       if (intervalId) clearInterval(intervalId);
+    };
+  }, [shouldRender, menuVisible]);
+  /**
+   * Check if the multi-select box is shown within the viewport
+   */
+  useEffect(() => {
+    const visibilityObserver = new IntersectionObserver(
+      ([node]) => {
+        setMenuVisible(node.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0.5,
+      },
+    );
+    if (draggableRef.current && shouldRender)
+      visibilityObserver.observe(draggableRef.current);
+    return () => {
+      if (draggableRef.current)
+        visibilityObserver.unobserve(draggableRef.current);
     };
   }, [shouldRender]);
   /**
@@ -384,9 +407,9 @@ function WidgetsMultiSelectBox(props: {
       <StyledSelectBoxHandleBottom />
       <StyledActionsContainer
         height={height}
-        left={boundingClientRect?.left}
-        top={boundingClientRect?.top}
-        width={width}
+        left={boundLeft ?? undefined}
+        top={boundTop ?? undefined}
+        visibility={menuVisible}
       >
         {/* copy widgets */}
         <Tooltip
