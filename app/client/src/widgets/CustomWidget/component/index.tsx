@@ -25,6 +25,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 
 const StyledIframe = styled.iframe<{
   componentWidth: number;
@@ -157,7 +158,7 @@ function CustomComponent(props: CustomComponentProps) {
           type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
           ui: {
             width: props.width,
-            height: props.height,
+            height: height,
           },
         },
         "*",
@@ -167,7 +168,7 @@ function CustomComponent(props: CustomComponentProps) {
     if (props.dynamicHeight === DynamicHeight.FIXED) {
       setHeight(props.height);
     }
-  }, [props.width, props.height]);
+  }, [props.width, height]);
 
   useEffect(() => {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
@@ -278,9 +279,10 @@ export const mapStateToProps = (
 
   return {
     needsOverlay:
-      ownProps.renderMode === "EDITOR" &&
-      !isPreviewMode &&
-      ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId,
+      (ownProps.renderMode === "EDITOR" &&
+        !isPreviewMode &&
+        ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId) ||
+      getIsAutoHeightWithLimitsChanging(state),
   };
 };
 
