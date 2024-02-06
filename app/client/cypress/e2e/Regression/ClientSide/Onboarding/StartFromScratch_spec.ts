@@ -54,6 +54,7 @@ describe(
         .first()
         .prev()
         .should("have.text", "Building Blocks");
+      agHelper.GetNClick(template.closeButton);
     });
 
     it("2. `Connect your data` pop up should come up when we fork a building block from canvas.", function () {
