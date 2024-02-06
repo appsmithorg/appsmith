@@ -421,7 +421,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
         return applicationService
-                .findById(applicationId, Optional.empty())
+                .findById(applicationId, null)
                 .flatMap(application -> sendImportExportApplicationAnalyticsEvent(application, event));
     }
 

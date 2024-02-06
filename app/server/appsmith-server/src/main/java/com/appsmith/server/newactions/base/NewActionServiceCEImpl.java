@@ -644,7 +644,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         action.setUserSetOnLoad(null);
 
         Mono<NewAction> updatedActionMono = repository
-                .findById(id, permission)
+                .findById(id, permission.orElse(null))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
                     final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();

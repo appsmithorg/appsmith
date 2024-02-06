@@ -281,8 +281,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
         Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.id)).in(pageIds);
 
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
 
         return permissionGroupsMono.flatMap(permissionGroups -> {
             return Mono.fromCallable(() -> {

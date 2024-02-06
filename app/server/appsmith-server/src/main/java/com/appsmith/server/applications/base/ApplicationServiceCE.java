@@ -23,8 +23,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> findById(String id, AclPermission aclPermission);
 
-    Mono<Application> findById(String id, Optional<AclPermission> aclPermission);
-
     Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
 
     Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);

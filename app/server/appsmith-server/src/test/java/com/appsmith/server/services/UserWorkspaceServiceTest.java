@@ -198,6 +198,10 @@ public class UserWorkspaceServiceTest {
 
         Mono<User> userMono = userWorkspaceService
                 .leaveWorkspace(createdWorkspace.getId())
+                .map(x -> {
+                    System.out.println(x);
+                    return x;
+                })
                 .then(userWorkspaceService.leaveWorkspace(createdWorkspace.getId()));
 
         StepVerifier.create(userMono)

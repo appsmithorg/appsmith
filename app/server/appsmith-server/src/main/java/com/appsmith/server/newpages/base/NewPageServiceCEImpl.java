@@ -133,7 +133,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
-        return repository.findById(pageId, aclPermission);
+        return repository.findById(pageId, aclPermission.orElse(null));
     }
 
     @Override

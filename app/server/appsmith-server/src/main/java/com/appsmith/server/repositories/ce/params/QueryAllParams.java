@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.NO_RECORD_LIMIT;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.NO_SKIP;
 
 @Getter
 public class QueryAllParams<T extends BaseDomain> {
@@ -27,8 +26,22 @@ public class QueryAllParams<T extends BaseDomain> {
     private AclPermission permission;
     private Set<String> permissionGroups;
     private Sort sort;
+
+    /**
+     * The number of records to return. Defaults to -1, indicating no limit.
+     */
     private int limit = NO_RECORD_LIMIT;
-    private int skip = NO_SKIP;
+
+    /**
+     * The number of records to skip before returning the results. Defaults to 0.
+     */
+    private int skip = 0;
+
+    /**
+     * When this flag is true, permission checks will include the affects of anonymous user permissions. This is the
+     * default and very-usually, what we want. When it's false, we are only checking for the permissions of the user.
+     */
+    private boolean includeAnonymousUserPermissions = true;
 
     public QueryAllParams(BaseAppsmithRepositoryCEImpl<T> repo) {
         this.repo = repo;
@@ -104,6 +117,11 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public QueryAllParams<T> skip(int skip) {
         this.skip = skip;
+        return this;
+    }
+
+    public QueryAllParams<T> includeAnonymousUserPermissions(boolean value) {
+        includeAnonymousUserPermissions = value;
         return this;
     }
 }

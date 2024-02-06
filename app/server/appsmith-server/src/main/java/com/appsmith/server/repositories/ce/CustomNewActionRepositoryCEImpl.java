@@ -580,8 +580,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
         Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
 
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
 
         return permissionGroupsMono
                 .flatMap(permissionGroups -> {
@@ -673,10 +672,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
-        return queryBuilder()
-                .criteria(criteriaList)
-                .permission(Optional.ofNullable(permission).orElse(null))
-                .all();
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 
     @Override
@@ -701,9 +697,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
-        return queryBuilder()
-                .criteria(criteriaList)
-                .permission(Optional.ofNullable(permission).orElse(null))
-                .all();
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 }

@@ -8,7 +8,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -658,11 +657,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private Mono<Boolean> checkPermissionsForForking(
             String srcApplicationId, String targetWorkspaceId, String branchName) {
         Optional<String> optionalBranchName = Optional.ofNullable(branchName);
-        Optional<AclPermission> optionalAclPermission = Optional.empty();
         Mono<Application> applicationMonoWithOutPermission = applicationService
-                .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
-                .flatMap(branchedApplicationId ->
-                        applicationService.findById(branchedApplicationId, optionalAclPermission))
+                .findBranchedApplicationId(optionalBranchName, srcApplicationId, Optional.empty())
+                .flatMap(branchedApplicationId -> applicationService.findById(branchedApplicationId, null))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
