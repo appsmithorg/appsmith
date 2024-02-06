@@ -11,13 +11,12 @@ import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.opentelemetry.api.trace.Span;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -49,20 +49,19 @@ public class ActionControllerCE {
     private final NewActionService newActionService;
     private final RefactoringService refactoringService;
     private final ActionExecutionSolution actionExecutionSolution;
-    private final OtlpTelemetry otlpTelemetry;
+    private final ObservationRegistry observationRegistry;
 
     @Autowired
     public ActionControllerCE(
-            LayoutActionService layoutActionService,
-            NewActionService newActionService,
-            RefactoringService refactoringService,
-            ActionExecutionSolution actionExecutionSolution,
-            OtlpTelemetry otlpTelemetry) {
+        LayoutActionService layoutActionService,
+        NewActionService newActionService,
+        RefactoringService refactoringService,
+        ActionExecutionSolution actionExecutionSolution, ObservationRegistry observationRegistry) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
         this.refactoringService = refactoringService;
         this.actionExecutionSolution = actionExecutionSolution;
-        this.otlpTelemetry = otlpTelemetry;
+        this.observationRegistry = observationRegistry;
     }
 
     @JsonView(Views.Public.class)
@@ -97,9 +96,8 @@ public class ActionControllerCE {
             @RequestBody Flux<Part> partFlux,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
-            @RequestHeader(value = OtlpTelemetry.OTLP_HEADER_KEY, required = false) String traceparent,
+            @RequestHeader(name = "traceparent", required = false) String traceparent,
             ServerWebExchange serverWebExchange) {
-        Span span = this.otlpTelemetry.startOtlpSpanFromTraceparent("action service execute", traceparent);
 
         return actionExecutionSolution
                 .executeAction(
@@ -108,7 +106,8 @@ public class ActionControllerCE {
                         environmentId,
                         serverWebExchange.getRequest().getHeaders())
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null))
-                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(span));
+            .name("appsmith.test-action-1-sumit")
+            .tap(Micrometer.observation(observationRegistry));
     }
 
     @JsonView(Views.Public.class)
