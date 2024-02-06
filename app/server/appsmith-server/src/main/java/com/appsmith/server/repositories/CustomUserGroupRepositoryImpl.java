@@ -98,7 +98,7 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
 
     @Override
     public Mono<Long> countAllReadableUserGroups() {
-        return count(List.of(), AclPermission.READ_USER_GROUPS);
+        return queryBuilder().permission(AclPermission.READ_USER_GROUPS).count();
     }
 
     @Override
@@ -137,7 +137,10 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
                 .limit(count)
                 .skip(startIndex)
                 .all();
-        Mono<Long> countMono = count(criteriaList, aclPermission);
+        Mono<Long> countMono = queryBuilder()
+                .criteria(criteriaList)
+                .permission(aclPermission.orElse(null))
+                .count();
         return Mono.zip(countMono, userFlux.collectList()).map(pair -> {
             Long totalFilteredUserGroups = pair.getT1();
             List<UserGroup> userGroupsPage = pair.getT2();
@@ -149,7 +152,10 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     public Mono<Long> countAllUserGroupsByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =
                 Criteria.where(fieldName(QUserGroup.userGroup.isProvisioned)).is(isProvisioned);
-        return count(List.of(criteriaIsProvisioned), aclPermission);
+        return queryBuilder()
+                .criteria(criteriaIsProvisioned)
+                .permission(aclPermission.orElse(null))
+                .count();
     }
 
     @Override

@@ -30,7 +30,12 @@ public class PackagePermissionCheckerImpl implements PackagePermissionChecker {
                 fieldName(QPackage.package$.version),
                 fieldName(QPackage.package$.policies),
                 fieldName(QPackage.package$.workspaceId));
-        return packageRepository.findById(packageId, projectionFieldNames, permission);
+        return packageRepository
+                .queryBuilder()
+                .byId(packageId)
+                .fields(projectionFieldNames)
+                .permission(permission)
+                .one();
     }
 
     @Override

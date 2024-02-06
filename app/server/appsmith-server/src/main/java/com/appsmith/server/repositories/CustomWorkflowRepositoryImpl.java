@@ -57,7 +57,6 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
     public Flux<Workflow> findAll(
             Optional<AclPermission> permission, Optional<List<String>> includeFields, Optional<Sort> sortBy) {
         return queryBuilder()
-                .criteria(List.of())
                 .fields(includeFields.orElse(null))
                 .permission(permission.orElse(null))
                 .sort(sortBy.orElse(null))

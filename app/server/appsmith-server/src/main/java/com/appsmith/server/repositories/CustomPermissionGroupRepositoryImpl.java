@@ -34,7 +34,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
 
     @Override
     public Flux<PermissionGroup> findAll(AclPermission aclPermission) {
-        return queryBuilder().criteria(List.of()).permission(aclPermission).all();
+        return queryBuilder().permission(aclPermission).all();
     }
 
     @Override
@@ -93,7 +93,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
 
     @Override
     public Mono<Long> countAllReadablePermissionGroups() {
-        return count(List.of(), AclPermission.READ_PERMISSION_GROUPS);
+        return queryBuilder().permission(AclPermission.READ_PERMISSION_GROUPS).count();
     }
 
     public Flux<PermissionGroup> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {

@@ -85,7 +85,12 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
         //            .is(branchName);
         //        return queryBuilder().criteria(defaultAppCriteria,
         // branchNameCriteria).fields(projectionFieldNames).permission(aclPermission).one();
-        return findById(defaultPackageId, projectionFieldNames, aclPermission);
+        return CustomPackageRepositoryImpl.this
+                .queryBuilder()
+                .byId(defaultPackageId)
+                .fields(projectionFieldNames)
+                .permission(aclPermission)
+                .one();
     }
 
     @Override

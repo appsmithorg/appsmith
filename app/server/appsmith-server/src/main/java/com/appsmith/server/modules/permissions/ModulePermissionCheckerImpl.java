@@ -35,7 +35,12 @@ public class ModulePermissionCheckerImpl implements ModulePermissionChecker {
                 fieldName(QModule.module.packageUUID),
                 fieldName(QModule.module.policies),
                 fieldName(QModule.module.moduleUUID));
-        return repository.findById(moduleId, projectionFieldNames, permission);
+        return repository
+                .queryBuilder()
+                .byId(moduleId)
+                .fields(projectionFieldNames)
+                .permission(permission)
+                .one();
     }
 
     @Override

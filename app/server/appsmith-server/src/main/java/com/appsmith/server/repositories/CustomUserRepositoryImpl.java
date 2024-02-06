@@ -113,7 +113,10 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
                 .limit(count)
                 .skip(startIndex)
                 .all();
-        Mono<Long> countMono = count(criteriaList, aclPermission);
+        Mono<Long> countMono = queryBuilder()
+                .criteria(criteriaList)
+                .permission(aclPermission.orElse(null))
+                .count();
         return Mono.zip(countMono, userFlux.collectList()).map(pair -> {
             Long totalFilteredUsers = pair.getT1();
             List<User> usersPage = pair.getT2();
@@ -141,7 +144,10 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     public Mono<Long> countAllUsersByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =
                 Criteria.where(fieldName(QUser.user.isProvisioned)).is(isProvisioned);
-        return count(List.of(criteriaIsProvisioned), aclPermission);
+        return queryBuilder()
+                .criteria(criteriaIsProvisioned)
+                .permission(aclPermission.orElse(null))
+                .count();
     }
 
     @Override
@@ -200,6 +206,6 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     @Override
     public Mono<Long> countAllUsers(MultiValueMap<String, String> queryParams, AclPermission aclPermission) {
         List<Criteria> criteriaList = getCriteriaListFromFilters(queryParams);
-        return count(criteriaList, Optional.of(aclPermission));
+        return queryBuilder().criteria(criteriaList).permission(aclPermission).count();
     }
 }

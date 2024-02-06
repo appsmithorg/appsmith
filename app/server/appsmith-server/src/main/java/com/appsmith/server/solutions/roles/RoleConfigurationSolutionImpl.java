@@ -713,10 +713,22 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         }
 
         if (toBeAdded != null) {
+            List<String> projectionFieldNames1 = List.of(fieldName(QNewPage.newPage.applicationId));
             Mono<String> workspaceIdMono = newPageRepository
-                    .findById(id, List.of(fieldName(QNewPage.newPage.applicationId)), null)
-                    .flatMap(newPage -> applicationRepository.findById(
-                            newPage.getApplicationId(), List.of(fieldName(QApplication.application.workspaceId)), null))
+                    .queryBuilder()
+                    .byId(id)
+                    .fields(projectionFieldNames1)
+                    .permission(null)
+                    .one()
+                    .flatMap(newPage -> {
+                        List<String> projectionFieldNames = List.of(fieldName(QApplication.application.workspaceId));
+                        return applicationRepository
+                                .queryBuilder()
+                                .byId(newPage.getApplicationId())
+                                .fields(projectionFieldNames)
+                                .permission(null)
+                                .one();
+                    })
                     .map(Application::getWorkspaceId)
                     .cache();
 
@@ -886,20 +898,26 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
+        List<String> projectionFieldNames = List.of(
+                fieldName(QModuleInstance.moduleInstance.originModuleId),
+                fieldName(QModuleInstance.moduleInstance.workspaceId));
         Mono<ModuleInstance> moduleInstanceMono = moduleInstanceRepository
-                .findById(
-                        id,
-                        List.of(
-                                fieldName(QModuleInstance.moduleInstance.originModuleId),
-                                fieldName(QModuleInstance.moduleInstance.workspaceId)),
-                        null)
+                .queryBuilder()
+                .byId(id)
+                .fields(projectionFieldNames)
+                .permission(null)
+                .one()
                 .cache();
         Flux<Module> moduleFlux = moduleInstanceMono
                 .flatMapMany(moduleInstance -> {
                     List<String> moduleFields =
                             List.of(fieldName(QModule.module.id), fieldName(QModule.module.packageId));
-                    Mono<Module> byIdMono =
-                            moduleRepository.findById(moduleInstance.getOriginModuleId(), moduleFields, null);
+                    Mono<Module> byIdMono = moduleRepository
+                            .queryBuilder()
+                            .byId(moduleInstance.getOriginModuleId())
+                            .fields(moduleFields)
+                            .permission(null)
+                            .one();
                     return moduleRepository
                             .findAllByOriginModuleId(moduleInstance.getOriginModuleId(), moduleFields, Optional.empty())
                             .concatWith(byIdMono);

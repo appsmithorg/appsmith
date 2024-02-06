@@ -48,7 +48,10 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         Criteria moduleIdCriteria =
                 where(fieldName(QModuleInstance.moduleInstance.moduleUUID)).is(moduleUUID);
 
-        return count(List.of(moduleIdCriteria), Optional.empty());
+        return queryBuilder()
+                .criteria(moduleIdCriteria)
+                .permission(Optional.<AclPermission>empty().orElse(null))
+                .count();
     }
 
     @Override
@@ -213,7 +216,10 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         Criteria moduleIdCriteria =
                 where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
 
-        return count(List.of(moduleIdCriteria), permission);
+        return queryBuilder()
+                .criteria(moduleIdCriteria)
+                .permission(permission.orElse(null))
+                .count();
     }
 
     @Override

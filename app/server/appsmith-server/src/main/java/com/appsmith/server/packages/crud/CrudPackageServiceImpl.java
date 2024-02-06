@@ -118,7 +118,11 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                             defaultPackageId + "," + branchName)));
         }
         return repository
-                .findById(defaultPackageId, projectionFieldNames, aclPermission)
+                .queryBuilder()
+                .byId(defaultPackageId)
+                .fields(projectionFieldNames)
+                .permission(aclPermission)
+                .one()
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE, defaultPackageId)));
     }
