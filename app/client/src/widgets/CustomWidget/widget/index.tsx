@@ -26,6 +26,7 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import {
   CUSTOM_WIDGET_DEFAULT_MODEL_DOC_URL,
   CUSTOM_WIDGET_DOC_URL,
+  CUSTOM_WIDGET_HEIGHT_DOC_URL,
 } from "pages/Editor/CustomWidgetBuilder/constants";
 import { Link } from "design-system";
 import styled from "styled-components";
@@ -85,6 +86,27 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         sectionIndex: 2,
         active: true,
         defaultValue: DynamicHeight.FIXED,
+        helperText: (props: WidgetProps) => {
+          if (props.dynamicHeight !== DynamicHeight.FIXED) {
+            return (
+              <div className="leading-5 mt-[10px]">
+                Make sure the container of the custom widget doesn&apos;t have
+                any height and allowed to expand for the auto height feature to
+                work properly{" "}
+                <StyledLink
+                  kind="secondary"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  to={CUSTOM_WIDGET_HEIGHT_DOC_URL}
+                >
+                  Read more
+                </StyledLink>
+              </div>
+            );
+          } else {
+            return null;
+          }
+        },
       },
     };
   }
@@ -408,6 +430,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         dynamicHeight={this.props.dynamicHeight}
         execute={this.execute}
         height={this.props.componentHeight - WIDGET_PADDING * 2}
+        minDynamicHeight={this.props.minDynamicHeight}
         model={this.props.model || {}}
         renderMode={this.getRenderMode()}
         srcDoc={this.props.srcDoc}

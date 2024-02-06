@@ -85,6 +85,7 @@ export default function Preview() {
         }}
         height={dimensions.height}
         key={key}
+        minDynamicHeight={0}
         model={model || {}}
         onConsole={(type, args) => {
           updateDebuggerLogs?.({

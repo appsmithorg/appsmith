@@ -26,13 +26,16 @@ import { EVENTS } from "./customWidgetscript";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
+import { GridDefaults } from "constants/WidgetConstants";
 
 const StyledIframe = styled.iframe<{
   componentWidth: number;
   componentHeight: number;
+  componentMinHeight: number;
 }>`
   width: ${(props) => props.componentWidth}px;
   height: ${(props) => props.componentHeight}px;
+  min-height: ${(props) => props.componentMinHeight}px;
 `;
 
 const OverlayDiv = styled.div`
@@ -164,10 +167,6 @@ function CustomComponent(props: CustomComponentProps) {
         "*",
       );
     }
-
-    if (props.dynamicHeight === DynamicHeight.FIXED) {
-      setHeight(props.height);
-    }
   }, [props.width, height]);
 
   useEffect(() => {
@@ -181,6 +180,13 @@ function CustomComponent(props: CustomComponentProps) {
       );
     }
   }, [theme]);
+
+  useEffect(() => {
+    if (props.dynamicHeight === DynamicHeight.FIXED) {
+      iframe.current?.style.setProperty("height", `${props.height}px`);
+      setHeight(props.height);
+    }
+  }, [props.dynamicHeight, props.height, iframe.current]);
 
   const srcDoc = `
     <html>
@@ -225,6 +231,11 @@ function CustomComponent(props: CustomComponentProps) {
       >
         <StyledIframe
           componentHeight={height}
+          componentMinHeight={
+            props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+              ? props.minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+              : 0
+          }
           componentWidth={props.width}
           loading="lazy"
           onLoad={() => {
@@ -266,6 +277,7 @@ export interface CustomComponentProps {
   boxShadow?: BoxShadow;
   widgetId: string;
   dynamicHeight: DynamicHeight;
+  minDynamicHeight: number;
 }
 
 /**
