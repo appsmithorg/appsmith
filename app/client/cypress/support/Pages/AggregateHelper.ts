@@ -1731,6 +1731,7 @@ export class AggregateHelper {
       cy.visit(url).then((contentWindow) => {
         expect(contentWindow.document).to.exist;
       });
+      cy.url().should("match", url);
     });
     // cy.window({ timeout: 60000 }).then((win) => {
     //   win.location.href = url;
