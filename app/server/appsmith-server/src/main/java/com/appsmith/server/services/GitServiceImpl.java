@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -190,8 +191,10 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                             .getGitApplicationMetadata()
                             .getDefaultBranchName();
 
-                    return sendAnalyticsForDefaultBranch(
-                                    defaultBranchedApplication, oldDefaultBranch, newDefaultBranchName)
+                    Map<String, Object> map = Map.of(
+                            "old_branch", oldDefaultBranch,
+                            "new_branch", newDefaultBranchName);
+                    return sendGitAnalyticsEvent(GIT_UPDATE_DEFAULT_BRANCH, defaultBranchedApplication, map)
                             .thenReturn(newDefaultBranchName);
                 })
                 .thenReturn(newDefaultBranchName);
@@ -242,23 +245,6 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                     return Mono.justOrEmpty(gitApplicationMetadata.getBranchProtectionRules());
                 })
                 .defaultIfEmpty(List.of());
-    }
-
-    private Mono<Void> sendAnalyticsForDefaultBranch(
-            Application application, String oldDefaultBranch, String newDefaultBranch) {
-        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-        Map<String, Object> analyticsProps = new HashMap<>();
-        analyticsProps.put("appId", gitData.getDefaultApplicationId());
-        analyticsProps.put("orgId", application.getWorkspaceId());
-        analyticsProps.put("old_branch", oldDefaultBranch);
-        analyticsProps.put("new_branch", newDefaultBranch);
-        analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
-        analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
-
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(user -> analyticsService.sendEvent(
-                        GIT_UPDATE_DEFAULT_BRANCH.getEventName(), user.getUsername(), analyticsProps));
     }
 
     /**
@@ -366,6 +352,9 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                         FieldName.APPLICATION,
                         defaultApplicationId + "," + branchName)))
                 .then(discardChanges(defaultApplicationId, branchName))
+                .flatMap(application -> sendGitAnalyticsEvent(
+                                AnalyticsEvents.GIT_PULL, application, Map.of("viaCD", Boolean.TRUE))
+                        .thenReturn(application))
                 .map(application -> {
                     GitDeployApplicationResultDTO resultDTO = new GitDeployApplicationResultDTO();
                     resultDTO.setApplicationId(defaultApplicationId);
@@ -443,7 +432,42 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
 
                     return applicationService
                             .save(application)
+                            .flatMap(savedApplication -> {
+                                // send the analytics event
+                                if (!gitApplicationMetadata.isAutoDeploymentEnabled()) {
+                                    return sendGitAnalyticsEvent(
+                                            AnalyticsEvents.GIT_CD_DISABLED, savedApplication, null);
+                                } else {
+                                    return Mono.empty();
+                                }
+                            })
                             .thenReturn(gitApplicationMetadata.isAutoDeploymentEnabled());
                 });
+    }
+
+    /**
+     * Generic method to send analytics for git operations.
+     * @param analyticsEvents Name of the event
+     * @param application Application object
+     * @param extraProps Extra properties that need to be passed along with default ones.
+     * @return A void mono
+     */
+    protected Mono<Void> sendGitAnalyticsEvent(
+            AnalyticsEvents analyticsEvents, Application application, Map<String, Object> extraProps) {
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        Map<String, Object> analyticsProps = new HashMap<>();
+        analyticsProps.put("appId", gitData.getDefaultApplicationId());
+        analyticsProps.put("orgId", application.getWorkspaceId());
+        analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+        analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
+
+        if (extraProps != null) {
+            analyticsProps.putAll(extraProps);
+        }
+
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user ->
+                        analyticsService.sendEvent(analyticsEvents.getEventName(), user.getUsername(), analyticsProps));
     }
 }

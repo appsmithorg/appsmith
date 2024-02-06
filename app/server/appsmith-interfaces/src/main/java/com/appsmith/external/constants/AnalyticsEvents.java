@@ -108,6 +108,7 @@ public enum AnalyticsEvents {
 
     // event triggered when there's a change in the default branch
     GIT_UPDATE_DEFAULT_BRANCH,
+    GIT_CD_DISABLED,
     ;
 
     private final String eventName;

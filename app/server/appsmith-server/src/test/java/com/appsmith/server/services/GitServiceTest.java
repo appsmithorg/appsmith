@@ -57,6 +57,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_CD_DISABLED;
+import static com.appsmith.external.constants.AnalyticsEvents.GIT_PULL;
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_REMOVE_PROTECTED_BRANCH;
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_UPDATE_DEFAULT_BRANCH;
 import static com.appsmith.external.constants.GitConstants.ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED;
@@ -937,7 +939,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void toggleAutoDeploymentConfig_WhenFeatureFlagIsOff_ThrowsError() {
+    public void toggleAutoDeploymentSettings_WhenFeatureFlagIsOff_ThrowsError() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
                 .thenReturn(Mono.just(FALSE));
 
@@ -947,7 +949,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void toggleAutoDeploymentConfig_WhenNoConfigExists_Enabled() {
+    public void toggleAutoDeploymentSettings_WhenNoConfigExists_Enabled() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
@@ -971,7 +973,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void toggleAutoDeploymentConfig_WhenConfigIsTrue_Disabled() {
+    public void toggleAutoDeploymentSettings_WhenConfigIsTrue_Disabled() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
@@ -987,13 +989,15 @@ public class GitServiceTest {
                         .then(gitService.toggleAutoDeploymentSettings(defaultApplicationId)))
                 .assertNext(aBoolean -> {
                     assertThat(aBoolean).isFalse();
+                    Mockito.verify(analyticsService, times(1))
+                            .sendEvent(eq(GIT_CD_DISABLED.getEventName()), any(), anyMap());
                 })
                 .verifyComplete();
     }
 
     @Test
     @WithUserDetails("api_user")
-    public void configureAutoDeployment_WhenConfigIsDisabled_Enabled() {
+    public void toggleAutoDeploymentSettings_WhenConfigIsDisabled_Enabled() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_continuous_delivery_enabled)))
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
@@ -1099,6 +1103,7 @@ public class GitServiceTest {
                 .assertNext(application -> {
                     assertThat(application.getPages().size()).isEqualTo(2);
                     assertThat(application.getPublishedPages().size()).isEqualTo(2);
+                    Mockito.verify(analyticsService, times(1)).sendEvent(eq(GIT_PULL.getEventName()), any(), anyMap());
                 })
                 .verifyComplete();
     }
