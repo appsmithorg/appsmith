@@ -856,25 +856,3 @@ export const getPartnerProgramCalloutShown = async () => {
     log.error(error);
   }
 };
-
-export const setUsersFirstApplicationId = async (appId: string) => {
-  try {
-    await store.setItem(STORAGE_KEYS.USERS_FIRST_APPLICATION_ID, appId);
-    return true;
-  } catch (error) {
-    log.error("An error occurred while setting USERS_FIRST_APPLICATION_ID");
-    log.error(error);
-  }
-};
-
-export const getUsersFirstApplicationId = async () => {
-  try {
-    const firstApplicationId: string | null = await store.getItem(
-      STORAGE_KEYS.USERS_FIRST_APPLICATION_ID,
-    );
-    return firstApplicationId;
-  } catch (error) {
-    log.error("An error occurred while fetching USERS_FIRST_APPLICATION_ID");
-    log.error(error);
-  }
-};
