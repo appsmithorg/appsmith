@@ -8,7 +8,12 @@ import type { SIZES } from "../../../shared";
 export interface ModalProps
   extends Pick<
       PopoverProps,
-      "isOpen" | "setOpen" | "onClose" | "triggerRef" | "initialFocus"
+      | "isOpen"
+      | "setOpen"
+      | "onClose"
+      | "triggerRef"
+      | "initialFocus"
+      | "dismissClickOutside"
     >,
     Pick<PopoverModalContentProps, "overlayClassName"> {
   /** Size of the Modal
