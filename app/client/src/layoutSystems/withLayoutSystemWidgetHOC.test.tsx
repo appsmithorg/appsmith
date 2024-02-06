@@ -251,9 +251,10 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
-      const flexPositionedLayer = component.container.getElementsByClassName(
-        "anvil-layout-child-" + widgetProps.widgetId,
-      )[0];
+      const flexPositionedLayer =
+        component.container.ownerDocument.getElementById(
+          "anvil_widget_" + widgetProps.widgetId,
+        );
       expect(flexPositionedLayer).toBeTruthy();
     });
   });

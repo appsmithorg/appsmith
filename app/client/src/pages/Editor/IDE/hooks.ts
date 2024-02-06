@@ -18,11 +18,11 @@ import {
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
-import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
 import isEmpty from "lodash/isEmpty";
 import pickBy from "lodash/pickBy";
 import { getFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);

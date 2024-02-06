@@ -33,6 +33,8 @@ import SegmentedControl from "components/formControls/SegmentedControl";
 import type { SegmentedControlProps } from "components/formControls/SegmentedControl";
 import FormTemplateControl from "components/formControls/FormTemplateControl";
 import type { FormTemplateControlProps } from "components/formControls/FormTemplateControl";
+import MultiFilePickerControl from "components/formControls/MultiFilePickerControl";
+import type { MultipleFilePickerControlProps } from "components/formControls/MultiFilePickerControl";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
@@ -171,6 +173,16 @@ class FormControlRegistry {
         return <FormTemplateControl {...controlProps} />;
       },
     });
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.MULTIPLE_FILE_PICKER,
+      {
+        buildPropertyControl(
+          controlProps: MultipleFilePickerControlProps,
+        ): JSX.Element {
+          return <MultiFilePickerControl {...controlProps} />;
+        },
+      },
+    );
   }
 }
 

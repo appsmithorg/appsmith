@@ -192,7 +192,6 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     cy.xpath("//input[@value='Success']");
     // navigate to Page1 and verify data
     cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
     table.AssertTableLoaded();
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
@@ -212,7 +211,6 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     cy.xpath("//input[@value='Success']");
     // navigate to Page1 and verify data
     cy.get(".t--page-switch-tab").contains("Page1 Copy").click({ force: true });
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
     table.AssertTableLoaded(0, 1, "v1");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
