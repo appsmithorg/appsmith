@@ -12,45 +12,32 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { EntityClassNames } from "../Entity";
-import history, { NavigationMethod } from "utils/history";
-import { createNewPageFromEntities, updatePage } from "actions/pageActions";
-import { defaultPageIcon, pageIcon } from "../ExplorerIcons";
+import { createNewPageFromEntities } from "actions/pageActions";
 import { ADD_PAGE_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import PageContextMenu from "./PageContextMenu";
-import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
-import { builderURL, widgetListURL } from "@appsmith/RouteBuilder";
 import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import AddPageContextMenu from "./AddPageContextMenu";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
-import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "@appsmith//selectors/tenantSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import {
-  getHasCreatePagePermission,
-  getHasManagePagePermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getHasCreatePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import {
   ENTITY_HEIGHT,
   RelativeContainer,
   StyledEntity,
 } from "../Common/components";
 import { EntityExplorerResizeHandler } from "../Common/EntityExplorerResizeHandler";
-import {
-  PERMISSION_TYPE,
-  isPermitted,
-} from "@appsmith/utils/permissionHelpers";
+import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -77,28 +64,6 @@ function Pages() {
       setTimeout(() => currentPage.scrollIntoView(), 0);
     }
   }, [currentPageId]);
-
-  const switchPage = useCallback(
-    (page: Page) => {
-      const navigateToUrl =
-        currentPageId === page.pageId
-          ? widgetListURL({})
-          : builderURL({
-              pageId: page.pageId,
-            });
-      AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
-        name: page.pageName,
-        fromUrl: location.pathname,
-        type: "PAGES",
-        toUrl: navigateToUrl,
-      });
-      dispatch(toggleInOnboardingWidgetSelection(true));
-      history.push(navigateToUrl, {
-        invokedBy: NavigationMethod.EntityExplorer,
-      });
-    },
-    [location.pathname, currentPageId],
-  );
 
   const [isMenuOpen, openMenu] = useState(false);
 
@@ -148,59 +113,10 @@ function Pages() {
     isFeatureEnabled,
     userAppPermissions,
   );
-  const hasExportPermission = isPermitted(
-    userAppPermissions ?? [],
-    PERMISSION_TYPE.EXPORT_APPLICATION,
-  );
 
   const pageElements = useMemo(
-    () =>
-      pages.map((page) => {
-        const icon = page.isDefault ? defaultPageIcon : pageIcon;
-        const isCurrentPage = currentPageId === page.pageId;
-        const pagePermissions = page.userPermissions;
-        const canManagePages = getHasManagePagePermission(
-          isFeatureEnabled,
-          pagePermissions,
-        );
-
-        const contextMenu = (
-          <PageContextMenu
-            applicationId={applicationId as string}
-            className={EntityClassNames.CONTEXT_MENU}
-            hasExportPermission={hasExportPermission}
-            isCurrentPage={isCurrentPage}
-            isDefaultPage={page.isDefault}
-            isHidden={!!page.isHidden}
-            key={page.pageId + "_context-menu"}
-            name={page.pageName}
-            pageId={page.pageId}
-          />
-        );
-
-        return (
-          <StyledEntity
-            action={() => switchPage(page)}
-            active={isCurrentPage}
-            canEditEntityName={canManagePages}
-            className={`page ${isCurrentPage && "activePage"}`}
-            contextMenu={contextMenu}
-            disabled={page.isHidden}
-            entityId={page.pageId}
-            icon={icon}
-            isDefaultExpanded={isCurrentPage}
-            key={page.pageId}
-            name={page.pageName}
-            onNameEdit={resolveAsSpaceChar}
-            searchKeyword={""}
-            step={1}
-            updateEntityName={(id, name) =>
-              updatePage({ id, name, isHidden: !!page.isHidden })
-            }
-          />
-        );
-      }),
-    [pages, currentPageId, applicationId, location.pathname],
+    () => pages.map((page) => <PageElement key={page.pageId} page={page} />),
+    [pages, location.pathname],
   );
 
   return (
