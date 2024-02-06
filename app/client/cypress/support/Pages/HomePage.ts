@@ -431,7 +431,8 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.VisitNAssert("/user/signup"); //getConsolidatedData
+    this.agHelper.VisitNAssert("/user/signup");
+    getConsolidatedDataApi({}, false);
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
     this.agHelper.TypeText(this.signupUsername, uname);
