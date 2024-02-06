@@ -198,6 +198,7 @@ export function getHighlightsForRow(
   let highlights: AnvilHighlightInfo[] = [];
   let index = 0;
   let draggedWidgetCount = 0;
+  let skipNextWidgetHighlight = false;
   const tallestDimension = getDimensions(tallestWidget.widgetId);
 
   const layoutDimensions: LayoutElementPosition = getDimensions(
@@ -214,7 +215,7 @@ export function getHighlightsForRow(
       index === 0 ? undefined : row[index - 1];
 
     // Don't add highlights for widget if it is being dragged.
-    if (!isDraggedWidget) {
+    if (!skipNextWidgetHighlight) {
       // Add a highlight before every widget in the row
       highlights = updateHighlights(
         highlights,
@@ -226,12 +227,16 @@ export function getHighlightsForRow(
         index + startingIndex - draggedWidgetCount,
         false,
       );
-    } else draggedWidgetCount += 1;
-
+      skipNextWidgetHighlight = false;
+    }
+    if (isDraggedWidget) {
+      draggedWidgetCount += 1;
+      skipNextWidgetHighlight = true;
+    }
     index += 1;
 
     // Add a highlight after the last widget in the row.
-    if (index === row.length) {
+    if (index === row.length && draggedWidgetCount === 0) {
       highlights = updateHighlights(
         highlights,
         baseHighlight,
@@ -345,6 +350,7 @@ export function getHighlightsForLayoutRow(
 
   let index = 0;
   let discardedLayouts: number = 0;
+  let skipNextNewCellHighlights = false;
   // Loop over each child layout
   while (index < layout.length) {
     // Extract information on current child layout.
@@ -371,14 +377,7 @@ export function getHighlightsForLayoutRow(
         parentDropTargetId,
       )(positions, draggedWidgets);
 
-    if (skipEntity) {
-      /**
-       * Layout is discarded from child count only if skipEntity is true.
-       * skipEntity === true => dragged widget or empty layout after discarding dragged widgets.
-       * skipEntity === false => dragged widgets include blacklisted widgets or maxChildLimit is reached.
-       */
-      discardedLayouts += 1;
-    } else {
+    if (!skipNextNewCellHighlights) {
       /**
        * Add a highlight for the drop zone above the child layout.
        * This is done only if the child layout has highlights.
@@ -392,22 +391,32 @@ export function getHighlightsForLayoutRow(
         currentDimension,
         prevLayoutDimensions,
         undefined,
-        index - discardedLayouts,
+        index,
         false,
       );
-
+    } else {
+      skipNextNewCellHighlights = false;
+    }
+    /**
+     * Add highlights of the child layout if it is not a drop target.
+     * because if it is, then it can handle its own drag behavior.
+     */
+    if (!isDropTarget && layoutHighlights.length) {
+      highlights.push(...layoutHighlights);
+    }
+    if (skipEntity) {
       /**
-       * Add highlights of the child layout if it is not a drop target.
-       * because if it is, then it can handle its own drag behavior.
+       * Layout is discarded from child count only if skipEntity is true.
+       * skipEntity === true => dragged widget or empty layout after discarding dragged widgets.
+       * skipEntity === false => dragged widgets include blacklisted widgets or maxChildLimit is reached.
        */
-      if (!isDropTarget && layoutHighlights.length) {
-        highlights.push(...layoutHighlights);
-      }
+      skipNextNewCellHighlights = true;
+      discardedLayouts += 1;
     }
 
     index += 1;
 
-    if (index === layout.length) {
+    if (index === layout.length && index !== discardedLayouts) {
       // Add a highlight for the drop zone below the child layout.
       highlights = updateHighlights(
         highlights,

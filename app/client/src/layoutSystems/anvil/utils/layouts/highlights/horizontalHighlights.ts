@@ -141,6 +141,7 @@ export function getHighlightsForLayouts(
 
   let index = 0;
   let discardedLayouts: number = 0;
+  let skipNextNewCellHighlights = false;
   // Loop over all child layouts.
   while (index < layouts.length) {
     // Extract information on current child layout.
@@ -169,15 +170,7 @@ export function getHighlightsForLayouts(
         [...layoutOrder, layouts[index].layoutId],
         parentDropTargetId,
       )(widgetPositions, draggedWidgets);
-
-    if (skipEntity) {
-      /**
-       * Layout is discarded from child count only if skipEntity is true.
-       * skipEntity === true => dragged widget or empty layout after discarding dragged widgets.
-       * skipEntity === false => dragged widgets include blacklisted widgets or maxChildLimit is reached.
-       */
-      discardedLayouts += 1;
-    } else {
+    if (!skipNextNewCellHighlights) {
       /**
        * Add a highlight for the drop zone above the child layout.
        * This is done only if the child layout has highlights.
@@ -191,24 +184,35 @@ export function getHighlightsForLayouts(
         currentDimension,
         nextLayoutDimensions,
         prevLayoutDimensions,
-        index - discardedLayouts,
+        index,
         false,
         hasAlignments,
         hasFillWidget,
+        skipEntity,
       );
-
-      /**
-       * Add highlights of the child layout if it is not a drop target.
-       * because if it is, then it can handle its own drag behavior.
-       */
-      if (!isDropTarget && layoutHighlights.length) {
-        highlights.push(...layoutHighlights);
-      }
+    } else {
+      skipNextNewCellHighlights = false;
     }
 
+    if (skipEntity) {
+      /**
+       * Layout is discarded from child count only if skipEntity is true.
+       * skipEntity === true => dragged widget or empty layout after discarding dragged widgets.
+       * skipEntity === false => dragged widgets include blacklisted widgets or maxChildLimit is reached.
+       */
+      skipNextNewCellHighlights = true;
+      discardedLayouts += 1;
+    }
+    /**
+     * Add highlights of the child layout if it is not a drop target.
+     * because if it is, then it can handle its own drag behavior.
+     */
+    if (!isDropTarget && layoutHighlights.length) {
+      highlights.push(...layoutHighlights);
+    }
     index += 1;
 
-    if (index === layouts.length) {
+    if (index === layouts.length && index !== discardedLayouts) {
       // Add a highlight for the drop zone below the child layout.
       highlights = updateHighlights(
         highlights,
@@ -264,6 +268,8 @@ export function getInitialHighlights(
       true,
       hasAlignments,
       hasFillWidget,
+      true,
+      true,
     ),
     skipEntity: false,
   };
@@ -293,6 +299,8 @@ export function updateHighlights(
   isLastHighlight: boolean,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
+  emptyLayout = false,
+  isInitialHighlight = false,
 ): AnvilHighlightInfo[] {
   let updatedHighlights: AnvilHighlightInfo[] = arr;
 
@@ -322,6 +330,8 @@ export function updateHighlights(
     isLastHighlight,
     hasAlignments,
     hasFillWidget,
+    emptyLayout,
+    isInitialHighlight,
   );
   /**
    * If previous highlights exist,
@@ -347,6 +357,8 @@ export function generateHighlights(
   isLastHighlight: boolean,
   hasAlignments: boolean,
   hasFillWidget = false,
+  emptyLayout = false,
+  isInitialHighlight = false,
 ): AnvilHighlightInfo[] {
   /**
    * If dragged widgets include a Fill widget,
@@ -366,11 +378,11 @@ export function generateHighlights(
    */
   const width: number = layoutDimension.width / arr.length;
 
-  const isInitialHighlight: boolean = rowIndex === 0;
+  const isFirstHighlight: boolean = rowIndex === 0;
 
   let posY = 0;
   if (isLastHighlight) {
-    if (isInitialHighlight) {
+    if (isFirstHighlight) {
       // Position values are relative to the MainCanvas. Hence it is important to deduct parent's position from widget's to get a position that is relative to the parent widget.
       posY = Math.max(currentDimension.top - layoutDimension.top, 0);
     } else {
@@ -404,10 +416,10 @@ export function generateHighlights(
     posY,
     rowIndex,
     width,
-    ...(isInitialHighlight && isLastHighlight && !hasFillWidget
+    ...(emptyLayout && !hasFillWidget
       ? {
           isVertical: true,
-          height: 40,
+          height: isInitialHighlight ? 40 : currentDimension.height,
           width: HIGHLIGHT_SIZE,
           posX: ((layoutDimension.width - HIGHLIGHT_SIZE) * index) / 2,
         }
