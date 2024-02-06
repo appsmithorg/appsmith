@@ -4,11 +4,9 @@ import {
   COLORS,
   BUTTON_VARIANTS,
   Item,
+  SIZES,
 } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
-import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
-import FileCopyLineIcon from "remixicon-react/FileCopyLineIcon";
-import DeleteBinLineIcon from "remixicon-react/DeleteBinLineIcon";
 
 <Meta title="Design-system/Widgets/Action Group" component={ActionGroup} />
 
@@ -21,7 +19,7 @@ More information about `Button` props you can find [here](?path=/docs/design-sys
 export const Template = (args) => {
   return (
     <ActionGroup {...args} onAction={console.log}>
-      <Item key="option-1" icon={EmotionHappyLineIcon}>
+      <Item key="option-1" icon="heart">
         Option 1
       </Item>
       <Item key="option-2">Option 2</Item>
@@ -36,6 +34,23 @@ export const Template = (args) => {
 </Canvas>
 
 <ArgsTable story="Action Group" of={ActionGroup} />
+
+## Size
+
+<Story name="Size">
+  <Flex gap="spacing-2" direction="column">
+    {Object.keys(SIZES)
+      .filter((size) => !["large"].includes(size))
+      .map((size) => (
+        <ActionGroup size={size} key={size}>
+          <Item key="option-1">Option 1</Item>
+          <Item key="option-2">Option 2</Item>
+          <Item key="option-3">Option 3</Item>
+          <Item key="option-4">Option 4</Item>
+        </ActionGroup>
+      ))}
+  </Flex>
+</Story>
 
 ## Orientation
 
@@ -100,10 +115,10 @@ The `ActionGroup` can be `collapse`. By default it is not collapsed. When collpa
     <ActionGroup overflowMode="collapse" variant="outlined">
       <Item key="option-1">Option 1</Item>
       <Item key="option-2">Option 2</Item>
-      <Item key="option-3" icon={FileCopyLineIcon}>
+      <Item key="option-3" icon="file">
         {"Option 3"}
       </Item>
-      <Item key="option-4" icon={DeleteBinLineIcon} iconPosition="end">
+      <Item key="option-4" icon="trash" iconPosition="end" color="negative">
         {"Option 4"}
       </Item>
     </ActionGroup>

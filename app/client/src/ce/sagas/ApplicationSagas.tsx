@@ -33,10 +33,7 @@ import ApplicationApi from "@appsmith/api/ApplicationApi";
 import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
-import {
-  getCurrentApplicationIdForCreateNewApp,
-  getDeletingMultipleApps,
-} from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import type { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import type { AppState } from "@appsmith/reducers";
@@ -63,7 +60,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
-  DELETING_MULTIPLE_APPLICATION,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
 import { APP_MODE } from "entities/App";
@@ -118,7 +114,6 @@ import {
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import type { DeletingMultipleApps } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -485,40 +480,6 @@ export function* deleteApplicationSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* deleteMultipleApplicationSaga() {
-  try {
-    toast.show(createMessage(DELETING_MULTIPLE_APPLICATION));
-    const deleteMultipleAppsObject: DeletingMultipleApps = yield select(
-      getDeletingMultipleApps,
-    );
-
-    if (deleteMultipleAppsObject.list?.length) {
-      const response: ApiResponse = yield call(
-        ApplicationApi.deleteMultipleApps,
-        { ids: deleteMultipleAppsObject.list },
-      );
-      const isValidResponse: boolean = yield validateResponse(response);
-      if (isValidResponse) {
-        yield put({
-          type: ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_SUCCESS,
-          payload: response.data,
-        });
-        deleteMultipleAppsObject.list.forEach(function* (id) {
-          yield call(deleteRecentAppEntities, id);
-        });
-        toast.dismiss();
-      }
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.DELETE_MULTIPLE_APPLICATION_ERROR,
       payload: {
         error,
       },

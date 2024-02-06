@@ -12,7 +12,8 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 let gitSync = ObjectsRegistry.GitSync,
   agHelper = ObjectsRegistry.AggregateHelper,
   dataManager = ObjectsRegistry.DataManager,
-  assertHelper = ObjectsRegistry.AssertHelper;
+  assertHelper = ObjectsRegistry.AssertHelper,
+  homePageTS = ObjectsRegistry.HomePage;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -284,13 +285,7 @@ Cypress.Commands.add(
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
-    cy.AppSetupForRename();
-    cy.get(homePage.applicationName).type(appname + "{enter}");
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    homePageTS.RenameApplication(appname);
 
     cy.createTestGithubRepo(appname, true);
     cy.connectToGitRepo(appname, false, assertConnectFailure);

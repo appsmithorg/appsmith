@@ -220,16 +220,6 @@ export const USER_RESET_PASSWORD = () => "Reset password";
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
-export const DELETING_MULTIPLE_APPLICATION = () =>
-  `Deleting multiple applications...`;
-export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
-  `You don't have permission to delete this application`;
-
-export const DELETING_MULTIPLE_APPLICATION_MODAL_TITLE = () =>
-  `Delete Confirmation`;
-export const DELETING_MULTIPLE_APPLICATION_MODAL_DESC = () =>
-  `Are you sure you want to delete selected applications?`;
-
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
   `${actionName} API added to page`;
@@ -1947,6 +1937,7 @@ export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 // Datasource/New query
 export const NEW_QUERY_BUTTON_TEXT = () => "New query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
+export const NEW_AI_BUTTON_TEXT = () => "New AI Query";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "Generate new page";
 export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";

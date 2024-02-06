@@ -128,7 +128,10 @@ function WDSThemePropertyPane() {
             }}
             value={theme.fontFamily}
           >
-            {Object.keys(FONT_METRICS)
+            {Object.keys({
+              "System Default": "System Default",
+              ...FONT_METRICS,
+            })
               .filter((item) => {
                 return (
                   ["-apple-system", "BlinkMacSystemFont", "Segoe UI"].includes(

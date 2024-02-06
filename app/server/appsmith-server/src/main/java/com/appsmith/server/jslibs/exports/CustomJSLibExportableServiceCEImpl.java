@@ -4,8 +4,10 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableServiceCE;
@@ -63,7 +65,9 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                                 .map(lib -> lib.getUidString())
                                 .collect(Collectors.toSet());
                     }
-                    applicationJson.getUpdatedResources().put(FieldName.CUSTOM_JS_LIB_LIST, updatedCustomJSLibSet);
+                    applicationJson
+                            .getModifiedResources()
+                            .putResource(FieldName.CUSTOM_JS_LIB_LIST, updatedCustomJSLibSet);
 
                     /**
                      * Previously it was a Set and as Set is an unordered collection of elements that
@@ -77,9 +81,24 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                 .then();
     }
 
+    @Override
+    public Mono<Void> getExportableEntities(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson,
+            Boolean isContextAgnostic) {
+        return exportableArtifactMono.flatMap(exportableArtifact -> {
+            Mono<Application> applicationMono = Mono.just((Application) exportableArtifact);
+            ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+            return getExportableEntities(
+                    exportingMetaDTO, mappedExportableResourcesDTO, applicationMono, applicationJson);
+        });
+    }
+
     protected Mono<List<CustomJSLib>> getAllJSLibsInContext(ExportingMetaDTO exportingMetaDTO) {
         return customJSLibService.getAllJSLibsInContext(
-                exportingMetaDTO.getApplicationId(),
+                exportingMetaDTO.getArtifactId(),
                 CreatorContextType.APPLICATION,
                 exportingMetaDTO.getBranchName(),
                 false);

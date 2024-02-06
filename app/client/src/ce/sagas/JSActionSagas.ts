@@ -24,7 +24,6 @@ import {
   moveJSCollectionSuccess,
 } from "actions/jsActionActions";
 import {
-  getCurrentJSCollections,
   getJSCollection,
   getPageNameByPageId,
 } from "@appsmith/selectors/entitiesSelector";
@@ -41,7 +40,7 @@ import {
   JS_ACTION_DELETE_SUCCESS,
   JS_ACTION_MOVE_SUCCESS,
 } from "@appsmith/constants/messages";
-import { validateResponse } from "../../sagas/ErrorSagas";
+import { validateResponse } from "sagas/ErrorSagas";
 import type {
   FetchPageRequest,
   FetchPageResponse,
@@ -56,28 +55,22 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import * as log from "loglevel";
-import {
-  builderURL,
-  jsCollectionAddURL,
-  jsCollectionIdURL,
-} from "@appsmith/RouteBuilder";
+import { builderURL, jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   checkAndLogErrorsIfCyclicDependency,
   getFromServerWhenNoPrefetchedResult,
-} from "../../sagas/helper";
+} from "sagas/helper";
 import { toast } from "design-system";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
-import { getWidgets } from "../../sagas/selectors";
-import { removeFocusHistoryRequest } from "../../actions/focusHistoryActions";
-import { selectFeatureFlagCheck } from "../selectors/featureFlagsSelectors";
+import { getWidgets } from "sagas/selectors";
+import { removeFocusHistoryRequest } from "actions/focusHistoryActions";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "../entities/FeatureFlag";
-import { identifyEntityFromPath } from "../../navigation/FocusEntity";
-import { findIndex, sortBy } from "lodash";
-import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import { handleJSEntityRedirect } from "sagas/IDESaga";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -284,47 +277,6 @@ export const getIndexToBeRedirected = (
   return redirectIndex;
 };
 
-/**
- * Adds custom redirect logic to redirect after an item is deleted
- * 1. Do not navigate if the deleted item is not selected
- * 2. If it is the only item, navigate to a list url
- * 3. If there are other items, navigate to an item close to the current one
- * **/
-function* handleDeleteRedirect(deletedJSObjectId: string) {
-  const allJsObjects: JSCollectionDataState = yield select(
-    getCurrentJSCollections,
-  );
-  const sortedJSObjects = sortBy([...allJsObjects], "name");
-  const currentSelectedEntity = identifyEntityFromPath(
-    window.location.pathname,
-  );
-  // Do not do any redirect if the deleted item is not currently selected
-  const isSelectedJSDeleted = currentSelectedEntity.id === deletedJSObjectId;
-  if (!isSelectedJSDeleted) {
-    return;
-  }
-  const remainingJsObjects = allJsObjects.filter(
-    (js) => js.config.id !== deletedJSObjectId,
-  );
-  // If this was the only item, we navigate to the list url
-  if (remainingJsObjects.length === 0) {
-    history.push(jsCollectionAddURL({}));
-    return;
-  }
-  const deletedIndex = findIndex(
-    sortedJSObjects,
-    (js) => js.config.id === deletedJSObjectId,
-  );
-  // Go to the next item in case it is the first item in the list,
-  // or go to an item above
-  const toRedirect: JSCollectionData =
-    deletedIndex === 0 ? sortedJSObjects[1] : sortedJSObjects[deletedIndex - 1];
-
-  if (toRedirect) {
-    history.push(jsCollectionIdURL({ collectionId: toRedirect.config.id }));
-  }
-}
-
 export function* deleteJSCollectionSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
@@ -345,8 +297,8 @@ export function* deleteJSCollectionSaga(
         FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
       );
       if (isPagePaneSegmentsEnabled) {
-        yield call(handleDeleteRedirect, id);
-      } else {
+        yield call(handleJSEntityRedirect, id);
+      } else if (pageId) {
         history.push(builderURL({ pageId }));
       }
       yield put(removeFocusHistoryRequest(currentUrl));
@@ -364,13 +316,16 @@ export function* deleteJSCollectionSaga(
       yield put(deleteJSCollectionSuccess({ id }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
-      yield put(
-        updateAndSaveLayout(widgets, {
-          shouldReplay: false,
-          isRetry: false,
-          updatedWidgetIds: [],
-        }),
-      );
+
+      if (pageId) {
+        yield put(
+          updateAndSaveLayout(widgets, {
+            shouldReplay: false,
+            isRetry: false,
+            updatedWidgetIds: [],
+          }),
+        );
+      }
     }
   } catch (error) {
     yield put(deleteJSCollectionError({ id: actionPayload.payload.id }));

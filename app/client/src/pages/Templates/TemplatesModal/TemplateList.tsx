@@ -12,8 +12,8 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import LoadingScreen from "./LoadingScreen";
-import { StartWithTemplateContent } from "../StartWithTemplateContent";
-import StartWithTemplateFilters from "../StartWithTemplateFilter";
+import TemplateFilters from "../TemplateFilters";
+import { TemplateContent } from "../TemplateContent";
 
 const Wrapper = styled.div`
   display: flex;
@@ -64,10 +64,10 @@ function TemplateList(props: TemplateListProps) {
     <Wrapper className="flex flex-col">
       <div className="flex">
         <FilterWrapper>
-          <StartWithTemplateFilters />
+          <TemplateFilters />
         </FilterWrapper>
         <ListWrapper>
-          <StartWithTemplateContent
+          <TemplateContent
             filterWithAllowPageImport
             isForkingEnabled={false}
             onForkTemplateClick={onForkTemplateClick}

@@ -1,22 +1,29 @@
 import type { AppState } from "@appsmith/reducers";
-import type { QueryListState } from "@appsmith/navigation/FocusSelectors";
-import { getPageActions } from "@appsmith/selectors/entitiesSelector";
+import { getQuerySegmentItems } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentPageId } from "./editorSelectors";
+import type { FocusEntityInfo } from "../navigation/FocusEntity";
+import { identifyEntityFromPath } from "../navigation/FocusEntity";
+import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
 
 export const getQueryPaneConfigSelectedTabIndex = (state: AppState) =>
   state.ui.queryPane.selectedConfigTabIndex;
 
-export const getFirstQueryId = (state: AppState): QueryListState => {
-  const { plugins } = state.entities;
+export const getFirstQuery = (state: AppState): FocusEntityInfo | undefined => {
+  const queryItems = getQuerySegmentItems(state);
   const pageId = getCurrentPageId(state);
-  const currentPageActions = getPageActions(pageId)(state);
-  if (currentPageActions.length) {
-    const first = currentPageActions[0].config;
-    const plugin = plugins.list.find((p) => p.id === first.pluginId);
-    return {
-      id: first.id,
-      type: first.pluginType,
-      pluginPackageName: plugin?.packageName,
-    };
+  if (queryItems.length) {
+    const url = getQueryEntityItemUrl(queryItems[0], pageId);
+    const urlWithoutQueryParams = url.split("?")[0];
+    return identifyEntityFromPath(urlWithoutQueryParams);
   }
+};
+
+export const getQueryRunErrorMessage = (state: AppState, id: string) => {
+  const { runErrorMessage } = state.ui.queryPane;
+  return runErrorMessage[id];
+};
+
+export const getQueryIsRunning = (state: AppState, id: string): boolean => {
+  const { isRunning } = state.ui.queryPane;
+  return !!isRunning[id];
 };

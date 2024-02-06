@@ -40,7 +40,16 @@ export const featureFlagIntercept = (
 
   if (reload) {
     cy.reload();
-    cy.wait(2000); //for the page to re-load finish for CI runs
+    cy.waitUntil(() =>
+      cy.document().should((doc) => {
+        expect(doc.readyState).to.equal("complete");
+      }),
+    );
+    cy.waitUntil(() =>
+      cy
+        .window({ timeout: Cypress.config().pageLoadTimeout })
+        .then((win) => expect(win).haveOwnProperty("onload")),
+    );
   }
 };
 
@@ -77,6 +86,7 @@ export const featureFlagInterceptForLicenseFlags = () => {
       });
     },
   ).as("getLicenseFeatures");
+
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
       if (res.statusCode === 200) {

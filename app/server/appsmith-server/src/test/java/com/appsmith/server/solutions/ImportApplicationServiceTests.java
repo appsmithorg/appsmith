@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -20,7 +21,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -787,7 +788,7 @@ public class ImportApplicationServiceTests {
                     return layoutActionService
                             .createAction(action)
                             .then(exportApplicationService.exportApplicationById(
-                                    testApp.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                                    testApp.getId(), SerialiseArtifactObjective.VERSION_CONTROL));
                 });
 
         StepVerifier.create(resultMono)
@@ -1442,7 +1443,7 @@ public class ImportApplicationServiceTests {
                             .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS));
                 })
                 .then(exportApplicationService
-                        .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                        .exportApplicationById(savedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL)
                         .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
                                 workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName())))
                 .cache();
@@ -3035,7 +3036,7 @@ public class ImportApplicationServiceTests {
     @WithUserDetails(value = "usertest@usertest.com")
     public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
         Mono<ApplicationJson> exportApplicationMono = exportApplicationService.exportApplicationById(
-                exportWithConfigurationAppId, SerialiseApplicationObjective.SHARE);
+                exportWithConfigurationAppId, SerialiseArtifactObjective.SHARE);
 
         StepVerifier.create(exportApplicationMono)
                 .assertNext(applicationJson -> {
@@ -3319,7 +3320,7 @@ public class ImportApplicationServiceTests {
                 .block();
 
         Mono<Application> result = exportApplicationService
-                .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                .exportApplicationById(savedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
                     applicationJson.getExportedApplication().setPublishedApplicationDetail(null);
@@ -3374,7 +3375,7 @@ public class ImportApplicationServiceTests {
                 .block();
 
         Mono<Application> result = exportApplicationService
-                .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                .exportApplicationById(savedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
                     applicationJson.getExportedApplication().setPublishedAppLayout(null);
@@ -5069,17 +5070,20 @@ public class ImportApplicationServiceTests {
                             .updatePage(applicationPage.getId(), pageDTO)
                             // export the application
                             .then(exportApplicationService.exportApplicationById(
-                                    application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                                    application.getId(), SerialiseArtifactObjective.VERSION_CONTROL));
                 });
 
         // verify that the exported json has the updated page name, and the queries are in the updated resources
         StepVerifier.create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
-                    assertThat(updatedResources).isNotNull();
-                    Set<String> updatedPageNames = updatedResources.get(FieldName.PAGE_LIST);
-                    Set<String> updatedActionNames = updatedResources.get(FieldName.ACTION_LIST);
-                    Set<String> updatedActionCollectionNames = updatedResources.get(FieldName.ACTION_COLLECTION_LIST);
+                    ModifiedResources modifiedResources = applicationJson.getModifiedResources();
+                    assertThat(modifiedResources).isNotNull();
+                    Set<String> updatedPageNames =
+                            modifiedResources.getModifiedResourceMap().get(FieldName.PAGE_LIST);
+                    Set<String> updatedActionNames =
+                            modifiedResources.getModifiedResourceMap().get(FieldName.ACTION_LIST);
+                    Set<String> updatedActionCollectionNames =
+                            modifiedResources.getModifiedResourceMap().get(FieldName.ACTION_COLLECTION_LIST);
 
                     assertThat(updatedPageNames).isNotNull();
                     assertThat(updatedActionNames).isNotNull();
@@ -5169,15 +5173,16 @@ public class ImportApplicationServiceTests {
                     return datasourceService
                             .save(datasource)
                             .then(exportApplicationService.exportApplicationById(
-                                    application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                                    application.getId(), SerialiseArtifactObjective.VERSION_CONTROL));
                 });
 
         // verify that the exported json has the updated page name, and the queries are in the updated resources
         StepVerifier.create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
-                    assertThat(updatedResources).isNotNull();
-                    Set<String> updatedActionNames = updatedResources.get(FieldName.ACTION_LIST);
+                    ModifiedResources modifiedResources = applicationJson.getModifiedResources();
+                    assertThat(modifiedResources).isNotNull();
+                    Set<String> updatedActionNames =
+                            modifiedResources.getModifiedResourceMap().get(FieldName.ACTION_LIST);
                     assertThat(updatedActionNames).isNotNull();
 
                     // action should be present in the updated resources although action not updated but datasource is

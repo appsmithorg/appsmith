@@ -34,6 +34,7 @@ export enum Widgets {
   Table,
   Chart,
   Text,
+  WDSTable,
 }
 type AppModes = "Edit" | "View";
 
@@ -295,15 +296,19 @@ export class DataSources {
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
   private _dsSchemaContainer = `[data-testId="datasource-schema-container"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
-    `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
+    `${this._dsSchemaEntityItem}[data-testid='t--entity-item-${targetTableName}']`;
   private _dsPageTabListItem = (buttonText: string) =>
     `//div[contains(@class, 't--datasource-tab-list')]/button/span[text()='${buttonText}']`;
   _dsPageTabContainerTableName = (tableName: string) =>
     `.t--datasource-tab-container ${this._entityExplorerID(tableName)}`;
   _dsPageTableTriggermenuTarget = (tableName: string) =>
-    `${this._dsPageTabContainerTableName(tableName)} .t--template-menu-trigger`;
+    `${this._dsPageTabContainerTableName(tableName)} ${
+      this._entityTriggerElement
+    }`;
   _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
   _dsStructurePreviewMode = ".datasourceStructure-datasource-view-mode";
+  private _dsSchemaEntityItem = ".t--entity-item";
+  private _entityTriggerElement = ".t--template-menu-trigger";
 
   public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -430,9 +435,14 @@ export class DataSources {
     }).as("testDatasource");
   }
 
-  public CreatePlugIn(pluginName: string, waitForToastDisappear = false) {
+  public CreatePlugIn(
+    pluginName: string,
+    waitForToastDisappear = false,
+    index = 0,
+  ) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
+      .eq(index)
       .trigger("click", { force: true });
     this.agHelper.Sleep();
     //this.agHelper.WaitUntilEleAppear(this.locator._toastMsg);
@@ -1667,6 +1677,16 @@ export class DataSources {
           this.locator._widgetInCanvas(WIDGET.TABLE),
         );
         break;
+      case Widgets.WDSTable:
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TABLE_WIDGET_V2", parentClass),
+          index,
+          force,
+        );
+        this.agHelper.AssertElementVisibility(
+          this.locator._anvilWidgetInCanvas(WIDGET.WDSTABLE),
+        );
+        break;
       case Widgets.Chart:
         this.agHelper.GetNClick(
           this._suggestedWidget("CHART_WIDGET", parentClass),
@@ -1934,5 +1954,27 @@ export class DataSources {
       false,
       1000,
     );
+  }
+
+  private IsTemplateMenuTriggerForSchemaTableVisible(index: number = 0) {
+    this.agHelper
+      .GetElement(`${this._dsSchemaContainer} ${this._dsSchemaEntityItem}`)
+      .eq(index)
+      .find(this._entityTriggerElement)
+      .should("be.visible");
+  }
+
+  public ClickTemplateMenuForSchemaTable(index: number = 0) {
+    this.agHelper
+      .GetElement(`${this._dsSchemaContainer} ${this._dsSchemaEntityItem}`)
+      .eq(index)
+      .realHover();
+    this.IsTemplateMenuTriggerForSchemaTableVisible(index);
+    this.agHelper
+      .GetElement(`${this._dsSchemaContainer} ${this._dsSchemaEntityItem}`)
+      .eq(index)
+      .find(this._entityTriggerElement)
+      .click();
+    this.IsTemplateMenuTriggerForSchemaTableVisible(index);
   }
 }

@@ -11,6 +11,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -134,6 +136,7 @@ describe(
       );
       jsEditor.RunJSObj();
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       agHelper
         .GetText(
           locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -174,10 +177,7 @@ describe(
         false,
       );
       jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false);
-      deployMode.DeployApp();
-      agHelper.AssertElementVisibility(
-        locators._widgetInDeployed(draggableWidgets.BUTTON), //Asserting before setTimeout JS function execution, button is visible
-      );
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON)); //Asserting before setTimeout JS function execution, button is visible
       agHelper.Sleep(2000); //waiting for settimeout to execute
       agHelper.AssertElementAbsence(
         locators._widgetInDeployed(draggableWidgets.BUTTON),
