@@ -28,12 +28,14 @@ export const getPropsForJSActionEntity = (
   const properties: Record<string, unknown> = {};
 
   const configTree = ConfigTreeActions.getConfigTree();
-  const jsActionEntityConfig = configTree[entityName] as JSActionEntityConfig;
+  const jsActionEntityConfig = configTree[entityName] as
+    | JSActionEntityConfig
+    | undefined;
 
-  const variablesProps = jsActionEntityConfig.variables;
-  if (variablesProps && variablesProps.length > 0) {
-    for (let i = 0; i < variablesProps.length; i++) {
-      const variableName = variablesProps[i];
+  const variableNames = jsActionEntityConfig?.variables;
+  if (variableNames && variableNames.length > 0) {
+    for (let i = 0; i < variableNames.length; i++) {
+      const variableName = variableNames[i];
       properties[variableName] = jsActionEntity[variableName];
     }
   }
@@ -74,6 +76,13 @@ const getJSActionBindings = (
   return entityProperties;
 };
 
+enum ActionEntityPublicProperties {
+  run = "run",
+  clear = "clear",
+  isLoading = "isLoading",
+  data = "data",
+}
+
 const getActionBindings = (
   entity: any,
   entityProperties: EntityProperty[],
@@ -87,18 +96,17 @@ const getActionBindings = (
       .filter((k) => k.indexOf("!") === -1)
       .map((actionProperty: string) => {
         let value = entity[actionProperty];
-        if (actionProperty === "isLoading") {
+        if (actionProperty === ActionEntityPublicProperties.isLoading) {
           value = entity.isLoading;
         }
-        if (actionProperty === "run") {
+        if (
+          actionProperty === ActionEntityPublicProperties.run ||
+          actionProperty === ActionEntityPublicProperties.clear
+        ) {
           value = "Function";
           actionProperty = actionProperty + "()";
         }
-        if (actionProperty === "clear") {
-          value = "Function";
-          actionProperty = actionProperty + "()";
-        }
-        if (actionProperty === "data") {
+        if (actionProperty === ActionEntityPublicProperties.data) {
           if (isEmpty(entity.data) || !entity.data.hasOwnProperty("body")) {
             value = {};
           } else {
