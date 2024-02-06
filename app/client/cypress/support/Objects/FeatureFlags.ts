@@ -41,11 +41,12 @@ export const getConsolidatedDataApi = (
           ] = true;
         });
         return res.send(updatedResponse);
-      } else {
+      } else if (res.statusCode === 401) {
+        {
         return res.send({
           responseMeta: {
             status: 200,
-            success: false,
+            success: true,
           },
           data: null,
           errorDisplay: "Original response status code was not 200.",
