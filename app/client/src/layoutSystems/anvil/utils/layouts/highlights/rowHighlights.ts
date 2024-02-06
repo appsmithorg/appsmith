@@ -236,7 +236,7 @@ export function getHighlightsForRow(
     index += 1;
 
     // Add a highlight after the last widget in the row.
-    if (index === row.length && draggedWidgetCount === 0) {
+    if (index === row.length && draggedWidgetCount !== row.length) {
       highlights = updateHighlights(
         highlights,
         baseHighlight,
