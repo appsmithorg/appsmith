@@ -14,7 +14,7 @@ import ConfigTreeActions from "utils/configTree";
 import store from "store";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
-interface EntityProperty {
+export interface EntityProperty {
   propertyName: string;
   entityName: string;
   value: unknown;

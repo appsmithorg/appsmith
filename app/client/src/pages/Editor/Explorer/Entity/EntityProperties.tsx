@@ -14,6 +14,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
 import { Button } from "design-system";
 import { getEntityProperties } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";
+import store from "store";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;
@@ -40,7 +42,7 @@ export function EntityProperties() {
     (state) => entityName && state.evaluations.tree[entityName],
   );
 
-  const selectedWidget = useSelector(
+  const selectedWidgetId = useSelector(
     (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
 
@@ -68,13 +70,26 @@ export function EntityProperties() {
   }, [entityId]);
 
   useEffect(() => {
-    if (selectedWidget) {
-      dispatch({
-        type: ReduxActionTypes.SET_ENTITY_INFO,
-        payload: { show: false },
-      });
+    if (selectedWidgetId && show) {
+      const canvasWidgets = store.getState().entities.canvasWidgets;
+      const selectedWidget = canvasWidgets[selectedWidgetId];
+      if (selectedWidget)
+        dispatch({
+          type: ReduxActionTypes.SET_ENTITY_INFO,
+          payload: {
+            show: true,
+            entityId: selectedWidgetId,
+            entityType: ENTITY_TYPE.WIDGET,
+            entityName: selectedWidget.widgetName,
+          },
+        });
+      else
+        dispatch({
+          type: ReduxActionTypes.SET_ENTITY_INFO,
+          payload: { show: false },
+        });
     }
-  }, [selectedWidget]);
+  }, [selectedWidgetId]);
 
   const closeContainer = useCallback((e) => {
     e.stopPropagation();
@@ -147,10 +162,11 @@ export function EntityProperties() {
             startIcon="close-control"
           />
         </div>
-        {entityProperties.map((entityProperty: any) => (
+        {entityProperties.map((entityProperty, index) => (
           <EntityProperty
             key={entityProperty.propertyName}
             {...entityProperty}
+            index={index}
           />
         ))}
       </div>
