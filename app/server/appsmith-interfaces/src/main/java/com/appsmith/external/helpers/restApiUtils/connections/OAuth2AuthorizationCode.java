@@ -2,6 +2,7 @@ package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.restApiUtils.helpers.OAuth2Utils;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -142,23 +143,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     if (issuedAtResponse != null) {
                         issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
                     }
-
-                    Instant expiresAt = null;
-                    String expiresIn = oAuth2.getExpiresIn();
-                    // If expires_in property in datasource form is left blank when creating ds,
-                    // We expect at least one of the following to be present
-                    if (StringUtils.isEmpty(expiresIn)) {
-                        Object expiresAtResponse = mappedResponse.get(Authentication.EXPIRES_AT);
-                        Object expiresInResponse = mappedResponse.get(Authentication.EXPIRES_IN);
-                        if (expiresAtResponse != null) {
-                            expiresAt = Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
-                        } else if (expiresInResponse != null) {
-                            expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
-                        }
-                    } else {
-                        // we have expires_in field from datasource config, we will always use that
-                        expiresAt = issuedAt.plusSeconds(Long.parseLong(expiresIn));
-                    }
+                    Instant expiresAt = OAuth2Utils.getAuthenticationExpiresAt(oAuth2, mappedResponse, issuedAt);
                     authenticationResponse.setExpiresAt(expiresAt);
                     authenticationResponse.setIssuedAt(issuedAt);
                     if (mappedResponse.containsKey(Authentication.REFRESH_TOKEN)) {
