@@ -354,7 +354,7 @@ export class HomePage {
     }).then((response) => {
       expect(response.status).equal(200); //Verifying logout is success
     });
-    this.agHelper.Sleep(2000); //for logout to complete - CI!
+    this.assertHelper.AssertNetworkStatus("@postLogout", 200); //for logout to complete
   }
 
   public Signout(toNavigateToHome = true) {
