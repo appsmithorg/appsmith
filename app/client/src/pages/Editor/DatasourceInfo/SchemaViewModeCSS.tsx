@@ -204,6 +204,9 @@ export const DatasourceStructureSearchContainer = styled.div`
   background: white;
   flex-shrink: 0;
   padding-right: var(--ads-v2-spaces-5);
+  display: flex;
+  align-items: center;
+  gap: var(--ads-v2-spaces-2);
   &.t--gsheet-search-container {
     margin-top: var(--ads-v2-spaces-4);
     margin-bottom: var(--ads-v2-spaces-3);

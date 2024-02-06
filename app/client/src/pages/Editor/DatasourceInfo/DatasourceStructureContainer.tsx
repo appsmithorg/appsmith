@@ -7,12 +7,18 @@ import {
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import type { ReactElement } from "react";
-import React, { memo, useContext, useEffect, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import EntityPlaceholder from "../Explorer/Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
-import { SearchInput, Text } from "design-system";
+import { Button, Flex, SearchInput, Text } from "design-system";
 import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
@@ -22,6 +28,7 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { setFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
+import { refreshDatasourceStructure } from "actions/datasourceActions";
 
 interface Props {
   datasourceId: string;
@@ -33,6 +40,7 @@ interface Props {
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
   customEditDatasourceFn?: () => void;
+  showRefresh?: boolean;
 }
 
 // leaving out DynamoDB and Firestore because they have a schema but not templates
@@ -51,6 +59,7 @@ export const SCHEMALESS_PLUGINS: Array<string> = [
 ];
 
 const Container = (props: Props) => {
+  const dispatch = useDispatch();
   const isLoading = useSelector((state: AppState) =>
     getIsFetchingDatasourceStructure(state, props.datasourceId),
   );
@@ -59,6 +68,10 @@ const Container = (props: Props) => {
   const [datasourceStructure, setDatasourceStructure] = useState<
     DatasourceStructureType | undefined
   >(props.datasourceStructure);
+
+  const refreshStructure = useCallback(() => {
+    dispatch(refreshDatasourceStructure(props.datasourceId, props.context));
+  }, []);
 
   const { isOpened: isWalkthroughOpened, popFeature } =
     useContext(WalkthroughContext) || {};
@@ -116,6 +129,16 @@ const Container = (props: Props) => {
             <DatasourceStructureSearchContainer
               className={`t--search-container--${props.context.toLowerCase()}`}
             >
+              {props.showRefresh ? (
+                <Button
+                  className="datasourceStructure-refresh"
+                  isIconButton
+                  kind="tertiary"
+                  onClick={refreshStructure}
+                  size="md"
+                  startIcon="refresh"
+                />
+              ) : null}
               <SearchInput
                 className="datasourceStructure-search"
                 endIcon="close"
@@ -187,7 +210,11 @@ const Container = (props: Props) => {
     props.context !== DatasourceStructureContext.EXPLORER &&
     isLoading
   ) {
-    view = <ItemLoadingIndicator type="SCHEMA" />;
+    view = (
+      <Flex padding="spaces-4">
+        <ItemLoadingIndicator type="SCHEMA" />
+      </Flex>
+    );
   }
 
   return view;
