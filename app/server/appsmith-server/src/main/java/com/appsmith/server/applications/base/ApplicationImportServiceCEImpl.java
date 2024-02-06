@@ -697,12 +697,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         return applicationConstantsMap;
     }
 
-    public Mono<List<NewAction>> getNewActionByArtifactId(String defaultApplicationId) {
-        return newActionService
-                .findAllByApplicationIdAndViewMode(defaultApplicationId, false, Optional.empty(), Optional.empty())
-                .collectList();
-    }
-
     @Override
     public Mono<Set<String>> getDatasourceIdSetConsumedInArtifact(String defaultApplicationId) {
         return newActionService
