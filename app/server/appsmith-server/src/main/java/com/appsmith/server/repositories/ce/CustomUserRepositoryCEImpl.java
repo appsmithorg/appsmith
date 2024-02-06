@@ -8,7 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -23,7 +24,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Mono<User> findByEmail(String email, AclPermission aclPermission) {
+    public Optional<User> findByEmail(String email, AclPermission aclPermission) {
         Criteria emailCriteria = where("email").is(email);
         return queryBuilder().criteria(emailCriteria).permission(aclPermission).one();
     }

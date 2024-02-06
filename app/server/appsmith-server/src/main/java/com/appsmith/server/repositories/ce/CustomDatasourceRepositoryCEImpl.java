@@ -9,7 +9,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +52,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
 
     @Override
     @Deprecated
-    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
+    public Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
@@ -64,7 +63,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     }
 
     @Override
-    public Mono<Datasource> findByNameAndWorkspaceId(
+    public Optional<Datasource> findByNameAndWorkspaceId(
             String name, String workspaceId, Optional<AclPermission> aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
         Criteria workspaceIdCriteria =

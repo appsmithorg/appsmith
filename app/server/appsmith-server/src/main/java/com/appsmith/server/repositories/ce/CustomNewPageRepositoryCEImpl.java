@@ -13,7 +13,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,7 +74,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByIdAndLayoutsIdAndViewMode(
+    public Optional<NewPage> findByIdAndLayoutsIdAndViewMode(
             String id, String layoutId, AclPermission aclPermission, Boolean viewMode) {
         String layoutsIdKey;
         String layoutsKey;
@@ -104,7 +103,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
+    public Optional<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
 
         List<Criteria> criteria = new ArrayList<>();
 
@@ -123,7 +122,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByNameAndApplicationIdAndViewMode(
+    public Optional<NewPage> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission aclPermission, Boolean viewMode) {
 
         List<Criteria> criteria = new ArrayList<>();
@@ -205,7 +204,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findPageByBranchNameAndDefaultPageId(
+    public Optional<NewPage> findPageByBranchNameAndDefaultPageId(
             String branchName, String defaultPageId, AclPermission permission) {
         final String defaultResources = "defaultResources";
         Criteria defaultPageIdCriteria =

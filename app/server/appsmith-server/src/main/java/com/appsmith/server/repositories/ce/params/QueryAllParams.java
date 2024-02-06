@@ -40,7 +40,7 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.queryAllExecute(this);
     }
 
-    public Mono<T> one() {
+    public Optional<T> one() {
         return repo.queryOneExecute(this);
     }
 

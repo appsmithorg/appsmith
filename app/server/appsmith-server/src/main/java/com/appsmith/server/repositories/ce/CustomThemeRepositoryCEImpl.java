@@ -55,7 +55,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     }
 
     @Override
-    public Mono<Theme> getSystemThemeByName(String themeName) {
+    public Optional<Theme> getSystemThemeByName(String themeName) {
         String findNameRegex = String.format("^%s$", Pattern.quote(themeName));
         Criteria criteria =
                 where("name").regex(findNameRegex, "i").and("isSystemTheme").is(true);

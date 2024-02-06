@@ -25,7 +25,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +61,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
+    public Optional<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
         Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
         Criteria idCriteria = getIdCriteria(id);
 
@@ -73,7 +72,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Application> findByName(String name, AclPermission permission) {
+    public Optional<Application> findByName(String name, AclPermission permission) {
         Criteria nameCriteria = where("name").is(name);
         return queryBuilder().criteria(nameCriteria).permission(permission).one();
     }
@@ -239,7 +238,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
+    public Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
             String defaultApplicationId, String branchName, Optional<AclPermission> aclPermission) {
 
         String gitApplicationMetadata = "gitApplicationMetadata";

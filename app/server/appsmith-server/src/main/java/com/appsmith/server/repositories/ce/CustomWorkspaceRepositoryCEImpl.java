@@ -10,10 +10,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -34,7 +34,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
+    public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
         Criteria nameCriteria = where("name").is(name);
 
         return queryBuilder().criteria(nameCriteria).permission(aclPermission).one();

@@ -143,7 +143,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return basicDBObject;
     }
 
-    public Mono<T> findById(String id, AclPermission permission) {
+    public Optional<T> findById(String id, AclPermission permission) {
         return queryBuilder().byId(id).permission(permission).one();
     }
 
@@ -151,7 +151,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      * @deprecated using `Optional` for function arguments is an anti-pattern.
      */
     @Deprecated
-    public Mono<T> findById(String id, Optional<AclPermission> permission) {
+    public Optional<T> findById(String id, Optional<AclPermission> permission) {
         return findById(id, permission.orElse(null));
     }
 
@@ -392,8 +392,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 });*/
     }
 
-    public Mono<T> queryOneExecute(QueryAllParams<T> params) {
-        return Mono.empty(); /*
+    public Optional<T> queryOneExecute(QueryAllParams<T> params) {
+        return Optional.empty(); /*
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.defer(
                         () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))

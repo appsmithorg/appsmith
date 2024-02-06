@@ -7,9 +7,9 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,7 +26,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
     }
 
     @Override
-    public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
+    public Optional<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
         Criteria criteria = where("uidString").is(customJSLib.getUidString());
 
         return queryBuilder().criteria(criteria).one();

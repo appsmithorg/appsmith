@@ -7,7 +7,6 @@ import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.Optional;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
-    /*no-cake*/ Mono<T> findById(String id, AclPermission permission);
+    Optional<T> findById(String id, AclPermission permission);
 
     // Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
 

@@ -9,7 +9,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
@@ -26,7 +25,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
     }
 
     @Override
-    public Mono<Config> findByName(String name, AclPermission permission) {
+    public Optional<Config> findByName(String name, AclPermission permission) {
         Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
         return queryBuilder().criteria(nameCriteria).permission(permission).one();
     }
