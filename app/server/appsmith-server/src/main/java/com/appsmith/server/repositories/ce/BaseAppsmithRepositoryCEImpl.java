@@ -9,6 +9,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.bulk.BulkWriteResult;
@@ -30,7 +31,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import org.springframework.data.mongodb.repository.Meta;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -78,9 +78,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     protected final CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    protected static final int NO_RECORD_LIMIT = -1;
+    public static final int NO_RECORD_LIMIT = -1;
 
-    protected static final int NO_SKIP = 0;
+    public static final int NO_SKIP = 0;
 
     @Autowired
     @SuppressWarnings("unchecked")
@@ -318,11 +318,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         });
     }
 
-    @Deprecated
-    protected Mono<T> queryOne(List<Criteria> criterias, AclPermission aclPermission) {
-        return queryOne(criterias, null, Optional.ofNullable(aclPermission));
-    }
-
     protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
         if (permission.isEmpty()) {
             return Mono.just(Set.of());
@@ -337,50 +332,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .flatMap(principal -> getAllPermissionGroupsForUser((User) principal));
     }
 
-    protected Mono<T> queryOne(List<Criteria> criterias, List<String> projectionFieldNames, AclPermission permission) {
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
-
-        return permissionGroupsMono.flatMap(permissionGroups -> {
-            return mongoOperations
-                    .query(this.genericDomain)
-                    .matching(createQueryWithPermission(criterias, projectionFieldNames, permissionGroups, permission))
-                    .one()
-                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-        });
-    }
-
-    @Meta(cursorBatchSize = 10000)
-    protected Mono<T> queryOne(
-            List<Criteria> criterias, List<String> projectionFieldNames, Optional<AclPermission> permission) {
-        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
-
-        return permissionGroupsMono.flatMap(permissionGroups -> {
-            return mongoOperations
-                    .query(this.genericDomain)
-                    .matching(createQueryWithPermission(criterias, projectionFieldNames, permissionGroups, permission))
-                    .one()
-                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-        });
-    }
-
-    @Deprecated
-    protected Mono<T> queryFirst(List<Criteria> criterias, AclPermission aclPermission) {
-        return queryFirst(criterias, Optional.ofNullable(aclPermission));
-    }
-
-    protected Mono<T> queryFirst(List<Criteria> criterias, Optional<AclPermission> permission) {
-        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
-
-        return permissionGroupsMono.flatMap(permissionGroups -> {
-            return mongoOperations
-                    .query(this.genericDomain)
-                    .matching(createQueryWithPermission(criterias, null, permissionGroups, permission))
-                    .first()
-                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-        });
-    }
-
     @Deprecated
     protected Query createQueryWithPermission(
             List<Criteria> criterias, Set<String> permissionGroups, AclPermission aclPermission) {
@@ -390,15 +341,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     protected Query createQueryWithPermission(
             List<Criteria> criterias, Set<String> permissionGroups, Optional<AclPermission> permission) {
         return createQueryWithPermission(criterias, null, permissionGroups, permission.orElse(null));
-    }
-
-    protected Query createQueryWithPermission(
-            List<Criteria> criterias,
-            List<String> projectionFieldNames,
-            Set<String> permissionGroups,
-            Optional<AclPermission> permission) {
-
-        return createQueryWithPermission(criterias, projectionFieldNames, permissionGroups, permission.orElse(null));
     }
 
     protected Query createQueryWithPermission(
@@ -437,71 +379,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return count(criteriaList, Optional.empty());
     }
 
-    @Deprecated
-    public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
-        return queryAll(
-                criterias, Optional.empty(), Optional.ofNullable(aclPermission), Optional.empty(), NO_RECORD_LIMIT);
-    }
-
-    public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission) {
-        return queryAll(criterias, permission, Optional.empty());
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission, Sort sort) {
-        return queryAll(
-                criterias,
-                Optional.empty(),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                NO_RECORD_LIMIT);
-    }
-
-    public Flux<T> queryAll(List<Criteria> criterias, Optional<AclPermission> permission, Optional<Sort> sort) {
-        return queryAll(criterias, Optional.empty(), permission, sort, NO_RECORD_LIMIT);
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort) {
-        return queryAll(
-                criterias,
-                Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                NO_RECORD_LIMIT);
-    }
-
-    public Flux<T> queryAll(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> aclPermission,
-            Optional<Sort> sort) {
-        return queryAll(criterias, includeFields, aclPermission, sort, NO_RECORD_LIMIT);
-    }
-
-    @Deprecated
-    public Flux<T> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort, int limit) {
-        return queryAll(
-                criterias,
-                Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                limit);
-    }
-
-    public Flux<T> queryAll(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> permission,
-            Optional<Sort> sort,
-            int limit) {
-        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, sort, permissionGroups, limit, NO_SKIP));
-    }
-
     public Flux<T> queryAllWithStrictPermissionGroups(
             List<Criteria> criterias,
             Optional<List<String>> includeFields,
@@ -513,53 +390,30 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getStrictPermissionGroupsForUser((User) principal));
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));
+        return permissionGroupsMono.flatMapMany(permissionGroups -> queryBuilder()
+                .criteria(criterias)
+                .fields(includeFields.orElse(null))
+                .permission(permission.orElse(null))
+                .permissionGroups(permissionGroups)
+                .sort(sort)
+                .limit(limit)
+                .skip(skip)
+                .all());
     }
 
-    public Flux<T> queryAll(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> permission,
-            Sort sort,
-            int limit,
-            int skip) {
-        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));
-    }
-
-    @Deprecated
     public Flux<T> queryAllWithPermissionGroups(
             List<Criteria> criterias,
             List<String> includeFields,
             AclPermission aclPermission,
             Sort sort,
             Set<String> permissionGroups,
-            int limit) {
-        return queryAllWithPermissionGroups(
-                criterias,
-                Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission),
-                Optional.ofNullable(sort),
-                permissionGroups,
-                limit,
-                NO_SKIP);
-    }
-
-    public Flux<T> queryAllWithPermissionGroups(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> aclPermission,
-            Optional<Sort> sortOptional,
-            Set<String> permissionGroups,
             int limit,
             int skip) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         Query query = new Query();
-        includeFields.ifPresent(fields -> {
-            fields.forEach(field -> query.fields().include(field));
-        });
+        if (!CollectionUtils.isEmpty(includeFields)) {
+            query.fields().include(includeFields.toArray(new String[0]));
+        }
         if (skip > NO_SKIP) {
             query.skip(skip);
         }
@@ -568,15 +422,63 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         }
         Criteria andCriteria = new Criteria();
         criteriaList.add(notDeleted());
-        userAcl(permissionGroups, aclPermission).ifPresent(criteria -> criteriaList.add(criteria));
+        userAcl(permissionGroups, Optional.ofNullable(aclPermission)).ifPresent(criteria -> criteriaList.add(criteria));
         andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
         query.addCriteria(andCriteria);
-        sortOptional.ifPresent(sort -> query.with(sort));
+        if (sort != null) {
+            query.with(sort);
+        }
         return mongoOperations
                 .query(this.genericDomain)
                 .matching(query.cursorBatchSize(10000))
                 .all()
                 .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
+    }
+
+    public QueryAllParams<T> queryBuilder() {
+        return new QueryAllParams<>(this);
+    }
+
+    public Flux<T> queryAllExecute(QueryAllParams<T> params) {
+        return Mono.justOrEmpty(params.getPermissionGroups())
+                .switchIfEmpty(Mono.defer(
+                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .flatMapMany(permissionGroups1 -> queryAllWithPermissionGroups(
+                        params.getCriteria(),
+                        params.getFields(),
+                        params.getPermission(),
+                        params.getSort(),
+                        permissionGroups1,
+                        params.getLimit(),
+                        params.getSkip()));
+    }
+
+    public Mono<T> queryOneExecute(QueryAllParams<T> params) {
+        return Mono.justOrEmpty(params.getPermissionGroups())
+                .switchIfEmpty(Mono.defer(
+                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .flatMap(permissionGroups1 -> mongoOperations
+                        .query(this.genericDomain)
+                        .matching(createQueryWithPermission(
+                                        params.getCriteria(),
+                                        params.getFields(),
+                                        permissionGroups1,
+                                        params.getPermission())
+                                .cursorBatchSize(10_000))
+                        .one()
+                        .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups1)));
+    }
+
+    public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
+        return Mono.justOrEmpty(params.getPermissionGroups())
+                .switchIfEmpty(Mono.defer(
+                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .flatMap(permissionGroups1 -> mongoOperations
+                        .query(this.genericDomain)
+                        .matching(createQueryWithPermission(
+                                params.getCriteria(), params.getFields(), permissionGroups1, params.getPermission()))
+                        .first()
+                        .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups1)));
     }
 
     public Mono<T> setUserPermissionsInObject(T obj) {
@@ -668,44 +570,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
-    public Mono<T> queryOne(List<Criteria> criterias, List<String> projectionFieldNames) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    criterias.add(notDeleted());
-                    Query query = new Query(new Criteria().andOperator(criterias));
-
-                    if (!isEmpty(projectionFieldNames)) {
-                        projectionFieldNames.stream().forEach(projectionFieldName -> {
-                            query.fields().include(projectionFieldName);
-                        });
-                    }
-
-                    return mongoOperations
-                            .query(this.genericDomain)
-                            .matching(query)
-                            .one();
-                });
-    }
-
-    public static Query getQuery(List<Criteria> criteria) {
-        Query query = new Query();
-        criteria.forEach(query::addCriteria);
-        return query;
-    }
-
     /*
     Db query methods
      */
-
-    public Mono<T> queryOne(List<Criteria> criteria) {
-        return mongoOperations.findOne(getQuery(criteria), genericDomain);
-    }
-
-    public Flux<T> queryMany(List<Criteria> criteria) {
-        return mongoOperations.find(getQuery(criteria), genericDomain);
-    }
 
     public Flux<T> queryAllWithoutPermissions(
             List<Criteria> criterias, List<String> includeFields, Sort sort, int limit) {

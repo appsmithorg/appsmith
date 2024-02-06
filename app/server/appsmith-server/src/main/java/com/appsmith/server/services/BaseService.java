@@ -116,7 +116,11 @@ public abstract class BaseService<
                     })
                     .collect(Collectors.toList());
         }
-        return repository.queryAll(criterias, aclPermission);
+        return repository
+                .queryBuilder()
+                .criteria(criterias)
+                .permission(aclPermission)
+                .all();
     }
 
     @Override
@@ -211,7 +215,12 @@ public abstract class BaseService<
                 .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
-        Flux<T> result = repository.queryAll(List.of(criteria), permission, sort);
+        Flux<T> result = repository
+                .queryBuilder()
+                .criteria(criteria)
+                .permission(permission)
+                .sort(sort)
+                .all();
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

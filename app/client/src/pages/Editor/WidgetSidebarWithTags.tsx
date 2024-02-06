@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
@@ -94,10 +94,6 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
     }
   };
 
-  useEffect(() => {
-    if (isActive) searchInputRef.current?.focus();
-  }, [isActive]);
-
   const search = debounce((value: string) => {
     filterCards(value.toLowerCase());
   }, 300);
@@ -111,7 +107,6 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
           autoComplete="off"
-          autoFocus
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
           placeholder="Search widgets"

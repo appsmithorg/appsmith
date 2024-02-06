@@ -57,7 +57,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
   const { isOpened: isWalkthroughOpened, popFeature } =
     useContext(WalkthroughContext) || {};
-
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget id,
   //then don't render PropertyPane

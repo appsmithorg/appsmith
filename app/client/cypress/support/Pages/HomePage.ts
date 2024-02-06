@@ -119,12 +119,11 @@ export class HomePage {
   private _applicationEditedText = (applicationName: string) =>
     this._appCard(applicationName) +
     "//div[contains(@class, 't--application-edited-text')]";
-  private _deployPageWidgets =
-    ".bp3-heading, section.canvas div.canvas:not(:empty)";
   public _homePageContainer =
     "div.t--applications-container div.t--workspace-section:not(:empty)";
   private _backToEditor = ".t--back-to-editor";
   private _editorSidebar = ".t--sidebar-Editor";
+  private _membersTab = "[data-testid=t--tab-members]";
 
   public _searchWorkspaceLocator = (workspaceName: string) =>
     `[data-testid="${workspaceName}"]`;
@@ -326,11 +325,13 @@ export class HomePage {
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
         this.agHelper.GetNClick(this._applicationName);
+        this.agHelper.AssertElementVisibility(this._appMenu);
         this.agHelper.GetNClickByContains(this._appMenu, "Rename");
       }
     });
     cy.get(this._applicationName).type(appName);
     this.agHelper.PressEnter();
+    this.assertHelper.AssertNetworkStatus("updateApplication");
     this.agHelper.RemoveUIElement("Tooltip", "Rename application");
   }
 
@@ -365,6 +366,8 @@ export class HomePage {
       this.assertHelper.AssertNetworkStatus("@postLogout");
     }
     this.agHelper.AssertURL("/login");
+    this.agHelper.AssertElementVisibility(this._username);
+    this.agHelper.AssertElementVisibility(this._submitBtn);
   }
 
   public GotoProfileMenu() {
@@ -400,7 +403,7 @@ export class HomePage {
   ) {
     this.agHelper.Sleep(); //waiting for window to load
     this.InvokeDispatchOnStore();
-    cy.wait("@postLogout");
+    this.assertHelper.WaitForNetworkCall("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "getConsolidatedData");
     this.agHelper.AssertElementVisibility(this._username);
     this.agHelper.TypeText(this._username, uname);
@@ -423,29 +426,25 @@ export class HomePage {
   public SignUp(uname: string, pswd: string) {
     this.agHelper.VisitNAssert("/user/signup", "@getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
+    this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
     this.agHelper.TypeText(this.signupUsername, uname);
     this.agHelper.TypeText(this._password, pswd);
-    this.agHelper.GetNClick(this._submitBtn);
-    this.agHelper.Sleep(1000);
-    cy.url().then((url) => {
-      if (url.indexOf("/signup-success") > -1) {
-        cy.get("body").then(($body) => {
-          if (
-            $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
-          ) {
-            this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
-            this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
-            this.agHelper.GetNClick(
-              SignupPageLocators.getStartedSubmit,
-              undefined,
-              true,
-            );
-          }
-        });
-      }
-    });
+    this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "false");
+    this.agHelper.ClickButton("Sign up");
+    this.agHelper.WaitForCondition(() =>
+      cy.url().should("include", "signup-success"),
+    );
+    this.agHelper.WaitUntilEleAppear(SignupPageLocators.proficiencyGroupButton);
+    this.agHelper
+      .GetElementLength(SignupPageLocators.proficiencyGroupButton)
+      .then(($len) => {
+        if ($len > 0) {
+          this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
+          this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
+          this.agHelper.ClickButton("Get started");
+        }
+      });
     this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
-    this.agHelper.Sleep(3000);
   }
 
   public FilterApplication(
@@ -477,25 +476,31 @@ export class HomePage {
   }
 
   //Maps to launchApp in command.js
-  public LaunchAppFromAppHover() {
+  public LaunchAppFromAppHover(element?: string) {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getConsolidatedData");
+    this.AssertViewPageLoad(element);
   }
 
   public EditAppFromSearch(appName: string, element?: string) {
     this.agHelper.WaitUntilEleAppear(`[data-testid="${appName}"]`);
     this.agHelper.GetNClick(`[data-testid="${appName}"]`);
     this.assertHelper.AssertNetworkStatus("viewPage");
+    this.AssertViewPageLoad(element);
+    this.deployHelper.NavigateBacktoEditor();
+  }
+
+  public AssertViewPageLoad(element?: string) {
     cy.url({ timeout: Cypress.config().pageLoadTimeout }).should(
       "not.include",
       "edit",
     );
     this.agHelper.WaitUntilEleAppear(element ?? this.locator._backToEditor);
-    this.agHelper.AssertElementExist(this._deployPageWidgets);
-    this.agHelper.AssertElementVisibility(this._deployPageWidgets);
+    this.agHelper.AssertElementExist(this.deployHelper._deployPageWidgets);
+    this.agHelper.AssertElementVisibility(this.deployHelper._deployPageWidgets);
+    this.agHelper.AssertElementVisibility(this.deployHelper._appViewPageName);
     this.assertHelper.AssertDocumentReady();
-    this.deployHelper.NavigateBacktoEditor();
   }
 
   public EditAppFromAppHover(appName = "") {
@@ -551,13 +556,8 @@ export class HomePage {
       .click({ force: true });
 
     cy.xpath(this._visibleTextSpan("Members")).last().click({ force: true });
-    cy.wait("@getMembers").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    this.agHelper.Sleep(2500);
-    //wait for members page to load!
+    this.assertHelper.AssertNetworkStatus("getMembers");
+    this.agHelper.AssertElementVisibility(this._membersTab);
   }
 
   public UpdateUserRoleInWorkspace(
@@ -746,7 +746,6 @@ export class HomePage {
 
   //Maps to leaveworkspace in command.js
   public LeaveWorkspace(workspaceName: string) {
-    this.SelectWorkspace(workspaceName);
     this.OpenWorkspaceOptions(workspaceName);
     this.agHelper.GetNClick(this._leaveWorkspace, 0, true);
     this.agHelper.GetNClick(this._leaveWorkspaceConfirm, 0, true);

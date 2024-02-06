@@ -60,6 +60,19 @@ const Wrapper = styled.div<{ active: boolean }>`
     }
   }
 
+  &&&.datasourceStructure-query-editor
+    .t--entity-item.active
+    .${EntityClassNames.CONTEXT_MENU} {
+    visibility: visible;
+  }
+
+  &.datasourceStructure-query-editor
+    .t--entity-item.active
+    ${ContextMenuWrapper} {
+    min-width: 30px;
+    width: auto;
+  }
+
   &.group {
     font-weight: 500;
   }

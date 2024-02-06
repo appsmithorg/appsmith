@@ -22,15 +22,6 @@ import EditorNavigation, {
 import PageList from "../../../../../support/Pages/PageList";
 
 describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
-  before(() => {
-    homePage.NavigateToHome();
-    homePage.CreateNewWorkspace();
-    cy.get("@workspaceName").then((workspaceName) => {
-      newWorkspaceName = workspaceName;
-      homePage.CreateAppInWorkspace(workspaceName);
-    });
-  });
-
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
     homePage.NavigateToHome();
     agHelper.GetNClick(homePageLocators.createNew, 0);
@@ -175,7 +166,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     // verify jsObject is not duplicated
     agHelper.Sleep(2000); //for cloning of table data to finish
     EditorNavigation.SelectEntityByName(jsObject, EntityType.JSObject); //Also checking jsobject exists after cloning the page
-    EditorNavigation.SelectEntityByName("Page1 Copy", EntityType.Page);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
