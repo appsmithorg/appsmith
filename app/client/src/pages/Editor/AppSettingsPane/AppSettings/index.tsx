@@ -113,6 +113,14 @@ function AppSettings() {
         },
       }),
     );
+    return () => {
+      dispatch(
+        updateAppSettingsPaneSelectedTabAction({
+          isOpen: false,
+          context: undefined,
+        }),
+      );
+    };
   }, [selectedTab]);
 
   const SectionHeadersConfig: SectionHeaderProps[] = [
