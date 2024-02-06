@@ -20,8 +20,8 @@ export const moduleInstanceEditorURL = (
     }`,
   });
 
-export const moduleEditorURL = ({ moduleId }: URLBuilderParams): string =>
-  urlBuilder.build({ moduleId });
+export const moduleEditorURL = (params: URLBuilderParams): string =>
+  urlBuilder.build(params);
 
 export const currentPackageEditorURL = (): string =>
   urlBuilder.build({ generateEditorPath: true });

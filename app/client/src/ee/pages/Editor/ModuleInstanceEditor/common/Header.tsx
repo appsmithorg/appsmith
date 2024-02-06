@@ -72,7 +72,7 @@ function Header({
 
   const onGoToModuleClick = () => {
     urlBuilder.setPackageParams({ packageId });
-    const url = moduleEditorURL({ moduleId });
+    const url = moduleEditorURL({ moduleId, params: { branch: undefined } });
     history.push(url);
   };
 
