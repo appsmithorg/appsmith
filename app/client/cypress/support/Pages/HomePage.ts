@@ -3,6 +3,7 @@ import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
+import { getConsolidatedDataApi } from "../Objects/FeatureFlags";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -355,6 +356,7 @@ export class HomePage {
       expect(response.status).equal(200); //Verifying logout is success
     });
     cy.reload().then(() => {
+      getConsolidatedDataApi({}, false);
       if (CURRENT_REPO === REPO.CE)
         this.assertHelper.AssertNetworkStatus("@postLogout");
       else if (CURRENT_REPO === REPO.EE)
