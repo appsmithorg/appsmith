@@ -56,7 +56,13 @@ const Schema = (props: Props) => {
       height={`${responsePaneHeight - 40}px`}
       overflow="hidden"
     >
-      <Flex flex="1" flexDirection="column" overflow="hidden" px="spaces-3">
+      <Flex
+        data-testId="datasource-schema-container"
+        flex="1"
+        flexDirection="column"
+        overflow="hidden"
+        px="spaces-3"
+      >
         <DatasourceStructureList
           context={DatasourceStructureContext.QUERY_EDITOR}
           currentActionId={props.currentActionId}

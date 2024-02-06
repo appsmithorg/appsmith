@@ -7,13 +7,7 @@ import {
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import type { ReactElement } from "react";
-import React, {
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import EntityPlaceholder from "../Explorer/Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
 import { Button, Flex, SearchInput, Text } from "design-system";
@@ -23,10 +17,7 @@ import type { AppState } from "@appsmith/reducers";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { PluginName, SCHEMA_SECTION_ID } from "entities/Action";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { setFeatureWalkthroughShown } from "utils/storage";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { PluginName } from "entities/Action";
 import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 
@@ -72,32 +63,6 @@ const Container = (props: Props) => {
   const refreshStructure = useCallback(() => {
     dispatch(refreshDatasourceStructure(props.datasourceId, props.context));
   }, []);
-
-  const { isOpened: isWalkthroughOpened, popFeature } =
-    useContext(WalkthroughContext) || {};
-
-  const attachCloseWalkthrough =
-    props.context !== DatasourceStructureContext.EXPLORER &&
-    isWalkthroughOpened &&
-    !isLoading &&
-    !props.datasourceStructure?.tables?.length;
-
-  const closeWalkthrough = () => {
-    popFeature && popFeature("DATASOURCE_SCHEMA_CONTAINER");
-    setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
-  };
-
-  useEffect(() => {
-    const schemaContainer = document.querySelector(`#${SCHEMA_SECTION_ID}`);
-    if (schemaContainer && attachCloseWalkthrough) {
-      schemaContainer.addEventListener("click", closeWalkthrough);
-    }
-    return () => {
-      if (schemaContainer && attachCloseWalkthrough) {
-        schemaContainer.removeEventListener("click", closeWalkthrough);
-      }
-    };
-  }, [attachCloseWalkthrough]);
 
   useEffect(() => {
     if (datasourceStructure !== props.datasourceStructure) {
