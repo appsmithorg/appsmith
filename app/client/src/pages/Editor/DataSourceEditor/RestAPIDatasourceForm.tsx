@@ -844,11 +844,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             false,
           )}
         </FormInputContainer>
-        <FormInputContainer
-          data-location-id={btoa("authentication.authorizationExpiresIn")}
-        >
+        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
           {this.renderInputTextControlViaFormControl({
-            configProperty: "authentication.authorizationExpiresIn",
+            configProperty: "authentication.expiresIn",
             label: "Authorization expires in (seconds)",
             placeholderText: "3600",
             dataType: "NUMBER",

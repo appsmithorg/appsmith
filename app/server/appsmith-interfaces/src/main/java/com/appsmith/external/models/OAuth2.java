@@ -56,7 +56,7 @@ public class OAuth2 extends AuthenticationDTO {
 
     String authorizationUrl;
 
-    String authorizationExpiresIn;
+    String expiresIn;
 
     String accessTokenUrl;
 

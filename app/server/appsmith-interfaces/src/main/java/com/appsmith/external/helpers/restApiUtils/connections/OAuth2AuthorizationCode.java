@@ -144,9 +144,10 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     }
 
                     Instant expiresAt = null;
+                    String expiresIn = oAuth2.getExpiresIn();
                     // If expires_in property in datasource form is left blank when creating ds,
                     // We expect at least one of the following to be present
-                    if (StringUtils.isEmpty(oAuth2.getAuthorizationExpiresIn())) {
+                    if (StringUtils.isEmpty(expiresIn)) {
                         Object expiresAtResponse = mappedResponse.get(Authentication.EXPIRES_AT);
                         Object expiresInResponse = mappedResponse.get(Authentication.EXPIRES_IN);
                         if (expiresAtResponse != null) {
@@ -156,8 +157,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                         }
                     } else {
                         // we have expires_in field from datasource config, we will always use that
-                        String expiresInResponse = oAuth2.getAuthorizationExpiresIn();
-                        expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
+                        expiresAt = issuedAt.plusSeconds(Long.parseLong(expiresIn));
                     }
                     authenticationResponse.setExpiresAt(expiresAt);
                     authenticationResponse.setIssuedAt(issuedAt);

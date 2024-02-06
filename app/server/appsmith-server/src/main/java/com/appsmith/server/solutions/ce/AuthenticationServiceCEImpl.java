@@ -295,9 +295,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
                                 }
                                 Instant expiresAt = null;
+                                String expiresIn = oAuth2.getExpiresIn();
                                 // If expires_in property in datasource form is left blank when creating ds,
                                 // We expect at least one of the following to be present
-                                if (StringUtils.isEmpty(oAuth2.getAuthorizationExpiresIn())) {
+                                if (StringUtils.isEmpty(expiresIn)) {
                                     Object expiresAtResponse = response.get(Authentication.EXPIRES_AT);
                                     Object expiresInResponse = response.get(Authentication.EXPIRES_IN);
                                     if (expiresAtResponse != null) {
@@ -309,8 +310,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     }
                                 } else {
                                     // we have expires_in field from datasource config, we will always use that
-                                    String authorizationExpiresIn = oAuth2.getAuthorizationExpiresIn();
-                                    expiresAt = issuedAt.plusSeconds(Long.parseLong(authorizationExpiresIn));
+                                    expiresAt = issuedAt.plusSeconds(Long.parseLong(expiresIn));
                                 }
                                 authenticationResponse.setExpiresAt(expiresAt);
                                 // Replacing with returned scope instead
