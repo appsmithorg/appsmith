@@ -33,7 +33,7 @@ import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight, type WidgetFeatures } from "utils/WidgetFeatures";
 
 const StyledLink = styled(Link)`
   display: inline-block;
@@ -80,14 +80,14 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     };
   }
 
-  static getFeatures() {
+  static getFeatures(): WidgetFeatures {
     return {
       dynamicHeight: {
         sectionIndex: 2,
         active: true,
         defaultValue: DynamicHeight.FIXED,
-        helperText: (props: WidgetProps) => {
-          if (props.dynamicHeight !== DynamicHeight.FIXED) {
+        helperText: (props) => {
+          if (props?.dynamicHeight !== DynamicHeight.FIXED) {
             return (
               <div className="leading-5 mt-[10px]">
                 Make sure the container of the custom widget doesn&apos;t have
