@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
-import lombok.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
@@ -66,8 +65,9 @@ public class QueryAllParams<T extends BaseDomain> {
         return this;
     }
 
-    public QueryAllParams<T> byId(@NonNull String id) {
-        return criteria(Criteria.where(FieldName.ID).is(id));
+    public QueryAllParams<T> byId(String id) {
+        final Criteria w = Criteria.where(FieldName.ID);
+        return criteria(id == null ? w.isNull() : w.is(id));
     }
 
     public QueryAllParams<T> fields(String... fields) {
