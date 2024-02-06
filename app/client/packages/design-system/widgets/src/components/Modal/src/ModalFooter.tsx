@@ -7,7 +7,7 @@ import type { ModalFooterProps } from "./types";
 
 export const ModalFooter = (props: ModalFooterProps) => {
   const { closeText = "Close", onSubmit, submitText = "Submit" } = props;
-  const { onClose, setOpen } = usePopoverContext();
+  const { setOpen } = usePopoverContext();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -19,14 +19,9 @@ export const ModalFooter = (props: ModalFooterProps) => {
     }
   };
 
-  const closeHandler = () => {
-    onClose && onClose();
-    setOpen(false);
-  };
-
   return (
     <Flex alignItems="center" gap="spacing-4" justifyContent="end">
-      <Button onPress={closeHandler} variant="ghost">
+      <Button onPress={() => setOpen(false)} variant="ghost">
         {closeText}
       </Button>
 
