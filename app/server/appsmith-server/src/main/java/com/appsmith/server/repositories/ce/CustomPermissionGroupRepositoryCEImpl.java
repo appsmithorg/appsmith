@@ -1,11 +1,13 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.bridge.Update;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,12 +16,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,13 +66,23 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
+    @Transactional
+    @Modifying
     public Optional<UpdateResult> updateById(String id, Update updateObj) {
-        return Optional.empty(); /*
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        final EntityManager entityManager = getEntityManager();
+
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaUpdate<PermissionGroup> cu = cb.createCriteriaUpdate(genericDomain);
+        final Root<PermissionGroup> root = cu.from(genericDomain);
+        cu.where(cb.equal(root.get(FieldName.ID), id));
+
+        for (var entry : updateObj.getSetOps()) {
+            cu.set(root.get(entry.key()), entry.value());
         }
-        Query query = new Query(Criteria.where("id").is(id));
-        return mongoOperations.updateFirst(query, updateObj, this.genericDomain);*/
+
+        final int count = entityManager.createQuery(cu).executeUpdate();
+
+        return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
     }
 
     @SneakyThrows

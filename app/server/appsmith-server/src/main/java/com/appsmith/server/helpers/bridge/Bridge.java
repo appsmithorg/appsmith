@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers;
+package com.appsmith.server.helpers.bridge;
 
 import com.appsmith.external.models.BaseDomain;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -53,5 +53,9 @@ public class Bridge<T extends BaseDomain> implements Specification<T> {
     @SafeVarargs
     public static <T> Specification<T> allOf(Specification<T>... specifications) {
         return allOf((Iterable) Arrays.asList(specifications));
+    }
+
+    public static Update update() {
+        return new Update();
     }
 }

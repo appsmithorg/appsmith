@@ -4,11 +4,13 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.bulk.BulkWriteResult;
@@ -23,6 +25,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -40,7 +43,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -127,12 +132,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     @Deprecated
-    public static final Criteria userAcl(Set<String> permissionGroups, AclPermission permission) {
+    public static final Criteria userAcl(Collection<String> permissionGroups, AclPermission permission) {
         Optional<Criteria> criteria = userAcl(permissionGroups, Optional.ofNullable(permission));
         return criteria.orElse(null);
     }
 
-    public static final Optional<Criteria> userAcl(Set<String> permissionGroups, Optional<AclPermission> permission) {
+    public static final Optional<Criteria> userAcl(
+            Collection<String> permissionGroups, Optional<AclPermission> permission) {
         if (permission.isEmpty() || permissionGroups == null) {
             return Optional.empty();
         }
@@ -168,12 +174,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return findById(id, projectionFieldNames, Optional.ofNullable(permission));
     }
 
+    @SneakyThrows
     public Optional<T> findById(String id, List<String> projectionFieldNames, Optional<AclPermission> permission) {
         if (id == null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
 
-        final Set<String> permissionGroups = getCurrentUserPermissionGroupsIfRequired(permission);
+        final List<String> permissionGroups = new ArrayList<>(getCurrentUserPermissionGroupsIfRequired(permission));
         Query query = new Query(getIdCriteria(id));
         query.addCriteria(notDeleted());
         Optional<Criteria> userAcl = userAcl(permissionGroups, permission);
@@ -190,7 +197,25 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
         final Root<T> root = cq.from(genericDomain);
-        cq.where(cb.equal(root.get(fieldName(QBaseDomain.baseDomain.id)), id));
+
+        Map<String, String> fnVars = new HashMap<>();
+        fnVars.put("p", permission.get().getValue());
+        final List<String> conditions = new ArrayList<>();
+        for (var i = 0; i < permissionGroups.size(); i++) {
+            fnVars.put("g" + i, permissionGroups.get(i));
+            conditions.add("@ == $g" + i);
+        }
+        cq.where(cb.and(
+                cb.equal(root.get(fieldName(QBaseDomain.baseDomain.id)), id),
+                cb.isNull(root.get(fieldName(QBaseDomain.baseDomain.deletedAt))),
+                cb.isTrue(cb.function(
+                        "jsonb_path_exists",
+                        Boolean.class,
+                        root.get(fieldName(QPermissionGroup.permissionGroup.policies)),
+                        cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                                + String.join(" || ", conditions) + ")))"),
+                        cb.literal(new ObjectMapper().writeValueAsString(fnVars))))));
+
         final TypedQuery<T> q = entityManager.createQuery(cq);
 
         // All public access is via a single permission group. Fetch the same and set the cache with it.
@@ -516,7 +541,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return setUserPermissionsInObject(obj, getCurrentUserPermissionGroups());
     }
 
-    public T setUserPermissionsInObject(T obj, Set<String> permissionGroups) {
+    public T setUserPermissionsInObject(T obj, Collection<String> permissionGroups) {
         return obj; /*
                     Set<String> permissions = new HashSet<>();
                     obj.setUserPermissions(permissions);
@@ -633,7 +658,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      *
      * @see FindAndModifyOptions
      */
-    public T updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+    public T updateAndReturn(
+            String id, com.appsmith.server.helpers.bridge.Update updateObj, Optional<AclPermission> permission) {
         return null; /*
                      Query query = new Query(Criteria.where("id").is(id));
 

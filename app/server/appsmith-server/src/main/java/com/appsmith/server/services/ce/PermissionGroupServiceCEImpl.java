@@ -6,7 +6,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
@@ -25,7 +24,6 @@ import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,7 +38,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GROUP;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepositoryCake, PermissionGroup, String>
@@ -415,14 +412,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
                     assignedToUserIds.remove(userId);
 
-                    Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
-
-                    updateObj.set(path, assignedToUserIds);
-
-                    return repository
-                            .updateById(permissionGroupId, updateObj)
-                            .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
+                    return repository.save(permissionGroup).then(cleanPermissionGroupCacheForUsers(List.of(userId)));
                 })
                 .map(tuple -> TRUE);
     }

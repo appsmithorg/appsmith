@@ -234,10 +234,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Create a list of UserAndGroupDTO
         Mono<List<MemberInfoDTO>> userAndPermissionGroupDTOsMono = permissionGroupFlux
                 .collectList()
-                .map(x -> {
-                    System.out.println(x);
-                    return x;
-                })
                 .map(this::mapPermissionGroupListToUserAndPermissionGroupDTOList)
                 .cache();
 
@@ -246,20 +242,11 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(Flux::fromIterable)
                 .map(MemberInfoDTO::getUserId)
                 .collect(Collectors.toSet())
-                .map(x -> {
-                    System.out.println(x);
-                    return x;
-                })
                 .cache();
 
         // Create a map of User.id to User
-        Mono<Map<String, User>> userMapMono = userIdsMono
-                .flatMapMany(userRepository::findAllById)
-                .collectMap(User::getId)
-                .map(x -> {
-                    System.out.println(x);
-                    return x;
-                });
+        Mono<Map<String, User>> userMapMono =
+                userIdsMono.flatMapMany(userRepository::findAllById).collectMap(User::getId);
 
         // Create a map of UserData.userUd to UserData
         Mono<Map<String, String>> userDataMapMono = userIdsMono
@@ -391,13 +378,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         // Get default permission groups
-        return workspaceMono
-                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(
-                        workspace, permissionGroupPermission.getMembersReadPermission()))
-                .map(x -> {
-                    System.out.println(x);
-                    return x;
-                });
+        return workspaceMono.flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(
+                workspace, permissionGroupPermission.getMembersReadPermission()));
     }
 
     @Override

@@ -2,16 +2,16 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.helpers.bridge.Update;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Update;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
@@ -31,7 +31,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
             int limit,
             int skip);
 
-    T setUserPermissionsInObject(T obj, Set<String> permissionGroups);
+    T setUserPermissionsInObject(T obj, Collection<String> permissionGroups);
 
     T setUserPermissionsInObject(T obj);
 

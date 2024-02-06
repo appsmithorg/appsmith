@@ -216,13 +216,14 @@ def generate_cake_class(domain):
     import com.appsmith.external.models.*;
     import com.appsmith.server.acl.AclPermission;
     import com.appsmith.server.domains.*;
+    import com.appsmith.server.helpers.bridge.Update;
     import com.appsmith.server.projections.*;
     import com.appsmith.server.repositories.*;
     import org.springframework.stereotype.Component;
     import org.springframework.data.domain.Sort;
     import reactor.core.publisher.Flux;
     import reactor.core.publisher.Mono;
-    import org.springframework.data.mongodb.core.query.*;
+    import org.springframework.data.mongodb.core.query.Criteria;
     import com.mongodb.bulk.BulkWriteResult;
     import com.mongodb.client.result.InsertManyResult;
     import com.querydsl.core.types.dsl.StringPath;
