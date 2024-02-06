@@ -286,6 +286,13 @@ export function EditorJSONtoForm(props: Props) {
     }
   }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
 
+  useEffect(() => {
+    if (showSchema) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.SCHEMA_TAB));
+    }
+  }, [showSchema]);
+
   // When multiple page load queries exist, we want to response tab by default for all of them
   // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
   useEffect(() => {
