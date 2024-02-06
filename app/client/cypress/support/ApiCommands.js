@@ -85,7 +85,7 @@ Cypress.Commands.add("EditApiNameFromExplorer", (apiname) => {
     .clear()
     .type(apiname, { force: true })
     .should("have.value", apiname)
-    .blur();
+    .blur({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(3000);
 });
