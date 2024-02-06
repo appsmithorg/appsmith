@@ -879,7 +879,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
             return repository
-                    .findById(defaultApplicationId, projectionFieldNames, aclPermission)
+                    .queryBuilder()
+                    .byId(defaultApplicationId)
+                    .fields(projectionFieldNames)
+                    .permission(aclPermission)
+                    .one()
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
         }

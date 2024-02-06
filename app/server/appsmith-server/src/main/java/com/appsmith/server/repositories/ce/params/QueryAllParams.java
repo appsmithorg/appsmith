@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce.params;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import org.springframework.data.domain.Sort;
@@ -45,6 +46,10 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.queryFirstExecute(this);
     }
 
+    public Mono<Long> count() {
+        return repo.countExecute(this);
+    }
+
     public QueryAllParams<T> criteria(Criteria... criteria) {
         if (criteria == null) {
             return this;
@@ -58,6 +63,11 @@ public class QueryAllParams<T extends BaseDomain> {
         }
         this.criteria.addAll(criterias);
         return this;
+    }
+
+    public QueryAllParams<T> byId(String id) {
+        final Criteria w = Criteria.where(FieldName.ID);
+        return criteria(id == null ? w.isNull() : w.is(id));
     }
 
     public QueryAllParams<T> fields(String... fields) {
