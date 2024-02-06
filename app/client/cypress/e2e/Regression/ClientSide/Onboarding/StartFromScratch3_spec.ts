@@ -27,6 +27,9 @@ describe(
       });
       agHelper.GetNClick(onboarding.locators.startFromScratchCard);
       onboarding.closeIntroModal();
+      featureFlagIntercept({
+        ab_show_templates_instead_of_blank_canvas_enabled: true,
+      });
       agHelper.AssertElementLength(
         templates.locators._buildingBlockCardOnCanvas,
         3,
