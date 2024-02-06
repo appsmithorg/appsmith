@@ -8,7 +8,7 @@ import type {
   JSActionEntityConfig,
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
-import { isEmpty, isFunction } from "lodash";
+import { isFunction } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import ConfigTreeActions from "utils/configTree";
 import store from "store";
@@ -91,36 +91,25 @@ const getActionBindings = (
 ) => {
   const config = (entityDefinitions.ACTION as any)(entity as any);
 
-  if (config) {
-    entityProperties = Object.keys(config)
-      .filter((k) => k.indexOf("!") === -1)
-      .map((actionProperty: string) => {
-        let value = entity[actionProperty];
-        if (actionProperty === ActionEntityPublicProperties.isLoading) {
-          value = entity.isLoading;
-        }
-        if (
-          actionProperty === ActionEntityPublicProperties.run ||
-          actionProperty === ActionEntityPublicProperties.clear
-        ) {
-          value = "Function";
-          actionProperty = actionProperty + "()";
-        }
-        if (actionProperty === ActionEntityPublicProperties.data) {
-          if (isEmpty(entity.data) || !entity.data.hasOwnProperty("body")) {
-            value = {};
-          } else {
-            value = entity.data.body;
-          }
-        }
-        return {
-          propertyName: actionProperty,
-          entityName: entityName,
-          value,
-          entityType,
-        };
-      });
-  }
+  entityProperties = Object.keys(config || {})
+    .filter((k) => k.indexOf("!") === -1)
+    .map((actionProperty) => {
+      let value = entity[actionProperty];
+      if (
+        actionProperty === ActionEntityPublicProperties.run ||
+        actionProperty === ActionEntityPublicProperties.clear
+      ) {
+        value = "Function";
+        actionProperty = actionProperty + "()";
+      }
+      return {
+        propertyName: actionProperty,
+        entityName: entityName,
+        value,
+        entityType,
+      };
+    });
+
   return entityProperties;
 };
 
