@@ -145,11 +145,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<T> findById(String id, AclPermission permission) {
-        return queryBuilder()
-                .byId(id)
-                .fields((List<String>) null)
-                .permission(permission)
-                .one();
+        return queryBuilder().byId(id).permission(permission).one();
     }
 
     /**

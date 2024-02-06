@@ -224,7 +224,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .is(branchName);
         return queryBuilder()
                 .criteria(defaultAppCriteria, branchNameCriteria)
-                .fields((List<String>) null)
                 .permission(aclPermission.orElse(null))
                 .one();
     }
