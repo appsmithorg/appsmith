@@ -22,12 +22,7 @@ describe(
         homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
       });
       agHelper.GetNClick(onboarding.locators.startFromScratchCard);
-
       onboarding.closeIntroModal();
-
-      featureFlagIntercept({
-        ab_show_templates_instead_of_blank_canvas_enabled: true,
-      });
       agHelper.AssertElementLength(
         templates.locators._buildingBlockCardOnCanvas,
         3,

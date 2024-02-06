@@ -110,15 +110,16 @@ export const featureFlagInterceptForLicenseFlags = () => {
 };
 
 function ReloadAfterIntercept() {
-  cy.reload();
-  cy.waitUntil(() =>
-    cy.document().should((doc) => {
-      expect(doc.readyState).to.equal("complete");
-    }),
-  );
-  cy.waitUntil(() =>
-    cy
-      .window({ timeout: Cypress.config().pageLoadTimeout })
-      .then((win) => expect(win).haveOwnProperty("onload")),
-  );
+  cy.reload().then(() => {
+    cy.waitUntil(() =>
+      cy.document().should((doc) => {
+        expect(doc.readyState).to.equal("complete");
+      }),
+    );
+    cy.waitUntil(() =>
+      cy
+        .window({ timeout: Cypress.config().pageLoadTimeout })
+        .then((win) => expect(win).haveOwnProperty("onload")),
+    );
+  });
 }
