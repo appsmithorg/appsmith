@@ -28,10 +28,7 @@ import {
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
-import {
-  closeAppSettingsPaneAction,
-  updateAppSettingsPaneSelectedTabAction,
-} from "actions/appSettingsPaneActions";
+import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
@@ -79,7 +76,7 @@ const PageSectionTitle = styled.p`
 
 const ThemeContentWrapper = styled.div`
   height: calc(100% - 48px);
-  overflow-y: overlay;
+  overflow-y: scroll;
 `;
 
 function AppSettings() {
@@ -116,10 +113,6 @@ function AppSettings() {
         },
       }),
     );
-
-    return () => {
-      dispatch(closeAppSettingsPaneAction());
-    };
   }, [selectedTab]);
 
   const SectionHeadersConfig: SectionHeaderProps[] = [
@@ -196,7 +189,7 @@ function AppSettings() {
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />
         ))}
-        <Divider />
+        <Divider orientation={"horizontal"} />
         <PageSectionTitle>{PAGE_SETTINGS_SECTION_HEADER()}</PageSectionTitle>
         <DraggablePageList
           onPageSelect={(pageId: string) =>

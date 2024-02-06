@@ -14,7 +14,6 @@ import {
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
-import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import EditorPane from "../EditorPane";
@@ -26,14 +25,10 @@ export const LeftPaneContainer = styled.div`
 `;
 
 const LeftPane = () => {
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const isPagesPaneEnabled = useFeatureFlag(
     FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
   );
   const { path } = useRouteMatch();
-  if (!isAppSidebarEnabled) {
-    return <WidgetsEditorEntityExplorer />;
-  }
   return (
     <LeftPaneContainer>
       <Switch>

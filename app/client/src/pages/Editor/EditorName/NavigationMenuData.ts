@@ -19,12 +19,9 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
-import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { toast } from "design-system";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
@@ -39,8 +36,6 @@ export const GetNavigationMenuData = ({
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
-  const isProtectedMode = useSelector(protectedModeSelector);
 
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -83,8 +78,6 @@ export const GetNavigationMenuData = ({
       kind: "success",
     });
   };
-
-  const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
 
   const deleteApplication = () => {
     if (applicationId && applicationId.length > 0) {
@@ -165,12 +158,6 @@ export const GetNavigationMenuData = ({
           isVisible: true,
         },
       ],
-    },
-    {
-      text: "Settings",
-      onClick: openAppSettingsPane,
-      type: MenuTypes.MENU,
-      isVisible: !isAppSidebarEnabled && !isProtectedMode,
     },
     {
       text: "Help",

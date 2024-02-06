@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from "react";
-import { getIsAppSidebarAnnouncementEnabled } from "selectors/ideSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -13,9 +12,6 @@ import { BottomButtons, TopButtons } from "@appsmith/entities/IDE/constants";
 function Sidebar() {
   const dispatch = useDispatch();
   const appState = useCurrentAppState();
-  const isAppSidebarAnnouncementEnabled = useSelector(
-    getIsAppSidebarAnnouncementEnabled,
-  );
   const pageId = useSelector(getCurrentPageId);
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
@@ -43,7 +39,6 @@ function Sidebar() {
     <SidebarComponent
       appState={appState}
       bottomButtons={BottomButtons}
-      isAppSidebarAnnouncementEnabled={isAppSidebarAnnouncementEnabled}
       onClick={onClick}
       topButtons={TopButtons}
     />
