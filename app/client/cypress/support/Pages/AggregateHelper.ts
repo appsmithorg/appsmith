@@ -1727,7 +1727,11 @@ export class AggregateHelper {
   }
 
   public VisitNAssert(url: string, apiToValidate = "") {
-    cy.visit(url, { timeout: 60000 });
+    this.WaitForCondition(() => {
+      cy.visit(url).then((contentWindow) => {
+        expect(contentWindow.document).to.exist;
+      });
+    });
     // cy.window({ timeout: 60000 }).then((win) => {
     //   win.location.href = url;
     // });
