@@ -1390,16 +1390,6 @@ export class DataSources {
     this.agHelper.GetNClick(this._datasourceSchemaRefreshBtn);
   }
 
-  public VerifySchemaCollapsibleOpenState(isOpen = false) {
-    if (isOpen) {
-      this.agHelper.AssertElementVisibility(
-        this._datasourceStructureSearchInput,
-      );
-    } else {
-      this.agHelper.AssertElementAbsence(this._datasourceStructureSearchInput);
-    }
-  }
-
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
     expectedTableName = search,

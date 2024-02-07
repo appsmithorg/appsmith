@@ -8,7 +8,6 @@ import type { DatasourceStructure as DatasourceStructureType } from "entities/Da
 import { DatasourceStructureContext } from "entities/Datasource";
 import type { ReactElement } from "react";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import EntityPlaceholder from "../Explorer/Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
 import { Button, Flex, SearchInput, Text } from "design-system";
 import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
@@ -91,34 +90,6 @@ const Container = (props: Props) => {
     if (props.datasourceStructure?.tables?.length) {
       view = (
         <>
-          {props.context !== DatasourceStructureContext.EXPLORER && (
-            <DatasourceStructureSearchContainer
-              className={`t--search-container--${props.context.toLowerCase()}`}
-            >
-              {props.showRefresh ? (
-                <Button
-                  className="datasourceStructure-refresh"
-                  isIconButton
-                  kind="tertiary"
-                  onClick={refreshStructure}
-                  size="md"
-                  startIcon="refresh"
-                />
-              ) : null}
-              <SearchInput
-                className="datasourceStructure-search"
-                endIcon="close"
-                onChange={(value) => handleOnChange(value)}
-                placeholder={createMessage(
-                  DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
-                  props.datasourceName,
-                )}
-                size={"sm"}
-                startIcon="search"
-                type="text"
-              />
-            </DatasourceStructureSearchContainer>
-          )}
           {!!datasourceStructure?.tables?.length && (
             <DatasourceStructure
               context={props.context}
@@ -144,37 +115,22 @@ const Container = (props: Props) => {
         </>
       );
     } else {
-      if (props.context !== DatasourceStructureContext.EXPLORER) {
-        view = (
-          <DatasourceStructureNotFound
-            context={props.context}
-            customEditDatasourceFn={props?.customEditDatasourceFn}
-            datasourceId={props.datasourceId}
-            error={
-              !!props.datasourceStructure &&
-              "error" in props.datasourceStructure
-                ? props.datasourceStructure.error
-                : { message: createMessage(SCHEMA_NOT_AVAILABLE) }
-            }
-            pluginName={props?.pluginName || ""}
-          />
-        );
-      } else {
-        view = (
-          <EntityPlaceholder step={props.step + 1}>
-            {props.datasourceStructure &&
-            props.datasourceStructure.error &&
-            props.datasourceStructure.error.message &&
-            props.datasourceStructure.error.message !== "null"
-              ? props.datasourceStructure.error.message
-              : createMessage(SCHEMA_NOT_AVAILABLE)}
-          </EntityPlaceholder>
-        );
-      }
+      view = (
+        <DatasourceStructureNotFound
+          context={props.context}
+          customEditDatasourceFn={props?.customEditDatasourceFn}
+          datasourceId={props.datasourceId}
+          error={
+            !!props.datasourceStructure && "error" in props.datasourceStructure
+              ? props.datasourceStructure.error
+              : { message: createMessage(SCHEMA_NOT_AVAILABLE) }
+          }
+          pluginName={props?.pluginName || ""}
+        />
+      );
     }
   } else if (
     // intentionally leaving this here in case we want to show loading states in the explorer or query editor page
-    props.context !== DatasourceStructureContext.EXPLORER &&
     isLoading
   ) {
     view = (
@@ -184,7 +140,37 @@ const Container = (props: Props) => {
     );
   }
 
-  return view;
+  return (
+    <>
+      <DatasourceStructureSearchContainer
+        className={`t--search-container--${props.context.toLowerCase()}`}
+      >
+        {props.showRefresh ? (
+          <Button
+            className="datasourceStructure-refresh"
+            isIconButton
+            kind="tertiary"
+            onClick={refreshStructure}
+            size="md"
+            startIcon="refresh"
+          />
+        ) : null}
+        <SearchInput
+          className="datasourceStructure-search"
+          endIcon="close"
+          onChange={(value) => handleOnChange(value)}
+          placeholder={createMessage(
+            DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
+            props.datasourceName,
+          )}
+          size={"sm"}
+          startIcon="search"
+          type="text"
+        />
+      </DatasourceStructureSearchContainer>
+      {view}
+    </>
+  );
 };
 
 export const DatasourceStructureContainer = memo(Container);

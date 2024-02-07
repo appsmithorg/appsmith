@@ -3,7 +3,7 @@ import Entity, { EntityClassNames } from "../Explorer/Entity";
 import { datasourceTableIcon } from "../Explorer/ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
 import type { DatasourceTable } from "entities/Datasource";
-import { DatasourceStructureContext } from "entities/Datasource";
+import type { DatasourceStructureContext } from "entities/Datasource";
 import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { useSelector } from "react-redux";
@@ -104,11 +104,7 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
               isIconButton
               kind="tertiary"
               onClick={() => setActive(!active)}
-              startIcon={
-                props.context !== DatasourceStructureContext.EXPLORER
-                  ? "add-line"
-                  : "increase-control-v2"
-              }
+              startIcon={"add-line"}
             />
           </MenuTrigger>
         </Tooltip>
@@ -141,10 +137,7 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
     <Entity
       action={onEntityClick}
       active={activeState}
-      className={`datasourceStructure${
-        props.context !== DatasourceStructureContext.EXPLORER &&
-        `-${props.context}`
-      }`}
+      className={`datasourceStructure-${props.context}`}
       collapseRef={collapseRef}
       contextMenu={templateMenu}
       entityId={`${props.datasourceId}-${dbStructure.name}-${props.context}`}

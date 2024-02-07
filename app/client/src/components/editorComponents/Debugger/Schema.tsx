@@ -102,7 +102,7 @@ const Schema = (props: Props) => {
         padding="spaces-3"
       >
         {isLoading ? <RenderInterimDataState state="LOADING" /> : null}
-        {columns.length === 0 ? (
+        {!isLoading && columns.length === 0 ? (
           <RenderInterimDataState state="NOCOLUMNS" />
         ) : null}
         {!isLoading &&
