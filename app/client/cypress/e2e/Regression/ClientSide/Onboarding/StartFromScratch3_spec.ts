@@ -15,7 +15,7 @@ describe(
   "Start with scratch userflow",
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   function () {
-    before(() => {
+    beforeEach(() => {
       homePage.Signout(true);
       featureFlagIntercept({
         ab_show_templates_instead_of_blank_canvas_enabled: true,
