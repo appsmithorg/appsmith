@@ -6,16 +6,22 @@ import styled from "styled-components";
 import StartWithTemplates from "../StartWithTemplates";
 
 interface Props {
+  isForkingEnabled?: boolean;
   isStartWithTemplateFlow?: boolean;
   onTemplateClick: (id: string) => void;
+  onForkTemplateClick?: (templateId: string) => void;
 }
 
 const TemplatesListLayoutSwitcher = ({
+  isForkingEnabled = false,
   isStartWithTemplateFlow,
+  onForkTemplateClick,
   onTemplateClick,
 }: Props) => {
-  const onForkTemplateClick = (template: TemplateInterface) => {
-    onTemplateClick(template.id);
+  const handleForking = (template: TemplateInterface) => {
+    onForkTemplateClick
+      ? onForkTemplateClick(template.id)
+      : onTemplateClick(template.id);
   };
   const initFilters = useMemo(
     () =>
@@ -29,8 +35,9 @@ const TemplatesListLayoutSwitcher = ({
       <TemplateWrapper>
         <StartWithTemplates
           initialFilters={initFilters}
+          isForkingEnabled={isForkingEnabled}
           isModalLayout
-          onForkTemplateClick={onForkTemplateClick}
+          onForkTemplateClick={handleForking}
           setSelectedTemplate={onTemplateClick}
         />
       </TemplateWrapper>
