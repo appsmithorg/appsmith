@@ -25,7 +25,6 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   });
 
   it("Testing connect to git flow - V2", function () {
-
     _.gitSync.CreateNConnectToGitV2();
 
     cy.get("@gitRepoName").then((repName) => {
@@ -34,7 +33,6 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   });
 
   it("Testing import via git flow - V2", function () {
-
     _.gitSync.CreateGitBranch("test", true);
     cy.get("@gitbranchName").then((bName) => {
       branchName = bName;
