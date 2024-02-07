@@ -296,15 +296,15 @@ public class PartialImportServiceTest {
                     List<ActionCollection> actionCollectionList = object.getT3();
 
                     // Verify that the application has the imported resource
-                    assertThat(application.getPages().size()).isEqualTo(1);
+                    assertThat(application.getPages()).hasSize(1);
 
-                    assertThat(actionCollectionList.size()).isEqualTo(1);
+                    assertThat(actionCollectionList).hasSize(1);
                     assertThat(actionCollectionList
                                     .get(0)
                                     .getUnpublishedCollection()
                                     .getName())
                             .isEqualTo("utils");
-                    assertThat(actionList.size()).isEqualTo(4);
+                    assertThat(actionList).hasSize(4);
                     Set<String> actionNames = Set.of("DeleteQuery", "UpdateQuery", "SelectQuery", "InsertQuery");
                     actionList.forEach(action -> {
                         assertThat(actionNames.contains(
@@ -354,17 +354,17 @@ public class PartialImportServiceTest {
                     List<ActionCollection> actionCollectionList = object.getT3();
 
                     // Verify that the application has the imported resource
-                    assertThat(application1.getPages().size()).isEqualTo(2);
+                    assertThat(application1.getPages()).hasSize(2);
 
-                    assertThat(application1.getUnpublishedCustomJSLibs().size()).isEqualTo(1);
+                    assertThat(application1.getUnpublishedCustomJSLibs()).hasSize(1);
 
-                    assertThat(actionCollectionList.size()).isEqualTo(1);
+                    assertThat(actionCollectionList).hasSize(1);
                     assertThat(actionCollectionList
                                     .get(0)
                                     .getUnpublishedCollection()
                                     .getName())
                             .isEqualTo("Github_Transformer");
-                    assertThat(actionList.size()).isEqualTo(1);
+                    assertThat(actionList).hasSize(1);
                     Set<String> actionNames = Set.of("get_force_roster");
                     actionList.forEach(action -> {
                         assertThat(actionNames.contains(
@@ -416,16 +416,16 @@ public class PartialImportServiceTest {
                     List<ActionCollection> actionCollectionList = object.getT3();
 
                     // Verify that the application has the imported resource
-                    assertThat(application.getPages().size()).isEqualTo(1);
+                    assertThat(application.getPages()).hasSize(1);
 
-                    assertThat(actionCollectionList.size()).isEqualTo(2);
+                    assertThat(actionCollectionList).hasSize(2);
                     Set<String> nameList = Set.of("utils", "utils1");
                     actionCollectionList.forEach(collection -> {
                         assertThat(nameList.contains(
                                         collection.getUnpublishedCollection().getName()))
                                 .isTrue();
                     });
-                    assertThat(actionList.size()).isEqualTo(8);
+                    assertThat(actionList).hasSize(8);
                     Set<String> actionNames = Set.of(
                             "DeleteQuery",
                             "UpdateQuery",

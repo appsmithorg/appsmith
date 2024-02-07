@@ -803,7 +803,7 @@ public class ActionServiceCE_Test {
                     assertThat(actionViewDTO.getTimeoutInMillisecond()).isNotNull();
                     assertThat(actionViewDTO.getPageId()).isNotNull();
                     assertThat(actionViewDTO.getConfirmBeforeExecute()).isNotNull();
-                    assertThat(actionViewDTO.getJsonPathKeys().size()).isEqualTo(1);
+                    assertThat(actionViewDTO.getJsonPathKeys()).hasSize(1);
                 })
                 .verifyComplete();
     }
@@ -898,7 +898,7 @@ public class ActionServiceCE_Test {
         StepVerifier.create(newActionMono)
                 .assertNext(actionDTO -> {
                     assertThat(actionDTO).isNotNull();
-                    assertThat(actionDTO.getJsonPathKeys().size()).isEqualTo(1);
+                    assertThat(actionDTO.getJsonPathKeys()).hasSize(1);
                     assertThat(actionDTO.getJsonPathKeys()).isEqualTo(Set.of("one.text"));
                 })
                 .verifyComplete();
@@ -946,7 +946,7 @@ public class ActionServiceCE_Test {
                 .assertNext(actionDTO -> {
                     assertThat(actionDTO).isNotNull();
                     assertThat(actionDTO.getActionConfiguration().getBody()).isEqualTo("New Body");
-                    assertThat(actionDTO.getJsonPathKeys().size()).isEqualTo(1);
+                    assertThat(actionDTO.getJsonPathKeys()).hasSize(1);
                     assertThat(actionDTO.getJsonPathKeys()).isEqualTo(Set.of("two.text"));
                 })
                 .verifyComplete();
@@ -987,7 +987,7 @@ public class ActionServiceCE_Test {
         StepVerifier.create(newActionMono)
                 .assertNext(actionDTO -> {
                     assertThat(actionDTO).isNotNull();
-                    assertThat(actionDTO.getJsonPathKeys().size()).isEqualTo(0);
+                    assertThat(actionDTO.getJsonPathKeys()).hasSize(0);
                 })
                 .verifyComplete();
     }

@@ -66,8 +66,8 @@ class CustomNewPageRepositoryTest {
 
         StepVerifier.create(tuple2Mono)
                 .assertNext(objects -> {
-                    assertThat(objects.getT1().size()).isEqualTo(2);
-                    assertThat(objects.getT2().size()).isEqualTo(1);
+                    assertThat(objects.getT1()).hasSize(2);
+                    assertThat(objects.getT2()).hasSize(1);
 
                     objects.getT1().forEach(newPage -> {
                         PageDTO publishedPage = newPage.getPublishedPage();
@@ -77,8 +77,8 @@ class CustomNewPageRepositoryTest {
                         assertThat(publishedPage).isNotNull();
                         assertThat(unpublishedPage.getName()).isEqualTo(publishedPage.getName());
                         assertThat(unpublishedPage.getSlug()).isEqualTo(publishedPage.getSlug());
-                        assertThat(unpublishedPage.getLayouts().size())
-                                .isEqualTo(publishedPage.getLayouts().size());
+                        assertThat(unpublishedPage.getLayouts())
+                                .hasSize(publishedPage.getLayouts().size());
                     });
 
                     objects.getT2().forEach(newPage -> {
@@ -93,7 +93,7 @@ class CustomNewPageRepositoryTest {
                         assertThat(unpublishedPage.getSlug()).isNotNull();
                         assertThat(publishedPage.getSlug()).isNull();
 
-                        assertThat(unpublishedPage.getLayouts().size()).isEqualTo(1);
+                        assertThat(unpublishedPage.getLayouts()).hasSize(1);
                         assertThat(publishedPage.getLayouts()).isNull();
                     });
                 })
