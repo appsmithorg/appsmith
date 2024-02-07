@@ -6,7 +6,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
-import { Button } from "design-system";
+import { Button, Flex } from "design-system";
 import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
@@ -15,7 +15,10 @@ interface State {
   focusedIndex: number | null;
 }
 
-class ButtonListControl extends BaseControl<ControlProps, State> {
+class ButtonListControl extends BaseControl<
+  ControlProps & { allowSeparators?: boolean },
+  State
+> {
   constructor(props: ControlProps) {
     super(props);
 
@@ -41,6 +44,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
       isDisabled: boolean;
       isVisible: boolean;
       widgetId: string;
+      isSeparator: boolean;
     }> =
       isString(this.props.propertyValue) ||
       isUndefined(this.props.propertyValue)
@@ -95,15 +99,26 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
           updateOption={this.updateOption}
         />
 
-        <Button
-          className="self-end"
-          kind="tertiary"
-          onClick={this.addOption}
-          size="sm"
-          startIcon="plus"
-        >
-          Add new button
-        </Button>
+        <Flex justifyContent="end">
+          <Button
+            className="self-end"
+            kind="tertiary"
+            onClick={() => this.addOption({ isSeparator: false })}
+            size="sm"
+          >
+            Add button
+          </Button>
+          {this.props.allowSeparators && (
+            <Button
+              className="self-end"
+              kind="tertiary"
+              onClick={() => this.addOption({ isSeparator: true })}
+              size="sm"
+            >
+              Add Separator
+            </Button>
+          )}
+        </Flex>
       </div>
     );
   }
@@ -151,7 +166,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
     );
   };
 
-  addOption = () => {
+  addOption = ({ isSeparator }: { isSeparator?: boolean }) => {
     let groupButtons = this.props.propertyValue;
     const groupButtonsArray = this.getMenuItems();
     const newGroupButtonId = generateReactKey({ prefix: "groupButton" });
@@ -165,9 +180,10 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
       [newGroupButtonId]: {
         id: newGroupButtonId,
         index: groupButtonsArray.length,
-        label: newGroupButtonLabel,
+        label: isSeparator ? "Separator" : newGroupButtonLabel,
         widgetId: generateReactKey(),
         isDisabled: false,
+        itemType: isSeparator ? "SEPARATOR" : "BUTTON",
         isVisible: true,
       },
     };

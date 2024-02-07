@@ -12,14 +12,20 @@ export const MenuList = <T extends object>(props: MenuListProps<T>) => {
 
   return (
     <ul {...menuProps} className={listClassName} ref={ref}>
-      {[...state.collection].map((item) => (
-        <MenuItem
-          className={itemClassName}
-          item={item}
-          key={item.key}
-          state={state}
-        />
-      ))}
+      {[...state.collection].map((item) => {
+        if (Boolean(item.props.isSeparator)) {
+          return <div data-separator="" key={item.key} />;
+        }
+
+        return (
+          <MenuItem
+            className={itemClassName}
+            item={item}
+            key={item.key}
+            state={state}
+          />
+        );
+      })}
     </ul>
   );
 };
