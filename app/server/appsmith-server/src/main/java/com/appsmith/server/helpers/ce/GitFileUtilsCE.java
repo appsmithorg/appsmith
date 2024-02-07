@@ -185,7 +185,7 @@ public class GitFileUtilsCE {
      */
     public ApplicationGitReference createApplicationReference(ApplicationJson applicationJson) {
         ApplicationGitReference applicationReference = new ApplicationGitReference();
-        applicationReference.setUpdatedResources(applicationJson.getUpdatedResources());
+        applicationReference.setModifiedResources(applicationJson.getModifiedResources());
 
         setApplicationInApplicationReference(applicationJson, applicationReference);
 
@@ -223,7 +223,7 @@ public class GitFileUtilsCE {
                 .collect(Collectors.toList());
 
         ApplicationJson applicationMetadata = new ApplicationJson();
-        applicationJson.setUpdatedResources(null);
+        applicationJson.setModifiedResources(null);
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
     }

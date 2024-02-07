@@ -31,7 +31,7 @@ describe(
       });
     });
 
-    it("2. Verify Statbox icon button's onClick action and change the icon", () => {
+    it("2. Verify Statbox icon button's onClick action and change the icon to first available icon", () => {
       EditorNavigation.SelectEntityByName(
         "IconButton1",
         EntityType.Widget,
@@ -40,14 +40,13 @@ describe(
       );
       cy.get(".t--property-pane-section-general").then(() => {
         // changing the icon to arrow-up
-        cy.get(".bp3-button-text").first().click().wait(500);
-        cy.get(".bp3-icon-arrow-up").click().wait(500);
+        agHelper.GetNClick(".bp3-button-text");
+        agHelper.GetNClick(".bp3-icon", 0, true);
         // opening modal from onClick action of icon button
         cy.createModal("Modal", "onClick");
       });
       // verifying the changed icon
-      cy.get(".bp3-icon-arrow-up").should("be.visible").click({ force: true });
-
+      agHelper.GetNClick(".bp3-icon", 0, true);
       // verifying modal has been added
       cy.get(".t--modal-widget .t--draggable-iconbuttonwidget").click({
         force: true,

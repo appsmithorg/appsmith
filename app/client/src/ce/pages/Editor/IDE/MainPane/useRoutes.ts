@@ -24,7 +24,6 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
-import IntegrationEditor from "pages/Editor/IntegrationEditor";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import ApiEditor from "pages/Editor/APIEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
@@ -42,7 +41,6 @@ import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
-import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
 import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 import { useSelector } from "react-redux";
@@ -59,7 +57,6 @@ export interface RouteReturnType extends RouteProps {
  */
 
 function useRoutes(path: string): RouteReturnType[] {
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
 
@@ -104,9 +101,7 @@ function useRoutes(path: string): RouteReturnType[] {
       },
       {
         key: "Datasource Create and Active",
-        component: isAppSidebarEnabled
-          ? CreateNewDatasourceTab
-          : IntegrationEditor,
+        component: CreateNewDatasourceTab,
         exact: true,
         path: `${path}${INTEGRATION_EDITOR_PATH}`,
       },
@@ -159,9 +154,7 @@ function useRoutes(path: string): RouteReturnType[] {
     },
     {
       key: "Datasource Create and Active",
-      component: isAppSidebarEnabled
-        ? CreateNewDatasourceTab
-        : IntegrationEditor,
+      component: CreateNewDatasourceTab,
       exact: true,
       path: `${path}${INTEGRATION_EDITOR_PATH}`,
     },
@@ -211,7 +204,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "JSEditor File",
       component: JSEditor,
       exact: true,
-      path: `${path}${JS_COLLECTION_ID_PATH}`,
+      path: [
+        `${path}${JS_COLLECTION_ID_PATH}`,
+        `${path}${JS_COLLECTION_ID_PATH}${ADD_PATH}`,
+      ],
     },
     {
       key: "CurlImportEditor",
