@@ -6,7 +6,6 @@ import {
 } from "@appsmith/entities/DataTree/types";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { Def } from "tern";
 import type {
   ActionEntity,
@@ -275,30 +274,6 @@ export const GLOBAL_FUNCTIONS = {
       "Establish cross-origin communication between Window objects/page and iframes",
     "!type": "fn(message: unknown, source: string, targetOrigin: string)",
   },
-};
-
-export const getPropsForJSActionEntity = ({
-  config,
-  data,
-}: JSCollectionData): Record<string, string> => {
-  const properties: Record<string, any> = {};
-  const actions = config.actions;
-  if (actions && actions.length > 0)
-    for (let i = 0; i < config.actions.length; i++) {
-      const action = config.actions[i];
-      properties[action.name + "()"] = "Function";
-      if (data && action.id in data) {
-        properties[action.name + ".data"] = data[action.id];
-      }
-    }
-  const variablesProps = config.variables;
-  if (variablesProps && variablesProps.length > 0) {
-    for (let i = 0; i < variablesProps.length; i++) {
-      const variableProp = variablesProps[i];
-      properties[variableProp.name] = variableProp.value;
-    }
-  }
-  return properties;
 };
 
 export const ternDocsInfo: Record<string, any> = {

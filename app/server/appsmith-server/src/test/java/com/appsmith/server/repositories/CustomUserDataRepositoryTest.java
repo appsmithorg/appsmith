@@ -114,7 +114,7 @@ public class CustomUserDataRepositoryTest {
         StepVerifier.create(userDataAfterUpdateMono)
                 .assertNext(userData -> {
                     List<String> recentlyUsedAppIds = userData.getRecentlyUsedAppIds();
-                    assertThat(recentlyUsedAppIds.size()).isEqualTo(1);
+                    assertThat(recentlyUsedAppIds).hasSize(1);
                     assertThat(recentlyUsedAppIds.get(0)).isEqualTo("456");
                 })
                 .verifyComplete();
@@ -144,10 +144,10 @@ public class CustomUserDataRepositoryTest {
                 .assertNext(userData -> {
                     List<String> recentlyUsedAppIds = userData.getRecentlyUsedAppIds();
                     List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();
-                    assertThat(recentlyUsedAppIds.size()).isEqualTo(1);
+                    assertThat(recentlyUsedAppIds).hasSize(1);
                     assertThat(recentlyUsedAppIds.get(0)).isEqualTo("456");
 
-                    assertThat(recentlyUsedWorkspaceIds.size()).isEqualTo(2);
+                    assertThat(recentlyUsedWorkspaceIds).hasSize(2);
                     assertThat(recentlyUsedWorkspaceIds).contains("abc", "hij");
                 })
                 .verifyComplete();

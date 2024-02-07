@@ -439,12 +439,9 @@ public class CurlImporterServiceTest {
                                     .getUrl())
                             .isEqualTo("http://localhost:8080");
                     assertThat(action1.getActionConfiguration().getPath()).isEqualTo("/api/v1/actions");
-                    assertThat(action1.getActionConfiguration().getHeaders().size())
-                            .isEqualTo(11);
-                    assertThat(action1.getActionConfiguration()
-                                    .getQueryParameters()
-                                    .size())
-                            .isEqualTo(1);
+                    assertThat(action1.getActionConfiguration().getHeaders()).hasSize(11);
+                    assertThat(action1.getActionConfiguration().getQueryParameters())
+                            .hasSize(1);
                     assertThat(action1.getActionConfiguration().getHttpMethod()).isEqualTo(HttpMethod.GET);
                     assertThat(action1.getActionConfiguration().getBody()).isEqualTo("{someJson}");
 
@@ -502,12 +499,9 @@ public class CurlImporterServiceTest {
                                     .getUrl())
                             .isEqualTo("http://localhost:8080");
                     assertThat(action1.getActionConfiguration().getPath()).isEqualTo("/api/v1/actions");
-                    assertThat(action1.getActionConfiguration().getHeaders().size())
-                            .isEqualTo(11);
-                    assertThat(action1.getActionConfiguration()
-                                    .getQueryParameters()
-                                    .size())
-                            .isEqualTo(1);
+                    assertThat(action1.getActionConfiguration().getHeaders()).hasSize(11);
+                    assertThat(action1.getActionConfiguration().getQueryParameters())
+                            .hasSize(1);
                     assertThat(action1.getActionConfiguration().getHttpMethod()).isEqualTo(HttpMethod.GET);
                     assertThat(action1.getActionConfiguration().getBody()).isEqualTo("{someJson}");
 
@@ -538,7 +532,7 @@ public class CurlImporterServiceTest {
         final ActionConfiguration actionConfiguration = action.getActionConfiguration();
         assertThat(actionConfiguration.getPath()).isEqualTo("/scrap/api");
         assertThat(actionConfiguration.getHeaders()).isNullOrEmpty();
-        assertThat(actionConfiguration.getQueryParameters().size()).isEqualTo(2);
+        assertThat(actionConfiguration.getQueryParameters()).hasSize(2);
         assertThat(actionConfiguration.getHttpMethod()).isEqualTo(HttpMethod.POST);
         assertThat(actionConfiguration.getBody()).isNullOrEmpty();
     }
@@ -1095,7 +1089,7 @@ public class CurlImporterServiceTest {
 
         final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
         assertThat(actionConfiguration.getPath()).isEqualTo("/{id}/users");
-        assertThat(actionConfiguration.getQueryParameters().size()).isEqualTo(1);
+        assertThat(actionConfiguration.getQueryParameters()).hasSize(1);
         assertThat(actionConfiguration.getQueryParameters().get(0).getKey()).isEqualTo("name");
         assertThat(actionConfiguration.getQueryParameters().get(0).getValue()).isEqualTo("test");
         assertThat(actionConfiguration.getHttpMethod()).isEqualTo(HttpMethod.GET);
