@@ -17,6 +17,7 @@ import io.opentelemetry.sdk.metrics.export.DefaultAggregationSelector;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.resources.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -33,6 +34,12 @@ import java.util.Optional;
 public class ServerApplication {
 
     private final ProjectProperties projectProperties;
+
+    @Value("${spring.application.name}")
+    private String newRelicApplicationName;
+
+    @Value("${appsmith.newrelic.licensekey}")
+    private String newRelicKey;
 
     public ServerApplication(ProjectProperties projectProperties) {
         this.projectProperties = projectProperties;
@@ -66,7 +73,7 @@ public class ServerApplication {
         return OpenTelemetrySdk.builder()
                 .setMeterProvider(SdkMeterProvider.builder()
                         .setResource(Resource.getDefault().toBuilder()
-                                .put("service.name", "sumit-test-micrometer-shim-with-zipkin-3")
+                                .put("service.name", newRelicApplicationName)
                                 // Include instrumentation.provider=micrometer to enable micrometer metrics
                                 // experience in New Relic
                                 .put("instrumentation.provider", "micrometer")
@@ -75,7 +82,7 @@ public class ServerApplication {
                                         .setEndpoint("https://otlp.nr-data.net:4317")
                                         .addHeader(
                                                 "api-key",
-                                                Optional.ofNullable(System.getenv("APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY"))
+                                                Optional.ofNullable(newRelicKey)
                                                         .filter(str -> !str.isEmpty() && !str.isBlank())
                                                         .orElseThrow())
                                         // IMPORTANT: New Relic requires metrics to be delta temporality

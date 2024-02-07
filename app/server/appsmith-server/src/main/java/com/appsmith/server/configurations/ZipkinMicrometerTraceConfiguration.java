@@ -1,26 +1,23 @@
 package com.appsmith.server.configurations;
 
-import com.newrelic.telemetry.micrometer.NewRelicRegistry;
-import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinWebClientBuilderCustomizer;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@AutoConfigureBefore({CompositeMeterRegistryAutoConfiguration.class, SimpleMetricsExportAutoConfiguration.class})
-@AutoConfigureAfter(MetricsAutoConfiguration.class)
-@ConditionalOnClass(NewRelicRegistry.class)
 public class ZipkinMicrometerTraceConfiguration {
+    public static final String DATA_FORMAT = "zipkin";
+    public static final String DATA_VERSION = "2";
+
+    @Value("${appsmith.newrelic.licensekey}")
+    private String newRelicKey;
+
     @Bean
     public ZipkinWebClientBuilderCustomizer zipkinCustomizer() {
         return webClientBuilder -> webClientBuilder
-                .defaultHeader("Api-Key", System.getenv("APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY"))
-                .defaultHeader("Data-Format", "zipkin")
-                .defaultHeader("Data-Format-Version", "2");
+                .defaultHeader("Api-Key", newRelicKey)
+                .defaultHeader("Data-Format", DATA_FORMAT)
+                .defaultHeader("Data-Format-Version", DATA_VERSION);
     }
 }
