@@ -1,7 +1,10 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.QWorkspace;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.SessionUserService;
@@ -13,6 +16,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -63,14 +67,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<Workspace> findAll(AclPermission permission) {
-        return Collections.emptyList(); /*
-        return sessionUserService.getCurrentUser().flatMapMany(user -> {
-            Criteria tenantIdCriteria =
-                    where("tenantId").is(user.getTenantId());
-            return queryBuilder()
-                    .criteria(tenantIdCriteria)
-                    .permission(permission)
-                    .all();
-        });*/
+        final User user =
+                Objects.requireNonNull(sessionUserService.getCurrentUser().block());
+        return queryBuilder()
+                .spec(Bridge.<Workspace>conditioner().eq(fieldName(QWorkspace.workspace.tenantId), user.getTenantId()))
+                .permission(permission)
+                .all();
     }
 }

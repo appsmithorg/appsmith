@@ -7,6 +7,7 @@ import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.helpers.bridge.Update;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -131,15 +132,14 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
-        return Collections.emptyList(); /*
-        Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
-                .in(workspaceIds);
-        Criteria defaultDomainTypeCriteria = where("defaultDomainType")
-                .is(Workspace.class.getSimpleName());
         return queryBuilder()
-                .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
+                .spec(Bridge.<PermissionGroup>conditioner()
+                        .eq(
+                                fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
+                                Workspace.class.getSimpleName())
+                        .in(fieldName(QPermissionGroup.permissionGroup.defaultDomainId), workspaceIds))
                 .permission(permission)
-                .all();*/
+                .all();
     }
 
     @Override

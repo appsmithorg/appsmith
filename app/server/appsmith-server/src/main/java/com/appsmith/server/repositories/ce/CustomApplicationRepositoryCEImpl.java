@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -79,9 +80,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public List<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
-        Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
         return queryBuilder()
-                .criteria(workspaceIdCriteria)
+                .spec(Bridge.<Application>conditioner()
+                        .eq(fieldName(QApplication.application.workspaceId), workspaceId))
                 .permission(permission)
                 .all();
     }

@@ -9,7 +9,9 @@ import lombok.NonNull;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class Conditioner<T extends BaseDomain> implements Specification<T> {
     private final List<Check> checks = new ArrayList<>();
@@ -18,19 +20,42 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         EQ,
         EQ_IGNORE_CASE,
         IS_TRUE,
+        IN,
     }
 
-    @Override
-    public Predicate toPredicate(@NonNull Root<T> root, @NonNull CriteriaQuery<?> cq, CriteriaBuilder cb) {
-        final Predicate[] predicates = checks.stream()
-                .map(check -> switch (check.op) {
-                    case EQ -> cb.equal(root.get(check.key), check.value.toLowerCase());
-                    case EQ_IGNORE_CASE -> cb.equal(cb.lower(root.get(check.key)), check.value.toLowerCase());
-                    case IS_TRUE -> cb.isTrue(root.get(check.key));
-                })
-                .toArray(Predicate[]::new);
+    public record Check(Op op, String key, Object value) {}
 
-        return cb.and(predicates);
+    @Override
+    public Predicate toPredicate(@NonNull Root<T> root, @NonNull CriteriaQuery<?> cq, @NonNull CriteriaBuilder cb) {
+        final List<Predicate> predicates = new ArrayList<>();
+
+        for (Check check : checks) {
+            Predicate predicate;
+
+            if (Objects.requireNonNull(check.op) == Op.EQ) {
+                predicate = cb.equal(root.get(check.key), cb.literal(check.value));
+
+            } else if (check.op == Op.EQ_IGNORE_CASE) {
+                predicate = cb.equal(cb.lower(root.get(check.key)), cb.literal(((String) check.value).toLowerCase()));
+
+            } else if (check.op == Op.IS_TRUE) {
+                predicate = cb.isTrue(root.get(check.key));
+
+            } else if (check.op == Op.IN) {
+                CriteriaBuilder.In<Object> inCluse = cb.in(root.get(check.key));
+                for (String value : (Collection<String>) check.value) {
+                    inCluse.value(value);
+                }
+                predicate = inCluse;
+
+            } else {
+                throw new IllegalArgumentException();
+            }
+
+            predicates.add(predicate);
+        }
+
+        return cb.and(predicates.toArray(new Predicate[0]));
     }
 
     public Conditioner<T> eq(String key, String value) {
@@ -48,5 +73,8 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
-    public record Check(Op op, String key, String value) {}
+    public Conditioner<T> in(String needle, Collection<String> haystack) {
+        checks.add(new Check(Op.IN, needle, haystack));
+        return this;
+    }
 }

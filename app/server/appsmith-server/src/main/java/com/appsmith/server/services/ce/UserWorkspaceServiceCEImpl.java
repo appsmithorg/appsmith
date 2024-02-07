@@ -410,6 +410,14 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         return workspaceIdsMono.flatMap(workspaceIds -> workspaceService
                 .getAll(workspacePermission.getReadPermission())
+                .map(x -> {
+                    System.out.println(x);
+                    return x;
+                })
+                .onErrorMap(e -> {
+                    System.out.println(e);
+                    return e;
+                })
                 // sort transformation
                 .transform(domainFlux -> sortDomainsBasedOnOrderedDomainIds(domainFlux, workspaceIds))
                 // collect to list to keep the order of the workspaces

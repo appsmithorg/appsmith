@@ -188,7 +188,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                 */
                 .flatMap(org -> pluginRepository
                         .findByDefaultInstall(true)
-                        .map(obj -> new WorkspacePlugin(obj, WorkspacePluginStatus.FREE))
+                        .map(obj -> new WorkspacePlugin(obj.getId(), WorkspacePluginStatus.FREE))
                         .collect(Collectors.toSet())
                         .map(pluginList -> {
                             org.setPlugins(pluginList);
@@ -213,7 +213,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
         }
 
         workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
-        // workspace.setTenantId(user.getTenantId());
+        workspace.setTenantId(user.getTenantId());
     }
 
     protected Mono<Workspace> createWorkspaceDependents(Workspace createdWorkspace) {

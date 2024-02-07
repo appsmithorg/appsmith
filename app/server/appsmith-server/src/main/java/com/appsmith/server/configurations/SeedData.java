@@ -200,6 +200,11 @@ public class SeedData {
         entityManager
                 .createNativeQuery("CREATE OR REPLACE FUNCTION jsonb_minus(l jsonb, r text) RETURNS jsonb RETURN l - r")
                 .executeUpdate();
+        /* https://stackoverflow.com/a/50488457/151048
+        entityManager
+        .createNativeQuery(
+                "CREATE OR REPLACE FUNCTION jsonb_question_pipe(l jsonb, r text[]) RETURNS jsonb RETURN l ?| r")
+        .executeUpdate();*/
         return true;
     }
 }
