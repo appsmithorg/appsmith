@@ -57,8 +57,10 @@ export class GitSync {
   public _protectedBranchesUpdateBtn =
     "[data-testid='t--git-protected-branches-update-btn']";
   public _settingsTabBranch = "[data-testid='t--tab-BRANCH']";
-  public _branchProtectionSelectDropdown = "[data-testid='t--git-protected-branches-select']";
-  public _branchProtectionUpdateBtn = "[data-testid='t--git-protected-branches-update-btn']";
+  public _branchProtectionSelectDropdown =
+    "[data-testid='t--git-protected-branches-select']";
+  public _branchProtectionUpdateBtn =
+    "[data-testid='t--git-protected-branches-update-btn']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -306,8 +308,10 @@ export class GitSync {
     this.agHelper.GetNClick(this._settingsTabBranch);
     this.agHelper.GetNClick(this._branchProtectionSelectDropdown);
     // const dropdownEl = this.agHelper.GetElement(this._protectedBranchesSelect);
-    const selectedOptionsEl = this.agHelper.GetElement(".rc-select-dropdown .rc-select-item-option-active");
-    console.log('ss', selectedOptionsEl)
+    const selectedOptionsEl = this.agHelper.GetElement(
+      ".rc-select-dropdown .rc-select-item-option-active",
+    );
+    console.log("ss", selectedOptionsEl);
     selectedOptionsEl.each((el) => {
       el.trigger("click");
     });
