@@ -90,9 +90,8 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
           if (props?.dynamicHeight !== DynamicHeight.FIXED) {
             return (
               <div className="leading-5 mt-[10px]">
-                Make sure the container of the custom widget doesn&apos;t have
-                any height and allowed to expand for the auto height feature to
-                work properly{" "}
+                For the auto-height feature to function correctly, the custom
+                widget&apos;s container should not have a fixed height set.{" "}
                 <StyledLink
                   kind="secondary"
                   rel="noopener noreferrer"
