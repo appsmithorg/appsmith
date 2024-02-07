@@ -203,7 +203,7 @@ public class UpdatePageLayoutServiceEETest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     // On load actions should have module instance public action
                     final Set<DslExecutableDTO> firstSet =
@@ -259,7 +259,7 @@ public class UpdatePageLayoutServiceEETest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     // On load actions should have module instance public action
                     final Set<DslExecutableDTO> firstSet =
@@ -318,7 +318,7 @@ public class UpdatePageLayoutServiceEETest {
                 .assertNext(updatedLayout -> {
                     // On load actions should have module instance public action as well as page action
                     // in that order
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     final Set<DslExecutableDTO> firstSet =
                             updatedLayout.getLayoutOnLoadActions().get(0);
@@ -391,7 +391,7 @@ public class UpdatePageLayoutServiceEETest {
                 .assertNext(updatedLayout -> {
                     // On load actions should have module instance public action as well as page action
                     // in that order
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     final Set<DslExecutableDTO> firstSet =
                             updatedLayout.getLayoutOnLoadActions().get(0);

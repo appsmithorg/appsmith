@@ -262,7 +262,7 @@ public class CrudWorkflowServiceTest {
 
         StepVerifier.create(workflowListMono)
                 .assertNext(workflows -> {
-                    assertThat(workflows.size()).isEqualTo(2);
+                    assertThat(workflows).hasSize(2);
                     workflows.stream().map(workflow -> {
                         assertThat(workflow.getName().startsWith("getAllWorkflowsValid"));
                         return workflow;
@@ -280,7 +280,7 @@ public class CrudWorkflowServiceTest {
 
         StepVerifier.create(workflowListMono)
                 .assertNext(workflows -> {
-                    assertThat(workflows.size()).isEqualTo(0);
+                    assertThat(workflows).hasSize(0);
                 })
                 .verifyComplete();
     }

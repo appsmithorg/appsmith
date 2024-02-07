@@ -154,7 +154,7 @@ public class KnowledgeStoreServiceTest {
 
         KnowledgeStoreDTO destinationKnowledgeStoreDTO = destinationKnowledgeStore.getPublishedAppKnowledgeStoreDTO();
 
-        assertThat(destinationKnowledgeStoreDTO.getDraftKB().size()).isEqualTo(1);
+        assertThat(destinationKnowledgeStoreDTO.getDraftKB()).hasSize(1);
         assertThat(destinationKnowledgeStoreDTO.getDraftKB().containsKey(pageName))
                 .isTrue();
         assertThat(destinationKnowledgeStoreDTO.getDraftKB().containsKey(downstreamPageName))
@@ -165,7 +165,7 @@ public class KnowledgeStoreServiceTest {
         KnowledgeStoreDTO downstreamKnowledgeStoreDTO = downstreamKnowledgeStore.getPublishedAppKnowledgeStoreDTO();
 
         downstreamKnowledgeStore.getPublishedAppKnowledgeStoreDTO().setKbGenRequestId(downstreamCsRequestId);
-        assertThat(downstreamKnowledgeStoreDTO.getDraftKB().size()).isEqualTo(1);
+        assertThat(downstreamKnowledgeStoreDTO.getDraftKB()).hasSize(1);
         assertThat(downstreamKnowledgeStoreDTO.getDraftKB().containsKey(pageName))
                 .isFalse();
         assertThat(downstreamKnowledgeStoreDTO.getDraftKB().containsKey(downstreamPageName))
@@ -177,7 +177,7 @@ public class KnowledgeStoreServiceTest {
                 knowledgeStoreService.mergeKnowledgeStore(destinationKnowledgeStore, downstreamKnowledgeStore);
 
         KnowledgeStoreDTO mergedKnowledgeStoreDTO = mergedKnowledgeStore.getPublishedAppKnowledgeStoreDTO();
-        assertThat(mergedKnowledgeStoreDTO.getDraftKB().size()).isEqualTo(2);
+        assertThat(mergedKnowledgeStoreDTO.getDraftKB()).hasSize(2);
         assertThat(mergedKnowledgeStoreDTO.getDraftKB().containsKey(pageName)).isTrue();
         assertThat(mergedKnowledgeStoreDTO.getDraftKB().containsKey(downstreamPageName))
                 .isTrue();

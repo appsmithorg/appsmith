@@ -398,14 +398,14 @@ public class WorkspaceResourcesCECompatibleTest {
                     List<Integer> perms = List.of(0, 0, 0, 0, 0);
                     assertThat(createdWorkspaceView.getEnabled()).isEqualTo(perms);
                     // Only kind of child present in workspace in this tab : aka header
-                    assertThat(createdWorkspaceView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdWorkspaceView.getChildren()).hasSize(1);
 
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
                             .get();
                     assertThat(createdHeaderEntityView.getType()).isEqualTo(Workspace.class.getSimpleName());
                     // Assert that single children exist in header in this tab : aka datasource
-                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(1);
+                    assertThat(createdHeaderEntityView.getEntities()).hasSize(1);
 
                     long environmentsEntityViewCount = createdHeaderEntityView.getEntities().stream()
                             .filter(entity -> entity.getName().equals(ROLE_TAB_ENVIRONMENTS))
@@ -423,7 +423,7 @@ public class WorkspaceResourcesCECompatibleTest {
                             .get();
 
                     // Only one datasource was created in this workspace
-                    assertThat(DatasourcesEntityView.getEntities().size()).isEqualTo(1);
+                    assertThat(DatasourcesEntityView.getEntities()).hasSize(1);
                     BaseView createdDatasourceView =
                             DatasourcesEntityView.getEntities().get(0);
                     assertThat(createdDatasourceView.getName()).isEqualTo(createdDatasource.getName());
@@ -476,14 +476,14 @@ public class WorkspaceResourcesCECompatibleTest {
                     List<Integer> perms = List.of(1, 1, 1, 1, 1);
                     assertThat(createdWorkspaceView.getEnabled()).isEqualTo(perms);
                     // Only kind of child present in workspace in this tab : aka header
-                    assertThat(createdWorkspaceView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdWorkspaceView.getChildren()).hasSize(1);
 
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
                             .get();
                     assertThat(createdHeaderEntityView.getType()).isEqualTo(Workspace.class.getSimpleName());
                     // Assert that single children exist in header in this tab : aka datasource
-                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(1);
+                    assertThat(createdHeaderEntityView.getEntities()).hasSize(1);
 
                     EntityView DatasourcesEntityView = createdHeaderEntityView.getEntities().stream()
                             .filter(entity -> entity.getName().equals(ROLE_TAB_DATASOURCES))
@@ -495,7 +495,7 @@ public class WorkspaceResourcesCECompatibleTest {
                             .get();
 
                     // Only one datasource was created in this workspace
-                    assertThat(DatasourcesEntityView.getEntities().size()).isEqualTo(1);
+                    assertThat(DatasourcesEntityView.getEntities()).hasSize(1);
                     BaseView createdDatasourceView =
                             DatasourcesEntityView.getEntities().get(0);
                     assertThat(createdDatasourceView.getName()).isEqualTo(createdDatasource.getName());

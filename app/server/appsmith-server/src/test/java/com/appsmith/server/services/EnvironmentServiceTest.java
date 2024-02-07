@@ -571,7 +571,7 @@ public class EnvironmentServiceTest {
         assertThat(stagingEnvironment).isNotNull();
         stagingEnvironment.getPolicies().forEach(policy -> {
             // for staging the default rights stays only with administrator and developer
-            assertThat(policy.getPermissionGroups().size()).isEqualTo(2);
+            assertThat(policy.getPermissionGroups()).hasSize(2);
         });
 
         Set<String> stagingPermissions = stagingEnvironment.getPolicies().stream()
@@ -589,9 +589,9 @@ public class EnvironmentServiceTest {
         productionEnvironment.getPolicies().forEach(policy -> {
             // for staging the default rights stays only with administrator and developer
             if (policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue())) {
-                assertThat(policy.getPermissionGroups().size()).isEqualTo(3);
+                assertThat(policy.getPermissionGroups()).hasSize(3);
             } else {
-                assertThat(policy.getPermissionGroups().size()).isEqualTo(2);
+                assertThat(policy.getPermissionGroups()).hasSize(2);
             }
         });
 

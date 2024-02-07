@@ -86,7 +86,7 @@ import java.util.UUID;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
@@ -517,21 +517,20 @@ public class RefactoringServiceEETest {
                     List<NewAction> newActions = tuple.getT1();
                     ModuleInstanceDTO unpublishedModuleInstance = tuple.getT2().getUnpublishedModuleInstance();
 
-                    assertThat(newActions.size()).isEqualTo(1);
+                    assertThat(newActions).hasSize(1);
                     ActionDTO unpublishedAction = newActions.get(0).getUnpublishedAction();
                     assertThat(unpublishedAction.getName()).isEqualTo("_$testModuleInstance2$_GetUsers");
-                    assertThat(unpublishedAction.getJsonPathKeys().size()).isEqualTo(1);
+                    assertThat(unpublishedAction.getJsonPathKeys()).hasSize(1);
                     assertThat(unpublishedAction.getJsonPathKeys().contains("testModuleInstance2.inputs.genderInput"))
                             .isTrue();
                     assertThat(unpublishedAction.getActionConfiguration().getBody())
                             .isEqualTo("Select * from users where gender = {{testModuleInstance2.inputs.genderInput}}");
 
                     assertThat(unpublishedModuleInstance.getName()).isEqualTo("testModuleInstance2");
-                    assertThat(unpublishedModuleInstance.getJsonPathKeys().size())
-                            .isEqualTo(1);
+                    assertThat(unpublishedModuleInstance.getJsonPathKeys()).hasSize(1);
                     assertThat(unpublishedModuleInstance.getJsonPathKeys().contains("\"female\""))
                             .isTrue();
-                    assertThat(unpublishedModuleInstance.getInputs().size()).isEqualTo(1);
+                    assertThat(unpublishedModuleInstance.getInputs()).hasSize(1);
                     assertThat(unpublishedModuleInstance.getInputs().containsKey("genderInput"))
                             .isTrue();
                     assertThat(unpublishedModuleInstance.getInputs().get("genderInput"))

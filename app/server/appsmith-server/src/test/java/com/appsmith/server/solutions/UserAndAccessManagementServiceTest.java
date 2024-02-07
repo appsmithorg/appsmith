@@ -129,8 +129,8 @@ public class UserAndAccessManagementServiceTest {
                             .findFirst()
                             .get();
                     assertThat(apiUserDto.getId()).isEqualTo(api_user.getId());
-                    assertThat(apiUserDto.getGroups().size()).isEqualTo(0);
-                    assertThat(apiUserDto.getRoles().size()).isEqualTo(allRolesAssignedToApiUser.size());
+                    assertThat(apiUserDto.getGroups()).hasSize(0);
+                    assertThat(apiUserDto.getRoles()).hasSize(allRolesAssignedToApiUser.size());
 
                     boolean adminRole = apiUserDto.getRoles().stream()
                             .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
@@ -179,8 +179,8 @@ public class UserAndAccessManagementServiceTest {
                     assertThat(user).isNotNull();
 
                     assertThat(user.getId()).isEqualTo(api_user.getId());
-                    assertThat(user.getGroups().size()).isEqualTo(0);
-                    assertThat(user.getRoles().size()).isEqualTo(allRolesAssignedToApiUser.size());
+                    assertThat(user.getGroups()).hasSize(0);
+                    assertThat(user.getRoles()).hasSize(allRolesAssignedToApiUser.size());
 
                     Optional<PermissionGroupInfoDTO> adminRole = user.getRoles().stream()
                             .filter(role -> "Instance Administrator Role".equals(role.getName()))
@@ -365,7 +365,7 @@ public class UserAndAccessManagementServiceTest {
                 .block();
 
         assertThat(invitedUsers).isNotNull();
-        assertThat(invitedUsers.size()).isEqualTo(1);
+        assertThat(invitedUsers).hasSize(1);
         assertThat(invitedUsers.get(0).getEmail())
                 .isEqualTo(inviteUsersDTO.getUsernames().get(0));
 
@@ -409,7 +409,7 @@ public class UserAndAccessManagementServiceTest {
                 .block();
 
         assertThat(invitedUsers).isNotNull();
-        assertThat(invitedUsers.size()).isEqualTo(usernames.size());
+        assertThat(invitedUsers).hasSize(usernames.size());
         assertThat(new HashSet<>(inviteUsersDTO.getUsernames())).isEqualTo(new HashSet<>(usernames));
 
         // fetch the permission group after inviting and assert

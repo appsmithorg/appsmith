@@ -284,7 +284,7 @@ public class PermissionGroupServiceTest {
         StepVerifier.create(listMono)
                 .assertNext(list -> {
                     // 3 default roles per user (user@test, api_user created in setup) + 1 super admin role
-                    assertThat(list.size()).isEqualTo(countAllRolesWhichCanBeReadByInstanceAdmin);
+                    assertThat(list).hasSize((int) countAllRolesWhichCanBeReadByInstanceAdmin);
 
                     // Assert that instance admin roles are returned
                     Optional<PermissionGroupInfoDTO> pgiDTO = list.stream()
@@ -354,7 +354,7 @@ public class PermissionGroupServiceTest {
         StepVerifier.create(listMono)
                 .assertNext(list -> {
                     // No roles should be read by the user since they haven't been given read permissions for any role.
-                    assertThat(list.size()).isEqualTo(0);
+                    assertThat(list).hasSize(0);
                 })
                 .verifyComplete();
     }
@@ -475,7 +475,7 @@ public class PermissionGroupServiceTest {
                 .findById(createdPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS)
                 .block();
         assertThat(updatedPermissionGroup).isNotNull();
-        assertThat(updatedPermissionGroup.getAssignedToUserIds().size()).isEqualTo(1);
+        assertThat(updatedPermissionGroup.getAssignedToUserIds()).hasSize(1);
         idNonExistentUser =
                 (String) updatedPermissionGroup.getAssignedToUserIds().toArray()[0];
         Mono<User> nonExistentUserMono = userRepository.findById(idNonExistentUser);

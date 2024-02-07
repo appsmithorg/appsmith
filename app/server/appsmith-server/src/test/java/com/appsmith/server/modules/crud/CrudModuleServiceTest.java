@@ -368,15 +368,11 @@ class CrudModuleServiceTest {
                 crudModuleEntityService.getAllEntities(moduleIdRef.get(), CreatorContextType.MODULE, null);
         StepVerifier.create(moduleEntitiesMono)
                 .assertNext(moduleEntitiesDTO -> {
-                    assertThat(moduleEntitiesDTO.getJsCollections().size()).isEqualTo(1);
+                    assertThat(moduleEntitiesDTO.getJsCollections()).hasSize(1);
                     assertThat(moduleEntitiesDTO.getJsCollections().get(0).getActions())
                             .isNotNull();
-                    assertThat(moduleEntitiesDTO
-                                    .getJsCollections()
-                                    .get(0)
-                                    .getActions()
-                                    .size())
-                            .isEqualTo(1);
+                    assertThat(moduleEntitiesDTO.getJsCollections().get(0).getActions())
+                            .hasSize(1);
                     ActionCollectionDTO actionCollectionDTO =
                             moduleEntitiesDTO.getJsCollections().get(0);
                     ActionDTO jsActionDTO = moduleEntitiesDTO
@@ -386,7 +382,7 @@ class CrudModuleServiceTest {
                             .get(0);
                     assertThat(jsActionDTO.getCollectionId()).isNotNull();
                     assertThat(jsActionDTO.getCollectionId()).isEqualTo(actionCollectionDTO.getId());
-                    assertThat(moduleEntitiesDTO.getActions().size()).isEqualTo(0);
+                    assertThat(moduleEntitiesDTO.getActions()).hasSize(0);
                 })
                 .verifyComplete();
     }
@@ -946,9 +942,9 @@ class CrudModuleServiceTest {
         StepVerifier.create(getEntitiesMono)
                 .assertNext(allEntities -> {
                     assertThat(allEntities).isNotNull();
-                    assertThat(allEntities.getActions().size()).isEqualTo(1);
+                    assertThat(allEntities.getActions()).hasSize(1);
                     assertThat(allEntities.getActions().get(0).getName()).isEqualTo("Module1");
-                    assertThat(allEntities.getJsCollections().size()).isEqualTo(0);
+                    assertThat(allEntities.getJsCollections()).hasSize(0);
                 })
                 .verifyComplete();
     }
@@ -1001,7 +997,7 @@ class CrudModuleServiceTest {
         StepVerifier.create(getEntitiesMono)
                 .assertNext(allEntities -> {
                     assertThat(allEntities).isNotNull();
-                    assertThat(allEntities.getJsCollections().size()).isEqualTo(1);
+                    assertThat(allEntities.getJsCollections()).hasSize(1);
                 })
                 .verifyComplete();
 
@@ -1025,7 +1021,7 @@ class CrudModuleServiceTest {
         StepVerifier.create(getEntitiesMono)
                 .assertNext(allEntities -> {
                     assertThat(allEntities).isNotNull();
-                    assertThat(allEntities.getJsCollections().size()).isEqualTo(1);
+                    assertThat(allEntities.getJsCollections()).hasSize(1);
                     assertThat(allEntities.getJsCollections().get(0).getName()).isEqualTo("JSModuleOne");
                 })
                 .verifyComplete();
@@ -1040,7 +1036,7 @@ class CrudModuleServiceTest {
         StepVerifier.create(getEntitiesMono)
                 .assertNext(allEntities -> {
                     assertThat(allEntities).isNotNull();
-                    assertThat(allEntities.getJsCollections().size()).isEqualTo(2);
+                    assertThat(allEntities.getJsCollections()).hasSize(2);
                 })
                 .verifyComplete();
 
@@ -1061,7 +1057,7 @@ class CrudModuleServiceTest {
         StepVerifier.create(getEntitiesMono)
                 .assertNext(allEntities -> {
                     assertThat(allEntities).isNotNull();
-                    assertThat(allEntities.getJsCollections().size()).isEqualTo(2);
+                    assertThat(allEntities.getJsCollections()).hasSize(2);
                     ActionCollectionDTO jsObject1 =
                             allEntities.getJsCollections().get(0);
                     ActionCollectionDTO jsObject2 =
@@ -1150,7 +1146,7 @@ class CrudModuleServiceTest {
         StepVerifier.create(getEntitiesMono)
                 .assertNext(allEntities -> {
                     assertThat(allEntities).isNotNull();
-                    assertThat(allEntities.getJsCollections().size()).isEqualTo(2);
+                    assertThat(allEntities.getJsCollections()).hasSize(2);
                     ActionCollectionDTO jsObject1 =
                             allEntities.getJsCollections().get(0);
                     ActionCollectionDTO jsObject2 =

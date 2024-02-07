@@ -1613,8 +1613,8 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(applicationPageIdsBeforeImport).hasSize(2);
                     assertThat(applicationPageIdsBeforeImport).contains(savedPage.getId());
 
-                    assertThat(newPages.size()).isEqualTo(1);
-                    assertThat(importedApplication.getPages().size()).isEqualTo(1);
+                    assertThat(newPages).hasSize(1);
+                    assertThat(importedApplication.getPages()).hasSize(1);
                     assertThat(importedApplication.getPages().get(0).getId())
                             .isEqualTo(newPages.get(0).getId());
                     assertThat(newPages.get(0).getPublishedPage().getName()).isEqualTo("importedPage");
@@ -1679,7 +1679,7 @@ public class ImportExportApplicationServiceGACTest {
                 .assertNext(newPages -> {
                     // Check before import we had both the pages
                     assertThat(applicationPageIdsBeforeImport).hasSize(1);
-                    assertThat(newPages.size()).isEqualTo(3);
+                    assertThat(newPages).hasSize(3);
                     List<String> pageNames = newPages.stream()
                             .map(newPage -> newPage.getUnpublishedPage().getName())
                             .collect(Collectors.toList());
@@ -3423,14 +3423,14 @@ public class ImportExportApplicationServiceGACTest {
                             .isFalse();
                     assertThat(applicationPagesDTO.getApplication().getForkingEnabled())
                             .isFalse();
-                    assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+                    assertThat(applicationPagesDTO.getPages()).hasSize(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream()
                             .map(PageNameIdDTO::getName)
                             .collect(Collectors.toList());
                     assertThat(pageNames).contains("Home", "Home2", "About");
-                    assertThat(newActionList.size()).isEqualTo(2); // we imported two pages and each page has one action
-                    assertThat(actionCollectionList.size())
-                            .isEqualTo(2); // we imported two pages and each page has one Collection
+                    assertThat(newActionList).hasSize(2); // we imported two pages and each page has one action
+                    assertThat(actionCollectionList)
+                            .hasSize(2); // we imported two pages and each page has one Collection
                 })
                 .verifyComplete();
     }
@@ -3471,7 +3471,7 @@ public class ImportExportApplicationServiceGACTest {
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
-                    assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+                    assertThat(applicationPagesDTO.getPages()).hasSize(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream()
                             .map(PageNameIdDTO::getName)
                             .collect(Collectors.toList());
@@ -3613,8 +3613,8 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3703,8 +3703,8 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3812,8 +3812,8 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application3.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application3.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application3.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3922,8 +3922,8 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application3.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application3.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application3.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -4032,8 +4032,8 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application3.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application3.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application3.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -4107,8 +4107,8 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -4186,8 +4186,8 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -4244,7 +4244,7 @@ public class ImportExportApplicationServiceGACTest {
                         .findAllApplicationsByWorkspaceId(workspaceId)
                         .collectList())
                 .assertNext(applications -> {
-                    assertThat(applicationList.size()).isEqualTo(applications.size());
+                    assertThat(applicationList).hasSize(applications.size());
                 })
                 .verifyComplete();
     }
@@ -4396,7 +4396,7 @@ public class ImportExportApplicationServiceGACTest {
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
-                    assertThat(pages.size()).isEqualTo(2);
+                    assertThat(pages).hasSize(2);
                     assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
                     assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
@@ -4456,8 +4456,8 @@ public class ImportExportApplicationServiceGACTest {
                     List<NewAction> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
-                    assertThat(pageList.size()).isEqualTo(2);
-                    assertThat(actionList.size()).isEqualTo(3);
+                    assertThat(pageList).hasSize(2);
+                    assertThat(actionList).hasSize(3);
 
                     List<String> pageNames = pageList.stream()
                             .map(p -> p.getUnpublishedPage().getName())
@@ -4882,18 +4882,18 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(updatedActionCollectionNames).isNotNull();
 
                     // only the first page should be present in the updated resources
-                    assertThat(updatedPageNames.size()).isEqualTo(1);
+                    assertThat(updatedPageNames).hasSize(1);
                     assertThat(updatedPageNames).contains(renamedPageName);
 
                     // only actions from first page should be present in the updated resources
                     // 1 query + 1 method from action collection
-                    assertThat(updatedActionNames.size()).isEqualTo(2);
+                    assertThat(updatedActionNames).hasSize(2);
                     assertThat(updatedActionNames).contains("first_page_action" + NAME_SEPARATOR + renamedPageName);
                     assertThat(updatedActionNames)
                             .contains("TestJsObject.testMethod" + NAME_SEPARATOR + renamedPageName);
 
                     // only action collections from first page should be present in the updated resources
-                    assertThat(updatedActionCollectionNames.size()).isEqualTo(1);
+                    assertThat(updatedActionCollectionNames).hasSize(1);
                     assertThat(updatedActionCollectionNames)
                             .contains("TestJsObject" + NAME_SEPARATOR + renamedPageName);
                 })
@@ -4977,7 +4977,7 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(updatedActionNames).isNotNull();
 
                     // action should be present in the updated resources although action not updated but datasource is
-                    assertThat(updatedActionNames.size()).isEqualTo(1);
+                    assertThat(updatedActionNames).hasSize(1);
                     updatedActionNames.forEach(actionName -> {
                         assertThat(actionName).contains("MyAction");
                     });

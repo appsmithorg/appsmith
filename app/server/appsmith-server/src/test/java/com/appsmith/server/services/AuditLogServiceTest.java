@@ -537,7 +537,7 @@ public class AuditLogServiceTest {
                 getAuditLogRequest(null, null, resourceType, createdWorkspace.getId(), "1", null, null, null, null);
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
-                    assertThat(auditLogs.size()).isEqualTo(3);
+                    assertThat(auditLogs).hasSize(3);
                     // Validate each events
                     assertThat(auditLogs.get(0).getEvent())
                             .isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKSPACE_CREATED));
@@ -657,7 +657,7 @@ public class AuditLogServiceTest {
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
-                    assertThat(auditLogs.size()).isEqualTo(0);
+                    assertThat(auditLogs).hasSize(0);
                 })
                 .verifyComplete();
     }
@@ -1511,7 +1511,7 @@ public class AuditLogServiceTest {
                     // events
                     // We are specifically looking for the second event which is the deployment triggered by the test
                     // case
-                    assertThat(auditLogs.size()).isEqualTo(2);
+                    assertThat(auditLogs).hasSize(2);
                     AuditLog auditLog = auditLogs.get(0);
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.deployed");
@@ -1685,7 +1685,7 @@ public class AuditLogServiceTest {
         // TODO: Remove this once page.updated system event is removed on page creation
         List<AuditLog> auditLogsBeforeUpdate =
                 auditLogService.getAuditLogs(params).block();
-        assertThat(auditLogsBeforeUpdate.size()).isEqualTo(1);
+        assertThat(auditLogsBeforeUpdate).hasSize(1);
         AuditLog auditLogBeforeUpdate = auditLogsBeforeUpdate.get(0);
         assertThat(auditLogBeforeUpdate.getEvent()).isEqualTo("page.updated");
         Instant firstUpdatedTime = auditLogBeforeUpdate.getTimestamp();
@@ -1695,7 +1695,7 @@ public class AuditLogServiceTest {
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
-                    assertThat(auditLogs.size()).isEqualTo(1);
+                    assertThat(auditLogs).hasSize(1);
                     AuditLog auditLog = auditLogs.get(0);
 
                     assertThat(auditLog.getEvent()).isEqualTo("page.updated");
@@ -1763,7 +1763,7 @@ public class AuditLogServiceTest {
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
-                    assertThat(auditLogs.size()).isEqualTo(1);
+                    assertThat(auditLogs).hasSize(1);
                     assertThat(auditLogs.get(0).getEvent()).isEqualTo("page.updated");
                     assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(page.getId());
                     assertThat(auditLogs.get(0).getResource().getName()).isEqualTo("testUpdate2");
@@ -2573,7 +2573,7 @@ public class AuditLogServiceTest {
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
-                    assertThat(auditLogs.size()).isEqualTo(1);
+                    assertThat(auditLogs).hasSize(1);
                     assertThat(auditLogs.get(0).getEvent()).isEqualTo("query.updated");
                     assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(createdActionDTO.getId());
                     assertThat(auditLogs.get(0).getResource().getName()).isEqualTo("AuditLogQueryUpdated2");
@@ -3843,7 +3843,7 @@ public class AuditLogServiceTest {
         // TODO: Remove this once page.updated system event is removed on page creation
         List<AuditLog> auditLogsBeforeUpdate =
                 auditLogService.getAuditLogs(params).block();
-        assertThat(auditLogsBeforeUpdate.size()).isEqualTo(1);
+        assertThat(auditLogsBeforeUpdate).hasSize(1);
         AuditLog auditLogBeforeUpdate = auditLogsBeforeUpdate.get(0);
         assertThat(auditLogBeforeUpdate.getEvent()).isEqualTo("page.updated");
         Instant firstUpdatedTime = auditLogBeforeUpdate.getTimestamp();
@@ -3854,7 +3854,7 @@ public class AuditLogServiceTest {
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
-                    assertThat(auditLogs.size()).isEqualTo(1);
+                    assertThat(auditLogs).hasSize(1);
                     AuditLog auditLog = auditLogs.get(0);
 
                     assertThat(auditLog.getEvent()).isEqualTo("page.updated");

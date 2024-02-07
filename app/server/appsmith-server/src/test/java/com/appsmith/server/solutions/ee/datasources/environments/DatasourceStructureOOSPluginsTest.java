@@ -215,7 +215,7 @@ public class DatasourceStructureOOSPluginsTest {
 
         StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
-                    assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
+                    assertThat(datasourceStructure.getTables()).hasSize(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
                     assertThat(datasourceStructure.getTables().get(1).getName()).isEqualTo("Table2");
                 })

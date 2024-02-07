@@ -682,7 +682,7 @@ public class UserGroupServiceTest {
                 .inviteUsers(inviteUsersToGroupDTO, "origin")
                 .block()
                 .get(0);
-        assertThat(userGroupDTO.getUsers().size()).isEqualTo(1);
+        assertThat(userGroupDTO.getUsers()).hasSize(1);
         UserCompactDTO userCompactDTO = userGroupDTO.getUsers().get(0);
         assertThat(userCompactDTO.getUsername()).isEqualTo(usernameNonExistentUser);
         idNonExistentUser = userCompactDTO.getId();

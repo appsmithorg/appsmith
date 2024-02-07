@@ -336,7 +336,7 @@ public class WorkspaceResourcesTest {
         StepVerifier.create(workspaceFlux.collectList())
                 .assertNext(workspaces -> {
                     // assert only 1 workspace created during setup
-                    assertThat(workspaces.size()).isEqualTo(1);
+                    assertThat(workspaces).hasSize(1);
                     Workspace workspace1 = workspaces.stream()
                             .filter(workspace -> workspace.getName().equals(createdWorkspace.getName()))
                             .findFirst()
@@ -429,7 +429,7 @@ public class WorkspaceResourcesTest {
                     List<Integer> perms = List.of(0, 0, 0, 0, -1, 0, 0);
                     assertThat(createdWorkspaceView.getEnabled()).isEqualTo(perms);
                     // Only kind of child present in workspace in this tab : aka application
-                    assertThat(createdWorkspaceView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdWorkspaceView.getChildren()).hasSize(1);
 
                     EntityView createdApplicationEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
@@ -439,8 +439,7 @@ public class WorkspaceResourcesTest {
                     // view
                     // We added 2 more applications to the same workspace, one with Page and No action and another with
                     // No pages
-                    assertThat(createdApplicationEntityView.getEntities().size())
-                            .isEqualTo(3);
+                    assertThat(createdApplicationEntityView.getEntities()).hasSize(3);
                     BaseView createdApplicationView = createdApplicationEntityView.getEntities().stream()
                             .filter(applicationEntity ->
                                     applicationEntity.getId().equals(createdApplication.getId()))
@@ -454,7 +453,7 @@ public class WorkspaceResourcesTest {
                     perms = List.of(0, 0, 0, 0, -1, 0, 0);
                     assertThat(createdApplicationView.getEnabled()).isEqualTo(perms);
                     // Only one kind of child present in application in this tab : aka page
-                    assertThat(createdApplicationView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdApplicationView.getChildren()).hasSize(1);
 
                     EntityView createdPageEntityView = createdApplicationView.getChildren().stream()
                             .findFirst()
@@ -462,7 +461,7 @@ public class WorkspaceResourcesTest {
                     assertThat(createdPageEntityView.getType()).isEqualTo(NewPage.class.getSimpleName());
                     // We created only one page in this application. Assert that the same has been read into the view
                     // We have created 2 pages. 1 with actions, 1 without actions.
-                    assertThat(createdPageEntityView.getEntities().size()).isEqualTo(2);
+                    assertThat(createdPageEntityView.getEntities()).hasSize(2);
                     BaseView createdPageView = createdPageEntityView.getEntities().stream()
                             .filter(pageEntity -> pageEntity
                                     .getId()
@@ -477,13 +476,13 @@ public class WorkspaceResourcesTest {
                     perms = List.of(0, 0, 0, 0, -1, -1, -1);
                     assertThat(createdPageView.getEnabled()).isEqualTo(perms);
                     // Only one kind of child present in page in this tab : aka action
-                    assertThat(createdPageView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdPageView.getChildren()).hasSize(1);
 
                     EntityView createdActionEntityView =
                             createdPageView.getChildren().stream().findFirst().get();
                     assertThat(createdActionEntityView.getType()).isEqualTo(NewAction.class.getSimpleName());
                     // We created only one action in this page. Assert that the same has been read into the view
-                    assertThat(createdActionEntityView.getEntities().size()).isEqualTo(1);
+                    assertThat(createdActionEntityView.getEntities()).hasSize(1);
                     BaseView createdActionView =
                             createdActionEntityView.getEntities().get(0);
                     assertThat(createdActionView.getId()).isEqualTo(createdActionDto.getId());
@@ -536,7 +535,7 @@ public class WorkspaceResourcesTest {
                     List<Integer> perms = List.of(1, 1, 1, 1, -1, 1, 1);
                     assertThat(createdWorkspaceView.getEnabled()).isEqualTo(perms);
                     // Only kind of child present in workspace in this tab : aka application
-                    assertThat(createdWorkspaceView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdWorkspaceView.getChildren()).hasSize(1);
 
                     EntityView createdApplicationEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
@@ -546,8 +545,7 @@ public class WorkspaceResourcesTest {
                     // view
                     // We added 2 more applications to the same workspace, one with Page and No action and another with
                     // No pages
-                    assertThat(createdApplicationEntityView.getEntities().size())
-                            .isEqualTo(3);
+                    assertThat(createdApplicationEntityView.getEntities()).hasSize(3);
                     BaseView createdApplicationView = createdApplicationEntityView.getEntities().stream()
                             .filter(applicationEntity ->
                                     applicationEntity.getId().equals(createdApplication.getId()))
@@ -561,7 +559,7 @@ public class WorkspaceResourcesTest {
                     perms = List.of(1, 1, 1, 1, -1, 1, 1);
                     assertThat(createdApplicationView.getEnabled()).isEqualTo(perms);
                     // Only one kind of child present in application in this tab : aka page
-                    assertThat(createdApplicationView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdApplicationView.getChildren()).hasSize(1);
 
                     EntityView createdPageEntityView = createdApplicationView.getChildren().stream()
                             .findFirst()
@@ -569,7 +567,7 @@ public class WorkspaceResourcesTest {
                     assertThat(createdPageEntityView.getType()).isEqualTo(NewPage.class.getSimpleName());
                     // We created only one page in this application. Assert that the same has been read into the view
                     // We have created 2 pages. 1 with actions, 1 without actions.
-                    assertThat(createdPageEntityView.getEntities().size()).isEqualTo(2);
+                    assertThat(createdPageEntityView.getEntities()).hasSize(2);
                     BaseView createdPageView = createdPageEntityView.getEntities().stream()
                             .filter(pageEntity -> pageEntity
                                     .getId()
@@ -583,13 +581,13 @@ public class WorkspaceResourcesTest {
                     perms = List.of(1, 1, 1, 1, -1, -1, -1);
                     assertThat(createdPageView.getEnabled()).isEqualTo(perms);
                     // Only one kind of child present in page in this tab : aka action
-                    assertThat(createdPageView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdPageView.getChildren()).hasSize(1);
 
                     EntityView createdActionEntityView =
                             createdPageView.getChildren().stream().findFirst().get();
                     assertThat(createdActionEntityView.getType()).isEqualTo(NewAction.class.getSimpleName());
                     // We created only one action in this page. Assert that the same has been read into the view
-                    assertThat(createdActionEntityView.getEntities().size()).isEqualTo(1);
+                    assertThat(createdActionEntityView.getEntities()).hasSize(1);
                     BaseView createdActionView =
                             createdActionEntityView.getEntities().get(0);
                     assertThat(createdActionView.getId()).isEqualTo(createdActionDto.getId());
@@ -1076,14 +1074,14 @@ public class WorkspaceResourcesTest {
                     List<Integer> perms = List.of(0, 0, 0, 0, 0);
                     assertThat(createdWorkspaceView.getEnabled()).isEqualTo(perms);
                     // Only kind of child present in workspace in this tab : aka header
-                    assertThat(createdWorkspaceView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdWorkspaceView.getChildren()).hasSize(1);
 
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
                             .get();
                     assertThat(createdHeaderEntityView.getType()).isEqualTo(Workspace.class.getSimpleName());
                     // Assert that three kinds of children exist in header in this tab : aka datasource and Environments
-                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(2);
+                    assertThat(createdHeaderEntityView.getEntities()).hasSize(2);
 
                     EntityView DatasourcesEntityView = createdHeaderEntityView.getEntities().stream()
                             .filter(entity -> entity.getName().equals("Datasources"))
@@ -1107,13 +1105,13 @@ public class WorkspaceResourcesTest {
 
                     List<? extends BaseView> environmentBaseViewList = environmentsEntityView.getEntities();
                     environmentBaseViewList.sort(Comparator.comparing(BaseView::getName));
-                    assertThat(environmentBaseViewList.size()).isEqualTo(2);
+                    assertThat(environmentBaseViewList).hasSize(2);
                     assertThat(environmentBaseViewList.get(0).getName())
                             .isEqualTo(CommonFieldName.PRODUCTION_ENVIRONMENT);
                     assertThat(environmentBaseViewList.get(1).getName()).isEqualTo(CommonFieldName.STAGING_ENVIRONMENT);
 
                     // Only one datasource was created in this workspace
-                    assertThat(DatasourcesEntityView.getEntities().size()).isEqualTo(1);
+                    assertThat(DatasourcesEntityView.getEntities()).hasSize(1);
                     BaseView createdDatasourceView =
                             DatasourcesEntityView.getEntities().get(0);
                     assertThat(createdDatasourceView.getName()).isEqualTo(createdDatasource.getName());
@@ -1170,7 +1168,7 @@ public class WorkspaceResourcesTest {
                     List<Integer> perms = List.of(1, 1, 1, 1, 1);
                     assertThat(createdWorkspaceView.getEnabled()).isEqualTo(perms);
                     // Only kind of child present in workspace in this tab : aka header
-                    assertThat(createdWorkspaceView.getChildren().size()).isEqualTo(1);
+                    assertThat(createdWorkspaceView.getChildren()).hasSize(1);
 
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
@@ -1178,7 +1176,7 @@ public class WorkspaceResourcesTest {
                     assertThat(createdHeaderEntityView.getType()).isEqualTo(Workspace.class.getSimpleName());
                     // Assert that three kinds of children exist in header in this tab : aka datasource and default
                     // environments
-                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(2);
+                    assertThat(createdHeaderEntityView.getEntities()).hasSize(2);
 
                     EntityView DatasourcesEntityView = createdHeaderEntityView.getEntities().stream()
                             .filter(entity -> entity.getName().equals("Datasources"))
@@ -1201,12 +1199,12 @@ public class WorkspaceResourcesTest {
 
                     List<? extends BaseView> environmentBaseViewList = environmentsEntityView.getEntities();
                     environmentBaseViewList.sort(Comparator.comparing(BaseView::getName));
-                    assertThat(environmentBaseViewList.size()).isEqualTo(2);
+                    assertThat(environmentBaseViewList).hasSize(2);
                     assertThat(environmentBaseViewList.get(0).getName().equals(CommonFieldName.PRODUCTION_ENVIRONMENT));
                     assertThat(environmentBaseViewList.get(1).getName().equals(CommonFieldName.STAGING_ENVIRONMENT));
 
                     // Only one datasource was created in this workspace
-                    assertThat(DatasourcesEntityView.getEntities().size()).isEqualTo(1);
+                    assertThat(DatasourcesEntityView.getEntities()).hasSize(1);
                     BaseView createdDatasourceView =
                             DatasourcesEntityView.getEntities().get(0);
                     assertThat(createdDatasourceView.getName()).isEqualTo(createdDatasource.getName());

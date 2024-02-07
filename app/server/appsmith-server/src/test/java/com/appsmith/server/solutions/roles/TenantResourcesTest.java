@@ -197,7 +197,7 @@ public class TenantResourcesTest {
                     EntityView topView = groupsAndRolesTab.getData();
                     assertThat(topView.getType()).isEqualTo(Tenant.class.getSimpleName());
                     // assert that both the groups and roles are present as children
-                    assertThat(topView.getEntities().size()).isEqualTo(2);
+                    assertThat(topView.getEntities()).hasSize(2);
 
                     BaseView groupsTopView = topView.getEntities().stream()
                             .filter(entity -> entity.getName().equals("Groups"))
@@ -213,7 +213,7 @@ public class TenantResourcesTest {
                     // Also, associate role should be disabled since it doesn't apply to groups.
                     List<Integer> perms = List.of(1, 1, 1, 1, 1, 1, -1);
                     assertThat(groupsTopView.getEnabled()).isEqualTo(perms);
-                    assertThat(groupsTopView.getChildren().size()).isEqualTo(1);
+                    assertThat(groupsTopView.getChildren()).hasSize(1);
 
                     // Assert that the created group is returned in the view
                     List<BaseView> groupEntities = (List<BaseView>) groupsTopView.getChildren().stream()
@@ -237,7 +237,7 @@ public class TenantResourcesTest {
                     // Also, invite and remove users should be disabled since it doesn't apply to roles.
                     perms = List.of(1, 1, 1, 1, -1, -1, 1);
                     assertThat(rolesTopView.getEnabled()).isEqualTo(perms);
-                    assertThat(rolesTopView.getChildren().size()).isEqualTo(1);
+                    assertThat(rolesTopView.getChildren()).hasSize(1);
 
                     List<BaseView> rolesEntities = (List<BaseView>) rolesTopView.getChildren().stream()
                             .findFirst()
@@ -556,7 +556,7 @@ public class TenantResourcesTest {
                     EntityView topView = groupsAndRolesTab.getData();
                     assertThat(topView.getType()).isEqualTo(Tenant.class.getSimpleName());
                     // assert that both the groups and roles are present as children
-                    assertThat(topView.getEntities().size()).isEqualTo(2);
+                    assertThat(topView.getEntities()).hasSize(2);
 
                     BaseView groupsTopView = topView.getEntities().stream()
                             .filter(entity -> entity.getName().equals("Groups"))
@@ -572,7 +572,7 @@ public class TenantResourcesTest {
                     // Also, associate role should be disabled since it doesn't apply to groups.
                     List<Integer> perms = List.of(1, 1, 1, 1, 1, 1, -1);
                     assertThat(groupsTopView.getEnabled()).isEqualTo(perms);
-                    assertThat(groupsTopView.getChildren().size()).isEqualTo(1);
+                    assertThat(groupsTopView.getChildren()).hasSize(1);
 
                     // Assert that the created group is returned in the view
                     List<BaseView> groupEntities = (List<BaseView>) groupsTopView.getChildren().stream()

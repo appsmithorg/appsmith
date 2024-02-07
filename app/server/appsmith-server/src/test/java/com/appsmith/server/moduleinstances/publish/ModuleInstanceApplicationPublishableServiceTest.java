@@ -47,7 +47,7 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -288,8 +288,8 @@ public class ModuleInstanceApplicationPublishableServiceTest {
                         null)
                 .block();
 
-        assertThat(moduleInstancesInViewMode.size()).isEqualTo(1);
-        assertThat(moduleInstancesInEditMode.size()).isEqualTo(0);
+        assertThat(moduleInstancesInViewMode).hasSize(1);
+        assertThat(moduleInstancesInEditMode).hasSize(0);
 
         // Assertions for deletion in edit mode
         assertThat(deletedInEditModeModuleInstance
@@ -325,7 +325,7 @@ public class ModuleInstanceApplicationPublishableServiceTest {
                         null)
                 .block();
 
-        assertThat(moduleInstancesInViewMode.size()).isEqualTo(0);
-        assertThat(moduleInstancesInEditMode.size()).isEqualTo(0);
+        assertThat(moduleInstancesInViewMode).hasSize(0);
+        assertThat(moduleInstancesInEditMode).hasSize(0);
     }
 }

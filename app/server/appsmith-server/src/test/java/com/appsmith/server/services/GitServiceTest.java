@@ -476,7 +476,7 @@ public class GitServiceTest {
 
         StepVerifier.create(applicationListMono)
                 .assertNext(applications -> {
-                    assertThat(applications.size()).isEqualTo(3);
+                    assertThat(applications).hasSize(3);
                     applications.forEach(application -> {
                         GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                         assert application.getId() != null;
@@ -641,7 +641,7 @@ public class GitServiceTest {
 
         StepVerifier.create(applicationListMono)
                 .assertNext(applications -> {
-                    assertThat(applications.size()).isEqualTo(2);
+                    assertThat(applications).hasSize(2);
                     applications.forEach(application -> {
                         GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                         assert application.getId() != null;
@@ -769,7 +769,7 @@ public class GitServiceTest {
 
         StepVerifier.create(applicationFlux.collectList())
                 .assertNext(applicationList -> {
-                    assertThat(applicationList.size()).isEqualTo(branchList.size());
+                    assertThat(applicationList).hasSize(branchList.size());
 
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
@@ -919,8 +919,8 @@ public class GitServiceTest {
                     List<Application> applications = objects.getT2();
                     List<PermissionGroup> permissionGroups = objects.getT1();
                     PermissionGroup permissionGroup = permissionGroups.get(0);
-                    assertThat(applications.size()).isEqualTo(branches.size());
-                    assertThat(permissionGroups.size()).isEqualTo(1);
+                    assertThat(applications).hasSize(branches.size());
+                    assertThat(permissionGroups).hasSize(1);
 
                     for (Application application : applications) {
                         Optional<Policy> optionalPolicy = application.getPolicies().stream()
@@ -1090,8 +1090,8 @@ public class GitServiceTest {
                     return applicationRepository.save(application);
                 })
                 .flatMap(application -> {
-                    assertThat(application.getPages().size()).isEqualTo(1);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPublishedPages()).hasSize(1);
                     return applicationPageService
                             .clonePage(application.getPages().get(0).getId(), new ClonePageMetaDTO())
                             .thenReturn(application);
@@ -1101,8 +1101,8 @@ public class GitServiceTest {
 
         StepVerifier.create(resultDTOMono)
                 .assertNext(application -> {
-                    assertThat(application.getPages().size()).isEqualTo(2);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(2);
+                    assertThat(application.getPages()).hasSize(2);
+                    assertThat(application.getPublishedPages()).hasSize(2);
                     Mockito.verify(analyticsService, times(1)).sendEvent(eq(GIT_PULL.getEventName()), any(), anyMap());
                 })
                 .verifyComplete();

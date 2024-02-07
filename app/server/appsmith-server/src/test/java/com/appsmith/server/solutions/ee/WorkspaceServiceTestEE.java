@@ -145,7 +145,7 @@ public class WorkspaceServiceTestEE {
                 .collectList()
                 .block();
 
-        assertThat(environmentIdList.size()).isEqualTo(2);
+        assertThat(environmentIdList).hasSize(2);
         String environmentIdOne = environmentIdList.get(0);
 
         Mono<String> verifiedEnvironmentIdMono = workspaceService.verifyEnvironmentIdByWorkspaceId(

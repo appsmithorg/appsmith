@@ -86,7 +86,7 @@ public class PluginServiceTest {
         List<PluginDTO> pluginDTOList = pluginService.getAllPluginIconLocation().block();
 
         if (pluginMap != null) {
-            assertThat(pluginDTOList.size()).isEqualTo(pluginMap.size());
+            assertThat(pluginDTOList).hasSize(pluginMap.size());
             for (PluginDTO pluginDTO : pluginDTOList) {
                 assertThat(pluginDTO.getIconLocation())
                         .isEqualTo(pluginMap.get(pluginDTO.getId()).getIconLocation());

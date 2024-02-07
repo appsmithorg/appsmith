@@ -100,7 +100,7 @@ public class RoleConfigurationSolutionTest {
         StepVerifier.create(allTabViewsMono)
                 .assertNext(allTabView -> {
                     assertThat(allTabView).isNotNull();
-                    assertThat(allTabView.getTabs().size()).isEqualTo(4);
+                    assertThat(allTabView.getTabs()).hasSize(4);
                     // Assert the tabs in order
                     List<String> tabNames = new ArrayList<>(allTabView.getTabs().keySet());
 
@@ -144,7 +144,7 @@ public class RoleConfigurationSolutionTest {
         StepVerifier.create(allTabViewsMono)
                 .assertNext(allTabView -> {
                     assertThat(allTabView).isNotNull();
-                    assertThat(allTabView.getTabs().size()).isEqualTo(5);
+                    assertThat(allTabView.getTabs()).hasSize(5);
                     // Assert the tabs in order
                     List<String> tabNames = new ArrayList<>(allTabView.getTabs().keySet());
 

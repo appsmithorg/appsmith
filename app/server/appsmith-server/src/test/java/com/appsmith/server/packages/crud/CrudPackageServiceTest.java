@@ -563,7 +563,7 @@ class CrudPackageServiceTest {
         StepVerifier.create(modulePublishableEntitiesMono)
                 .assertNext(publishedModules -> {
                     assertThat(publishedModules).isNotNull();
-                    assertThat(publishedModules.size()).isEqualTo(EXPECTED_ENTITY_SIZE);
+                    assertThat(publishedModules).hasSize(EXPECTED_ENTITY_SIZE);
                 })
                 .verifyComplete();
 
@@ -581,7 +581,7 @@ class CrudPackageServiceTest {
                 })
                 .verifyComplete();
 
-        //        assertThat(publishingMetaDTO.getPublishedModules().size()).isEqualTo(EXPECTED_ENTITY_SIZE);
+        //        assertThat(publishingMetaDTO.getPublishedModules()).hasSize(EXPECTED_ENTITY_SIZE);
     }
 
     @WithUserDetails(value = "api_user")

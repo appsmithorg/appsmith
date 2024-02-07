@@ -664,8 +664,8 @@ public class UserAndAccessManagementServiceTest {
         StepVerifier.create(userAndAccessManagementService.getUserById(createdUser1.getId()))
                 .assertNext(user -> {
                     assertThat(user.getGroups()).isNotNull();
-                    assertThat(user.getGroups().size()).isEqualTo(2);
-                    assertThat(user.getRoles().size()).isEqualTo(2);
+                    assertThat(user.getGroups()).hasSize(2);
+                    assertThat(user.getRoles()).hasSize(2);
                     // check if the user has the permission group
                     UserGroupCompactDTO userGroupCompactDTOGroupOne = user.getGroups().stream()
                             .filter(pg -> pg.getId().equals(group1.getId()))
