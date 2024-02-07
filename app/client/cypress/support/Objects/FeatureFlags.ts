@@ -118,14 +118,4 @@ export const featureFlagInterceptForLicenseFlags = () => {
 function ReloadAfterIntercept() {
   cy.reload();
   ObjectsRegistry.AssertHelper.AssertDocumentReady();
-  // cy.waitUntil(() =>
-  //   cy.document().then((doc) => {
-  //     return doc.readyState === "complete";
-  //   }),
-  // );
-  // cy.waitUntil(() =>
-  //   cy.window().then((win) => {
-  //     return win.hasOwnProperty("onload");
-  //   }),
-  // );
 }
