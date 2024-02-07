@@ -87,7 +87,7 @@ function WorkspaceAction({
           data-testid="t--workspace-action-create-app"
           disabled={!hasCreateNewApplicationPermission}
           onSelect={() => onCreateNewApplication(workspace.id)}
-          startIcon="group-control"
+          startIcon="apps-line"
         >
           {createMessage(NEW_APP)}
         </MenuItem>
@@ -95,7 +95,7 @@ function WorkspaceAction({
           data-testid="t--workspace-action-start-from-template"
           disabled={!hasCreateNewApplicationPermission}
           onSelect={() => onStartFromTemplate(workspaceId)}
-          startIcon="group-control"
+          startIcon="layout-2-line"
         >
           {createMessage(NEW_APP_FROM_TEMPLATE)}
         </MenuItem>
