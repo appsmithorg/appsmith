@@ -61,7 +61,6 @@ import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
 
 import { toast, Callout } from "design-system";
 import styled from "styled-components";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import {
   isDatasourceAuthorizedForQueryCreation,
   isEnabledForPreviewData,
@@ -92,10 +91,7 @@ import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
-import {
-  getIsEditorPaneSegmentsEnabled,
-  selectFeatureFlags,
-} from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
@@ -106,7 +102,6 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
-import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
 
 interface ReduxStateProps {
   canDeleteDatasource: boolean;
@@ -143,8 +138,6 @@ interface ReduxStateProps {
   showDebugger: boolean;
   featureFlags?: FeatureFlags;
   isPluginAllowedToPreviewData: boolean;
-  isAppSidebarEnabled: boolean;
-  isEditorPaneSegmentsEnabled: boolean;
   isOnboardingFlow?: boolean;
 }
 
@@ -902,7 +895,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasourceId,
       formData,
       history,
-      isAppSidebarEnabled,
       isDeleting,
       isEditorPaneSegmentsEnabled,
       isInsideReconnectModal,
@@ -961,11 +953,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        {isAppSidebarEnabled ||
-        isEditorPaneSegmentsEnabled ||
-        !!isOnboardingFlow ? null : (
-          <CloseEditor />
-        )}
         {!isInsideReconnectModal && (
           <DSFormHeader
             canDeleteDatasource={canDeleteDatasource}
@@ -1140,9 +1127,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isPluginAllowedToPreviewData =
     !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
 
-  const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
-  const isEditorPaneSegmentsEnabled = getIsEditorPaneSegmentsEnabled(state);
-
   return {
     canDeleteDatasource,
     canManageDatasource,
@@ -1177,8 +1161,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
-    isAppSidebarEnabled,
-    isEditorPaneSegmentsEnabled,
   };
 };
 

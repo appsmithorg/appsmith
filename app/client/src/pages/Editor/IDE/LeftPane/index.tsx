@@ -14,7 +14,6 @@ import {
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
-import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
 import EditorPane from "../EditorPane";
 import { useIsEditorPaneSegmentsEnabled } from "../hooks";
 
@@ -25,12 +24,8 @@ export const LeftPaneContainer = styled.div`
 `;
 
 const LeftPane = () => {
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
   const { path } = useRouteMatch();
-  if (!isAppSidebarEnabled) {
-    return <WidgetsEditorEntityExplorer />;
-  }
   return (
     <LeftPaneContainer>
       <Switch>
