@@ -23,6 +23,7 @@ import { refreshDatasourceStructure } from "actions/datasourceActions";
 
 interface Props {
   datasourceId: string;
+  datasourceName: string;
   datasourceStructure?: DatasourceStructureType;
   step: number;
   context: DatasourceStructureContext;
@@ -110,6 +111,7 @@ const Container = (props: Props) => {
                 onChange={(value) => handleOnChange(value)}
                 placeholder={createMessage(
                   DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
+                  props.datasourceName,
                 )}
                 size={"sm"}
                 startIcon="search"

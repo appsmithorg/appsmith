@@ -8,12 +8,13 @@ import {
   LOADING_RECORDS_TITLE_TEXT,
   FAILED_RECORDS_MESSAGE_TEXT,
   FAILED_RECORDS_TITLE_TEXT,
+  NO_COLUMNS_MESSAGE_TEXT,
 } from "@appsmith/constants/messages";
 import { MessageWrapper, SchemaStateMessageWrapper } from "./SchemaViewModeCSS";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
-type InterimState = "LOADING" | "NODATA" | "FAILED";
+type InterimState = "LOADING" | "NODATA" | "FAILED" | "NOCOLUMNS";
 
 interface RenderInterimDataStateProps {
   state: InterimState;
@@ -52,6 +53,14 @@ const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
               {createMessage(LOADING_RECORDS_TITLE_TEXT)}
             </Text>
             <Text>{createMessage(LOADING_RECORDS_MESSAGE_TEXT)}</Text>
+          </>
+        ) : state === "NOCOLUMNS" ? (
+          <>
+            <img
+              alt={createMessage(EMPTY_TABLE_TITLE_TEXT)}
+              src={getAssetUrl(`${ASSETS_CDN_URL}/empty-state.svg`)}
+            />
+            <Text>{createMessage(NO_COLUMNS_MESSAGE_TEXT)}</Text>
           </>
         ) : null}
       </SchemaStateMessageWrapper>

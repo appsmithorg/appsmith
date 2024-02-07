@@ -184,6 +184,7 @@ const ExplorerDatasourceEntity = React.memo(
           <DatasourceStructureContainer
             context={DatasourceStructureContext.EXPLORER}
             datasourceId={props.datasource.id}
+            datasourceName={props.datasource.name}
             datasourceStructure={datasourceStructure}
             step={props.step}
           />

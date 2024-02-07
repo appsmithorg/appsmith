@@ -16,11 +16,9 @@ import {
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { Text, TextType } from "design-system-old";
-import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   DEBUGGER_ERRORS,
@@ -166,6 +164,7 @@ function QueryDebuggerTabs({
         <Schema
           currentActionId={currentActionConfig.id}
           datasourceId={currentActionConfig.datasource.id || ""}
+          datasourceName={currentActionConfig.datasource.name || ""}
         />
       ),
     });
@@ -185,12 +184,6 @@ function QueryDebuggerTabs({
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}
       />
-      {isRunning && (
-        <ActionExecutionInProgressView
-          actionType="query"
-          theme={EditorTheme.LIGHT}
-        />
-      )}
 
       {output && !!output.length && (
         <ResultsCount>
