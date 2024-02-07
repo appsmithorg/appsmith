@@ -24,7 +24,7 @@ let parentBranchKey = "ParentBranch",
 let repoName;
 describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   before(() => {
-    gitSync.CreateNConnectToGit();
+    gitSync.CreateNConnectToGitV2();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });

@@ -25,9 +25,6 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   });
 
   it("Testing connect to git flow - V2", function () {
-    featureFlagIntercept({
-      release_git_connect_v2_enabled: true,
-    });
 
     _.gitSync.CreateNConnectToGitV2();
 
@@ -37,9 +34,6 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   });
 
   it("Testing import via git flow - V2", function () {
-    featureFlagIntercept({
-      release_git_connect_v2_enabled: true,
-    });
 
     _.gitSync.CreateGitBranch("test", true);
     cy.get("@gitbranchName").then((bName) => {

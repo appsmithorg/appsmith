@@ -57,7 +57,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     );
     PageLeftPane.switchSegment(PagePaneSegment.UI);
     // connect app to git
-    gitSync.CreateNConnectToGit();
+    gitSync.CreateNConnectToGitV2();
     gitSync.CreateGitBranch();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;

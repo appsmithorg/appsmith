@@ -37,7 +37,7 @@ describe("Git Bugs", { tags: ["@tag.Git"] }, function () {
   });
 
   it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function () {
-    _.gitSync.CreateNConnectToGit();
+    _.gitSync.CreateNConnectToGitV2();
     _.gitSync.CreateGitBranch(tempBranch, false);
 
     cy.get("@gitbranchName").then((branchName) => {

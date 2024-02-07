@@ -114,7 +114,7 @@ describe(
 
     it("6. Connect app to git, verify data binding in edit and deploy mode", () => {
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      gitSync.CreateNConnectToGit(repoName);
+      gitSync.CreateNConnectToGitV2(repoName);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
 

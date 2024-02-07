@@ -119,7 +119,7 @@ describe("1. CommandClickNavigation", { tags: ["@tag.IDE"] }, function () {
     // cmd clicking to JS function reloaded the app. Will assert that does not happen
     cy.generateUUID().then((uid) => {
       const repoName = uid;
-      gitSync.CreateNConnectToGit(repoName);
+      gitSync.CreateNConnectToGitV2(repoName);
       gitSync.CreateGitBranch(repoName);
     });
 

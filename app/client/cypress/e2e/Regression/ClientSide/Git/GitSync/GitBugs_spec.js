@@ -40,7 +40,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
-    gitSync.CreateNConnectToGit(repoName);
+    gitSync.CreateNConnectToGitV2(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
@@ -86,7 +86,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       agHelper.AddDsl("JsObjecWithGitdsl");
     });
     // connect app to git
-    gitSync.CreateNConnectToGit(repoName);
+    gitSync.CreateNConnectToGitV2(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
@@ -189,7 +189,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       201,
     );
     // connect app to git and deploy
-    gitSync.CreateNConnectToGit();
+    gitSync.CreateNConnectToGitV2();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
       cy.wait(2000);

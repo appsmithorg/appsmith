@@ -17,9 +17,6 @@ describe("Git Branch Protection", { tags: ["@tag.Git"] }, function () {
       const appName = "GitBranchProtect-2" + uid;
       _.homePage.CreateNewWorkspace(wsName, true);
       _.homePage.CreateAppInWorkspace(wsName, appName);
-      featureFlagIntercept({
-        release_git_connect_v2_enabled: true,
-      });
       cy.wait(1000);
 
       cy.intercept({

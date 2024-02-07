@@ -24,7 +24,7 @@ describe("Git with Theming:", { tags: ["@tag.Git"] }, function () {
     });
     // cy.generateUUID().then((uid) => {
     //   repoName = uid;
-    _.gitSync.CreateNConnectToGit();
+    _.gitSync.CreateNConnectToGitV2();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
       _.gitSync.CreateGitBranch(repoName);

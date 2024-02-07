@@ -33,26 +33,26 @@ describe(
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
       onboarding.closeIntroModal();
-      gitSync.CreateNConnectToGit(repoName1, true, true);
+      gitSync.CreateNConnectToGitV2(repoName1, true, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName1 = repName;
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
       onboarding.closeIntroModal();
-      gitSync.CreateNConnectToGit(repoName2, true, true);
+      gitSync.CreateNConnectToGitV2(repoName2, true, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName2 = repName;
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
-      gitSync.CreateNConnectToGit(repoName3, true, true);
+      gitSync.CreateNConnectToGitV2(repoName3, true, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName3 = repName;
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
-      gitSync.CreateNConnectToGit(repoName4, false, true);
+      gitSync.CreateNConnectToGitV2(repoName4, false, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName4 = repName;
       });

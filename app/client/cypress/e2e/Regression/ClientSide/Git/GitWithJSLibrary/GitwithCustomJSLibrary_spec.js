@@ -27,7 +27,7 @@ describe(
         cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       });
       // connect app to git
-      gitSync.CreateNConnectToGit(repoName);
+      gitSync.CreateNConnectToGitV2(repoName);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });

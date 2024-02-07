@@ -24,7 +24,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       homePage.CreateAppInWorkspace("AutoLayoutGit" + uid);
     });
 
-    gitSync.CreateNConnectToGit();
+    gitSync.CreateNConnectToGitV2();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });

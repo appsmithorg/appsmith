@@ -31,7 +31,7 @@ describe(
         workspaceName = "GitImport_" + uid;
         homePage.CreateNewWorkspace(workspaceName, true);
         //Import App From Gitea
-        gitSync.ImportAppFromGit(workspaceName, appRepoName, true);
+        gitSync.ImportAppFromGitV2(workspaceName, appRepoName, true);
         cy.get("@deployKeyId").then((id) => {
           keyId = id;
         });

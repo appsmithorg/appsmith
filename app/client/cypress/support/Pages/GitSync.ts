@@ -65,24 +65,6 @@ export class GitSync {
     this.agHelper.AssertElementAbsence(this._gitSyncModal);
   }
 
-  CreateNConnectToGit(
-    repoName = "Repo",
-    assertConnect = true,
-    privateFlag = false,
-  ) {
-    this.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      repoName += uid;
-      this.CreateTestGiteaRepo(repoName, privateFlag);
-      //this.CreateLocalGithubRepo(repoName);
-      this.AuthorizeKeyToGitea(repoName, assertConnect);
-      // cy.get("@remoteUrl").then((remoteUrl: any) => {
-      //   this.AuthorizeLocalGitSSH(remoteUrl);
-      // });
-      cy.wrap(repoName).as("gitRepoName");
-    });
-  }
-
   public CreateTestGiteaRepo(repo: string, privateFlag = false) {
     cy.request({
       method: "POST",
@@ -371,7 +353,7 @@ export class GitSync {
     );
 
     cy.get("@guid").then((uid) => {
-      //using the same uid as generated during CreateNConnectToGit
+      //using the same uid as generated during CreateNConnectToGitV2
       this.agHelper.TypeText(
         this._branchSearchInput,
         `{selectall}` + `${branch + uid}` + `{enter}`,

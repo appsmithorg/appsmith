@@ -67,7 +67,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
       });
       cy.wait(1000);
 
-      gitSync.CreateNConnectToGit();
+      gitSync.CreateNConnectToGitV2();
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
         gitSync.CreateGitBranch(repoName);

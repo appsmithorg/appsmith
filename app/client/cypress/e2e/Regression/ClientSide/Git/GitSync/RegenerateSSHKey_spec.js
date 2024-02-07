@@ -15,7 +15,7 @@ describe("Git regenerate SSH key flow", { tags: ["@tag.Git"] }, function () {
       homePage.CreateNewWorkspace("ssh_" + uid);
       homePage.CreateAppInWorkspace("ssh_" + uid);
     });
-    gitSync.CreateNConnectToGit(repoName);
+    gitSync.CreateNConnectToGitV2(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
       cy.regenerateSSHKey(repoName);
