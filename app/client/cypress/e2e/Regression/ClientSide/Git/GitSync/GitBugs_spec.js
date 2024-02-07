@@ -21,10 +21,9 @@ const tempBranch = "feat/tempBranch";
 const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
+let repoName;
 
 describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
-  let repoName;
-
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -33,20 +32,17 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     agHelper.SaveLocalStorageCache();
   });
 
-  before(() => {
+  it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
-      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+      cy.CreateAppForWorkspace(newWorkspaceName, "app-1");
+      gitSync.CreateNConnectToGitV2();
+      cy.get("@gitRepoName").then((repName) => {
+        repoName = repName;
+      });
     });
-    gitSync.CreateNConnectToGitV2(repoName);
-    cy.get("@gitRepoName").then((repName) => {
-      repoName = repName;
-    });
-  });
-
-  it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     // adding a new page "ChildPage" to master
     cy.Createpage(pagename);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
@@ -82,14 +78,15 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
-      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+      cy.CreateAppForWorkspace(newWorkspaceName, "app-2");
       agHelper.AddDsl("JsObjecWithGitdsl");
+      // connect app to git
+      gitSync.CreateNConnectToGitV2();
+      cy.get("@gitRepoName").then((repName) => {
+        repoName = repName;
+      });
     });
-    // connect app to git
-    gitSync.CreateNConnectToGitV2(repoName);
-    cy.get("@gitRepoName").then((repName) => {
-      repoName = repName;
-    });
+
     // create JS Object and validate its data on Page1
     jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
