@@ -21,6 +21,10 @@ public class Bridge<T extends BaseDomain> implements Specification<T> {
 
     private Bridge() {}
 
+    public static <T extends BaseDomain> Conditioner<T> conditioner() {
+        return new Conditioner<>();
+    }
+
     public static <T extends BaseDomain> Bridge<T> where(String key) {
         final Bridge<T> bridge = new Bridge<>();
         bridge.lastWhere = key;
@@ -57,5 +61,23 @@ public class Bridge<T extends BaseDomain> implements Specification<T> {
 
     public static Update update() {
         return new Update();
+    }
+
+    public static class Where<T extends BaseDomain> {
+        private final String key;
+        private final Bridge<T> bridge;
+
+        public Where(String key, Bridge<T> bridge) {
+            this.key = key;
+            this.bridge = bridge;
+        }
+
+        public Bridge<T> is(String value) {
+            return bridge.is(value);
+        }
+
+        public Bridge<T> and(String key) {
+            return bridge.and(key);
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -32,12 +33,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     @Deprecated
     public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
-
-        Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId))
-                .is(applicationId);
-
         return queryBuilder()
-                .criteria(applicationCriteria)
+                .spec(Bridge.<ActionCollection>conditioner()
+                        .eq(fieldName(QActionCollection.actionCollection.applicationId), applicationId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();

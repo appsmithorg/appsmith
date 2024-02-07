@@ -1,8 +1,10 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -56,11 +57,10 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public Optional<Theme> getSystemThemeByName(String themeName) {
-        String findNameRegex = String.format("^%s$", Pattern.quote(themeName));
-        Criteria criteria =
-                where("name").regex(findNameRegex, "i").and("isSystemTheme").is(true);
         return queryBuilder()
-                .criteria(criteria)
+                .spec(Bridge.<Theme>conditioner()
+                        .eqIgnoreCase(fieldName(QTheme.theme.name), themeName)
+                        .isTrue(fieldName(QTheme.theme.isSystemTheme)))
                 .permission(AclPermission.READ_THEMES)
                 .one();
     }

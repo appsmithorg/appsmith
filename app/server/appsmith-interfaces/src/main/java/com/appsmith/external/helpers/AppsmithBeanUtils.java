@@ -1,5 +1,6 @@
 package com.appsmith.external.helpers;
 
+import lombok.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -36,8 +37,9 @@ public final class AppsmithBeanUtils {
         copyNewFieldValuesIntoOldObject(src, target, Collections.emptySet());
     }
 
-    public static void copyNewFieldValuesIntoOldObject(Object src, Object target, Set<String> extraFieldsToIgnore) {
-        Set<String> fieldsToIgnore = new HashSet<>(extraFieldsToIgnore);
+    public static void copyNewFieldValuesIntoOldObject(
+            Object src, Object target, @NonNull Set<String> extraFieldsToIgnore) {
+        final Set<String> fieldsToIgnore = new HashSet<>(extraFieldsToIgnore);
         fieldsToIgnore.addAll(Set.of(getNullPropertyNames(src)));
         BeanUtils.copyProperties(src, target, fieldsToIgnore.toArray(new String[0]));
     }
