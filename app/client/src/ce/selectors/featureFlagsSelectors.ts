@@ -23,9 +23,9 @@ export const getIsEditorPaneSegmentsEnabled = createSelector(
     const isEditorSegmentsReleaseEnabled =
       flags[FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled];
 
-    const iEditorSegmentsRolloutEnabled =
+    const isEditorSegmentsRolloutEnabled =
       flags[FEATURE_FLAG.rollout_editor_pane_segments_enabled];
 
-    return isEditorSegmentsReleaseEnabled || iEditorSegmentsRolloutEnabled;
+    return isEditorSegmentsReleaseEnabled || isEditorSegmentsRolloutEnabled;
   },
 );
