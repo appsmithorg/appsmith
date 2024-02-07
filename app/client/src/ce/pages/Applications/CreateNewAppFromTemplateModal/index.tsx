@@ -7,11 +7,9 @@ import {
   importTemplateToWorkspace,
   setActiveLoadingTemplateId,
 } from "actions/templateActions";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import { Modal, ModalBody, ModalContent } from "design-system";
 import { isEmpty } from "lodash";
 import { TemplateView } from "pages/Templates/TemplateView";
-import TemplateModalHeader from "pages/Templates/TemplatesModal/Header";
-import TemplatesListLayoutSwitcher from "pages/Templates/TemplatesModal/TemplatesListLayoutSwitcher";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -21,6 +19,7 @@ import {
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
+import StartWithTemplatesWrapper from "../StartWithTemplatesWrapper";
 
 interface CreateNewAppFromTemplatesModalProps {
   currentWorkSpaceId: string;
@@ -96,11 +95,6 @@ function CreateNewAppFromTemplatesModal({
   return (
     <Modal onOpenChange={(open) => onClose(open)} open={isOpen}>
       <ModalContentWrapper data-testid="t--create-app-from-templates-dialog-component">
-        <ModalHeader>
-          <TemplateModalHeader
-            className={!showTemplateDetails ? "modal-header" : ""}
-          />
-        </ModalHeader>
         <ModalBodyWrapper>
           {!!showTemplateDetails ? (
             <TemplateView
@@ -110,10 +104,11 @@ function CreateNewAppFromTemplatesModal({
               templateId={showTemplateDetails}
             />
           ) : (
-            <TemplatesListLayoutSwitcher
-              isForkingEnabled
-              onForkTemplateClick={onClickUseTemplate}
-              onTemplateClick={onTemplateClick}
+            <StartWithTemplatesWrapper
+              onForkTemplateClick={(template) =>
+                onClickUseTemplate(template.id)
+              }
+              setSelectedTemplate={onTemplateClick}
             />
           )}
         </ModalBodyWrapper>
