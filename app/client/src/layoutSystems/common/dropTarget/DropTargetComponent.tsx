@@ -44,6 +44,8 @@ import {
 } from "widgets/WidgetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -72,8 +74,15 @@ function Onboarding() {
   const appState = useCurrentAppState();
   const isAirgappedInstance = isAirgapped();
 
+  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
+    FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
+  );
+
   const shouldShowStarterTemplates = useMemo(
-    () => !isMobileCanvas && !isAirgappedInstance,
+    () =>
+      showStarterTemplatesInsteadofBlankCanvas &&
+      !isMobileCanvas &&
+      !isAirgappedInstance,
     [isMobileCanvas, isAirgappedInstance],
   );
 
