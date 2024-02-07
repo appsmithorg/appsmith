@@ -266,6 +266,7 @@ export function getHighlightsForWidgets(
         const tallestWidget = tallestWidgets[rIndex];
 
         let temp: AnvilHighlightInfo[] = [];
+        const draggedWidgetIndices: number[] = [];
         row.forEach((each: RowMetaData, index: number) => {
           const isDraggedWidget: boolean = draggedWidgets.some(
             (widget: DraggedWidget) => widget.widgetId === each.widgetId,
@@ -278,11 +279,13 @@ export function getHighlightsForWidgets(
           );
           const prevDimension: LayoutElementPosition | undefined =
             index === 0 ? undefined : getDimensions(row[index - 1].widgetId);
-
-          /**
-           * Add a highlight before the widget
-           */
-          if (!isDraggedWidget) {
+          const skipHighlightBeforeWidget = draggedWidgetIndices.includes(
+            index - 1,
+          );
+          if (!skipHighlightBeforeWidget) {
+            /**
+             * Add a highlight before the widget
+             */
             temp = updateHighlights(
               temp,
               baseHighlight,
@@ -295,25 +298,31 @@ export function getHighlightsForWidgets(
               prevDimension,
               false,
             );
+          }
+          if (!isDraggedWidget) {
             childCount += 1;
+          } else {
+            draggedWidgetIndices.push(index);
           }
 
           if (index === row.length - 1) {
-            /**
-             * Add a highlight after the last widget in the row.
-             */
-            temp = updateHighlights(
-              temp,
-              baseHighlight,
-              childCount,
-              alignment as FlexLayerAlignment,
-              layoutProps.layoutId,
-              dimension,
-              currentDimension,
-              tallestDimension,
-              prevDimension,
-              true,
-            );
+            if (!isDraggedWidget) {
+              /**
+               * Add a highlight after the last widget in the row.
+               */
+              temp = updateHighlights(
+                temp,
+                baseHighlight,
+                childCount,
+                alignment as FlexLayerAlignment,
+                layoutProps.layoutId,
+                dimension,
+                currentDimension,
+                tallestDimension,
+                prevDimension,
+                true,
+              );
+            }
             highlights.push(...temp);
             temp = [];
           }
