@@ -768,7 +768,9 @@ export class AggregateHelper {
         ctrlKey: ctrlKey,
         metaKey,
       })
-      .wait(waitTimeInterval);
+      .then(() => {
+        return cy.wait(waitTimeInterval);
+      });
   }
 
   public GetClosestNClick(
