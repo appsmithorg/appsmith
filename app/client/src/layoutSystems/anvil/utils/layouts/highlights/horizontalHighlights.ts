@@ -210,11 +210,8 @@ export function getHighlightsForLayouts(
       highlights.push(...layoutHighlights);
     }
     index += 1;
-    const isLastLayoutDiscarded = discardedLayoutIndices.includes(index - 1);
-    const isFirstLayoutDiscarded = discardedLayoutIndices.includes(0);
-    const skipBottomNewCellHighlights =
-      isFirstLayoutDiscarded || isLastLayoutDiscarded;
-    if (!skipBottomNewCellHighlights) {
+    const isLastLayout = index === layouts.length;
+    if (!skipEntity && isLastLayout) {
       // Add a highlight for the drop zone below the child layout.
       highlights = updateHighlights(
         highlights,

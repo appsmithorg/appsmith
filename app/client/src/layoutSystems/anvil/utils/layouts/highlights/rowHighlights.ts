@@ -236,7 +236,7 @@ export function getHighlightsForRow(
     index += 1;
 
     // Add a highlight after the last widget in the row.
-    if (index === row.length && draggedWidgetCount !== row.length) {
+    if (index === row.length && !isDraggedWidget) {
       highlights = updateHighlights(
         highlights,
         baseHighlight,
@@ -416,7 +416,7 @@ export function getHighlightsForLayoutRow(
 
     index += 1;
 
-    if (index === layout.length && index !== discardedLayouts) {
+    if (index === layout.length && !skipEntity) {
       // Add a highlight for the drop zone below the child layout.
       highlights = updateHighlights(
         highlights,
