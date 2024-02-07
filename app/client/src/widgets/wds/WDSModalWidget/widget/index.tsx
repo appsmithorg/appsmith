@@ -24,14 +24,16 @@ import type {
 import { call } from "redux-saga/effects";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 
-const modalBodyStyles: React.CSSProperties = {
-  minHeight: "var(--sizing-16)",
-  maxHeight:
-    "calc(var(--canvas-height) - var(--outer-spacing-4) - var(--outer-spacing-4) - var(--outer-spacing-4) - 100px)",
-};
-
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
+
+  constructor(props: ModalWidgetProps) {
+    super(props);
+
+    this.state = {
+      isVisible: this.getModalVisibility(),
+    };
+  }
 
   static getConfig() {
     return config.metaConfig;
@@ -117,16 +119,14 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
     return (
       <Modal
-        isOpen={this.getModalVisibility()}
+        isOpen={this.state.isVisible as boolean}
         onClose={this.onModalClose}
+        setOpen={(val) => this.setState({ isVisible: val })}
         size={this.props.size}
       >
         <ModalContent className={this.props.className}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}
-          <ModalBody
-            className={WDS_MODAL_WIDGET_CLASSNAME}
-            style={modalBodyStyles}
-          >
+          <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
             <LayoutProvider {...this.props} />
           </ModalBody>
           {this.props.showFooter && (

@@ -224,7 +224,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .is(branchName);
         return queryBuilder()
                 .criteria(defaultAppCriteria, branchNameCriteria)
-                .fields((List<String>) null)
                 .permission(aclPermission.orElse(null))
                 .one();
     }
@@ -247,7 +246,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Mono<Long> countByWorkspaceId(String workspaceId) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        return this.count(List.of(workspaceIdCriteria));
+        return queryBuilder().criteria(workspaceIdCriteria).count();
     }
 
     @Override
@@ -327,7 +326,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria applicationNameCriteria =
                 where(fieldName(QApplication.application.name)).is(applicationName);
 
-        return count(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
+        return queryBuilder()
+                .criteria(workspaceIdCriteria, applicationNameCriteria)
+                .permission(permission)
+                .count();
     }
 
     @Override

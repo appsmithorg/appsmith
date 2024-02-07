@@ -6,8 +6,8 @@ import org.junit.jupiter.api.extension.TestWatcher;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.TreeSet;
 
 /**
  * The TestWatcher interface is used to react to the execution of tests.
@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class TestResultLoggerExtension implements TestWatcher, AfterAllCallback {
 
-    private final List<String> failedTests = new ArrayList<>();
+    private final Collection<String> failedTests = new TreeSet<>();
 
     /**
      * This method is called after all the tests are run. It writes the failed tests to a file.
