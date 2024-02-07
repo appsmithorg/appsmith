@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "design-system";
-
+import { getAppsmithConfigs } from "@appsmith/configs";
 import Page from "./Page";
 import {
   createMessage,
@@ -9,11 +9,14 @@ import {
 } from "@appsmith/constants/messages";
 import { useDispatch } from "react-redux";
 
+const { intercomAppID } = getAppsmithConfigs();
+
 function GenericError(props: { errorCode?: string }) {
   const dispatch = useDispatch();
   return (
     <Page
       cta={
+        intercomAppID && (
         <Button
           className="button-position"
           endIcon="right-arrow"
@@ -23,7 +26,7 @@ function GenericError(props: { errorCode?: string }) {
         >
           Chat with us on Intercom
         </Button>
-      }
+      )}
       description={createMessage(PAGE_CLIENT_ERROR_DESCRIPTION)}
       errorCode={props.errorCode}
       title={createMessage(PAGE_CLIENT_ERROR_TITLE)}
