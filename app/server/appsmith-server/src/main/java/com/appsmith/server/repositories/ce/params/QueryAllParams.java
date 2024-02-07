@@ -73,8 +73,11 @@ public class QueryAllParams<T extends BaseDomain> {
     }
 
     public QueryAllParams<T> byId(String id) {
-        final Criteria w = Criteria.where(FieldName.ID);
-        return criteria(id == null ? w.isNull() : w.is(id));
+        spec(
+                id == null
+                        ? (root, cq, cb) -> cb.isNull(root.get(FieldName.ID))
+                        : (root, cq, cb) -> cb.equal(root.get(FieldName.ID), id));
+        return this;
     }
 
     public QueryAllParams<T> fields(String... fields) {

@@ -179,10 +179,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users) {
-        return Mono.empty(); /*
         return repository
                 .findById(permissionGroupId, permissionGroupPermission.getAssignPermission())
-                .flatMap(permissionGroup -> bulkAssignToUsers(permissionGroup, users));*/
+                .flatMap(permissionGroup -> bulkAssignToUsers(permissionGroup, users));
     }
 
     @Override
@@ -199,7 +198,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> bulkUnassignFromUsers(PermissionGroup pg, List<User> users) {
-        return Mono.empty(); /*
 
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
@@ -210,7 +208,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
         return updatePermissionGroupMono
                 .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
-                .map(tuple -> tuple.getT1());*/
+                .map(tuple -> tuple.getT1());
     }
 
     @Override
@@ -271,7 +269,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds) {
-        return Mono.empty(); /*
 
         Mono<Map<String, String>> userMapMono =
                 userRepository.findAllById(userIds).collectMap(user -> user.getId(), user -> user.getEmail());
@@ -289,7 +286,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                 .thenReturn(TRUE);
                     });
                 })
-                .then();*/
+                .then();
     }
 
     @Override
@@ -411,6 +408,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     }
 
                     assignedToUserIds.remove(userId);
+
+                    // Need this line so this field is identified as dirty and updated in the database.
+                    permissionGroup.setAssignedToUserIds(new HashSet<>(assignedToUserIds));
 
                     return repository.save(permissionGroup).then(cleanPermissionGroupCacheForUsers(List.of(userId)));
                 })

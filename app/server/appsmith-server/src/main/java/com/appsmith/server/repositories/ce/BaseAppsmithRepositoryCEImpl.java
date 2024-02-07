@@ -1,14 +1,19 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.bulk.BulkWriteResult;
@@ -16,11 +21,19 @@ import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -33,9 +46,11 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -156,58 +171,37 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     @Deprecated
+    @Transactional
+    @Modifying
     public Optional<T> updateById(String id, T resource, AclPermission permission) {
         if (id == null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
         if (resource == null) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "resource");
         }
-        return updateById(id, resource, Optional.ofNullable(permission));
-    }
 
-    public Optional<T> updateById(String id, T resource, Optional<AclPermission> permission) {
-        return Optional.empty(); /*
-        Query query = new Query(Criteria.where("id").is(id));
-
-        // Set policies to null in the update object
+        resource.setId(null);
         resource.setPolicies(null);
-        resource.setUpdatedAt(Instant.now());
 
-        DBObject update = getDbObject(resource);
-        Update updateObj = new Update();
-        update.keySet().stream().forEach(entry -> updateObj.set(entry, update.get(entry)));
+        final User user = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
+                .block();
 
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> (User) auth.getPrincipal())
-                .flatMap(user -> {
-                    resource.setModifiedBy(user.getUsername());
-                    return (permission.isPresent() ? getAllPermissionGroupsForUser(user) : Mono.just(Set.<String>of()))
-                            .flatMap(permissionGroups -> {
-                                Criteria userAcl = userAcl(permissionGroups, permission.orElse(null));
-                                query.addCriteria(notDeleted());
-                                if (userAcl != null) {
-                                    query.addCriteria(userAcl);
-                                }
-                                return mongoOperations
-                                        .updateFirst(query, updateObj, resource.getClass())
-                                        .flatMap(obj -> {
-                                            if (obj.getMatchedCount() == 0) {
-                                                return Mono.error(new AppsmithException(
-                                                        AppsmithError.NO_RESOURCE_FOUND,
-                                                        resource.getClass()
-                                                                .getSimpleName()
-                                                                .toLowerCase(),
-                                                        id));
-                                            }
-                                            return findById(id, permission);
-                                        })
-                                        .flatMap(obj -> {
-                                            return setUserPermissionsInObject(obj, permissionGroups);
-                                        });
-                            });
-                });*/
+        resource.setModifiedBy(user.getUsername());
+        final Set<String> permissionGroups = permission != null ? getAllPermissionGroupsForUser(user) : Set.of();
+
+        return Optional.of(findById(id, permission)
+                .map(entityFromDB -> {
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, entityFromDB);
+                    entityFromDB.setUpdatedAt(Instant.now());
+                    entityManager.persist(entityFromDB);
+                    return setUserPermissionsInObject(entityFromDB, permissionGroups);
+                })
+                .orElseThrow(() -> new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND,
+                        genericDomain.getSimpleName().toLowerCase(),
+                        id)));
     }
 
     public Optional<UpdateResult> updateFieldByDefaultIdAndBranchName(
@@ -353,60 +347,117 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public List<T> queryAllExecute(QueryAllParams<T> params) {
-        return Collections.emptyList(); /*
+        if (!params.getCriteria().isEmpty()) {
+            throw new RuntimeException("Querying with criteria, instead of specifications!");
+        }
+
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(
-                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
-                .flatMapMany(permissionGroups -> {
-                    final ArrayList<Criteria> criteriaList = new ArrayList<>(params.getCriteria());
-                    criteriaList.add(notDeleted());
+                .switchIfEmpty(Mono.defer(() -> Mono.just(
+                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .map(ArrayList::new)
+                .flatMap(permissionGroups -> {
+                    final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+                    final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+                    final Root<T> root = cq.from(genericDomain);
 
-                    final Criteria permissionCriteria = userAcl(permissionGroups, params.getPermission());
-                    if (permissionCriteria != null) {
-                        criteriaList.add(permissionCriteria);
+                    final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
+
+                    Predicate predicate = cb.and(
+                            Specification.allOf(specifications).toPredicate(root, cq, cb),
+                            root.get(FieldName.DELETED_AT).isNull());
+
+                    if (!permissionGroups.isEmpty()) {
+                        Map<String, String> fnVars = new HashMap<>();
+                        fnVars.put("p", params.getPermission().getValue());
+                        final List<String> conditions = new ArrayList<>();
+                        for (var i = 0; i < permissionGroups.size(); i++) {
+                            fnVars.put("g" + i, permissionGroups.get(i));
+                            conditions.add("@ == $g" + i);
+                        }
+
+                        try {
+                            predicate = cb.and(
+                                    predicate,
+                                    cb.isTrue(cb.function(
+                                            "jsonb_path_exists",
+                                            Boolean.class,
+                                            root.get(fieldName(QPermissionGroup.permissionGroup.policies)),
+                                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                                                    + String.join(" || ", conditions) + ")))"),
+                                            cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
+                        } catch (JsonProcessingException e) {
+                            // This should never happen, were serializing a Map<String, String>, which ideally should
+                            // never fail.
+                            throw new RuntimeException(e);
+                        }
                     }
 
-                    final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+                    cq.where(predicate);
 
-                    if (!CollectionUtils.isEmpty(params.getFields())) {
-                        query.fields().include(params.getFields().toArray(new String[0]));
-                    }
-
-                    if (params.getSkip() > NO_SKIP) {
-                        query.skip(params.getSkip());
-                    }
-
-                    if (params.getLimit() != NO_RECORD_LIMIT) {
-                        query.limit(params.getLimit());
-                    }
-
-                    if (params.getSort() != null) {
-                        query.with(params.getSort());
-                    }
-
-                    return mongoOperations
-                            .query(this.genericDomain)
-                            .matching(query.cursorBatchSize(10_000))
-                            .all()
-                            .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-                });*/
+                    // All public access is via a single permission group. Fetch the same and set the cache with it.
+                    return Mono.fromSupplier(entityManager.createQuery(cq)::getResultList)
+                            .onErrorResume(NoResultException.class, e -> Mono.empty())
+                            .map(items -> items.stream()
+                                    .map(item -> setUserPermissionsInObject(item, permissionGroups))
+                                    .toList());
+                })
+                .block();
     }
 
     public Optional<T> queryOneExecute(QueryAllParams<T> params) {
-        return Optional.empty(); /*
+        if (!params.getCriteria().isEmpty()) {
+            throw new RuntimeException("Querying with criteria, instead of specifications!");
+        }
+
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(
-                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
-                .flatMap(permissionGroups1 -> mongoOperations
-                        .query(this.genericDomain)
-                        .matching(createQueryWithPermission(
-                                        params.getCriteria(),
-                                        params.getFields(),
-                                        permissionGroups1,
-                                        params.getPermission())
-                                .cursorBatchSize(10_000))
-                        .one()
-                        .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups1)));*/
+                .switchIfEmpty(Mono.defer(() -> Mono.just(
+                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .map(ArrayList::new)
+                .flatMap(permissionGroups -> {
+                    final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+                    final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+                    final Root<T> root = cq.from(genericDomain);
+
+                    final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
+
+                    Predicate predicate = cb.and(
+                            Specification.allOf(specifications).toPredicate(root, cq, cb),
+                            root.get(FieldName.DELETED_AT).isNull());
+
+                    if (!permissionGroups.isEmpty()) {
+                        Map<String, String> fnVars = new HashMap<>();
+                        fnVars.put("p", params.getPermission().getValue());
+                        final List<String> conditions = new ArrayList<>();
+                        for (var i = 0; i < permissionGroups.size(); i++) {
+                            fnVars.put("g" + i, permissionGroups.get(i));
+                            conditions.add("@ == $g" + i);
+                        }
+
+                        try {
+                            predicate = cb.and(
+                                    predicate,
+                                    cb.isTrue(cb.function(
+                                            "jsonb_path_exists",
+                                            Boolean.class,
+                                            root.get(fieldName(QPermissionGroup.permissionGroup.policies)),
+                                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                                                    + String.join(" || ", conditions) + ")))"),
+                                            cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
+                        } catch (JsonProcessingException e) {
+                            // This should never happen, were serializing a Map<String, String>, which ideally should
+                            // never fail.
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    cq.where(predicate);
+
+                    // All public access is via a single permission group. Fetch the same and set the cache with it.
+                    return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
+                            .onErrorResume(NoResultException.class, e -> Mono.empty())
+                            .map(obj -> setUserPermissionsInObject(obj, permissionGroups));
+                })
+                .blockOptional();
     }
 
     public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
@@ -436,28 +487,27 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public T setUserPermissionsInObject(T obj, Collection<String> permissionGroups) {
-        return obj; /*
-                    Set<String> permissions = new HashSet<>();
-                    obj.setUserPermissions(permissions);
+        Set<String> permissions = new HashSet<>();
+        obj.setUserPermissions(permissions);
 
-                    if (CollectionUtils.isEmpty(obj.getPolicies()) || permissionGroups.isEmpty()) {
-                        return Mono.just(obj);
-                    }
+        if (CollectionUtils.isEmpty(obj.getPolicies()) || permissionGroups.isEmpty()) {
+            return obj;
+        }
 
-                    for (Policy policy : obj.getPolicies()) {
-                        Set<String> policyPermissionGroups = policy.getPermissionGroups();
-                        if (CollectionUtils.isEmpty(policyPermissionGroups)) {
-                            continue;
-                        }
-                        for (String permissionGroup : permissionGroups) {
-                            if (policyPermissionGroups.contains(permissionGroup)) {
-                                permissions.add(policy.getPermission());
-                                break;
-                            }
-                        }
-                    }
+        for (Policy policy : obj.getPolicies()) {
+            Set<String> policyPermissionGroups = policy.getPermissionGroups();
+            if (CollectionUtils.isEmpty(policyPermissionGroups)) {
+                continue;
+            }
+            for (String permissionGroup : permissionGroups) {
+                if (policyPermissionGroups.contains(permissionGroup)) {
+                    permissions.add(policy.getPermission());
+                    break;
+                }
+            }
+        }
 
-                    return Mono.just(obj);*/
+        return obj;
     }
 
     /**

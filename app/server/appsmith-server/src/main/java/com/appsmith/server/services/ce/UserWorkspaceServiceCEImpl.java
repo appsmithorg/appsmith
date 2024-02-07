@@ -80,6 +80,10 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Read the workspace
         Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, workspacePermission.getReadPermission())
+                .map(x -> {
+                    System.out.println(x);
+                    return x;
+                })
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
@@ -89,8 +93,13 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
-                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(
-                            user, workspace, permissionGroupPermission.getAssignPermission());
+                    return permissionGroupService
+                            .getAllByAssignedToUserAndDefaultWorkspace(
+                                    user, workspace, permissionGroupPermission.getAssignPermission())
+                            .map(x -> {
+                                System.out.println(x);
+                                return x;
+                            });
                 })
                 /*
                  * The below switchIfEmpty will be invoked in 2 cases.

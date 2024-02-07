@@ -484,7 +484,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     @Override
     public Mono<Workspace> findById(String id, Optional<AclPermission> permission) {
-        return repository.findById(id /*, permission*/);
+        return findById(id, permission.orElse(null));
     }
 
     @Override
