@@ -1,5 +1,6 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -16,6 +17,7 @@ describe(
         entityNameinLeftSidebar: "Page2",
         action: "Hide",
       });
+      PageLeftPane.switchToAddNew();
       cy.ClearSearch();
       _.deployMode.DeployApp();
       cy.get(".t--page-switch-tab").should("have.length", 2);

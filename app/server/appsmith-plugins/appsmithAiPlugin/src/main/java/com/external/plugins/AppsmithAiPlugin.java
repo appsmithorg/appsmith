@@ -11,18 +11,24 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.dtos.AiServerRequestDTO;
+import com.external.plugins.dtos.AssociateDTO;
 import com.external.plugins.dtos.Query;
+import com.external.plugins.dtos.SourceDetails;
 import com.external.plugins.models.Feature;
 import com.external.plugins.services.AiFeatureService;
 import com.external.plugins.services.AiFeatureServiceFactory;
 import com.external.plugins.services.AiServerService;
 import com.external.plugins.services.AiServerServiceImpl;
-import com.external.plugins.utils.HeadersUtil;
 import com.external.plugins.utils.RequestUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
@@ -33,8 +39,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.external.plugins.constants.AppsmithAiConstants.SOURCE_DETAILS;
+import static com.appsmith.external.constants.CommonFieldName.VALUE;
+import static com.external.plugins.constants.AppsmithAiConstants.DISABLED;
+import static com.external.plugins.constants.AppsmithAiConstants.LABEL;
+import static com.external.plugins.constants.AppsmithAiConstants.LIST_FILES;
+import static com.external.plugins.constants.AppsmithAiConstants.UPLOAD_FILES;
 import static com.external.plugins.constants.AppsmithAiConstants.USECASE;
+import static com.external.plugins.utils.FileUtils.getFileIds;
+import static com.external.plugins.utils.FileUtils.hasFiles;
 
 @Slf4j
 public class AppsmithAiPlugin extends BasePlugin {
@@ -45,6 +57,7 @@ public class AppsmithAiPlugin extends BasePlugin {
 
     public static class AppsmithAiPluginExecutor extends BaseRestApiPluginExecutor {
         private static final AiServerService aiServerService = new AiServerServiceImpl();
+        private static final Gson gson = new GsonBuilder().create();
 
         public AppsmithAiPluginExecutor(SharedConfig config) {
             super(config);
@@ -56,6 +69,57 @@ public class AppsmithAiPlugin extends BasePlugin {
             apiKeyAuth.setValue("test-key");
             return ApiKeyAuthentication.create(apiKeyAuth)
                     .flatMap(apiKeyAuthentication -> Mono.just((APIConnection) apiKeyAuthentication));
+        }
+
+        /**
+         * In list files trigger, if no files received from the AI server then show a disabled:true and `Upload files first in datasource configuration`.
+         * In-case of upload files, datasource configuration will be null since we are triggering without creating any datasource.
+         */
+        @Override
+        public Mono<TriggerResultDTO> trigger(
+                APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            SourceDetails sourceDetails = SourceDetails.createSourceDetails(request);
+            String requestType = request.getRequestType();
+            if (UPLOAD_FILES.equals(requestType)) {
+                return aiServerService
+                        .uploadFiles(request.getFiles(), sourceDetails)
+                        .flatMap(response -> {
+                            TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                            triggerResultDTO.setTrigger(response);
+                            return Mono.just(triggerResultDTO);
+                        });
+            } else if (LIST_FILES.equals(requestType)) {
+                List<String> fileIds = getFileIds(datasourceConfiguration);
+                if (fileIds.isEmpty()) {
+                    TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                    triggerResultDTO.setTrigger(List.of(Map.of(
+                            DISABLED,
+                            true,
+                            LABEL,
+                            "No files available in the datasource",
+                            VALUE,
+                            "NO_FILES_AVAILABLE")));
+                    return Mono.just(triggerResultDTO);
+                }
+                return aiServerService.getFilesStatus(fileIds, sourceDetails).flatMap(fileStatusDTO -> {
+                    List<Map<String, Object>> response = new ArrayList<>();
+                    fileStatusDTO.getFiles().forEach(file -> {
+                        Map<String, Object> dropdownOption = new HashMap<>();
+                        if (!file.isProcessed()) {
+                            dropdownOption.put(LABEL, "(Processing...) " + file.getName());
+                        } else {
+                            dropdownOption.put(LABEL, file.getName());
+                        }
+                        dropdownOption.put(VALUE, file.getId());
+                        dropdownOption.put(DISABLED, !file.isProcessed());
+                        response.add(dropdownOption);
+                    });
+                    TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                    triggerResultDTO.setTrigger(response);
+                    return Mono.just(triggerResultDTO);
+                });
+            }
+            return super.trigger(connection, datasourceConfiguration, request);
         }
 
         @Override
@@ -87,7 +151,6 @@ public class AppsmithAiPlugin extends BasePlugin {
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
-
             Feature feature =
                     Feature.valueOf(RequestUtils.extractDataFromFormData(actionConfiguration.getFormData(), USECASE));
             AiFeatureService aiFeatureService = AiFeatureServiceFactory.getAiFeatureService(feature);
@@ -96,13 +159,10 @@ public class AppsmithAiPlugin extends BasePlugin {
 
             ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
             ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
-                    actionConfiguration, RequestUtils.createQueryUri(), insertedParams, objectMapper);
-
-            Map<String, String> headers = new HashMap<>();
-            headers.put(SOURCE_DETAILS, HeadersUtil.createSourceDetailsHeader(executeActionDTO));
+                    actionConfiguration, RequestUtils.getQueryUri(), insertedParams, objectMapper);
 
             return aiServerService
-                    .executeQuery(aiServerRequestDTO, headers)
+                    .executeQuery(aiServerRequestDTO, SourceDetails.createSourceDetails(executeActionDTO))
                     .map(response -> {
                         actionExecutionResult.setIsExecutionSuccess(true);
                         actionExecutionResult.setBody(response);
@@ -126,6 +186,21 @@ public class AppsmithAiPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration, boolean isEmbedded) {
             return Set.of();
+        }
+
+        @Override
+        public Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
+            DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+            String datasourceId = datasourceStorage.getDatasourceId();
+            String workspaceId = datasourceStorage.getWorkspaceId();
+            if (hasFiles(datasourceConfiguration)) {
+                AssociateDTO associateDTO = new AssociateDTO();
+                associateDTO.setWorkspaceId(workspaceId);
+                associateDTO.setDatasourceId(datasourceId);
+                associateDTO.setFileIds(getFileIds(datasourceConfiguration));
+                return aiServerService.associateDatasource(associateDTO).thenReturn(datasourceStorage);
+            }
+            return super.preSaveHook(datasourceStorage);
         }
     }
 }

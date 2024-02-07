@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import styles from "./styles.module.css";
 import CustomComponent from "widgets/CustomWidget/component";
 import { CustomWidgetBuilderContext } from "../index";
 import { toast } from "design-system";
@@ -10,7 +9,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { AppThemeProperties } from "entities/AppTheming";
 
-export default function Preview() {
+export default function Preview({ width }: { width: number }) {
   const {
     key,
     model,
@@ -58,8 +57,20 @@ export default function Preview() {
     };
   }, []);
 
+  useEffect(() => {
+    if (containerRef.current) {
+      setDimensions({
+        width: containerRef.current.clientWidth + 8,
+        height:
+          window.innerHeight -
+          containerRef.current.getBoundingClientRect().top -
+          31,
+      });
+    }
+  }, [width, containerRef.current?.clientWidth]);
+
   return (
-    <div className={styles.contentLeft} ref={containerRef}>
+    <div ref={containerRef}>
       <CustomComponent
         execute={(name, contextObject) => {
           toast.show(
