@@ -127,6 +127,7 @@ import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededE
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesModal from "./CreateNewAppFromTemplateModal";
+import { getIsReconnectingDatasourcesModalOpen } from "@appsmith/selectors/entitiesSelector";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -985,6 +986,7 @@ export interface ApplicationProps {
   currentApplicationIdForCreateNewApp?: string;
   resetCurrentApplicationIdForCreateNewApp: () => void;
   currentWorkspaceId: string;
+  isReconnectModalOpen: boolean;
 }
 
 export interface ApplicationState {
@@ -1001,6 +1003,15 @@ export class Applications<
     this.state = {
       startFromTemplate: false,
     } as State;
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (
+      prevProps.isReconnectModalOpen !== this.props.isReconnectModalOpen &&
+      this.props.isReconnectModalOpen
+    ) {
+      this.setState({ startFromTemplate: false });
+    }
   }
 
   componentDidMount() {
@@ -1074,6 +1085,7 @@ export const mapStateToProps = (state: AppState) => ({
   currentApplicationIdForCreateNewApp:
     getCurrentApplicationIdForCreateNewApp(state),
   currentWorkspaceId: getCurrentWorkspaceId(state),
+  isReconnectModalOpen: getIsReconnectingDatasourcesModalOpen(state),
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({
