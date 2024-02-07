@@ -823,7 +823,7 @@ class RefactoringServiceCETest {
                     assertThat(actionCollection.getUnpublishedCollection().getBody())
                             .isEqualTo("export default { x : \tNewNameTable1 }");
                     final ActionDTO unpublishedAction = action.getUnpublishedAction();
-                    assertThat(unpublishedAction.getJsonPathKeys().size()).isEqualTo(1);
+                    assertThat(unpublishedAction.getJsonPathKeys()).hasSize(1);
                     final Optional<String> first =
                             unpublishedAction.getJsonPathKeys().stream().findFirst();
                     assert first.isPresent();

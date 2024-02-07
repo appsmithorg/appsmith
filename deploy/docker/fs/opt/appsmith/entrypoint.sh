@@ -458,9 +458,6 @@ setup-custom-ca-certificates() (
     echo "-Djavax.net.ssl.trustStore=$store"
     echo "-Djavax.net.ssl.trustStorePassword=changeit"
   } > "$opts_file"
-
-  # Get certbot to use the combined trusted CA certs file.
-  export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 )
 
 configure_supervisord() {

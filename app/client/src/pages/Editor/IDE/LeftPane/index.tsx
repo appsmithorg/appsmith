@@ -14,9 +14,8 @@ import {
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import EditorPane from "../EditorPane";
+import { useIsEditorPaneSegmentsEnabled } from "../hooks";
 
 export const LeftPaneContainer = styled.div`
   height: 100%;
@@ -25,9 +24,7 @@ export const LeftPaneContainer = styled.div`
 `;
 
 const LeftPane = () => {
-  const isPagesPaneEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
+  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
   const { path } = useRouteMatch();
   return (
     <LeftPaneContainer>
@@ -52,7 +49,7 @@ const LeftPane = () => {
           exact
           path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
         />
-        {isPagesPaneEnabled ? (
+        {isEditorPaneEnabled ? (
           <SentryRoute component={EditorPane} />
         ) : (
           <SentryRoute component={WidgetsEditorEntityExplorer} />
