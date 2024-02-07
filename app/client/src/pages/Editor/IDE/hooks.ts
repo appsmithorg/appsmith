@@ -206,9 +206,9 @@ export const useIsEditorPaneSegmentsEnabled = () => {
     FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
   );
 
-  const iEditorSegmentsRolloutEnabled = useFeatureFlag(
+  const isEditorSegmentsRolloutEnabled = useFeatureFlag(
     FEATURE_FLAG.rollout_editor_pane_segments_enabled,
   );
 
-  return isEditorSegmentsReleaseEnabled || iEditorSegmentsRolloutEnabled;
+  return isEditorSegmentsReleaseEnabled || isEditorSegmentsRolloutEnabled;
 };
