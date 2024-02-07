@@ -65,7 +65,7 @@ describe(
     });
 
     it("2. Non signed user should be able to fork a public forkable app", function () {
-      homePage.NavigateToHome();
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       agHelper.GetElement(homepagelocators.homeIcon).click();
       agHelper.GetNClick(homepagelocators.createNew, 0);
       agHelper
