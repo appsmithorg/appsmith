@@ -11,11 +11,13 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { Layers } from "constants/Layers";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
   // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
   overflow: "hidden",
+  zIndex: Layers.positionedWidget,
 };
 
 /**
