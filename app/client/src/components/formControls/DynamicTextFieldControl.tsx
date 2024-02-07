@@ -52,7 +52,7 @@ class DynamicTextControl extends BaseControl<
       actionName,
       configProperty,
       evaluationSubstitutionType,
-      isSideBySideEnabled,
+      isActionRedesignEnabled,
       placeholderText,
       pluginName,
       responseType,
@@ -66,7 +66,7 @@ class DynamicTextControl extends BaseControl<
     return (
       <Wrapper
         className={`t--${configProperty}`}
-        fullWidth={isSideBySideEnabled}
+        fullWidth={isActionRedesignEnabled}
       >
         <DynamicTextField
           dataTreePath={dataTreePath}
@@ -77,7 +77,9 @@ class DynamicTextControl extends BaseControl<
           mode={mode}
           name={this.props.configProperty}
           placeholder={placeholderText}
-          showLineNumbers={isSideBySideEnabled || this.props.showLineNumbers}
+          showLineNumbers={
+            isActionRedesignEnabled || this.props.showLineNumbers
+          }
           size={EditorSize.EXTENDED}
           tabBehaviour={TabBehaviour.INDENT}
         />
@@ -94,7 +96,7 @@ export interface DynamicTextFieldProps extends ControlProps {
   evaluationSubstitutionType: EvaluationSubstitutionType;
   mutedHinting?: boolean;
   pluginName: string;
-  isSideBySideEnabled: boolean;
+  isActionRedesignEnabled: boolean;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
@@ -105,14 +107,14 @@ const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
   const pluginId = valueSelector(state, "datasource.pluginId");
   const responseTypes = getPluginResponseTypes(state);
   const pluginName = getPluginNameFromId(state, pluginId);
-  const { release_side_by_side_ide_enabled } = selectFeatureFlags(state);
+  const { release_actions_redesign_enabled } = selectFeatureFlags(state);
 
   return {
     actionName,
     pluginId,
     responseType: responseTypes[pluginId],
     pluginName,
-    isSideBySideEnabled: release_side_by_side_ide_enabled,
+    isActionRedesignEnabled: release_actions_redesign_enabled,
   };
 };
 

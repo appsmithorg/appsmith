@@ -1,15 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-import {
-  APP_SETTINGS_CLOSE_TOOLTIP,
-  APP_SETTINGS_PANE_HEADER,
-} from "@appsmith/constants/messages";
-import { Tooltip } from "design-system";
-import { useDispatch } from "react-redux";
-import { Button } from "design-system";
-import classNames from "classnames";
-import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
+import { APP_SETTINGS_PANE_HEADER } from "@appsmith/constants/messages";
 
 const StyledHeader = styled.div`
   height: 48px;
@@ -24,29 +15,8 @@ const StyledText = styled.div`
 `;
 
 function PaneHeader() {
-  const dispatch = useDispatch();
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
-
   return (
-    <StyledHeader
-      className={classNames({
-        "flex justify-start items-center py-2.5": !isAppSidebarEnabled,
-        "flex items-center py-2.5 pl-4": isAppSidebarEnabled,
-      })}
-    >
-      {!isAppSidebarEnabled && (
-        <Tooltip content={APP_SETTINGS_CLOSE_TOOLTIP()} placement="bottom">
-          <Button
-            className="ml-2 pr-2"
-            id="t--close-app-settings-pane"
-            isIconButton
-            kind="tertiary"
-            onClick={() => dispatch(closeAppSettingsPaneAction())}
-            size="md"
-            startIcon={"double-arrow-right"}
-          />
-        </Tooltip>
-      )}
+    <StyledHeader className={"flex items-center py-2.5 pl-4"}>
       <StyledText>{APP_SETTINGS_PANE_HEADER()}</StyledText>
     </StyledHeader>
   );
