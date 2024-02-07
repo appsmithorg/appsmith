@@ -22,7 +22,7 @@ export const featureFlagIntercept = (
   };
   cy.intercept("GET", "/api/v1/users/features", response);
 
-  if (reload) ReloadAfterIntercept();
+  if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
 };
 
 export const getConsolidatedDataApi = (
@@ -51,7 +51,7 @@ export const getConsolidatedDataApi = (
       }
     });
   }).as("getConsolidatedData");
-  if (reload) ReloadAfterIntercept();
+  if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
 };
 
 export const featureFlagInterceptForLicenseFlags = () => {
@@ -112,10 +112,5 @@ export const featureFlagInterceptForLicenseFlags = () => {
     });
   }).as("getConsolidatedData");
 
-  ReloadAfterIntercept();
+  ObjectsRegistry.AggregateHelper.CypressReload();
 };
-
-function ReloadAfterIntercept() {
-  cy.reload();
-  ObjectsRegistry.AssertHelper.AssertDocumentReady();
-}
