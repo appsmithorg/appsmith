@@ -1139,7 +1139,7 @@ public class ApplicationForkingServiceTests {
 
         StepVerifier.create(applicationMono)
                 .assertNext(forkedApplication -> {
-                    assertThat(forkedApplication.getPages().size()).isEqualTo(1);
+                    assertThat(forkedApplication.getPages()).hasSize(1);
                 })
                 .verifyComplete();
     }

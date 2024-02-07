@@ -728,7 +728,7 @@ public class PageServiceTest {
 
                     // Confirm that the page action got copied as well
                     List<NewAction> actions = tuple.getT2();
-                    assertThat(actions.size()).isEqualTo(2);
+                    assertThat(actions).hasSize(2);
                     NewAction actionWithoutCollection = actions.stream()
                             .filter(newAction -> !StringUtils.hasLength(
                                     newAction.getUnpublishedAction().getCollectionId()))
@@ -1101,7 +1101,7 @@ public class PageServiceTest {
         StepVerifier.create(applicationPageReOrdered)
                 .assertNext(application -> {
                     final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages).hasSize(4);
                     assertThat(pages.get(0).getId()).isEqualTo(pageIds[0]);
                     assertThat(pages.get(1).getId()).isEqualTo(pageIds[3]);
                     assertThat(pages.get(2).getId()).isEqualTo(pageIds[1]);
@@ -1152,7 +1152,7 @@ public class PageServiceTest {
         StepVerifier.create(applicationPageReOrdered)
                 .assertNext(application -> {
                     final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages).hasSize(4);
                     assertThat(pages.get(3).getId()).isEqualTo(pageIds[0]);
                     assertThat(pages.get(0).getId()).isEqualTo(pageIds[1]);
                     assertThat(pages.get(1).getId()).isEqualTo(pageIds[2]);
@@ -1200,7 +1200,7 @@ public class PageServiceTest {
         StepVerifier.create(applicationPageReOrdered)
                 .assertNext(application -> {
                     final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages).hasSize(4);
                     assertThat(pages.get(3).getId()).isEqualTo(pageIds[0].getId());
                     assertThat(pages.get(0).getId()).isEqualTo(pageIds[1].getId());
                     assertThat(pages.get(1).getId()).isEqualTo(pageIds[2].getId());

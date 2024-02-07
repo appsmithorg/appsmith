@@ -268,7 +268,7 @@ public class PartialExportServiceTest {
 
         StepVerifier.create(partialExportFileDTOMono)
                 .assertNext(applicationJson -> {
-                    assertThat(applicationJson.getDatasourceList().size()).isEqualTo(2);
+                    assertThat(applicationJson.getDatasourceList()).hasSize(2);
                     List<String> dsNames = applicationJson.getDatasourceList().stream()
                             .map(DatasourceStorage::getName)
                             .toList();
@@ -326,7 +326,7 @@ public class PartialExportServiceTest {
 
         StepVerifier.create(partialExportFileDTOMono)
                 .assertNext(applicationJson -> {
-                    assertThat(applicationJson.getDatasourceList().size()).isEqualTo(2);
+                    assertThat(applicationJson.getDatasourceList()).hasSize(2);
                     List<String> dsNames = applicationJson.getDatasourceList().stream()
                             .map(DatasourceStorage::getName)
                             .toList();
@@ -335,7 +335,7 @@ public class PartialExportServiceTest {
                             .isEqualTo("installed-plugin");
                     assertThat(applicationJson.getDatasourceList().get(1).getPluginId())
                             .isEqualTo("installed-plugin");
-                    assertThat(applicationJson.getActionList().size()).isEqualTo(1);
+                    assertThat(applicationJson.getActionList()).hasSize(1);
 
                     NewAction newAction = applicationJson.getActionList().get(0);
                     assertThat(newAction.getUnpublishedAction().getName()).isEqualTo("validAction");
@@ -397,7 +397,7 @@ public class PartialExportServiceTest {
 
         StepVerifier.create(partialExportFileDTOMono)
                 .assertNext(applicationJson -> {
-                    assertThat(applicationJson.getDatasourceList().size()).isEqualTo(2);
+                    assertThat(applicationJson.getDatasourceList()).hasSize(2);
                     List<String> dsNames = applicationJson.getDatasourceList().stream()
                             .map(DatasourceStorage::getName)
                             .toList();
@@ -406,7 +406,7 @@ public class PartialExportServiceTest {
                             .isEqualTo("installed-plugin");
                     assertThat(applicationJson.getDatasourceList().get(1).getPluginId())
                             .isEqualTo("installed-plugin");
-                    assertThat(applicationJson.getActionList().size()).isEqualTo(1);
+                    assertThat(applicationJson.getActionList()).hasSize(1);
 
                     NewAction newAction = applicationJson.getActionList().get(0);
                     assertThat(newAction.getUnpublishedAction().getName()).isEqualTo("validAction");

@@ -1,5 +1,6 @@
 package com.appsmith.external.helpers;
 
+import lombok.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -7,6 +8,7 @@ import org.springframework.beans.PropertyAccessorFactory;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +34,14 @@ public final class AppsmithBeanUtils {
 
     // Use Spring BeanUtils to copy and ignore null
     public static void copyNewFieldValuesIntoOldObject(Object src, Object target) {
-        BeanUtils.copyProperties(src, target, getNullPropertyNames(src));
+        copyNewFieldValuesIntoOldObject(src, target, Collections.emptySet());
+    }
+
+    public static void copyNewFieldValuesIntoOldObject(
+            Object src, Object target, @NonNull Set<String> extraFieldsToIgnore) {
+        final Set<String> fieldsToIgnore = new HashSet<>(extraFieldsToIgnore);
+        fieldsToIgnore.addAll(Set.of(getNullPropertyNames(src)));
+        BeanUtils.copyProperties(src, target, fieldsToIgnore.toArray(new String[0]));
     }
 
     public static int countOfNonNullFields(Object source) {
