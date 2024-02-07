@@ -48,6 +48,8 @@ import {
 } from "layoutSystems/common/useLayoutSystemFeatures";
 import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { EditorState } from "@appsmith/entities/IDE/constants";
 
 function WidgetsEditor() {
   const dispatch = useDispatch();
@@ -65,9 +67,12 @@ function WidgetsEditor() {
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
   const navigationPreviewRef = useRef(null);
   const [navigationHeight, setNavigationHeight] = useState(0);
-  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+  const isNavigationSelectedInSettings = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
+  const appState = useCurrentAppState();
+  const isAppSettingsPaneWithNavigationTabOpen =
+    appState === EditorState.SETTINGS && isNavigationSelectedInSettings;
   const canvasWidth = useSelector(getCanvasWidth);
 
   const appMode = useSelector(getAppMode);
@@ -162,14 +167,7 @@ function WidgetsEditor() {
 
   const showNavigation = () => {
     if (isPreviewingNavigation) {
-      return (
-        <NavigationPreview
-          isAppSettingsPaneWithNavigationTabOpen={
-            isAppSettingsPaneWithNavigationTabOpen
-          }
-          ref={navigationPreviewRef}
-        />
-      );
+      return <NavigationPreview ref={navigationPreviewRef} />;
     }
   };
 
