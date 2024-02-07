@@ -3,8 +3,8 @@ import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
-import { getConsolidatedDataApi } from "../Objects/FeatureFlags";
-//import produce from "immer";
+//import { getConsolidatedDataApi } from "../Objects/FeatureFlags";
+import produce from "immer";
 
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -425,28 +425,27 @@ export class HomePage {
 
   public SignUp(uname: string, pswd: string) {
     cy.visit("/user/signup", { timeout: Cypress.config().pageLoadTimeout });
-    // cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
-    //   req.reply((res: any) => {
-    //     if (
-    //       res.statusCode === 200 ||
-    //       res.statusCode === 401 ||
-    //       res.statusCode === 500
-    //     ) {
-    //       const originalResponse = res?.body;
-    //       const updatedResponse = produce(originalResponse, (draft: any) => {
-    //         draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
-    //         draft.data.featureFlags.data[
-    //           "release_show_new_sidebar_pages_pane_enabled"
-    //         ] = true;
-    //         draft.data.featureFlags.data[
-    //           "rollout_consolidated_page_load_fetch_enabled"
-    //         ] = true;
-    //       });
-    //       return res.send(updatedResponse);
-    //     }
-    //   });
-    // }).as("getConsolidatedData");
-    getConsolidatedDataApi({}, false);
+    cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+      req.reply((res: any) => {
+        if (
+          res.statusCode === 200 ||
+          res.statusCode === 401 ||
+          res.statusCode === 500
+        ) {
+          const originalResponse = res?.body;
+          const updatedResponse = produce(originalResponse, (draft: any) => {
+            draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
+            draft.data.featureFlags.data[
+              "release_show_new_sidebar_pages_pane_enabled"
+            ] = true;
+            draft.data.featureFlags.data[
+              "rollout_consolidated_page_load_fetch_enabled"
+            ] = true;
+          });
+          return res.send(updatedResponse);
+        }
+      });
+    }).as("getConsolidatedData");
     this.assertHelper.WaitForNetworkCall("getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
