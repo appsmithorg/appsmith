@@ -355,12 +355,13 @@ export class HomePage {
     }).then((response) => {
       expect(response.status).equal(200); //Verifying logout is success
     });
-    cy.reload().then(() => {
-      if (CURRENT_REPO === REPO.CE)
-        this.assertHelper.AssertNetworkStatus("@postLogout");
-      else if (CURRENT_REPO === REPO.EE)
-        this.assertHelper.AssertNetworkStatus("@getLogout");
-    });
+    cy.reload();
+    //.then(() => {
+    if (CURRENT_REPO === REPO.CE)
+      this.assertHelper.AssertNetworkStatus("@postLogout");
+    else if (CURRENT_REPO === REPO.EE)
+      this.assertHelper.AssertNetworkStatus("@getLogout");
+    //});
   }
 
   public Signout(toNavigateToHome = true) {
