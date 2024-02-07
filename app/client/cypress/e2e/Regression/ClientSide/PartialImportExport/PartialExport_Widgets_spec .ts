@@ -1,6 +1,5 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
-  agHelper,
   homePage,
   partialImportExport,
 } from "../../../../support/Objects/ObjectsCore";
@@ -12,9 +11,7 @@ describe(
   { tags: ["@tag.ImportExport"] },
   () => {
     before(() => {
-      agHelper.GenerateUUID();
       homePage.ImportApp(`PartialImportExport/${fixtureName}`);
-
       featureFlagIntercept({
         release_show_partial_import_export_enabled: true,
       });
