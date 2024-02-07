@@ -37,6 +37,7 @@ import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/Conv
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import Disabler from "pages/common/Disabler";
 import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
+import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -142,9 +143,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     dispatch(deleteAction({ id: apiId, name: apiName }));
   }, [getPageName, pages, pageId, apiName]);
 
-  const isPagesPaneEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
+  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
@@ -157,7 +156,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   return (
     <ApiEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
-      closeEditorLink={isPagesPaneEnabled ? null : closeEditorLink}
+      closeEditorLink={isEditorPaneEnabled ? null : closeEditorLink}
       handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
