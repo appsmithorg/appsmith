@@ -1,4 +1,7 @@
 {{- $updateStrategy := .Values.updateStrategy | default dict }}
+{{- $postgresuser := .Values.postgresql.auth.username }}
+{{- $postgrespass := .Values.postgresql.auth.password }}
+{{- $postgrespass := .Values.postgresql.auth.password }}
 apiVersion: apps/v1
 kind: {{ if not .Values.autoscaling.enabled }}StatefulSet{{- else }}Deployment{{- end }}
 metadata:
@@ -76,8 +79,12 @@ spec:
       {{- end }}
       {{- if .Values.postgresql.enabled }}
       - name: psql-init-container
-        image: alpine:latest
-        command: ['sh', '-c', "apk add postgresql-client; until pg_isready -h {{.Release.Name}}-postgresql.{{.Release.Namespace}}.svc.cluster.local; do echo waiting for postgresql; sleep 2; done"]
+      {{- if ((.Values.initContainer.postgresql).image) }}
+        image: {{ .Values.initContainer.postgresql.image }}
+      {{- else}}
+        image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
+      {{- end}}
+        command: ['sh', '-c', "until pg_isready -U $postgresuser -d $postgresdb -h {{.Release.Name}}-postgresql.{{.Release.Namespace}}.svc.cluster.local; do echo waiting for postgresql; sleep 2; done"]
       {{- end }}
       containers:
         - name: {{ .Values.containerName }}

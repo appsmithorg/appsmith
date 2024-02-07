@@ -78,6 +78,8 @@ initContainer: {}
   #   image: docker.io/bitnami/redis-cluster:7.0.13-debian-11-r10
   # mongodb:
   #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
+  # postgresql:
+  #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
 ## Image
 ##
 image:
