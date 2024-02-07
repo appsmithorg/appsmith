@@ -84,18 +84,9 @@ function TemplatesModal() {
     >
       <ModalContentWrapper data-testid="t--templates-dialog-component">
         <ModalHeader>
-          {!!showTemplateDetails ? (
-            <TemplateModalHeader
-              onBackPress={() => setShowTemplateDetails("")}
-              // onClose={() => onClose(false)}
-            />
-          ) : (
-            <TemplateModalHeader
-              className="modal-header"
-              hideBackButton
-              // onClose={() => onClose(false)}
-            />
-          )}
+          <TemplateModalHeader
+            className={!showTemplateDetails ? "modal-header" : ""}
+          />
         </ModalHeader>
         <ModalBodyWrapper>
           {!!showTemplateDetails ? (

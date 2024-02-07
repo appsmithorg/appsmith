@@ -95,20 +95,11 @@ function CreateNewAppFromTemplatesModal({
 
   return (
     <Modal onOpenChange={(open) => onClose(open)} open={isOpen}>
-      <ModalContentWrapper data-testid="t--templates-dialog-component">
+      <ModalContentWrapper data-testid="t--create-app-from-templates-dialog-component">
         <ModalHeader>
-          {!!showTemplateDetails ? (
-            <TemplateModalHeader
-              onBackPress={() => setShowTemplateDetails("")}
-              // onClose={() => onClose(false)}
-            />
-          ) : (
-            <TemplateModalHeader
-              className="modal-header"
-              hideBackButton
-              // onClose={() => onClose(false)}
-            />
-          )}
+          <TemplateModalHeader
+            className={!showTemplateDetails ? "modal-header" : ""}
+          />
         </ModalHeader>
         <ModalBodyWrapper>
           {!!showTemplateDetails ? (
