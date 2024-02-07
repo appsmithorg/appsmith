@@ -1417,8 +1417,10 @@ export class DataSources {
   ) {
     this.CreateQueryForDS(datasourceName);
     this.AssertTableInVirtuosoList(datasourceName, tableName);
+    this.agHelper.GetNClick(this._dsVirtuosoElementTable(tableName));
     cy.get(this._dsVirtuosoElementTable(tableName))
       .find(this._entityTriggerElement)
+      .should("be.visible")
       .click();
     this.agHelper.GetNClick(
       this.entityExplorer.locator._contextMenuItem(templateName),
