@@ -36,8 +36,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -217,7 +217,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     @Override
     public void setJsonArtifactNameToNullBeforeUpdate(String applicationId, ArtifactExchangeJson artifactExchangeJson) {
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
-        if (!StringUtils.isEmpty(applicationId) && (applicationJson).getExportedApplication() != null) {
+        if (StringUtils.hasText(applicationId) && (applicationJson).getExportedApplication() != null) {
             applicationJson.getExportedApplication().setName(null);
             applicationJson.getExportedApplication().setSlug(null);
         }
@@ -414,7 +414,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             return application;
         });
 
-        if (StringUtils.isEmpty(importingMetaDTO.getArtifactId())) {
+        if (!StringUtils.hasText(importingMetaDTO.getArtifactId())) {
             importApplicationMono = importApplicationMono.flatMap(application -> {
                 return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
             });
@@ -634,6 +634,8 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     public Mono<Set<String>> getDatasourceIdSetConsumedInArtifact(String defaultApplicationId) {
         return newActionService
                 .findAllByApplicationIdAndViewMode(defaultApplicationId, false, Optional.empty(), Optional.empty())
+                .filter(newAction -> StringUtils.hasText(
+                        newAction.getUnpublishedAction().getDatasource().getId()))
                 .map(newAction ->
                         newAction.getUnpublishedAction().getDatasource().getId())
                 .collect(Collectors.toSet());
