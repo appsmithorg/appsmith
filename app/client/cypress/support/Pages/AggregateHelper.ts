@@ -1728,7 +1728,11 @@ export class AggregateHelper {
     //   win.location.href = url;
     // });
     cy.visit(url);
-    this.WaitForCondition(() => cy.url().should("include", url));
+    this.WaitForCondition(() =>
+      cy.url().then((currentUrl) => {
+        return currentUrl.includes(url);
+      }),
+    );
 
     if (
       apiToValidate.includes("getAllWorkspaces") &&
