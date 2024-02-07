@@ -64,7 +64,6 @@ provider.addSpanProcessor(processor);
 provider.register({
   contextManager: new ZoneContextManager(),
   propagator: new CustomW3CTraceContextPropagator(),
-  //propagator: new W3CTraceContextPropagator(),
 });
 
 registerInstrumentations({

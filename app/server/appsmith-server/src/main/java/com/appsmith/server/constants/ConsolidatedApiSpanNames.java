@@ -1,7 +1,13 @@
 package com.appsmith.server.constants;
 
+import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
+
+/**
+ * Please make sure that all span names start with `appsmith.` because span with any other naming format would get
+ * dropped / ignored as defined in TracingConfig.java
+ */
 public class ConsolidatedApiSpanNames {
-    public static final String CONSOLIDATED_API_PREFIX = "appsmith.consolidated-api.";
+    public static final String CONSOLIDATED_API_PREFIX = APPSMITH_SPAN_PREFIX + "consolidated-api.";
     public static final String VIEW = "view.";
     public static final String EDIT = "edit.";
     public static final String ROOT = "root";

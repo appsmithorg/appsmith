@@ -52,10 +52,11 @@ public class ActionControllerCE {
 
     @Autowired
     public ActionControllerCE(
-        LayoutActionService layoutActionService,
-        NewActionService newActionService,
-        RefactoringService refactoringService,
-        ActionExecutionSolution actionExecutionSolution, ObservationRegistry observationRegistry) {
+            LayoutActionService layoutActionService,
+            NewActionService newActionService,
+            RefactoringService refactoringService,
+            ActionExecutionSolution actionExecutionSolution,
+            ObservationRegistry observationRegistry) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
         this.refactoringService = refactoringService;

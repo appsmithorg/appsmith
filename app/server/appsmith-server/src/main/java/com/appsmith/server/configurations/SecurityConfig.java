@@ -223,8 +223,7 @@ public class SecurityConfig {
                 // Add Pre Auth rate limit filter before authentication filter
                 .addFilterBefore(
                         new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL),
-                        SecurityWebFiltersOrder.FORM_LOGIN
-                )
+                        SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec
                         .authenticationFailureHandler(failureHandler)

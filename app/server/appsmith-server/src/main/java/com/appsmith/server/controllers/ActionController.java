@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ActionController extends ActionControllerCE {
 
     public ActionController(
-        LayoutActionService layoutActionService,
-        NewActionService newActionService,
-        RefactoringService refactoringService,
-        ActionExecutionSolution actionExecutionSolution, ObservationRegistry observationRegistry) {
+            LayoutActionService layoutActionService,
+            NewActionService newActionService,
+            RefactoringService refactoringService,
+            ActionExecutionSolution actionExecutionSolution,
+            ObservationRegistry observationRegistry) {
 
         super(layoutActionService, newActionService, refactoringService, actionExecutionSolution, observationRegistry);
     }

@@ -26,12 +26,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.Duration;
-import java.util.Optional;
 
 @SpringBootApplication
 @EnableScheduling
 @Slf4j
 public class ServerApplication {
+    public static final String NEW_RELIC_MICROMETER_METRICS_ENDPOINT = "https://otlp.nr-data.net:4317";
+    public static final String API_KEY = "api-key";
+    public static final String SERVICE_NAME_KEY = "service.name";
+    public static final String INSTRUMENTATION_PROVIDER_KEY = "instrumentation.provider";
+    public static final String MICROMETER = "micrometer";
+    public static final int MICROMETER_COLLECTION_INTERVAL_SECONDS = 60;
 
     private final ProjectProperties projectProperties;
 
@@ -73,18 +78,15 @@ public class ServerApplication {
         return OpenTelemetrySdk.builder()
                 .setMeterProvider(SdkMeterProvider.builder()
                         .setResource(Resource.getDefault().toBuilder()
-                                .put("service.name", newRelicApplicationName)
+                                .put(SERVICE_NAME_KEY, newRelicApplicationName)
                                 // Include instrumentation.provider=micrometer to enable micrometer metrics
                                 // experience in New Relic
-                                .put("instrumentation.provider", "micrometer")
+                                .put(INSTRUMENTATION_PROVIDER_KEY, MICROMETER)
                                 .build())
                         .registerMetricReader(PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder()
-                                        .setEndpoint("https://otlp.nr-data.net:4317")
-                                        .addHeader(
-                                                "api-key",
-                                                Optional.ofNullable(newRelicKey)
-                                                        .filter(str -> !str.isEmpty() && !str.isBlank())
-                                                        .orElseThrow())
+                                        .setEndpoint(NEW_RELIC_MICROMETER_METRICS_ENDPOINT)
+                                        .addHeader(API_KEY, newRelicKey)
+                                        // .orElseThrow())
                                         // IMPORTANT: New Relic requires metrics to be delta temporality
                                         .setAggregationTemporalitySelector(
                                                 AggregationTemporalitySelector.deltaPreferred())
@@ -97,7 +99,7 @@ public class ServerApplication {
                                                         Aggregation.base2ExponentialBucketHistogram()))
                                         .build())
                                 // Match default micrometer collection interval of 60 seconds
-                                .setInterval(Duration.ofSeconds(60))
+                                .setInterval(Duration.ofSeconds(MICROMETER_COLLECTION_INTERVAL_SECONDS))
                                 .build())
                         .build())
                 .build();
