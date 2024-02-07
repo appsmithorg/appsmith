@@ -1085,22 +1085,22 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   } else {
     featureFlagIntercept({}, false);
   }
-  //getConsolidatedDataApi({}, true);
+  // //getConsolidatedDataApi({}, true);
 
-  cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
-    req.reply((res) => {
-      if (!res) {
-        res.send({
-          responseMeta: {
-            status: 200,
-            success: true,
-          },
-          data: res?.body,
-          errorDisplay: "",
-        });
-      }
-    });
-  }).as("getConsolidatedData");
+  // cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+  //   req.reply((res) => {
+  //     if (!res) {
+  //       res.send({
+  //         responseMeta: {
+  //           status: 200,
+  //           success: true,
+  //         },
+  //         data: res?.body,
+  //         errorDisplay: "",
+  //       });
+  //     }
+  //   });
+  // }).as("getConsolidatedData");
 
   cy.intercept(
     {
