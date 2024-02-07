@@ -427,22 +427,15 @@ export class HomePage {
     cy.visit("/user/signup", { timeout: Cypress.config().pageLoadTimeout });
     cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
       req.reply((res: any) => {
-        if (
-          res.statusCode === 200 ||
-          res.statusCode === 401 ||
-          res.statusCode === 500
-        ) {
-          const originalResponse = res?.body;
-          const updatedResponse = produce(originalResponse, (draft: any) => {
-            draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
-            draft.data.featureFlags.data[
-              "release_show_new_sidebar_pages_pane_enabled"
-            ] = true;
-            draft.data.featureFlags.data[
-              "rollout_consolidated_page_load_fetch_enabled"
-            ] = true;
+        if (!res) {
+          res.send({
+            responseMeta: {
+              status: 200,
+              success: true,
+            },
+            data: res?.body,
+            errorDisplay: "",
           });
-          return res.send(updatedResponse);
         }
       });
     }).as("getConsolidatedData");
