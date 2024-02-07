@@ -909,7 +909,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   if (CURRENT_REPO === REPO.CE) {
     cy.intercept("POST", "/api/v1/logout").as("postLogout");
   } else if (CURRENT_REPO === REPO.EE) {
-    cy.intercept("GET", "/api/v1/logout").as("getLogout");
+    cy.intercept("GET", "/api/v1/logout").as("postLogout");
   }
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
   cy.intercept("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");

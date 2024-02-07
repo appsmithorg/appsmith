@@ -356,20 +356,14 @@ export class HomePage {
       expect(response.status).equal(200); //Verifying logout is success
     });
     cy.reload();
-    if (CURRENT_REPO === REPO.CE)
-      this.assertHelper.AssertNetworkStatus("@postLogout");
-    else if (CURRENT_REPO === REPO.EE)
-      this.assertHelper.AssertNetworkStatus("@getLogout");
+    this.assertHelper.AssertNetworkStatus("@postLogout");
   }
 
   public Signout(toNavigateToHome = true) {
     if (toNavigateToHome) this.NavigateToHome();
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
-    if (CURRENT_REPO === REPO.CE)
-      this.assertHelper.AssertNetworkStatus("@postLogout");
-    else if (CURRENT_REPO === REPO.EE)
-      this.assertHelper.AssertNetworkStatus("@getLogout");
+    this.assertHelper.AssertNetworkStatus("@postLogout");
     this.agHelper.AssertURL("/login");
     this.agHelper.AssertElementVisibility(this._username);
     this.agHelper.AssertElementVisibility(this._submitBtn);
