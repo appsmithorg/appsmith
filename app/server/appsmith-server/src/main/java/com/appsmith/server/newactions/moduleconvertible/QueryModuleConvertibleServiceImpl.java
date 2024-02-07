@@ -62,9 +62,11 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
                     ActionDTO publicEntity = (ActionDTO) publicEntityReusable;
                     moduleConvertibleMetaDTO.setOriginPackageDTO(originPackageDTO);
                     moduleConvertibleMetaDTO.setOriginPackageId(originPackageDTO.getId());
-
+                    moduleConvertibleMetaDTO.setPublicEntityId(publicEntity.getId());
                     // Save the pageId before resetting
-                    final String pageId = publicEntity.getPageId();
+                    final String pageId = publicEntity.getDefaultResources().getPageId() != null
+                            ? publicEntity.getDefaultResources().getPageId()
+                            : publicEntity.getPageId();
                     resetContextSpecificFieldsAndSetContextType(publicEntity);
 
                     Mono<List<ModuleDTO>> moduleNamesMono =
@@ -158,11 +160,13 @@ public class QueryModuleConvertibleServiceImpl extends QueryModuleConvertibleSer
     }
 
     @Override
-    public Mono<Reusable> getPublicEntityCandidateMono(String publicEntityCandidateId) {
+    public Mono<Reusable> getBranchedPublicEntityCandidateMono(
+            String defaultPublicEntityCandidateId, String branchName) {
         Mono<Reusable> publicEntityCandidateMono = newActionService
-                .findById(publicEntityCandidateId, actionPermission.getDeletePermission())
+                .findByBranchNameAndDefaultActionId(
+                        branchName, defaultPublicEntityCandidateId, actionPermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_ID, publicEntityCandidateId)))
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_ID, defaultPublicEntityCandidateId)))
                 .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
         return publicEntityCandidateMono.cache();
     }

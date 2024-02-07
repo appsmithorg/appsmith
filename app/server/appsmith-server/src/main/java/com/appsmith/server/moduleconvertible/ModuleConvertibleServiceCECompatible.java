@@ -8,5 +8,5 @@ import reactor.core.publisher.Mono;
 public interface ModuleConvertibleServiceCECompatible<T, U extends BaseDomain> {
     Mono<Void> convertToModule(ModuleConvertibleMetaDTO moduleConvertibleMetaDTO);
 
-    Mono<Reusable> getPublicEntityCandidateMono(String publicEntityCandidateId);
+    Mono<Reusable> getBranchedPublicEntityCandidateMono(String defaultPublicEntityCandidateId, String branchName);
 }

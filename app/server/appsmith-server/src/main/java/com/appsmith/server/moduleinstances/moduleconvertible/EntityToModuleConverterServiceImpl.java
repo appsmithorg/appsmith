@@ -47,15 +47,16 @@ public class EntityToModuleConverterServiceImpl extends EntityToModuleConverterS
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "publicEntityId"));
         }
 
-        Mono<Reusable> publicEntityCandidateMono = queryModuleConvertibleService
-                .getPublicEntityCandidateMono(convertToModuleRequestDTO.getPublicEntityId())
+        Mono<Reusable> branchedPublicEntityCandidateMono = queryModuleConvertibleService
+                .getBranchedPublicEntityCandidateMono(convertToModuleRequestDTO.getPublicEntityId(), branchName)
                 .cache();
 
         // If `packageId` is `null` we will create a new package following naming convention of the package
         Mono<PackageDTO> originPackageMono;
         if (ValidationUtils.isEmptyParam(convertToModuleRequestDTO.getPackageId())) {
-            originPackageMono = publicEntityCandidateMono.flatMap(reusable -> {
+            originPackageMono = branchedPublicEntityCandidateMono.flatMap(reusable -> {
                 ActionDTO actionDTO = (ActionDTO) reusable;
+                convertToModuleRequestDTO.setPublicEntityId(actionDTO.getId());
                 return getExistingPackageNames(actionDTO.getWorkspaceId())
                         .map(takenNames -> {
                             int currentHighestPackageNumber = findHighestPackageNumber(takenNames);
@@ -81,13 +82,13 @@ public class EntityToModuleConverterServiceImpl extends EntityToModuleConverterS
                 convertToModuleRequestDTO.getPublicEntityId(),
                 convertToModuleRequestDTO.getModuleType(),
                 originPackageMono,
-                publicEntityCandidateMono,
+                branchedPublicEntityCandidateMono,
                 branchName);
 
         Mono<CreateExistingEntityToModuleResponseDTO> createExistingEntityToModuleResponseDTOMono =
                 getCreateExistingEntityToModuleResponseDTOMono(moduleConvertibleMetaDTO);
 
-        return publicEntityCandidateMono.flatMap(publicEntity -> {
+        return branchedPublicEntityCandidateMono.flatMap(publicEntity -> {
             return queryModuleConvertibleService
                     .convertToModule(moduleConvertibleMetaDTO)
                     .then(Mono.defer(() -> createExistingEntityToModuleResponseDTOMono));

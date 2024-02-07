@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public abstract class QueryModuleConvertibleServiceCECompatibleImpl
+public class QueryModuleConvertibleServiceCECompatibleImpl
         implements ModuleConvertibleServiceCECompatible<NewAction, NewAction> {
     @Override
     public Mono<Void> convertToModule(ModuleConvertibleMetaDTO moduleConvertibleMetaDTO) {
@@ -22,7 +22,8 @@ public abstract class QueryModuleConvertibleServiceCECompatibleImpl
     }
 
     @Override
-    public Mono<Reusable> getPublicEntityCandidateMono(String publicEntityId) {
+    public Mono<Reusable> getBranchedPublicEntityCandidateMono(
+            String defaultPublicEntityCandidateId, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }
