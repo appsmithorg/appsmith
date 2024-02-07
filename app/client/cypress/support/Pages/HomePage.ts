@@ -361,7 +361,10 @@ export class HomePage {
     if (toNavigateToHome) this.NavigateToHome();
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
-    this.assertHelper.AssertNetworkStatus("@postLogout");
+    //Logout is still a POST request in CE
+    if (CURRENT_REPO === REPO.CE) {
+      this.assertHelper.AssertNetworkStatus("@postLogout");
+    }
     this.agHelper.AssertURL("/login");
     this.agHelper.AssertElementVisibility(this._username);
     this.agHelper.AssertElementVisibility(this._submitBtn);
