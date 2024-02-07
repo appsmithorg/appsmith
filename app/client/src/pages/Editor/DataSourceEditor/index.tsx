@@ -91,10 +91,9 @@ import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 import {
-  selectFeatureFlagCheck,
+  getIsEditorPaneSegmentsEnabled,
   selectFeatureFlags,
 } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -145,7 +144,7 @@ interface ReduxStateProps {
   featureFlags?: FeatureFlags;
   isPluginAllowedToPreviewData: boolean;
   isAppSidebarEnabled: boolean;
-  isPagePaneSegmentsEnabled: boolean;
+  isEditorPaneSegmentsEnabled: boolean;
   isOnboardingFlow?: boolean;
 }
 
@@ -905,10 +904,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       history,
       isAppSidebarEnabled,
       isDeleting,
+      isEditorPaneSegmentsEnabled,
       isInsideReconnectModal,
       isNewDatasource,
       isOnboardingFlow,
-      isPagePaneSegmentsEnabled,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -963,7 +962,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         }}
       >
         {isAppSidebarEnabled ||
-        isPagePaneSegmentsEnabled ||
+        isEditorPaneSegmentsEnabled ||
         !!isOnboardingFlow ? null : (
           <CloseEditor />
         )}
@@ -1142,10 +1141,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
 
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
-  const isPagePaneSegmentsEnabled = selectFeatureFlagCheck(
-    state,
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
+  const isEditorPaneSegmentsEnabled = getIsEditorPaneSegmentsEnabled(state);
 
   return {
     canDeleteDatasource,
@@ -1182,7 +1178,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     initialValue,
     showDebugger,
     isAppSidebarEnabled,
-    isPagePaneSegmentsEnabled,
+    isEditorPaneSegmentsEnabled,
   };
 };
 

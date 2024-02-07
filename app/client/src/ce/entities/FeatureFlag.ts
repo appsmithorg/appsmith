@@ -54,6 +54,7 @@ export const FEATURE_FLAG = {
     "rollout_consolidated_page_load_fetch_enabled",
   ab_start_with_data_default_enabled: "ab_start_with_data_default_enabled",
   release_actions_redesign_enabled: "release_actions_redesign_enabled",
+  rollout_editor_pane_segments_enabled: "rollout_editor_pane_segments_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -98,6 +99,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   rollout_consolidated_page_load_fetch_enabled: false,
   ab_start_with_data_default_enabled: false,
   release_actions_redesign_enabled: false,
+  rollout_editor_pane_segments_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

@@ -54,7 +54,8 @@ export class JSONtoForm<
       featureFlags?.release_app_sidebar_enabled === true ||
       featureFlags?.rollout_app_sidebar_enabled === true;
     const isPagePaneSegmentsEnabled =
-      featureFlags?.release_show_new_sidebar_pages_pane_enabled;
+      featureFlags?.release_show_new_sidebar_pages_pane_enabled === true ||
+      featureFlags?.rollout_editor_pane_segments_enabled === true;
     return (
       // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
