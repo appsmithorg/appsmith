@@ -7,9 +7,7 @@ import {
   PAGE_CLIENT_ERROR_DESCRIPTION,
   PAGE_CLIENT_ERROR_TITLE,
 } from "@appsmith/constants/messages";
-import { flushErrors } from "actions/errorActions";
 import { useDispatch } from "react-redux";
-import { DISCORD_URL } from "constants/ThirdPartyConstants";
 
 function GenericError(props: { errorCode?: string }) {
   const dispatch = useDispatch();
@@ -20,13 +18,10 @@ function GenericError(props: { errorCode?: string }) {
           className="button-position"
           endIcon="right-arrow"
           kind="primary"
-          onClick={() => {
-            dispatch(flushErrors());
-            window.open(DISCORD_URL, "_blank");
-          }}
+          onClick={() => window.Intercom && window.Intercom('show')}
           size="md"
         >
-          Contact us on discord
+          Chat with us on Intercom
         </Button>
       }
       description={createMessage(PAGE_CLIENT_ERROR_DESCRIPTION)}

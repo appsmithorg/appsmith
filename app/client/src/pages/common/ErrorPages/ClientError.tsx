@@ -1,7 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Button } from "design-system";
-import { flushErrors } from "actions/errorActions";
 
 import Page from "./Page";
 import {
@@ -21,13 +20,10 @@ function ClientError() {
           className="button-position"
           endIcon="right-arrow"
           kind="primary"
-          onClick={() => {
-            dispatch(flushErrors());
-            window.open(DISCORD_URL, "_blank");
-          }}
+          onClick={() => window.Intercom && window.Intercom('show')}
           size="md"
         >
-          Contact us on discord
+          Chat with us on Intercom
         </Button>
       }
       description={createMessage(PAGE_CLIENT_ERROR_DESCRIPTION)}
