@@ -79,8 +79,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Slf4j
 @Service
 public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
-    private static final String FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED =
-            "release_server_dsl_migrations_enabled";
     public static final int INTERNAL_SERVER_ERROR_STATUS = AppsmithError.INTERNAL_SERVER_ERROR.getHttpErrorCode();
     public static final String INTERNAL_SERVER_ERROR_CODE = AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode();
     public static final String EMPTY_WORKSPACE_ID_ON_ERROR = "";
@@ -331,32 +329,12 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 })
                 .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(customJSLibSpanList.get(0)));
 
-        /* Check if release_server_dsl_migrations_enabled flag is true for the user */
-        Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserResponseDTOMonoCache
-                .map(responseDTO -> {
-                    if (INTERNAL_SERVER_ERROR_STATUS
-                            == responseDTO.getResponseMeta().getStatus()) {
-                        return Map.of();
-                    }
-
-                    return responseDTO.getData();
-                })
-                .map(flagsMap -> {
-                    if (!flagsMap.containsKey(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED)) {
-                        return false;
-                    }
-
-                    return (Boolean) flagsMap.get(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED);
-                })
-                .cache();
-
         Mono<ResponseDTO<PageDTO>> currentPageDTOResponseDTOMono = Mono.empty();
         if (!isBlank(defaultPageId)) {
             /* Get current page */
             ArrayList<Span> currentPageSpanList = new ArrayList<>();
-            currentPageDTOResponseDTOMono = migrateDslMonoCache
-                    .flatMap(migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                            defaultPageId, branchName, isViewMode, migrateDsl))
+            currentPageDTOResponseDTOMono = applicationPageService
+                    .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, isViewMode, true)
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, PageDTO.class))
                     .doOnSubscribe(subscription -> {
@@ -477,14 +455,13 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
 
             /* Get all pages in edit mode post apply migrate DSL changes */
             ArrayList<Span> pagesPostMigrateDslSpanList = new ArrayList<>();
-            Mono<ResponseDTO<List>> listOfAllPageResponseDTOMono = migrateDslMonoCache
-                    .flatMap(migrateDsl -> applicationPagesDTOResponseDTOMonoCache
-                            .map(ResponseDTO::getData)
-                            .map(ApplicationPagesDTO::getPages)
-                            .flatMapMany(Flux::fromIterable)
-                            .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                                    page.getDefaultPageId(), branchName, false, migrateDsl))
-                            .collect(Collectors.toList()))
+            Mono<ResponseDTO<List>> listOfAllPageResponseDTOMono = applicationPagesDTOResponseDTOMonoCache
+                    .map(ResponseDTO::getData)
+                    .map(ApplicationPagesDTO::getPages)
+                    .flatMapMany(Flux::fromIterable)
+                    .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                            page.getDefaultPageId(), branchName, false, true))
+                    .collect(Collectors.toList())
                     .map(res -> (List) res)
                     .map(this::getSuccessResponse)
                     .onErrorResume(error -> getErrorResponseMono(error, List.class))
