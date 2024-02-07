@@ -1,11 +1,9 @@
 package com.appsmith.server.applications.base;
 
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.applications.imports.ApplicationImportServiceCE;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -28,9 +26,7 @@ import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -61,13 +57,10 @@ import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicat
 @Slf4j
 public class ApplicationImportServiceCEImpl implements ApplicationImportServiceCE {
 
-    private final DatasourceService datasourceService;
-    private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
     private final NewActionService newActionService;
     private final UpdateLayoutService updateLayoutService;
-    private final AnalyticsService analyticsService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
@@ -88,12 +81,9 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     protected final Map<String, String> applicationConstantsMap = new HashMap<>();
 
     public ApplicationImportServiceCEImpl(
-            DatasourceService datasourceService,
-            WorkspaceService workspaceService,
             ApplicationService applicationService,
             ApplicationPageService applicationPageService,
             NewActionService newActionService,
-            AnalyticsService analyticsService,
             UpdateLayoutService updateLayoutService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
@@ -106,12 +96,10 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             ImportableService<CustomJSLib> customJSLibImportableService,
             ImportableService<NewAction> newActionImportableService,
             ImportableService<ActionCollection> actionCollectionImportableService) {
-        this.datasourceService = datasourceService;
-        this.workspaceService = workspaceService;
+
         this.applicationService = applicationService;
         this.applicationPageService = applicationPageService;
         this.newActionService = newActionService;
-        this.analyticsService = analyticsService;
         this.updateLayoutService = updateLayoutService;
         this.datasourcePermission = datasourcePermission;
         this.workspacePermission = workspacePermission;
@@ -269,60 +257,31 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     }
 
     @Override
-    public Mono<ApplicationImportDTO> getImportableArtifactDTO(
-            String workspaceId, String applicationId, ImportableArtifact importableArtifact) {
+    public ApplicationImportDTO getImportableArtifactDTO(
+            ImportableArtifact importableArtifact, List<Datasource> datasourceList, String environmentId) {
         Application application = (Application) importableArtifact;
-        return findDatasourceByApplicationId(applicationId, workspaceId)
-                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
-                .map(tuple2 -> {
-                    List<Datasource> datasources = tuple2.getT1();
-                    String environmentId = tuple2.getT2();
-                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                    applicationImportDTO.setApplication(application);
-                    Boolean isUnConfiguredDatasource = datasources.stream().anyMatch(datasource -> {
-                        DatasourceStorageDTO datasourceStorageDTO =
-                                datasource.getDatasourceStorages().get(environmentId);
-                        if (datasourceStorageDTO == null) {
-                            // If this environment has not been configured,
-                            // We do not expect to find a storage, user will have to reconfigure
-                            return Boolean.FALSE;
-                        }
-                        return Boolean.FALSE.equals(datasourceStorageDTO.getIsConfigured());
-                    });
-                    if (Boolean.TRUE.equals(isUnConfiguredDatasource)) {
-                        applicationImportDTO.setIsPartialImport(true);
-                        applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                    } else {
-                        applicationImportDTO.setIsPartialImport(false);
-                    }
-                    return applicationImportDTO;
-                });
-    }
+        ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+        applicationImportDTO.setApplication(application);
 
-    @Override
-    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
-        // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
-        Mono<List<Datasource>> listMono = datasourceService
-                .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
-                .collectList();
-        return newActionService
-                .findAllByApplicationIdAndViewMode(applicationId, false, Optional.empty(), Optional.empty())
-                .collectList()
-                .zipWith(listMono)
-                .flatMap(objects -> {
-                    List<Datasource> datasourceList = objects.getT2();
-                    List<NewAction> actionList = objects.getT1();
-                    List<String> usedDatasource = actionList.stream()
-                            .map(newAction -> newAction
-                                    .getUnpublishedAction()
-                                    .getDatasource()
-                                    .getId())
-                            .toList();
+        Boolean isUnConfiguredDatasource = datasourceList.stream().anyMatch(datasource -> {
+            DatasourceStorageDTO datasourceStorageDTO =
+                    datasource.getDatasourceStorages().get(environmentId);
+            if (datasourceStorageDTO == null) {
+                // If this environment has not been configured,
+                // We do not expect to find a storage, user will have to reconfigure
+                return Boolean.FALSE;
+            }
+            return Boolean.FALSE.equals(datasourceStorageDTO.getIsConfigured());
+        });
 
-                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
+        if (Boolean.TRUE.equals(isUnConfiguredDatasource)) {
+            applicationImportDTO.setIsPartialImport(true);
+            applicationImportDTO.setUnConfiguredDatasourceList(datasourceList);
+        } else {
+            applicationImportDTO.setIsPartialImport(false);
+        }
 
-                    return Mono.just(datasourceList);
-                });
+        return applicationImportDTO;
     }
 
     @Override
@@ -388,42 +347,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                     .collect(Collectors.toList());
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
-    }
-
-    /**
-     * To send analytics event for import and export of application
-     *
-     * @param application Application object imported or exported
-     * @param event       AnalyticsEvents event
-     * @return The application which is imported or exported
-     */
-    private Mono<Application> sendImportExportApplicationAnalyticsEvent(
-            Application application, AnalyticsEvents event) {
-        return workspaceService.getById(application.getWorkspaceId()).flatMap(workspace -> {
-            final Map<String, Object> eventData = Map.of(
-                    FieldName.APPLICATION, application,
-                    FieldName.WORKSPACE, workspace);
-
-            final Map<String, Object> data = Map.of(
-                    FieldName.APPLICATION_ID, application.getId(),
-                    FieldName.WORKSPACE_ID, workspace.getId(),
-                    FieldName.EVENT_DATA, eventData);
-
-            return analyticsService.sendObjectEvent(event, application, data);
-        });
-    }
-
-    /**
-     * To send analytics event for import and export of application
-     *
-     * @param applicationId ID of application being imported or exported
-     * @param event         AnalyticsEvents event
-     * @return The application which is imported or exported
-     */
-    private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
-        return applicationService
-                .findById(applicationId, Optional.empty())
-                .flatMap(application -> sendImportExportApplicationAnalyticsEvent(application, event));
     }
 
     @Override
@@ -618,7 +541,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                 ? 0
                 : applicationJson.getActionList().size();
 
-        final Map<String, Object> data = Map.of(
+        return Map.of(
                 FieldName.APPLICATION_ID,
                 application.getId(),
                 FieldName.WORKSPACE_ID,
@@ -629,8 +552,6 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                 actionCount,
                 "JSObjectCount",
                 jsObjectCount);
-
-        return data;
     }
 
     @Override

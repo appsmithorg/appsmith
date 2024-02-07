@@ -1,5 +1,6 @@
 package com.appsmith.server.imports.internal;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -51,7 +52,8 @@ public interface ContextBasedImportServiceCE<
      */
     void setJsonArtifactNameToNullBeforeUpdate(String artifactId, ArtifactExchangeJson artifactExchangeJson);
 
-    Mono<U> getImportableArtifactDTO(String workspaceId, String artifactId, ImportableArtifact importableArtifact);
+    U getImportableArtifactDTO(
+            ImportableArtifact importableArtifact, List<Datasource> datasourceList, String environmentId);
 
     /**
      * This method sets the client & server schema version to artifacts which is inside JSON from the clientSchemaVersion

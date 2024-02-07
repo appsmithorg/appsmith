@@ -344,7 +344,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(
             @PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
         return importService
-                .findDatasourceByArtifactId(defaultApplicationId, workspaceId, APPLICATION)
+                .findDatasourceByArtifactId(workspaceId, defaultApplicationId, APPLICATION)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

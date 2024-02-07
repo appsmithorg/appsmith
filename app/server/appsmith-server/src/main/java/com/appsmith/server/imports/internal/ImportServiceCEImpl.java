@@ -395,8 +395,18 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             String artifactId,
             ImportableArtifact importableArtifact,
             ArtifactJsonType artifactJsonType) {
-        return getContextBasedImportService(artifactJsonType)
-                .getImportableArtifactDTO(workspaceId, artifactId, importableArtifact);
+
+        ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(artifactJsonType);
+
+        return findDatasourceByArtifactId(workspaceId, artifactId, artifactJsonType)
+                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
+                .map(tuple2 -> {
+                    List<Datasource> datasourceList = tuple2.getT1();
+                    String environmentId = tuple2.getT2();
+
+                    return contextBasedImportService.getImportableArtifactDTO(
+                            importableArtifact, datasourceList, environmentId);
+                });
     }
 
     /**
@@ -728,7 +738,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     @Override
     public Mono<List<Datasource>> findDatasourceByArtifactId(
-            String defaultArtifactId, String workspaceId, ArtifactJsonType artifactJsonType) {
+            String workspaceId, String defaultArtifactId, ArtifactJsonType artifactJsonType) {
 
         return getContextBasedImportService(artifactJsonType)
                 .getDatasourceIdSetConsumedInArtifact(defaultArtifactId)

@@ -96,5 +96,5 @@ public interface ImportServiceCE {
             ArtifactJsonType artifactJsonType);
 
     Mono<List<Datasource>> findDatasourceByArtifactId(
-            String defaultArtifactId, String workspaceId, ArtifactJsonType artifactJsonType);
+            String workspaceId, String defaultArtifactId, ArtifactJsonType artifactJsonType);
 }
