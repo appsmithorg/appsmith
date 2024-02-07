@@ -425,20 +425,24 @@ export class HomePage {
 
   public SignUp(uname: string, pswd: string) {
     cy.visit("/user/signup", { timeout: Cypress.config().pageLoadTimeout });
-    cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
-      req.reply((res: any) => {
-        if (!res) {
-          res.send({
-            responseMeta: {
-              status: 200,
-              success: true,
-            },
-            data: res?.body,
-            errorDisplay: "",
-          });
-        }
-      });
-    }).as("getConsolidatedData");
+    cy.intercept(
+      "GET",
+      "/api/v1/consolidated-api/view?mode=PUBLISHED",
+      (req) => {
+        req.reply((res: any) => {
+          if (!res) {
+            res.send({
+              responseMeta: {
+                status: 200,
+                success: true,
+              },
+              data: res?.body,
+              errorDisplay: "",
+            });
+          }
+        });
+      },
+    ).as("getConsolidatedPublishedData");
     // this.assertHelper.WaitForNetworkCall("getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
