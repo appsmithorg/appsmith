@@ -25,6 +25,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -65,6 +66,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
     private final NewActionService newActionService;
+    private final UpdateLayoutService updateLayoutService;
     private final AnalyticsService analyticsService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
@@ -92,6 +94,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
             ApplicationPageService applicationPageService,
             NewActionService newActionService,
             AnalyticsService analyticsService,
+            UpdateLayoutService updateLayoutService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
             ApplicationPermission applicationPermission,
@@ -109,6 +112,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
         this.applicationPageService = applicationPageService;
         this.newActionService = newActionService;
         this.analyticsService = analyticsService;
+        this.updateLayoutService = updateLayoutService;
         this.datasourcePermission = datasourcePermission;
         this.workspacePermission = workspacePermission;
         this.applicationPermission = applicationPermission;
@@ -567,15 +571,23 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
 
     @Override
     public Mono<Application> updateImportableArtifact(ImportableArtifact importableArtifact) {
-        return Mono.just((Application) importableArtifact).flatMap(application -> {
-            log.info("Imported application with id {}", application.getId());
-            // Need to update the application object with updated pages and publishedPages
-            Application updateApplication = new Application();
-            updateApplication.setPages(application.getPages());
-            updateApplication.setPublishedPages(application.getPublishedPages());
+        return Mono.just((Application) importableArtifact)
+                .flatMap(application -> {
+                    log.info("Imported application with id {}", application.getId());
+                    // Need to update the application object with updated pages and publishedPages
+                    Application updateApplication = new Application();
+                    updateApplication.setPages(application.getPages());
+                    updateApplication.setPublishedPages(application.getPublishedPages());
 
-            return applicationService.update(application.getId(), updateApplication);
-        });
+                    return applicationService.update(application.getId(), updateApplication);
+                })
+                .flatMap(application -> {
+                    return Flux.fromIterable(application.getPages())
+                            .map(ApplicationPage::getId)
+                            .flatMap(updateLayoutService::updatePageLayoutsByPageId)
+                            .collectList()
+                            .thenReturn(application);
+                });
     }
 
     @Override

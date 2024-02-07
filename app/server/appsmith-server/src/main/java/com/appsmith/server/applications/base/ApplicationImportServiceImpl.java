@@ -8,6 +8,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -30,6 +31,7 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
             ApplicationPageService applicationPageService,
             NewActionService newActionService,
             AnalyticsService analyticsService,
+            UpdateLayoutService updateLayoutService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
             ApplicationPermission applicationPermission,
@@ -48,6 +50,7 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
                 applicationPageService,
                 newActionService,
                 analyticsService,
+                updateLayoutService,
                 datasourcePermission,
                 workspacePermission,
                 applicationPermission,
