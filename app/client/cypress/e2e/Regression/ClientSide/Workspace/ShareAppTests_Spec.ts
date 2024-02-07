@@ -127,7 +127,7 @@ describe(
       );
       agHelper.VisitNAssert(currentUrl);
       agHelper.ValidateToastMessage("Resource Not Found"); //for 404 screen
-      homePage.LogOutviaAPI(false);
+      homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
       agHelper.AssertContains("Sign in to your account", "be.visible");

@@ -1121,6 +1121,11 @@ export class AggregateHelper {
       this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
+  public CypressReload() {
+    cy.reload();
+    this.assertHelper.AssertDocumentReady();
+  }
+
   public ActionContextMenuWithInPane({
     action = "Delete",
     entityType = EntityItems.JSObject,

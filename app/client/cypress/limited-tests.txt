@@ -9,9 +9,11 @@
 #cypress/e2e/Regression/ClientSide/OtherUIFeatures/ApplicationURL_spec.js
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_To_App_spec.ts
 #cypress/e2e/Regression/ClientSide/ExplorerTests/JSEditorContextMenu_Spec.ts
-
+cypress/e2e/Regression/ServerSide/LoginTests/LoginFailure_spec.js
+cypress/e2e/Regression/ClientSide/JSLibrary/Library_spec.ts
+cypress/e2e/Regression/ClientSide/Workspace/ShareAppTests_Spec.ts
 
 # For running all specs - uncomment below:
-cypress/e2e/**/**/*
+#cypress/e2e/**/**/*
 
 #ci-test-limit uses this file to run minimum of specs. Do not run entire suite with this command.

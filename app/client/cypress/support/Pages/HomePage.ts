@@ -340,7 +340,7 @@ export class HomePage {
   }
 
   //Maps to LogOut in command.js
-  public LogOutviaAPI(networkCallAlias = true) {
+  public LogOutviaAPI() {
     let httpMethod = "POST";
     if (CURRENT_REPO === REPO.EE) {
       httpMethod = "GET";
@@ -354,8 +354,7 @@ export class HomePage {
     }).then((response) => {
       expect(response.status).equal(200); //Verifying logout is success
     });
-    cy.reload();
-    networkCallAlias && this.assertHelper.AssertNetworkStatus("@postLogout");
+    this.agHelper.CypressReload();
   }
 
   public Signout(toNavigateToHome = true) {
