@@ -28,7 +28,11 @@ export const getConsolidatedDataApi = (
 ) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
-      if (res.statusCode === 200 || res.statusCode === 401 || res.statusCode === 500) {
+      if (
+        res.statusCode === 200 ||
+        res.statusCode === 401 ||
+        res.statusCode === 500
+      ) {
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {
           draft.data.featureFlags.data = { ...flags };
@@ -41,7 +45,7 @@ export const getConsolidatedDataApi = (
           ] = true;
         });
         return res.send(updatedResponse);
-     }  else if (res.statusCode === 401 || res.statusCode === 500) {
+      } //else if (res.statusCode === 401 || res.statusCode === 500) {
       //   return res.send({
       //     responseMeta: {
       //       status: 200,
@@ -128,12 +132,13 @@ export const featureFlagInterceptForLicenseFlags = () => {
 
 function ReloadAfterIntercept() {
   cy.reload();
-  cy.document().should((doc) => {
-    expect(doc.readyState).to.equal("complete");
-  });
   cy.window({ timeout: Cypress.config().pageLoadTimeout }).should((win) => {
     expect(win).to.haveOwnProperty("onload");
   });
+  cy.document().should((doc) => {
+    expect(doc.readyState).to.equal("complete");
+  });
+
   // cy
   // .window({ timeout: Cypress.config().pageLoadTimeout })
   // .then((win) => expect(win).haveOwnProperty("onload"));
