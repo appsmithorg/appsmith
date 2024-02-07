@@ -13,6 +13,8 @@ export class GitSync {
   public _gitSyncModal = "[data-testid=t--git-sync-modal]";
   private _closeGitSyncModal =
     "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']";
+  private _closeGitSettingsModal =
+    "//div[@data-testid='t--git-settings-modal']//button[@aria-label='Close']";
   //private _closeGitSyncModal = ".ads-v2-modal__content-header-close-button";
   private _gitRepoInput =
     "//label[text()='Remote URL']/following-sibling::div//input";
@@ -54,6 +56,9 @@ export class GitSync {
     "[data-testid='t--git-protected-branches-select']";
   public _protectedBranchesUpdateBtn =
     "[data-testid='t--git-protected-branches-update-btn']";
+  public _settingsTabBranch = "[data-testid='t--tab-BRANCH']";
+  public _branchProtectionSelectDropdown = "[data-testid='t--git-protected-branches-select']";
+  public _branchProtectionUpdateBtn = "[data-testid='t--git-protected-branches-update-btn']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -173,6 +178,7 @@ export class GitSync {
     repoName = "Repo",
     assertConnect = true,
     privateFlag = false,
+    removeDefaultBranchProtection = true,
   ) {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -229,6 +235,10 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.GetNClick(this.startUsingGitButton);
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
+      }
+
+      if (removeDefaultBranchProtection) {
+        this.clearBranchProtection();
       }
 
       cy.wrap(repoName).as("gitRepoName");
@@ -289,6 +299,21 @@ export class GitSync {
     if (assertConnect) {
       this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
     }
+  }
+
+  public clearBranchProtection() {
+    this.agHelper.GetNClick(this._bottomSettingsBtn);
+    this.agHelper.GetNClick(this._settingsTabBranch);
+    this.agHelper.GetNClick(this._branchProtectionSelectDropdown);
+    // const dropdownEl = this.agHelper.GetElement(this._protectedBranchesSelect);
+    const selectedOptionsEl = this.agHelper.GetElement(".rc-select-dropdown .rc-select-item-option-active");
+    console.log('ss', selectedOptionsEl)
+    selectedOptionsEl.each((el) => {
+      el.trigger("click");
+    });
+
+    this.agHelper.GetNClick(this._branchProtectionUpdateBtn);
+    this.agHelper.GetNClick(this._closeGitSettingsModal);
   }
 
   public ImportAppFromGit(
