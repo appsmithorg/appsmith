@@ -896,7 +896,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       formData,
       history,
       isDeleting,
-      isEditorPaneSegmentsEnabled,
       isInsideReconnectModal,
       isNewDatasource,
       isOnboardingFlow,
