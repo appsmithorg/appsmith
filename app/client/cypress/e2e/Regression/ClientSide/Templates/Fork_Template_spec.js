@@ -8,7 +8,7 @@ describe(
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   () => {
     beforeEach(() => {
-      _.homePage.LogOutviaAPI();
+      _.homePage.Signout();
       featureFlagIntercept({ ab_create_new_apps_enabled: true });
       cy.generateUUID().then((uid) => {
         _.homePage.SignUp(`${uid}@appsmithtest.com`, uid);
