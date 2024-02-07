@@ -1,6 +1,7 @@
 import type { AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface CurlImportRequest {
   type: string;
@@ -8,7 +9,7 @@ export interface CurlImportRequest {
   name: string;
   curl: string;
   workspaceId: string;
-  contextType: string;
+  contextType: ActionParentEntityTypeInterface;
 }
 
 class CurlImportApi extends Api {
