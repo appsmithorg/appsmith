@@ -140,8 +140,7 @@ export function getHighlightsForLayouts(
   );
 
   let index = 0;
-  let discardedLayouts: number = 0;
-  let skipNextNewCellHighlights = false;
+  const discardedLayoutIndices: number[] = [];
   // Loop over all child layouts.
   while (index < layouts.length) {
     // Extract information on current child layout.
@@ -170,7 +169,10 @@ export function getHighlightsForLayouts(
         [...layoutOrder, layouts[index].layoutId],
         parentDropTargetId,
       )(widgetPositions, draggedWidgets);
-    if (!skipNextNewCellHighlights) {
+    const isPreviousLayoutDiscarded = discardedLayoutIndices.includes(
+      index - 1,
+    );
+    if (!isPreviousLayoutDiscarded) {
       /**
        * Add a highlight for the drop zone above the child layout.
        * This is done only if the child layout has highlights.
@@ -190,8 +192,6 @@ export function getHighlightsForLayouts(
         hasFillWidget,
         skipEntity,
       );
-    } else {
-      skipNextNewCellHighlights = false;
     }
 
     if (skipEntity) {
@@ -200,8 +200,7 @@ export function getHighlightsForLayouts(
        * skipEntity === true => dragged widget or empty layout after discarding dragged widgets.
        * skipEntity === false => dragged widgets include blacklisted widgets or maxChildLimit is reached.
        */
-      skipNextNewCellHighlights = true;
-      discardedLayouts += 1;
+      discardedLayoutIndices.push(index);
     }
     /**
      * Add highlights of the child layout if it is not a drop target.
@@ -211,8 +210,11 @@ export function getHighlightsForLayouts(
       highlights.push(...layoutHighlights);
     }
     index += 1;
-
-    if (index === layouts.length && index !== discardedLayouts) {
+    const isLastLayoutDiscarded = discardedLayoutIndices.includes(index - 1);
+    const isFirstLayoutDiscarded = discardedLayoutIndices.includes(0);
+    const skipBottomNewCellHighlights =
+      isFirstLayoutDiscarded || isLastLayoutDiscarded;
+    if (!skipBottomNewCellHighlights) {
       // Add a highlight for the drop zone below the child layout.
       highlights = updateHighlights(
         highlights,
@@ -221,7 +223,7 @@ export function getHighlightsForLayouts(
         currentDimension,
         nextLayoutDimensions,
         prevLayoutDimensions,
-        index - discardedLayouts,
+        index - discardedLayoutIndices.length,
         true,
         hasAlignments,
         hasFillWidget,
