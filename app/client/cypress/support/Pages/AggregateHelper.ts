@@ -1728,12 +1728,8 @@ export class AggregateHelper {
   }
 
   public VisitNAssert(url: string, apiToValidate = "") {
-    // cy.window({ timeout: Cypress.config().pageLoadTimeout }).then((win) => {
-    //   win.location.href = url;
-    // });
     cy.visit(url);
     this.AssertURL(url);
-
     if (
       apiToValidate.includes("getAllWorkspaces") &&
       Cypress.env("AIRGAPPED")

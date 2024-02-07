@@ -40,10 +40,7 @@ const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
-import {
-  featureFlagIntercept,
-  getConsolidatedDataApi,
-} from "./Objects/FeatureFlags";
+import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -1076,6 +1073,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("postTenant");
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
+
   if (Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST)) {
     // intercept features call for creating pages that support Anvil + WDS tests
     featureFlagIntercept(

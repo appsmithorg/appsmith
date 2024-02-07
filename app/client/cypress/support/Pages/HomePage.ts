@@ -3,8 +3,6 @@ import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
-//import { getConsolidatedDataApi } from "../Objects/FeatureFlags";
-import produce from "immer";
 
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
