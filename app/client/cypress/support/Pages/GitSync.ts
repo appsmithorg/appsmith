@@ -57,10 +57,12 @@ export class GitSync {
   public _protectedBranchesUpdateBtn =
     "[data-testid='t--git-protected-branches-update-btn']";
   public _settingsTabBranch = "[data-testid='t--tab-BRANCH']";
+  public _settingsTabGeneral = "[data-testid='t--tab-GENERAL']";
   public _branchProtectionSelectDropdown =
     "[data-testid='t--git-protected-branches-select']";
   public _branchProtectionUpdateBtn =
     "[data-testid='t--git-protected-branches-update-btn']";
+  public _disconnectGitBtn = "[data-testid='t--git-disconnect-btn']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -84,86 +86,6 @@ export class GitSync {
         private: privateFlag,
       },
     });
-  }
-
-  public AuthorizeKeyToGitea(
-    repo: string,
-    assertConnect = true,
-    importFlow = false,
-  ) {
-    let generatedKey,
-      submitBtnName = importFlow ? "Import" : "Connect";
-    if (!importFlow) {
-      this.OpenGitSyncModal();
-      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-        `generateKey-${repo}`,
-      );
-    } else {
-      cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
-        `generateKey-${repo}`,
-      );
-    }
-    this.agHelper.AssertAttribute(
-      this._gitRepoInput,
-      "placeholder",
-      "git@example.com:user/repository.git",
-    );
-    this.agHelper.TypeText(
-      this._gitRepoInput,
-      `${this.dataManager.GITEA_API_URL_TED}/${repo}.git`,
-      //`git@github.com:${owner}/${repo}.git`,
-    );
-
-    this.agHelper.ClickButton("Generate key");
-    this.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      this.assertHelper.AssertNetworkStatus("@generateKey-" + repo, [200, 201]);
-      cy.get(`@generateKey-${repo}`).then((result: any) => {
-        generatedKey = result.response.body.data.publicKey;
-        generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-        // fetch the generated key and post to the github repo
-        cy.request({
-          method: "POST",
-          url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
-          headers: {
-            Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-          },
-          body: {
-            title: "key_" + uid,
-            key: generatedKey,
-            read_only: false,
-          },
-        }).then((resp: any) => {
-          cy.log("Deploy Key Id ", resp.body.key_id);
-          cy.wrap(resp.body.key_id).as("deployKeyId");
-        });
-      });
-    });
-    this.agHelper.GetNClick(this._useDefaultConfig); //Uncheck the Use default configuration
-    this.agHelper.TypeText(
-      this._gitConfigNameInput,
-      "testusername",
-      //`{selectall}${testUsername}`,
-    );
-    this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
-
-    this.agHelper.ClickButton(submitBtnName);
-
-    if (assertConnect) {
-      if (!importFlow) {
-        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
-        this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
-        this.CloseGitSyncModal();
-        this.agHelper.Sleep(2000); //for generatedKey to be available in CI runs
-        this.assertHelper.AssertNetworkStatus("@generatedKey", 201);
-      } else {
-        this.assertHelper.AssertContains(
-          "Error while accessing the file system",
-          "not.exist",
-        );
-        this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
-      }
-    }
   }
 
   private providerRadioOthers = "[data-testid='t--git-provider-radio-others']";
@@ -240,6 +162,7 @@ export class GitSync {
       }
 
       if (removeDefaultBranchProtection) {
+        cy.wait(2000);
         this.clearBranchProtection();
       }
 
@@ -320,14 +243,6 @@ export class GitSync {
     this.agHelper.GetNClick(this._closeGitSettingsModal);
   }
 
-  public ImportAppFromGit(
-    workspaceName: string,
-    repo: string,
-    assertConnect = true,
-  ) {
-    this.homePage.ImportGitApp(workspaceName);
-    this.AuthorizeKeyToGitea(repo, assertConnect, true);
-  }
 
   DeleteTestGithubRepo(repo: any) {
     cy.request({
