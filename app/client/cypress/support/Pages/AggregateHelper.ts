@@ -768,8 +768,8 @@ export class AggregateHelper {
         ctrlKey: ctrlKey,
         metaKey,
       })
-      .then(() => {
-        return cy.wait(waitTimeInterval);
+      .then(($element) => {
+        return cy.wrap($element).wait(waitTimeInterval);
       });
   }
 
