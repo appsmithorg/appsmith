@@ -5,6 +5,7 @@ import {
   put,
   select,
   takeEvery,
+  fork,
 } from "redux-saga/effects";
 
 import ModuleApi from "@appsmith/api/ModuleApi";
@@ -68,6 +69,7 @@ import type {
 } from "@appsmith/api/JSActionAPI";
 import type { JSCollection } from "entities/JSCollection";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
+import { resetDebuggerLogs } from "sagas/InitSagas";
 import {
   UPDATE_MODULE_INPUT_ERROR,
   createMessage,
@@ -276,6 +278,7 @@ export function* createQueryModuleSaga(
       analytics.createModule(response.data);
 
       history.push(moduleEditorURL({ moduleId: response.data.id }));
+      yield fork(resetDebuggerLogs);
     }
   } catch (error) {
     yield put({
@@ -334,6 +337,7 @@ export function* createJSModuleSaga(
       analytics.createModule(response.data);
 
       history.push(moduleEditorURL({ moduleId: response.data.id }));
+      yield fork(resetDebuggerLogs);
     }
   } catch (error) {
     yield put({

@@ -11,10 +11,14 @@ import {
 import type { Action } from "entities/Action";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import store from "store";
-import { getActionExecutionAnalytics as CE_getActionExecutionAnalytics } from "ce/utils/actionExecutionUtils";
+import {
+  getActionExecutionAnalytics as CE_getActionExecutionAnalytics,
+  getCollectionNameToDisplay as CE_getCollectionNameToDisplay,
+} from "ce/utils/actionExecutionUtils";
 import type { Plugin } from "api/PluginApi";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentPackage } from "@appsmith/selectors/packageSelectors";
+import { getModuleInstanceById } from "@appsmith/selectors/moduleInstanceSelectors";
 
 export function getPluginActionNameToDisplay(action: Action) {
   const moduleInstanceActions = getModuleInstanceActions(store.getState());
@@ -31,6 +35,19 @@ export function getPluginActionNameToDisplay(action: Action) {
   }
 
   return action.name;
+}
+
+export function getCollectionNameToDisplay(
+  action: JSAction,
+  collectionName: string,
+) {
+  if (!action.moduleInstanceId)
+    return CE_getCollectionNameToDisplay(action, collectionName);
+  const moduleInstance = getModuleInstanceById(
+    store.getState(),
+    action.moduleInstanceId,
+  );
+  return moduleInstance?.name || collectionName;
 }
 
 export function getJSActionPathNameToDisplay(
