@@ -6,7 +6,7 @@ interface GitSyncModalProps {
 }
 
 function GitSyncModal(props: GitSyncModalProps) {
-  <GitSyncModalV2 {...props} />;
+  return <GitSyncModalV2 {...props} />;
 }
 
 export default GitSyncModal;
