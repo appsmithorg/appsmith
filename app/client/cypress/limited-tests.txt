@@ -6,6 +6,8 @@
 #cypress/e2e/Regression/ClientSide/Onboarding/StartFromData_spec.ts
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 #cypress/e2e/Regression/ClientSide/Onboarding/StartFromScratch1_spec.ts
+cypress/e2e/Regression/ClientSide/OtherUIFeatures/ApplicationURL_spec.js
+
 
 
 

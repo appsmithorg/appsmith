@@ -1604,10 +1604,7 @@ export class AggregateHelper {
   }
 
   public AssertURL(url: string) {
-    cy.url({ timeout: Cypress.config().pageLoadTimeout }).should(
-      "include",
-      url,
-    );
+    cy.url().should("include", url);
     this.assertHelper.AssertDocumentReady();
   }
 
@@ -1730,7 +1727,7 @@ export class AggregateHelper {
     // cy.window({ timeout: Cypress.config().pageLoadTimeout }).then((win) => {
     //   win.location.href = url;
     // });
-    cy.visit(url, { timeout: Cypress.config().pageLoadTimeout });
+    cy.visit(url);
     this.WaitForCondition(() => cy.url().should("include", url));
 
     if (
