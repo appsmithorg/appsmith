@@ -267,16 +267,12 @@ div.bp3-popover-arrow {
   margin-block-start: calc(var(--inner-spacing-2) + var(--sizing-3));
 }
 
-div.anvil-layout-parent-0:has(div[data-elevation="false"]) {
+div.anvil-layout-parent-0:has(div[data-elevation="false"][elevation="1"]) {
   padding-block: var(--outer-sizing-0);
   padding-block: 2px;
 }
 
-div.anvil-layout-parent-0:has(
-    div[class^="anvil-layout-parent-"]:has(div[data-elevation="false"])
-  ):not(
-    :has(div[class^="anvil-layout-parent-"]:has(div[data-elevation="true"]))
-  )
+div.anvil-layout-parent-0:not(:has(div[data-elevation="true"][elevation="2"]))
   div[class^="anvil-layout-parent-"] {
   padding-block: var(--outer-sizing-0);
   padding: 2px;
