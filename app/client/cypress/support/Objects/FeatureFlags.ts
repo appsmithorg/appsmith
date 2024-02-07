@@ -131,9 +131,12 @@ function ReloadAfterIntercept() {
   cy.document().should((doc) => {
     expect(doc.readyState).to.equal("complete");
   });
-  cy
-  .window({ timeout: Cypress.config().pageLoadTimeout })
-  .then((win) => expect(win).haveOwnProperty("onload"));
+  cy.window({ timeout: Cypress.config().pageLoadTimeout }).should((win) => {
+    expect(win).to.haveOwnProperty("onload");
+  });
+  // cy
+  // .window({ timeout: Cypress.config().pageLoadTimeout })
+  // .then((win) => expect(win).haveOwnProperty("onload"));
   // .then(() => {
   //   cy.waitUntil(() =>
   //     cy.document().should((doc) => {
