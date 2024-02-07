@@ -2,6 +2,8 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
@@ -75,7 +77,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
     @Override
     public Mono<ActionDTO> importAction(
-            Object input, String pageId, String name, String workspaceId, String branchName) {
+            Object input,
+            CreatorContextType contextType,
+            String contextId,
+            String name,
+            String workspaceId,
+            String branchName) {
         ActionDTO action;
 
         try {
@@ -91,29 +98,38 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             return Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND));
         }
 
-        Mono<NewPage> pageMono = newPageService.findByBranchNameAndDefaultPageId(
-                branchName, pageId, pagePermission.getActionCreatePermission());
-
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
-        return Mono.zip(Mono.just(action), pluginService.findByPackageName(RESTAPI_PLUGIN), pageMono)
+        return Mono.zip(Mono.just(action), pluginService.findByPackageName(RESTAPI_PLUGIN))
                 .flatMap(tuple -> {
                     final ActionDTO action1 = tuple.getT1();
                     final Plugin plugin = tuple.getT2();
-                    final NewPage newPage = tuple.getT3();
 
                     final Datasource datasource = action1.getDatasource();
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(workspaceId);
-                    // Set git related resource IDs
-                    action1.setDefaultResources(newPage.getDefaultResources());
-                    action1.setPageId(newPage.getId());
-                    return Mono.just(action1);
+                    return getContext(contextType, contextId, branchName)
+                            .map(context -> associateContextToActionDTO(action1, contextType, context));
                 })
                 .flatMap(action2 -> layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
+    }
+
+    protected Mono<? extends BaseDomain> getContext(
+            CreatorContextType contextType, String contextId, String branchName) {
+        return newPageService.findByBranchNameAndDefaultPageId(
+                branchName, contextId, pagePermission.getActionCreatePermission());
+    }
+
+    protected ActionDTO associateContextToActionDTO(
+            ActionDTO actionDTO, CreatorContextType contextType, BaseDomain context) {
+        NewPage newPage = (NewPage) context;
+        actionDTO.setPageId(newPage.getId());
+        // Set git related resource IDs
+        actionDTO.setDefaultResources(newPage.getDefaultResources());
+        return actionDTO;
     }
 
     public ActionDTO curlToAction(String command, String name) throws AppsmithException {
