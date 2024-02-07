@@ -266,3 +266,18 @@ div.bp3-popover-arrow {
   .anvil-widget-wrapper:not(:has([data-field-label-wrapper])) {
   margin-block-start: calc(var(--inner-spacing-2) + var(--sizing-3));
 }
+
+div.anvil-layout-parent-0:has(div[data-elevation="false"]) {
+  padding-block: var(--outer-sizing-0);
+  padding-block: 2px;
+}
+
+div.anvil-layout-parent-0:has(
+    div[class^="anvil-layout-parent-"]:has(div[data-elevation="false"])
+  ):not(
+    :has(div[class^="anvil-layout-parent-"]:has(div[data-elevation="true"]))
+  )
+  div[class^="anvil-layout-parent-"] {
+  padding-block: var(--outer-sizing-0);
+  padding: 2px;
+}

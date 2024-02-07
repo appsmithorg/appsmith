@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import React from "react";
 import styled from "styled-components";
 import { generateClassName } from "utils/generators";
-import { Elevations } from "./constants";
+import type { Elevations } from "./constants";
 
 /**
  * This container component wraps the Zone and Section widgets and allows Anvil to utilise tokens from the themes
@@ -26,12 +26,8 @@ const StyledContainerComponent = styled.div<
       : ""}
 
   border-radius: var(--border-radius-1);
-  padding-block: var(--outer-spacing-1);
-  padding-inline: var(--outer-spacing-1);
-  ${(props) =>
-    props.elevation === Elevations.SECTION_ELEVATION
-      ? `padding-block: var(--outer-spacing-0); padding-inline: var(--outer-spacing-0);`
-      : ""}
+  padding-block: var(--outer-spacing-0);
+  padding-inline: var(--outer-spacing-0);
 
   border-width: var(--border-width-1);
 `;
@@ -40,6 +36,7 @@ export function ContainerComponent(props: ContainerComponentProps) {
   return (
     <StyledContainerComponent
       className={`${generateClassName(props.widgetId)}`}
+      data-elevation={props.elevatedBackground}
       elevatedBackground={props.elevatedBackground}
       elevation={props.elevation}
     >
