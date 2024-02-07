@@ -146,7 +146,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return queryBuilder().byId(id).permission(permission).one();
     }
 
-    @Deprecated
     public Mono<T> updateById(String id, T resource, AclPermission permission) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
