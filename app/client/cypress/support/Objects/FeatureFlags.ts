@@ -1,5 +1,7 @@
 import { LICENSE_FEATURE_FLAGS } from "../Constants";
+import { ObjectsRegistry } from "./Registry";
 import produce from "immer";
+
 export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
@@ -115,10 +117,15 @@ export const featureFlagInterceptForLicenseFlags = () => {
 
 function ReloadAfterIntercept() {
   cy.reload();
-  cy.window({ timeout: Cypress.config().pageLoadTimeout }).should((win) => {
-    expect(win).to.haveOwnProperty("onload");
-  });
-  cy.document().should((doc) => {
-    expect(doc.readyState).to.equal("complete");
-  });
+  ObjectsRegistry.AssertHelper.AssertDocumentReady();
+  // cy.waitUntil(() =>
+  //   cy.document().then((doc) => {
+  //     return doc.readyState === "complete";
+  //   }),
+  // );
+  // cy.waitUntil(() =>
+  //   cy.window().then((win) => {
+  //     return win.hasOwnProperty("onload");
+  //   }),
+  // );
 }

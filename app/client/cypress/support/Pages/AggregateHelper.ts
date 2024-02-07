@@ -1604,7 +1604,11 @@ export class AggregateHelper {
   }
 
   public AssertURL(url: string) {
-    cy.url().should("include", url);
+    this.WaitForCondition(() =>
+      cy.url().then((currentUrl) => {
+        return currentUrl.includes(url);
+      }),
+    );
     this.assertHelper.AssertDocumentReady();
   }
 
@@ -1728,11 +1732,7 @@ export class AggregateHelper {
     //   win.location.href = url;
     // });
     cy.visit(url);
-    this.WaitForCondition(() =>
-      cy.url().then((currentUrl) => {
-        return currentUrl.includes(url);
-      }),
-    );
+    this.AssertURL(url);
 
     if (
       apiToValidate.includes("getAllWorkspaces") &&
