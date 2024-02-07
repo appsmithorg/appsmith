@@ -4,7 +4,6 @@ import { calculateScales } from "./calculateScales";
 import { createStyleObject } from "@capsizecss/core";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 
-import type { FluidConfig } from "./types";
 import type {
   FontFamily,
   Typography,
@@ -20,48 +19,32 @@ const getFontMetrics = (fontFamily?: FontFamily) => {
     : FONT_METRICS[fontFamily];
 };
 
-export const getFluidTypography = (
-  maxVw: number,
-  minVw: number,
+export const getTypography = (
   typography: ScaleConfig,
   userDensity = 1,
   userSizing = 1,
   fontFamily?: FontFamily,
 ) => {
-  const {
-    maxV,
-    minV,
-    userDensityRatio = 1,
-    userSizingRatio = 1,
-    ...rest
-  } = typography;
-
+  const { userDensityRatio = 1, userSizingRatio = 1, V, ...rest } = typography;
   const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
-
-  const scales = calculateScales(
-    {
-      minV: minV * ratio,
-      maxV: maxV * ratio,
-      ...rest,
-    },
-    minVw,
-    maxVw,
-  );
+  const scales = calculateScales({
+    V: V * ratio,
+    ...rest,
+  });
 
   const styles = scales.reduce(
     (metrics: TypographyVariantMetric[], currentValue) => {
-      const { minSize } = currentValue;
-      const minTypographyStyle = createStyleObject({
-        capHeight: minSize,
-        lineGap: minSize,
+      const typographyStyle = createStyleObject({
+        capHeight: currentValue,
+        lineGap: currentValue,
         fontMetrics: getFontMetrics(fontFamily),
       });
 
       metrics.push({
-        fontSize: `${minTypographyStyle.fontSize}`,
-        lineHeight: `${minTypographyStyle.lineHeight}`,
-        before: minTypographyStyle["::before"],
-        after: minTypographyStyle["::after"],
+        fontSize: `${typographyStyle.fontSize}`,
+        lineHeight: `${typographyStyle.lineHeight}`,
+        before: typographyStyle["::before"],
+        after: typographyStyle["::after"],
       });
       return metrics;
     },
@@ -76,27 +59,17 @@ export const getFluidTypography = (
   }, {} as Typography);
 };
 
-export const useFluidTypography = (
-  fluidConfig: FluidConfig,
+export const useTypography = (
+  config: ScaleConfig,
   fontFamily?: FontFamily,
   userDensity = 1,
   userSizing = 1,
 ) => {
-  const { maxVw, minVw, typography: typographyConfig } = fluidConfig;
   const [typography, setTypography] = useState<Typography | null>(null);
 
   useEffect(() => {
-    setTypography(
-      getFluidTypography(
-        maxVw,
-        minVw,
-        typographyConfig,
-        userDensity,
-        userSizing,
-        fontFamily,
-      ),
-    );
-  }, [userDensity, userSizing, fontFamily, maxVw, minVw, typographyConfig]);
+    setTypography(getTypography(config, userDensity, userSizing, fontFamily));
+  }, [userDensity, userSizing, fontFamily, config]);
 
   return {
     typography,
