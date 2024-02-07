@@ -20,16 +20,30 @@ export class AssertHelper {
     cy.wait(timeout);
   }
 
+  // public AssertDocumentReady() {
+  //   cy.waitUntil(() =>
+  //     cy.document().should((doc) => {
+  //       expect(doc.readyState).to.equal("complete");
+  //     }),
+  //   );
+  //   cy.waitUntil(() =>
+  //     cy
+  //       .window({ timeout: Cypress.config().pageLoadTimeout })
+  //       .then((win) => expect(win).haveOwnProperty("onload")),
+  //   );
+  // }
+
   public AssertDocumentReady() {
     cy.waitUntil(() =>
-      cy.document().should((doc) => {
-        expect(doc.readyState).to.equal("complete");
+      cy.document().then((doc) => {
+        return doc.readyState === "complete";
       }),
     );
+
     cy.waitUntil(() =>
-      cy
-        .window({ timeout: Cypress.config().pageLoadTimeout })
-        .then((win) => expect(win).haveOwnProperty("onload")),
+      cy.window().then((win) => {
+        return win.hasOwnProperty("onload");
+      }),
     );
   }
 
