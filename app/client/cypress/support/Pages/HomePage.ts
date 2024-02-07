@@ -624,7 +624,7 @@ export class HomePage {
         .GetElement(this._leftPanel)
         .contains("span", intoWorkspaceName)
         .click();
-    } 
+    }
     this.agHelper.GetNClick(this._newIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
     this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
