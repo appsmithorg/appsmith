@@ -105,6 +105,7 @@ function CreateNewAppFromTemplatesModal({
             />
           ) : (
             <StartWithTemplatesWrapper
+              isInsideModal
               onForkTemplateClick={(template) =>
                 onClickUseTemplate(template.id)
               }
@@ -127,4 +128,5 @@ const ModalContentWrapper = styled(ModalContent)`
 const ModalBodyWrapper = styled(ModalBody)<{ isDetailedView?: boolean }>`
   width: 100%;
   overflow-y: ${(props) => (props.isDetailedView ? "scroll" : "hidden")};
+  padding-top: 0;
 `;

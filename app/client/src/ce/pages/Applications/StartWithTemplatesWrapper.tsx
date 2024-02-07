@@ -14,9 +14,11 @@ import styled from "styled-components";
 interface Props {
   setSelectedTemplate: (id: string) => void;
   onForkTemplateClick: (template: Template) => void;
+  isInsideModal?: boolean;
 }
 
 const StartWithTemplatesWrapper = ({
+  isInsideModal,
   onForkTemplateClick,
   setSelectedTemplate,
 }: Props) => {
@@ -25,6 +27,7 @@ const StartWithTemplatesWrapper = ({
   return (
     <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
       <Header
+        isInsideModal={isInsideModal}
         subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
         title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
       />
@@ -47,9 +50,19 @@ const TemplateWrapper = styled.div`
   overflow: hidden;
 `;
 
-const Header = ({ subtitle, title }: { subtitle: string; title: string }) => {
+interface HeaderProps {
+  subtitle: string;
+  title: string;
+  isInsideModal?: boolean;
+}
+
+const Header = ({ isInsideModal, subtitle, title }: HeaderProps) => {
   return (
-    <Flex flexDirection="column" mb="spaces-14" mt="spaces-7">
+    <Flex
+      flexDirection="column"
+      mb={isInsideModal ? "spaces-7" : "spaces-14"}
+      mt={isInsideModal ? "" : "spaces-7"}
+    >
       <Text kind="heading-xl">{title}</Text>
       <Text>{subtitle}</Text>
     </Flex>

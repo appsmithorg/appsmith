@@ -91,7 +91,6 @@ function WorkspaceAction({
         >
           {createMessage(NEW_APP)}
         </MenuItem>
-        <Divider className="!block mb-[2px]" />
         <MenuItem
           data-testid="t--workspace-action-start-from-template"
           disabled={!hasCreateNewApplicationPermission}
