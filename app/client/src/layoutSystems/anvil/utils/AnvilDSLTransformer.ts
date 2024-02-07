@@ -22,7 +22,6 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
         layoutStyle: {
           border: "none",
           height: "100%",
-          minHeight: "var(--canvas-height)",
           padding: "spacing-1",
         },
         isDropTarget: true,

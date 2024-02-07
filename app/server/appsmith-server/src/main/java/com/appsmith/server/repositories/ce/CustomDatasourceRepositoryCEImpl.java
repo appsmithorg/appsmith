@@ -34,22 +34,22 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         Sort sort = Sort.by(fieldName(QDatasource.datasource.name));
-        return queryAll()
+        return queryBuilder()
                 .criteria(workspaceIdCriteria)
                 .permission(permission)
                 .sort(sort)
-                .submit();
+                .all();
     }
 
     @Override
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return queryAll()
+        return queryBuilder()
                 .criteria(workspaceIdCriteria)
                 .permission(permission.orElse(null))
                 .sort(Sort.by(fieldName(QDatasource.datasource.name)))
-                .submit();
+                .all();
     }
 
     @Override
@@ -58,7 +58,10 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return queryOne(List.of(nameCriteria, workspaceIdCriteria), aclPermission);
+        return queryBuilder()
+                .criteria(nameCriteria, workspaceIdCriteria)
+                .permission(aclPermission)
+                .one();
     }
 
     @Override
@@ -67,18 +70,21 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return queryOne(List.of(nameCriteria, workspaceIdCriteria), null, aclPermission);
+        return queryBuilder()
+                .criteria(nameCriteria, workspaceIdCriteria)
+                .permission(aclPermission.orElse(null))
+                .one();
     }
 
     @Override
     public Flux<Datasource> findAllByIds(Set<String> ids, AclPermission permission) {
         Criteria idcriteria = where(fieldName(QDatasource.datasource.id)).in(ids);
-        return queryAll().criteria(idcriteria).permission(permission).submit();
+        return queryBuilder().criteria(idcriteria).permission(permission).all();
     }
 
     @Override
     public Flux<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         Criteria idCriteria = where(fieldName(QDatasource.datasource.id)).in(ids);
-        return queryAll().criteria(idCriteria).fields(includeFields).submit();
+        return queryBuilder().criteria(idCriteria).fields(includeFields).all();
     }
 }

@@ -18,8 +18,6 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
 
 interface CanvasProps {
@@ -28,11 +26,17 @@ interface CanvasProps {
   enableMainCanvasResizer?: boolean;
 }
 
+const StyledWDSThemeProvider = styled(WDSThemeProvider)`
+  min-height: 100%;
+  display: flex;
+`;
+
 const Wrapper = styled.section<{
   background: string;
   width: number;
   $enableMainCanvasResizer: boolean;
 }>`
+  flex: 1;
   background: ${({ background }) => background};
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};
@@ -45,7 +49,6 @@ const Canvas = (props: CanvasProps) => {
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
-  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
 
   const themeSetting = useSelector(getAppThemeSettings);
   const themeProps = {
@@ -82,14 +85,12 @@ const Canvas = (props: CanvasProps) => {
     : `mx-auto`;
   const paddingBottomClass = props.enableMainCanvasResizer ? "" : "pb-52";
 
-  const height = layoutSystemType === LayoutSystemTypes.ANVIL ? "h-full" : "";
-
   const renderChildren = () => {
     return (
       <Wrapper
         $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
         background={isWDSEnabled ? "" : backgroundForCanvas}
-        className={`relative t--canvas-artboard ${height} ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
+        className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
           canvasWidth,
         )}`}
         data-testid={"t--canvas-artboard"}
@@ -98,13 +99,7 @@ const Canvas = (props: CanvasProps) => {
         width={canvasWidth}
       >
         {props.widgetsStructure.widgetId &&
-          renderAppsmithCanvas({
-            ...props.widgetsStructure,
-            classList:
-              layoutSystemType === LayoutSystemTypes.ANVIL
-                ? ["main-anvil-canvas"]
-                : [],
-          } as WidgetProps)}
+          renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
       </Wrapper>
     );
   };
@@ -112,7 +107,9 @@ const Canvas = (props: CanvasProps) => {
   try {
     if (isWDSEnabled) {
       return (
-        <WDSThemeProvider theme={theme}>{renderChildren()}</WDSThemeProvider>
+        <StyledWDSThemeProvider theme={theme}>
+          {renderChildren()}
+        </StyledWDSThemeProvider>
       );
     }
 

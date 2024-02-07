@@ -18,11 +18,13 @@ import {
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
-import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
 import isEmpty from "lodash/isEmpty";
 import pickBy from "lodash/pickBy";
 import { getFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -197,4 +199,16 @@ export const useGetPageFocusUrl = (pageId: string): string => {
   }, [focusInfo, branch]);
 
   return focusPageUrl;
+};
+
+export const useIsEditorPaneSegmentsEnabled = () => {
+  const isEditorSegmentsReleaseEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
+
+  const isEditorSegmentsRolloutEnabled = useFeatureFlag(
+    FEATURE_FLAG.rollout_editor_pane_segments_enabled,
+  );
+
+  return isEditorSegmentsReleaseEnabled || isEditorSegmentsRolloutEnabled;
 };

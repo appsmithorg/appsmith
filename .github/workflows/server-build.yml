@@ -183,11 +183,16 @@ jobs:
           args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
           if ! mvn test "${args[@]}"; then
             if [[ -s failed-server-tests.txt ]]; then
-              {
-                echo "## Failed tests"
+              content="$(
+                echo "## Failed server tests"
                 echo
                 sed 's/^/- /' 'failed-server-tests.txt'
-              } >> "$GITHUB_STEP_SUMMARY"
+              )"
+              echo "$content" >> "$GITHUB_STEP_SUMMARY"
+              # Add a comment to the PR with the list of failed tests.
+              curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                --data "$(jq -n --arg body "$content" '$ARGS.named')" \
+                "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ inputs.pr }}/comments"
             fi
             exit 1
           fi

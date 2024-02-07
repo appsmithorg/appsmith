@@ -253,8 +253,8 @@ export function EditorJSONtoForm(props: Props) {
     useShowSchema(currentActionConfig?.pluginId || "") &&
     pluginRequireDatasource;
 
-  const isSideBySideEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_side_by_side_ide_enabled,
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
   const showRightPane =
@@ -338,7 +338,7 @@ export function EditorJSONtoForm(props: Props) {
     return null;
   }
 
-  if (isSideBySideEnabled && plugin) {
+  if (isActionRedesignEnabled && plugin) {
     const responseTabs = [];
     if (currentActionConfig) {
       responseTabs.push({

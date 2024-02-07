@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
@@ -50,7 +51,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final AnalyticsService analyticsService;
 
     public static final String AUTO_COMMIT_MSG_FORMAT =
-            "System generated commit, to support new features after upgrading Appsmith to the version: %s";
+            "System generated commit, to support new features in Appsmith %s";
 
     @Override
     public void publish(AutoCommitEvent autoCommitEvent) {
@@ -253,9 +254,10 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                          which pages need to be written back to file system.
                         */
                         Set<String> pageNamesSet = new HashSet<>(updatedPageNamesList);
-                        Map<String, Set<String>> updatedResources = new HashMap<>();
-                        updatedResources.put(PAGE_LIST, pageNamesSet);
-                        applicationJson.setUpdatedResources(updatedResources);
+                        ModifiedResources modifiedResources = new ModifiedResources();
+                        modifiedResources.putResource(PAGE_LIST, pageNamesSet);
+                        modifiedResources.setAllModified(true);
+                        applicationJson.setModifiedResources(modifiedResources);
                         return applicationJson;
                     });
         } else {

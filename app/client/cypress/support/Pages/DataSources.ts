@@ -1688,7 +1688,7 @@ export class DataSources {
           force,
         );
         this.agHelper.AssertElementVisibility(
-          this.locator._widgetInCanvas(WIDGET.WDSTABLE),
+          this.locator._anvilWidgetInCanvas(WIDGET.WDSTABLE),
         );
         break;
       case Widgets.Chart:

@@ -91,8 +91,8 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
 
                     applicationJson.setActionCollectionList(actionCollections);
                     applicationJson
-                            .getUpdatedResources()
-                            .put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
+                            .getModifiedResources()
+                            .putResource(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
                     return actionCollections;
                 })
