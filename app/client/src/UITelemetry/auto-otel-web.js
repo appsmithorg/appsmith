@@ -51,12 +51,11 @@ class CustomW3CTraceContextPropagator extends W3CTraceContextPropagator {
   inject(context, carrier, setter) {
     // Call the original inject method to get the default traceparent header
     super.inject(context, carrier, setter);
-    console.log("****", carrier);
 
     // Modify the carrier to use a different header
     if (carrier[W3C_OTLP_TRACE_HEADER]) {
-      // carrier[CUSTOM_OTLP_TRACE_HEADER] = carrier[W3C_OTLP_TRACE_HEADER];
-      //delete carrier[W3C_OTLP_TRACE_HEADER]; // Remove the original traceparent header
+      carrier[CUSTOM_OTLP_TRACE_HEADER] = carrier[W3C_OTLP_TRACE_HEADER];
+      delete carrier[W3C_OTLP_TRACE_HEADER]; // Remove the original traceparent header
     }
   }
 }
@@ -72,13 +71,13 @@ registerInstrumentations({
   instrumentations: [
     getWebAutoInstrumentations({
       "@opentelemetry/instrumentation-xml-http-request": {
-        enabled: false,
+        enabled: true,
       },
       "@opentelemetry/instrumentation-document-load": {
-        enabled: false,
+        enabled: true,
       },
       "@opentelemetry/instrumentation-user-interaction": {
-        enabled: false,
+        enabled: true,
       },
     }),
   ],
