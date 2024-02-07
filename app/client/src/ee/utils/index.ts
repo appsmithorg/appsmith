@@ -1,25 +1,4 @@
 export * from "ce/utils";
-import type { MenuItemProps } from "design-system-old";
-
-export const addItemsInContextMenu = (
-  args: boolean[],
-  history: any,
-  workspaceId: string,
-  moreActionItems: MenuItemProps[],
-) => {
-  const updatedActionItems = moreActionItems;
-  if (args.every(Boolean)) {
-    updatedActionItems.push({
-      onSelect: () =>
-        history.push(`/workspace/${workspaceId}/settings/members`),
-      children: "Members",
-      key: "members",
-      startIcon: "member",
-      "data-testid": "t--app-members",
-    });
-  }
-  return updatedActionItems;
-};
 
 export const getHtmlPageTitle = (instanceName: string) => {
   return instanceName ?? "Applications";
