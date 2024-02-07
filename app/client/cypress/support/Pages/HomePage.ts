@@ -424,6 +424,7 @@ export class HomePage {
 
   public SignUp(uname: string, pswd: string) {
     cy.visit("/user/signup", { timeout: Cypress.config().pageLoadTimeout });
+    this.assertHelper.WaitForNetworkCall("getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
     this.agHelper.TypeText(this.signupUsername, uname);
