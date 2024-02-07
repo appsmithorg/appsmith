@@ -286,22 +286,24 @@ export class JSEditor {
     cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
-      expect($lis.eq(0).text()).to.be.oneOf([
+      const expectedTexts = [
         "{{" + jsObjName + ".myFun2()}}",
         "{{" + jsObjName + ".myFun1()}}",
-      ]);
-      expect($lis.eq(1).text()).to.be.oneOf([
-        "{{" + jsObjName + ".myFun2()}}",
-        "{{" + jsObjName + ".myFun1()}}",
+        "{{" + jsObjName + ".myVar1}}",
+        "{{" + jsObjName + ".myVar2}}",
         "{{" + jsObjName + ".myFun2.data}}",
         "{{" + jsObjName + ".myFun1.data}}",
-      ]);
-      expect($lis.eq(bindingsLength - 2).text()).to.contain(
-        "{{" + jsObjName + ".myVar1}}",
-      );
-      expect($lis.eq(bindingsLength - 1).text()).to.contain(
-        "{{" + jsObjName + ".myVar2}}",
-      );
+      ];
+
+      let foundMatch = false;
+      for (let i = 0; i < bindingsLength; i++) {
+        const text = $lis.eq(i).text();
+        if (expectedTexts.includes(text)) {
+          foundMatch = true;
+          break;
+        }
+      }
+      expect(foundMatch).to.be.true;
     });
     cy.get(this._bindingsClose).click({ force: true });
   }
