@@ -95,12 +95,12 @@ function CreateNewAppFromTemplatesModal({
   return (
     <Modal onOpenChange={(open) => onClose(open)} open={isOpen}>
       <ModalContentWrapper data-testid="t--create-app-from-templates-dialog-component">
-        <ModalBodyWrapper>
+        <ModalBodyWrapper isDetailedView={!!showTemplateDetails}>
           {!!showTemplateDetails ? (
             <TemplateView
               handleBackPress={() => setShowTemplateDetails("")}
               onClickUseTemplate={onClickUseTemplate}
-              showSimilarTemplate
+              showSimilarTemplate={false}
               templateId={showTemplateDetails}
             />
           ) : (
@@ -124,7 +124,7 @@ const ModalContentWrapper = styled(ModalContent)`
   overflow-y: hidden;
   background-color: var(--ads-v2-color-gray-50);
 `;
-const ModalBodyWrapper = styled(ModalBody)`
+const ModalBodyWrapper = styled(ModalBody)<{ isDetailedView?: boolean }>`
   width: 100%;
-  overflow-y: hidden;
+  overflow-y: ${(props) => (props.isDetailedView ? "scroll" : "hidden")};
 `;
