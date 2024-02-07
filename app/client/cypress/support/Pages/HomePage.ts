@@ -446,7 +446,7 @@ export class HomePage {
     //     }
     //   });
     // }).as("getConsolidatedData");
-    getConsolidatedDataApi({}, true);
+    getConsolidatedDataApi({}, false);
     this.assertHelper.WaitForNetworkCall("getConsolidatedData");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
