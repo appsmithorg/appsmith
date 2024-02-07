@@ -265,7 +265,7 @@ export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
 export const WORKSPACE_ACTION_BUTTON = () => "Create New";
-export const NEW_APP = () => "Empty App";
+export const NEW_APP = () => "Application";
 export const NEW_APP_FROM_TEMPLATE = () => "Templates";
 export const NO_WORKSPACE_HEADING = () => "Oops! No workspace found";
 export const NO_WORKSPACE_DESCRIPTION = () =>
