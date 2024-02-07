@@ -107,7 +107,7 @@ class ButtonListControl extends BaseControl<
               onClick={() => this.addOption({ isSeparator: true })}
               size="sm"
             >
-              Add Separator
+              Add separator
             </Button>
           )}
           <Button
