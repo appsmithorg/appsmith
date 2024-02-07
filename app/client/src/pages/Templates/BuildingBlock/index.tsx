@@ -93,7 +93,7 @@ const BuildingBlock = (props: BuildingBlockProps) => {
                 <Button
                   className="t--fork-template fork-button"
                   data-testid="t--fork-building-block"
-                  isDisabled={isImportingTemplateToApp || !!loadingTemplateId}
+                  isDisabled={!!isImportingTemplateToApp || !!loadingTemplateId}
                   isIconButton
                   isLoading={
                     props.onForkTemplateClick && loadingTemplateId === id
