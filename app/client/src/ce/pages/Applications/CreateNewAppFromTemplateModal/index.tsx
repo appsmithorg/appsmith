@@ -1,4 +1,9 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  START_WITH_TEMPLATE_CONNECT_HEADING,
+  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
+  createMessage,
+} from "@appsmith/constants/messages";
 import type { AppState } from "@appsmith/reducers";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import {
@@ -10,6 +15,7 @@ import {
 import { Modal, ModalBody, ModalContent } from "design-system";
 import { isEmpty } from "lodash";
 import { TemplateView } from "pages/Templates/TemplateView";
+import TemplatesListLayoutSwitcher from "pages/Templates/TemplatesModal/TemplatesListLayoutSwitcher";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -19,7 +25,7 @@ import {
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import StartWithTemplatesWrapper from "../StartWithTemplatesWrapper";
+import { StartWithTemplatesHeader } from "../StartWithTemplatesWrapper";
 
 interface CreateNewAppFromTemplatesModalProps {
   currentWorkSpaceId: string;
@@ -104,13 +110,17 @@ function CreateNewAppFromTemplatesModal({
               templateId={showTemplateDetails}
             />
           ) : (
-            <StartWithTemplatesWrapper
-              isInsideModal
-              onForkTemplateClick={(template) =>
-                onClickUseTemplate(template.id)
-              }
-              setSelectedTemplate={onTemplateClick}
-            />
+            <>
+              <StartWithTemplatesHeader
+                isModalLayout
+                subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
+                title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
+              />
+              <TemplatesListLayoutSwitcher
+                onForkTemplateClick={onClickUseTemplate}
+                onTemplateClick={onTemplateClick}
+              />
+            </>
           )}
         </ModalBodyWrapper>
       </ModalContentWrapper>
