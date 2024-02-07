@@ -105,6 +105,29 @@ export const generateBuildingBlockFromDsTable = (
   },
 });
 
+export const generateBuildingBlockFromGsheetTable = (
+  templateId: string,
+  templateName: string,
+  templatePageName: string,
+  datasourceId: string,
+  pluginId: string,
+  spreadSheetName: string,
+  sheetUrl: string,
+  templateQueryConfig: { name: string; type: string }[],
+) => ({
+  type: ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_GSHEET_TABLE_INIT,
+  payload: {
+    templateId,
+    templateName,
+    pageNames: [templatePageName],
+    datasourceId,
+    pluginId,
+    spreadSheetName,
+    sheetUrl,
+    templateQueryConfig,
+  },
+});
+
 export const showStarterBuildingBlockDatasourcePrompt = (
   buildingBlockSourcePageId: string,
 ) => ({

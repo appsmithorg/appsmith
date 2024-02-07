@@ -61,7 +61,6 @@ import {
   select,
   take,
   takeEvery,
-  takeLatest,
 } from "redux-saga/effects";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import {
@@ -500,6 +499,121 @@ function* generateBuildingBlockFromDatasourceTable(
   }
 }
 
+// function* generateBuildingBlockFromGsheetTable(
+//   action: ReduxAction<{
+//     pageNames?: string[];
+//     templateId: string;
+//     templateName: string;
+//     datasourceId: string;
+//     pluginId: string;
+//     spreadSheetName: string;
+//     sheetUrl: string;
+//     templateQueryConfig: { name: string; type: string }[];
+//   }>,
+// ) {
+//   try {
+//     // const currentPageId: string = yield select(getCurrentPageId);
+//     // const actionPayload = {
+//     //   actionConfiguration: {
+//     //     formData: {
+//     //       command: {
+//     //         data: "FETCH_MANY",
+//     //       },
+//     //       entityType: {
+//     //         data: "ROWS",
+//     //       },
+//     //       tableHeaderIndex: {
+//     //         data: "1",
+//     //       },
+//     //       projection: {
+//     //         data: [],
+//     //       },
+//     //       queryFormat: {
+//     //         data: "ROWS",
+//     //       },
+//     //       range: {
+//     //         data: "",
+//     //       },
+//     //       sheetName: {
+//     //         data: action.payload.spreadSheetName,
+//     //       },
+//     //       sheetUrl: {
+//     //         data: action.payload.sheetUrl,
+//     //       },
+//     //       where: {
+//     //         data: {
+//     //           condition: "AND",
+//     //         },
+//     //       },
+//     //       pagination: {
+//     //         data: {
+//     //           limit: "20",
+//     //           offset: "0",
+//     //         },
+//     //       },
+//     //       smartSubstitution: {
+//     //         data: true,
+//     //       },
+//     //     },
+//     //   },
+//     //   pluginId: action.payload.pluginId,
+//     //   datasource: {
+//     //     id: action.payload.datasourceId,
+//     //   },
+//     //   eventData: {},
+//     //   name: "test_gsheet_api",
+//     //   pageId: currentPageId,
+//     // };
+
+//     // // yield put(createActionInit(actionPayload));
+
+//     // // yield delay(3000);
+
+//     // const appActions: ActionDataState = yield select(getActions);
+
+//     // const getUsersActionData = appActions.filter(
+//     //   (a) =>
+//     //     a.config.name === actionPayload.name &&
+//     //     a.config.pageId === currentPageId,
+//     // )[0];
+//     // const getUsersAction: Action = yield select(
+//     //   getAction,
+//     //   getUsersActionData.config.id,
+//     // );
+
+//     // // create object to update action with new datasource and query
+//     // const updatedGetUsersAction: Action = {
+//     //   ...getUsersAction,
+//     //   actionConfiguration: {
+//     //     ...getUsersAction.actionConfiguration,
+//     //     formData: actionPayload.actionConfiguration.formData,
+//     //   },
+//     // };
+//     // console.log("🚀 ~ updatedGetUsersAction:", updatedGetUsersAction);
+//     // // Update the action
+//     // const response: ApiResponse<Action> = yield call(
+//     //   updateActionAPICall,
+//     //   updatedGetUsersAction,
+//     // );
+//     // const isValidResponse: boolean = yield validateResponse(response);
+//     // if (isValidResponse) {
+//     //   yield put(updateActionSuccess({ data: response.data }));
+//     // }
+
+//     // const appActions: ActionDataState = yield select(getActions);
+//     // console.log(
+//     // console.log("🚀 ~ response:", response);
+//     //   "🚀 ~ function*generateBuildingBlockFromGsheetTable ~ appActions:",
+//     //   appActions,
+//     // );
+//   } catch (error) {
+//     // console.log(
+//     //   "🚀 ~ function*generateBuildingBlockFromGsheetTable ~ error:",
+//     //   error,
+//     // );
+//   }
+// }
+
 function* forkTemplateToApplicationSaga(
   action: ReduxAction<{
     pageNames?: string[];
@@ -756,9 +870,13 @@ export default function* watchActionSagas() {
         ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW,
         forkTemplateToApplicationViaOnboardingFlowSaga,
       ),
-      takeLatest(
+      takeEvery(
         ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_DS_TABLE_INIT,
         generateBuildingBlockFromDatasourceTable,
       ),
+      // takeEvery(
+      //   ReduxActionTypes.GENERATE_BUILDING_BLOCK_FROM_GSHEET_TABLE_INIT,
+      //   generateBuildingBlockFromGsheetTable,
+      // ),
     ]);
 }

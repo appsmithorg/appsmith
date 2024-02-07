@@ -1,7 +1,39 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { DropdownOption } from "design-system-old";
+import {
+  DATASOURCE_GENERATE_PAGE_BUTTON,
+  GSHEET_SEARCH_PLACEHOLDER,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useEditorType } from "@appsmith/hooks";
+import type { AppState } from "@appsmith/reducers";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getDatasource } from "@appsmith/selectors/entitiesSelector";
+import {
+  getHasCreatePagePermission,
+  hasCreateDSActionPermissionInApp,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { setEntityCollapsibleState } from "actions/editorContextActions";
+import { generateTemplateToUpdatePage } from "actions/pageActions";
+import {
+  GENERATE_BUILDING_BLOCK_FROM_DATA_STARTER_APPS,
+  GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_NAME,
+} from "constants/TemplatesConstants";
 import { Button, SearchInput } from "design-system";
+import type { DropdownOption } from "design-system-old";
+import { isEmpty } from "lodash";
+import Table from "pages/Editor/QueryEditor/Table";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getCurrentApplicationId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
+import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
+import { isGeneratingBuildingBlockFromData } from "selectors/templatesSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import Entity from "../Explorer/Entity";
 import {
   useSheetData,
   useSheetsList,
@@ -9,28 +41,9 @@ import {
 } from "../GeneratePage/components/GeneratePageForm/hooks";
 import type { DropdownOptions } from "../GeneratePage/components/constants";
 import { DEFAULT_DROPDOWN_OPTION } from "../GeneratePage/components/constants";
-import { isEmpty } from "lodash";
-import Table from "pages/Editor/QueryEditor/Table";
-import {
-  getCurrentApplicationId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { generateTemplateToUpdatePage } from "actions/pageActions";
-import {
-  createMessage,
-  DATASOURCE_GENERATE_PAGE_BUTTON,
-  GSHEET_SEARCH_PLACEHOLDER,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import type { AppState } from "@appsmith/reducers";
-import { getDatasource } from "@appsmith/selectors/entitiesSelector";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import {
-  getHasCreatePagePermission,
-  hasCreateDSActionPermissionInApp,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import DatasourceField from "./DatasourceField";
+import DatasourceStructureHeader from "./DatasourceStructureHeader";
+import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import RenderInterimDataState from "./RenderInterimDataState";
 import {
   ButtonContainer,
@@ -43,14 +56,7 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
-import DatasourceStructureHeader from "./DatasourceStructureHeader";
-import Entity from "../Explorer/Entity";
-import DatasourceField from "./DatasourceField";
-import { setEntityCollapsibleState } from "actions/editorContextActions";
-import ItemLoadingIndicator from "./ItemLoadingIndicator";
-import { useEditorType } from "@appsmith/hooks";
-import history from "utils/history";
-import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
+import { generateBuildingBlockFromGsheetTable } from "actions/templateActions";
 
 interface Props {
   datasourceId: string;
@@ -84,6 +90,9 @@ function GoogleSheetSchema(props: Props) {
   }>({});
 
   const isGeneratePageLoading = useSelector(getIsGeneratingTemplatePage);
+  const isGeneratingBuildingBlockFromDatasource = useSelector(
+    isGeneratingBuildingBlockFromData,
+  );
 
   const handleSearch = (value: string) => {
     setSearchString(value.toLowerCase());
@@ -339,6 +348,25 @@ function GoogleSheetSchema(props: Props) {
     dispatch(generateTemplateToUpdatePage(payload));
   };
 
+  const onClickGenerateBuildingBlock = (buildingBlockStarter: {
+    templateId: string;
+    templatePageName: string;
+    queryConfig: { name: string; type: string }[];
+  }) => {
+    dispatch(
+      generateBuildingBlockFromGsheetTable(
+        buildingBlockStarter.templateId,
+        GENERATE_BUILDING_BLOCK_STARTER_TEMPLATE_NAME,
+        buildingBlockStarter.templatePageName,
+        props.datasourceId,
+        props.pluginId as string,
+        selectedSheet.value as string,
+        selectedSpreadsheet?.value as string,
+        buildingBlockStarter.queryConfig,
+      ),
+    );
+  };
+
   const pagePermissions = useSelector(getPagePermissions);
   const datasourcePermissions = datasource?.userPermissions || [];
 
@@ -509,6 +537,30 @@ function GoogleSheetSchema(props: Props) {
           >
             {createMessage(DATASOURCE_GENERATE_PAGE_BUTTON)}
           </Button>
+
+          {GENERATE_BUILDING_BLOCK_FROM_DATA_STARTER_APPS.map(
+            (buildingBlock) => (
+              <Button
+                className="t--datasource-generate-page"
+                isLoading={isGeneratingBuildingBlockFromDatasource}
+                key="datasource-generate-page"
+                kind="secondary"
+                onClick={() =>
+                  onClickGenerateBuildingBlock({
+                    templateId: buildingBlock.templateId,
+                    templatePageName: buildingBlock.templatePageName,
+                    queryConfig: buildingBlock.templateQueriesConfig,
+                  })
+                }
+                size="md"
+                style={{
+                  marginLeft: "10px",
+                }}
+              >
+                {buildingBlock.title}
+              </Button>
+            ),
+          )}
         </ButtonContainer>
       )}
     </ViewModeSchemaContainer>
