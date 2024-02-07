@@ -13,8 +13,6 @@ export const selectFeatureFlagCheck = (
   const flagValues = selectFeatureFlags(state);
 
   if (flagName === "ab_wds_enabled") return true;
-  if (flagName === "release_anvil_enabled") return true;
-
   if (flagName in flagValues) {
     return flagValues[flagName];
   }
