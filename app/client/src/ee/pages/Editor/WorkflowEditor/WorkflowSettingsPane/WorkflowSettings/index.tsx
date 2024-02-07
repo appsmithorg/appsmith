@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import type { RouteChildrenProps, RouteComponentProps } from "react-router-dom";
 import { useLocation, useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -14,8 +13,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import type { SectionHeaderProps } from "pages/Editor/AppSettingsPane/AppSettings/SectionHeader";
 import SectionHeader from "pages/Editor/AppSettingsPane/AppSettings/SectionHeader";
-// TODO: Replace these with workflowsettings pane actions
-import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 
 export function navigateToTab(
   tabKey: string,
@@ -45,7 +42,6 @@ const Wrapper = styled.div`
 `;
 
 function WorkflowSettings() {
-  const dispatch = useDispatch();
   const location = useLocation();
   const history = useHistory();
 
@@ -56,9 +52,6 @@ function WorkflowSettings() {
 
   useEffect(() => {
     navigateToTab(selectedTab, location, history);
-    return () => {
-      dispatch(closeAppSettingsPaneAction());
-    };
   }, [selectedTab]);
 
   const SectionHeadersConfig: SectionHeaderProps[] = [
