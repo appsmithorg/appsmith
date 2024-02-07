@@ -117,6 +117,7 @@ function CreateNewAppFromTemplatesModal({
                 title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
               />
               <TemplatesListLayoutSwitcher
+                isForkingEnabled
                 onForkTemplateClick={onClickUseTemplate}
                 onTemplateClick={onTemplateClick}
               />
