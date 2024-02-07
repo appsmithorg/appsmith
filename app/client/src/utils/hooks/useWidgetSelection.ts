@@ -37,9 +37,6 @@ export const useWidgetSelection = () => {
         ),
       [dispatch],
     ),
-    goToWidgetAdd: useCallback(() => {
-      const url = builderURL({});
-      history.push(url);
-    }, []),
+    goToWidgetAdd: useCallback(() => history.push(builderURL({})), []),
   };
 };
