@@ -24,7 +24,7 @@ describe("Git Branch Protection", { tags: ["@tag.Git"] }, function () {
         url: /\/api\/v1\/git\/branch\/app\/.*\/protected/,
       }).as("gitProtectApi");
 
-      _.gitSync.CreateNConnectToGitV2();
+      _.gitSync.CreateNConnectToGitV2("repoprotect", true, true, false);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
         cy.wait("@gitProtectApi").then((res1) => {
