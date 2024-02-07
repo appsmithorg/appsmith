@@ -83,6 +83,7 @@ describe(
       cy.get(gitSyncLocators.commitButton).click();
       agHelper.AssertElementExist(gitSync._bottomBarPull);
       cy.get(gitSyncLocators.closeGitSyncModal).click();
+      cy.wait(1000);
       cy.merge(mainBranch);
       cy.get(gitSyncLocators.closeGitSyncModal).click();
       AppSidebar.navigate(AppSidebarButton.Editor);
