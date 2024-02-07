@@ -12,7 +12,7 @@ describe(
   { tags: ["@tag.excludeForAirgap", "@tag.Datasource"] },
   function () {
     beforeEach(() => {
-      homePage.LogOutviaAPI();
+      homePage.Signout();
       featureFlagIntercept({
         ab_show_templates_instead_of_blank_canvas_enabled: true,
         ab_create_new_apps_enabled: true,
