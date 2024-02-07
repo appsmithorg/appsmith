@@ -32,9 +32,11 @@ const Wrapper = styled.div`
   width: 100%;
 `;
 
-const TemplateViewWrapper = styled.div`
-  padding-right: 132px;
-  padding-left: 132px;
+const TemplateViewWrapper = styled.div<{ isModalLayout?: boolean }>`
+  ${(props) =>
+    props.isModalLayout
+      ? `padding-right: 12px; padding-left: 12px;`
+      : `padding-right: 132px; padding-left: 132px;`}
   padding-top: var(--ads-v2-spaces-7);
   padding-bottom: 80px;
   background-color: var(--ads-v2-color-bg);
@@ -117,6 +119,7 @@ function TemplateNotFound() {
 }
 
 interface TemplateViewProps {
+  isModalLayout?: boolean;
   onClickUseTemplate?: (id: string) => void;
   showBack?: boolean;
   showSimilarTemplate?: boolean;
@@ -126,6 +129,7 @@ interface TemplateViewProps {
 
 export function TemplateView({
   handleBackPress,
+  isModalLayout = false,
   onClickUseTemplate,
   showBack = true,
   showSimilarTemplate = true,
@@ -176,7 +180,7 @@ export function TemplateView({
   ) : (
     <Wrapper ref={containerRef}>
       <ReconnectDatasourceModal />
-      <TemplateViewWrapper>
+      <TemplateViewWrapper isModalLayout={isModalLayout}>
         <TemplateViewHeader
           handleBackPress={handleBackPress}
           onClickUseTemplate={onClickUseTemplate}
