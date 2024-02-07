@@ -5,7 +5,7 @@ cypress/e2e/Regression/ClientSide/Git/GitSync/RepoLimitExceededErrorModal_spec.j
 cypress/e2e/Regression/ClientSide/Fork/ForkApplication_spec.ts
 cypress/e2e/Regression/ClientSide/JSLibrary/Library_spec.ts
 cypress/e2e/Regression/ServerSide/LoginTests/LoginFailure_spec.js
-
+cypress/e2e/Regression/ClientSide/PartialImportExport/PartialExport_spec.ts
 
 
 
