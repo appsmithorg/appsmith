@@ -7,9 +7,6 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 import { Button } from "design-system";
 
-const DiscordIcon = importSvg(
-  async () => import("assets/icons/help/discord.svg"),
-);
 
 const Container = styled.div`
   display: flex;
@@ -27,12 +24,6 @@ const Container = styled.div`
   }
 `;
 
-const StyledDiscordIcon = styled(DiscordIcon)`
-  path {
-    fill: #5c6bc0;
-  }
-  vertical-align: -7px;
-`;
 
 function ResultsNotFound() {
   const isAirgappedInstance = isAirgapped();
