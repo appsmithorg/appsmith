@@ -104,9 +104,9 @@ function CreateNewAppFromTemplatesModal({
         <ModalBodyWrapper>
           {!!showTemplateDetails ? (
             <TemplateView
+              handleBackPress={() => setShowTemplateDetails("")}
               onClickUseTemplate={onClickUseTemplate}
-              showBack={false}
-              showSimilarTemplate={false}
+              showSimilarTemplate
               templateId={showTemplateDetails}
             />
           ) : (

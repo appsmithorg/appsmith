@@ -31,6 +31,7 @@ const Title = styled(Text)`
 `;
 
 interface Props {
+  handleBackPress?: () => void;
   templateId: string;
   onClickUseTemplate?: (id: string) => void;
   showBack: boolean;
@@ -38,6 +39,7 @@ interface Props {
 const SHOW_FORK_MODAL_PARAM = "showForkTemplateModal";
 
 function TemplateViewHeader({
+  handleBackPress,
   onClickUseTemplate,
   showBack,
   templateId,
@@ -49,7 +51,11 @@ function TemplateViewHeader({
     isImportingTemplateToAppSelector,
   );
   const goBack = () => {
-    history.goBack();
+    if (handleBackPress) {
+      handleBackPress();
+    } else {
+      history.goBack();
+    }
   };
   const onForkModalClose = () => {
     history.replace(`${templateIdUrl({ id: templateId })}`);

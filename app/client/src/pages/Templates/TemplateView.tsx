@@ -121,9 +121,11 @@ interface TemplateViewProps {
   showBack?: boolean;
   showSimilarTemplate?: boolean;
   templateId: string;
+  handleBackPress?: () => void;
 }
 
 export function TemplateView({
+  handleBackPress,
   onClickUseTemplate,
   showBack = true,
   showSimilarTemplate = true,
@@ -176,6 +178,7 @@ export function TemplateView({
       <ReconnectDatasourceModal />
       <TemplateViewWrapper>
         <TemplateViewHeader
+          handleBackPress={handleBackPress}
           onClickUseTemplate={onClickUseTemplate}
           showBack={showBack}
           templateId={templateId}
