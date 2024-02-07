@@ -165,6 +165,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().addAll(userIds);
+        pg.setAssignedToUserIds(new HashSet<>(pg.getAssignedToUserIds()));
         Mono<PermissionGroup> permissionGroupUpdateMono = repository
                 .updateById(pg.getId(), pg, permissionGroupPermission.getAssignPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
@@ -202,6 +203,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().removeAll(userIds);
+        pg.setAssignedToUserIds(new HashSet<>(pg.getAssignedToUserIds()));
         Mono<PermissionGroup> updatePermissionGroupMono =
                 repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission());
         Mono<Boolean> clearCacheForUsersMono =
@@ -366,7 +368,11 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Mono<PermissionGroup> bulkAssignToUserAndSendEvent(PermissionGroup permissionGroup, List<User> users) {
         List<String> usernames = users.stream().map(User::getUsername).toList();
         return bulkAssignToUsers(permissionGroup, users)
-                .flatMap(permissionGroup1 -> sendEventUsersAssociatedToRole(permissionGroup, usernames));
+                .flatMap(permissionGroup1 -> sendEventUsersAssociatedToRole(permissionGroup, usernames))
+                .map(x -> {
+                    System.out.println(x);
+                    return x;
+                });
     }
 
     @Override

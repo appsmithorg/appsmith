@@ -181,19 +181,17 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "resource");
         }
 
-        resource.setId(null);
-        resource.setPolicies(null);
-
         final User user = ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
                 .block();
 
-        resource.setModifiedBy(user.getUsername());
         final Set<String> permissionGroups = permission != null ? getAllPermissionGroupsForUser(user) : Set.of();
 
         return Optional.of(findById(id, permission)
                 .map(entityFromDB -> {
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, entityFromDB);
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(
+                            resource, entityFromDB, Set.of(FieldName.ID, "policies", "modifiedBy"));
+                    entityFromDB.setModifiedBy(user.getUsername());
                     entityFromDB.setUpdatedAt(Instant.now());
                     entityManager.persist(entityFromDB);
                     return setUserPermissionsInObject(entityFromDB, permissionGroups);
