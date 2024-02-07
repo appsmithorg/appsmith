@@ -100,14 +100,6 @@ class ButtonListControl extends BaseControl<
         />
 
         <Flex justifyContent="end">
-          <Button
-            className="self-end"
-            kind="tertiary"
-            onClick={() => this.addOption({ isSeparator: false })}
-            size="sm"
-          >
-            Add button
-          </Button>
           {this.props.allowSeparators && (
             <Button
               className="self-end"
@@ -118,6 +110,14 @@ class ButtonListControl extends BaseControl<
               Add Separator
             </Button>
           )}
+          <Button
+            className="self-end"
+            kind="secondary"
+            onClick={() => this.addOption({ isSeparator: false })}
+            size="sm"
+          >
+            Add button
+          </Button>
         </Flex>
       </div>
     );
