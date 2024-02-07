@@ -91,7 +91,7 @@ public class NewActionServiceTest {
 
         StepVerifier.create(actionListMono)
                 .assertNext(actions -> {
-                    assertThat(actions.size()).isEqualTo(3);
+                    assertThat(actions).hasSize(3);
                     actions.forEach(action -> {
                         assertThat(action.getPublishedAction()).isNotNull();
                         // we've set name and pageId so these fields should not be null in edit mode

@@ -2330,8 +2330,8 @@ public class GitServiceCETest {
         StepVerifier.create(committedApplicationMono)
                 .assertNext(application -> {
                     List<ApplicationPage> publishedPages = application.getPublishedPages();
-                    assertThat(application.getPublishedPages().size())
-                            .isEqualTo(preCommitApplication.getPublishedPages().size());
+                    assertThat(application.getPublishedPages())
+                            .hasSize(preCommitApplication.getPublishedPages().size());
                     publishedPages.forEach(publishedPage -> {
                         assertThat(publishedPage.getId().equals(createdPage.getId()))
                                 .isFalse();
@@ -3515,8 +3515,8 @@ public class GitServiceCETest {
                                     .getGitAuth()
                                     .getPublicKey())
                             .isEqualTo(gitAuth.getPublicKey());
-                    assertThat(application.getUnpublishedCustomJSLibs().size())
-                            .isEqualTo(application.getPublishedCustomJSLibs().size());
+                    assertThat(application.getUnpublishedCustomJSLibs())
+                            .hasSize(application.getPublishedCustomJSLibs().size());
                 })
                 .verifyComplete();
     }
@@ -4620,7 +4620,7 @@ public class GitServiceCETest {
 
         StepVerifier.create(listMono)
                 .assertNext(listBranch -> {
-                    assertThat(listBranch.size()).isEqualTo(3);
+                    assertThat(listBranch).hasSize(3);
                 })
                 .verifyComplete();
     }
