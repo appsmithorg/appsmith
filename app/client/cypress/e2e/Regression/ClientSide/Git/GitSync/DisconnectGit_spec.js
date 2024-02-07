@@ -12,13 +12,13 @@ describe("Git disconnect modal:", { tags: ["@tag.Git"] }, function () {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
   });
-  
+
   it("1. should be opened with proper components", function () {
     cy.generateUUID().then((uid) => {
       _.gitSync.CreateNConnectToGitV2(uid);
-      cy.get('@gitRepoName').then((repName) => {
+      cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
-      })
+      });
     });
     cy.get(_.gitSync._bottomSettingsBtn).click();
     cy.get(_.gitSync._settingsTabGeneral).click();

@@ -243,7 +243,6 @@ export class GitSync {
     this.agHelper.GetNClick(this._closeGitSettingsModal);
   }
 
-
   DeleteTestGithubRepo(repo: any) {
     cy.request({
       method: "DELETE",
