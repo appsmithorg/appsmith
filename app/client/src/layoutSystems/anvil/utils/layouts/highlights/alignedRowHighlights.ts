@@ -208,6 +208,11 @@ export function getHighlightsForWidgets(
     getDimensions,
   );
 
+  const isFillWidgetDragged: boolean = draggedWidgets.some(
+    (each: DraggedWidget) =>
+      each.responsiveBehavior === ResponsiveBehavior.Fill,
+  );
+
   let highlights: AnvilHighlightInfo[] = [];
   let childCount = 0;
   Object.keys(alignmentInfo).forEach((alignment: string) => {
@@ -217,6 +222,11 @@ export function getHighlightsForWidgets(
      * If the alignment doesn't render any widgets, then derive initial highlights for the alignment.
      */
     if (!widgets.length) {
+      /**
+       * If a fill widget is being dragged, then don't add any highlights for empty alignments.
+       */
+      if (isFillWidgetDragged) return;
+
       /**
        * If it is an empty Center alignment,
        * which is no longer in the center position due to the size of its siblings,
