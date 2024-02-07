@@ -31,7 +31,7 @@ const TemplatesListLayoutSwitcher = ({
     [isStartWithTemplateFlow],
   );
   return (
-    <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+    <Flex flexDirection="column">
       <TemplateWrapper>
         <StartWithTemplates
           initialFilters={initFilters}
