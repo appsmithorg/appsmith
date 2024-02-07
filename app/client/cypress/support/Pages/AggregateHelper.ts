@@ -1730,9 +1730,8 @@ export class AggregateHelper {
     // cy.window({ timeout: Cypress.config().pageLoadTimeout }).then((win) => {
     //   win.location.href = url;
     // });
-    cy.visit(url, { timeout: Cypress.config().pageLoadTimeout }).then(() =>
-      this.WaitForCondition(() => cy.url().should("contain", url)),
-    );
+    cy.visit(url, { timeout: Cypress.config().pageLoadTimeout });
+    this.WaitForCondition(() => cy.url().should("contain", url));
 
     if (
       apiToValidate.includes("getAllWorkspaces") &&
