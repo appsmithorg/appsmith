@@ -103,7 +103,6 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
-  getIsGitConnectV2Enabled,
   getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
@@ -226,9 +225,6 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
     response = yield GitSyncAPI.connect(action.payload, applicationId);
-    const isGitConnectV2Enabled: boolean = yield select(
-      getIsGitConnectV2Enabled,
-    );
 
     const isValidResponse: boolean = yield validateResponse(
       response,
@@ -241,13 +237,11 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       yield put(connectToGitSuccess(response?.data));
       const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
 
-      if (isGitConnectV2Enabled) {
-        yield put(
-          updateGitProtectedBranchesInit({
-            protectedBranches: defaultBranch ? [defaultBranch] : [],
-          }),
-        );
-      }
+      yield put(
+        updateGitProtectedBranchesInit({
+          protectedBranches: defaultBranch ? [defaultBranch] : [],
+        }),
+      );
 
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {

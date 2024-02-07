@@ -212,11 +212,6 @@ export const getIsGitStatusLiteEnabled = createSelector(
   (flags) => !!flags?.release_git_status_lite_enabled,
 );
 
-export const getIsGitConnectV2Enabled = createSelector(
-  selectFeatureFlags,
-  (flags) => !!flags?.release_git_connect_v2_enabled,
-);
-
 export const getProtectedBranchesSelector = (state: AppState) =>
   state.ui.gitSync.protectedBranches;
 

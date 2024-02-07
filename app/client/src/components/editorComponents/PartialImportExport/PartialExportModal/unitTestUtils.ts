@@ -12761,7 +12761,6 @@ export const defaultAppState = {
           release_git_status_lite_enabled: false,
           license_sso_saml_enabled: false,
           license_sso_oidc_enabled: false,
-          release_git_connect_v2_enabled: true,
           deprecate_custom_fusioncharts_enabled: false,
           ab_mock_mongo_schema_enabled: true,
           license_private_embeds_enabled: false,
