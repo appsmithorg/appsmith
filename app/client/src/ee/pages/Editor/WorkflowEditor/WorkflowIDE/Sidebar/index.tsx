@@ -41,7 +41,6 @@ function Sidebar() {
     <SidebarComponent
       appState={appState}
       bottomButtons={BottomButtons}
-      isAppSidebarAnnouncementEnabled={false}
       onClick={onClick}
       topButtons={updatedTopButtons}
     />
