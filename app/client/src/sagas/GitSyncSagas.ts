@@ -33,10 +33,8 @@ import type {
   GenerateSSHKeyPairResponsePayload,
   GetSSHKeyPairReduxAction,
   GetSSHKeyResponseData,
-  GitStatusParams,
 } from "actions/gitSyncActions";
 import {
-  fetchGitRemoteStatusInit,
   fetchGitProtectedBranchesInit,
   updateGitProtectedBranchesInit,
   fetchGitRemoteStatusSuccess,
@@ -103,7 +101,6 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
-  getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
@@ -147,9 +144,7 @@ function* commitToGitRepoSaga(
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const isGitStatusLiteEnabled: boolean = yield select(
-      getIsGitStatusLiteEnabled,
-    );
+
     const gitMetaData: GitApplicationMetadata = yield select(
       getCurrentAppGitMetaData,
     );
@@ -177,12 +172,7 @@ function* commitToGitRepoSaga(
           payload: curApplication,
         });
       }
-      if (isGitStatusLiteEnabled) {
-        yield put(fetchGitRemoteStatusInit());
-        yield put(fetchGitStatusInit({ compareRemote: false }));
-      } else {
-        yield put(fetchGitStatusInit({ compareRemote: true }));
-      }
+      yield put(fetchGitStatusInit({ compareRemote: true }));
     } else {
       yield put({
         type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
@@ -563,12 +553,7 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
   }
 }
 
-function* fetchGitStatusSaga(action: ReduxAction<GitStatusParams>) {
-  const isLiteEnabled: boolean = yield select(getIsGitStatusLiteEnabled);
-  const shouldCompareRemote = isLiteEnabled
-    ? !!action.payload?.compareRemote
-    : true;
-
+function* fetchGitStatusSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -578,7 +563,7 @@ function* fetchGitStatusSaga(action: ReduxAction<GitStatusParams>) {
     response = yield GitSyncAPI.getGitStatus({
       applicationId,
       branch: gitMetaData?.branchName || "",
-      compareRemote: shouldCompareRemote ? "true" : "false",
+      compareRemote: true,
     });
     const isValidResponse: boolean = yield validateResponse(
       response,

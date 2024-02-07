@@ -6,7 +6,6 @@ import {
   getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
 import type { Branch } from "entities/GitSync";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
@@ -205,12 +204,6 @@ export const getBranchSwitchingDetails = (state: AppState) => ({
   isSwitchingBranch: state.ui.gitSync.isSwitchingBranch,
   switchingToBranch: state.ui.gitSync.switchingToBranch,
 });
-
-// feature flag selectors
-export const getIsGitStatusLiteEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) => !!flags?.release_git_status_lite_enabled,
-);
 
 export const getProtectedBranchesSelector = (state: AppState) =>
   state.ui.gitSync.protectedBranches;

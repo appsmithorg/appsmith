@@ -33,7 +33,6 @@ import {
   getIsDiscardInProgress,
   getIsFetchingGitRemoteStatus,
   getIsFetchingGitStatus,
-  getIsGitStatusLiteEnabled,
   getIsPullingProgress,
   getPullFailed,
   getUpstreamErrorDocUrl,
@@ -48,7 +47,6 @@ import {
   clearDiscardErrorState,
   commitToRepoInit,
   discardChanges,
-  fetchGitRemoteStatusInit,
   fetchGitStatusInit,
   gitPullInit,
 } from "actions/gitSyncActions";
@@ -129,7 +127,6 @@ function Deploy() {
   const currentApplication = useSelector(getCurrentApplication);
   const { changeReasonText, isAutoUpdate, isManualUpdate } =
     changeInfoSinceLastCommit(currentApplication);
-  const isGitStatusLiteEnabled = useSelector(getIsGitStatusLiteEnabled);
 
   const handleCommit = (doPush: boolean) => {
     setShowDiscardWarning(false);
@@ -160,12 +157,7 @@ function Deploy() {
   const commitButtonText = createMessage(COMMIT_AND_PUSH);
 
   useEffect(() => {
-    if (isGitStatusLiteEnabled) {
-      dispatch(fetchGitRemoteStatusInit());
-      dispatch(fetchGitStatusInit({ compareRemote: false }));
-    } else {
-      dispatch(fetchGitStatusInit({ compareRemote: true }));
-    }
+    dispatch(fetchGitStatusInit({ compareRemote: true }));
     return () => {
       dispatch(clearCommitSuccessfulState());
     };

@@ -12758,7 +12758,6 @@ export const defaultAppState = {
           release_table_serverside_filtering_enabled: false,
           release_custom_echarts_enabled: false,
           license_branding_enabled: false,
-          release_git_status_lite_enabled: false,
           license_sso_saml_enabled: false,
           license_sso_oidc_enabled: false,
           deprecate_custom_fusioncharts_enabled: false,
