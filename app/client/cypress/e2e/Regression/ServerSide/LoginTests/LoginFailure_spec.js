@@ -3,7 +3,6 @@ import {
   deployMode,
   homePage,
   locators,
-  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Login failure", function () {
@@ -14,7 +13,7 @@ describe("Login failure", function () {
     cy.url()
       .then((url) => {
         urlWithoutQueryParams = url.split("?")[0];
-        homePage.LogOutviaAPI();
+        homePage.LogOutviaAPI(false);
         agHelper.VisitNAssert(urlWithoutQueryParams, "getConsolidatedData");
         // agHelper.Sleep(3000); //for page redirect to complete
         // assertHelper.AssertNetworkStatus("signUpLogin");

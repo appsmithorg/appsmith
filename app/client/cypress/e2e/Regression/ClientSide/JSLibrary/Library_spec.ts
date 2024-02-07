@@ -121,7 +121,7 @@ describe(
       deployMode.DeployApp();
       cy.url().then((url) => {
         appURL = url;
-        homePage.LogOutviaAPI();
+        homePage.LogOutviaAPI(false);
         cy.visit(appURL);
         agHelper.AssertContains("true");
       });

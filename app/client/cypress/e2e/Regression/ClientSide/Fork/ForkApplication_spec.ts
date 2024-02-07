@@ -95,7 +95,7 @@ describe(
 
         cy.url().then((url) => {
           forkableAppUrl = url;
-          homePage.LogOutviaAPI();
+          homePage.LogOutviaAPI(false);
           agHelper.VisitNAssert(forkableAppUrl);
           agHelper.GetNClick(applicationLocators.forkButton, 0, true);
           agHelper.GetNClick(loginPageLocators.signupLink);
