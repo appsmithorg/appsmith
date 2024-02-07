@@ -194,17 +194,20 @@ function CreateNewSaasIntegration({
     }
   }, [active]);
   return !isAirgappedInstance ? (
-    <div id="new-saas-api" ref={newSaasAPIRef}>
-      <Text kind="heading-m">SaaS Integrations</Text>
-      <NewApiScreen
-        history={history}
-        isCreating={isCreating}
-        location={location}
-        pageId={pageId}
-        showSaasAPIs
-        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-      />
-    </div>
+    <>
+      <StyledDivider />
+      <div id="new-saas-api" ref={newSaasAPIRef}>
+        <Text kind="heading-m">SaaS Integrations</Text>
+        <NewApiScreen
+          history={history}
+          isCreating={isCreating}
+          location={location}
+          pageId={pageId}
+          showSaasAPIs
+          showUnsupportedPluginDialog={showUnsupportedPluginDialog}
+        />
+      </div>
+    </>
   ) : null;
 }
 
@@ -217,17 +220,20 @@ function CreateNewAIIntegration({
   const isAirgappedInstance = isAirgapped();
 
   return !isAirgappedInstance ? (
-    <div id="new-ai-query">
-      <Text kind="heading-m">AI Integrations</Text>
-      <AIDataSources
-        history={history}
-        isCreating={isCreating}
-        location={location}
-        pageId={pageId}
-        showSaasAPIs
-        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-      />
-    </div>
+    <>
+      <StyledDivider />
+      <div id="new-ai-query">
+        <Text kind="heading-m">AI Integrations</Text>
+        <AIDataSources
+          history={history}
+          isCreating={isCreating}
+          location={location}
+          pageId={pageId}
+          showSaasAPIs
+          showUnsupportedPluginDialog={showUnsupportedPluginDialog}
+        />
+      </div>
+    </>
   ) : null;
 }
 
@@ -325,7 +331,6 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
-        <StyledDivider />
         <CreateNewSaasIntegration
           active={false}
           history={history}
@@ -334,7 +339,6 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
-        <StyledDivider />
         <CreateNewAIIntegration
           history={history}
           isCreating={isCreating}
