@@ -1731,7 +1731,7 @@ export class AggregateHelper {
     //   win.location.href = url;
     // });
     cy.visit(url, { timeout: Cypress.config().pageLoadTimeout });
-    this.WaitForCondition(() => cy.url().should("contain", url));
+    this.WaitForCondition(() => cy.url().should("include", url));
 
     if (
       apiToValidate.includes("getAllWorkspaces") &&
