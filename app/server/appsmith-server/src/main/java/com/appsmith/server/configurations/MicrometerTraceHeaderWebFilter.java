@@ -20,8 +20,11 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * user defined trace header into traceparent-otlp. However, Micrometer expects the traceparent information to be
  * present in the traceparent header - hence this method copies the correct header data into traceparent header
  * before it gets set into Micrometer context.
- * As per measurement on my local setup this webFilter takes around 0.1 milliseconds to complete hence should not
- * have any practical impact on response times.
+ * In cases where traceparent-otlp header is not present but the traceparent header is present, this method removes
+ * the traceparent header because if it is present then the Micrometer trace would use its value for trace id (which
+ * is incorrect).
+ * As per measurement on my local setup this webFilter generally takes around 0.5 milliseconds to complete hence should
+ * not have any practical impact on response times.
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
@@ -46,14 +49,30 @@ public class MicrometerTraceHeaderWebFilter implements WebFilter {
                     serverWebExchange.mutate().request(newRequest).build();
 
             return webFilterChain.filter(newExchange);
+        } else if (isTraceparentHeaderPresent(requestHeaders)) {
+            ServerHttpRequest newRequest = serverWebExchange
+                    .getRequest()
+                    .mutate()
+                    .headers((httpHeader) -> {
+                        httpHeader.remove(TRACEPARENT_HEADER_KEY);
+                    })
+                    .build();
+            ServerWebExchange newExchange =
+                    serverWebExchange.mutate().request(newRequest).build();
+
+            return webFilterChain.filter(newExchange);
         }
 
         return webFilterChain.filter(serverWebExchange);
     }
 
-    private boolean isTraceparentOtlpHeaderPresent(HttpHeaders requestHeaders) {
+    private boolean isTraceparentHeaderPresent(HttpHeaders requestHeaders) {
         return requestHeaders != null
-                && requestHeaders.containsKey(TRACEPARENT_OTLP_HEADER_KEY)
-                && !isEmpty(requestHeaders.get(TRACEPARENT_OTLP_HEADER_KEY));
+                && requestHeaders.containsKey(TRACEPARENT_HEADER_KEY)
+                && !isEmpty(requestHeaders.get(TRACEPARENT_HEADER_KEY));
+    }
+
+    private boolean isTraceparentOtlpHeaderPresent(HttpHeaders requestHeaders) {
+        return requestHeaders != null && requestHeaders.containsKey(TRACEPARENT_OTLP_HEADER_KEY);
     }
 }

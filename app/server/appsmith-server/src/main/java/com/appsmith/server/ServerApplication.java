@@ -86,8 +86,8 @@ public class ServerApplication {
                         .registerMetricReader(PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder()
                                         .setEndpoint(NEW_RELIC_MICROMETER_METRICS_ENDPOINT)
                                         .addHeader(API_KEY, newRelicKey)
-                                        // .orElseThrow())
                                         // IMPORTANT: New Relic requires metrics to be delta temporality
+
                                         .setAggregationTemporalitySelector(
                                                 AggregationTemporalitySelector.deltaPreferred())
                                         // Use exponential histogram aggregation for histogram instruments
