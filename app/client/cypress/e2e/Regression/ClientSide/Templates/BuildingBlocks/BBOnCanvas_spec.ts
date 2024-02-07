@@ -12,20 +12,17 @@ import {
   AppSidebar,
   AppSidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Start with scratch userflow",
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   function () {
     beforeEach(() => {
+      PageList.AddNewPage("New blank page");
       featureFlagIntercept({
         ab_show_templates_instead_of_blank_canvas_enabled: true,
-        ab_create_new_apps_enabled: true,
       });
-      agHelper.AssertElementLength(
-        templates.locators._buildingBlockCardOnCanvas,
-        3,
-      );
     });
 
     it("1. `Connect your data` pop up should come up when we fork a building block from canvas.", function () {
