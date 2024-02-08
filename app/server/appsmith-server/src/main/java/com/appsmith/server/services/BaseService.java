@@ -28,7 +28,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -243,8 +242,13 @@ public abstract class BaseService<
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
 
-        Flux<T> result = repository.queryAllWithStrictPermissionGroups(
-                List.of(criteria), Optional.empty(), Optional.ofNullable(permission), sort, -1, 0);
+        Flux<T> result = repository
+                .queryBuilder()
+                .criteria(criteria)
+                .permission(permission)
+                .sort(sort)
+                .includeAnonymousUserPermissions(false)
+                .all();
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
