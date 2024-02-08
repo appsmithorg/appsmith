@@ -253,8 +253,8 @@ public class ApplicationSnapshotServiceTest {
                 .assertNext(objects -> {
                     ApplicationPagesDTO beforePages = objects.getT2();
                     ApplicationPagesDTO afterPages = objects.getT1();
-                    assertThat(beforePages.getPages().size())
-                            .isEqualTo(afterPages.getPages().size());
+                    assertThat(beforePages.getPages())
+                            .hasSize(afterPages.getPages().size());
                 })
                 .verifyComplete();
     }

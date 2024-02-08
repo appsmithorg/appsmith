@@ -170,8 +170,7 @@ import {
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
@@ -449,12 +448,11 @@ export function* deleteDatasourceSaga(
           datasourceId: id,
         }),
       );
-      const isPagePaneSegmentsEnabled: boolean = yield select(
-        selectFeatureFlagCheck,
-        FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+      const isEditorPaneSegmentsEnabled: boolean = yield select(
+        getIsEditorPaneSegmentsEnabled,
       );
       const currentUrl = `${window.location.pathname}`;
-      if (isPagePaneSegmentsEnabled) {
+      if (isEditorPaneSegmentsEnabled) {
         yield call(handleDatasourceDeleteRedirect, id);
       } else if (
         currentUrl === datasourcePathWithoutQuery ||
