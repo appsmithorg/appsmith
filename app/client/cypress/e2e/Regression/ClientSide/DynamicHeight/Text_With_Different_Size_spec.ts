@@ -10,254 +10,78 @@ import EditorNavigation, {
 describe(
   "Dynamic Height Width validation",
   { tags: ["@tag.AutoHeight"] },
-  function () {
-    function validateCssProperties(property) {
-      agHelper.GetNClickByContains("button", "Small", 0, true);
-      agHelper.Sleep(2000);
-      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
-      agHelper.Sleep(2000);
-      agHelper
-        .GetWidgetCSSFrAttribute(
-          locators._widgetInDeployed(draggableWidgets.TEXT),
-          property,
-          0,
-        )
-        .then((CurrentValueOfFirstText) => {
-          EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
-          agHelper
-            .GetWidgetCSSFrAttribute(
-              locators._widgetInDeployed(draggableWidgets.TEXT),
-              property,
-              1,
-            )
-            .then((CurrentValueOfSecondText) => {
-              EditorNavigation.SelectEntityByName("Text3", EntityType.Widget);
-              agHelper.Sleep(2000);
-              agHelper
-                .GetWidgetCSSFrAttribute(
-                  locators._widgetInDeployed(draggableWidgets.TEXT),
-                  property,
-                  2,
-                )
-                .then((CurrentValueOfThirdText) => {
-                  EditorNavigation.SelectEntityByName(
-                    "Text4",
-                    EntityType.Widget,
-                  );
-                  agHelper.Sleep(2000);
-                  agHelper
-                    .GetWidgetCSSFrAttribute(
-                      locators._widgetInDeployed(draggableWidgets.TEXT),
-                      property,
-                      3,
-                    )
-                    .then((CurrentValueOfFourthText) => {
-                      agHelper.GetNClickByContains("button", "Large", 0, true);
-                      agHelper.Sleep(3000);
-                      EditorNavigation.SelectEntityByName(
-                        "Text1",
-                        EntityType.Widget,
-                      );
-                      agHelper
-                        .GetWidgetCSSFrAttribute(
-                          locators._widgetInDeployed(draggableWidgets.TEXT),
-                          property,
-                          0,
-                        )
-                        .then((UpdatedLargeValueOfFirstText) => {
-                          EditorNavigation.SelectEntityByName(
-                            "Text2",
-                            EntityType.Widget,
-                          );
-                          agHelper
-                            .GetWidgetCSSFrAttribute(
-                              locators._widgetInDeployed(draggableWidgets.TEXT),
-                              property,
-                              1,
-                            )
-                            .then((UpdatedLargeValueOfSecondText) => {
-                              EditorNavigation.SelectEntityByName(
-                                "Text3",
-                                EntityType.Widget,
-                              );
-                              agHelper
-                                .GetWidgetCSSFrAttribute(
-                                  locators._widgetInDeployed(
-                                    draggableWidgets.TEXT,
-                                  ),
-                                  property,
-                                  2,
-                                )
-                                .then((UpdatedLargeValueOfThirdText) => {
-                                  EditorNavigation.SelectEntityByName(
-                                    "Text4",
-                                    EntityType.Widget,
-                                  );
-                                  agHelper
-                                    .GetWidgetCSSFrAttribute(
-                                      locators._widgetInDeployed(
-                                        draggableWidgets.TEXT,
-                                      ),
-                                      property,
-                                      3,
-                                    )
-                                    .then((UpdatedLargeValueOfFourthText) => {
-                                      if (property == "left") {
-                                        expect(
-                                          CurrentValueOfFirstText,
-                                        ).to.equal(
-                                          UpdatedLargeValueOfFirstText,
-                                        );
-                                        expect(
-                                          CurrentValueOfSecondText,
-                                        ).to.equal(
-                                          UpdatedLargeValueOfSecondText,
-                                        );
-                                        expect(
-                                          CurrentValueOfThirdText,
-                                        ).to.equal(
-                                          UpdatedLargeValueOfThirdText,
-                                        );
-                                        expect(
-                                          CurrentValueOfFourthText,
-                                        ).to.equal(
-                                          UpdatedLargeValueOfFourthText,
-                                        );
-                                      } else {
-                                        expect(
-                                          CurrentValueOfFirstText,
-                                        ).to.not.equal(
-                                          UpdatedLargeValueOfFirstText,
-                                        );
-                                        expect(
-                                          CurrentValueOfSecondText,
-                                        ).to.not.equal(
-                                          UpdatedLargeValueOfSecondText,
-                                        );
-                                        expect(
-                                          CurrentValueOfThirdText,
-                                        ).to.not.equal(
-                                          UpdatedLargeValueOfThirdText,
-                                        );
-                                        expect(
-                                          CurrentValueOfFourthText,
-                                        ).to.not.equal(
-                                          UpdatedLargeValueOfFourthText,
-                                        );
-                                      }
-                                      agHelper.GetNClickByContains(
-                                        "button",
-                                        "Small",
-                                        0,
-                                        true,
-                                      );
-                                      agHelper.Sleep(2000);
-                                      EditorNavigation.SelectEntityByName(
-                                        "Text1",
-                                        EntityType.Widget,
-                                      );
-                                      agHelper.Sleep(2000);
-                                      agHelper
-                                        .GetWidgetCSSFrAttribute(
-                                          locators._widgetInDeployed(
-                                            draggableWidgets.TEXT,
-                                          ),
-                                          property,
-                                          0,
-                                        )
-                                        .then(
-                                          (UpdatedSmallValueOfFirstText) => {
-                                            EditorNavigation.SelectEntityByName(
-                                              "Text2",
-                                              EntityType.Widget,
-                                            );
-                                            agHelper
-                                              .GetWidgetCSSFrAttribute(
-                                                locators._widgetInDeployed(
-                                                  draggableWidgets.TEXT,
-                                                ),
-                                                property,
-                                                1,
-                                              )
-                                              .then(
-                                                (
-                                                  UpdatedSmallValueOfSecondText,
-                                                ) => {
-                                                  EditorNavigation.SelectEntityByName(
-                                                    "Text3",
-                                                    EntityType.Widget,
-                                                  );
-                                                  agHelper.Sleep(2000);
-                                                  agHelper
-                                                    .GetWidgetCSSFrAttribute(
-                                                      locators._widgetInDeployed(
-                                                        draggableWidgets.TEXT,
-                                                      ),
-                                                      property,
-                                                      2,
-                                                    )
-                                                    .then(
-                                                      (
-                                                        UpdatedSmallValueOfThirdText,
-                                                      ) => {
-                                                        EditorNavigation.SelectEntityByName(
-                                                          "Text4",
-                                                          EntityType.Widget,
-                                                        );
-                                                        agHelper.Sleep(2000);
-                                                        agHelper
-                                                          .GetWidgetCSSFrAttribute(
-                                                            locators._widgetInDeployed(
-                                                              draggableWidgets.TEXT,
-                                                            ),
-                                                            property,
-                                                            3,
-                                                          )
-                                                          .then(
-                                                            (
-                                                              UpdatedSmallValueOfFourthText,
-                                                            ) => {
-                                                              expect(
-                                                                CurrentValueOfFirstText,
-                                                              ).to.equal(
-                                                                UpdatedSmallValueOfFirstText,
-                                                              );
-                                                              expect(
-                                                                CurrentValueOfSecondText,
-                                                              ).to.equal(
-                                                                UpdatedSmallValueOfSecondText,
-                                                              );
-                                                              expect(
-                                                                CurrentValueOfThirdText,
-                                                              ).to.equal(
-                                                                UpdatedSmallValueOfThirdText,
-                                                              );
-                                                              expect(
-                                                                CurrentValueOfFourthText,
-                                                              ).to.equal(
-                                                                UpdatedSmallValueOfFourthText,
-                                                              );
-                                                            },
-                                                          );
-                                                      },
-                                                    );
-                                                },
-                                              );
-                                          },
-                                        );
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    }
+  () => {
     it("1. Validate change with auto height width for text widgets", function () {
       agHelper.AddDsl("alignmentWithDynamicHeightDsl");
-      validateCssProperties("height");
-      validateCssProperties("left");
+      VerifyAttributeValues("height");
+      VerifyAttributeValues("left");
     });
+
+    function VerifyAttributeValues(attribName: string) {
+      const widgetNames = ["Text1", "Text2", "Text3", "Text4"];
+      let smallValues: any[] = [];
+      let largeValues: any[] = [];
+      let smallAfterLargeValues: any[] = [];
+
+      agHelper.ClickButton("Small");
+      for (let i = 0; i < widgetNames.length; i++) {
+        GetWidgetCSSAttribute(widgetNames[i], i, attribName);
+        AssignPropertyValues((value) => {
+          smallValues[i] = value;
+        });
+      }
+
+      agHelper.ClickButton("Large");
+      for (let i = 0; i < widgetNames.length; i++) {
+        GetWidgetCSSAttribute(widgetNames[i], i, attribName);
+        AssignPropertyValues((value) => {
+          largeValues[i] = value;
+        });
+      }
+
+      cy.then(() => {
+        if (attribName == "left") {
+          for (let i = 0; i < widgetNames.length; i++) {
+            expect(smallValues[i]).to.equal(largeValues[i]);
+          }
+        } else if (attribName == "height") {
+          for (let i = 0; i < widgetNames.length; i++) {
+            expect(smallValues[i]).to.not.equal(largeValues[i]);
+          }
+        }
+      });
+
+      agHelper.ClickButton("Small");
+      for (let i = 0; i < widgetNames.length; i++) {
+        GetWidgetCSSAttribute(widgetNames[i], i, attribName);
+        AssignPropertyValues((value) => {
+          smallAfterLargeValues[i] = value;
+        });
+      }
+      cy.then(() => {
+        for (let i = 0; i < widgetNames.length; i++) {
+          expect(smallValues[i]).to.equal(smallAfterLargeValues[i]);
+        }
+      });
+    }
+
+    function GetWidgetCSSAttribute(
+      widgetName: string,
+      index: any,
+      attribName: string,
+    ) {
+      EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
+      agHelper.GetWidgetCSSValue(
+        locators._widgetInDeployed(draggableWidgets.TEXT),
+        attribName,
+        index,
+      );
+    }
+
+    function AssignPropertyValues(callback: (value: any) => void) {
+      cy.get("@cssAttributeValue").then(($currentValue: any) => {
+        callback($currentValue);
+      });
+    }
   },
 );
