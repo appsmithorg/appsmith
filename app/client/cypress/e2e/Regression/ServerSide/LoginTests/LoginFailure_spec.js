@@ -3,7 +3,6 @@ import {
   deployMode,
   homePage,
   locators,
-  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Login failure", function () {

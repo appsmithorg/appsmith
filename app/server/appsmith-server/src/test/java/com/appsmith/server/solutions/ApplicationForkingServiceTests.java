@@ -1139,7 +1139,7 @@ public class ApplicationForkingServiceTests {
 
         StepVerifier.create(applicationMono)
                 .assertNext(forkedApplication -> {
-                    assertThat(forkedApplication.getPages().size()).isEqualTo(1);
+                    assertThat(forkedApplication.getPages()).hasSize(1);
                 })
                 .verifyComplete();
     }
@@ -1480,6 +1480,7 @@ public class ApplicationForkingServiceTests {
                             "client id",
                             "client secret",
                             "auth url",
+                            "180",
                             "access token url",
                             "scope",
                             Set.of("scope1", "scope2", "scope3"),
@@ -1708,6 +1709,7 @@ public class ApplicationForkingServiceTests {
                             "client id",
                             "client secret",
                             "auth url",
+                            "180",
                             "access token url",
                             "scope",
                             Set.of("scope1", "scope2", "scope3"),
