@@ -90,7 +90,8 @@ const PageWrapper = styled.div`
 `;
 
 const LoadingWrapper = styled.div`
-  width: calc(100vw);
+  height: 100vh;
+  width: 100%;
   .title-placeholder {
     margin-top: ${(props) => props.theme.spaces[11]}px;
     height: 28px;
