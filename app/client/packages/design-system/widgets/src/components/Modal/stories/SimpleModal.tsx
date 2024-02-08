@@ -8,6 +8,7 @@ import {
   Button,
 } from "@design-system/widgets";
 import type { ModalProps } from "../src/types";
+import { Unstyled } from "@storybook/blocks";
 
 const fakeSubmit = async () => {
   return new Promise<void>((resolve) =>
@@ -25,14 +26,17 @@ export const SimpleModal = (props: Omit<ModalProps, "children">) => {
     <>
       <Button onPress={() => setIsOpen(!isOpen)}>Modal trigger</Button>
       <Modal initialFocus={2} isOpen={isOpen} setOpen={setIsOpen} {...props}>
-        <ModalContent>
-          <ModalHeader title="Modal title" />
-          <ModalBody>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias amet
-            animi corporis laboriosam libero voluptas! A, reiciendis, veniam?
-          </ModalBody>
-          <ModalFooter onSubmit={fakeSubmit} />
-        </ModalContent>
+        <Unstyled>
+          <ModalContent>
+            <ModalHeader title="Modal title" />
+            <ModalBody>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias
+              amet animi corporis laboriosam libero voluptas! A, reiciendis,
+              veniam?
+            </ModalBody>
+            <ModalFooter onSubmit={fakeSubmit} />
+          </ModalContent>
+        </Unstyled>
       </Modal>
     </>
   );
