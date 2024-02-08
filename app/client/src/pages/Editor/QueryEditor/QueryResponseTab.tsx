@@ -29,6 +29,8 @@ import { getHasExecuteActionPermission } from "@appsmith/utils/BusinessFeatures/
 import { getResponsePaneHeight } from "selectors/debuggerSelectors";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { isString } from "lodash";
+import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import BindDataButton from "./BindDataButton";
 
 const HelpSection = styled.div``;
@@ -51,6 +53,7 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
   ${HelpSection} {
     margin-bottom: 10px;
   }
+  position: relative;
 `;
 
 interface Props {
@@ -178,6 +181,15 @@ const QueryResponseTab = (props: Props) => {
       error = "";
       hintMessages = actionResponse.messages;
     }
+  }
+
+  if (isRunning) {
+    return (
+      <ActionExecutionInProgressView
+        actionType="query"
+        theme={EditorTheme.LIGHT}
+      />
+    );
   }
 
   return (
