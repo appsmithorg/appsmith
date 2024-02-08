@@ -125,14 +125,18 @@ interface TemplateViewProps {
   showSimilarTemplate?: boolean;
   templateId: string;
   handleBackPress?: () => void;
+  handleSimilarTemplateClick?: (templateId: string) => void;
+  similarTemplatesClassName?: string;
 }
 
 export function TemplateView({
   handleBackPress,
+  handleSimilarTemplateClick,
   isModalLayout = false,
   onClickUseTemplate,
   showBack = true,
   showSimilarTemplate = true,
+  similarTemplatesClassName = "",
   templateId,
 }: TemplateViewProps) {
   const dispatch = useDispatch();
@@ -145,7 +149,7 @@ export function TemplateView({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const goToTemplateListView = () => {
-    history.push(TEMPLATES_PATH);
+    handleBackPress ? handleBackPress() : history.push(TEMPLATES_PATH);
   };
 
   useEffect(() => {
@@ -170,7 +174,9 @@ export function TemplateView({
         name: template.title,
       },
     });
-    history.push(templateIdUrl({ id: template.id }));
+    handleSimilarTemplateClick
+      ? handleSimilarTemplateClick(template.id)
+      : history.push(templateIdUrl({ id: template.id }));
   };
 
   return isFetchingTemplate ? (
@@ -199,6 +205,7 @@ export function TemplateView({
       </TemplateViewWrapper>
       {showSimilarTemplate && (
         <SimilarTemplates
+          className={similarTemplatesClassName}
           isForkingEnabled={!!workspaceList.length}
           onBackPress={goToTemplateListView}
           onClick={onSimilarTemplateClick}
