@@ -45,7 +45,6 @@ export const extractCurrentDSL = ({
   response,
 }: {
   dslTransformer?: (dsl: DSLWidget) => DSLWidget;
-  migrateDSLLocally?: boolean;
   response?: FetchPageResponse;
 }): { dsl: DSLWidget; layoutId: string | undefined } => {
   // If fetch page response doesn't exist
