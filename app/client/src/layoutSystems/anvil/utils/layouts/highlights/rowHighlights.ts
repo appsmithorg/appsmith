@@ -219,7 +219,9 @@ export function getHighlightsForRow(
       // Add a highlight before every widget in the row
       highlights = updateHighlights(
         highlights,
-        baseHighlight,
+        isDraggedWidget
+          ? { ...baseHighlight, existingPositionHighlight: true }
+          : baseHighlight,
         layoutDimensions,
         row[index],
         prevWidgetDimensions,

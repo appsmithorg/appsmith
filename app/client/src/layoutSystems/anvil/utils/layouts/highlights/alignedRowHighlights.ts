@@ -288,7 +288,9 @@ export function getHighlightsForWidgets(
              */
             temp = updateHighlights(
               temp,
-              baseHighlight,
+              isDraggedWidget
+                ? { ...baseHighlight, existingPositionHighlight: true }
+                : baseHighlight,
               childCount,
               alignment as FlexLayerAlignment,
               layoutProps.layoutId,

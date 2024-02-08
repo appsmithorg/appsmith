@@ -181,7 +181,9 @@ export function getHighlightsForLayouts(
        */
       highlights = updateHighlights(
         highlights,
-        skipEntity ? { ...baseHighlight, layoutId } : baseHighlight,
+        skipEntity
+          ? { ...baseHighlight, layoutId, existingPositionHighlight: true }
+          : baseHighlight,
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
