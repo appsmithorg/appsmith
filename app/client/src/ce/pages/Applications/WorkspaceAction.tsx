@@ -20,6 +20,7 @@ import {
 import { NEW_APP } from "@appsmith/constants/messages";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export interface WorkspaceActionProps {
   workspace: Workspace;
@@ -44,6 +45,9 @@ function WorkspaceAction({
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isCreatingApplication = Boolean(
     useSelector(getIsCreatingApplicationByWorkspaceId(workspace.id)),
+  );
+  const isCreateAppFromTemplatesEnabled = useFeatureFlag(
+    "release_show_create_app_from_templates_enabled",
   );
 
   const openActionMenu = useCallback(() => {
@@ -91,14 +95,16 @@ function WorkspaceAction({
         >
           {createMessage(NEW_APP)}
         </MenuItem>
-        <MenuItem
-          data-testid="t--workspace-action-start-from-template"
-          disabled={!hasCreateNewApplicationPermission}
-          onSelect={() => onStartFromTemplate(workspaceId)}
-          startIcon="layout-2-line"
-        >
-          {createMessage(NEW_APP_FROM_TEMPLATE)}
-        </MenuItem>
+        {isCreateAppFromTemplatesEnabled && (
+          <MenuItem
+            data-testid="t--workspace-action-start-from-template"
+            disabled={!hasCreateNewApplicationPermission}
+            onSelect={() => onStartFromTemplate(workspaceId)}
+            startIcon="layout-2-line"
+          >
+            {createMessage(NEW_APP_FROM_TEMPLATE)}
+          </MenuItem>
+        )}
         <Divider className="!block mb-[2px]" />
         {enableImportExport && hasCreateNewApplicationPermission && (
           <MenuItem
