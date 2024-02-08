@@ -8,6 +8,15 @@ import { useLocation } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isElementVisible } from "./utils";
 import { hideIndicator } from "components/utils/Indicator";
+import store from "store";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+
+const state = store.getState();
+const isTurnOffWalkthroughFlagSet = selectFeatureFlagCheck(
+  state,
+  FEATURE_FLAG.rollout_remove_feature_walkthrough_enabled,
+);
 
 const WalkthroughRenderer = lazy(async () => {
   return retryPromise(
@@ -27,17 +36,19 @@ export default function Walkthrough({ children }: any) {
   const location = useLocation();
 
   const pushFeature = (value: FeatureParams, prioritize = false) => {
-    const alreadyExists = feature.some((f) => f.targetId === value.targetId);
-    if (!alreadyExists) {
-      const _value = Array.isArray(value) ? [...value] : [value];
-      if (prioritize) {
-        // Get ahead of the queue
-        setFeature((e) => [..._value, ...e]);
-      } else {
-        setFeature((e) => [...e, ..._value]);
+    if (isTurnOffWalkthroughFlagSet) {
+      const alreadyExists = feature.some((f) => f.targetId === value.targetId);
+      if (!alreadyExists) {
+        const _value = Array.isArray(value) ? [...value] : [value];
+        if (prioritize) {
+          // Get ahead of the queue
+          setFeature((e) => [..._value, ...e]);
+        } else {
+          setFeature((e) => [...e, ..._value]);
+        }
       }
+      updateActiveWalkthrough();
     }
-    updateActiveWalkthrough();
   };
 
   const popFeature = (triggeredFrom?: string) => {
