@@ -34,7 +34,10 @@ const EditorTitle = ({ title }: { title: string }) => {
         <Text isBold kind={"body-m"}>
           {title}
         </Text>
-        <Icon name={"arrow-down-s-line"} size={"md"} />
+        <Icon
+          name={active ? "arrow-up-s-line" : "arrow-down-s-line"}
+          size={"md"}
+        />
       </Flex>
     </Flex>
   );
