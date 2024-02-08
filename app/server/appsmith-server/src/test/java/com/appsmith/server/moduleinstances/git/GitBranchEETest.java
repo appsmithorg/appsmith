@@ -287,41 +287,44 @@ class GitBranchEETest {
     }
 
     private void mockPluginServiceFormData() {
-        String jsonString = "{\n" + "  \"setting\": [\n"
-                + "    {\n"
-                + "      \"sectionName\": \"\",\n"
-                + "      \"id\": 1,\n"
-                + "      \"children\": [\n"
-                + "        {\n"
-                + "          \"label\": \"Run query on page load\",\n"
-                + "          \"configProperty\": \"executeOnLoad\",\n"
-                + "          \"controlType\": \"SWITCH\",\n"
-                + "          \"subtitle\": \"Will refresh data each time the page is loaded\"\n"
-                + "        },\n"
-                + "        {\n"
-                + "          \"label\": \"Request confirmation before running query\",\n"
-                + "          \"configProperty\": \"confirmBeforeExecute\",\n"
-                + "          \"controlType\": \"SWITCH\",\n"
-                + "          \"subtitle\": \"Ask confirmation from the user each time before refreshing data\"\n"
-                + "        },\n"
-                + "        {\n"
-                + "          \"label\": \"Use Prepared Statement\",\n"
-                + "          \"subtitle\": \"Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.\",\n"
-                + "          \"configProperty\": \"actionConfiguration.pluginSpecifiedTemplates[0].value\",\n"
-                + "          \"controlType\": \"SWITCH\",\n"
-                + "          \"initialValue\": true\n"
-                + "        },\n"
-                + "        {\n"
-                + "          \"label\": \"Query timeout (in milliseconds)\",\n"
-                + "          \"subtitle\": \"Maximum time after which the query will return\",\n"
-                + "          \"configProperty\": \"actionConfiguration.timeoutInMillisecond\",\n"
-                + "          \"controlType\": \"INPUT_TEXT\",\n"
-                + "          \"dataType\": \"NUMBER\"\n"
-                + "        }\n"
-                + "      ]\n"
-                + "    }\n"
-                + "  ]\n"
-                + "}";
+        String jsonString =
+                """
+                {
+                  "setting": [
+                    {
+                      "sectionName": "",
+                      "id": 1,
+                      "children": [
+                        {
+                          "label": "Run query on page load",
+                          "configProperty": "executeOnLoad",
+                          "controlType": "SWITCH",
+                          "subtitle": "Will refresh data each time the page is loaded"
+                        },
+                        {
+                          "label": "Request confirmation before running query",
+                          "configProperty": "confirmBeforeExecute",
+                          "controlType": "SWITCH",
+                          "subtitle": "Ask confirmation from the user each time before refreshing data"
+                        },
+                        {
+                          "label": "Use Prepared Statement",
+                          "subtitle": "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+                          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                          "controlType": "SWITCH",
+                          "initialValue": true
+                        },
+                        {
+                          "label": "Query timeout (in milliseconds)",
+                          "subtitle": "Maximum time after which the query will return",
+                          "configProperty": "actionConfiguration.timeoutInMillisecond",
+                          "controlType": "INPUT_TEXT",
+                          "dataType": "NUMBER"
+                        }
+                      ]
+                    }
+                  ]
+                }""";
         try {
             JsonNode pluginSettingsNode = objectMapper.readTree(jsonString);
             Map configMap = objectMapper.convertValue(pluginSettingsNode, Map.class);
@@ -813,9 +816,6 @@ class GitBranchEETest {
                         assertThat(newAction.getDefaultResources())
                                 .as("Domain default resources")
                                 .isNotNull();
-                        assertThat(newAction.getDefaultResources().getActionId())
-                                .as("Default action id")
-                                .isNotEqualTo(newAction.getId());
                         assertThat(newAction.getDefaultResources().getApplicationId())
                                 .as("Default application id")
                                 .isEqualTo(parentApplication.getId());
@@ -823,12 +823,27 @@ class GitBranchEETest {
                                 .as("Branch name")
                                 .isEqualTo(createGitBranchDTO.getBranchName());
 
-                        assertThat(newAction.getDefaultResources().getRootModuleInstanceId())
-                                .as("Default root module instance id")
-                                .isNotEqualTo(newAction.getRootModuleInstanceId());
-                        assertThat(newAction.getDefaultResources().getModuleInstanceId())
-                                .as("Default module instance id")
-                                .isNotEqualTo(newAction.getModuleInstanceId());
+                        if (!Boolean.FALSE.equals(newAction.getIsPublic())) {
+                            assertThat(newAction.getDefaultResources().getActionId())
+                                    .as("Default action id")
+                                    .isNotEqualTo(newAction.getId());
+                            assertThat(newAction.getDefaultResources().getRootModuleInstanceId())
+                                    .as("Default root module instance id")
+                                    .isNotEqualTo(newAction.getRootModuleInstanceId());
+                            assertThat(newAction.getDefaultResources().getModuleInstanceId())
+                                    .as("Default module instance id")
+                                    .isNotEqualTo(newAction.getModuleInstanceId());
+                        } else {
+                            assertThat(newAction.getDefaultResources().getActionId())
+                                    .as("Default action id")
+                                    .isEqualTo(newAction.getId());
+                            assertThat(newAction.getDefaultResources().getRootModuleInstanceId())
+                                    .as("Default root module instance id")
+                                    .isEqualTo(newAction.getRootModuleInstanceId());
+                            assertThat(newAction.getDefaultResources().getModuleInstanceId())
+                                    .as("Default module instance id")
+                                    .isEqualTo(newAction.getModuleInstanceId());
+                        }
 
                         ActionDTO action = newAction.getUnpublishedAction();
                         assertThat(action.getDefaultResources())
@@ -838,9 +853,15 @@ class GitBranchEETest {
                                 .as("Default page id")
                                 .isEqualTo(parentApplication.getPages().get(0).getId());
                         if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
-                            assertThat(action.getDefaultResources().getCollectionId())
-                                    .as("Default collection id")
-                                    .isNotEqualTo(action.getCollectionId());
+                            if (!Boolean.FALSE.equals(newAction.getIsPublic())) {
+                                assertThat(action.getDefaultResources().getCollectionId())
+                                        .as("Default collection id")
+                                        .isNotEqualTo(action.getCollectionId());
+                            } else {
+                                assertThat(action.getDefaultResources().getCollectionId())
+                                        .as("Default collection id")
+                                        .isEqualTo(action.getCollectionId());
+                            }
                         }
                     });
 
@@ -848,9 +869,6 @@ class GitBranchEETest {
                         assertThat(actionCollection.getDefaultResources())
                                 .as("Domain default resources")
                                 .isNotNull();
-                        assertThat(actionCollection.getDefaultResources().getCollectionId())
-                                .as("Default collection id")
-                                .isNotEqualTo(actionCollection.getId());
                         assertThat(actionCollection.getDefaultResources().getApplicationId())
                                 .as("Default application id")
                                 .isEqualTo(parentApplication.getId());
@@ -858,18 +876,43 @@ class GitBranchEETest {
                                 .as("Branch name")
                                 .isEqualTo(createGitBranchDTO.getBranchName());
 
-                        assertThat(actionCollection.getDefaultResources().getRootModuleInstanceId())
-                                .as("Default root module instance id")
-                                .isNotEqualTo(actionCollection.getRootModuleInstanceId());
-                        assertThat(actionCollection.getDefaultResources().getModuleInstanceId())
-                                .as("Default module instance id")
-                                .isNotEqualTo(actionCollection.getModuleInstanceId());
+                        if (!Boolean.FALSE.equals(actionCollection.getIsPublic())) {
+                            assertThat(actionCollection.getDefaultResources().getCollectionId())
+                                    .as("Default collection id")
+                                    .isNotEqualTo(actionCollection.getId());
+                            assertThat(actionCollection.getDefaultResources().getRootModuleInstanceId())
+                                    .as("Default root module instance id")
+                                    .isNotEqualTo(actionCollection.getRootModuleInstanceId());
+                            assertThat(actionCollection.getDefaultResources().getModuleInstanceId())
+                                    .as("Default module instance id")
+                                    .isNotEqualTo(actionCollection.getModuleInstanceId());
+                        } else {
+                            assertThat(actionCollection.getDefaultResources().getCollectionId())
+                                    .as("Default collection id")
+                                    .isEqualTo(actionCollection.getId());
+                            assertThat(actionCollection.getDefaultResources().getRootModuleInstanceId())
+                                    .as("Default root module instance id")
+                                    .isEqualTo(actionCollection.getRootModuleInstanceId());
+                            assertThat(actionCollection.getDefaultResources().getModuleInstanceId())
+                                    .as("Default module instance id")
+                                    .isEqualTo(actionCollection.getModuleInstanceId());
+                        }
 
                         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 
-                        unpublishedCollection.getDefaultToBranchedActionIdsMap().forEach((key, value) -> assertThat(key)
-                                .as("Default to branched action id %s", key)
-                                .isNotEqualTo(value));
+                        if (!Boolean.FALSE.equals(actionCollection.getIsPublic())) {
+                            unpublishedCollection
+                                    .getDefaultToBranchedActionIdsMap()
+                                    .forEach((key, value) -> assertThat(key)
+                                            .as("Default to branched action id %s", key)
+                                            .isNotEqualTo(value));
+                        } else {
+                            unpublishedCollection
+                                    .getDefaultToBranchedActionIdsMap()
+                                    .forEach((key, value) -> assertThat(key)
+                                            .as("Default to branched action id %s", key)
+                                            .isEqualTo(value));
+                        }
 
                         assertThat(unpublishedCollection.getDefaultResources())
                                 .as("Dto default resources")

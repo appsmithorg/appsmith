@@ -234,6 +234,8 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                                 defaultResourcesService.initialize(
                                         moduleInstance, importingMetaDTO.getBranchName(), false);
                                 moduleInstance.getDefaultResources().setApplicationId(defaultApplicationId);
+                                moduleInstance.getDefaultResources().setModuleInstanceId(null);
+                                moduleInstance.setId(null);
                                 dtoDefaultResourcesService.initialize(
                                         moduleInstance.getUnpublishedModuleInstance(),
                                         importingMetaDTO.getBranchName(),

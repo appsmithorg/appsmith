@@ -32,6 +32,7 @@ import com.appsmith.server.dtos.SimulatedModuleInstanceDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.moduleinstantiation.JSActionType;
@@ -93,6 +94,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     private final PackageRepository packageRepository;
     private final DefaultResourcesService<ModuleInstance> defaultResourcesService;
     private final DefaultResourcesService<ModuleInstanceDTO> dtoDefaultResourcesService;
+    private final ResponseUtils responseUtils;
 
     public CrudModuleInstanceServiceImpl(
             ModuleInstanceRepository repository,
@@ -116,7 +118,8 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
             UpdateLayoutService updateLayoutService,
             PackageRepository packageRepository,
             DefaultResourcesService<ModuleInstance> defaultResourcesService,
-            DefaultResourcesService<ModuleInstanceDTO> dtoDefaultResourcesService) {
+            DefaultResourcesService<ModuleInstanceDTO> dtoDefaultResourcesService,
+            ResponseUtils responseUtils) {
         super(repository);
         this.repository = repository;
         this.moduleInstancePermission = moduleInstancePermission;
@@ -140,6 +143,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         this.packageRepository = packageRepository;
         this.defaultResourcesService = defaultResourcesService;
         this.dtoDefaultResourcesService = dtoDefaultResourcesService;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -183,6 +187,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                                     .then(jsLibModuleInstantiatingService.instantiateEntities(
                                             moduleInstantiatingMetaDTO))
                                     .then(generateModuleInstanceByViewMode(savedModuleInstance, ResourceModes.EDIT)
+                                            .map(responseUtils::updateModuleInstanceDTOWithDefaultResources)
                                             .flatMap(createdModuleInstance -> {
                                                 Mono<List<ActionViewDTO>> actionListMono = newActionService
                                                         .findAllUnpublishedComposedActionViewDTOsByRootModuleInstanceId(
@@ -372,7 +377,6 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
                     moduleInstance.setUnpublishedModuleInstance(unpublishedModuleInstanceDTO);
                     moduleInstance.setPublishedModuleInstance(new ModuleInstanceDTO());
-                    moduleInstance.setId(new ObjectId().toString());
 
                     if (moduleInstanceReqDTO.getId() != null) {
                         // For simulated module instance flow the id should be retained from the existing module
@@ -666,7 +670,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
         Mono<List<ActionCollectionDTO>> collectionDTOListMono = pageMono.flatMapMany(
                         newPage -> actionCollectionService.getAllModuleInstanceCollectionsInContext(
-                                contextId, contextType, permission, viewMode))
+                                newPage.getId(), contextType, permission, viewMode))
                 .collectList();
 
         return getModuleInstanceEntitiesDTOMono(actionDTOListMono, collectionDTOListMono, viewMode);
