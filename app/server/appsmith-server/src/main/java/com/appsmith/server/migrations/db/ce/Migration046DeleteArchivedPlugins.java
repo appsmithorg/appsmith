@@ -26,6 +26,7 @@ public class Migration046DeleteArchivedPlugins {
 
     @Execution
     public void deleteArchivedPlugins() {
+        // Not using repositories and Q-classes here so we can remove the `BaseDomain` inheritance on `WorkspacePlugin`.
         mongoTemplate.remove(
                 Query.query(new Criteria()
                         .orOperator(
