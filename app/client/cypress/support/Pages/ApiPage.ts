@@ -129,9 +129,10 @@ export class ApiPage {
     queryTimeout = 10000,
     apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
     aftDSSaved = false,
+    toVerifySave = true,
   ) {
     this.CreateApi(apiName, apiVerb, aftDSSaved);
-    this.EnterURL(url);
+    this.EnterURL(url, "", toVerifySave);
     this.agHelper.Sleep(); //Is needed for the entered url value to be registered, else failing locally & CI
     this.AssertRunButtonDisability();
     if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
@@ -141,17 +142,19 @@ export class ApiPage {
     this.agHelper.AssertElementEnabledDisabled(this._apiRunBtn, 0, disabled);
   }
 
-  EnterURL(url: string, evaluatedValue = "") {
-    this.agHelper.EnterValue(url, {
-      propFieldName: this._resourceUrl,
-      directInput: true,
-      inputFieldName: "",
-      apiOrQuery: "api",
-    });
+  EnterURL(url: string, evaluatedValue = "", toVerifySave = true) {
+    this.agHelper.EnterValue(
+      url,
+      {
+        propFieldName: this._resourceUrl,
+        directInput: true,
+        inputFieldName: "",
+        apiOrQuery: "api",
+      },
+      toVerifySave,
+    );
     this.agHelper.Sleep(); //Is needed for the entered url value to be registered, else failing locally & CI
-    if (evaluatedValue) {
-      this.agHelper.VerifyEvaluatedValue(evaluatedValue);
-    }
+    evaluatedValue && this.agHelper.VerifyEvaluatedValue(evaluatedValue);
   }
 
   EnterHeader(hKey: string, hValue: string, index = 0) {

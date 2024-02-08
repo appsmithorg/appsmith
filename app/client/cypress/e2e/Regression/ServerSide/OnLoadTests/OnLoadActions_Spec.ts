@@ -192,6 +192,9 @@ describe(
         "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
         "Genderize",
         30000,
+        "GET",
+        false,
+        false,
       );
       apiPage.ValidateQueryParams({
         key: "name",

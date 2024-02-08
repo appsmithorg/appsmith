@@ -1197,6 +1197,7 @@ export class AggregateHelper {
   public EnterValue(
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
+    toVerifySave = true,
   ) {
     const { apiOrQuery, directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
@@ -1207,7 +1208,7 @@ export class AggregateHelper {
         valueToEnter,
       );
     }
-    this.AssertAutoSave();
+    toVerifySave && this.AssertAutoSave();
   }
 
   public VerifyCodeInputValue(propFieldName: string, value: string) {
