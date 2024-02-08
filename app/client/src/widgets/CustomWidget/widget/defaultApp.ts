@@ -6,10 +6,10 @@ export default {
 <div id="root"></div>
 `,
     css: `.app {
-	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
 	border-radius: 0px;
+	border: none;
 }
 
 .tip-container {
@@ -97,10 +97,10 @@ appsmith.onReady(() => {
 <div id="root"></div>
 `,
     css: `.app {
-	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
 	border-radius: 0px;
+	border: none;
 }
 
 .tip-container {

@@ -126,7 +126,7 @@ public class ApplicationTemplateServiceUnitTest {
 
         StepVerifier.create(templateListMono)
                 .assertNext(applicationTemplates -> {
-                    assertThat(applicationTemplates.size()).isEqualTo(3);
+                    assertThat(applicationTemplates).hasSize(3);
                 })
                 .verifyComplete();
     }
@@ -155,7 +155,7 @@ public class ApplicationTemplateServiceUnitTest {
         // make sure we've received the response returned by the mockCloudServices
         StepVerifier.create(applicationTemplateService.getActiveTemplates(null))
                 .assertNext(applicationTemplates -> {
-                    assertThat(applicationTemplates.size()).isEqualTo(1);
+                    assertThat(applicationTemplates).hasSize(1);
                     ApplicationTemplate applicationTemplate = applicationTemplates.get(0);
                     assertThat(applicationTemplate.getPages()).hasSize(1);
                     PageNameIdDTO pageNameIdDTO = applicationTemplate.getPages().get(0);
