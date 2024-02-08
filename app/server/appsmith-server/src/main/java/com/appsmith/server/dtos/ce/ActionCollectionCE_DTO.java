@@ -153,6 +153,7 @@ public class ActionCollectionCE_DTO {
         this.setDefaultToBranchedArchivedActionIdsMap(null);
         this.setActionIds(null);
         this.setArchivedActionIds(null);
+        this.setUserPermissions(Set.of());
     }
 
     public String getUserExecutableName() {
