@@ -1,6 +1,20 @@
 import styled from "styled-components";
 import { Flex } from "design-system";
+import { DEFAULT_SPLIT_SCREEN_WIDTH } from "constants/AppConstants";
 
+/**
+ * Logic for 54px in max width
+ *
+ * 4px  tabs + add icon container left padding
+ * 4px  tabs + add icon container right padding
+ * 4px  gap between tabs and add icon
+ * 4px  gap between every tabs * 4 (since max tab count is 5,
+ *      there will be 5 gaps)
+ * 26px Add button width
+ * ======================================
+ * 54px
+ *
+ */
 export const StyledTab = styled(Flex)`
   position: relative;
   top: 1px;
@@ -14,6 +28,7 @@ export const StyledTab = styled(Flex)`
   border-top-right-radius: var(--ads-v2-border-radius);
   align-items: center;
   justify-content: center;
+  max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 54px) / 5);
 
   // After element - the seperator in between tabs
   &:not(&.active):not(:has(+ .active)):not(:last-child):after {
@@ -37,7 +52,7 @@ export const StyledTab = styled(Flex)`
 `;
 
 export const TabTextContainer = styled.span`
-  max-width: 70px;
+  width: 100%;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;

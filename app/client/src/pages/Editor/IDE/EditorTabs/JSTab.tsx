@@ -9,6 +9,7 @@ import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import history, { NavigationMethod } from "utils/history";
 import { StyledTab, TabTextContainer } from "./StyledComponents";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { Tooltip } from "design-system";
 
 const JSTab = ({ data }: { data: EntityItem }) => {
   const activeActionId = useActiveAction();
@@ -32,7 +33,9 @@ const JSTab = ({ data }: { data: EntityItem }) => {
       onClick={navigateToJSCollection}
     >
       {JsFileIconV2(12, 12)}
-      <TabTextContainer>{data.title}</TabTextContainer>
+      <Tooltip content={data.title} mouseEnterDelay={1}>
+        <TabTextContainer>{data.title}</TabTextContainer>
+      </Tooltip>
     </StyledTab>
   );
 };
