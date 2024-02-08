@@ -1,5 +1,5 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import produce, { Immutable } from "immer";
+import produce, { type Immutable } from "immer";
 
 export type ActionHandlers<T> = Record<
   string,
