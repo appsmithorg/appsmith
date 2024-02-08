@@ -37,11 +37,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -385,21 +383,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         // Since we are parsing this widget in this, add it to the global set of widgets found so far in the DSL.
         widgetNames.add(widgetName);
 
-        LinkedHashMap lm;
-
         // Start by picking all fields where we expect to find dynamic bindings for this particular widget
-        ArrayList<Object> dynamicallyBoundedPathList = null;
-        Object dynamicBindingPathList = dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
-        if (dynamicBindingPathList != null) {
-            dynamicallyBoundedPathList = new ArrayList<>();
-            // in case of empty list, jackson can create an object of type LinkedHashMap
-            if (dynamicBindingPathList instanceof LinkedHashMap) {
-                LinkedHashMap lhm = (LinkedHashMap) dynamicBindingPathList;
-                dynamicallyBoundedPathList.addAll(lhm.values());
-            } else if (dynamicBindingPathList instanceof Collection) {
-                dynamicallyBoundedPathList.addAll(((Collection) dynamicBindingPathList));
-            }
-        }
+        ArrayList<Object> dynamicallyBoundedPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
 
         // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no bindings in that widget.
         // Hence we skip over the extraction of the bindings from that widget.
