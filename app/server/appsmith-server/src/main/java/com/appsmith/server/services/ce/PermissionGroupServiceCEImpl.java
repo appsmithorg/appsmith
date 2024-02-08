@@ -214,14 +214,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> bulkUnassignFromUsers(String permissionGroupId, List<User> users) {
-        return Mono.empty(); /*
         return repository
                 .findById(permissionGroupId, permissionGroupPermission.getUnAssignPermission())
-                .flatMap(permissionGroup -> bulkUnassignFromUsers(permissionGroup, users));*/
+                .flatMap(permissionGroup -> bulkUnassignFromUsers(permissionGroup, users));
     }
 
     Mono<PermissionGroup> bulkUnassignFromUserIds(PermissionGroup pg, List<String> userIds) {
-        return Mono.empty(); /*
         ensureAssignedToUserIds(pg);
         pg.getAssignedToUserIds().removeAll(userIds);
         Mono<PermissionGroup> updatePermissionGroupMono =
@@ -230,7 +228,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
         return updatePermissionGroupMono
                 .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
-                .map(tuple -> tuple.getT1());*/
+                .map(tuple -> tuple.getT1());
     }
 
     @Override
@@ -362,11 +360,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Mono<PermissionGroup> bulkAssignToUserAndSendEvent(PermissionGroup permissionGroup, List<User> users) {
         List<String> usernames = users.stream().map(User::getUsername).toList();
         return bulkAssignToUsers(permissionGroup, users)
-                .flatMap(permissionGroup1 -> sendEventUsersAssociatedToRole(permissionGroup, usernames))
-                .map(x -> {
-                    System.out.println(x);
-                    return x;
-                });
+                .flatMap(permissionGroup1 -> sendEventUsersAssociatedToRole(permissionGroup, usernames));
     }
 
     @Override
@@ -419,8 +413,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Set<String>> getSessionUserPermissionGroupIds() {
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap((User user) -> repository.getAllPermissionGroupsIdsForUser(user));
+        return sessionUserService.getCurrentUser().flatMap(repository::getAllPermissionGroupsIdsForUser);
     }
 }
