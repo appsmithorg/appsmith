@@ -88,6 +88,7 @@ import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader"
 import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
 import WorkspaceMenu from "@appsmith/pages/Applications/WorkspaceMenu";
+import { getIsReconnectingDatasourcesModalOpen } from "@appsmith/selectors/entitiesSelector";
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import {
@@ -126,8 +127,7 @@ import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceMo
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import CreateNewAppFromTemplatesModal from "./CreateNewAppFromTemplateModal";
-import { getIsReconnectingDatasourcesModalOpen } from "@appsmith/selectors/entitiesSelector";
+import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -1060,8 +1060,8 @@ export class Applications<
             searchApplications={this.props.searchApplications}
             searchKeyword={this.props.searchKeyword}
           />
-          <CreateNewAppFromTemplatesModal
-            currentWorkSpaceId={this.props.currentWorkspaceId}
+          <CreateNewAppFromTemplatesWrapper
+            currentWorkspaceId={this.props.currentWorkspaceId}
             handleClose={() => {
               this.setState({ startFromTemplate: false });
             }}
