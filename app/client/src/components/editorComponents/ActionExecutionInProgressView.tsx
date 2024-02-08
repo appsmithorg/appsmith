@@ -10,6 +10,12 @@ import styled from "styled-components";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import LoadingOverlayScreen from "./LoadingOverlayScreen";
 
+const Wrapper = styled.div`
+  position: relative;
+  height: 100%;
+  width: 100%;
+`;
+
 const LoadingOverlayContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -46,25 +52,27 @@ const ActionExecutionInProgressView = ({
   theme,
 }: ActionExecutionInProgressViewProps) => {
   return (
-    <LoadingProgressWrapper>
-      <LoadingOverlayScreen theme={theme} />
-      <LoadingOverlayContainer>
-        <Spinner size="md" />
-        <InProgressText kind="body-m" renderAs="p">
-          {createMessage(ACTION_EXECUTION_MESSAGE, actionType)}
-        </InProgressText>
-        <Button
-          className={`t--cancel-action-button`}
-          kind="secondary"
-          onClick={() => {
-            handleCancelActionExecution();
-          }}
-          size="md"
-        >
-          {createMessage(ACTION_EXECUTION_CANCEL)}
-        </Button>
-      </LoadingOverlayContainer>
-    </LoadingProgressWrapper>
+    <Wrapper>
+      <LoadingProgressWrapper>
+        <LoadingOverlayScreen theme={theme} />
+        <LoadingOverlayContainer>
+          <Spinner size="md" />
+          <InProgressText kind="body-m" renderAs="p">
+            {createMessage(ACTION_EXECUTION_MESSAGE, actionType)}
+          </InProgressText>
+          <Button
+            className={`t--cancel-action-button`}
+            kind="secondary"
+            onClick={() => {
+              handleCancelActionExecution();
+            }}
+            size="md"
+          >
+            {createMessage(ACTION_EXECUTION_CANCEL)}
+          </Button>
+        </LoadingOverlayContainer>
+      </LoadingProgressWrapper>
+    </Wrapper>
   );
 };
 
