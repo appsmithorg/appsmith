@@ -256,7 +256,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
         }
 
-        return getCurrentUserPermissionGroupsIfRequired(permission).flatMap(permissionGroups -> {
+        return getCurrentUserPermissionGroupsIfRequired(permission, true).flatMap(permissionGroups -> {
             query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission.get())));
             return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
         });
@@ -271,7 +271,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "updateObj"));
         }
         Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission), true);
 
         return permissionGroupsMono.flatMap(permissionGroups -> {
             Query queryWithPermission = createQueryWithPermission(criteriaList, permissionGroups, permission);
@@ -280,17 +280,27 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
+        return getCurrentUserPermissionGroupsIfRequired(permission, true);
+    }
+
+    protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(
+            Optional<AclPermission> permission, boolean includeAnonymousUserPermissions) {
         if (permission.isEmpty()) {
             return Mono.just(Set.of());
         }
-        return getCurrentUserPermissionGroups();
+        return getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
     }
 
-    protected Mono<Set<String>> getCurrentUserPermissionGroups() {
+    public Mono<Set<String>> getCurrentUserPermissionGroups() {
+        return getCurrentUserPermissionGroups(true);
+    }
+
+    protected Mono<Set<String>> getCurrentUserPermissionGroups(boolean includeAnonymousUserPermissions) {
         return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal));
+                .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
+                .flatMap(user -> includeAnonymousUserPermissions
+                        ? getAllPermissionGroupsForUser(user)
+                        : getStrictPermissionGroupsForUser(user));
     }
 
     protected Query createQueryWithPermission(
@@ -346,8 +356,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public Flux<T> queryAllExecute(QueryAllParams<T> params) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(
-                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .switchIfEmpty(Mono.defer(() -> getCurrentUserPermissionGroupsIfRequired(
+                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
                 .flatMapMany(permissionGroups -> {
                     final ArrayList<Criteria> criteriaList = new ArrayList<>(params.getCriteria());
                     criteriaList.add(notDeleted());
@@ -385,8 +395,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public Mono<T> queryOneExecute(QueryAllParams<T> params) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(
-                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .switchIfEmpty(Mono.defer(() -> getCurrentUserPermissionGroupsIfRequired(
+                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
                 .flatMap(permissionGroups1 -> mongoOperations
                         .query(this.genericDomain)
                         .matching(createQueryWithPermission(
@@ -401,8 +411,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(
-                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .switchIfEmpty(Mono.defer(() -> getCurrentUserPermissionGroupsIfRequired(
+                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
                 .flatMap(permissionGroups1 -> mongoOperations
                         .query(this.genericDomain)
                         .matching(createQueryWithPermission(
@@ -413,8 +423,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public Mono<Long> countExecute(QueryAllParams<T> params) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(
-                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .switchIfEmpty(Mono.defer(() -> getCurrentUserPermissionGroupsIfRequired(
+                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
                 .flatMap(permissionGroups1 -> mongoOperations.count(
                         createQueryWithPermission(params.getCriteria(), permissionGroups1, params.getPermission()),
                         this.genericDomain));
@@ -558,7 +568,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
         }
 
-        return getCurrentUserPermissionGroupsIfRequired(permission).flatMap(permissionGroups -> {
+        return getCurrentUserPermissionGroupsIfRequired(permission, true).flatMap(permissionGroups -> {
             query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission.get())));
             return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
         });
