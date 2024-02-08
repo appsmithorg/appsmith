@@ -73,7 +73,7 @@ function Header({
   const onGoToModuleClick = () => {
     urlBuilder.setPackageParams({ packageId });
     const url = moduleEditorURL({ moduleId, params: { branch: undefined } });
-    history.push(url);
+    window.open(url, "_blank");
   };
 
   const isDeletePermitted = hasDeleteModuleInstancePermission(
@@ -106,7 +106,12 @@ function Header({
             onDelete={onDelete}
           />
           {moduleId && packageId && (
-            <Button kind="secondary" onClick={onGoToModuleClick} size="md">
+            <Button
+              kind="tertiary"
+              onClick={onGoToModuleClick}
+              size="md"
+              startIcon="share-2"
+            >
               {createMessage(GO_TO_MODULE)}
             </Button>
           )}
