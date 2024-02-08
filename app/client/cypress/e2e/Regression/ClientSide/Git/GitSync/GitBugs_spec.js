@@ -196,13 +196,9 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
         .its("store")
         .invoke("getState")
         .then((state) => {
-          // const commitTextarea = agHelper.GetElement(gitSyncLocators.commitCommentInput);
-          // const commitInputDisabled = commitTextarea.should("be.disabled");
-
           const commitInputDisabled =
             state.ui.gitSync.gitStatus?.isClean ||
             state.ui.gitSync.isCommitting;
-          // cy.log("commitInputDisabled is " + commitInputDisabled);
 
           if (!commitInputDisabled) {
             cy.commitAndPush();
