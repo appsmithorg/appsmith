@@ -22,6 +22,7 @@ import {
 import { UpdatedEditor } from "test/testMockedWidgets";
 import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
+import { getAbsolutePixels } from "utils/helpers";
 import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import GlobalHotKeys from "../GlobalHotKeys";
@@ -217,8 +218,8 @@ describe("Drag and Drop widgets into Main container", () => {
             cancelable: true,
           }),
           {
-            offsetX: 100,
-            offsetY: 100,
+            offsetX: -50,
+            offsetY: -50,
           },
         ),
       );
@@ -514,7 +515,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     const dropTarget: any =
       component.container.getElementsByClassName("t--drop-target")[0];
-    const initialLength = dropTarget.style.height;
+    let initialLength = dropTarget.style.height;
     act(() => {
       fireEvent(
         mainCanvas,
@@ -540,17 +541,40 @@ describe("Drag and Drop widgets into Main container", () => {
           }),
           {
             offsetX: 0,
-            offsetY: 2000,
+            offsetY: 300,
             // min height - (component height + bottom row)
           },
         ),
       );
     });
-    const updatedDropTarget: any =
+    let updatedDropTarget: any =
       component.container.getElementsByClassName("t--drop-target")[0];
-    const updatedLength = updatedDropTarget.style.height;
+    let updatedLength = updatedDropTarget.style.height;
 
     expect(initialLength).not.toEqual(updatedLength);
+    initialLength = updatedLength;
+    const amountMovedY = 300;
+    act(() => {
+      fireEvent(
+        mainCanvas,
+        syntheticTestMouseEvent(
+          new MouseEvent("mousemove", {
+            bubbles: true,
+            cancelable: true,
+          }),
+          {
+            offsetX: 0,
+            offsetY: 300 + amountMovedY,
+          },
+        ),
+      );
+    });
+    updatedDropTarget =
+      component.container.getElementsByClassName("t--drop-target")[0];
+    updatedLength = updatedDropTarget.style.height;
+    expect(getAbsolutePixels(initialLength) + amountMovedY).toEqual(
+      getAbsolutePixels(updatedLength),
+    );
   });
 
   it("Drag and Drop widget into an empty canvas", () => {

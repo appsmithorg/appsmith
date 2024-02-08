@@ -22,6 +22,8 @@ import type {
   WidgetDraggingBlock,
   XYCord,
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { migrateDSL } from "@shared/dsl";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 
 export interface WidgetOperationParams {
   operation: WidgetOperation;
@@ -49,12 +51,18 @@ export const extractCurrentDSL = ({
 }): { dsl: DSLWidget; layoutId: string | undefined } => {
   // If fetch page response doesn't exist
   // It means we are creating a new page
+  const newPage = !response;
   // Get the DSL from the response or default to the defaultDSL
   const currentDSL = response?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
 
   let dsl = currentDSL as DSLWidget;
+  // Run all the migrations on this DSL
+  dsl = migrateDSL(
+    currentDSL as ContainerWidgetProps<WidgetProps>,
+    newPage,
+  ) as DSLWidget;
   // If this DSL is meant to be transformed
   // then the dslTransformer would have been passed by the caller
   if (dslTransformer) {
