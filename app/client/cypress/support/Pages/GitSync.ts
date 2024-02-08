@@ -114,6 +114,14 @@ export class GitSync {
         `generateKey-${repoName}`,
       );
 
+      cy.intercept("GET", "/api/v1/git/branch/app/*/protected").as(
+        `protected-${repoName}`,
+      );
+
+      cy.intercept("GET", "/api/v1/git/branch/app/*").as(
+        `branches-${repoName}`,
+      );
+
       this.OpenGitSyncModal();
 
       this.agHelper.GetNClick(this.providerRadioOthers);
@@ -163,8 +171,11 @@ export class GitSync {
       }
 
       if (removeDefaultBranchProtection) {
-        cy.wait(2000);
-        this.clearBranchProtection();
+        cy.wait([`@protected-${repoName}`, `@branches-${repoName}`]).then((interceptions) => {
+            if(interceptions[0]?.response?.statusCode === 200 && interceptions[1]?.response?.statusCode === 200) {
+              this.clearBranchProtection();
+            }
+        })
       }
 
       cy.wrap(repoName).as("gitRepoName");
