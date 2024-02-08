@@ -201,7 +201,11 @@ describe(
         value: "{{RandomUser.data.results[0].name.first}}",
       }); // verifies Bug 10055
 
-      deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
+      deployMode.DeployApp(
+        locators._widgetInDeployed("textwidget"),
+        false,
+        false,
+      );
       assertHelper.AssertNetworkStatus("@getConsolidatedData");
 
       cy.get("@getConsolidatedData").then(($response: any) => {
