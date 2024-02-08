@@ -86,13 +86,14 @@ class DslUtilsTest {
     void replaceValuesInSpecificDynamicBindingPath_withSuccessfulMultipleReplacements() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode dsl = mapper.createObjectNode();
-        dsl.put("existingPath", "oldFieldValue1 oldFieldValue2");
+        dsl.put("existingPath", "oldFieldValue1 oldFieldValue2 oldFieldValue1 oldFieldValue2");
         HashMap<MustacheBindingToken, String> replacementMap = new HashMap<>();
-        replacementMap.put(new MustacheBindingToken("oldFieldValue1", 0, false), "newFieldValue1");
-        replacementMap.put(new MustacheBindingToken("oldFieldValue2", 15, false), "newFieldValue2");
+        replacementMap.put(new MustacheBindingToken("oldFieldValue1", 0, false), "newishFieldValue1");
+        replacementMap.put(new MustacheBindingToken("oldFieldValue2", 15, false), "newerFieldValue2");
+        replacementMap.put(new MustacheBindingToken("oldFieldValue1", 30, false), "newishFieldValue1");
+        replacementMap.put(new MustacheBindingToken("oldFieldValue2", 45, false), "newerFieldValue2");
         JsonNode replacedDsl = DslUtils.replaceValuesInSpecificDynamicBindingPath(dsl, "existingPath", replacementMap);
-        ObjectNode newDsl = mapper.createObjectNode();
-        newDsl.put("existingPath", "newFieldValue1 newFieldValue2");
-        Assertions.assertThat(replacedDsl).isEqualTo(dsl);
+        Assertions.assertThat(replacedDsl.get("existingPath").asText())
+                .isEqualTo("newishFieldValue1 newerFieldValue2 newishFieldValue1 newerFieldValue2");
     }
 }

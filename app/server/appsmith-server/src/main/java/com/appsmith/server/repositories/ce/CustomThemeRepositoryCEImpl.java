@@ -39,14 +39,17 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         Criteria systemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
         Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
-        return queryAll(List.of(criteria), aclPermission);
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     @Override
     public Flux<Theme> getSystemThemes() {
         Criteria systemThemeCriteria =
                 Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
-        return queryAll(List.of(systemThemeCriteria), AclPermission.READ_THEMES);
+        return queryBuilder()
+                .criteria(systemThemeCriteria)
+                .permission(AclPermission.READ_THEMES)
+                .all();
     }
 
     @Override
@@ -56,7 +59,10 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                 .regex(findNameRegex, "i")
                 .and(fieldName(QTheme.theme.isSystemTheme))
                 .is(true);
-        return queryOne(List.of(criteria), AclPermission.READ_THEMES);
+        return queryBuilder()
+                .criteria(criteria)
+                .permission(AclPermission.READ_THEMES)
+                .one();
     }
 
     private Mono<Boolean> archiveThemeByCriteria(Criteria criteria) {
@@ -68,7 +74,6 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                     Criteria permissionCriteria = userAcl(permissionGroups, AclPermission.MANAGE_THEMES);
 
                     Update update = new Update();
-                    update.set(fieldName(QTheme.theme.deleted), true);
                     update.set(fieldName(QTheme.theme.deletedAt), Instant.now());
                     return updateByCriteria(List.of(criteria, permissionCriteria), update, null);
                 })

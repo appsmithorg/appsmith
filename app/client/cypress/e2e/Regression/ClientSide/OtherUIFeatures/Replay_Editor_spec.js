@@ -89,7 +89,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("3. Checks undo/redo in query editor", () => {
-    dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
+    dataSources.CreateQueryForDS(postgresDatasourceName);
     cy.get(".CodeMirror textarea").first().focus().type("{{FirstAPI}}", {
       force: true,
       parseSpecialCharSequences: false,

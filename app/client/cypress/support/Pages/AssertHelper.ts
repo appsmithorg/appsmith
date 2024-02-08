@@ -1,6 +1,4 @@
 import "cypress-wait-until";
-import { ObjectsRegistry } from "../Objects/Registry";
-import { ReusableHelper } from "../Objects/ReusableHelper";
 
 export const EntityItems = {
   Page: 0,
@@ -13,7 +11,7 @@ export const EntityItems = {
 
 export type EntityItemsType = (typeof EntityItems)[keyof typeof EntityItems];
 
-export class AssertHelper extends ReusableHelper {
+export class AssertHelper {
   public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   public isMac = Cypress.platform === "darwin";
@@ -24,12 +22,15 @@ export class AssertHelper extends ReusableHelper {
 
   public AssertDocumentReady() {
     cy.waitUntil(() =>
-      //cy.document().then((doc) => doc.readyState === "complete"),
       cy.document().should((doc) => {
         expect(doc.readyState).to.equal("complete");
       }),
     );
-    //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
+    cy.waitUntil(() =>
+      cy
+        .window({ timeout: Cypress.config().pageLoadTimeout })
+        .then((win) => expect(win).haveOwnProperty("onload")),
+    );
   }
 
   public AssertDelete(entityType: EntityItemsType) {
@@ -63,7 +64,7 @@ export class AssertHelper extends ReusableHelper {
     return aliasName;
   }
 
-  public WaitForNetworkCall(aliasName: string, responseTimeout = 150000) {
+  public WaitForNetworkCall(aliasName: string, responseTimeout = 100000) {
     // cy.wait(aliasName).then(($apiCall: any) => {
     //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
     // });

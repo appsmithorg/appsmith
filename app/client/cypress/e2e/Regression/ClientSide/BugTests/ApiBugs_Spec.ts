@@ -22,11 +22,7 @@ import {
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("API Bugs", function () {
-  before(() => {
-    agHelper.RefreshPage();
-  });
-
+describe("API Bugs", { tags: ["@tag.Datasource"] }, function () {
   it("1. Bug 14037, 25432: User gets an error even when table widget is added from the API page successfully", function () {
     // Case where api returns array response
     apiPage.CreateAndFillApi(
@@ -53,6 +49,9 @@ describe("API Bugs", function () {
     const apiUrl = `http://host.docker.internal:5001/v1/{{true ? 'mock-api' : 'mock-apis'}}?records=10`;
 
     apiPage.CreateAndFillApi(apiUrl, "BindingExpressions");
+    agHelper.VerifyEvaluatedValue(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+    );
     apiPage.RunAPI();
     agHelper.AssertElementAbsence(
       locators._specificToast(

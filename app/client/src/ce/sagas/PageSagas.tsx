@@ -13,7 +13,7 @@ import type {
   CreatePageActionPayload,
   FetchPageListPayload,
 } from "actions/pageActions";
-import { createPage } from "actions/pageActions";
+import { createPage, fetchPublishedPage } from "actions/pageActions";
 import {
   clonePageSuccess,
   deletePageSuccess,
@@ -41,6 +41,7 @@ import type {
   FetchPageListResponse,
   FetchPageRequest,
   FetchPageResponse,
+  FetchPageResponseData,
   FetchPublishedPageRequest,
   GenerateTemplatePageRequest,
   PageLayout,
@@ -59,21 +60,17 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, delay, put, select } from "redux-saga/effects";
+import { all, call, delay, put, select, take } from "redux-saga/effects";
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
   getAllPageIds,
   getDefaultPageId,
   getEditorConfigs,
   getWidgets,
-} from "../../sagas/selectors";
-import {
-  IncorrectBindingError,
-  validateResponse,
-} from "../../sagas/ErrorSagas";
+} from "sagas/selectors";
+import { IncorrectBindingError, validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
@@ -109,7 +106,6 @@ import DEFAULT_TEMPLATE from "templates/default";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
   fetchJSCollectionsForPageError,
@@ -117,14 +113,13 @@ import {
 } from "actions/jsActionActions";
 
 import WidgetFactory from "WidgetProvider/factory";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL } from "@appsmith/RouteBuilder";
+import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
+import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
 import {
-  failFastApiCalls,
-  waitForWidgetConfigBuild,
-} from "../../sagas/InitSagas";
-import { resizePublishedMainCanvasToLowestWidget } from "../../sagas/WidgetOperationUtils";
-import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
+  checkAndLogErrorsIfCyclicDependency,
+  getFromServerWhenNoPrefetchedResult,
+} from "sagas/helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
@@ -134,21 +129,30 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { UserCancelledActionExecutionError } from "../../sagas/ActionExecution/errorUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { nestDSL, flattenDSL } from "@shared/dsl";
+import { nestDSL, flattenDSL, LATEST_DSL_VERSION } from "@shared/dsl";
 import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+
+export const checkIfMigrationIsNeeded = (
+  fetchPageResponse?: FetchPageResponse,
+) => {
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
+  if (!currentDSL) return false;
+  return currentDSL.version !== LATEST_DSL_VERSION;
+};
 
 export const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -194,6 +198,7 @@ export function* fetchPageListSaga(
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
           workspaceId,
+          editorId: applicationId,
         },
       });
       yield put({
@@ -261,10 +266,12 @@ export function* refreshTheApp() {
 export const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
   dslTransformer?: (dsl: DSLWidget) => DSLWidget,
+  migrateDSLLocally: boolean = true,
 ): UpdateCanvasPayload => {
   const extractedDSL = extractCurrentDSL({
     dslTransformer,
     response: pageResponse,
+    migrateDSLLocally,
   }).dsl;
   const flattenedDSL = flattenDSL(extractedDSL);
   const pageWidgetId = MAIN_CONTAINER_WIDGET_ID;
@@ -312,9 +319,13 @@ export function* handleFetchedPage({
     // Wait for widget config to be loaded before we can generate the canvas payload
     yield call(waitForWidgetConfigBuild);
     // Get Canvas payload
+    const isServerDSLMigrationsEnabled: boolean = yield select(
+      getIsServerDSLMigrationsEnabled,
+    );
     const canvasWidgetsPayload = getCanvasWidgetsPayload(
       fetchPageResponse,
       dslTransformer,
+      !isServerDSLMigrationsEnabled,
     );
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
@@ -360,14 +371,24 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id, isFirstLoad } = pageRequestAction.payload;
+    const { id, isFirstLoad, pageWithMigratedDsl } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
     );
-    const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-      id,
-    });
+    const isServerDSLMigrationsEnabled = select(
+      getIsServerDSLMigrationsEnabled,
+    );
+
+    const params: FetchPageRequest = { id };
+    if (isServerDSLMigrationsEnabled) {
+      params.migrateDSL = true;
+    }
+    const fetchPageResponse: FetchPageResponse = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      pageWithMigratedDsl,
+      () => call(PageApi.fetchPage, params),
+    );
 
     yield handleFetchedPage({
       fetchPageResponse,
@@ -400,10 +421,12 @@ export function* fetchPublishedPageSaga(
     pageId: string;
     bustCache: boolean;
     firstLoad: boolean;
+    pageWithMigratedDsl?: FetchPageResponse;
   }>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId } = pageRequestAction.payload;
+    const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
+      pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -415,10 +438,13 @@ export function* fetchPublishedPageSaga(
       pageId,
       bustCache,
     };
+
     const response: FetchPageResponse = yield call(
-      PageApi.fetchPublishedPage,
-      request,
+      getFromServerWhenNoPrefetchedResult,
+      pageWithMigratedDsl,
+      () => call(PageApi.fetchPublishedPage, request),
     );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       // Clear any existing caches
@@ -501,7 +527,6 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 
   if (!editorConfigs) return;
 
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const savePageRequest: SavePageRequest = getLayoutSavePayload(
     widgets,
     editorConfigs,
@@ -547,7 +572,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       const { actionUpdates, messages } = savePageResponse.data;
       // We do not want to show these toasts in guided tour
       // Show toast messages from the server
-      if (messages && messages.length && !guidedTourEnabled) {
+      if (messages && messages.length) {
         savePageResponse.data.messages.forEach((message) => {
           toast.show(message, {
             kind: "info",
@@ -763,7 +788,6 @@ export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
-    const guidedTourEnabled: boolean = yield select(inGuidedTour);
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
     const mainCanvasProps: MainCanvasReduxState =
@@ -773,11 +797,6 @@ export function* createPageSaga(
       mainCanvasProps.width,
     );
 
-    // Prevent user from creating a new page during the guided tour
-    if (guidedTourEnabled) {
-      yield put(toggleShowDeviationDialog(true));
-      return;
-    }
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -796,11 +815,18 @@ export function* createPageSaga(
       // Add this to the page DSLs for entity explorer
       // The dslTransformer may not be necessary for the entity explorer
       // However, we still transform for consistency.
+      const isServerDSLMigrationsEnabled: boolean = yield select(
+        getIsServerDSLMigrationsEnabled,
+      );
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
-          dsl: extractCurrentDSL({ dslTransformer, response }).dsl,
+          dsl: extractCurrentDSL({
+            dslTransformer,
+            response,
+            migrateDSLLocally: !isServerDSLMigrationsEnabled,
+          }).dsl,
           layoutId: response.data.layouts[0].id,
         },
       });
@@ -913,7 +939,13 @@ export function* clonePageSaga(
       // We're not sending the `dslTransformer` to the `extractCurrentDSL` function
       // as this is a clone operation, and any layout system specific
       // updates to the DSL would have already been performed in the original page
-      const { dsl, layoutId } = extractCurrentDSL({ response });
+      const isServerDSLMigrationsEnabled: boolean = yield select(
+        getIsServerDSLMigrationsEnabled,
+      );
+      const { dsl, layoutId } = extractCurrentDSL({
+        response,
+        migrateDSLLocally: !isServerDSLMigrationsEnabled,
+      });
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
@@ -1152,7 +1184,10 @@ export function* setDataUrl() {
   yield put(setUrlData(urlData));
 }
 
-export function* fetchPageDSLSaga(pageId: string) {
+export function* fetchPageDSLSaga(
+  pageId: string,
+  pageDSL?: ApiResponse<FetchPageResponseData>,
+) {
   try {
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
@@ -1162,9 +1197,19 @@ export function* fetchPageDSLSaga(pageId: string) {
       layoutSystemType,
       mainCanvasProps.width,
     );
-    const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-      id: pageId,
-    });
+    const isServerDSLMigrationsEnabled = select(
+      getIsServerDSLMigrationsEnabled,
+    );
+    const params: FetchPageRequest = { id: pageId };
+    if (isServerDSLMigrationsEnabled) {
+      params.migrateDSL = true;
+    }
+    const fetchPageResponse: FetchPageResponse = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      pageDSL,
+      () => call(PageApi.fetchPage, params),
+    );
+
     const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       // Wait for the Widget config to be loaded before we can migrate the DSL
@@ -1179,6 +1224,7 @@ export function* fetchPageDSLSaga(pageId: string) {
       const { dsl, layoutId } = extractCurrentDSL({
         dslTransformer,
         response: fetchPageResponse,
+        migrateDSLLocally: !isServerDSLMigrationsEnabled,
       });
       return {
         pageId,
@@ -1203,14 +1249,25 @@ export function* fetchPageDSLSaga(pageId: string) {
   }
 }
 
-export function* populatePageDSLsSaga() {
+export function* populatePageDSLsSaga(action?: {
+  payload?: { pagesWithMigratedDsl?: ApiResponse<FetchPageResponseData[]> };
+}) {
+  const { pagesWithMigratedDsl } = action?.payload || {};
   try {
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
     const pageDSLs: unknown = yield all(
       pageIds.map((pageId: string) => {
-        return call(fetchPageDSLSaga, pageId);
+        if (!pagesWithMigratedDsl) {
+          return call(fetchPageDSLSaga, pageId);
+        }
+        const { data } = pagesWithMigratedDsl;
+        const v1PageDSL = data?.find?.((v: any) => v?.id === pageId);
+        return call(fetchPageDSLSaga, pageId, {
+          ...pagesWithMigratedDsl,
+          data: v1PageDSL,
+        } as ApiResponse<FetchPageResponseData>);
       }),
     );
     yield put({
@@ -1391,12 +1448,14 @@ export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
 
 export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
   try {
-    const { id, isFirstLoad } = action.payload;
+    const { id, isFirstLoad, pageWithMigratedDsl } = action.payload;
 
-    yield call(fetchPageSaga, {
-      type: ReduxActionTypes.FETCH_PAGE_INIT,
-      payload: { id, isFirstLoad },
-    });
+    /*
+      Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
+      Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
+    */
+    yield put(fetchPage(id, isFirstLoad, pageWithMigratedDsl));
+    yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
 
     yield put({
       type: ReduxActionTypes.SETUP_PAGE_SUCCESS,
@@ -1414,15 +1473,21 @@ export function* setupPublishedPageSaga(
     pageId: string;
     bustCache: boolean;
     firstLoad: boolean;
+    pageWithMigratedDsl?: FetchPageResponse;
   }>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId } = action.payload;
+    const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
+      action.payload;
 
-    yield call(fetchPublishedPageSaga, {
-      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      payload: { bustCache, firstLoad, pageId },
-    });
+    /*
+      Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
+      Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
+    */
+    yield put(
+      fetchPublishedPage(pageId, bustCache, firstLoad, pageWithMigratedDsl),
+    );
+    yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
 
     yield put({
       type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,

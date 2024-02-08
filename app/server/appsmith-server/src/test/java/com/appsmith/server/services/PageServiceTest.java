@@ -10,6 +10,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -24,6 +25,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -641,12 +643,13 @@ public class PageServiceTest {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        layoutCollectionService.createCollection(actionCollectionDTO).block();
+        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
 
         applicationPageService.publish(applicationId, true).block();
 
-        final Mono<PageDTO> pageMono =
-                applicationPageService.clonePage(page.getId()).cache();
+        final Mono<PageDTO> pageMono = applicationPageService
+                .clonePage(page.getId(), new ClonePageMetaDTO())
+                .cache();
 
         Mono<List<NewAction>> actionsMono = pageMono.flatMapMany(
                         page1 -> newActionService.findByPageId(page1.getId(), READ_ACTIONS))
@@ -725,7 +728,7 @@ public class PageServiceTest {
 
                     // Confirm that the page action got copied as well
                     List<NewAction> actions = tuple.getT2();
-                    assertThat(actions.size()).isEqualTo(2);
+                    assertThat(actions).hasSize(2);
                     NewAction actionWithoutCollection = actions.stream()
                             .filter(newAction -> !StringUtils.hasLength(
                                     newAction.getUnpublishedAction().getCollectionId()))
@@ -849,7 +852,7 @@ public class PageServiceTest {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        layoutCollectionService.createCollection(actionCollectionDTO).block();
+        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
 
         final Mono<NewPage> pageMono = applicationPageService
                 .clonePageByDefaultPageIdAndBranch(page.getId(), branchName)
@@ -1098,7 +1101,7 @@ public class PageServiceTest {
         StepVerifier.create(applicationPageReOrdered)
                 .assertNext(application -> {
                     final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages).hasSize(4);
                     assertThat(pages.get(0).getId()).isEqualTo(pageIds[0]);
                     assertThat(pages.get(1).getId()).isEqualTo(pageIds[3]);
                     assertThat(pages.get(2).getId()).isEqualTo(pageIds[1]);
@@ -1149,7 +1152,7 @@ public class PageServiceTest {
         StepVerifier.create(applicationPageReOrdered)
                 .assertNext(application -> {
                     final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages).hasSize(4);
                     assertThat(pages.get(3).getId()).isEqualTo(pageIds[0]);
                     assertThat(pages.get(0).getId()).isEqualTo(pageIds[1]);
                     assertThat(pages.get(1).getId()).isEqualTo(pageIds[2]);
@@ -1197,7 +1200,7 @@ public class PageServiceTest {
         StepVerifier.create(applicationPageReOrdered)
                 .assertNext(application -> {
                     final List<PageNameIdDTO> pages = application.getPages();
-                    assertThat(pages.size()).isEqualTo(4);
+                    assertThat(pages).hasSize(4);
                     assertThat(pages.get(3).getId()).isEqualTo(pageIds[0].getId());
                     assertThat(pages.get(0).getId()).isEqualTo(pageIds[1].getId());
                     assertThat(pages.get(1).getId()).isEqualTo(pageIds[2].getId());

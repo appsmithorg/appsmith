@@ -2,9 +2,7 @@ import React, { memo, useCallback } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import history, { NavigationMethod } from "utils/history";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
-import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import { getJSCollection } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import type { JSCollection } from "entities/JSCollection";
@@ -19,6 +17,8 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { saveJSObjectNameBasedOnParentEntity } from "@appsmith/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 interface ExplorerJSCollectionEntityProps {
   step: number;
@@ -26,21 +26,27 @@ interface ExplorerJSCollectionEntityProps {
   id: string;
   isActive: boolean;
   type: PluginType;
+  parentEntityId: string;
+  parentEntityType: ActionParentEntityTypeInterface;
 }
 
-const getUpdateJSObjectName = (id: string, name: string) => {
-  return saveJSObjectName({ id, name });
+const getUpdateJSObjectName = (
+  id: string,
+  name: string,
+  parentEntityType: ActionParentEntityTypeInterface,
+) => {
+  return saveJSObjectNameBasedOnParentEntity(id, name, parentEntityType);
 };
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
-    const pageId = useSelector(getCurrentPageId) as string;
     const jsAction = useSelector((state: AppState) =>
       getJSCollection(state, props.id),
     ) as JSCollection;
     const location = useLocation();
+    const { parentEntityId, parentEntityType } = props;
     const navigateToUrl = jsCollectionIdURL({
-      pageId,
+      parentEntityId,
       collectionId: jsAction.id,
       params: {},
     });
@@ -56,7 +62,7 @@ export const ExplorerJSCollectionEntity = memo(
           invokedBy: NavigationMethod.EntityExplorer,
         });
       }
-    }, [pageId, jsAction.id, jsAction.name, location.pathname]);
+    }, [parentEntityId, jsAction.id, jsAction.name, location.pathname]);
 
     const jsActionPermissions = jsAction.userPermissions || [];
 
@@ -77,9 +83,9 @@ export const ExplorerJSCollectionEntity = memo(
         canDelete={canDeleteJSAction}
         canManage={canManageJSAction}
         className={EntityClassNames.CONTEXT_MENU}
+        hideMenuItems={Boolean(jsAction?.isMainJSCollection)}
         id={jsAction.id}
         name={jsAction.name}
-        pageId={pageId}
       />
     );
     return (
@@ -92,10 +98,12 @@ export const ExplorerJSCollectionEntity = memo(
         entityId={jsAction.id}
         icon={JsFileIconV2(16, 16)}
         key={jsAction.id}
-        name={jsAction.name}
+        name={jsAction?.displayName || jsAction.name}
         searchKeyword={props.searchKeyword}
         step={props.step}
-        updateEntityName={getUpdateJSObjectName}
+        updateEntityName={(id, name) =>
+          getUpdateJSObjectName(id, name, parentEntityType)
+        }
       />
     );
   },

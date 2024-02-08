@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import * as React from "react";
 import {
   Button,
@@ -7,7 +8,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
-  ButtonGroup,
+  ActionGroup,
   Flex,
   SwitchGroup,
   Switch,
@@ -19,12 +20,10 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  ModalContent,
+  Item,
 } from "@design-system/widgets";
 // This component is used only for testing purpose and is not used in the prod
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import EmotionUnhappyLineIcon from "remixicon-react/EmotionUnhappyLineIcon";
 
 export const ComplexForm = () => {
   const fakeSubmit = async () => {
@@ -36,6 +35,9 @@ export const ComplexForm = () => {
     );
   };
 
+  const [isModalOpen, setModalOpen] = useState(false);
+  const submitRef = useRef(null);
+
   return (
     <Flex direction="column" gap="spacing-6">
       <Flex direction="column" gap="spacing-3">
@@ -44,12 +46,12 @@ export const ComplexForm = () => {
       </Flex>
 
       <Flex direction="column" gap="spacing-5">
-        <ButtonGroup>
-          <Button>Fast food</Button>
-          <Button>Salads</Button>
-          <Button>Drinks</Button>
-          <Button>Sauces</Button>
-        </ButtonGroup>
+        <ActionGroup>
+          <Item>Fast food</Item>
+          <Item>Salads</Item>
+          <Item>Drinks</Item>
+          <Item>Sauces</Item>
+        </ActionGroup>
 
         <SwitchGroup label="Repeat order">
           <Switch value="value-1">Once a week</Switch>
@@ -75,8 +77,8 @@ export const ComplexForm = () => {
           <Flex direction="column" gap="spacing-2">
             <Text isBold>Feedback is important to us</Text>
             <Flex>
-              <IconButton icon={EmotionHappyLineIcon} variant="ghost" />
-              <IconButton icon={EmotionUnhappyLineIcon} variant="ghost" />
+              <IconButton icon="star" variant="ghost" />
+              <IconButton icon="star" variant="ghost" />
             </Flex>
           </Flex>
           <TextArea label="Your comment" />
@@ -92,19 +94,29 @@ export const ComplexForm = () => {
             If you cancel, you will lose your order
           </TooltipContent>
         </TooltipRoot>
-        <Modal size="small">
-          <Button>Ok</Button>
-          <ModalHeader title="Confirmation" />
-          <ModalBody>
-            <Text>
-              <ul>
-                <li>Hamburger — XL</li>
-                <li>French fries — L</li>
-                <li>Coca-Cola — S</li>
-              </ul>
-            </Text>
-          </ModalBody>
-          <ModalFooter onSubmit={fakeSubmit} submitText="Confirm" />
+        <Button onPress={() => setModalOpen(!isModalOpen)} ref={submitRef}>
+          Ok
+        </Button>
+        <Modal
+          initialFocus={2}
+          isOpen={isModalOpen}
+          setOpen={setModalOpen}
+          size="small"
+          triggerRef={submitRef}
+        >
+          <ModalContent>
+            <ModalHeader title="Confirmation" />
+            <ModalBody>
+              <Text>
+                <ul>
+                  <li>Hamburger — XL</li>
+                  <li>French fries — L</li>
+                  <li>Coca-Cola — S</li>
+                </ul>
+              </Text>
+            </ModalBody>
+            <ModalFooter onSubmit={fakeSubmit} submitText="Confirm" />
+          </ModalContent>
         </Modal>
       </Flex>
     </Flex>

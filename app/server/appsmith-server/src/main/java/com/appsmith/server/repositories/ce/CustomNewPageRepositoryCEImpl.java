@@ -4,37 +4,29 @@ import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.WriteModel;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -57,14 +49,20 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         Criteria applicationIdCriteria =
                 where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
-        return queryAll(List.of(applicationIdCriteria), aclPermission);
+        return queryBuilder()
+                .criteria(applicationIdCriteria)
+                .permission(aclPermission)
+                .all();
     }
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         Criteria applicationIdCriteria =
                 where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
-        return queryAll(List.of(applicationIdCriteria), permission);
+        return queryBuilder()
+                .criteria(applicationIdCriteria)
+                .permission(permission.orElse(null))
+                .all();
     }
 
     @Override
@@ -76,7 +74,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria activeEditModeCriteria = where(fieldName(QNewPage.newPage.unpublishedPage) + "."
                         + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
                 .is(null);
-        return queryAll(List.of(applicationIdCriteria, activeEditModeCriteria), aclPermission);
+        return queryBuilder()
+                .criteria(applicationIdCriteria, activeEditModeCriteria)
+                .permission(aclPermission)
+                .all();
     }
 
     @Override
@@ -103,12 +104,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                     .is(null);
             criteria.add(deletedCriterion);
         }
-        layoutsIdKey = layoutsKey + "." + fieldName(QLayout.layout.id);
+        layoutsIdKey = layoutsKey + "." + FieldName.ID;
 
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
         criteria.add(layoutCriterion);
 
-        return queryOne(criteria, aclPermission);
+        return queryBuilder().criteria(criteria).permission(aclPermission).one();
     }
 
     @Override
@@ -128,7 +129,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             criteria.add(deletedCriterion);
         }
 
-        return queryOne(criteria, aclPermission);
+        return queryBuilder().criteria(criteria).permission(aclPermission).one();
     }
 
     @Override
@@ -153,7 +154,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             criteria.add(deletedCriteria);
         }
 
-        return queryOne(criteria, aclPermission);
+        return queryBuilder().criteria(criteria).permission(aclPermission).one();
     }
 
     @Override
@@ -179,7 +180,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         Criteria idsCriterion = where("id").in(ids);
 
-        return this.queryAll(new ArrayList<>(List.of(idsCriterion)), includedFields, aclPermission, null);
+        return this.queryBuilder()
+                .criteria(idsCriterion)
+                .fields(includedFields)
+                .permission(aclPermission)
+                .all();
     }
 
     private Criteria getNameCriterion(String name, Boolean viewMode) {
@@ -219,7 +224,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 where(defaultResources + "." + FieldName.PAGE_ID).is(defaultPageId);
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
-        return queryOne(List.of(defaultPageIdCriteria, branchCriteria), permission);
+        return queryBuilder()
+                .criteria(defaultPageIdCriteria, branchCriteria)
+                .permission(permission)
+                .one();
     }
 
     @Override
@@ -238,16 +246,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.customSlug));
         String applicationIdFieldPath = fieldName(QNewPage.newPage.applicationId);
 
-        return queryAll(
-                List.of(applicationIdCriteria),
-                List.of(
+        return queryBuilder()
+                .criteria(applicationIdCriteria)
+                .fields(
                         unpublishedSlugFieldPath,
                         unpublishedCustomSlugFieldPath,
                         publishedSlugFieldPath,
                         publishedCustomSlugFieldPath,
-                        applicationIdFieldPath),
-                aclPermission,
-                null);
+                        applicationIdFieldPath)
+                .permission(aclPermission)
+                .all();
     }
 
     @Override
@@ -263,7 +271,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+        return queryBuilder()
+                .criteria(defaultAppIdCriteria, gitSyncIdCriteria)
+                .permission(permission.orElse(null))
+                .first();
     }
 
     @Override
@@ -274,55 +285,37 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
 
         return permissionGroupsMono.flatMap(permissionGroups -> {
-            AggregationOperation matchAggregationWithPermission = null;
-            if (permission == null) {
-                matchAggregationWithPermission = Aggregation.match(new Criteria().andOperator(notDeleted()));
-            } else {
-                matchAggregationWithPermission = Aggregation.match(
-                        new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-            }
-            AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
-            AggregationOperation wholeProjection = Aggregation.project(NewPage.class);
-            AggregationOperation addFieldsOperation = Aggregation.addFields()
-                    .addField(fieldName(QNewPage.newPage.publishedPage))
-                    .withValueOf(Fields.field(fieldName(QNewPage.newPage.unpublishedPage)))
-                    .build();
-            Aggregation combinedAggregation = Aggregation.newAggregation(
-                    matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
-            AggregationResults<NewPage> updatedResults =
-                    mongoTemplate.aggregate(combinedAggregation, NewPage.class, NewPage.class);
-            return bulkUpdate(updatedResults.getMappedResults());
+            return Mono.fromCallable(() -> {
+                        AggregationOperation matchAggregationWithPermission = null;
+                        if (permission == null) {
+                            matchAggregationWithPermission =
+                                    Aggregation.match(new Criteria().andOperator(notDeleted()));
+                        } else {
+                            matchAggregationWithPermission = Aggregation.match(
+                                    new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+                        }
+                        AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
+                        AggregationOperation wholeProjection = Aggregation.project(NewPage.class);
+                        AggregationOperation addFieldsOperation = Aggregation.addFields()
+                                .addField(fieldName(QNewPage.newPage.publishedPage))
+                                .withValueOf(Fields.field(fieldName(QNewPage.newPage.unpublishedPage)))
+                                .build();
+                        Aggregation combinedAggregation = Aggregation.newAggregation(
+                                matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
+                        return mongoTemplate.aggregate(combinedAggregation, NewPage.class, NewPage.class);
+                    })
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
         });
-    }
-
-    @Override
-    public Mono<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages) {
-        if (CollectionUtils.isEmpty(newPages)) {
-            return Mono.just(Collections.emptyList());
-        }
-
-        // convert the list of new pages to a list of DBObjects
-        List<WriteModel<Document>> dbObjects = newPages.stream()
-                .map(newPage -> {
-                    assert newPage.getId() != null;
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(newPage, document);
-                    document.remove("_id");
-                    return (WriteModel<Document>) new UpdateOneModel<Document>(
-                            new Document("_id", new ObjectId(newPage.getId())), new Document("$set", document));
-                })
-                .collect(Collectors.toList());
-
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(NewPage.class))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();
     }
 
     @Override
     public Flux<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
-        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+        return queryBuilder()
+                .criteria(applicationCriteria)
+                .fields(includeFields)
+                .all();
     }
 }

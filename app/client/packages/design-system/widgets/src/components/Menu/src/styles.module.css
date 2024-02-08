@@ -1,9 +1,12 @@
+@import "../../../shared/colors/colors.module.css";
+
 .menu {
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-elevation-3);
   border-radius: var(--border-radius-1);
   z-index: var(--z-index-99);
   box-shadow: var(--box-shadow-1);
-  min-width: var(--sizing-30);
+  min-inline-size: var(--sizing-30);
+  max-inline-size: var(--sizing-80);
 }
 
 .menuList {
@@ -13,8 +16,19 @@
 }
 
 .menuList li {
+  display: flex;
+  align-items: center;
   padding-inline: var(--inner-spacing-3);
   padding-block: var(--inner-spacing-3);
+}
+
+.menuList li [data-text] {
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .menuList li:first-of-type {
@@ -41,6 +55,14 @@
 
 .menuList [data-active] {
   background-color: var(--color-bg-accent-subtle-active);
+}
+
+.menuList li:not([data-disabled]) {
+  @each $color in colors {
+    &[data-color="$(color)"] {
+      color: var(--color-fg-$(color));
+    }
+  }
 }
 
 .menuList [data-disabled] {

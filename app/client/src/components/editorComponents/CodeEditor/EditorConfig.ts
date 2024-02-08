@@ -1,5 +1,5 @@
 import type CodeMirror from "codemirror";
-import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
@@ -16,6 +16,8 @@ export const EditorModes = {
   JAVASCRIPT: "javascript",
   GRAPHQL: "graphql",
   GRAPHQL_WITH_BINDING: "graphql-js",
+  HTMLMIXED: "htmlmixed",
+  CSS: "css",
   ...editorSQLModes,
 } as const;
 
@@ -55,7 +57,7 @@ export const EditorThemes: Record<EditorTheme, string> = {
 export interface FieldEntityInformation {
   entityName?: string;
   expectedType?: AutocompleteDataType;
-  entityType?: ENTITY_TYPE;
+  entityType?: EntityTypeValue;
   entityId?: string;
   propertyPath?: string;
   isTriggerPath?: boolean;

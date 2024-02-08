@@ -24,13 +24,16 @@ import "codemirror/mode/sql/sql.js";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/sql-hint";
+import "codemirror/mode/css/css";
+import "codemirror/mode/javascript/javascript";
+import "codemirror/mode/htmlmixed/htmlmixed";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual, isNumber } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
@@ -84,8 +87,6 @@ import {
 import {
   addEventToHighlightedElement,
   getInputValue,
-  isActionEntity,
-  isWidgetEntity,
   removeEventFromHighlightedElement,
   removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
@@ -94,7 +95,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
@@ -162,6 +163,7 @@ import {
   setActiveEditorField,
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -238,6 +240,10 @@ export type EditorProps = EditorStyleProps &
     isRawView?: boolean;
     isJSObject?: boolean;
     jsObjectName?: string;
+    ignoreSlashCommand?: boolean;
+    ignoreBinding?: boolean;
+    ignoreAutoComplete?: boolean;
+
     // Custom gutter
     customGutter?: CodeEditorGutter;
     positionCursorInsideBinding?: boolean;
@@ -550,8 +556,7 @@ class CodeEditor extends Component<Props, State> {
       getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
 
     const entityInformation = this.getEntityInformation();
-    const isWidgetType =
-      entityInformation.entityType === ENTITY_TYPE_VALUE.WIDGET;
+    const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
 
     const hasFocusedValueChanged =
       getEditorIdentifier(this.props) !== this.props.focusedProperty;
@@ -646,6 +651,10 @@ class CodeEditor extends Component<Props, State> {
         sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
       }
     });
+
+    if (prevProps.height !== this.props.height) {
+      this.editor.setSize("100%", this.props.height);
+    }
   }
 
   setEditorInput = (value: string) => {
@@ -1010,7 +1019,7 @@ class CodeEditor extends Component<Props, State> {
               }
 
               if (navigationData.url) {
-                if (navigationData.type === ENTITY_TYPE_VALUE.ACTION) {
+                if (navigationData.type === ENTITY_TYPE.ACTION) {
                   AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
                     actionId: navigationData?.id,
                     datasourceId: navigationData?.datasourceId,
@@ -1277,7 +1286,7 @@ class CodeEditor extends Component<Props, State> {
   getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, expected } = this.props;
     const configTree = ConfigTreeActions.getConfigTree();
-    const entityInformation: FieldEntityInformation = {
+    let entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
       example: expected?.example,
       mode: this.props.mode,
@@ -1296,18 +1305,11 @@ class CodeEditor extends Component<Props, State> {
     const entityType = entity.ENTITY_TYPE;
     entityInformation.entityType = entityType;
 
-    if (isActionEntity(entity)) {
-      entityInformation.entityId = entity.actionId;
-    } else if (isWidgetEntity(entity)) {
-      const isTriggerPath = entity.triggerPaths[propertyPath];
-      entityInformation.entityId = entity.widgetId;
-      if (isTriggerPath)
-        entityInformation.expectedType = AutocompleteDataType.FUNCTION;
-      entityInformation.isTriggerPath = isTriggerPath;
-      entityInformation.widgetType = entity.type;
-    } else {
-      entityInformation.isTriggerPath = true;
-    }
+    entityInformation = getEachEntityInformation[entityType](
+      entity,
+      entityInformation,
+      propertyPath,
+    );
     return entityInformation;
   };
 
@@ -1326,6 +1328,7 @@ class CodeEditor extends Component<Props, State> {
         enableAIAssistance: this.AIEnabled,
         focusEditor: this.focusEditor,
         executeCommand: this.props.executeCommand,
+        isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
       });
       if (hinterOpen) break;
     }
@@ -1336,7 +1339,7 @@ class CodeEditor extends Component<Props, State> {
     const key = event.key;
     // Since selection from AutoComplete list is also done using the Enter keydown event
     // we need to return from here so that autocomplete selection works fine
-    if (key === "Enter") return;
+    if (key === "Enter" || this.props.ignoreAutoComplete) return;
 
     // Check if the user is trying to comment out the line, in that case we should not show autocomplete
     const isCtrlOrCmdPressed = event.metaKey || event.ctrlKey;
@@ -1367,12 +1370,12 @@ class CodeEditor extends Component<Props, State> {
     if (isCtrlOrCmdPressed) {
       // If cmd or ctrl is pressed only show autocomplete for space key
       showAutocomplete = key === " ";
-    } else if (key === "/") {
+    } else if (key === "/" && !this.props.ignoreSlashCommand) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
       /* Check if the character before cursor is completable to show autocomplete which backspacing */
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
-    } else if (key === "{") {
+    } else if (key === "{" && !this.props.ignoreBinding) {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
       showAutocomplete = prevChar === "{";
     } else if (key === "'" || key === '"') {

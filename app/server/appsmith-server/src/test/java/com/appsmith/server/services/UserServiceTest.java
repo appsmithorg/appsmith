@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;

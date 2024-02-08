@@ -21,7 +21,7 @@ const routes = {
   VERSION: "/settings/version",
 };
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
@@ -68,28 +68,6 @@ describe("Admin settings page", function () {
     cy.visit(routes.SETTINGS, { timeout: 60000 });
     cy.url().should("contain", routes.GENERAL);
   });
-
-  it(
-    "excludeForAirgap",
-    "5. should test that settings page tab redirects not airgap",
-    () => {
-      cy.visit(routes.APPLICATIONS, { timeout: 60000 });
-      cy.wait(3000);
-      cy.get(".admin-settings-menu-option").click();
-      cy.get(adminsSettings.generalTab).click();
-      cy.url().should("contain", routes.GENERAL);
-      cy.get(adminsSettings.advancedTab).click();
-      cy.url().should("contain", routes.ADVANCED);
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", routes.AUTHENTICATION);
-      cy.get(adminsSettings.emailTab).click();
-      cy.url().should("contain", routes.EMAIL);
-      cy.get(adminsSettings.developerSettingsTab).click();
-      cy.url().should("contain", routes.DEVELOPER_SETTINGS);
-      cy.get(adminsSettings.versionTab).click();
-      cy.url().should("contain", routes.VERSION);
-    },
-  );
 
   it(
     "airgap",

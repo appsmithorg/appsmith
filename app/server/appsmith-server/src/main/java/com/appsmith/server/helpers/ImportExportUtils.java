@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
@@ -10,11 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.transaction.TransactionException;
-import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
@@ -98,6 +97,10 @@ public class ImportExportUtils {
             if (importedApplicationDetail.getNavigationSetting() == null) {
                 existingApplicationDetail.setNavigationSetting(null);
             }
+
+            if (importedApplicationDetail.getThemeSetting() == null) {
+                existingApplicationDetail.setThemeSetting(null);
+            }
         }
     }
 
@@ -153,15 +156,11 @@ public class ImportExportUtils {
     }
 
     public static boolean isPageNameInUpdatedList(ApplicationJson applicationJson, String pageName) {
-        Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
-        if (updatedResources == null) {
+        ModifiedResources modifiedResources = applicationJson.getModifiedResources();
+        if (modifiedResources == null) {
             return false;
         }
-        Set<String> updatedPageNames = updatedResources.get(FieldName.PAGE_LIST);
-        if (CollectionUtils.isEmpty(updatedPageNames)) {
-            return false;
-        }
-        return pageName != null && updatedPageNames.contains(pageName);
+        return pageName != null && modifiedResources.isResourceUpdated(FieldName.PAGE_LIST, pageName);
     }
 
     public static boolean isDatasourceUpdatedSinceLastCommit(

@@ -82,4 +82,12 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
         return service.deleteLogo(workspaceId)
                 .map(workspace -> new ResponseDTO<>(HttpStatus.OK.value(), workspace, null));
     }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/home")
+    public Mono<ResponseDTO<List<Workspace>>> workspacesForHome() {
+        return userWorkspaceService
+                .getUserWorkspacesByRecentlyUsedOrder()
+                .map(workspaces -> new ResponseDTO<>(HttpStatus.OK.value(), workspaces, null));
+    }
 }

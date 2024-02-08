@@ -86,7 +86,7 @@ public class DatasourceControllerCE {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Datasource>> create(
             @Valid @RequestBody Datasource resource,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
         log.debug("Going to create resource from datasource controller");
         return datasourceService
                 .create(resource)
@@ -98,7 +98,7 @@ public class DatasourceControllerCE {
     public Mono<ResponseDTO<Datasource>> update(
             @PathVariable String id,
             @RequestBody Datasource datasource,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to update resource from datasource controller with id: {}", id);
         return datasourceService
                 .updateDatasource(id, datasource, environmentId, Boolean.TRUE)
@@ -109,7 +109,7 @@ public class DatasourceControllerCE {
     @PutMapping("/datasource-storages")
     public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(
             @RequestBody DatasourceStorageDTO datasourceStorageDTO,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
         log.debug(
                 "Going to update datasource from datasource controller with id: {} and environmentId: {}",
                 datasourceStorageDTO.getDatasourceId(),
@@ -133,7 +133,7 @@ public class DatasourceControllerCE {
     @PostMapping("/test")
     public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(
             @RequestBody DatasourceStorageDTO datasourceStorageDTO,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
 
         log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
         return datasourceService
@@ -146,7 +146,7 @@ public class DatasourceControllerCE {
     public Mono<ResponseDTO<DatasourceStructure>> getStructure(
             @PathVariable String datasourceId,
             @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to get structure for datasource with id: '{}'.", datasourceId);
         return datasourceStructureSolution
                 .getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache), environmentId)
@@ -196,18 +196,18 @@ public class DatasourceControllerCE {
     @PostMapping(Url.MOCKS)
     public Mono<ResponseDTO<Datasource>> createMockDataSet(
             @RequestBody MockDataSource mockDataSource,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         return mockDataService
                 .createMockDataSet(mockDataSource, environmentId)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/{datasourceId}/trigger")
+    @PostMapping(value = "/{datasourceId}/trigger")
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(
             @PathVariable String datasourceId,
             @RequestBody TriggerRequestDTO triggerRequestDTO,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Trigger received for datasource {}", datasourceId);
         return datasourceTriggerSolution
                 .trigger(datasourceId, environmentId, triggerRequestDTO)
@@ -219,7 +219,7 @@ public class DatasourceControllerCE {
     public Mono<ResponseDTO<ActionExecutionResult>> getSchemaPreviewData(
             @PathVariable String datasourceId,
             @RequestBody Template template,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to get schema preview data for datasource with id: '{}'.", datasourceId);
         return datasourceStructureSolution
                 .getSchemaPreviewData(datasourceId, environmentId, template)

@@ -33,7 +33,7 @@ public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService 
     public Mono<UserDetails> findByUsername(String username) {
         return repository
                 .findByEmail(username)
-                .switchIfEmpty(repository.findByCaseInsensitiveEmail(username))
+                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(username))
                 .switchIfEmpty(Mono.error(new UsernameNotFoundException("Unable to find username: " + username)))
                 .onErrorMap(error -> {
                     log.error("Can't find user {}", username);

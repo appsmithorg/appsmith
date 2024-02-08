@@ -109,7 +109,7 @@
                   ],
                   "leftColumn": 0,
                   "primaryColumns": {
-                    "appsmith_mongo_escape_id": {
+                    "_id": {
                       "isDerived": false,
                       "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._id ))}}",
                       "textSize": "PARAGRAPH",

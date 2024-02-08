@@ -20,18 +20,17 @@ import {
   createMessage,
   DEPLOY,
   MERGE,
-  SETTINGS_GIT,
   IMPORT_APP,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import GitConnectionV2 from "../Tabs/GitConnectionV2";
-import GitSettings from "../Tabs/GitSettings";
 import { GitSyncModalTab } from "entities/GitSync";
 import ConnectionSuccess from "../Tabs/ConnectionSuccess";
 import styled from "styled-components";
 import ReconnectSSHError from "../components/ReconnectSSHError";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {
@@ -53,6 +52,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
   const isDeploying = useSelector(getIsDeploying);
+  const appId = useSelector(getCurrentApplicationId);
 
   const menuOptions = [
     {
@@ -64,10 +64,6 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
       key: GitSyncModalTab.MERGE,
       title: createMessage(MERGE),
       disabled: isProtectedMode,
-    },
-    {
-      key: GitSyncModalTab.SETTINGS,
-      title: createMessage(SETTINGS_GIT),
     },
   ];
   const possibleMenuOptions = menuOptions.map((option) => option.key);
@@ -95,10 +91,6 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
         AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
           source: `${activeTabKey}_TAB`,
         });
-      } else if (tabKey === GitSyncModalTab.SETTINGS) {
-        AnalyticsUtil.logEvent("GS_SETTINGS_GIT_MODAL_TRIGGERED", {
-          source: `${activeTabKey}_TAB`,
-        });
       }
       dispatch(
         setIsGitSyncModalOpen({
@@ -113,7 +105,9 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-    dispatch(setWorkspaceIdForImport(""));
+    dispatch(
+      setWorkspaceIdForImport({ editorId: appId || "", workspaceId: "" }),
+    );
   }, [dispatch, setIsGitSyncModalOpen]);
 
   return (
@@ -148,7 +142,6 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
             ))}
           {activeTabKey === GitSyncModalTab.DEPLOY && <Deploy />}
           {activeTabKey === GitSyncModalTab.MERGE && <Merge />}
-          {activeTabKey === GitSyncModalTab.SETTINGS && <GitSettings />}
         </StyledModalContent>
       </Modal>
       <GitErrorPopup />

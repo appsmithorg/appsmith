@@ -12,7 +12,7 @@ import LeftPane from "./LeftPane";
 import MainPane from "./MainPane";
 import RightPane from "./RightPane";
 import classNames from "classnames";
-import { tailwindLayers } from "../../../constants/Layers";
+import { tailwindLayers } from "constants/Layers";
 
 /**
  * OldName: MainContainer
@@ -54,4 +54,4 @@ function IDE() {
 
 IDE.displayName = "AppsmithIDE";
 
-export default IDE;
+export default React.memo(IDE);

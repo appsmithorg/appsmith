@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;

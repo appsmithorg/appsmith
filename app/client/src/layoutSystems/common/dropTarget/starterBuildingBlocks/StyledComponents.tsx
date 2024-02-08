@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { Text } from "design-system";
 
 import { Colors } from "constants/Colors";
 
@@ -49,54 +48,6 @@ export const TemplateLayoutContainer = styled.div`
   }
 `;
 
-export const TemplateLayoutHeaderText = styled(Text)<{ layoutActive: boolean }>`
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 24px;
-  margin-bottom: 16px;
-  color: var(--colors-semantics-text-emphasis);
-  opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
-`;
-
-export const TemplateLayoutRowItemTitle = styled.p<{ layoutActive: boolean }>`
-  font-size: 14px;
-  line-height: 20px;
-  text-align: center;
-  font-weight: 500;
-  color: var(--colors-ui-content-heading-sub-section-heading);
-  opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
-`;
-
-export const TemplateLayoutRowItemDescription = styled.p<{
-  layoutActive: boolean;
-}>`
-  font-size: 12px;
-  line-height: 16px;
-  text-align: center;
-  font-weight: 400;
-  color: var(--colors-ui-content-supplementary);
-  opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
-`;
-
-export const TemplateLayoutOrText = styled.p<{ layoutActive: boolean }>`
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-  margin: 16px 0px;
-  opacity: ${(props) => (props.layoutActive ? "0" : "0.7")};
-  transition: opacity 0.3s ease;
-`;
-
-export const TemplateLayoutDragAndDropText = styled.p<{
-  layoutActive: boolean;
-}>`
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 600;
-  opacity: ${(props) => (props.layoutActive ? "0" : "0.7")};
-  transition: opacity 0.3s ease;
-`;
-
 export const TemplateLayoutContentGrid = styled.div`
   display: flex;
   justify-content: center;
@@ -135,7 +86,8 @@ export const TemplateLayoutContentItemContent = styled.div`
 export const IconContainer = styled.div<{ layoutItemActive: boolean }>`
   border-width: 1px;
   border-radius: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+  margin-top: 8px;
   border-color: ${(props) =>
     props.layoutItemActive ? Colors.PRIMARY_ORANGE : "transparent"};
 `;

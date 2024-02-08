@@ -1,12 +1,21 @@
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { MetaArgs } from "@appsmith/entities/DataTree/types";
+import type {
+  JSActionEntity,
+  JSActionEntityConfig,
+  MetaArgs,
+} from "@appsmith/entities/DataTree/types";
 
 const reg = /this\./g;
 
-export const generateDataTreeJSAction = (js: JSCollectionData): any => {
+export const generateDataTreeJSAction = (
+  js: JSCollectionData,
+): {
+  unEvalEntity: JSActionEntity;
+  configEntity: JSActionEntityConfig;
+} => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
@@ -53,7 +62,7 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       ...variableList,
       ...actionsData,
       body: removeThisReference,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       actionId: js.config.id,
     },
     configEntity: {
@@ -61,7 +70,7 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       meta: meta,
       name: js.config.name,
       pluginType: js.config.pluginType,
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
       reactivePaths: { ...bindingPaths },
       dynamicBindingPathList: dynamicBindingPathList,

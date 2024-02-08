@@ -16,7 +16,9 @@ import {
 import { canTranslateToUI, getActionBlocks } from "@shared/ast";
 import {
   getActions,
-  getJSCollections,
+  getAllJSCollections,
+  getJSModuleInstancesData,
+  getModuleInstances,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import store from "store";
@@ -24,6 +26,12 @@ import keyBy from "lodash/keyBy";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getApiQueriesAndJSActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
+import type {
+  ModuleInstance,
+  ModuleInstanceDataState,
+} from "@appsmith/constants/ModuleInstanceConstants";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { JSAction } from "entities/JSCollection";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -91,27 +99,48 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     return "ACTION_SELECTOR";
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+  static canDisplayValueInUI(_: ControlData, value: any): boolean {
     const state = store.getState();
     const actions = getActions(state);
-    const jsActions = getJSCollections(state);
+    const jsCollections = getAllJSCollections(state);
     const codeFromProperty = getCodeFromMoustache(value?.trim() || "");
     const evaluationVersion = selectEvaluationVersion(state);
+    const moduleInstances = getModuleInstances(state);
+    const queryModuleInstances = [] as ModuleInstanceDataState;
+    const jsModuleInstances = getJSModuleInstancesData(state);
+
+    if (!!moduleInstances) {
+      for (const moduleInstance of Object.values(moduleInstances)) {
+        const instance = moduleInstance as ModuleInstance;
+        if (instance.type === MODULE_TYPE.QUERY) {
+          queryModuleInstances.push({
+            config: instance,
+            data: undefined,
+            isLoading: false,
+          });
+        }
+      }
+    }
 
     const actionsArray: string[] = [];
     const jsActionsArray: string[] = [];
+    const queryModuleInstanceArray: string[] = [];
 
     actions.forEach((action) => {
       actionsArray.push(action.config.name + ".run");
       actionsArray.push(action.config.name + ".clear");
     });
 
-    jsActions.forEach((jsAction) =>
-      jsAction.config.actions.forEach((action) => {
-        jsActionsArray.push(jsAction.config.name + "." + action.name);
+    jsCollections.forEach((jsCollection) =>
+      jsCollection.config.actions.forEach((action: JSAction) => {
+        jsActionsArray.push(jsCollection.config.name + "." + action.name);
       }),
     );
+
+    queryModuleInstances.forEach((instance) => {
+      queryModuleInstanceArray.push(instance.config.name + ".run");
+      queryModuleInstanceArray.push(instance.config.name + ".clear");
+    });
 
     const canTranslate = canTranslateToUI(codeFromProperty, evaluationVersion);
 
@@ -128,13 +157,15 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       pageId,
       pluginGroups,
       actions,
-      jsActions,
+      jsCollections,
       () => {
         return;
       },
       () => {
         return;
       },
+      queryModuleInstances,
+      jsModuleInstances,
     );
 
     try {

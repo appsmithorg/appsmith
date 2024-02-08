@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
@@ -21,7 +22,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import org.junit.jupiter.api.AfterEach;
@@ -242,7 +242,8 @@ public class AuthenticationServiceTest {
                                             pageDto.getId(),
                                             datasourceId1,
                                             defaultEnvironmentId,
-                                            "https://mock.origin.com")
+                                            "https://mock.origin.com",
+                                            workspace.getId())
                                     + "&scope=Scope\\d%20Scope\\d"
                                     + "&key=value"));
                 })
@@ -336,6 +337,7 @@ public class AuthenticationServiceTest {
                                             datasourceId,
                                             defaultEnvironmentId,
                                             "https://mock.origin.com",
+                                            workspaceId,
                                             "testBranch")
                                     + "&scope=Scope\\d%20Scope\\d"
                                     + "&key=value"));

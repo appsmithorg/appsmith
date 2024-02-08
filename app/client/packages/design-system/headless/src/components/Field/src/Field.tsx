@@ -4,7 +4,7 @@ import type { SpectrumFieldProps } from "@react-types/label";
 
 import { Label } from "./Label";
 import { HelpText } from "./HelpText";
-import type { StyleProps } from "@react-types/shared";
+import type { StyleProps, ValidationState } from "@react-types/shared";
 
 export type FieldProps = Omit<
   SpectrumFieldProps,
@@ -13,6 +13,7 @@ export type FieldProps = Omit<
   fieldType?: "field" | "field-group";
   labelClassName?: string;
   helpTextClassName?: string;
+  validationState?: ValidationState;
 };
 
 export type FieldRef = Ref<HTMLDivElement>;
@@ -30,6 +31,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     helpTextClassName,
     includeNecessityIndicatorInAccessibilityName,
     isDisabled = false,
+    isReadOnly = false,
     isRequired,
     label,
     labelClassName,
@@ -39,6 +41,9 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     wrapperClassName,
     wrapperProps = {},
   } = props;
+
+  // Readonly has a higher priority than disabled.
+  const getDisabledState = () => Boolean(isDisabled) && !Boolean(isReadOnly);
 
   const hasHelpText =
     Boolean(description) ||
@@ -52,7 +57,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
         descriptionProps={descriptionProps}
         errorMessage={errorMessage}
         errorMessageProps={errorMessageProps}
-        isDisabled={isDisabled}
+        isDisabled={getDisabledState()}
         validationState={validationState}
       />
     );
@@ -70,9 +75,9 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
             includeNecessityIndicatorInAccessibilityName
           }
           isRequired={isRequired}
-          necessityIndicator={necessityIndicator}
+          necessityIndicator={!Boolean(isReadOnly) && necessityIndicator}
         >
-          {label}
+          <span>{label}</span>
         </Label>
       )}
       {contextualHelp}
@@ -83,9 +88,10 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     <div
       {...wrapperProps}
       className={wrapperClassName}
-      data-disabled={isDisabled ? "" : undefined}
+      data-disabled={getDisabledState() ? "" : undefined}
       data-field=""
       data-field-type={fieldType}
+      data-readonly={Boolean(isReadOnly) ? "" : undefined}
       ref={ref}
     >
       {labelAndContextualHelp}

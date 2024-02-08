@@ -1,6 +1,5 @@
 import React from "react";
 import WidgetsEditorEntityExplorer from "../../WidgetsEditorEntityExplorer";
-import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
@@ -15,29 +14,18 @@ import {
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
-import { PagesPane } from "../PagesPane";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import EditorPane from "../EditorPane";
+import { useIsEditorPaneSegmentsEnabled } from "../hooks";
 
-const LeftPaneContainer = styled.div`
+export const LeftPaneContainer = styled.div`
   height: 100%;
-  min-width: 150px;
   border-right: 1px solid var(--ads-v2-color-border);
   background: var(--ads-v2-color-bg);
 `;
 
 const LeftPane = () => {
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
-  const isPagesPaneEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
+  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
   const { path } = useRouteMatch();
-  const guidedTourEnabled = useSelector(inGuidedTour);
-  if (!isAppSidebarEnabled || guidedTourEnabled) {
-    return isPagesPaneEnabled ? <PagesPane /> : <WidgetsEditorEntityExplorer />;
-  }
   return (
     <LeftPaneContainer>
       <Switch>
@@ -61,8 +49,8 @@ const LeftPane = () => {
           exact
           path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
         />
-        {isPagesPaneEnabled ? (
-          <SentryRoute component={PagesPane} />
+        {isEditorPaneEnabled ? (
+          <SentryRoute component={EditorPane} />
         ) : (
           <SentryRoute component={WidgetsEditorEntityExplorer} />
         )}

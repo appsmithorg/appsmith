@@ -8,7 +8,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS to non-JS mode in Action Selector", () => {
+describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
   });
@@ -191,7 +191,7 @@ describe("JS to non-JS mode in Action Selector", () => {
   it("3. shows fields for show modal from js to non-js mode", () => {
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
-    entityExplorer.DragDropWidgetNVerify("modalwidget", 50, 50);
+    entityExplorer.DragDropWidgetNVerify("modalwidget", 300, 400);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{showModal()}}", true, false);

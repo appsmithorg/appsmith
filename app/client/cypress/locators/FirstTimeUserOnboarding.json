@@ -8,7 +8,6 @@
   "checklistConnectionBtn": "[data-testid='checklist-connection']",
   "checklistDeployBtn": "[data-testid='checklist-deploy']",
   "datasourceMock": ".t--mock-datasource",
-  "createQuery": ".t--create-query",
   "widgetSidebar": ".t--widget-sidebar",
   "snipingBanner": ".t--sniping-mode-banner",
   "snipingTextWidget": ".t--snipeable-textwidget",

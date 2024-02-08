@@ -1,21 +1,15 @@
 import fs from "fs";
-import {
-  TokensAccessor,
-  defaultTokens,
-  getFluidSizing,
-  getFluidSpacing,
-} from "../token";
-import type { TokenSource } from "../token";
+import { TokensAccessor, defaultTokens, tokensConfigs } from "../token";
 import { cssRule } from "./cssRule";
+import { getSizing, getSpacing } from "../hooks";
 
-const { fluid, ...restDefaultTokens } = defaultTokens;
-const { innerSpacing, maxVw, minVw, outerSpacing, sizing } = fluid;
+import type { TokenSource } from "../token";
 
 const allTokens = new TokensAccessor({
-  ...(restDefaultTokens as TokenSource),
-  outerSpacing: getFluidSpacing(maxVw, minVw, outerSpacing),
-  innerSpacing: getFluidSpacing(maxVw, minVw, innerSpacing),
-  sizing: getFluidSizing(maxVw, minVw, sizing),
+  ...(defaultTokens as TokenSource),
+  outerSpacing: getSpacing(tokensConfigs.outerSpacing),
+  innerSpacing: getSpacing(tokensConfigs.innerSpacing),
+  sizing: getSizing(tokensConfigs.sizing),
 }).getAllTokens();
 
 const ATTENTION_MESSAGE =

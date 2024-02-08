@@ -1,16 +1,18 @@
 package com.appsmith.server.actioncollections.base;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -20,14 +22,12 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -36,6 +36,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -52,6 +53,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static java.lang.Boolean.TRUE;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionRepository, ActionCollection, String>
@@ -63,6 +65,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
     private final ActionPermission actionPermission;
+    private final DefaultResourcesService<ActionCollection> defaultResourcesService;
 
     @Autowired
     public ActionCollectionServiceCEImpl(
@@ -77,7 +80,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            DefaultResourcesService<ActionCollection> defaultResourcesService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
@@ -86,6 +90,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
         this.actionPermission = actionPermission;
+        this.defaultResourcesService = defaultResourcesService;
     }
 
     @Override
@@ -103,8 +108,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         }
                     }
                     // No need to handle the edge case of unpublished action not being present. This is not possible
-                    // because
-                    // every created action starts from an unpublishedAction state.
+                    // because every created action starts from an unpublishedAction state.
 
                     return Mono.just(collection);
                 });
@@ -113,31 +117,33 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public void generateAndSetPolicies(NewPage page, ActionCollection actionCollection) {
         Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
+                policyGenerator.getAllChildPolicies(page.getPolicies(), NewPage.class, NewAction.class);
         actionCollection.setPolicies(documentPolicies);
     }
 
     @Override
     public Mono<ActionCollection> save(ActionCollection collection) {
+        setGitSyncIdInActionCollection(collection);
+        return repository.save(collection);
+    }
+
+    protected void setGitSyncIdInActionCollection(ActionCollection collection) {
         if (collection.getGitSyncId() == null) {
             collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
         }
-        return repository.save(collection);
     }
 
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
         collections.forEach(collection -> {
-            if (collection.getGitSyncId() == null) {
-                collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
-            }
+            setGitSyncIdInActionCollection(collection);
         });
         return repository.saveAll(collections);
     }
 
     @Override
     public Mono<ActionCollection> findByIdAndBranchName(String id, String branchName) {
-        // TODO sanitise resonse for default IDs
+        // TODO sanitise response for default IDs
         return this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getReadPermission());
     }
 
@@ -219,60 +225,51 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMapMany(branchedApplicationId -> repository
                         .findByApplicationIdAndViewMode(
                                 branchedApplicationId, true, actionPermission.getExecutePermission())
-                        // Filter out all the action collections which haven't been published
-                        .flatMap(actionCollection -> {
-                            if (actionCollection.getPublishedCollection() == null) {
-                                return Mono.empty();
-                            }
-                            return Mono.just(actionCollection);
-                        })
-                        .flatMap(actionCollection -> {
-                            ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
-                            final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
-                            actionCollectionViewDTO.setId(actionCollection.getId());
-                            actionCollectionViewDTO.setName(publishedCollection.getName());
-                            actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
-                            actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
-                            actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
-                            actionCollectionViewDTO.setBody(publishedCollection.getBody());
-                            // Update default resources :
-                            // actionCollection.defaultResources contains appId, collectionId and branch(optional).
-                            // Default pageId will be taken from publishedCollection.defaultResources
-                            DefaultResources defaults = actionCollection.getDefaultResources();
-                            // Consider a situation when collection is not published but user is viewing in deployed
-                            // mode
-                            if (publishedCollection.getDefaultResources() != null && defaults != null) {
-                                defaults.setPageId(publishedCollection
-                                        .getDefaultResources()
-                                        .getPageId());
-                            } else {
-                                log.debug(
-                                        "Unreachable state, unable to find default ids for actionCollection: {}",
-                                        actionCollection.getId());
-                                if (defaults == null) {
-                                    defaults = new DefaultResources();
-                                    defaults.setApplicationId(actionCollection.getApplicationId());
-                                    defaults.setCollectionId(actionCollection.getId());
-                                }
-                                defaults.setPageId(actionCollection
-                                        .getPublishedCollection()
-                                        .getPageId());
-                            }
-                            actionCollectionViewDTO.setDefaultResources(defaults);
-                            return Flux.fromIterable(publishedCollection
-                                            .getDefaultToBranchedActionIdsMap()
-                                            .values())
-                                    .flatMap(actionId -> {
-                                        return newActionService.findActionDTObyIdAndViewMode(
-                                                actionId, true, actionPermission.getExecutePermission());
-                                    })
-                                    .collectList()
-                                    .map(actionDTOList -> {
-                                        actionCollectionViewDTO.setActions(actionDTOList);
-                                        return actionCollectionViewDTO;
-                                    });
-                        })
-                        .map(responseUtils::updateActionCollectionViewDTOWithDefaultResources));
+                        .flatMap(this::generateActionCollectionViewDTO));
+    }
+
+    @Override
+    public Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection) {
+        if (actionCollection.getPublishedCollection() == null) {
+            return Mono.empty();
+        }
+        ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
+        final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+        actionCollectionViewDTO.setId(actionCollection.getId());
+        actionCollectionViewDTO.setName(publishedCollection.getName());
+        actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
+        actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
+        actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
+        actionCollectionViewDTO.setBody(publishedCollection.getBody());
+        // Update default resources :
+        // actionCollection.defaultResources contains appId, collectionId and branch(optional).
+        // Default pageId will be taken from publishedCollection.defaultResources
+        DefaultResources defaults = actionCollection.getDefaultResources();
+        // Consider a situation when collection is not published but user is viewing in deployed
+        // mode
+        if (publishedCollection.getDefaultResources() != null && defaults != null) {
+            defaults.setPageId(publishedCollection.getDefaultResources().getPageId());
+        } else {
+            log.debug(
+                    "Unreachable state, unable to find default ids for actionCollection: {}", actionCollection.getId());
+            if (defaults == null) {
+                defaults = new DefaultResources();
+                defaults.setApplicationId(actionCollection.getApplicationId());
+                defaults.setCollectionId(actionCollection.getId());
+            }
+            defaults.setPageId(actionCollection.getPublishedCollection().getPageId());
+        }
+        actionCollectionViewDTO.setDefaultResources(defaults);
+        return Flux.fromIterable(
+                        publishedCollection.getDefaultToBranchedActionIdsMap().values())
+                .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(
+                        actionId, true, actionPermission.getExecutePermission()))
+                .collectList()
+                .map(actionDTOList -> {
+                    actionCollectionViewDTO.setActions(actionDTOList);
+                    return actionCollectionViewDTO;
+                })
+                .map(responseUtils::updateActionCollectionViewDTOWithDefaultResources);
     }
 
     @Override
@@ -281,6 +278,12 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         if (params == null || viewMode == null) {
             return Flux.empty();
         }
+        return getActionCollectionsFromRepoByViewMode(params, viewMode)
+                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
+    }
+
+    protected Flux<ActionCollection> getActionCollectionsFromRepoByViewMode(
+            MultiValueMap<String, String> params, Boolean viewMode) {
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
@@ -290,8 +293,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                             params.getFirst(FieldName.APPLICATION_ID),
                             applicationPermission.getReadPermission())
                     .flatMapMany(childApplicationId -> repository.findByApplicationIdAndViewMode(
-                            childApplicationId, viewMode, actionPermission.getReadPermission()))
-                    .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
+                            childApplicationId, viewMode, actionPermission.getReadPermission()));
         }
 
         String name = null;
@@ -312,10 +314,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         if (params.getFirst(FieldName.PAGE_ID) != null) {
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
-        return repository
-                .findAllActionCollectionsByNamePageIdsViewModeAndBranch(
-                        name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort)
-                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
+        return repository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+                name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort);
     }
 
     @Override
@@ -335,9 +335,10 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
                     // No need to save defaultPageId at actionCollection level as this will be stored inside the
                     // actionCollectionDTO
-                    DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(
+                    defaultResourcesService.initialize(
                             dbActionCollection,
-                            dbActionCollection.getDefaultResources().getBranchName());
+                            dbActionCollection.getDefaultResources().getBranchName(),
+                            false);
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> this.update(id, actionCollection))
@@ -367,7 +368,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(toDelete -> {
                     Mono<ActionCollection> modifiedActionCollectionMono;
 
-                    if (toDelete.getPublishedCollection() != null) {
+                    if (toDelete.getPublishedCollection() != null
+                            && toDelete.getPublishedCollection().getName() != null) {
                         toDelete.getUnpublishedCollection().setDeletedAt(Instant.now());
                         modifiedActionCollectionMono = Flux.fromIterable(toDelete.getUnpublishedCollection()
                                         .getDefaultToBranchedActionIdsMap()
@@ -409,7 +411,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
         return branchedCollectionId
                 .flatMap(this::deleteUnpublishedActionCollection)
-                .map(responseUtils::updateCollectionDTOWithDefaultResources);
+                .map(responseUtils::updateCollectionDTOWithDefaultResources)
+                .flatMap(actionCollectionDTO ->
+                        saveLastEditInformationInParent(actionCollectionDTO).thenReturn(actionCollectionDTO));
     }
 
     @Override
@@ -485,8 +489,28 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     @Override
-    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        return repository.findByListOfPageIds(pageIds, permission);
+    public Flux<ActionCollectionDTO> getCollectionsByPageIdAndViewMode(
+            String pageId, boolean viewMode, AclPermission permission) {
+        return repository
+                .findByPageIdAndViewMode(pageId, viewMode, permission)
+                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
+    }
+
+    @Override
+    public Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        return repository.findByPageIds(pageIds, permission);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, Optional<AclPermission> permission) {
+        return repository.findByPageIds(pageIds, permission).doOnNext(actionCollection -> {
+            actionCollection.getUnpublishedCollection().populateTransientFields(actionCollection);
+            if (actionCollection.getPublishedCollection() != null
+                    && StringUtils.hasText(
+                            actionCollection.getPublishedCollection().getName())) {
+                actionCollection.getPublishedCollection().populateTransientFields(actionCollection);
+            }
+        });
     }
 
     @Override
@@ -581,9 +605,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> create(ActionCollection collection) {
-        if (collection.getGitSyncId() == null) {
-            collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
-        }
+        setGitSyncIdInActionCollection(collection);
         return super.create(collection);
     }
 
@@ -617,7 +639,6 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .setDeletedAt(
                         branchedActionCollection.getUnpublishedCollection().getDeletedAt());
         actionCollection.setDeletedAt(branchedActionCollection.getDeletedAt());
-        actionCollection.setDeleted(branchedActionCollection.getDeleted());
         // Set policies from existing branch object
         actionCollection.setPolicies(branchedActionCollection.getPolicies());
     }
@@ -631,5 +652,166 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         }
         return repository.findAllUnpublishedActionCollectionsByContextIdAndContextType(
                 contextId, contextType, permission);
+    }
+
+    protected Mono<ActionDTO> createJsAction(ActionCollection actionCollection, ActionDTO action) {
+        ActionCollectionDTO collectionDTO = actionCollection.getUnpublishedCollection();
+
+        /**
+         * If the Datasource is null, create one and set the autoGenerated flag to true. This is required because spring-data
+         * cannot add the createdAt and updatedAt properties for null embedded objects. At this juncture, we couldn't find
+         * a way to disable the auditing for nested objects.
+         *
+         */
+        if (action.getDatasource() == null) {
+            action.autoGenerateDatasource();
+        }
+        action.getDatasource().setWorkspaceId(collectionDTO.getWorkspaceId());
+        action.getDatasource().setPluginId(collectionDTO.getPluginId());
+        action.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
+
+        // Make sure that the proper values are used for the new action
+        // Scope the actions' fully qualified names by collection name
+        action.setFullyQualifiedName(collectionDTO.getName() + "." + action.getName());
+        action.setPageId(collectionDTO.getPageId());
+        action.setPluginType(collectionDTO.getPluginType());
+        action.setDefaultResources(collectionDTO.getDefaultResources());
+        action.setApplicationId(actionCollection.getApplicationId());
+
+        // Action doesn't exist. Create now.
+        NewAction newAction = newActionService.generateActionDomain(action);
+        newAction.setUnpublishedAction(action);
+
+        Set<Policy> actionCollectionPolicies = new HashSet();
+        actionCollection.getPolicies().forEach(policy -> {
+            Policy actionPolicy = Policy.builder()
+                    .permission(policy.getPermission())
+                    .permissionGroups(policy.getPermissionGroups())
+                    .build();
+
+            actionCollectionPolicies.add(actionPolicy);
+        });
+
+        newAction.setPolicies(actionCollectionPolicies);
+        newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+        newActionService.updateDefaultResourcesInAction(newAction);
+
+        Mono<NewAction> sendAnalyticsMono =
+                analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction));
+
+        return newActionService
+                .validateAndSaveActionToRepository(newAction)
+                .flatMap(savedAction -> sendAnalyticsMono.thenReturn(savedAction));
+    }
+
+    @Override
+    public Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection) {
+        ActionCollectionDTO collectionDTO = actionCollection.getUnpublishedCollection();
+        final Set<String> validationMessages = collectionDTO.validate();
+        if (!validationMessages.isEmpty()) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_ACTION_COLLECTION, collectionDTO.getName(), validationMessages.toString()));
+        }
+
+        DefaultResources defaultResources = collectionDTO.getDefaultResources();
+
+        if (defaultResources == null) {
+            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(collectionDTO, null);
+            actionCollection.setDefaultResources(collectionDTO.getDefaultResources());
+        }
+
+        return Mono.justOrEmpty(collectionDTO.getActions())
+                .defaultIfEmpty(List.of())
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(action -> {
+                    if (action.getId() == null) {
+                        return createJsAction(actionCollection, action);
+                    }
+                    // This would occur when the new collection is created by grouping existing actions
+                    // This could be a future enhancement for js editor templates,
+                    // but is also useful for generic collections
+                    // We do not expect to have to update the action at this point
+                    return Mono.just(action);
+                })
+                .collectList()
+                .flatMap(actions -> {
+                    populateDefaultResources(actionCollection, collectionDTO, actions);
+
+                    // Create collection and return with actions
+                    final Mono<ActionCollection> actionCollectionMono = this.create(actionCollection)
+                            .flatMap(savedActionCollection -> {
+                                // If the default collection is not set then current collection will be the default one
+                                if (StringUtils.isEmpty(savedActionCollection
+                                        .getDefaultResources()
+                                        .getCollectionId())) {
+                                    savedActionCollection
+                                            .getDefaultResources()
+                                            .setCollectionId(savedActionCollection.getId());
+                                    return this.save(savedActionCollection);
+                                }
+                                return Mono.just(savedActionCollection);
+                            })
+                            .flatMap(repository::setUserPermissionsInObject)
+                            .cache();
+
+                    return actionCollectionMono
+                            .map(actionCollection1 -> {
+                                actions.forEach(actionDTO -> {
+                                    // Update all the actions in the list to belong to this collection
+                                    actionDTO.setCollectionId(actionCollection1.getId());
+                                    if (StringUtils.isEmpty(
+                                            actionDTO.getDefaultResources().getCollectionId())) {
+                                        actionDTO.getDefaultResources().setCollectionId(actionCollection1.getId());
+                                    }
+                                });
+                                return actions;
+                            })
+                            .flatMapMany(Flux::fromIterable)
+                            .collectList()
+                            .zipWith(actionCollectionMono)
+                            .flatMap(tuple1 -> {
+                                final List<ActionDTO> actionDTOList = tuple1.getT1();
+                                final ActionCollection actionCollection1 = tuple1.getT2();
+                                return generateActionCollectionByViewMode(actionCollection, false)
+                                        .flatMap(actionCollectionDTO -> splitValidActionsByViewMode(
+                                                actionCollection1.getUnpublishedCollection(), actionDTOList, false));
+                            });
+                });
+    }
+
+    protected void populateDefaultResources(
+            ActionCollection actionCollection, ActionCollectionDTO collectionDTO, List<ActionDTO> actions) {
+        // Store the default resource ids
+        // Only store defaultPageId for collectionDTO level resource
+        DefaultResources defaultDTOResource = new DefaultResources();
+        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(collectionDTO.getDefaultResources(), defaultDTOResource);
+
+        defaultDTOResource.setApplicationId(null);
+        defaultDTOResource.setCollectionId(null);
+        defaultDTOResource.setBranchName(null);
+        if (StringUtils.isEmpty(defaultDTOResource.getPageId())) {
+            defaultDTOResource.setPageId(collectionDTO.getPageId());
+        }
+        collectionDTO.setDefaultResources(defaultDTOResource);
+
+        // Only store branchName, defaultApplicationId and defaultActionCollectionId for ActionCollection
+        // level resource
+        DefaultResources defaults = new DefaultResources();
+        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
+        defaults.setPageId(null);
+        if (StringUtils.isEmpty(defaults.getApplicationId())) {
+            defaults.setApplicationId(actionCollection.getApplicationId());
+        }
+        actionCollection.setDefaultResources(defaults);
+
+        final Map<String, String> actionIds = actions.stream()
+                .collect(toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId));
+        collectionDTO.setDefaultToBranchedActionIdsMap(actionIds);
+    }
+
+    @Override
+    public Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO) {
+        // Do nothing as this is already taken care for JS objects in the context of page
+        return Mono.empty().then();
     }
 }

@@ -29,14 +29,6 @@ import LoadingScreen from "./LoadingScreen";
 import PageSelection from "./PageSelection";
 import { Link } from "design-system";
 
-const breakpointColumns = {
-  default: 4,
-  3000: 3,
-  1500: 3,
-  1024: 2,
-  800: 1,
-};
-
 const Wrapper = styled.div`
   height: 85vh;
   display: flex;
@@ -62,6 +54,7 @@ const TemplateDescriptionWrapper = styled.div`
 `;
 
 interface TemplateDetailedViewProps {
+  isStartWithTemplateFlow: boolean;
   templateId: string;
   onBackPress: () => void;
   onClose: () => void;
@@ -153,7 +146,6 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
             <TemplateDescription template={currentTemplate} />
           </TemplateDescriptionWrapper>
           <StyledSimilarTemplatesWrapper
-            breakpointCols={breakpointColumns}
             isForkingEnabled={false}
             onBackPress={props.onBackPress}
             onClick={onSimilarTemplateClick}
@@ -162,6 +154,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
           />
         </div>
         <PageSelection
+          isStartWithTemplateFlow={props.isStartWithTemplateFlow}
           onPageSelection={onPageSelection}
           pages={currentTemplate.pages || []}
           template={currentTemplate}

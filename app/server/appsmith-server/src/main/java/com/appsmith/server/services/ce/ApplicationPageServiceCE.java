@@ -4,11 +4,10 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 public interface ApplicationPageServiceCE {
 
@@ -22,7 +21,8 @@ public interface ApplicationPageServiceCE {
 
     Mono<PageDTO> getPage(String pageId, boolean viewMode);
 
-    Mono<PageDTO> getPageByBranchAndDefaultPageId(String defaultPageId, String branchName, boolean viewMode);
+    Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
+            String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl);
 
     Mono<Application> createApplication(Application application);
 
@@ -40,9 +40,7 @@ public interface ApplicationPageServiceCE {
 
     Mono<Application> deleteApplication(String id);
 
-    Mono<List<Application>> deleteMultipleApps(List<String> ids);
-
-    Mono<PageDTO> clonePage(String pageId);
+    Mono<PageDTO> clonePage(String pageId, ClonePageMetaDTO clonePageMetaDTO);
 
     Mono<PageDTO> clonePageByDefaultPageIdAndBranch(String defaultPageId, String branchName);
 

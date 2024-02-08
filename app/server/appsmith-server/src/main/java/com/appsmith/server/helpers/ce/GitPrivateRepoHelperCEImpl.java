@@ -1,8 +1,8 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
-import com.appsmith.server.services.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;

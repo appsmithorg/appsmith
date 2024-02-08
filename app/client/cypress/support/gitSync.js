@@ -1,6 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
+import { AppSidebar } from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
@@ -10,7 +12,8 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 let gitSync = ObjectsRegistry.GitSync,
   agHelper = ObjectsRegistry.AggregateHelper,
   dataManager = ObjectsRegistry.DataManager,
-  assertHelper = ObjectsRegistry.AssertHelper;
+  assertHelper = ObjectsRegistry.AssertHelper,
+  homePageTS = ObjectsRegistry.HomePage;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -150,27 +153,38 @@ Cypress.Commands.add("latestDeployPreview", () => {
 });
 
 Cypress.Commands.add("createGitBranch", (branch) => {
+  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
-  cy.wait(3000);
-  cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
+  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
+  agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   // increasing timeout to reduce flakyness
-  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
-  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("not.exist");
+  cy.get(".ads-v2-spinner", {
+    timeout: Cypress.config().pageLoadTimeout,
+  }).should("exist");
+  cy.get(".ads-v2-spinner", {
+    timeout: Cypress.config().pageLoadTimeout,
+  }).should("not.exist");
+  assertHelper.AssertDocumentReady();
+  AppSidebar.assertVisible(Cypress.config().pageLoadTimeout);
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
-  agHelper.AssertElementExist(gitSync._bottomBarPull);
+  agHelper.AssertElementVisibility(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.branchButton).click({ force: true });
-  cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
-  cy.wait(1000);
+  agHelper.AssertElementVisibility(gitSyncLocators.branchSearchInput);
+  agHelper.ClearNType(gitSyncLocators.branchSearchInput, `${branch}`);
   cy.get(gitSyncLocators.branchListItem).contains(branch).click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
-    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("exist");
-    cy.get(".ads-v2-spinner", { timeout: 45000 }).should("not.exist");
+    cy.get(".ads-v2-spinner", {
+      timeout: Cypress.config().pageLoadTimeout,
+    }).should("exist");
+    cy.get(".ads-v2-spinner", {
+      timeout: Cypress.config().pageLoadTimeout,
+    }).should("not.exist");
   }
-
-  cy.wait(2000);
+  assertHelper.AssertDocumentReady();
+  AppSidebar.assertVisible(Cypress.config().pageLoadTimeout);
 });
 
 Cypress.Commands.add("createTestGithubRepo", (repo, privateFlag = false) => {
@@ -271,13 +285,7 @@ Cypress.Commands.add(
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
-    cy.AppSetupForRename();
-    cy.get(homePage.applicationName).type(appname + "{enter}");
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    homePageTS.RenameApplication(appname);
 
     cy.createTestGithubRepo(appname, true);
     cy.connectToGitRepo(appname, false, assertConnectFailure);
@@ -314,7 +322,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
   assertHelper.AssertNetworkStatus("mergeBranch", 200);
-  cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
+  agHelper.AssertContains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 
 Cypress.Commands.add(

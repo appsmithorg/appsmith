@@ -1,6 +1,7 @@
 package com.appsmith.server.domains.ce;
 
 import com.appsmith.external.models.BranchAwareDomain;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -21,11 +22,6 @@ public class ActionCollectionCE extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String applicationId;
 
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
-
     @JsonView(Views.Public.class)
     String workspaceId;
 
@@ -34,6 +30,9 @@ public class ActionCollectionCE extends BranchAwareDomain {
 
     @JsonView(Views.Public.class)
     ActionCollectionDTO publishedCollection;
+
+    @JsonView(Views.Public.class)
+    CreatorContextType contextType;
 
     @Override
     public void sanitiseToExportDBObject() {
@@ -46,7 +45,6 @@ public class ActionCollectionCE extends BranchAwareDomain {
         if (publishedCollection != null) {
             publishedCollection.sanitiseForExport();
         }
-        this.setOrganizationId(null);
         super.sanitiseToExportDBObject();
     }
 }

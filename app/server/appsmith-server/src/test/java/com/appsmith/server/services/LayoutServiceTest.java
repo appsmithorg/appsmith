@@ -8,6 +8,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
@@ -1384,7 +1385,7 @@ public class LayoutServiceTest {
                     // We have reached here means we didn't get a throwable. That's good
                     assertThat(layoutDTO).isNotNull();
                     // Since this is still a bad mustache binding, we couldn't have extracted the action name
-                    assertThat(layoutDTO.getLayoutOnLoadActions().size()).isEqualTo(0);
+                    assertThat(layoutDTO.getLayoutOnLoadActions()).hasSize(0);
                 })
                 .verifyComplete();
     }

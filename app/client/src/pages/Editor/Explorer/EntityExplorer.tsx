@@ -1,7 +1,6 @@
-import React, { useRef, useCallback, useEffect, useContext } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { NonIdealState, Classes } from "@blueprintjs/core";
-import JSDependencies from "./Libraries";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -13,27 +12,26 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { importSvg } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityExplorerWrapper } from "./Common/EntityExplorerWrapper";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { INTEGRATION_TABS } from "constants/routes";
-import {
-  getExplorerStatus,
-  saveExplorerStatus,
-} from "@appsmith/pages/Editor/Explorer/helpers";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import DatasourceStarterLayoutPrompt from "./Datasources/DatasourceStarterLayoutPrompt";
-import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
+import { FilesContextProvider } from "./Files/FilesContextProvider";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -92,50 +90,18 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     dispatch(fetchWorkspace(currentWorkspaceId));
   }, [currentWorkspaceId]);
 
-  const { isOpened: isWalkthroughOpened, popFeature } =
-    useContext(WalkthroughContext) || {};
   const applicationId = useSelector(getCurrentApplicationId);
-  const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
-  const closeWalkthrough = useCallback(() => {
-    if (isWalkthroughOpened && popFeature) {
-      popFeature("EXPLORER_DATASOURCE_ADD");
-    }
-  }, [isWalkthroughOpened, popFeature]);
+  const pagePermissions = useSelector(getPagePermissions);
 
-  const addDatasource = useCallback(
-    (entryPoint: string) => {
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
-        }),
-      );
-      // Event for datasource creation click
-      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-        entryPoint,
-      });
-      closeWalkthrough();
-    },
-    [pageId, closeWalkthrough],
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
   );
 
-  const listDatasource = useCallback(() => {
-    history.push(
-      integrationEditorURL({
-        pageId,
-        selectedTab: INTEGRATION_TABS.ACTIVE,
-      }),
-    );
-  }, [pageId]);
-
-  const onDatasourcesToggle = useCallback(
-    (isOpen: boolean) => {
-      saveExplorerStatus(applicationId, "datasource", isOpen);
-    },
-    [applicationId],
-  );
+  const showWorkflows = useSelector(getShowWorkflowFeature);
 
   return (
     <EntityExplorerWrapper explorerRef={explorerRef} isActive={isActive}>
@@ -144,7 +110,15 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
         searchKeyword=""
         step={0}
       />
-      <Files />
+      <FilesContextProvider
+        canCreateActions={canCreateActions}
+        editorId={applicationId}
+        parentEntityId={pageId}
+        parentEntityType={ActionParentEntityType.PAGE}
+        showWorkflows={showWorkflows}
+      >
+        <Files />
+      </FilesContextProvider>
       {noResults && (
         <NoResult
           className={Classes.DARK}
@@ -152,20 +126,6 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           icon={<NoEntityFoundSvg />}
           title="No entities found"
         />
-      )}
-      {/* Shows first time users only */}
-      <DatasourceStarterLayoutPrompt />
-      {!isAppSidebarEnabled && (
-        <>
-          <Datasources
-            addDatasource={addDatasource}
-            entityId={pageId}
-            isDatasourcesOpen={isDatasourcesOpen}
-            listDatasource={listDatasource}
-            onDatasourcesToggle={onDatasourcesToggle}
-          />
-          <JSDependencies />
-        </>
       )}
     </EntityExplorerWrapper>
   );

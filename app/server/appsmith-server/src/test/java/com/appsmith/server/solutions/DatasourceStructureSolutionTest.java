@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
@@ -20,7 +21,6 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceStructureService;
 import com.appsmith.server.services.UserService;
@@ -208,7 +208,7 @@ public class DatasourceStructureSolutionTest {
 
         StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
-                    assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
+                    assertThat(datasourceStructure.getTables()).hasSize(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
                     assertThat(datasourceStructure.getTables().get(1).getName()).isEqualTo("Table2");
                 })
@@ -235,7 +235,7 @@ public class DatasourceStructureSolutionTest {
 
         StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
-                    assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
+                    assertThat(datasourceStructure.getTables()).hasSize(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
                     assertThat(datasourceStructure.getTables().get(1).getName()).isEqualTo("Table2");
                 })
@@ -262,7 +262,7 @@ public class DatasourceStructureSolutionTest {
 
         StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
-                    assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
+                    assertThat(datasourceStructure.getTables()).hasSize(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
                     assertThat(datasourceStructure.getTables().get(1).getName()).isEqualTo("Table2");
                 })
@@ -289,7 +289,7 @@ public class DatasourceStructureSolutionTest {
                     assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
                     assertThat(datasourceStorageStructure.getStructure()).isNotNull();
                     DatasourceStructure datasourceStructure = datasourceStorageStructure.getStructure();
-                    assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
+                    assertThat(datasourceStructure.getTables()).hasSize(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
                     assertThat(datasourceStructure.getTables().get(1).getName()).isEqualTo("Table2");
                 })
@@ -308,7 +308,7 @@ public class DatasourceStructureSolutionTest {
 
         StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
-                    assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
+                    assertThat(datasourceStructure.getTables()).hasSize(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
                     assertThat(datasourceStructure.getTables().get(1).getName()).isEqualTo("Table2");
                 })
@@ -338,7 +338,7 @@ public class DatasourceStructureSolutionTest {
 
         StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
-                    assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
+                    assertThat(datasourceStructure.getTables()).hasSize(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
                     assertThat(datasourceStructure.getTables().get(1).getName()).isEqualTo("Table2");
                 })

@@ -1,20 +1,23 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -58,6 +61,12 @@ public class ApplicationControllerTest {
     ImportApplicationService importApplicationService;
 
     @MockBean
+    ImportService importService;
+
+    @MockBean
+    ExportService exportService;
+
+    @MockBean
     ExportApplicationService exportApplicationService;
 
     @MockBean
@@ -86,6 +95,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     PartialImportService partialImportService;
+
+    @MockBean
+    ProjectProperties projectProperties;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();

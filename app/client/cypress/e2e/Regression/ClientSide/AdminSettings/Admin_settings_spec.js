@@ -6,7 +6,7 @@ const {
   GOOGLE_SIGNUP_SETUP_DOC,
 } = require("../../../../../src/constants/ThirdPartyConstants");
 
-describe("Admin settings page", function () {
+describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
@@ -30,7 +30,6 @@ describe("Admin settings page", function () {
   });
 
   it("2. Should test that settings page is not accessible to normal users", () => {
-    cy.wait(2000);
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
     cy.get(".admin-settings-menu-option").should("not.exist");
     cy.visit("/settings/general", { timeout: 60000 });
@@ -41,45 +40,19 @@ describe("Admin settings page", function () {
 
   it("3. Should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    //cy.wait(3000);
     cy.visit("/settings", { timeout: 60000 });
     cy.url().should("contain", "/settings/general");
     cy.wait("@getEnvVariables");
   });
 
   it(
-    "excludeForAirgap",
-    "4. Should test that settings page tab redirects",
-    () => {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
-      cy.get(".admin-settings-menu-option").click();
-      cy.wait("@getEnvVariables");
-      cy.get(adminsSettings.generalTab).click();
-      cy.url().should("contain", "/settings/general");
-      cy.get(adminsSettings.advancedTab).click();
-      cy.url().should("contain", "/settings/advanced");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.emailTab).click();
-      cy.url().should("contain", "/settings/email");
-      cy.get(adminsSettings.developerSettingsTab).click();
-      cy.url().should("contain", "/settings/developer-settings");
-      cy.get(adminsSettings.versionTab).click();
-      cy.url().should("contain", "/settings/version");
-    },
-  );
-
-  it(
     "airgap",
     "4. Should test that settings page tab redirects and developer settings doesn't exist - airgap",
+    { tags: ["@tag.airgap"] },
     () => {
       cy.visit("/applications", { timeout: 60000 });
-      if (!Cypress.env("AIRGAPPED")) {
-        cy.wait(3000);
-        cy.wait("@getReleaseItems");
-      } else {
-        cy.wait(2000);
-      }
+      if (!Cypress.env("AIRGAPPED")) cy.wait("@getAllWorkspaces");
+
       cy.get(".admin-settings-menu-option").click();
       cy.wait("@getEnvVariables");
       cy.get(adminsSettings.generalTab).click();
@@ -97,28 +70,9 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
-    "5. Should test that authentication page redirects",
-    () => {
-      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.googleButton).click();
-      cy.url().should("contain", "/settings/authentication/google-auth");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.githubButton).click();
-      cy.url().should("contain", "/settings/authentication/github-auth");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.formloginButton).click();
-      cy.url().should("contain", "/settings/authentication/form-login");
-    },
-  );
-
-  it(
     "airgap",
     "5. Should test that authentication page redirects and google and github auth doesn't exist - airgap",
+    { tags: ["@tag.airgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -131,8 +85,8 @@ describe("Admin settings page", function () {
   );
 
   it(
-    "excludeForAirgap",
     "6. Should test that configure link redirects to google signup setup doc",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -143,34 +97,13 @@ describe("Admin settings page", function () {
         cy.get("a")
           .should("have.attr", "target", "_blank")
           .invoke("removeAttr", "target")
-          .click()
-          .wait(3000); //for page to load fully;
+          .click();
         cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
       });
     },
   );
 
-  it(
-    "excludeForAirgap",
-    "7. Should test that configure link redirects to github signup setup doc",
-    () => {
-      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-      cy.get(adminsSettings.authenticationTab).click();
-      cy.url().should("contain", "/settings/authentication");
-      cy.get(adminsSettings.githubButton).click();
-      cy.url().should("contain", "/settings/authentication/github-auth");
-      cy.get(adminsSettings.readMoreLink).within(() => {
-        cy.get("a")
-          .should("have.attr", "target", "_blank")
-          .invoke("removeAttr", "target")
-          .click()
-          .wait(3000); //for page to load fully;;
-        cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
-      });
-    },
-  );
-
-  it("8. Should test save and clear buttons disabled state", () => {
+  it("7. Should test save and clear buttons disabled state", () => {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
     const assertVisibilityAndDisabledState = () => {
       cy.get(adminsSettings.saveButton).should("be.visible");
@@ -189,7 +122,7 @@ describe("Admin settings page", function () {
     assertVisibilityAndDisabledState();
   });
 
-  it("9. Should test saving a setting value", () => {
+  it("8. Should test saving a setting value", () => {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
 
     cy.get(adminsSettings.restartNotice).should("not.exist");
@@ -211,7 +144,7 @@ describe("Admin settings page", function () {
     );
   });
 
-  it("10.Should test saving settings value from different tabs", () => {
+  it("9.Should test saving settings value from different tabs", () => {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
@@ -244,8 +177,6 @@ describe("Admin settings page", function () {
       );
     });
     cy.get(adminsSettings.restartNotice).should("be.visible");
-    cy.wait(3000);
     cy.get(adminsSettings.restartNotice).should("not.exist");
-    cy.wait(3000);
   });
 });

@@ -62,7 +62,7 @@ jobs:
     steps:
       # Check out merge commit
       - name: Checkout Branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
 
@@ -142,7 +142,7 @@ jobs:
     if: success()
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
 
@@ -196,5 +196,3 @@ jobs:
           --data ' {
                   "status": "FAILED"
           }'
-
-

@@ -8,7 +8,7 @@ import { storeLogs } from "../sagas/DebuggerSagas";
 import type {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
-} from "reducers/entityReducers/jsActionsReducer";
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import type { ResponsePayload } from "../sagas/EvaluationsSaga";

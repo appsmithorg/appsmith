@@ -1,12 +1,14 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
@@ -25,7 +27,6 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +70,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
         final MappedExportableResourcesDTO mappedResourcesDTO = new MappedExportableResourcesDTO();
         final ExportingMetaDTO exportingMetaDTO = new ExportingMetaDTO();
 
-        exportingMetaDTO.setApplicationId(applicationId);
+        exportingMetaDTO.setArtifactId(applicationId);
         exportingMetaDTO.setBranchName(null);
         exportingMetaDTO.setIsGitSync(false);
         exportingMetaDTO.setExportWithConfiguration(false);
@@ -135,7 +136,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                         branchedPageId,
                                         partialExportFileDTO.getActionCollectionList(),
                                         applicationJson,
-                                        mappedResourcesDTO)
+                                        mappedResourcesDTO,
+                                        branchName)
                                 .then(Mono.just(branchedPageId));
                     }
                     return Mono.just(branchedPageId);
@@ -147,7 +149,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                         branchedPageId,
                                         partialExportFileDTO.getActionList(),
                                         applicationJson,
-                                        mappedResourcesDTO)
+                                        mappedResourcesDTO,
+                                        branchName)
                                 .then(Mono.just(branchedPageId));
                     }
                     return Mono.just(branchedPageId);
@@ -161,7 +164,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                 exportingMetaDTO,
                                 mappedResourcesDTO,
                                 applicationJson,
-                                SerialiseApplicationObjective.SHARE);
+                                SerialiseArtifactObjective.SHARE);
                     }
                     return Mono.just(applicationJson).zipWith(sessionUserService.getCurrentUser());
                 })
@@ -196,7 +199,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private Mono<ApplicationJson> exportFilteredCustomJSLib(
             String applicationId, List<String> customJSLibSet, ApplicationJson applicationJson, String branchName) {
         return customJSLibService
-                .getAllJSLibsInApplication(applicationId, branchName, false)
+                .getAllJSLibsInContext(applicationId, CreatorContextType.APPLICATION, branchName, false)
                 .flatMap(customJSLibs -> {
                     List<CustomJSLib> updatedCustomJSLibList = customJSLibs.stream()
                             .filter(customJSLib -> customJSLibSet.contains(customJSLib.getId()))
@@ -211,11 +214,17 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
             String pageId,
             List<String> validActions,
             ApplicationJson applicationJson,
-            MappedExportableResourcesDTO mappedResourcesDTO) {
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            String branchName) {
         return newActionService.findByPageId(pageId).collectList().flatMap(actions -> {
+            // For git connected app, the filtering has to be done on the default action id
+            // since the client is not aware of the branched resource id
             List<NewAction> updatedActionList = actions.stream()
-                    .filter(action -> validActions.contains(action.getId()))
+                    .filter(action -> branchName != null
+                            ? validActions.contains(action.getDefaultResources().getActionId())
+                            : validActions.contains(action.getId()))
                     .toList();
+
             // Map name to id for exportable entities
             newActionExportableService.mapNameToIdForExportableEntities(mappedResourcesDTO, updatedActionList);
             // Make it exportable by removing the ids
@@ -231,10 +240,16 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
             String pageId,
             List<String> validActions,
             ApplicationJson applicationJson,
-            MappedExportableResourcesDTO mappedResourcesDTO) {
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            String branchName) {
         return actionCollectionService.findByPageId(pageId).collectList().flatMap(actionCollections -> {
+            // For git connected app, the filtering has to be done on the default actionCollection id
+            // since the client is not aware of the branched resource id
             List<ActionCollection> updatedActionCollectionList = actionCollections.stream()
-                    .filter(actionCollection -> validActions.contains(actionCollection.getId()))
+                    .filter(actionCollection -> branchName != null
+                            ? validActions.contains(
+                                    actionCollection.getDefaultResources().getCollectionId())
+                            : validActions.contains(actionCollection.getId()))
                     .toList();
             // Map name to id for exportable entities
             actionCollectionExportableService.mapNameToIdForExportableEntities(
@@ -251,8 +266,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private Mono<String> updatePageNameInResourceMapDTO(
             String pageId, MappedExportableResourcesDTO mappedResourcesDTO) {
         return newPageService.getNameByPageId(pageId, false).flatMap(pageName -> {
-            mappedResourcesDTO.getPageIdToNameMap().put(pageId + EDIT, pageName);
-            mappedResourcesDTO.getPageIdToNameMap().put(pageId + VIEW, pageName);
+            mappedResourcesDTO.getPageOrModuleIdToNameMap().put(pageId + EDIT, pageName);
+            mappedResourcesDTO.getPageOrModuleIdToNameMap().put(pageId + VIEW, pageName);
             return Mono.just(pageId);
         });
     }

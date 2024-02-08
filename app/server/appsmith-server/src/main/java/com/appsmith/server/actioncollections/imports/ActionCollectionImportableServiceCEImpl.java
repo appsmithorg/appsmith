@@ -4,6 +4,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewPage;
@@ -18,10 +19,12 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -34,15 +37,12 @@ import java.util.Set;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
+@RequiredArgsConstructor
 public class ActionCollectionImportableServiceCEImpl implements ImportableServiceCE<ActionCollection> {
     private final ActionCollectionService actionCollectionService;
     private final ActionCollectionRepository repository;
-
-    public ActionCollectionImportableServiceCEImpl(
-            ActionCollectionService actionCollectionService, ActionCollectionRepository repository) {
-        this.actionCollectionService = actionCollectionService;
-        this.repository = repository;
-    }
+    private final DefaultResourcesService<ActionCollection> defaultResourcesService;
+    private final DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService;
 
     // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable resources.
     // Updates actionCollectionResultDTO in importable resources.
@@ -74,12 +74,13 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         Mono<List<ActionCollection>> importedActionCollectionMono = Mono.just(importedActionCollectionList);
 
-        if (importingMetaDTO.getAppendToApp()) {
+        if (importingMetaDTO.getAppendToArtifact()) {
             importedActionCollectionMono = importedActionCollectionMono.map(importedActionCollectionList1 -> {
-                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageOrModuleMap().values().stream()
                         .distinct()
+                        .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                         .toList();
-                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getPageOrModuleNewNameToOldName();
 
                 for (NewPage newPage : importedNewPages) {
                     String newPageName = newPage.getUnpublishedPage().getName();
@@ -138,21 +139,29 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     final String workspaceId = importedApplication.getWorkspaceId();
 
                     // Map of gitSyncId to actionCollection of the existing records in DB
-                    Mono<Map<String, ActionCollection>> actionCollectionsInCurrentAppMono = repository
-                            .findByApplicationId(importedApplication.getId())
-                            .filter(collection -> collection.getGitSyncId() != null)
-                            .collectMap(ActionCollection::getGitSyncId);
+                    Mono<Map<String, ActionCollection>> actionCollectionsInCurrentAppMono =
+                            getCollectionsInCurrentAppFlux(importedApplication)
+                                    .filter(collection -> collection.getGitSyncId() != null)
+                                    .collectMap(ActionCollection::getGitSyncId);
 
                     Mono<Map<String, ActionCollection>> actionCollectionsInBranchesMono;
                     if (importedApplication.getGitApplicationMetadata() != null) {
                         final String defaultApplicationId =
                                 importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
-                        actionCollectionsInBranchesMono = repository
-                                .findByDefaultApplicationId(defaultApplicationId, Optional.empty())
+                        actionCollectionsInBranchesMono = getCollectionsInOtherBranchesFlux(defaultApplicationId)
                                 .filter(actionCollection -> actionCollection.getGitSyncId() != null)
                                 .collectMap(ActionCollection::getGitSyncId);
                     } else {
                         actionCollectionsInBranchesMono = Mono.just(Collections.emptyMap());
+                    }
+
+                    // update the action name in the json to avoid duplicate names for the partial import
+                    // It is page level action and hence the action name should be unique
+                    if (Boolean.TRUE.equals(importingMetaDTO.getIsPartialImport())
+                            && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
+                        updateActionCollectionNameBeforeMerge(
+                                importedActionCollectionList,
+                                mappedImportableResourcesDTO.getRefactoringNameReference());
                     }
 
                     return Mono.zip(actionCollectionsInCurrentAppMono, actionCollectionsInBranchesMono)
@@ -194,7 +203,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .getPluginMap()
                                                 .get(unpublishedCollection.getPluginId()));
                                         parentPage = updatePageInActionCollection(
-                                                unpublishedCollection, mappedImportableResourcesDTO.getPageNameMap());
+                                                unpublishedCollection, (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap());
                                     }
 
                                     if (publishedCollection != null && publishedCollection.getName() != null) {
@@ -209,8 +219,9 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                         if (StringUtils.isEmpty(publishedCollection.getPageId())) {
                                             publishedCollection.setPageId(fallbackParentPageId);
                                         }
-                                        NewPage publishedCollectionPage = updatePageInActionCollection(
-                                                publishedCollection, mappedImportableResourcesDTO.getPageNameMap());
+                                        NewPage publishedCollectionPage =
+                                                updatePageInActionCollection(publishedCollection, (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap());
                                         parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                                     }
 
@@ -218,32 +229,54 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                     actionCollection.setWorkspaceId(workspaceId);
                                     actionCollection.setApplicationId(importedApplication.getId());
 
+                                    if (importedApplication.getGitApplicationMetadata() != null) {
+                                        final String defaultApplicationId = importedApplication
+                                                .getGitApplicationMetadata()
+                                                .getDefaultApplicationId();
+                                        if (actionsCollectionsInBranches.containsKey(actionCollection.getGitSyncId())) {
+                                            ActionCollection branchedActionCollection =
+                                                    getExistingCollectionInOtherBranchesForImportedCollection(
+                                                            mappedImportableResourcesDTO,
+                                                            actionsCollectionsInBranches,
+                                                            actionCollection);
+                                            defaultResourcesService.setFromOtherBranch(
+                                                    actionCollection,
+                                                    branchedActionCollection,
+                                                    importingMetaDTO.getBranchName());
+                                            dtoDefaultResourcesService.setFromOtherBranch(
+                                                    actionCollection.getUnpublishedCollection(),
+                                                    branchedActionCollection.getUnpublishedCollection(),
+                                                    importingMetaDTO.getBranchName());
+                                        } else {
+                                            defaultResourcesService.initialize(
+                                                    actionCollection, importingMetaDTO.getBranchName(), false);
+                                            actionCollection
+                                                    .getDefaultResources()
+                                                    .setApplicationId(defaultApplicationId);
+                                            dtoDefaultResourcesService.initialize(
+                                                    actionCollection.getUnpublishedCollection(),
+                                                    importingMetaDTO.getBranchName(),
+                                                    false);
+                                        }
+                                    }
+
                                     // Check if the action has gitSyncId and if it's already in DB
-                                    if (actionCollection.getGitSyncId() != null
-                                            && actionsCollectionsInCurrentApp.containsKey(
-                                                    actionCollection.getGitSyncId())) {
+                                    if (existingAppContainsCollection(
+                                            actionsCollectionsInCurrentApp, actionCollection)) {
 
                                         // Since the resource is already present in DB, just update resource
                                         ActionCollection existingActionCollection =
-                                                actionsCollectionsInCurrentApp.get(actionCollection.getGitSyncId());
+                                                getExistingCollectionInCurrentBranchForImportedCollection(
+                                                        mappedImportableResourcesDTO,
+                                                        actionsCollectionsInCurrentApp,
+                                                        actionCollection);
 
-                                        Set<Policy> existingPolicy = existingActionCollection.getPolicies();
-                                        copyNestedNonNullProperties(actionCollection, existingActionCollection);
-                                        // Update branchName
-                                        existingActionCollection
-                                                .getDefaultResources()
-                                                .setBranchName(importingMetaDTO.getBranchName());
-                                        // Recover the deleted state present in DB from imported actionCollection
-                                        existingActionCollection
-                                                .getUnpublishedCollection()
-                                                .setDeletedAt(actionCollection
-                                                        .getUnpublishedCollection()
-                                                        .getDeletedAt());
-                                        existingActionCollection.setDeletedAt(actionCollection.getDeletedAt());
-                                        existingActionCollection.setDeleted(actionCollection.getDeleted());
-                                        existingActionCollection.setPolicies(existingPolicy);
+                                        updateExistingCollection(
+                                                importingMetaDTO,
+                                                mappedImportableResourcesDTO,
+                                                actionCollection,
+                                                existingActionCollection);
 
-                                        existingActionCollection.updateForBulkWriteOperation();
                                         existingActionCollections.add(existingActionCollection);
                                         resultDTO.getSavedActionCollectionIds().add(existingActionCollection.getId());
                                         resultDTO
@@ -257,27 +290,6 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                     AppsmithError.ACL_NO_RESOURCE_FOUND,
                                                     FieldName.PAGE,
                                                     parentPage.getId());
-                                        }
-
-                                        if (importedApplication.getGitApplicationMetadata() != null) {
-                                            final String defaultApplicationId = importedApplication
-                                                    .getGitApplicationMetadata()
-                                                    .getDefaultApplicationId();
-                                            if (actionsCollectionsInBranches.containsKey(
-                                                    actionCollection.getGitSyncId())) {
-                                                ActionCollection branchedActionCollection =
-                                                        actionsCollectionsInBranches.get(
-                                                                actionCollection.getGitSyncId());
-                                                actionCollectionService.populateDefaultResources(
-                                                        actionCollection,
-                                                        branchedActionCollection,
-                                                        importingMetaDTO.getBranchName());
-                                            } else {
-                                                DefaultResources defaultResources = new DefaultResources();
-                                                defaultResources.setApplicationId(defaultApplicationId);
-                                                defaultResources.setBranchName(importingMetaDTO.getBranchName());
-                                                actionCollection.setDefaultResources(defaultResources);
-                                            }
                                         }
 
                                         // this will generate the id and other auto generated fields e.g. createdAt
@@ -294,6 +306,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                             actionCollection.setGitSyncId(
                                                     actionCollection.getApplicationId() + "_" + new ObjectId());
                                         }
+
+                                        populateDomainMappedReferences(mappedImportableResourcesDTO, actionCollection);
 
                                         // it's new actionCollection
                                         newActionCollections.add(actionCollection);
@@ -315,6 +329,91 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     log.error("Error saving action collections", e);
                     return Mono.error(e);
                 });
+    }
+
+    private void updateActionCollectionNameBeforeMerge(
+            List<ActionCollection> importedNewActionCollectionList, Set<String> refactoringNameSet) {
+
+        for (ActionCollection actionCollection : importedNewActionCollectionList) {
+            String
+                    oldNameActionCollection =
+                            actionCollection.getUnpublishedCollection().getName(),
+                    newNameActionCollection =
+                            actionCollection.getUnpublishedCollection().getName();
+            int i = 1;
+            while (refactoringNameSet.contains(newNameActionCollection)) {
+                newNameActionCollection = oldNameActionCollection + i++;
+            }
+            String oldId = actionCollection.getId().split("_")[1];
+            actionCollection.setId(newNameActionCollection + "_" + oldId);
+            actionCollection.getUnpublishedCollection().setName(newNameActionCollection);
+            if (actionCollection.getPublishedCollection() != null) {
+                actionCollection.getPublishedCollection().setName(newNameActionCollection);
+            }
+        }
+    }
+
+    protected Flux<ActionCollection> getCollectionsInCurrentAppFlux(Application importedApplication) {
+        return repository.findByApplicationId(importedApplication.getId());
+    }
+
+    protected Flux<ActionCollection> getCollectionsInOtherBranchesFlux(String defaultApplicationId) {
+        return repository.findByDefaultApplicationId(defaultApplicationId, Optional.empty());
+    }
+
+    private void updateExistingCollection(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            ActionCollection actionCollection,
+            ActionCollection existingActionCollection) {
+        Set<Policy> existingPolicy = existingActionCollection.getPolicies();
+
+        updateImportableCollectionFromExistingCollection(existingActionCollection, actionCollection);
+
+        copyNestedNonNullProperties(actionCollection, existingActionCollection);
+
+        populateDomainMappedReferences(mappedImportableResourcesDTO, existingActionCollection);
+
+        // Update branchName
+        existingActionCollection.getDefaultResources().setBranchName(importingMetaDTO.getBranchName());
+        // Recover the deleted state present in DB from imported actionCollection
+        existingActionCollection
+                .getUnpublishedCollection()
+                .setDeletedAt(actionCollection.getUnpublishedCollection().getDeletedAt());
+        existingActionCollection.setDeletedAt(actionCollection.getDeletedAt());
+        existingActionCollection.setPolicies(existingPolicy);
+
+        existingActionCollection.updateForBulkWriteOperation();
+    }
+
+    protected void updateImportableCollectionFromExistingCollection(
+            ActionCollection existingActionCollection, ActionCollection actionCollection) {
+        // Nothing to update from the existing action collection
+    }
+
+    protected ActionCollection getExistingCollectionInCurrentBranchForImportedCollection(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp,
+            ActionCollection actionCollection) {
+        return actionsCollectionsInCurrentApp.get(actionCollection.getGitSyncId());
+    }
+
+    protected ActionCollection getExistingCollectionInOtherBranchesForImportedCollection(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp,
+            ActionCollection actionCollection) {
+        return actionsCollectionsInCurrentApp.get(actionCollection.getGitSyncId());
+    }
+
+    protected boolean existingAppContainsCollection(
+            Map<String, ActionCollection> actionsCollectionsInCurrentApp, ActionCollection actionCollection) {
+        return actionCollection.getGitSyncId() != null
+                && actionsCollectionsInCurrentApp.containsKey(actionCollection.getGitSyncId());
+    }
+
+    protected void populateDomainMappedReferences(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO, ActionCollection actionCollection) {
+        // Nothing needs to be copied into the action collection from mapped resources
     }
 
     private NewPage updatePageInActionCollection(ActionCollectionDTO collectionDTO, Map<String, NewPage> pageNameMap) {

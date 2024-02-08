@@ -9,12 +9,11 @@ jobs:
     if: (github.event.action == 'opened' || github.event.action == 'reopened') && contains( github.event.issue.labels.*.name, 'CI impacted')
     runs-on: ubuntu-latest
     permissions:
-        issues: write
+      issues: write
     steps:
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+
       - name: View issue information
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -33,12 +32,11 @@ jobs:
     if: github.event.action == 'closed' && contains( github.event.issue.labels.*.name, 'CI impacted')
     runs-on: ubuntu-latest
     permissions:
-        issues: write
-    steps:     
+      issues: write
+    steps:
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+
       - name: View issue information
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}

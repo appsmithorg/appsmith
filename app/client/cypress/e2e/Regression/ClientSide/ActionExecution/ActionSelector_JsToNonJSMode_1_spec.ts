@@ -9,7 +9,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS to non-JS mode in Action Selector", () => {
+describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   it("1. should not show any fields with a blank JS field", () => {
     agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
@@ -29,7 +29,6 @@ describe("JS to non-JS mode in Action Selector", () => {
       "GETExecute a queryApi1.run",
     );
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
-    agHelper.Sleep(200);
     propPane.AssertSelectValue("Api1.run");
   });
 
@@ -303,7 +302,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       0,
     );
 
-    agHelper.GetNClick(propPane._actionCard, 0);
+    agHelper.GetNClick(propPane._actionCard);
     agHelper.AssertElementAbsence(propPane._actionPopupTextLabel, 0);
 
     propPane.EnterJSContext(
@@ -321,7 +320,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       0,
     );
 
-    agHelper.GetNClick(propPane._actionCard, 0);
+    agHelper.GetNClick(propPane._actionCard);
     agHelper.ValidateCodeEditorContent(propPane._textView, "{{18}}{{26}}");
     agHelper.GetNAssertElementText(
       propPane._actionPopupTextLabel,

@@ -15,7 +15,6 @@ import batchSagas from "sagas/BatchSagas";
 import autoLayoutDraggingSagas from "sagas/CanvasSagas/AutoLayoutDraggingSagas";
 import draggingCanvasSagas from "sagas/CanvasSagas/DraggingCanvasSagas";
 import selectionCanvasSagas from "sagas/CanvasSagas/SelectionCanvasSagas";
-import importedCollectionsSagas from "sagas/CollectionSagas";
 import curlImportSagas from "sagas/CurlImportSagas";
 import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
 import debuggerSagas from "sagas/DebuggerSagas";
@@ -36,7 +35,6 @@ import onboardingSagas from "sagas/OnboardingSagas";
 import pageSagas from "@appsmith/sagas/PageSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import pluginSagas from "sagas/PluginSagas";
-import providersSagas from "sagas/ProvidersSaga";
 import queryPaneSagas from "sagas/QueryPaneSagas";
 import replaySaga from "sagas/ReplaySaga";
 import saaSPaneSagas from "sagas/SaaSPaneSagas";
@@ -51,10 +49,9 @@ import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
 import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
+import anvilSagas from "layoutSystems/anvil/integrations/sagas";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
-import LayoutElementPositionsSaga from "layoutSystems/anvil/integrations/sagas/LayoutElementPositionsSaga";
-import anvilDraggingSagas from "layoutSystems/anvil/integrations/sagas/draggingSagas";
 import ternSagas from "sagas/TernSaga";
 
 export const sagas = [
@@ -74,8 +71,6 @@ export const sagas = [
   templateSagas,
   pluginSagas,
   workspaceSagas,
-  importedCollectionsSagas,
-  providersSagas,
   curlImportSagas,
   snipingModeSagas,
   queryPaneSagas,
@@ -110,8 +105,7 @@ export const sagas = [
   snapshotSagas,
   oneClickBindingSaga,
   entityNavigationSaga,
-  LayoutElementPositionsSaga,
   communityTemplateSagas,
-  anvilDraggingSagas,
+  anvilSagas,
   ternSagas,
 ];

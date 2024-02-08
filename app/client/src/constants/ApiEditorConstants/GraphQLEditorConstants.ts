@@ -4,6 +4,7 @@ import {
   CONTENT_TYPE_HEADER_KEY,
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHOD,
+  HTTP_PROTOCOL,
   POST_BODY_FORMAT_OPTIONS,
 } from "./CommonApiConstants";
 
@@ -45,6 +46,7 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
   httpMethod: HTTP_METHOD.POST,
+  httpVersion: HTTP_PROTOCOL.HTTP11.value,
   headers: [
     { key: CONTENT_TYPE_HEADER_KEY, value: POST_BODY_FORMAT_OPTIONS.JSON },
     { key: "", value: "" },

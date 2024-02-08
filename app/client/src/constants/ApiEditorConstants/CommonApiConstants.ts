@@ -8,6 +8,24 @@ export enum HTTP_METHOD {
   PATCH = "PATCH",
 }
 
+// This constant lists defines the supported HTTP protocol versions
+// label defines the display name of the protocol
+// value defines the value of the protocol that is sent to the server
+export const HTTP_PROTOCOL = {
+  HTTP11: {
+    label: "HTTP/1.1",
+    value: "HTTP11",
+  },
+  H2: {
+    label: "HTTP/2",
+    value: "H2",
+  },
+  H2C: {
+    label: "H2C",
+    value: "H2C",
+  },
+};
+
 export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
   GET: "var(--ads-v2-color-fg-information)",
   POST: "var(--ads-v2-color-fg-warning)",
@@ -27,6 +45,8 @@ export enum API_EDITOR_TABS {
 export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHOD).map((method) => ({
   value: method,
 }));
+
+export const HTTP_PROTOCOL_VERSIONS = Object.values(HTTP_PROTOCOL);
 
 export const EMPTY_KEY_VALUE_PAIRS = [
   { key: "", value: "" },

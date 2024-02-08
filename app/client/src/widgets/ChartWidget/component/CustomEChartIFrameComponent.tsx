@@ -102,6 +102,10 @@ export function CustomEChartIFrameComponent(
   ) {
     const config: CustomEChartIFrameMessageData = e.data;
 
+    if (!config || !config.hasOwnProperty("options")) {
+      return;
+    }
+
     const newOptions = parseConfigurationForCallbackFns(config.options, _);
 
     try {

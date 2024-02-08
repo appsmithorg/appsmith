@@ -1,4 +1,5 @@
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 const Access = {
   AdminSettingsEntryLink: ".admin-settings-menu-option",
@@ -26,7 +27,7 @@ const UpgradePage = {
 
 const locators = { ...Access, ...UpgradePage };
 
-describe("Audit logs", () => {
+describe("Audit logs", { tags: ["@tag.Settings"] }, () => {
   it("1. Super user can access audit logs page", () => {
     if (CURRENT_REPO === REPO.CE) {
       cy.LogOut();
@@ -35,9 +36,8 @@ describe("Audit logs", () => {
       cy.get(locators.AdminSettingsEntryLink).click();
       cy.url().should("contain", "/settings/general");
       cy.get(locators.LeftPaneAuditLogsLink).should("be.visible");
-      cy.get(locators.LeftPaneAuditLogsLink).click();
-      cy.wait(2000);
-      cy.get(locators.UpgradeContainer).should("be.visible");
+      agHelper.GetNClick(locators.LeftPaneAuditLogsLink);
+      agHelper.AssertElementVisibility(locators.UpgradeContainer);
       cy.get(locators.HeaderContainer).should("be.visible");
       cy.get(locators.CarouselContainer).should("be.visible");
       cy.get(locators.FooterContainer).should("be.visible");

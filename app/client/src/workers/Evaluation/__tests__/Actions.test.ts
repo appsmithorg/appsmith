@@ -1,6 +1,6 @@
 import type { ActionEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
@@ -35,7 +35,7 @@ describe("Add functions", () => {
       run: {},
       clear: {},
       responseMeta: { isExecutionSuccess: false },
-      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
       dependencyMap: {},
       logBlackList: {},
     } as ActionEntity,
@@ -309,7 +309,6 @@ describe("Add functions", () => {
   it("resetWidget works", () => {
     const widgetName = "widget1";
     const resetChildren = true;
-
     expect(evalContext.resetWidget(widgetName, resetChildren)).resolves.toBe(
       {},
     );
@@ -323,6 +322,7 @@ describe("Add functions", () => {
             payload: {
               widgetName,
               resetChildren,
+              metaUpdates: [],
             },
           },
           eventType: undefined,

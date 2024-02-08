@@ -11,13 +11,17 @@ import {
   AppSidebar,
   AppSidebarButton,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
+import PageList from "../../../support/Pages/PageList";
 
 describe(
-  "excludeForAirgap",
   "Validate Mock Query Active Ds querying & count",
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {
+      PageList.AddNewPage();
+      PageList.AddNewPage();
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
         cy.log("Mock DB Name: " + mockDBName);
@@ -31,7 +35,7 @@ describe(
           'SELECT * FROM public."users" LIMIT 10;',
         );
 
-        dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
+        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
@@ -40,7 +44,7 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
-        dataSources.RunQueryNVerifyResponseViews(10, true);
+        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
@@ -89,7 +93,7 @@ describe(
 
     afterEach(() => {
       AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Delete",

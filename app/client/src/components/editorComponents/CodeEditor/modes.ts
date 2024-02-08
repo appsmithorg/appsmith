@@ -78,6 +78,8 @@ export const MULTIPLEXING_MODE_CONFIGS: MultiplexingModeConfigs = {
   "application/json": undefined,
   javascript: undefined,
   graphql: undefined,
+  css: undefined,
+  htmlmixed: undefined,
 };
 
 Object.keys(MULTIPLEXING_MODE_CONFIGS).forEach((key) => {

@@ -1,7 +1,7 @@
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Update a user's name", function () {
+describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
   let username;
 
   it("1. Update a user's name", function () {
@@ -27,6 +27,8 @@ describe("Update a user's name", function () {
     cy.intercept("POST", "/api/v1/users/forgotPassword", {
       fixture: "resetPassword.json",
     }).as("resetPwd");
+    _.agHelper.GetNClick(homePage.homeIcon, 0, true);
+    _.agHelper.GetNClick(homePage.profileMenu, 0, true);
     cy.get(".t--edit-profile").click({ force: true });
 
     // Waiting as the input onchange has a debounce

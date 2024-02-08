@@ -5,16 +5,22 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Delete No Action card without any error", () => {
-  it("1. Bug 23345", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
+describe(
+  "Delete No Action card without any error",
+  { tags: ["@tag.JS"] },
+  () => {
+    it("1. Bug 23345", () => {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
 
-    propPane.AddAction("onClick");
+      propPane.AddAction("onClick");
 
-    agHelper.AssertElementVisibility(propPane._actionCardByTitle("No action"));
+      agHelper.AssertElementVisibility(
+        propPane._actionCardByTitle("No action"),
+      );
 
-    agHelper.GetNClick(propPane._actionSelectorDelete);
+      agHelper.GetNClick(propPane._actionSelectorDelete);
 
-    agHelper.AssertElementAbsence(propPane._actionCardByTitle("No action"));
-  });
-});
+      agHelper.AssertElementAbsence(propPane._actionCardByTitle("No action"));
+    });
+  },
+);

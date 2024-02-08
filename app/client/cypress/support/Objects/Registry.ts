@@ -25,10 +25,11 @@ import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
 import { DataManager } from "./DataManager";
 import { AssertHelper } from "../Pages/AssertHelper";
-import { ReusableHelper } from "./ReusableHelper";
 import { Tabs } from "../Pages/Tabs";
 import { GsheetHelper } from "../Pages/GSheetHelper";
 import { CommunityTemplates } from "../Pages/CommunityTemplates";
+import { AnvilLayout } from "../Pages/AnvilLayout";
+import PartialImportExport from "../Pages/PartialImportExport";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -45,14 +46,6 @@ export class ObjectsRegistry {
       ObjectsRegistry.assertHelper__ = new AssertHelper();
     }
     return ObjectsRegistry.assertHelper__;
-  }
-
-  private static reusableHelper__: ReusableHelper;
-  static get ReusableHelper(): ReusableHelper {
-    if (ObjectsRegistry.reusableHelper__ === undefined) {
-      ObjectsRegistry.reusableHelper__ = new ReusableHelper();
-    }
-    return ObjectsRegistry.reusableHelper__;
   }
 
   private static jsEditor__: JSEditor;
@@ -255,6 +248,14 @@ export class ObjectsRegistry {
     return ObjectsRegistry.autoLayout__;
   }
 
+  private static anvilLayout__: AnvilLayout;
+  static get AnvilLayout(): AnvilLayout {
+    if (ObjectsRegistry.anvilLayout__ === undefined) {
+      ObjectsRegistry.anvilLayout__ = new AnvilLayout();
+    }
+    return ObjectsRegistry.anvilLayout__;
+  }
+
   private static dataManager__: DataManager;
   static get DataManager(): DataManager {
     if (ObjectsRegistry.dataManager__ === undefined) {
@@ -277,6 +278,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.communityTemplates__ = new CommunityTemplates();
     }
     return ObjectsRegistry.communityTemplates__;
+  }
+
+  private static partialImportExport__: PartialImportExport;
+  static get PartialImportExport(): PartialImportExport {
+    if (ObjectsRegistry.partialImportExport__ === undefined) {
+      ObjectsRegistry.partialImportExport__ = new PartialImportExport();
+    }
+    return ObjectsRegistry.partialImportExport__;
   }
 }
 

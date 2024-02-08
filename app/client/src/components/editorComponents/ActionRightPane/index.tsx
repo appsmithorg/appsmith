@@ -22,10 +22,7 @@ import type {
 } from "api/ActionAPI";
 import { getPagePermissions } from "selectors/editorSelectors";
 import DatasourceStructureHeader from "pages/Editor/DatasourceInfo/DatasourceStructureHeader";
-import {
-  DatasourceStructureContainer as DataStructureList,
-  SCHEMALESS_PLUGINS,
-} from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
+import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
@@ -126,8 +123,10 @@ const DataStructureListWrapper = styled.div`
 export const CollapsibleSection = styled.div<{
   height: string;
   marginTop?: number;
+  paddingTop?: number;
 }>`
-  margin-top: ${(props) => props?.marginTop && `${props.marginTop}px`};
+  margin-top: ${(props) => props.marginTop && `${props.marginTop}px`};
+  padding-top: ${(props) => props.paddingTop && `${props.paddingTop}px`};
   height: auto;
   display: flex;
   width: 100%;
@@ -171,6 +170,8 @@ function ActionSidebar({
   hasConnections,
   hasResponse,
   pluginId,
+  showSchema,
+  showSuggestedWidgets = true,
   suggestedWidgets,
 }: {
   actionName: string;
@@ -182,12 +183,15 @@ function ActionSidebar({
   context: DatasourceStructureContext;
   additionalSections?: React.ReactNode;
   actionRightPaneBackLink: React.ReactNode;
+  showSuggestedWidgets?: boolean;
+  showSchema: boolean;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
   const user = useSelector(getCurrentUser);
   const { pushFeature } = useContext(WalkthroughContext) || {};
-  const schemaRef = useRef(null);
+  const schemaRef = useRef<HTMLDivElement | null>(null);
+  const bindingRef = useRef<HTMLDivElement | null>(null);
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -267,9 +271,17 @@ function ActionSidebar({
       });
   };
 
-  const showSchema =
-    pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
-    !SCHEMALESS_PLUGINS.includes(pluginName);
+  const handleCustomCollapse = (openStatus: boolean) => {
+    if (schemaRef.current && bindingRef.current) {
+      if (openStatus) {
+        schemaRef.current.style.height = "";
+        bindingRef.current.style.height = "";
+      } else {
+        schemaRef.current.style.height = "auto";
+        bindingRef.current.style.height = "calc(90% - 40px)";
+      }
+    }
+  };
 
   useEffect(() => {
     if (showSchema) {
@@ -286,13 +298,13 @@ function ActionSidebar({
     pagePermissions,
   );
 
-  const showSuggestedWidgets =
+  const suggestedWidgetsEnabled =
     canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
 
   if (
     !hasConnections &&
-    !showSuggestedWidgets &&
+    !suggestedWidgetsEnabled &&
     !showSnipingMode &&
     // putting this here to make the placeholder only appear for rest APIs.
     pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
@@ -300,61 +312,68 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
+  if (!additionalSections && !showSchema && !showSuggestedWidgets) {
+    return null;
+  }
+
   return (
     <SideBar>
       {actionRightPaneBackLink}
       <CollapsibleGroupContainer>
         {additionalSections && (
-          <>
-            <CollapsibleGroup maxHeight={"50%"}>
-              {additionalSections}
-            </CollapsibleGroup>
-            <StyledDivider />
-          </>
+          <CollapsibleGroup maxHeight={"50%"}>
+            {additionalSections}
+          </CollapsibleGroup>
         )}
         <CollapsibleGroup height={additionalSections ? "50%" : "100%"}>
           {showSchema && (
-            <CollapsibleSection
-              data-testId="datasource-schema-container"
-              height={
-                datasourceStructure?.tables?.length && !isLoadingSchema
-                  ? "50%"
-                  : "auto"
-              }
-              id={SCHEMA_SECTION_ID}
-              ref={schemaRef}
-            >
-              <Collapsible
-                CustomLabelComponent={DatasourceStructureHeader}
-                containerRef={schemaRef}
-                datasource={{ id: datasourceId }}
-                expand={!showSuggestedWidgets}
-                label="Schema"
+            <>
+              {additionalSections && <StyledDivider />}
+              <CollapsibleSection
+                data-testId="datasource-schema-container"
+                height={
+                  datasourceStructure?.tables?.length && !isLoadingSchema
+                    ? showSuggestedWidgets
+                      ? "50%"
+                      : "100%"
+                    : "auto"
+                }
+                id={SCHEMA_SECTION_ID}
+                ref={schemaRef}
               >
-                <DataStructureListWrapper>
-                  <DataStructureList
-                    context={context}
-                    currentActionId={params?.queryId || ""}
-                    datasourceId={datasourceId || ""}
-                    datasourceStructure={datasourceStructure}
-                    pluginName={pluginName}
-                    step={0}
-                  />
-                </DataStructureListWrapper>
-              </Collapsible>
-            </CollapsibleSection>
+                <Collapsible
+                  CustomLabelComponent={DatasourceStructureHeader}
+                  datasource={{ id: datasourceId }}
+                  expand={!suggestedWidgetsEnabled}
+                  handleCustomCollapse={handleCustomCollapse}
+                  label="Schema"
+                >
+                  <DataStructureListWrapper>
+                    <DataStructureList
+                      context={context}
+                      currentActionId={params?.queryId || ""}
+                      datasourceId={datasourceId || ""}
+                      datasourceStructure={datasourceStructure}
+                      pluginName={pluginName}
+                      step={0}
+                    />
+                  </DataStructureListWrapper>
+                </Collapsible>
+              </CollapsibleSection>
+            </>
           )}
 
-          {showSchema && <StyledDivider />}
-          {showSuggestedWidgets ? (
-            <CollapsibleSection height={"40%"} marginTop={12}>
+          {showSuggestedWidgets && showSchema && <StyledDivider />}
+          {showSuggestedWidgets && suggestedWidgetsEnabled && (
+            <CollapsibleSection height={"40%"} paddingTop={12} ref={bindingRef}>
               <SuggestedWidgets
                 actionName={actionName}
                 hasWidgets={hasWidgets}
                 suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
               />
             </CollapsibleSection>
-          ) : (
+          )}
+          {showSuggestedWidgets && !suggestedWidgetsEnabled && (
             <DisabledCollapsible
               label={createMessage(BINDING_SECTION_LABEL)}
               tooltipLabel={createMessage(BINDINGS_DISABLED_TOOLTIP)}

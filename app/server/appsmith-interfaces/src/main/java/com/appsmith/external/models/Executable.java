@@ -3,6 +3,7 @@ package com.appsmith.external.models;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 import java.util.List;
@@ -45,8 +46,21 @@ public interface Executable {
 
     String getValidName();
 
+    /**
+     * This method returns all types of names that this executable can be referred to with, inside dynamic bindings
+     * @return
+     */
     @JsonIgnore
-    String getExecutableName();
+    @Transient
+    Set<String> getExecutableNames();
+
+    /**
+     * This method returns with the only valid kind of name that an end user can use for this executable in a binding
+     * @return
+     */
+    @JsonIgnore
+    @Transient
+    String getUserExecutableName();
 
     EntityReferenceType getEntityReferenceType();
 
@@ -64,4 +78,8 @@ public interface Executable {
     }
 
     void setExecuteOnLoad(Boolean isExecuteOnLoad);
+
+    @JsonIgnore
+    @Transient
+    Boolean isOnLoadMessageAllowed();
 }

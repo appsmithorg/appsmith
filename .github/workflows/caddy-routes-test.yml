@@ -1,0 +1,13 @@
+name: Caddy routes test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: deploy/docker/route-tests/run.sh

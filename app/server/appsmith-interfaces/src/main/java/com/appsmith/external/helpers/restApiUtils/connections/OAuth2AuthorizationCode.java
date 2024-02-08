@@ -2,6 +2,7 @@ package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.restApiUtils.helpers.OAuth2Utils;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -12,7 +13,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -33,6 +33,7 @@ import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Map;
 
 import static com.appsmith.external.models.OAuth2.RefreshTokenClientCredentialsLocation.BODY;
@@ -116,7 +117,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
 
         if (HEADER.equals(oAuth2.getRefreshTokenClientCredentialsLocation())) {
             byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
-            final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
+            final String authorizationHeader = "Basic " + Base64.getEncoder().encodeToString(clientCredentials);
             webClientBuilder.defaultHeader("Authorization", authorizationHeader);
         }
 
@@ -142,16 +143,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     if (issuedAtResponse != null) {
                         issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
                     }
-
-                    // We expect at least one of the following to be present
-                    Object expiresAtResponse = mappedResponse.get(Authentication.EXPIRES_AT);
-                    Object expiresInResponse = mappedResponse.get(Authentication.EXPIRES_IN);
-                    Instant expiresAt = null;
-                    if (expiresAtResponse != null) {
-                        expiresAt = Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
-                    } else if (expiresInResponse != null) {
-                        expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
-                    }
+                    Instant expiresAt = OAuth2Utils.getAuthenticationExpiresAt(oAuth2, mappedResponse, issuedAt);
                     authenticationResponse.setExpiresAt(expiresAt);
                     authenticationResponse.setIssuedAt(issuedAt);
                     if (mappedResponse.containsKey(Authentication.REFRESH_TOKEN)) {

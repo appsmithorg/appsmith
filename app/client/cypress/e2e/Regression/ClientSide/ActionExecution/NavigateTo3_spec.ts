@@ -10,7 +10,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Navigate To feature", () => {
+describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
   it("3. Navigates to url entered from the url tab of navigate to", () => {
     PageList.AddNewPage(); // page 2
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);

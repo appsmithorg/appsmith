@@ -19,6 +19,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { InputTypes } from "components/constants";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
@@ -352,6 +353,10 @@ export const switchViewType = (
 export const getConfigInitialValues = (
   config: Record<string, any>[],
   multipleViewTypesSupported = false,
+  // Used in case when we want to not have encrypted fields in the response since we need to compare
+  // the initial values with the server response and server response does not send encrypted fields.
+  // With this param we can remove false negatives during comparison.
+  includeEncryptedFields = true,
 ) => {
   const configInitialValues: Record<string, any> = {};
 
@@ -370,6 +375,12 @@ export const getConfigInitialValues = (
           },
         );
       } else {
+        if (
+          !includeEncryptedFields &&
+          (section.encrypted || section.dataType === InputTypes.PASSWORD)
+        ) {
+          return;
+        }
         set(configInitialValues, section.configProperty, section.initialValue);
       }
     } else if (section.controlType === "WHERE_CLAUSE") {
@@ -696,3 +707,21 @@ export function isKVArray(children: Array<any>) {
     children[0].controlType && children[0].controlType === "KEYVALUE_ARRAY"
   );
 }
+
+export const formatFileSize = (sizeInBytes: number) => {
+  const FILE_SIZE = {
+    KB: 1024,
+    MB: 1024 * 1024,
+    GB: 1024 * 1024 * 1024,
+  };
+
+  if (sizeInBytes < FILE_SIZE.KB) {
+    return `${sizeInBytes} B`;
+  } else if (sizeInBytes < FILE_SIZE.MB) {
+    return `${Math.round(sizeInBytes / FILE_SIZE.KB)} KB`;
+  } else if (sizeInBytes < FILE_SIZE.GB) {
+    return `${Math.round(sizeInBytes / FILE_SIZE.MB)} MB`;
+  }
+
+  return `${Math.round(sizeInBytes / FILE_SIZE.GB)} GB`;
+};

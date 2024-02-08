@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
@@ -9,11 +10,12 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -54,7 +56,9 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
             ImportableService<CustomJSLib> customJSLibImportableService,
             ImportableService<Datasource> datasourceImportableService,
             ImportableService<NewAction> newActionImportableService,
-            ImportableService<ActionCollection> actionCollectionImportableService) {
+            ImportableService<ActionCollection> actionCollectionImportableService,
+            PermissionGroupService permissionGroupService,
+            UpdateLayoutService updateLayoutService) {
         super(
                 datasourceService,
                 sessionUserService,
@@ -77,6 +81,8 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
                 customJSLibImportableService,
                 datasourceImportableService,
                 newActionImportableService,
-                actionCollectionImportableService);
+                actionCollectionImportableService,
+                permissionGroupService,
+                updateLayoutService);
     }
 }

@@ -14,17 +14,12 @@ import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("DateTime Datatype tests", function () {
+describe("DateTime Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {
-    featureFlagIntercept({
-      ab_gsheet_schema_enabled: true,
-      ab_mock_mongo_schema_enabled: true,
-    });
     agHelper.AddDsl("Datatypes/DateTimeDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(22, 32);
     dataSources.CreateDataSource("Postgres");
@@ -37,9 +32,7 @@ describe("DateTime Datatype tests", function () {
     query = `CREATE TABLE datetimeTypes (serialId serial primary key, ts TIMESTAMP not null DEFAULT NOW(),
     tstz TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, dater date NOT NULL, timer time NOT NULL,
     timertz time with time zone not null default now(), intervaler interval not null);`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(dsName, query, "createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
   });
@@ -150,7 +143,6 @@ describe("DateTime Datatype tests", function () {
       entityType: entityItems.Query,
     });
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("5. Inserting record - datetimetypes", () => {
@@ -331,7 +323,6 @@ describe("DateTime Datatype tests", function () {
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(
       dsName,
       "public.datetimetypes",
@@ -341,12 +332,9 @@ describe("DateTime Datatype tests", function () {
 
   it("12. Verify Deletion of the datasource after all created queries are deleted", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.DeleteDatasourceFromWithinDS(dsName, 200); //ProductLines, EmployentityExplorer.s pages are still using this ds
   });
 });

@@ -10,6 +10,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -37,7 +38,6 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -88,9 +88,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ActionCollectionRepository actionCollectionRepository;
     private final NewActionRepository newActionRepository;
     private final WorkspaceRepository workspaceRepository;
-
     private final ForkableService<Datasource> datasourceForkableService;
-
     /**
      * Clone all applications (except deleted ones), including its pages and actions from one workspace into
      * another. Also clones all datasources (not just the ones used by any applications) provided in the parameter list.
@@ -696,7 +694,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             .flatMap(actionCollectionRepository::setUserPermissionsInObject));
 
             Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository
-                    .retrieveById(targetWorkspaceId)
+                    .findById(targetWorkspaceId)
                     .flatMap(workspaceRepository::setUserPermissionsInObject));
 
             Mono<Set<String>> permissionGroupIdsMono =
@@ -746,7 +744,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         });
     }
 
-    private Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {
+    protected Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {
         return applicationMono
                 .map(application -> Boolean.TRUE.equals(application.getForkingEnabled()))
                 .defaultIfEmpty(Boolean.FALSE);

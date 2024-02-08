@@ -4,7 +4,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JSObject testing", () => {
+describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
   before(() => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("JSObjectMutationTestApp.json");
@@ -95,7 +95,7 @@ describe("JSObject testing", () => {
   });
 
   it("6. Bug 27978 Check assignment should not get overridden by evaluation", () => {
-    _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 400, 400);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 400, 400);
     _.propPane.TypeTextIntoField(
       "Text",
       `{{JSObject1.data.length ? 'id-' + JSObject1.data[0].id : 'Not Set' }}`,

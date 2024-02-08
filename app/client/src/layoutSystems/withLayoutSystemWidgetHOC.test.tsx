@@ -5,6 +5,7 @@ import { WidgetTypeFactories } from "test/factories/Widgets/WidgetTypeFactories"
 import { render } from "test/testUtils";
 import InputWidget from "widgets/InputWidgetV2/widget";
 import { ModalWidget } from "widgets/ModalWidget/widget";
+import { WDSModalWidget } from "widgets/wds/WDSModalWidget/widget";
 import { withLayoutSystemWidgetHOC } from "./withLayoutSystemWidgetHOC";
 import { LayoutSystemTypes } from "./types";
 import * as layoutSystemSelectors from "selectors/layoutSystemSelectors";
@@ -200,10 +201,12 @@ describe("Layout System HOC's Tests", () => {
       expect(flexPositionedLayer).toBeTruthy();
     });
     it("should return Auto Modal Editor for ANVIL positioning and CANVAS render mode", () => {
-      const widget = ModalWidget;
+      const widget = WDSModalWidget;
       const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[ModalWidget.type].build({
         isVisible: true,
+        detachFromLayout: true,
+        renderMode: RenderModes.CANVAS,
       });
       jest
         .spyOn(editorSelectors, "getRenderMode")
@@ -215,16 +218,15 @@ describe("Layout System HOC's Tests", () => {
       const flexPositionedLayer = component.container.getElementsByClassName(
         "anvil-layout-child-" + widgetProps.widgetId,
       )[0];
-      const overlayLayer =
-        component.container.getElementsByClassName("bp3-overlay")[0];
       expect(flexPositionedLayer).toBeFalsy();
-      expect(overlayLayer).toBeTruthy();
     });
     it("should return Auto Modal Viewer for ANVIL positioning and PAGE render mode", () => {
-      const widget = ModalWidget;
+      const widget = WDSModalWidget;
       const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[ModalWidget.type].build({
         isVisible: true,
+        detachFromLayout: true,
+        renderMode: RenderModes.PAGE,
       });
       jest
         .spyOn(editorSelectors, "getRenderMode")
@@ -236,10 +238,7 @@ describe("Layout System HOC's Tests", () => {
       const flexPositionedLayer = component.container.getElementsByClassName(
         "anvil-layout-child-" + widgetProps.widgetId,
       )[0];
-      const overlayLayer =
-        component.container.getElementsByClassName("bp3-overlay")[0];
       expect(flexPositionedLayer).toBeFalsy();
-      expect(overlayLayer).toBeTruthy();
     });
     it("should return Anvil Viewer for ANVIL positioning and PAGE render mode", () => {
       const widget = InputWidget;
@@ -252,9 +251,10 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
-      const flexPositionedLayer = component.container.getElementsByClassName(
-        "anvil-layout-child-" + widgetProps.widgetId,
-      )[0];
+      const flexPositionedLayer =
+        component.container.ownerDocument.getElementById(
+          "anvil_widget_" + widgetProps.widgetId,
+        );
       expect(flexPositionedLayer).toBeTruthy();
     });
   });

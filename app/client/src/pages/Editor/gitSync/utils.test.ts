@@ -29,6 +29,10 @@ const validUrls = [
   "git@abcd.org:org__v3/(((something)/(other)/(thing).git",
   "git@gitlab-abcd.test.org:org__org/repoName.git",
   "git@gitlab__abcd.test.org:org__org/repoName.git",
+  "git@ssh.dev.azure.com:v3/something/with%20space%20(some)/geo-mantis",
+  "git@ssh.dev.azure.com:v3/something/with%20space%20some/geo-mantis",
+  "user@host.xz:path/to/repo.git",
+  "org-987654321@github.com:org_name/repository_name.git",
 ];
 
 const invalidUrls = [
@@ -60,7 +64,6 @@ const invalidUrls = [
   "host.xz:/path/to/repo.git/",
   "user@host.xz:~user/path/to/repo.git/",
   "host.xz:~user/path/to/repo.git/",
-  "user@host.xz:path/to/repo.git",
   "host.xz:path/to/repo.git",
   "rsync://host.xz/path/to/repo.git/",
 ];

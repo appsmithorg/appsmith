@@ -10,7 +10,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Post window message", () => {
+describe("Post window message", { tags: ["@tag.JS"] }, () => {
   it("1. Posts message to an iframe within Appsmith", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.IFRAME, 200, 300);
@@ -46,8 +46,9 @@ describe("Post window message", () => {
     propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
     agHelper.EnterActionValue("Message", "I got a message from iframe");
     deployMode.DeployApp(locators._buttonByText("Submit"));
+    agHelper.WaitUntilEleAppear(locators._buttonByText("Submit"));
+    agHelper.WaitUntilEleAppear("#iframe-Iframe1");
     agHelper.AssertElementVisibility("#iframe-Iframe1");
-    agHelper.Sleep(5000); //allowing time for elements to load fully before clicking - for CI flaky
     cy.get("#iframe-Iframe1").then((element) => {
       element.contents().find("body").find("#iframe-button").click();
     });

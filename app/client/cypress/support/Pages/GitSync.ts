@@ -183,7 +183,8 @@ export class GitSync {
   private remoteUrlInput = "[data-testid='git-connect-remote-url-input']";
   private addedDeployKeyCheckbox =
     "[data-testid='t--added-deploy-key-checkbox']";
-  private startUsingGitButton = "[data-testid='t--start-using-git-button']";
+  private startUsingGitButton =
+    "[data-testid='t--git-success-modal-start-using-git-cta']";
   private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
 
   CreateNConnectToGitV2(
@@ -355,10 +356,20 @@ export class GitSync {
     toUseNewGuid = false,
     assertCreateBranch = true,
   ) {
+    this.agHelper.AssertElementVisibility(this._bottomBarPull);
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
-    this.agHelper.GetNClick(this._branchButton);
-    this.agHelper.Sleep(2000); //branch pop up to open
+    cy.waitUntil(
+      () => {
+        this.agHelper.GetNClick(this._branchButton, 0, true);
+        if (this.agHelper.IsElementVisible(this._branchSearchInput)) {
+          return true; //visible, return true to stop waiting
+        }
+        return false; //not visible, return false to continue waiting
+      },
+      { timeout: Cypress.config("pageLoadTimeout") },
+    );
+
     cy.get("@guid").then((uid) => {
       //using the same uid as generated during CreateNConnectToGit
       this.agHelper.TypeText(

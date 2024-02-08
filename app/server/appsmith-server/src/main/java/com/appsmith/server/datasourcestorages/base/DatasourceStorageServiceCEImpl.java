@@ -1,10 +1,12 @@
 package com.appsmith.server.datasourcestorages.base;
 
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
@@ -152,6 +154,16 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .flatMap(this::populateHintMessages);
     }
 
+    public Mono<DatasourceStorage> executePreSaveActions(DatasourceStorage datasourceStorage) {
+        Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
+                .getPluginExecutor(pluginMono)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
+
+        return pluginExecutorMono.flatMap(pluginExecutor -> pluginExecutor.preSaveHook(datasourceStorage));
+    }
+
     @Override
     public Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage) {
 
@@ -204,6 +216,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         return Mono.just(datasourceStorage)
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
+                .flatMap(this::executePreSaveActions)
                 .flatMap(unsavedDatasourceStorage -> {
                     return repository.save(unsavedDatasourceStorage).map(datasourceStorage1 -> {
                         // datasourceStorage.pluginName is a transient field. It was set by validateDatasource method
@@ -391,5 +404,20 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             Datasource datasource, String environmentId) {
         return Mono.error(
                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasource.getName()));
+    }
+
+    @Override
+    public Flux<Set<MustacheBindingToken>> getBindingTokensForDatasourceStorages(Datasource datasource) {
+        // this find by datasource is 1 click compatible hence it would only give the datasource storages to
+        // allowed environments.
+        return findByDatasource(datasource).map(datasourceStorage -> {
+            // We are only enabling this for headers of API type plugins.
+            DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+            if (datasourceConfiguration == null || CollectionUtils.isEmpty(datasourceConfiguration.getHeaders())) {
+                return new HashSet<>();
+            }
+
+            return MustacheHelper.extractMustacheKeysFromFields(datasourceConfiguration.getHeaders());
+        });
     }
 }

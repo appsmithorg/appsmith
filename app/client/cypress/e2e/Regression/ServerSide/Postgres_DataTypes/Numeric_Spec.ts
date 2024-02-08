@@ -8,22 +8,14 @@ import {
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
-  AppSidebar,
-  AppSidebarButton,
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Numeric Datatype tests", function () {
+describe("Numeric Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS, set Theme", () => {
-    featureFlagIntercept({
-      ab_gsheet_schema_enabled: true,
-      ab_mock_mongo_schema_enabled: true,
-    });
     agHelper.AddDsl("Datatypes/NumericDTdsl");
 
     appSettings.OpenPaneAndChangeTheme("Moon");
@@ -35,9 +27,7 @@ describe("Numeric Datatype tests", function () {
 
   it("1. Creating table - numerictypes", () => {
     query = `create table numerictypes (serialId SERIAL not null primary key, bigintId bigint not null, decimalId decimal not null, numericId numeric not null)`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(dsName, query, "createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
   });
@@ -106,7 +96,6 @@ describe("Numeric Datatype tests", function () {
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("4. Inserting record (+ve limit) - numerictypes + Bug 14516", () => {
@@ -309,18 +298,14 @@ describe("Numeric Datatype tests", function () {
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes", false);
   });
 
   it("15. Verify Deletion of the datasource after all created queries are deleted", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.DeleteDatasourceFromWithinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
   });
 });

@@ -32,11 +32,6 @@ public class Theme extends BaseDomain {
     @JsonView(Views.Public.class)
     private String applicationId;
 
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private String organizationId;
-
     @JsonView(Views.Public.class)
     String workspaceId;
 

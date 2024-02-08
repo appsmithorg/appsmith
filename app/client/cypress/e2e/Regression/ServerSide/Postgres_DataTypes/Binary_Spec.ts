@@ -14,16 +14,13 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Binary Datatype tests", function () {
+describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {
-    featureFlagIntercept({
-      ab_gsheet_schema_enabled: true,
-      ab_mock_mongo_schema_enabled: true,
-    });
     agHelper.AddDsl("Datatypes/BinaryDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(7, -9);
     dataSources.CreateDataSource("Postgres");
@@ -250,13 +247,10 @@ describe("Binary Datatype tests", function () {
   it("9. Validating Binary (bytea) - escape, hex, base64 functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    PageLeftPane.expandCollapseItem("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyBinaryFunctions");
-
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     //Validating zero octet
     query = `select encode('\\000'::bytea, 'hex') as "zero octet Hex", encode('\\000'::bytea, 'escape') as "zero octet Escape";`;
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dsName, query, "verifyBinaryFunctions");
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
       "zero octet Hex",
@@ -380,7 +374,6 @@ describe("Binary Datatype tests", function () {
       entityType: entityItems.Query,
     });
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   //Since query delete & Postgress DS delete is covered in other specs, commenting below code

@@ -4,19 +4,20 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionServiceCEImpl;
+import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
@@ -76,9 +77,6 @@ public class NewActionServiceUnitTest {
     PluginExecutorHelper pluginExecutorHelper;
 
     @MockBean
-    MarketplaceService marketplaceService;
-
-    @MockBean
     PolicyGenerator policyGenerator;
 
     @MockBean
@@ -112,12 +110,21 @@ public class NewActionServiceUnitTest {
     PagePermission pagePermission;
 
     @MockBean
+    NewActionHelper newActionHelper;
+
+    @MockBean
     EntityValidationService entityValidationService;
 
     ActionPermission actionPermission = new ActionPermissionImpl();
 
     @MockBean
     ObservationRegistry observationRegistry;
+
+    @MockBean
+    DefaultResourcesService<NewAction> defaultResourcesService;
+
+    @MockBean
+    DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
 
     @BeforeEach
     public void setup() {
@@ -131,7 +138,6 @@ public class NewActionServiceUnitTest {
                 datasourceService,
                 pluginService,
                 pluginExecutorHelper,
-                marketplaceService,
                 policyGenerator,
                 newPageService,
                 applicationService,
@@ -139,12 +145,15 @@ public class NewActionServiceUnitTest {
                 configService,
                 responseUtils,
                 permissionGroupService,
+                newActionHelper,
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,
                 actionPermission,
                 entityValidationService,
-                observationRegistry);
+                observationRegistry,
+                defaultResourcesService,
+                dtoDefaultResourcesService);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);

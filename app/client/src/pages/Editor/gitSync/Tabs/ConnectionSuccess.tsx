@@ -1,5 +1,6 @@
 import {
   fetchBranchesInit,
+  setGitSettingsModalOpenAction,
   setIsGitSyncModalOpen,
 } from "actions/gitSyncActions";
 import {
@@ -14,12 +15,12 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { Button, Icon, ModalBody, ModalFooter, Tag, Text } from "design-system";
-import { GitSyncModalTab } from "entities/GitSync";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 
 const Container = styled.div``;
 
@@ -92,8 +93,13 @@ function ConnectionSuccess() {
   const handleOpenSettings = () => {
     dispatch(
       setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: GitSyncModalTab.SETTINGS,
+        isOpen: false,
+      }),
+    );
+    dispatch(
+      setGitSettingsModalOpenAction({
+        open: true,
+        tab: GitSettingsTab.GENERAL,
       }),
     );
     AnalyticsUtil.logEvent("GS_OPEN_GIT_SETTINGS", {
@@ -135,14 +141,18 @@ function ConnectionSuccess() {
     return (
       <>
         <Button
-          data-testid="t--start-using-git-button"
+          data-testid="t--git-success-modal-start-using-git-cta"
           kind="secondary"
           onClick={handleStartGit}
           size="md"
         >
           {createMessage(START_USING_GIT)}
         </Button>
-        <Button onClick={handleOpenSettings} size="md">
+        <Button
+          data-testid="t--git-success-modal-open-settings-cta"
+          onClick={handleOpenSettings}
+          size="md"
+        >
           {createMessage(OPEN_GIT_SETTINGS)}
         </Button>
       </>
@@ -151,11 +161,15 @@ function ConnectionSuccess() {
 
   return (
     <>
-      <ModalBody>
+      <ModalBody data-testid="t--git-success-modal-body">
         <Container>
           <TitleContainer>
             <StyledIcon color="#059669" name="oval-check" size="lg" />
-            <TitleText kind="heading-s" renderAs="h3">
+            <TitleText
+              data-testid="t--git-success-modal-title"
+              kind="heading-s"
+              renderAs="h3"
+            >
               {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
             </TitleText>
           </TitleContainer>

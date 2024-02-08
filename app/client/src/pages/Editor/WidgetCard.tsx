@@ -7,6 +7,7 @@ import { generateReactKey } from "utils/generators";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
+import { useIsEditorPaneSegmentsEnabled } from "./IDE/hooks";
 
 interface CardProps {
   details: WidgetCardProps;
@@ -61,6 +62,7 @@ export const BetaLabel = styled.div`
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
+  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
 
   const onDragStart = (e: any) => {
     e.preventDefault();
@@ -74,7 +76,9 @@ function WidgetCard(props: CardProps) {
         ...props.details,
         widgetId: generateReactKey(),
       });
-    deselectAll();
+    if (!isEditorPaneEnabled) {
+      deselectAll();
+    }
   };
 
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;

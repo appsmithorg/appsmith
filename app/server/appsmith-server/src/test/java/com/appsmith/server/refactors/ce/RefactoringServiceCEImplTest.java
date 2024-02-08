@@ -2,6 +2,7 @@ package com.appsmith.server.refactors.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -23,7 +24,6 @@ import com.appsmith.server.refactors.applications.RefactoringServiceCEImpl;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -190,7 +190,7 @@ class RefactoringServiceCEImplTest {
 
         Mockito.doReturn(Flux.just(oldUnpublishedCollection.getName()))
                 .when(actionCollectionEntityRefactoringService)
-                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.eq(false));
 
         final Mono<LayoutDTO> layoutDTOMono =
                 refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
@@ -227,7 +227,7 @@ class RefactoringServiceCEImplTest {
 
         Mockito.doReturn(Flux.just("oldName", "newName"))
                 .when(actionCollectionEntityRefactoringService)
-                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.eq(false));
 
         NewPage newPage = new NewPage();
         newPage.setId("testPageId");
@@ -275,7 +275,8 @@ class RefactoringServiceCEImplTest {
         oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
         oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
 
-        Mockito.when(newActionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(newActionService.findActionDTObyIdAndViewMode(
+                        Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Mono.just(new ActionDTO()));
 
         Mockito.when(newActionService.updateUnpublishedAction(Mockito.any(), Mockito.any()))
@@ -332,7 +333,7 @@ class RefactoringServiceCEImplTest {
 
         Mockito.doReturn(Flux.just(oldUnpublishedCollection.getName()))
                 .when(actionCollectionEntityRefactoringService)
-                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.eq(false));
 
         final Mono<LayoutDTO> layoutDTOMono =
                 refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);

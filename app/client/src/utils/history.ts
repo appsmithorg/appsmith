@@ -15,6 +15,10 @@ export enum NavigationMethod {
   ActionBackButton = "ActionBackButton",
   ContextSwitching = "ContextSwitching",
   AppSidebar = "AppSidebar",
+  PackageSidebar = "PackageSidebar",
+  SegmentControl = "SegmentControl",
+  EditorTabs = "EditorTabs",
+  WorkflowSidebar = "WorkflowSidebar",
 }
 
 export interface AppsmithLocationState {

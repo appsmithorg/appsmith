@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -8,10 +9,11 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AuthenticationValidator;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ce.ActionExecutionSolutionCEImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
@@ -36,7 +38,9 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
             DatasourceStorageService datasourceStorageService,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            ConfigService configService,
+            TenantService tenantService) {
         super(
                 newActionService,
                 actionPermission,
@@ -54,6 +58,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 datasourcePermission,
                 analyticsService,
                 datasourceStorageService,
-                environmentPermission);
+                environmentPermission,
+                configService,
+                tenantService);
     }
 }

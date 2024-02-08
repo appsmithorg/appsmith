@@ -4,6 +4,7 @@ import {
   getCurrentActions,
   getCurrentPageWidgets,
   getPluginIdPackageNamesMap,
+  getQueryModuleInstances,
 } from "@appsmith/selectors/entitiesSelector";
 import WidgetFactory from "WidgetProvider/factory";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
@@ -17,6 +18,12 @@ import type {
   ActionData,
   ActionDataState,
 } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { Icon } from "design-system";
+import type {
+  ModuleInstanceData,
+  ModuleInstanceDataState,
+} from "@appsmith/constants/ModuleInstanceConstants";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -26,7 +33,10 @@ enum SortingWeights {
 
 const SORT_INCREAMENT = 1;
 
-function sortQueries(queries: ActionDataState, expectedDatatype: string) {
+export function sortQueries(
+  queries: ActionDataState | ModuleInstanceDataState,
+  expectedDatatype: string,
+) {
   return queries.sort((A, B) => {
     const score = {
       A: 0,
@@ -63,7 +73,10 @@ function sortQueries(queries: ActionDataState, expectedDatatype: string) {
   });
 }
 
-function getBindingValue(widget: WidgetProps, query: ActionData) {
+export function getBindingValue(
+  widget: WidgetProps,
+  query: ActionData | ModuleInstanceData,
+) {
   const defaultBindingValue = `{{${query.config.name}.data}}`;
   const querySuggestedWidgets = query.data?.suggestedWidgets;
   if (!querySuggestedWidgets) return defaultBindingValue;
@@ -77,6 +90,59 @@ interface ConnectToOptionsProps {
   pluginImages: Record<string, string>;
   widget: WidgetProps;
 }
+
+export const getQueryIcon = (
+  query: ActionData | ModuleInstanceData,
+  pluginImages: Record<string, string>,
+) => {
+  if (!query.config.hasOwnProperty("sourceModuleId")) {
+    const action = query as ActionData;
+    return (
+      <ImageWrapper>
+        <DatasourceImage
+          alt=""
+          className="dataSourceImage"
+          src={pluginImages[action.config.pluginId]}
+        />
+      </ImageWrapper>
+    );
+  } else {
+    return (
+      <EntityIcon>
+        <Icon name="module" />
+      </EntityIcon>
+    );
+  }
+};
+
+export const getAnalyticsInfo = (
+  query: ActionData | ModuleInstanceData,
+  widget: WidgetProps,
+  propertyName: string,
+) => {
+  if (query.config.hasOwnProperty("pluginId")) {
+    const action = query as ActionData;
+    return {
+      widgetName: widget.widgetName,
+      widgetType: widget.type,
+      propertyName: propertyName,
+      entityBound: "Query",
+      entityName: action.config.name,
+      pluginType: action.config.pluginType,
+    };
+  }
+
+  if (query.config.hasOwnProperty("sourceModuleId")) {
+    return {
+      widgetName: widget.widgetName,
+      widgetType: widget.type,
+      propertyName: propertyName,
+      entityBound: "QueryModuleInstance",
+      entityName: query.config.name,
+      pluginType: "",
+    };
+  }
+};
 
 /*
  * useConnectToOptions hook - this returns the dropdown options to connect to a query or a connectable widget.
@@ -95,7 +161,9 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
 
   const { pluginImages, widget } = props;
 
-  let filteredQueries = queries;
+  const queryModuleInstances = useSelector(getQueryModuleInstances);
+  let filteredQueries: ActionData[] | ModuleInstanceData[] = queries;
+
   /* Exclude Gsheets from query options till this gets resolved https://github.com/appsmithorg/appsmith/issues/27102*/
   if (widget.type === "JSON_FORM_WIDGET") {
     filteredQueries = queries.filter((query) => {
@@ -106,20 +174,16 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     });
   }
 
+  filteredQueries = [...filteredQueries, ...queryModuleInstances] as
+    | ActionDataState
+    | ModuleInstanceDataState;
+
   const queryOptions = useMemo(() => {
     return sortQueries(filteredQueries, expectedType).map((query) => ({
       id: query.config.id,
       label: query.config.name,
       value: getBindingValue(widget, query),
-      icon: (
-        <ImageWrapper>
-          <DatasourceImage
-            alt=""
-            className="dataSourceImage"
-            src={pluginImages[query.config.pluginId]}
-          />
-        </ImageWrapper>
-      ),
+      icon: getQueryIcon(query, pluginImages),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
         addBinding(valueOption?.value, false);
 
@@ -130,14 +194,10 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
           datasourceConnectionMode: "",
         });
 
-        AnalyticsUtil.logEvent("BIND_EXISTING_DATA_TO_WIDGET", {
-          widgetName: widget.widgetName,
-          widgetType: widget.type,
-          propertyName: propertyName,
-          entityBound: "Query",
-          entityName: query.config.name,
-          pluginType: query.config.pluginType,
-        });
+        AnalyticsUtil.logEvent(
+          "BIND_EXISTING_DATA_TO_WIDGET",
+          getAnalyticsInfo(query, widget, propertyName),
+        );
       },
     }));
   }, [filteredQueries, pluginImages, addBinding, widget]);

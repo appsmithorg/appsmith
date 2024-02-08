@@ -4,6 +4,7 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
@@ -13,6 +14,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -28,9 +30,9 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -38,6 +40,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -61,11 +64,11 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
@@ -92,6 +95,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -125,16 +129,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.CONNECT_TO_GIT;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_AUTO_COMMIT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DEFAULT_BRANCHES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PROTECTED_BRANCHES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
@@ -148,14 +157,15 @@ import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
-import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE;
+import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -274,6 +284,9 @@ public class ApplicationServiceCETest {
     @Autowired
     CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    @SpyBean
+    UserDataService userDataService;
+
     String workspaceId;
     String defaultEnvironmentId;
 
@@ -295,7 +308,7 @@ public class ApplicationServiceCETest {
     public void setup() {
 
         User currentUser = sessionUserService.getCurrentUser().block();
-        if (!currentUser.getEmail().equals("api_user")) {
+        if (currentUser == null || !currentUser.getEmail().equals("api_user")) {
             // Don't do any setups
             return;
         }
@@ -390,7 +403,7 @@ public class ApplicationServiceCETest {
     @AfterEach
     public void cleanup() {
         User currentUser = sessionUserService.getCurrentUser().block();
-        if (!currentUser.getEmail().equals("api_user")) {
+        if (currentUser == null || !currentUser.getEmail().equals("api_user")) {
             // Since no setup was done, hence no cleanup needs to happen
             return;
         }
@@ -403,15 +416,19 @@ public class ApplicationServiceCETest {
     }
 
     private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
-        Query query = new Query(where("id").is(id));
+        return mongoOperations.findOne(new Query(where("id").is(id)), domainClass);
+    }
 
-        final Query actionQuery = query(
-                        where(fieldName(QNewAction.newAction.applicationId)).exists(true))
-                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                + fieldName(QNewAction.newAction.unpublishedAction.archivedAt))
-                        .exists(true));
-
-        return mongoOperations.findOne(query, domainClass);
+    private List<String> createDummyApplications(String workspaceId) {
+        List<String> applicationIds = new ArrayList<>();
+        for (int count = 0; count < 4; count++) {
+            Application application = new Application();
+            application.setName("Application " + count);
+            application.setWorkspaceId(workspaceId);
+            application = applicationPageService.createApplication(application).block();
+            applicationIds.add(application.getId());
+        }
+        return applicationIds;
     }
 
     @Test
@@ -488,6 +505,27 @@ public class ApplicationServiceCETest {
                             .permission(MANAGE_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
+
+                    Policy connectGitPolicy = Policy.builder()
+                            .permission(CONNECT_TO_GIT.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageDefaultBranchGitPolicy = Policy.builder()
+                            .permission(MANAGE_DEFAULT_BRANCHES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageProtectedBranchGitPolicy = Policy.builder()
+                            .permission(MANAGE_PROTECTED_BRANCHES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageAutoCommitGitPolicy = Policy.builder()
+                            .permission(MANAGE_AUTO_COMMIT.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
                     Policy readAppPolicy = Policy.builder()
                             .permission(READ_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(
@@ -519,7 +557,11 @@ public class ApplicationServiceCETest {
                                     publishAppPolicy,
                                     exportAppPolicy,
                                     deleteApplicationsPolicy,
-                                    createPagesPolicy));
+                                    createPagesPolicy,
+                                    connectGitPolicy,
+                                    manageProtectedBranchGitPolicy,
+                                    manageDefaultBranchGitPolicy,
+                                    manageAutoCommitGitPolicy));
                 })
                 .verifyComplete();
     }
@@ -551,14 +593,10 @@ public class ApplicationServiceCETest {
                 // Fetch the unpublished pages by applicationId
                 .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
 
-        Policy managePagePolicy = Policy.builder()
-                .permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readPagePolicy = Policy.builder()
-                .permission(READ_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Policy managePagePolicy =
+                Policy.builder().permission(MANAGE_PAGES.getValue()).build();
+        Policy readPagePolicy =
+                Policy.builder().permission(READ_PAGES.getValue()).build();
 
         StepVerifier.create(pagesFlux)
                 .assertNext(page -> {
@@ -1473,8 +1511,9 @@ public class ApplicationServiceCETest {
         actionCollectionDTO.setPluginId(installedJsPlugin.getId());
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        ActionCollectionDTO savedActionCollection =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO savedActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         Mono<Application> publicAppMono = applicationService
                 .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
@@ -2131,7 +2170,7 @@ public class ApplicationServiceCETest {
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
                     return Mono.zip(
-                            layoutCollectionService.createCollection(actionCollectionDTO),
+                            layoutCollectionService.createCollection(actionCollectionDTO, null),
                             layoutActionService.createSingleAction(action, Boolean.FALSE),
                             updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
@@ -2492,7 +2531,7 @@ public class ApplicationServiceCETest {
                     layout.setDsl(parentDsl);
 
                     return Mono.zip(
-                            layoutCollectionService.createCollection(actionCollectionDTO),
+                            layoutCollectionService.createCollection(actionCollectionDTO, null),
                             layoutActionService.createSingleAction(action, Boolean.FALSE),
                             Mono.just(application),
                             Mono.just(testPage),
@@ -2744,7 +2783,7 @@ public class ApplicationServiceCETest {
 
         StepVerifier.create(forkedApp)
                 .assertNext(application1 -> {
-                    assertThat(application1.getPages().size()).isEqualTo(2);
+                    assertThat(application1.getPages()).hasSize(2);
                 })
                 .verifyComplete();
     }
@@ -2763,6 +2802,15 @@ public class ApplicationServiceCETest {
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
+        Application.ThemeSetting themeSettings = new Application.ThemeSetting();
+        themeSettings.setAccentColor("dark");
+        themeSettings.setBorderRadius("#000000");
+        themeSettings.setDensity(1);
+        themeSettings.setSizing(1);
+        themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
+        themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
+        testApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
+
         Mono<Application> applicationMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
@@ -2811,6 +2859,10 @@ public class ApplicationServiceCETest {
                             .isEqualTo(application
                                     .getUnpublishedApplicationDetail()
                                     .getNavigationSetting());
+                    assertThat(application.getPublishedApplicationDetail().getThemeSetting())
+                            .isEqualTo(application
+                                    .getUnpublishedApplicationDetail()
+                                    .getThemeSetting());
                 })
                 .verifyComplete();
     }
@@ -2889,7 +2941,7 @@ public class ApplicationServiceCETest {
 
                     return layoutActionService
                             .createSingleAction(action, Boolean.FALSE)
-                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
+                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();
                                 ActionCollectionDTO savedActionCollection = tuple1.getT2();
@@ -2922,17 +2974,13 @@ public class ApplicationServiceCETest {
                     NewAction archivedActionFromActionCollection = tuple.getT2();
 
                     assertThat(archivedAction.getDeletedAt()).isNotNull();
-                    assertThat(archivedAction.getDeleted()).isTrue();
 
                     assertThat(archivedActionCollection.getDeletedAt()).isNotNull();
-                    assertThat(archivedActionCollection.getDeleted()).isTrue();
 
                     assertThat(archivedPage.getDeletedAt()).isNotNull();
-                    assertThat(archivedPage.getDeleted()).isTrue();
 
                     assertThat(archivedActionFromActionCollection.getDeletedAt())
                             .isNotNull();
-                    assertThat(archivedActionFromActionCollection.getDeleted()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -2971,10 +3019,10 @@ public class ApplicationServiceCETest {
                     List<NewPage> pages = tuple.getT2();
 
                     assertThat(application).isNotNull();
-                    assertThat(application.getPages().size()).isEqualTo(1);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPublishedPages()).hasSize(1);
 
-                    assertThat(pages.size()).isEqualTo(1);
+                    assertThat(pages).hasSize(1);
                     NewPage newPage = pages.get(0);
                     assertThat(newPage.getUnpublishedPage().getName())
                             .isEqualTo(newPage.getPublishedPage().getName());
@@ -3096,7 +3144,7 @@ public class ApplicationServiceCETest {
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(1);
+                    assertThat(editedApplicationPages).hasSize(1);
                     assertThat(editedApplicationPages).doesNotContain(applicationPage);
                 })
                 .verifyComplete();
@@ -3140,7 +3188,7 @@ public class ApplicationServiceCETest {
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(1);
+                    assertThat(editedApplicationPages).hasSize(1);
                     assertThat(editedApplicationPages).doesNotContain(applicationPage);
                 })
                 .verifyComplete();
@@ -3201,7 +3249,7 @@ public class ApplicationServiceCETest {
                     assertThat(isFound).isTrue();
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(2);
+                    assertThat(editedApplicationPages).hasSize(2);
                     isFound = false;
                     for (ApplicationPage page : editedApplicationPages) {
                         if (page.getId().equals(unpublishedEditedPage.getId())
@@ -3227,7 +3275,8 @@ public class ApplicationServiceCETest {
                     CustomJSLib jsLib =
                             new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
                     return customJSLibService
-                            .addJSLibToApplication(application.getId(), jsLib, null, false)
+                            .addJSLibsToContext(
+                                    application.getId(), CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                             .then(applicationService.getById(application.getId()));
                 })
                 .flatMap(application -> {
@@ -3261,7 +3310,7 @@ public class ApplicationServiceCETest {
         StepVerifier.create(viewModeApplicationMono)
                 .assertNext(viewApplication -> {
                     List<ApplicationPage> editedApplicationPages = viewApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(2);
+                    assertThat(editedApplicationPages).hasSize(2);
                     boolean isFound = false;
                     for (ApplicationPage page : editedApplicationPages) {
                         if (page.getId().equals(applicationPage.getId())
@@ -3356,8 +3405,9 @@ public class ApplicationServiceCETest {
         actionCollectionDTO1.setActions(List.of(jsAction));
         actionCollectionDTO1.setPluginType(PluginType.JS);
 
-        final ActionCollectionDTO createdActionCollectionDTO1 =
-                layoutCollectionService.createCollection(actionCollectionDTO1).block();
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService
+                .createCollection(actionCollectionDTO1, null)
+                .block();
 
         // Trigger the clone of application now.
         applicationPageService
@@ -3407,7 +3457,7 @@ public class ApplicationServiceCETest {
 
                     assertThat(cloneApp).isNotNull();
                     assertThat(pages.get(0).getId()).isNotEqualTo(pageId);
-                    assertThat(actions.size()).isEqualTo(4);
+                    assertThat(actions).hasSize(4);
                     Set<String> actionNames = actions.stream()
                             .map(action -> action.getUnpublishedAction().getName())
                             .collect(Collectors.toSet());
@@ -3417,7 +3467,7 @@ public class ApplicationServiceCETest {
                                     "Clone App Test action2",
                                     "Clone App Test action3",
                                     "jsFunc");
-                    assertThat(actionCollections.size()).isEqualTo(1);
+                    assertThat(actionCollections).hasSize(1);
                     Set<String> actionCollectionNames = actionCollections.stream()
                             .map(actionCollection ->
                                     actionCollection.getUnpublishedCollection().getName())
@@ -3500,7 +3550,7 @@ public class ApplicationServiceCETest {
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
-                    assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+                    assertThat(applicationPagesDTO.getPages()).hasSize(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream()
                             .map(pageNameIdDTO -> pageNameIdDTO.getName())
                             .collect(Collectors.toList());
@@ -3864,7 +3914,7 @@ public class ApplicationServiceCETest {
 
                     return layoutActionService
                             .createSingleAction(action, Boolean.FALSE)
-                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
+                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();
                                 ActionCollectionDTO savedActionCollection = tuple1.getT2();
@@ -3897,17 +3947,13 @@ public class ApplicationServiceCETest {
                     NewAction archivedActionFromActionCollection = tuple.getT2();
 
                     assertThat(archivedAction.getDeletedAt()).isNotNull();
-                    assertThat(archivedAction.getDeleted()).isTrue();
 
                     assertThat(archivedActionCollection.getDeletedAt()).isNotNull();
-                    assertThat(archivedActionCollection.getDeleted()).isTrue();
 
                     assertThat(archivedPage.getDeletedAt()).isNotNull();
-                    assertThat(archivedPage.getDeleted()).isTrue();
 
                     assertThat(archivedActionFromActionCollection.getDeletedAt())
                             .isNotNull();
-                    assertThat(archivedActionFromActionCollection.getDeleted()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -4490,5 +4536,122 @@ public class ApplicationServiceCETest {
 
         assertThat(applicationPostLastEdit.getPages()).hasSize(2);
         assertThat(applicationPostLastEdit.getModifiedBy()).isEqualTo(createdUser.getUsername());
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void
+            findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder_noApplicationPresentInWorkspace_emptyListIsReturned() {
+        // Create an workspace for this user first.
+        Workspace workspace = new Workspace();
+        workspace.setName("usertest's workspace");
+        workspace = workspaceService.create(workspace).block();
+
+        assert workspace != null;
+        Flux<Application> allApplicationsWithinWorkspace =
+                applicationService.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(workspace.getId());
+
+        StepVerifier.create(allApplicationsWithinWorkspace.collectList())
+                .assertNext(applications -> {
+                    assertThat(applications).isEmpty();
+                })
+                .verifyComplete();
+
+        // Clean up
+        workspaceService.archiveById(workspace.getId()).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void
+            findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder_applicationPresentInWorkspace_recentlyUsedAppsPresent_orderedListIsReturned() {
+        // Create an workspace for this user first.
+        Workspace workspace = new Workspace();
+        workspace.setName("usertest's workspace");
+        workspace = workspaceService.create(workspace).block();
+
+        assert workspace != null;
+        List<String> applicationIds = createDummyApplications(workspace.getId());
+
+        UserData userData = new UserData();
+        RecentlyUsedEntityDTO usedEntityDTO = new RecentlyUsedEntityDTO();
+        usedEntityDTO.setWorkspaceId(workspace.getId());
+        usedEntityDTO.setApplicationIds(applicationIds);
+        userData.setRecentlyUsedEntityIds(List.of(usedEntityDTO));
+        doReturn(Mono.just(userData)).when(userDataService).getForCurrentUser();
+
+        Flux<Application> allApplicationsWithinWorkspace =
+                applicationService.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(workspace.getId());
+
+        StepVerifier.create(allApplicationsWithinWorkspace.collectList())
+                .assertNext(applications -> {
+                    assertThat(applications).hasSize(4);
+
+                    List<String> orderedAppIds = new ArrayList<>();
+                    applications.forEach(application -> {
+                        assertThat(applicationIds).contains(application.getId());
+                        orderedAppIds.add(application.getId());
+                    });
+                    assertThat(orderedAppIds).isEqualTo(applicationIds);
+                })
+                .verifyComplete();
+
+        // Clean up
+        applicationIds.forEach(applicationId ->
+                applicationPageService.deleteApplication(applicationId).block());
+        workspaceService.archiveById(workspace.getId()).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void
+            findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder_applicationPresentInWorkspace_recentlyUsedAppsAbsent_allAppsAreReturned() {
+        // Create an workspace for this user first.
+        Workspace workspace = new Workspace();
+        workspace.setName("usertest's workspace");
+        workspace = workspaceService.create(workspace).block();
+
+        assert workspace != null;
+        List<String> applicationIds = createDummyApplications(workspace.getId());
+
+        UserData userData = new UserData();
+        doReturn(Mono.just(userData)).when(userDataService).getForCurrentUser();
+
+        Flux<Application> allApplicationsWithinWorkspace =
+                applicationService.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(workspace.getId());
+
+        StepVerifier.create(allApplicationsWithinWorkspace.collectList())
+                .assertNext(applications -> {
+                    assertThat(applications).hasSize(4);
+
+                    List<String> savedApplicationIds = new ArrayList<>();
+                    applications.forEach(application -> {
+                        assertThat(applicationIds).contains(application.getId());
+                        savedApplicationIds.add(application.getId());
+                    });
+                    assertTrue(savedApplicationIds.containsAll(applicationIds));
+                })
+                .verifyComplete();
+
+        // Clean up
+        applicationIds.forEach(applicationId ->
+                applicationPageService.deleteApplication(applicationId).block());
+        workspaceService.archiveById(workspace.getId()).block();
+    }
+
+    @Test
+    public void findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder_invalidWorkspaceId_throwException() {
+
+        String invalidWorkspaceId = UUID.randomUUID().toString();
+        Flux<Application> allApplicationsWithinWorkspace =
+                applicationService.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(invalidWorkspaceId);
+
+        StepVerifier.create(allApplicationsWithinWorkspace.collectList())
+                .expectErrorSatisfies(throwable -> {
+                    assertThat(throwable).isInstanceOf(AppsmithException.class);
+                    assertThat(throwable.getMessage())
+                            .isEqualTo(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(WORKSPACE, invalidWorkspaceId));
+                })
+                .verify();
     }
 }

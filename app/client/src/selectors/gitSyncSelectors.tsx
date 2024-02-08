@@ -243,3 +243,27 @@ export const getIsUpdateProtectedBranchesLoading = (state: AppState) => {
 export const getIsGetProtectedBranchesLoading = (state: AppState) => {
   return state.ui.gitSync.protectedBranchesLoading;
 };
+
+export const getIsAutocommitToggling = (state: AppState) =>
+  state.ui.gitSync.togglingAutocommit;
+
+export const getIsAutocommitModalOpen = (state: AppState) =>
+  state.ui.gitSync.isAutocommitModalOpen;
+
+export const getIsPollingAutocommit = (state: AppState) =>
+  state.ui.gitSync.pollingAutocommitStatus;
+
+export const getGitMetadataSelector = (state: AppState) =>
+  state.ui.gitSync.gitMetadata;
+
+export const getGitMetadataLoadingSelector = (state: AppState) =>
+  state.ui.gitSync.gitMetadataLoading;
+
+export const getAutocommitEnabledSelector = (state: AppState) =>
+  !!state.ui.gitSync.gitMetadata?.autoCommitConfig?.enabled;
+
+export const isGitSettingsModalOpenSelector = (state: AppState) =>
+  state.ui.gitSync.isGitSettingsModalOpen;
+
+export const activeGitSettingsModalTabSelector = (state: AppState) =>
+  state.ui.gitSync.activeGitSettingsModalTab;

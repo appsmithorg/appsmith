@@ -1,6 +1,6 @@
 import type { ChangeEvent } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import type { JSAction, JSCollection } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import type { DropdownOnSelect } from "design-system-old";
 import {
   CodeEditorBorder,
@@ -69,14 +69,17 @@ import {
   getHasExecuteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 interface JSFormProps {
-  jsCollection: JSCollection;
+  jsCollectionData: JSCollectionData;
   contextMenu: React.ReactNode;
   showSettings?: boolean;
   onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
   saveJSObjectName: JSObjectNameEditorProps["saveJSObjectName"];
   backLink?: React.ReactNode;
+  hideContextMenuOnEditor?: boolean;
+  hideEditIconOnEditor?: boolean;
 }
 
 type Props = JSFormProps;
@@ -104,7 +107,9 @@ const SecondaryWrapper = styled.div`
 function JSEditorForm({
   backLink,
   contextMenu,
-  jsCollection: currentJSCollection,
+  hideContextMenuOnEditor = false,
+  hideEditIconOnEditor = false,
+  jsCollectionData,
   onUpdateSettings,
   saveJSObjectName,
   showSettings = true,
@@ -112,6 +117,7 @@ function JSEditorForm({
   const theme = EditorTheme.LIGHT;
   const dispatch = useDispatch();
   const { hash } = useLocation();
+  const currentJSCollection = jsCollectionData.config;
 
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
 
@@ -207,9 +213,8 @@ function JSEditorForm({
     );
     dispatch(
       startExecutingJSFunction({
-        collectionName: currentJSCollection.name || "",
         action: jsAction,
-        collectionId: currentJSCollection.id || "",
+        collection: currentJSCollection,
         from: from,
       }),
     );
@@ -319,12 +324,12 @@ function JSEditorForm({
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor
-                disabled={!isChangePermitted}
+                disabled={!isChangePermitted || hideEditIconOnEditor}
                 saveJSObjectName={saveJSObjectName}
               />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              {contextMenu}
+              {!hideContextMenuOnEditor && contextMenu}
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}
@@ -419,7 +424,7 @@ function JSEditorForm({
                     disabled={disableRunFunctionality || !isExecutePermitted}
                     errors={parseErrors}
                     isLoading={isExecutingCurrentJSAction}
-                    jsObject={currentJSCollection}
+                    jsCollectionData={jsCollectionData}
                     onButtonClick={(
                       event:
                         | React.MouseEvent<HTMLElement, MouseEvent>

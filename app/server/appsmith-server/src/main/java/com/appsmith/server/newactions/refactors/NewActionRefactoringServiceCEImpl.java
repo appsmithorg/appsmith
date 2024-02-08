@@ -7,11 +7,12 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.configurations.InstanceConfig;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.entities.EntityRefactoringServiceCE;
@@ -22,8 +23,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -34,12 +33,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_ACTION;
+import static com.appsmith.server.helpers.ContextTypeUtils.getDefaultContextIfNull;
 
 @Slf4j
 @RequiredArgsConstructor
 public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServiceCE<NewAction> {
 
-    private final NewActionService newActionService;
+    protected final NewActionService newActionService;
     private final ActionPermission actionPermission;
     private final AstService astService;
     private final InstanceConfig instanceConfig;
@@ -63,11 +63,11 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
         Set<String> updatedBindingPaths = refactoringMetaDTO.getUpdatedBindingPaths();
         Pattern oldNamePattern = refactoringMetaDTO.getOldNamePattern();
 
-        String pageId = refactorEntityNameDTO.getPageId();
+        String contextId = extractContextId(refactorEntityNameDTO);
+        CreatorContextType contextType = getDefaultContextIfNull(refactorEntityNameDTO.getContextType());
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
         String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
-        return newActionService
-                .findByPageIdAndViewMode(pageId, false, actionPermission.getEditPermission())
+        return getActionsByContextId(contextId, contextType)
                 .flatMap(newAction -> Mono.just(newAction).zipWith(evalVersionMono))
                 /*
                  * Assuming that the datasource should not be dependent on the widget and hence not going through the same
@@ -78,36 +78,49 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                     final Integer evalVersion = tuple.getT2();
                     // We need actionDTO to be populated with pluginType from NewAction
                     // so that we can check for the JS path
-                    Mono<ActionDTO> actionMono = newActionService.generateActionByViewMode(newAction, false);
-                    return actionMono.flatMap(action -> {
-                        if (action.getActionConfiguration() == null) {
-                            return Mono.just(newAction);
-                        }
-                        // If this is a JS function rename, add this collection for rename
-                        // because the action configuration won't tell us this
-                        if (StringUtils.hasLength(action.getCollectionId()) && newName.equals(action.getValidName())) {
-                            updatableCollectionIds.add(action.getCollectionId());
-                        }
-                        newAction.setUnpublishedAction(action);
-                        return this.refactorNameInAction(action, oldName, newName, evalVersion, oldNamePattern)
-                                .flatMap(updates -> {
-                                    if (updates.isEmpty()) {
-                                        return Mono.just(newAction);
-                                    }
-                                    updatedBindingPaths.addAll(updates);
-                                    if (StringUtils.hasLength(action.getCollectionId())) {
-                                        updatableCollectionIds.add(action.getCollectionId());
-                                    }
-                                    newActionService.extractAndSetJsonPathKeys(newAction);
-                                    return newActionService.save(newAction);
-                                });
-                    });
+                    ActionDTO action = newActionService.generateActionByViewMode(newAction, false);
+
+                    if (action.getActionConfiguration() == null) {
+                        return Mono.just(newAction);
+                    }
+                    // If this is a JS function rename, add this collection for rename
+                    // because the action configuration won't tell us this
+                    if (StringUtils.hasLength(action.getCollectionId()) && newName.equals(action.getValidName())) {
+                        updatableCollectionIds.add(action.getCollectionId());
+                    }
+                    newAction.setUnpublishedAction(action);
+                    return this.refactorNameInAction(action, oldName, newName, evalVersion, oldNamePattern)
+                            .flatMap(updates -> {
+                                if (updates.isEmpty()) {
+                                    return Mono.just(newAction);
+                                }
+                                updatedBindingPaths.addAll(updates);
+                                if (StringUtils.hasLength(action.getCollectionId())) {
+                                    updatableCollectionIds.add(action.getCollectionId());
+                                }
+
+                                return newActionService
+                                        .extractAndSetJsonPathKeys(newAction)
+                                        .then(newActionService.save(newAction));
+                            });
                 })
                 .map(savedAction -> savedAction.getUnpublishedAction().getName())
                 .collectList()
                 .doOnNext(updatedActionNames -> log.debug(
-                        "Actions updated due to refactor name in page {} are : {}", pageId, updatedActionNames))
+                        "Actions updated due to refactor name in {} {} are : {}",
+                        contextType.toString().toLowerCase(),
+                        contextId,
+                        updatedActionNames))
                 .then();
+    }
+
+    protected String extractContextId(RefactorEntityNameDTO refactorEntityNameDTO) {
+        return refactorEntityNameDTO.getPageId();
+    }
+
+    protected Flux<NewAction> getActionsByContextId(String contextId, CreatorContextType contextType) {
+        return newActionService.findAllActionsByContextIdAndContextTypeAndViewMode(
+                contextId, contextType, actionPermission.getEditPermission(), false, true);
     }
 
     @Override
@@ -115,7 +128,7 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
         return newActionService
                 .findByBranchNameAndDefaultActionId(
                         branchName, refactorEntityNameDTO.getActionId(), actionPermission.getEditPermission())
-                .flatMap(branchedAction -> newActionService.generateActionByViewMode(branchedAction, false))
+                .map(branchedAction -> newActionService.generateActionByViewMode(branchedAction, false))
                 .flatMap(action -> {
                     action.setName(refactorEntityNameDTO.getNewName());
                     if (StringUtils.hasLength(refactorEntityNameDTO.getCollectionName())) {
@@ -127,38 +140,38 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
     }
 
     @Override
-    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
-        return this.getExistingEntities(contextId, contextType, layoutId).map(ActionDTO::getValidName);
+    public Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
+        return this.getExistingEntities(contextId, contextType, layoutId, viewMode)
+                .map(ActionDTO::getValidName);
     }
 
-    protected Flux<ActionDTO> getExistingEntities(String contextId, CreatorContextType contextType, String layoutId) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        if (contextId != null) {
-            params.add(FieldName.PAGE_ID, contextId);
-        }
+    protected Flux<ActionDTO> getExistingEntities(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
 
-        Flux<ActionDTO> actionDTOFlux = newActionService
-                .getUnpublishedActions(params)
-                .flatMap(actionDTO -> {
-                    /*
-                       This is unexpected. Every action inside a JS collection should have a collectionId.
-                       But there are a few documents found for plugin type JS inside newAction collection that don't have any collectionId.
-                       The reason could be due to the lack of transactional behaviour when multiple inserts/updates that take place
-                       during JS action creation. A detailed RCA is documented here
-                       https://www.notion.so/appsmith/RCA-JSObject-name-already-exists-Please-use-a-different-name-e09c407f0ddb4653bd3974f3703408e6
-                    */
-                    if (actionDTO.getPluginType().equals(PluginType.JS)
-                            && !StringUtils.hasLength(actionDTO.getCollectionId())) {
-                        log.debug(
-                                "JS Action with Id: {} doesn't have any collection Id under pageId: {}",
-                                actionDTO.getId(),
-                                contextId);
-                        return Mono.empty();
-                    } else {
-                        return Mono.just(actionDTO);
-                    }
-                });
-        return actionDTOFlux;
+        if (viewMode) {
+            // TODO: Handle this scenario based on use case
+            return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+        }
+        return newActionService.getUnpublishedActionsByPageId(contextId, null).flatMap(actionDTO -> {
+            /*
+               This is unexpected. Every action inside a JS collection should have a collectionId.
+               But there are a few documents found for plugin type JS inside newAction collection that don't have any collectionId.
+               The reason could be due to the lack of transactional behaviour when multiple inserts/updates that take place
+               during JS action creation. A detailed RCA is documented here
+               https://www.notion.so/appsmith/RCA-JSObject-name-already-exists-Please-use-a-different-name-e09c407f0ddb4653bd3974f3703408e6
+            */
+            if (actionDTO.getPluginType().equals(PluginType.JS)
+                    && !StringUtils.hasLength(actionDTO.getCollectionId())) {
+                log.debug(
+                        "JS Action with Id: {} doesn't have any collection Id under pageId: {}",
+                        actionDTO.getId(),
+                        contextId);
+                return Mono.empty();
+            } else {
+                return Mono.just(actionDTO);
+            }
+        });
     }
 
     protected Mono<Set<String>> refactorNameInAction(

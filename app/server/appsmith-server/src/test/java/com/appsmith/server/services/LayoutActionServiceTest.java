@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -17,6 +18,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -470,7 +472,7 @@ public class LayoutActionServiceTest {
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
                     List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
-                    assertThat(actionUpdates.size()).isEqualTo(1);
+                    assertThat(actionUpdates).hasSize(1);
                     assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
                     assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
                 })
@@ -507,7 +509,7 @@ public class LayoutActionServiceTest {
                     assertThat(actionDTO.getName()).isEqualTo("secondAction");
 
                     List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
-                    assertThat(actionUpdates.size()).isEqualTo(2);
+                    assertThat(actionUpdates).hasSize(2);
 
                     Optional<LayoutExecutableUpdateDTO> firstActionUpdateOptional = actionUpdates.stream()
                             .filter(actionUpdate -> actionUpdate.getName().equals("firstAction"))
@@ -745,7 +747,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO = updatedLayout
@@ -863,7 +865,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that all three the actions dont belong to the same set
                     final Set<DslExecutableDTO> firstSet =
@@ -956,7 +958,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     DslExecutableDTO actionDTO = updatedLayout
                             .getLayoutOnLoadActions()
@@ -1009,7 +1011,9 @@ public class LayoutActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateMultipleLayouts_MultipleLayouts_LayoutsUpdated() {
         // clone the current page to create another page for testing
-        PageDTO secondPage = applicationPageService.clonePage(testPage.getId()).block();
+        PageDTO secondPage = applicationPageService
+                .clonePage(testPage.getId(), new ClonePageMetaDTO())
+                .block();
 
         List<PageDTO> testPages = List.of(testPage, secondPage);
         UpdateMultiplePageLayoutDTO multiplePageLayoutDTO = new UpdateMultiplePageLayoutDTO();
@@ -1128,7 +1132,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO1 = updatedLayout
@@ -1200,7 +1204,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO1 = updatedLayout

@@ -1,57 +1,20 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { getIsAppSidebarAnnouncementEnabled } from "selectors/ideSelectors";
+import React, { useCallback, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import styled from "styled-components";
-import SidebarButton from "./SidebarButton";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { ButtonButtons, TopButtons } from "entities/IDE/constants";
-import useCurrentAppState from "../hooks";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { useCurrentAppState } from "../hooks";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import {
-  AnnouncementPopover,
-  AnnouncementPopoverTrigger,
-  AnnouncementPopoverContent,
-  Button,
-} from "design-system";
-import { inGuidedTour } from "selectors/onboardingSelectors";
-import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
-
-const Container = styled.div`
-  width: 50px;
-  border-right: 1px solid var(--ads-v2-color-border);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background-color: var(--ads-v2-color-bg);
-  position: relative;
-`;
-
-const DummyTrigger = styled.div`
-  width: 0;
-  height: 0;
-  position: absolute;
-  right: 0;
-  top: 10%;
-`;
+import SidebarComponent from "./SidebarComponent";
+import { BottomButtons, TopButtons } from "@appsmith/entities/IDE/constants";
 
 function Sidebar() {
   const dispatch = useDispatch();
   const appState = useCurrentAppState();
-  const [isPopoverOpen, setIsPopoverOpen] = useState(true);
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
-  const isAppSidebarAnnouncementEnabled = useSelector(
-    getIsAppSidebarAnnouncementEnabled,
-  );
-  const isAppSidebarAnnouncementDismissed =
-    localStorage.getItem("isAppSidebarAnnouncementDismissed") === "true";
   const pageId = useSelector(getCurrentPageId);
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
-  const guidedTourEnabled = useSelector(inGuidedTour);
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
@@ -71,78 +34,14 @@ function Sidebar() {
     },
     [pageId],
   );
-  if (!isAppSidebarEnabled) {
-    return null;
-  }
-
-  const handlePopoverClose = () => {
-    setIsPopoverOpen(false);
-    localStorage.setItem(
-      "isAppSidebarAnnouncementDismissed",
-      JSON.stringify(true),
-    );
-  };
-
-  if (guidedTourEnabled) {
-    return null;
-  }
 
   return (
-    <Container className="t--sidebar" id="t--app-sidebar">
-      {isAppSidebarAnnouncementEnabled &&
-        !isAppSidebarAnnouncementDismissed && (
-          <AnnouncementPopover open={isPopoverOpen}>
-            <AnnouncementPopoverTrigger>
-              <DummyTrigger className="sidebar-popover-trigger" />
-            </AnnouncementPopoverTrigger>
-            <AnnouncementPopoverContent
-              align="center"
-              arrowFillColor="#F6F2FA"
-              banner="https://assets.appsmith.com/new-sidebar-banner.svg"
-              collisionPadding={{ top: 20 }}
-              description="Navigate faster through datasources, pages, and app settings."
-              footer={
-                <Button kind="primary" onClick={handlePopoverClose} size="md">
-                  Got it
-                </Button>
-              }
-              onCloseButtonClick={handlePopoverClose}
-              side="right"
-              title="App-level items have a new home!"
-            />
-          </AnnouncementPopover>
-        )}
-      <div>
-        {TopButtons.map((b) => (
-          <SidebarButton
-            icon={b.icon}
-            key={b.state}
-            onClick={() => {
-              if (appState !== b.state) {
-                onClick(b.urlSuffix);
-              }
-            }}
-            selected={appState === b.state}
-            title={b.title}
-          />
-        ))}
-      </div>
-      <div>
-        {ButtonButtons.map((b) => (
-          <SidebarButton
-            icon={b.icon}
-            key={b.state}
-            onClick={() => {
-              if (appState !== b.state) {
-                onClick(b.urlSuffix);
-              }
-            }}
-            selected={appState === b.state}
-            tooltip={b.title}
-          />
-        ))}
-      </div>
-    </Container>
+    <SidebarComponent
+      appState={appState}
+      bottomButtons={BottomButtons}
+      onClick={onClick}
+      topButtons={TopButtons}
+    />
   );
 }
 

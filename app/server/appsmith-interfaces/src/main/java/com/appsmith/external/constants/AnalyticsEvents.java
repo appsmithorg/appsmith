@@ -53,6 +53,8 @@ public enum AnalyticsEvents {
     GIT_LIST_LOCAL_BRANCH,
     GIT_MERGE_CHECK,
     GIT_FETCH,
+    GIT_ADD_PROTECTED_BRANCH,
+    GIT_REMOVE_PROTECTED_BRANCH,
     AUTHENTICATION_METHOD_CONFIGURATION("Authentication Method Configured"),
     INSTANCE_SETTING_UPDATED,
     GENERATE_SSH_KEY("generate_SSH_KEY"),
@@ -88,7 +90,9 @@ public enum AnalyticsEvents {
 
     PARTIAL_IMPORT,
 
-    PARTIAL_EXPORT;
+    PARTIAL_EXPORT,
+
+    COMMUNITY_TEMPLATE_PUBLISHED;
 
     private final String eventName;
 

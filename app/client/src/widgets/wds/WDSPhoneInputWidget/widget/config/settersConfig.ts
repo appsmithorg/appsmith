@@ -8,5 +8,9 @@ export const settersConfig = {
       path: "isDisabled",
       type: "boolean",
     },
+    setReadOnly: {
+      path: "isReadOnly",
+      type: "boolean",
+    },
   },
 };

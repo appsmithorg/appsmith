@@ -40,11 +40,15 @@ import {
   JS_ACTION_DELETE_SUCCESS,
   JS_ACTION_MOVE_SUCCESS,
 } from "@appsmith/constants/messages";
-import { validateResponse } from "../../sagas/ErrorSagas";
-import type { FetchPageResponse, PageLayout } from "api/PageApi";
+import { validateResponse } from "sagas/ErrorSagas";
+import type {
+  FetchPageRequest,
+  FetchPageResponse,
+  PageLayout,
+} from "api/PageApi";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -54,19 +58,30 @@ import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
+import {
+  checkAndLogErrorsIfCyclicDependency,
+  getFromServerWhenNoPrefetchedResult,
+} from "sagas/helper";
 import { toast } from "design-system";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets } from "../../sagas/selectors";
+import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import { getWidgets } from "sagas/selectors";
+import { removeFocusHistoryRequest } from "actions/focusHistoryActions";
+import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { handleJSEntityRedirect } from "sagas/IDESaga";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { unpublishedActionCollections, ...payload } = action.payload;
   try {
-    const response: ApiResponse<JSCollection[]> =
-      yield JSActionAPI.fetchJSCollections(applicationId);
+    const response: ApiResponse<JSCollection[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      unpublishedActionCollections,
+      async () => JSActionAPI.fetchJSCollections(payload),
+    );
+
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data || [],
@@ -223,8 +238,10 @@ export function* moveJSCollectionSaga(
         },
       );
     }
+    const currentURL = window.location.pathname;
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
+    yield put(removeFocusHistoryRequest(currentURL));
   } catch (e) {
     toast.show(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
       kind: "error",
@@ -273,7 +290,16 @@ export function* deleteJSCollectionSaga(
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
-      history.push(builderURL({ pageId }));
+      const currentUrl = window.location.pathname;
+      const isEditorPaneSegmentsEnabled: boolean = yield select(
+        getIsEditorPaneSegmentsEnabled,
+      );
+      if (isEditorPaneSegmentsEnabled) {
+        yield call(handleJSEntityRedirect, id);
+      } else if (pageId) {
+        history.push(builderURL({ pageId }));
+      }
+      yield put(removeFocusHistoryRequest(currentUrl));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS Object was deleted",
@@ -288,13 +314,16 @@ export function* deleteJSCollectionSaga(
       yield put(deleteJSCollectionSuccess({ id }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
-      yield put(
-        updateAndSaveLayout(widgets, {
-          shouldReplay: false,
-          isRetry: false,
-          updatedWidgetIds: [],
-        }),
-      );
+
+      if (pageId) {
+        yield put(
+          updateAndSaveLayout(widgets, {
+            shouldReplay: false,
+            isRetry: false,
+            updatedWidgetIds: [],
+          }),
+        );
+      }
     }
   } catch (error) {
     yield put(deleteJSCollectionError({ id: actionPayload.payload.id }));
@@ -343,9 +372,12 @@ export function* refactorJSObjectName(
   oldName: string,
   newName: string,
 ) {
-  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-    id: pageId,
-  });
+  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
+  const params: FetchPageRequest = { id: pageId };
+  if (isServerDSLMigrationsEnabled) {
+    params.migrateDSL = true;
+  }
+  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
@@ -424,10 +456,15 @@ export function* fetchJSCollectionsForPageSaga(
 export function* fetchJSCollectionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, publishedActionCollections } = action.payload;
+
   try {
-    const response: ApiResponse<JSCollection[]> =
-      yield JSActionAPI.fetchJSCollectionsForViewMode(applicationId);
+    const response: ApiResponse<JSCollection[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      publishedActionCollections,
+      async () => JSActionAPI.fetchJSCollectionsForViewMode(applicationId),
+    );
+
     const resultJSCollections = response.data;
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {

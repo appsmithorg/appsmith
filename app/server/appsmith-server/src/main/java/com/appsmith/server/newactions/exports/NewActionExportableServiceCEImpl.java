@@ -38,8 +38,8 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
     }
 
     // Requires datasourceIdToNameMap, pageIdToNameMap, pluginMap, collectionIdToNameMap
-    // Updates actionId to name map in exportable resources. Also directly updates required collection information in
-    // application json
+    // Updates actionId to name map in exportable resources.
+    // Also, directly updates required collection information in application json
     @Override
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
@@ -50,15 +50,16 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
         Optional<AclPermission> optionalPermission = Optional.ofNullable(actionPermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
-        Flux<NewAction> actionFlux =
-                newActionService.findByListOfPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
+        Flux<NewAction> actionFlux = newActionService.findByPageIdsForExport(
+                exportingMetaDTO.getUnpublishedModulesOrPages(), optionalPermission);
 
         return actionFlux
                 .collectList()
                 .flatMap(newActionList -> {
                     Set<String> dbNamesUsedInActions =
                             mapNameToIdForExportableEntities(mappedExportableResourcesDTO, newActionList);
-                    return Mono.zip(Mono.just(newActionList), Mono.just(dbNamesUsedInActions));
+                    List<NewAction> exportableNewActions = getExportableNewActions(newActionList);
+                    return Mono.zip(Mono.just(exportableNewActions), Mono.just(dbNamesUsedInActions));
                 })
                 .map(tuple -> {
                     List<NewAction> actionList = tuple.getT1();
@@ -69,7 +70,7 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                         ActionDTO publishedActionDTO = newAction.getPublishedAction();
                         ActionDTO actionDTO = unpublishedActionDTO != null ? unpublishedActionDTO : publishedActionDTO;
                         String newActionName = actionDTO != null
-                                ? actionDTO.getValidName() + NAME_SEPARATOR + actionDTO.getPageId()
+                                ? actionDTO.getUserExecutableName() + NAME_SEPARATOR + actionDTO.getPageId()
                                 : null;
                         // TODO: check whether resource updated after last commit - move to a function
                         String pageName = actionDTO.getPageId();
@@ -77,25 +78,23 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                         boolean isDatasourceUpdated = ImportExportUtils.isDatasourceUpdatedSinceLastCommit(
                                 mappedExportableResourcesDTO.getDatasourceNameToUpdatedAtMap(),
                                 actionDTO,
-                                exportingMetaDTO.getApplicationLastCommittedAt());
+                                exportingMetaDTO.getArtifactLastCommittedAt());
 
                         boolean isPageUpdated = ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
                         Instant newActionUpdatedAt = newAction.getUpdatedAt();
                         boolean isNewActionUpdated = exportingMetaDTO.isClientSchemaMigrated()
                                 || exportingMetaDTO.isServerSchemaMigrated()
-                                || exportingMetaDTO.getApplicationLastCommittedAt() == null
+                                || exportingMetaDTO.getArtifactLastCommittedAt() == null
                                 || isPageUpdated
                                 || isDatasourceUpdated
                                 || newActionUpdatedAt == null
-                                || exportingMetaDTO
-                                        .getApplicationLastCommittedAt()
-                                        .isBefore(newActionUpdatedAt);
+                                || exportingMetaDTO.getArtifactLastCommittedAt().isBefore(newActionUpdatedAt);
                         if (isNewActionUpdated && newActionName != null) {
                             updatedActionSet.add(newActionName);
                         }
                         newAction.sanitiseToExportDBObject();
                     });
-                    applicationJson.getUpdatedResources().put(FieldName.ACTION_LIST, updatedActionSet);
+                    applicationJson.getModifiedResources().putResource(FieldName.ACTION_LIST, updatedActionSet);
                     applicationJson.setActionList(actionList);
 
                     // This is where we're removing global datasources that are unused in this application
@@ -108,6 +107,10 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                 .then();
     }
 
+    protected List<NewAction> getExportableNewActions(List<NewAction> newActionList) {
+        return newActionList;
+    }
+
     @Override
     public Set<String> mapNameToIdForExportableEntities(
             MappedExportableResourcesDTO mappedExportableResourcesDTO, List<NewAction> newActionList) {
@@ -117,24 +120,28 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             newAction.setWorkspaceId(null);
             newAction.setPolicies(null);
             newAction.setApplicationId(null);
-            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                    newAction.getPublishedAction(),
-                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                    mappedExportableResourcesDTO.getPluginMap(),
-                    null,
-                    true));
-            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                    newAction.getUnpublishedAction(),
-                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                    mappedExportableResourcesDTO.getPluginMap(),
-                    null,
-                    true));
+            if (hasExportableDatasource(newAction)) {
+                // Only add the datasource for this action to dbNamesUsed if it is not a module action
+                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+                        newAction.getPublishedAction(),
+                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                        mappedExportableResourcesDTO.getPluginMap(),
+                        null,
+                        true));
+                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+                        newAction.getUnpublishedAction(),
+                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                        mappedExportableResourcesDTO.getPluginMap(),
+                        null,
+                        true));
+            }
 
             // Set unique id for action
             if (newAction.getUnpublishedAction() != null) {
                 ActionDTO actionDTO = newAction.getUnpublishedAction();
-                actionDTO.setPageId(
-                        mappedExportableResourcesDTO.getPageIdToNameMap().get(actionDTO.getPageId() + EDIT));
+                actionDTO.setPageId(mappedExportableResourcesDTO
+                        .getPageOrModuleIdToNameMap()
+                        .get(actionDTO.getPageId() + EDIT));
 
                 if (!StringUtils.isEmpty(actionDTO.getCollectionId())
                         && mappedExportableResourcesDTO
@@ -151,8 +158,9 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             }
             if (newAction.getPublishedAction() != null) {
                 ActionDTO actionDTO = newAction.getPublishedAction();
-                actionDTO.setPageId(
-                        mappedExportableResourcesDTO.getPageIdToNameMap().get(actionDTO.getPageId() + VIEW));
+                actionDTO.setPageId(mappedExportableResourcesDTO
+                        .getPageOrModuleIdToNameMap()
+                        .get(actionDTO.getPageId() + VIEW));
 
                 if (!StringUtils.isEmpty(actionDTO.getCollectionId())
                         && mappedExportableResourcesDTO
@@ -171,5 +179,9 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             }
         });
         return dbNamesUsedInActions;
+    }
+
+    protected boolean hasExportableDatasource(NewAction newAction) {
+        return true;
     }
 }

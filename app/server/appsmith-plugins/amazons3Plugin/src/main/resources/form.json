@@ -17,6 +17,7 @@
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "initialValue": "amazon-s3",
+          "setFirstOptionAsDefault": true,
           "options": [
             {
               "label": "Amazon S3",

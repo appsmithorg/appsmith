@@ -35,7 +35,7 @@ import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { KeyValuePair } from "entities/Action";
 import equal from "fast-deep-equal/es6";
@@ -44,7 +44,7 @@ import {
   getDatasourcesByPluginId,
 } from "@appsmith/selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { Text } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
@@ -424,10 +424,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
     if (!entity) return "";
 
-    if (
-      "ENTITY_TYPE" in entity &&
-      entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.ACTION
-    ) {
+    if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
       let evaluatedPath = "path" in entity.config ? entity.config.path : "";
 
       if (evaluatedPath) {
@@ -622,7 +619,7 @@ const mapStateToProps = (
   }
 
   return {
-    workspaceId: state.ui.workspaces.currentWorkspace.id,
+    workspaceId: state.ui.selectedWorkspace.workspace.id,
     currentEnvironment,
     datasource: datasourceMerged,
     datasourceList: getDatasourcesByPluginId(state, ownProps.pluginId),

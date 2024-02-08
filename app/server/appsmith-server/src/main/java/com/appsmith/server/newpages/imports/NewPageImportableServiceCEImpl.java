@@ -17,7 +17,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -60,8 +60,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         this.newActionService = newActionService;
     }
 
-    // Updates pageNametoIdMap and pageNameMap in importable resources.
-    // Also directly updates required information in DB
+    // Updates pageNameToIdMap and pageNameMap in importable resources.
+    // Also, directly updates required information in DB
     @Override
     public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
@@ -86,7 +86,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         importedNewPageList,
                         existingPagesMono,
                         applicationMono,
-                        importingMetaDTO.getAppendToApp(),
+                        importingMetaDTO.getAppendToArtifact(),
                         importingMetaDTO.getBranchName(),
                         importingMetaDTO.getPermissionProvider(),
                         mappedImportableResourcesDTO)
@@ -99,8 +99,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         applicationJson.getExportedApplication(),
                         pageNameMapMono,
                         applicationMono,
-                        importingMetaDTO.getAppendToApp(),
-                        importingMetaDTO.getApplicationId(),
+                        importingMetaDTO.getAppendToArtifact(),
+                        importingMetaDTO.getArtifactId(),
                         existingPagesMono,
                         importedNewPagesMono,
                         mappedImportableResourcesDTO)
@@ -119,8 +119,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 mappedImportableResourcesDTO.getActionAndCollectionMapsDTO();
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
-        List<NewPage> newPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+        List<NewPage> newPages = mappedImportableResourcesDTO.getPageOrModuleMap().values().stream()
                 .distinct()
+                .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                 .toList();
         return Flux.fromIterable(newPages)
                 .flatMap(newPage -> {
@@ -168,7 +169,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<Application> importApplicationMono,
             boolean appendToApp,
             String branchName,
-            ImportApplicationPermissionProvider permissionProvider,
+            ImportArtifactPermissionProvider permissionProvider,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return Mono.just(importedNewPageList)
                 .zipWith(existingPagesMono)
@@ -182,7 +183,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         newToOldNameMap = Map.of();
                     }
 
-                    mappedImportableResourcesDTO.setNewPageNameToOldPageNameMap(newToOldNameMap);
+                    mappedImportableResourcesDTO.setPageOrModuleNewNameToOldName(newToOldNameMap);
                     return Tuples.of(importedNewPages, newToOldNameMap);
                 })
                 .zipWith(importApplicationMono)
@@ -216,8 +217,24 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
-        List<ApplicationPage> editModeApplicationPages = importedApplication.getPages();
-        List<ApplicationPage> publishedModeApplicationPages = importedApplication.getPublishedPages();
+        // The access source has been changes because the order of execution has changed.
+        List<ApplicationPage> editModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
+                .getResourceStoreFromArtifactExchangeJson()
+                .get(FieldName.UNPUBLISHED);
+
+        // this conditional is being placed just for compatibility of the PR #29691
+        if (CollectionUtils.isEmpty(editModeApplicationPages)) {
+            editModeApplicationPages = importedApplication.getPages();
+        }
+
+        List<ApplicationPage> publishedModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
+                .getResourceStoreFromArtifactExchangeJson()
+                .get(FieldName.PUBLISHED);
+
+        // this conditional is being placed just for compatibility of the PR #29691
+        if (CollectionUtils.isEmpty(publishedModeApplicationPages)) {
+            publishedModeApplicationPages = importedApplication.getPublishedPages();
+        }
 
         Mono<List<ApplicationPage>> unpublishedPagesMono =
                 importUnpublishedPages(editModeApplicationPages, appendToApp, applicationMono, importedNewPagesMono);
@@ -232,7 +249,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                     Map<String, NewPage> pageNameMap = objects.getT3();
                     Application savedApp = objects.getT4();
 
-                    mappedImportableResourcesDTO.setPageNameMap(pageNameMap);
+                    mappedImportableResourcesDTO.setPageOrModuleMap(pageNameMap);
 
                     log.debug("New pages imported for application: {}", savedApp.getId());
                     Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
@@ -368,7 +385,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Application application,
             String branchName,
             Mono<List<NewPage>> existingPages,
-            ImportApplicationPermissionProvider permissionProvider) {
+            ImportArtifactPermissionProvider permissionProvider) {
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
@@ -426,7 +443,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                     .getUnpublishedPage()
                                     .setDeletedAt(newPage.getUnpublishedPage().getDeletedAt());
                             existingPage.setDeletedAt(newPage.getDeletedAt());
-                            existingPage.setDeleted(newPage.getDeleted());
                             existingPage.setPolicies(existingPagePolicy);
                             return newPageService.save(existingPage);
                         } else {
@@ -467,7 +483,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                                             .getUnpublishedPage()
                                                             .getDeletedAt());
                                             newPage.setDeletedAt(branchedPage.getDeletedAt());
-                                            newPage.setDeleted(branchedPage.getDeleted());
                                             // Set policies from existing branch object
                                             newPage.setPolicies(branchedPage.getPolicies());
                                             return newPageService.save(newPage);
@@ -580,6 +595,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                 .getUnpublishedAction()
                                 .getDefaultResources()
                                 .getCollectionId();
+                        final String collectionId =
+                                newAction.getUnpublishedAction().getCollectionId();
+
                         newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                             if (layout.getLayoutOnLoadActions() != null) {
                                 layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction.stream()
@@ -587,6 +605,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                         .forEach(actionDTO -> {
                                             actionDTO.setDefaultActionId(defaultActionId);
                                             actionDTO.setDefaultCollectionId(defaultCollectionId);
+                                            actionDTO.setCollectionId(collectionId);
                                         }));
                             }
                         });
@@ -608,6 +627,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                                 actionDTO.setDefaultCollectionId(newAction
                                                         .getPublishedAction()
                                                         .getDefaultResources()
+                                                        .getCollectionId());
+                                                actionDTO.setCollectionId(newAction
+                                                        .getPublishedAction()
                                                         .getCollectionId());
                                             }
                                         }));

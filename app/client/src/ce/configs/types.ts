@@ -1,12 +1,8 @@
 import type { LogLevelDesc } from "loglevel";
 
-export interface SentryConfig {
-  dsn: string;
-  environment: string;
-}
-
 export interface AppVersionData {
   id: string;
+  sha: string;
   releaseDate: string;
   edition: string;
 }
@@ -51,9 +47,7 @@ export interface AppsmithUIConfigs {
     snippetIndex: string;
   };
 
-  enableRapidAPI: boolean;
   enableMixpanel: boolean;
-  enableTNCPP: boolean;
 
   cloudHosting: boolean;
 

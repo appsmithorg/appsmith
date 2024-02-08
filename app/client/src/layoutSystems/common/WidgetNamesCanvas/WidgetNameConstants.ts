@@ -6,10 +6,13 @@ export const WIDGET_NAME_FONT_SIZE = 14;
 export const WIDGET_NAME_LINE_HEIGHT = Math.floor(WIDGET_NAME_FONT_SIZE * 1.2);
 export const WIDGET_NAME_VERTICAL_PADDING = 4;
 export const WIDGET_NAME_HORIZONTAL_PADDING = 6;
+export const WIDGET_OUTLINE_OFFSET = 1;
 export const WIDGET_NAME_ICON_PADDING = 16;
 
 export const DEFAULT_WIDGET_NAME_CANVAS_HEIGHT = 600;
 export const WIDGET_NAME_CANVAS_PADDING = 20;
+
+export const WIDGET_NAME_COMPONENT_BUFFER = 8;
 
 export const WIDGET_NAME_HEIGHT = Math.floor(
   WIDGET_NAME_LINE_HEIGHT + WIDGET_NAME_VERTICAL_PADDING * 1.5,
@@ -40,7 +43,7 @@ export const widgetNameWrapperStyle: CSSProperties = {
   position: "absolute",
   top: 0,
   left: 0,
-  zIndex: 2,
+  zIndex: "var(--on-canvas-ui-z-index)",
   pointerEvents: "none",
   display: "flex",
   flexDirection: "column",

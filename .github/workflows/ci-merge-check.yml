@@ -1,15 +1,15 @@
 on:
   #This workflow is only triggered by the ok to test command dispatch
   repository_dispatch:
-      types: [ ci-merge-check-command ]
-    
+    types: [ci-merge-check-command]
+
 jobs:
-   ci-merge-check:
+  ci-merge-check:
     runs-on: ubuntu-latest
     steps:
       # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to workflow run
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
@@ -21,15 +21,15 @@ jobs:
         id: find-comment
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
-          body-includes: 'Appsmith External Integration Test Workflow'
+          body-includes: "Appsmith External Integration Test Workflow"
           comment-author: github-actions[bot]
           direction: last
-      
+
       - name: Get the workflow run_id
         id: workflow
         run: |
           echo "run_id=$(echo '${{ steps.find-comment.outputs.comment-body }}' | grep -o 'runs/[0-9]\+' | cut -d/ -f2)" >> $GITHUB_OUTPUT
-      
+
       - name: Get ci-test-result status from the run_id
         id: ci_test_result_status
         run: |
@@ -58,7 +58,7 @@ jobs:
           pr_reviews_link="https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.client_payload.pull_request.number}}/reviews"
           pr_reviews=`curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $pr_reviews_link`
           echo "approved_pr_reviews=`echo $pr_reviews | jq -r 'if length > 0 then [.[]|select(.state | contains ("APPROVED"))]|length else 0 end'`" >> $GITHUB_OUTPUT
-      
+
       - name: Verify all the checks
         id: verify_checks
         run: |
@@ -91,8 +91,8 @@ jobs:
           fi
 
       - name: Add a comment on the PR after all checks
-        if: always() 
-        uses: peter-evans/create-or-update-comment@v2
+        if: always()
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
@@ -108,25 +108,5 @@ jobs:
           method: merge
           repo: ${{ github.repository }}
 
-      - run : |
+      - run: |
           echo ${{ steps.automerge.outputs }}
-
-      # - name: Add comment once merge is success-full
-      #   if: steps.automerge.outputs.mergeResult == 'merged'
-      #   uses: peter-evans/create-or-update-comment@v2
-      #   with:
-      #     issue-number: ${{ github.event.client_payload.pull_request.number }}
-      #     body: |
-      #       Pull request ${{ steps.automerge.outputs.pullRequestNumber }} Auto-merged!
-
-      # - name: Comment if it is not merged
-      #   if: steps.automerge.outputs.mergeResult != 'merged'
-      #   uses: peter-evans/create-or-update-comment@v2
-      #   with:
-      #     issue-number: ${{ github.event.client_payload.pull_request.number }}
-      #     body: |
-      #       Auto merge has been failed. Probably for the following reasons:
-      #       2. There might be some merge conflicts.
-      #       3. There are some failed checks.
-
-      #       Please ask someone with merge access to review and merge.

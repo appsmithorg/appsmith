@@ -1,30 +1,41 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import "./styles.css";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import type { LayoutComponentProps } from "../utils/anvilTypes";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { renderLayouts } from "../utils/layouts/renderUtils";
 import { getAnvilCanvasId } from "./utils";
-import { RenderModes } from "constants/WidgetConstants";
+import { LayoutProvider } from "../layoutComponents/LayoutProvider";
+import { useClickToClearSelections } from "./useClickToClearSelections";
+import { useRenderDetachedChildren } from "../common/hooks/detachedWidgetHooks";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
-  const map: LayoutComponentProps["childrenMap"] = {};
-  props.children.forEach((child: WidgetProps) => {
-    map[child.widgetId] = child;
-  });
+  const className: string = useMemo(
+    () => `anvil-canvas ${props.classList?.join(" ")}`,
+    [props.classList],
+  );
 
-  const className: string = `anvil-canvas ${props.classList?.join(" ")}`;
+  const clickToClearSelections = useClickToClearSelections(props.widgetId);
+  const handleOnClickCapture = useCallback(
+    (event) => {
+      clickToClearSelections(event);
+    },
+    [clickToClearSelections],
+  );
+
+  const renderDetachedChildren = useRenderDetachedChildren(
+    props.widgetId,
+    props.children,
+  );
 
   return (
-    <div className={className} id={getAnvilCanvasId(props.widgetId)}>
-      {renderLayouts(
-        props.layout,
-        map,
-        props.widgetId,
-        "",
-        props.renderMode || RenderModes.CANVAS,
-        [],
-      )}
-    </div>
+    <>
+      {renderDetachedChildren}
+      <div
+        className={className}
+        id={getAnvilCanvasId(props.widgetId)}
+        onClick={handleOnClickCapture}
+        tabIndex={0} //adding for accessibility in test cases.
+      >
+        <LayoutProvider {...props} />
+      </div>
+    </>
   );
 };

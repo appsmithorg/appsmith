@@ -19,7 +19,7 @@ export const MenuItem = <T extends object>(props: MenuItemProps<T>) => {
       data-selected={isSelected ? "" : undefined}
       ref={ref}
     >
-      {item.rendered}
+      <div data-text>{item.rendered}</div>
     </li>
   );
 };

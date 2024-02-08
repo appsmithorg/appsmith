@@ -3,12 +3,16 @@ import type {
   TreeDropdownOption,
   IconName,
 } from "design-system-old";
-import type { ENTITY_TYPE, MetaArgs } from "@appsmith/entities/DataTree/types";
+import type {
+  EntityTypeValue,
+  MetaArgs,
+} from "@appsmith/entities/DataTree/types";
 import type React from "react";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 import type { APPSMITH_INTEGRATIONS } from "./constants";
 import type { Variants } from "./constants";
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export type GenericFunction = (...args: any[]) => any;
 
@@ -157,8 +161,9 @@ export interface AppsmithFunctionConfigType {
 
 export interface DataTreeForActionCreator {
   [key: string]: {
-    ENTITY_TYPE?: ENTITY_TYPE;
+    ENTITY_TYPE?: EntityTypeValue;
     meta?: Record<string, MetaArgs>;
+    type?: MODULE_TYPE;
   };
 }
 

@@ -16,6 +16,7 @@ import { screen } from "@testing-library/react";
 
 import { Provider } from "react-redux";
 import configureMockStore from "redux-mock-store";
+import { APP_MODE } from "entities/App";
 
 let container: any;
 
@@ -79,10 +80,22 @@ describe("Chart Widget", () => {
   const store = mockStore({
     entities: {
       canvasWidgets: {},
+      app: {
+        mode: APP_MODE.PUBLISHED,
+      },
     },
     ui: {
       widgetDragResize: {
         selectedWidgets: [],
+      },
+      editor: {
+        isPreviewMode: false,
+      },
+      applications: {
+        currentApplication: "",
+      },
+      gitSync: {
+        protectedBranches: [],
       },
     },
   });

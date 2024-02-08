@@ -2,7 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
@@ -34,15 +34,10 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @NoArgsConstructor
 @QueryEntity
 @Document
-public class Application extends BaseDomain {
+public class Application extends BaseDomain implements ImportableArtifact, ExportableArtifact {
 
     @NotNull @JsonView(Views.Public.class)
     String name;
-
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
 
     @JsonView(Views.Public.class)
     String workspaceId;
@@ -96,10 +91,10 @@ public class Application extends BaseDomain {
     AppLayout publishedAppLayout;
 
     @JsonView(Views.Public.class)
-    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+    Set<CustomJSLibContextDTO> unpublishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
-    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
+    Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
     GitApplicationMetadata gitApplicationMetadata;
@@ -202,10 +197,6 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     String forkedFromTemplateTitle;
 
-    @JsonView(Views.Internal.class)
-    @Deprecated
-    String defaultPermissionGroup;
-
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
@@ -252,6 +243,16 @@ public class Application extends BaseDomain {
                         application.getPublishedApplicationDetail().getNavigationSetting() == null
                                 ? null
                                 : new NavigationSetting());
+        this.getUnpublishedApplicationDetail()
+                .setThemeSetting(
+                        application.getUnpublishedApplicationDetail().getThemeSetting() == null
+                                ? null
+                                : new ThemeSetting());
+        this.getPublishedApplicationDetail()
+                .setThemeSetting(
+                        application.getPublishedApplicationDetail().getThemeSetting() == null
+                                ? null
+                                : new ThemeSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -270,7 +271,6 @@ public class Application extends BaseDomain {
     @Override
     public void sanitiseToExportDBObject() {
         this.setWorkspaceId(null);
-        this.setOrganizationId(null);
         this.setModifiedBy(null);
         this.setCreatedBy(null);
         this.setLastDeployedAt(null);
@@ -281,7 +281,6 @@ public class Application extends BaseDomain {
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
-        this.setDefaultPermissionGroup(null);
         this.setPublishedCustomJSLibs(new HashSet<>());
         this.setExportWithConfiguration(null);
         this.setForkWithConfiguration(null);
@@ -323,18 +322,6 @@ public class Application extends BaseDomain {
     public static class AppLayout implements Serializable {
         @JsonView(Views.Public.class)
         Type type;
-
-        /**
-         * @deprecated The following field is deprecated and now removed, because it's needed in a migration. After the
-         * migration has been run, it may be removed (along with the migration or there'll be compile errors there).
-         */
-        @JsonView(Views.Internal.class)
-        @Deprecated(forRemoval = true)
-        Integer width = null;
-
-        public AppLayout(Type type) {
-            this.type = type;
-        }
 
         public enum Type {
             DESKTOP,
@@ -411,6 +398,46 @@ public class Application extends BaseDomain {
             FIXED,
             AUTO,
             ANVIL
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class ThemeSetting {
+
+        @JsonView(Views.Public.class)
+        private String accentColor;
+
+        @JsonView(Views.Public.class)
+        private String borderRadius;
+
+        @JsonView(Views.Public.class)
+        private float sizing = 1;
+
+        @JsonView(Views.Public.class)
+        private float density = 1;
+
+        @JsonView(Views.Public.class)
+        private String fontFamily;
+
+        @JsonView(Views.Public.class)
+        Type colorMode;
+
+        @JsonView(Views.Public.class)
+        IconStyle iconStyle;
+
+        public ThemeSetting(Type colorMode) {
+            this.colorMode = colorMode;
+        }
+
+        public enum Type {
+            LIGHT,
+            DARK
+        }
+
+        public enum IconStyle {
+            OUTLINED,
+            FILLED
         }
     }
 }

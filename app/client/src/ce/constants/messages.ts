@@ -16,6 +16,7 @@ export const INTERCOM_CONSENT_MESSAGE = () =>
   `Can we have your email for better support?`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
+export const CHAT_WITH_US = () => `Chat with us`;
 export const ERROR_ADD_API_INVALID_URL = () =>
   `Unable to create API. Try adding a URL to the datasource`;
 export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
@@ -200,6 +201,8 @@ export const PARTNER_PROGRAM_CALLOUT = (
 for someone else, you should check out our partner program.`;
 export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
   `Learn about Appsmith Partner Program`;
+export const NEW_APPLICATION = () => `New application`;
+export const APPLICATIONS = () => `Applications`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -216,17 +219,6 @@ export const USER_RESET_PASSWORD = () => "Reset password";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
-
-export const DELETING_APPLICATION = () => `Deleting application...`;
-export const DELETING_MULTIPLE_APPLICATION = () =>
-  `Deleting multiple applications...`;
-export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
-  `You don't have permission to delete this application`;
-
-export const DELETING_MULTIPLE_APPLICATION_MODAL_TITLE = () =>
-  `Delete Confirmation`;
-export const DELETING_MULTIPLE_APPLICATION_MODAL_DESC = () =>
-  `Are you sure you want to delete selected applications?`;
 
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
@@ -263,11 +255,20 @@ export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `Getting started`;
 export const WORKSPACES_HEADING = () => `Workspaces`;
+export const CREATE_A_NEW_WORKSPACE = () => `Create a new workspace`;
 export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
 export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
-  `There are no apps in this workspace.`;
+  `There are no applications in this workspace.`;
+export const TRY_GUIDED_TOUR = () => `Try guided tour`;
+export const JOIN_OUR_DISCORD = () => `Join our discord`;
+export const WHATS_NEW = () => `What's new?`;
+export const WORKSPACE_ACTION_BUTTON = () => "Create New";
+export const NEW_APP = () => "New app";
+export const NO_WORKSPACE_HEADING = () => "Oops! No workspace found";
+export const NO_WORKSPACE_DESCRIPTION = () =>
+  "You can find workspace list on the left sidebar, try selecting one of them to access a workspace.";
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
@@ -1026,7 +1027,7 @@ export const ERROR_REPO_NOT_EMPTY_MESSAGE = () =>
   "Kindly create a new repository and provide its remote SSH URL here. We require an empty repository to continue.";
 export const READ_DOCS = () => "Read Docs";
 export const COPY_SSH_URL_MESSAGE = () =>
-  "In your repo, copy the Remote SSH URL & paste it in the input field below.";
+  "To generate the SSH Key, in your repo, copy the Remote SSH URL & paste it in the input field below.";
 export const REMOTE_URL_INPUT_LABEL = () => "Remote SSH URL";
 export const HOW_TO_COPY_REMOTE_URL = () =>
   "How to copy & paste SSH remote URL";
@@ -1050,6 +1051,19 @@ export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
   "This is irreversible. If you wish to reconnect, you will have to connect a new empty repository.";
+export const AUTOCOMMIT = () => "Auto - commit";
+export const AUTOCOMMIT_MESSAGE = () =>
+  "Enable/disable auto migrations from Appsmith.";
+export const AUTOCOMMIT_ENABLE = () => "Enable auto - commit";
+export const AUTOCOMMIT_DISABLE = () => "Disable auto - commit";
+export const AUTOCOMMIT_CONFIRM_DISABLE_MESSAGE = () =>
+  "Disabling auto-commit may result in uncommitted system changes after an Appsmith instance upgrade, requiring manual handling and potential discrepancies in Git versioning.";
+export const AUTOCOMMIT_IN_PROGRESS_MESSAGE = () =>
+  "Auto-committing Appsmith upgrade changes...";
+export const AUTOCOMMIT_ENABLED_TOAST = () =>
+  "Auto-commit enabled successfully";
+export const AUTOCOMMIT_DISABLED_TOAST = () =>
+  "Auto-commit disabled successfully";
 export const NEED_EMPTY_REPO_MESSAGE = () =>
   "You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue.";
 export const GIT_IMPORT_WAITING = () =>
@@ -1098,6 +1112,15 @@ export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
 export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
 // Git Branch Protection end
+
+export const GENERAL = () => "General";
+export const BRANCH = () => "Branch";
+
+export const CONTINUOUS_DELIVERY = () => "Continuous delivery";
+export const CONFIGURE_CD_TITLE = () => "Configure continuous delivery";
+export const CONFIGURE_CD_DESC = () =>
+  "To automatically trigger a pull when changes occur on the remote branch, consider upgrading to our enterprise edition for enhanced functionality";
+export const TRY_APPSMITH_ENTERPRISE = () => "Try Appsmith Enterprise";
 
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
@@ -1286,6 +1309,8 @@ export const SNIPPET_TOOLTIP = () => "Search code snippets";
 export const WELCOME_HEADER = () => "Almost there";
 export const WELCOME_BODY = () => "Let's setup your account first";
 export const WELCOME_ACTION = () => "Get started";
+export const PRODUCT_UPDATES_CONFIRMATION_LABEL = () =>
+  "I accept receiving security and product updates";
 
 // API Editor
 export const API_EDITOR_TAB_TITLES = {
@@ -1306,14 +1331,6 @@ export const WELCOME_FORM_LAST_NAME = () => "Last name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email";
 export const WELCOME_FORM_CREATE_PASSWORD = () => "Enter password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify password";
-export const WELCOME_FORM_ROLE_DROPDOWN = () =>
-  "Tell us about your primary skillset";
-export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () =>
-  "- Select a skillset -";
-export const WELCOME_FORM_ROLE = () => "Skillset";
-export const WELCOME_FORM_CUSTOM_USE_CASE = () => "Use case";
-export const WELCOME_FORM_USE_CASE = () => "Tell us about your use case";
-export const WELCOME_FORM_USE_CASE_PLACEHOLDER = () => "- Select a use case -";
 export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
   "Usage data preference";
 export const WELCOME_FORM_DATA_COLLECTION_BODY = () =>
@@ -1367,6 +1384,7 @@ export const SETTINGS_TOOLTIP = () => "Settings";
 
 //settings
 export const ADMIN_SETTINGS = () => "Admin settings";
+export const HELP = () => "Help";
 export const RESTART_BANNER_BODY = () =>
   "Hang in there. This should be done soon.";
 export const RESTART_BANNER_HEADER = () => "Restarting your server";
@@ -1475,18 +1493,14 @@ export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us about your primary skillset";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
-  "What are you planning to use Appsmith for?";
+  "What would you like to use Appsmith for?";
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
-  "How would you rate your development proficiency?";
+  "What is your general development proficiency?";
 
-export const WELCOME_FORM_ROLE_ERROR_MESSAGE = () => "Please enter a role";
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
   "Please select a proficiency level";
 export const WELCOME_FORM_USE_CASE_ERROR_MESSAGE = () =>
   "Please select an use case";
-
-export const WELCOME_FORM_CUSTOM_USE_CASE_ERROR_MESSAGE = () =>
-  "Please enter a use case";
 
 export const WELCOME_FORM_EMAIL_ERROR_MESSAGE = () =>
   "Enter a valid email address.";
@@ -1645,12 +1659,9 @@ export const CONTINUE = () => "Continue";
 export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
 export const PROCEED = () => "Proceed";
 export const COMPLETE = () => "Complete";
-// -- Modal --
-export const DEVIATION = () => "You are deviating from the tutorial";
-export const END_CONFIRMATION = () => "Are you sure you want to end?";
-export const CANCEL_DIALOG = () => "Cancel";
 // -- End Tutorial --
 export const END_TUTORIAL = () => "End tutorial";
+export const CANCEL_DIALOG = () => "Cancel";
 // -- Intro content --
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
@@ -1712,6 +1723,7 @@ export const COULDNT_FIND_TEMPLATE = () =>
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
   "Submit suggestions for templates you'd like to see or upvote requests raised by others and our team will work on it.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
+export const REQUEST_BUILDING_BLOCK = () => "Request a building block";
 export const SEARCH_TEMPLATES = () => "Search templates";
 export const INTRODUCING_TEMPLATES = () => "Introducing templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
@@ -1731,6 +1743,7 @@ export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
 export const FILTER_SELECTALL = () => "Select all";
+export const FILTER_SELECT_PAGE = () => "Add selected page";
 export const FILTER_SELECT_PAGES = () => "Add selected pages";
 export const FORKING_TEMPLATE = () => "Setting up the template";
 export const FETCHING_TEMPLATES = () => "Loading template details";
@@ -1924,6 +1937,7 @@ export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 // Datasource/New query
 export const NEW_QUERY_BUTTON_TEXT = () => "New query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
+export const NEW_AI_BUTTON_TEXT = () => "New AI Query";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "Generate new page";
 export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
@@ -2217,17 +2231,16 @@ export const FAILED_RECORDS_MESSAGE_TEXT = () =>
   "There was an error connecting to the datasource. Please check the datasource configuration and retry. If the issue persists, review the datasource settings.";
 
 export const DATA_PANE_TITLE = () => "Datasources in your workspace";
-export const DATASOURCE_LIST_BLANK_TITLE = () =>
-  "No datasources exist in your workspace.";
-export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
-  "You need a datasource connection to write your first query";
+export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
+  "Connect a datasource to write your first query";
+export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
 
 export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   header: () => "Choose a template",
   layouts: {
-    dashboard: {
-      name: () => "Visualize your data",
-      description: () => "Use to see your data in charts",
+    sortFilterTable: {
+      name: () => "Filter your data",
+      description: () => "Use to filter and sort your data",
     },
     form: {
       name: () => "Form",
@@ -2249,6 +2262,7 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   or: () => "or",
   dragAndDrop: () => "Drag and Drop Widgets",
   importLoadingText: () => "Importing template",
+  seeMoreText: () => "See more",
 };
 
 // Create New Apps Intermediary step
@@ -2257,7 +2271,7 @@ export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
   "Choose an option that fits your approach, and let's shape your app together.";
 export const START_FROM_TEMPLATE_TITLE = () => "Start with template";
 export const START_FROM_TEMPLATE_SUBTITLE = () =>
-  "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
+  "Begin with an app for a specific scenario. We'll guide you through tailoring your app.";
 export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
 export const START_FROM_SCRATCH_SUBTITLE = () =>
   "Create an app from the ground up. Design every detail of your app on a blank canvas.";
@@ -2271,14 +2285,27 @@ export const START_WITH_TEMPLATE_CONNECT_HEADING = () => "Select a template";
 export const START_WITH_TEMPLATE_CONNECT_SUBHEADING = () =>
   "Choose an option below to embark on your app-building adventure!";
 
-export const PAGES_PANE_TEXTS = {
+export const EDITOR_PANE_TEXTS = {
   queries_tab: () => "Queries",
   js_tab: () => "JS",
   ui_tab: () => "UI",
-  query_blank_state: () => "Write your first query or API to access data",
-  js_blank_state: () => "Use JS to transform your data or write business logic",
-  query_blank_button: () => "New Query/API",
-  js_blank_button: () => "New JS Object",
+  query_blank_state: () => "No queries to display",
+  js_blank_state: () => "No JS objects to display",
+  query_blank_state_description: () =>
+    "Write your first query or API to access data",
+  js_blank_state_description: () =>
+    "Use JS to transform your data or write business logic",
+  widget_blank_state_description: () =>
+    "Drag & drop widgets to create your app",
+  query_add_button: () => "New query / API",
+  js_add_button: () => "New JS object",
+  js_blank_object_item: () => "Blank JS object",
+  widget_add_button: () => "New widget",
+  query_create_tab_title: () => "Create new query / API",
+  widgets_create_tab_title: () => "Drag & drop a widget",
+  js_create_tab_title: () => "Create JS object",
+  queries_create_from_existing: () => "From existing datasource",
+  queries_create_new: () => "New API",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
@@ -2301,3 +2328,125 @@ export const PARTIAL_IMPORT_EXPORT = {
 };
 
 export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
+
+export const CUSTOM_WIDGET_FEATURE = {
+  addEvent: {
+    addCTA: () => "Add",
+    cancelCTA: () => "Cancel",
+    addEventCTA: () => "Add Event",
+    nameLabel: () => "Name",
+    errors: {
+      restricted: () => "Event name is restricted",
+      duplicate: () => "Event name already exists",
+    },
+  },
+  editSource: {
+    editSourceCTA: () => "Edit source",
+    goToSourceCTA: () => "Go to source editor",
+  },
+  builder: {
+    header: () => "Custom Widget Builder",
+    close: () => "Close",
+    connectionLost: () =>
+      "Connection lost because the custom widget was deselected. Please reselect this widget to continue editing.",
+    editor: {
+      css: {
+        contextTooltip: () => "You can use following css variables",
+        placeholder: () =>
+          "/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/",
+      },
+      html: {
+        placeholder: () =>
+          "<!-- no need to write html, head, body tags, it is handled by the widget -->",
+      },
+      js: {
+        placeholder: () =>
+          "// no need to write window onLoad, it is handled by the widget",
+      },
+    },
+  },
+  templateKey: {
+    blank: () => "Blank",
+    vanillaJs: () => "Vanilla JS",
+    react: () => "React",
+    vue: () => "Vue",
+  },
+  template: {
+    modal: {
+      header: () => "Are you sure?",
+      body: () =>
+        "This will replace the current changes in the HTML, CSS and JS files.",
+      successCTA: () => "Replace",
+      cancelCTA: () => "Cancel",
+    },
+    buttonCTA: () => "Templates",
+    revert: () => "Revert to Original",
+  },
+  layout: {
+    tab: () => "Tabs",
+    split: () => "Splits",
+  },
+  referrences: {
+    title: () => "References",
+    tooltip: {
+      open: () => "Open references",
+      close: () => "Close references",
+    },
+    liveModel: {
+      helpMessage: [
+        () => "- Use `appsmith.model` to access your model in javascript",
+        () =>
+          "- Use `appsmith.updateModel()` to update your model from javascript",
+      ],
+      label: () => "Live Model",
+    },
+    events: {
+      helpMessage: [
+        () =>
+          "- Use `appsmith.triggerEvent(&lt;EVENT_NAME&gt;)` to trigger an event",
+        () =>
+          "- `appsmith.triggerEvent()` also accepts context data as second arg",
+      ],
+      label: () => "Events",
+      emptyMessage: () =>
+        "You haven’t created any events. Return to the app editor to add events to this custom widget.",
+    },
+    help: {
+      message: () =>
+        "Learn how custom widgets work, and how to access data from the rest of your app within this widget.",
+      buttonCTA: () => "Documentation",
+    },
+  },
+  debugger: {
+    title: () => "Console",
+    emptyMessage: () => "Errors and logs will appear here",
+    helpDropdown: {
+      stackoverflow: () => "Search StackOverflow",
+    },
+    noOnReadyWarning: (url: string) =>
+      `Missing appsmith.onReady() function call. Initiate your component inside 'appsmith.onReady()' for your custom widget to work as expected. For more information - ${url}`,
+  },
+  preview: {
+    eventFired: () => "Event fired:",
+    modelUpdated: () => "Model updated",
+  },
+};
+
+export const WIDGET_PANEL_EMPTY_MESSAGE = () =>
+  "We couldn’t find any widgets called";
+
+export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;
+
+export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
+  title: () => "Add page(s) from a template",
+  buildingBlocksTitle: () => "Building Blocks",
+};
+
+export const HEADER_TITLES = {
+  DATA: () => "Data",
+  EDITOR: () => "Pages",
+  SETTINGS: () => "Settings",
+  LIBRARIES: () => "Libraries",
+};
+
+export const PASTE_FAILED = (str: string): string => `Paste failed! ${str}`;

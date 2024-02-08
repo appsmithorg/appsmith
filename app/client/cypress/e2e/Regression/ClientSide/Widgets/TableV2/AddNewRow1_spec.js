@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Basic flow ", () => {
+describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
   before(() => {
     _.agHelper.RestoreLocalStorageCache();
     _.agHelper.AddDsl("Table/InlineEditingDSL");
@@ -12,7 +12,7 @@ describe("Basic flow ", () => {
     cy.get(".t--property-control-allowaddingarow").should("exist");
     cy.get(".t--property-control-allowaddingarow input").should("exist");
     cy.get(".t--add-new-row").should("not.exist");
-    _.propPane.TogglePropertyState("Allow adding a row", "Off");
+    _.propPane.TogglePropertyState("Allow adding a row", "Off", null);
     cy.get(".t--add-new-row").should("not.exist");
     cy.get(".t--property-control-onsave").should("not.exist");
     cy.get(".t--property-control-ondiscard").should("not.exist");

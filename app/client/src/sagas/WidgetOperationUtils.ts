@@ -62,6 +62,13 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { Positioning } from "layoutSystems/common/utils/constants";
+import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
+import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
+import {
+  getWidgetLayoutMetaInfo,
+  type WidgetLayoutPositionInfo,
+} from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1358,11 +1365,9 @@ export const createSelectedWidgetsAsCopiedWidgets = function* () {
 
   if (!selectedWidgets || !selectedWidgets.length) return;
 
-  const widgetListsToStore: {
-    widgetId: string;
-    parentId: string;
-    list: FlattenedWidgetProps[];
-  }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
+  const widgetListsToStore: CopiedWidgetData[] = yield all(
+    selectedWidgets.map((each) => call(createWidgetCopy, each)),
+  );
 
   return widgetListsToStore;
 };
@@ -1490,11 +1495,21 @@ export function getNextWidgetName(
 export function* createWidgetCopy(widget: FlattenedWidgetProps) {
   const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
     yield select(getWidgets);
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
   const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
+  let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
+  if (widget.parentId && layoutSystemType === LayoutSystemTypes.ANVIL) {
+    widgetPositionInfo = getWidgetLayoutMetaInfo(
+      allWidgets[widget?.parentId]?.layout[0] ?? null,
+      widget.widgetId,
+    );
+  }
   return {
-    widgetId: widget.widgetId,
+    hierarchy: getWidgetHierarchy(widget.type, widget.widgetId),
     list: widgetsToStore,
     parentId: widget.parentId,
+    widgetId: widget.widgetId,
+    widgetPositionInfo,
   };
 }
 
@@ -1522,7 +1537,7 @@ export const getAllWidgetsInTree = (
         widgetList.push(...getAllWidgetsInTree(childWidgetId, canvasWidgets)),
       );
   }
-  return widgetList;
+  return widgetList.filter(Boolean);
 };
 
 /**

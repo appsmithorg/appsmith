@@ -595,6 +595,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
             "",
+            !!_.get(formData.authentication, "isTokenHeader"),
           )}
         </FormInputContainer>
         {_.get(formData.authentication, "isTokenHeader") && (
@@ -678,6 +679,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
             "",
+            !!_.get(formData.authentication, "isAuthorizationHeader"),
           )}
         </FormInputContainer>
       </>
@@ -719,6 +721,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
               "",
               false,
               "",
+              !!_.get(authentication, "sendScopeWithRefreshToken"),
             )}
           </FormInputContainer>
         )}
@@ -840,6 +843,16 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
           )}
+        </FormInputContainer>
+        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
+          {this.renderInputTextControlViaFormControl({
+            configProperty: "authentication.expiresIn",
+            label: "Authorization expires in (seconds)",
+            placeholderText: "3600",
+            dataType: "NUMBER",
+            encrypted: false,
+            isRequired: false,
+          })}
         </FormInputContainer>
 
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&

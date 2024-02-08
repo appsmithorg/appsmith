@@ -3,7 +3,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../../support/Pages/EditorNavigation";
 
-describe("List v2- Tabs Widget", () => {
+describe("List v2- Tabs Widget", { tags: ["@tag.Widget", "@tag.List"] }, () => {
   before(() => {
     _.agHelper.AddDsl("Listv2/simpleListWithInputAndButton");
   });

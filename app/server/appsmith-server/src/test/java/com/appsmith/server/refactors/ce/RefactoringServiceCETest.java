@@ -4,9 +4,11 @@ import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -34,7 +36,6 @@ import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.SessionUserService;
@@ -565,13 +566,15 @@ class RefactoringServiceCETest {
         duplicateNameCompleteAction.setWorkspaceId(duplicateName.getWorkspaceId());
         duplicateNameCompleteAction.setPluginType(duplicateName.getPluginType());
         duplicateNameCompleteAction.setPluginId(duplicateName.getPluginId());
-        duplicateNameCompleteAction.setTemplateId(duplicateName.getTemplateId());
-        duplicateNameCompleteAction.setProviderId(duplicateName.getProviderId());
         duplicateNameCompleteAction.setDocumentation(duplicateName.getDocumentation());
         duplicateNameCompleteAction.setApplicationId(duplicateName.getApplicationId());
+        duplicateNameCompleteAction.setDefaultResources(new DefaultResources());
 
         // Now save this action directly in the repo to create a duplicate action name scenario
-        actionRepository.save(duplicateNameCompleteAction).block();
+        newActionService
+                .validateAction(duplicateNameCompleteAction)
+                .flatMap(validatedAction -> actionRepository.save(validatedAction))
+                .block();
 
         LayoutDTO firstLayout = updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
@@ -790,8 +793,9 @@ class RefactoringServiceCETest {
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
 
-        final ActionCollectionDTO createdActionCollectionDTO1 =
-                layoutCollectionService.createCollection(actionCollectionDTO1).block();
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService
+                .createCollection(actionCollectionDTO1, null)
+                .block();
 
         RefactorEntityNameDTO refactorNameDTO = new RefactorEntityNameDTO();
         refactorNameDTO.setEntityType(EntityType.WIDGET);
@@ -819,7 +823,7 @@ class RefactoringServiceCETest {
                     assertThat(actionCollection.getUnpublishedCollection().getBody())
                             .isEqualTo("export default { x : \tNewNameTable1 }");
                     final ActionDTO unpublishedAction = action.getUnpublishedAction();
-                    assertThat(unpublishedAction.getJsonPathKeys().size()).isEqualTo(1);
+                    assertThat(unpublishedAction.getJsonPathKeys()).hasSize(1);
                     final Optional<String> first =
                             unpublishedAction.getJsonPathKeys().stream().findFirst();
                     assert first.isPresent();
@@ -853,7 +857,7 @@ class RefactoringServiceCETest {
         originalActionCollectionDTO.setActions(List.of(action1));
 
         final ActionCollectionDTO dto = layoutCollectionService
-                .createCollection(originalActionCollectionDTO)
+                .createCollection(originalActionCollectionDTO, null)
                 .block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();

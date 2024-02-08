@@ -5,7 +5,7 @@ import type {
   DataTreeDefEntityInformation,
   TernCompletionResult,
 } from "../CodemirrorTernService";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 describe("Autocomplete Ranking", () => {
   it("Blocks platform functions in data fields", () => {
@@ -174,7 +174,7 @@ describe("Autocomplete Ranking", () => {
       },
     };
     const entityInfo: DataTreeDefEntityInformation = {
-      type: ENTITY_TYPE_VALUE.WIDGET,
+      type: ENTITY_TYPE.WIDGET,
       subType: "TABLE_WIDGET_V2",
     };
     const sortedCompletionsText = AutocompleteSorter.sort(

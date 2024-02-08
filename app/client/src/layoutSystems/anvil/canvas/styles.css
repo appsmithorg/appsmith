@@ -1,8 +1,5 @@
 .anvil-canvas {
   container-type: inline-size;
-}
-
-.main-anvil-canvas {
-  height: calc(100% - 1rem);
-  overflow-y: auto;
+  width: 100%;
+  height: 100%;
 }

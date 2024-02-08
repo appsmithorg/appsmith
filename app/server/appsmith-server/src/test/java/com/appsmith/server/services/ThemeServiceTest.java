@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -36,7 +37,6 @@ import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 import reactor.util.function.Tuples;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -105,7 +105,6 @@ public class ThemeServiceTest {
     public void setup() {
         Workspace workspace = new Workspace();
         workspace.setName("Theme Service Test workspace");
-        workspace.setUserRoles(new ArrayList<>());
         this.workspace = workspaceService.create(workspace).block();
     }
 
@@ -780,8 +779,8 @@ public class ThemeServiceTest {
                     long systemThemesCount = availableThemes.stream()
                             .filter(availableTheme -> availableTheme.isSystemTheme())
                             .count();
-                    assertThat(availableThemes.size())
-                            .isEqualTo(systemThemesCount + 1); // one custom theme + existing system themes
+                    assertThat(availableThemes)
+                            .hasSize((int) systemThemesCount + 1); // one custom theme + existing system themes
 
                     // assert permissions by asserting that the themes have been found.
                     assertThat(persistedThemeWithReadPermission.getId()).isNotNull();

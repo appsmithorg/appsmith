@@ -24,7 +24,7 @@ jobs:
     steps:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ inputs.pr }}/merge
 

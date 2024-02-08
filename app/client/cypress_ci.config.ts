@@ -25,6 +25,7 @@ export default defineConfig({
   e2e: {
     baseUrl: "http://localhost/",
     setupNodeEvents(on, config) {
+      require("@cypress/grep/src/plugin")(config);
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",

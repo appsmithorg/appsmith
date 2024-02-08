@@ -16,6 +16,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const successMessage = "Successful Trigger";
@@ -53,12 +54,10 @@ const clickButtonAndAssertLintError = (
 
 const createMySQLDatasourceQuery = () => {
   // Create Query
-  dataSources.NavigateFromActiveDS(dsName, true);
-  const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
-  dataSources.EnterQuery(tableCreateQuery);
+  dataSources.CreateQueryForDS(dsName, `SELECT * FROM spacecrafts LIMIT 10;`);
 };
 
-describe("Linting", () => {
+describe("Linting", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
     dataSources.CreateDataSource("MySql");
@@ -93,7 +92,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete Api and assert that lint error shows
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
@@ -156,7 +155,7 @@ describe("Linting", () => {
       },
     );
     clickButtonAndAssertLintError(false);
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
@@ -217,7 +216,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
       action: "Delete",
@@ -266,12 +265,13 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete all
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
       entityType: entityItems.JSObject,
     });
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
@@ -330,8 +330,8 @@ describe("Linting", () => {
   });
 
   it(
-    "excludeForAirgap",
     "9. Shows lint errors for usage of library that are not installed yet",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       const JS_OBJECT_WITH_LIB_API = `export default {
       myFun1: () => {

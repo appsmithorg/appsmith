@@ -13,7 +13,6 @@ import {
   getResponseErrorMessage,
 } from "sagas/ErrorSagas";
 import type {
-  FetchWorkspaceRolesResponse,
   SaveWorkspaceRequest,
   FetchWorkspaceRequest,
   FetchWorkspaceResponse,
@@ -25,15 +24,15 @@ import type {
   ChangeUserRoleRequest,
   FetchAllRolesRequest,
   SaveWorkspaceLogo,
+  FetchWorkspacesResponse,
 } from "@appsmith/api/WorkspaceApi";
 import WorkspaceApi from "@appsmith/api/WorkspaceApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
-import { getAllApplications } from "@appsmith/actions/applicationActions";
 import log from "loglevel";
 import type { User } from "constants/userConstants";
 import {
@@ -41,24 +40,61 @@ import {
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
-import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
+import { resetSearchEntity } from "@appsmith/actions/workspaceActions";
+import { failFastApiCalls } from "sagas/InitSagas";
+import { getWorkspaceEntitiesActions } from "@appsmith/utils/workspaceHelpers";
+import type { SearchApiResponse } from "@appsmith/types/ApiResponseTypes";
+import SearchApi from "api/SearchApi";
 
-export function* fetchRolesSaga() {
+export function* fetchAllWorkspacesSaga(
+  action?: ReduxAction<{ workspaceId?: string; fetchEntities: boolean }>,
+) {
   try {
-    const response: FetchWorkspaceRolesResponse = yield call(
-      WorkspaceApi.fetchRoles,
+    const response: FetchWorkspacesResponse = yield call(
+      WorkspaceApi.fetchAllWorkspaces,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const workspaces: Workspace[] = response.data;
       yield put({
-        type: ReduxActionTypes.FETCH_WORKSPACE_ROLES_SUCCESS,
-        payload: response.data,
+        type: ReduxActionTypes.FETCH_ALL_WORKSPACES_SUCCESS,
+        payload: workspaces,
       });
+      if (action?.payload?.workspaceId || action?.payload?.fetchEntities) {
+        yield call(fetchEntitiesOfWorkspaceSaga, action);
+      }
     }
   } catch (error) {
-    log.error(error);
     yield put({
-      type: ReduxActionErrorTypes.FETCH_WORKSPACE_ROLES_ERROR,
+      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchEntitiesOfWorkspaceSaga(
+  action?: ReduxAction<{ workspaceId?: string }>,
+) {
+  try {
+    const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
+    const workspaceId = action?.payload?.workspaceId || allWorkspaces[0]?.id;
+    const activeWorkspace = allWorkspaces.find(
+      (workspace) => workspace.id === workspaceId,
+    );
+    const { errorActions, initActions, successActions } =
+      getWorkspaceEntitiesActions(workspaceId);
+    yield put({
+      type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
+      payload: { ...activeWorkspace },
+    });
+    if (workspaceId) {
+      yield call(failFastApiCalls, initActions, successActions, errorActions);
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_WORKSPACE_ENTITIES_ERROR,
       payload: {
         error,
       },
@@ -109,6 +145,10 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
       }));
       yield put({
         type: ReduxActionTypes.FETCH_ALL_USERS_SUCCESS,
+        payload: users,
+      });
+      yield put({
+        type: ReduxActionTypes.GET_ALL_USERS_OF_WORKSPACE_SUCCESS,
         payload: users,
       });
     }
@@ -235,7 +275,6 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
     yield put({
       type: ReduxActionTypes.SAVING_WORKSPACE_INFO,
     });
-    yield put(resetCurrentWorkspace());
     const workspaceId: string = action.payload;
     const response: ApiResponse = yield call(
       WorkspaceApi.deleteWorkspace,
@@ -250,6 +289,7 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
       toast.show(createMessage(DELETE_WORKSPACE_SUCCESSFUL), {
         kind: "success",
       });
+      history.push("/applications");
     }
   } catch (error) {
     yield put({
@@ -281,15 +321,13 @@ export function* createWorkspaceSaga(
         type: ReduxActionTypes.CREATE_WORKSPACE_SUCCESS,
         payload: response.data,
       });
-
-      yield put(getAllApplications());
       yield call(resolve);
     }
 
     // get created workspace in focus
     // @ts-expect-error: response is of type unknown
     const workspaceId = response.data.id;
-    history.push(`${window.location.pathname}#${workspaceId}`);
+    history.push(`${window.location.pathname}?workspaceId=${workspaceId}`);
   } catch (error) {
     yield call(reject, { _error: (error as Error).message });
     yield put({
@@ -312,7 +350,7 @@ export function* uploadWorkspaceLogoSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === request.id,
       );
@@ -344,7 +382,7 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === request.id,
       );
@@ -364,5 +402,32 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
     }
   } catch (error) {
     log.error("Error occured while removing the logo", error);
+  }
+}
+
+export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
+  if (!action?.payload || !action?.payload?.trim()) {
+    yield put(resetSearchEntity());
+    return;
+  }
+  try {
+    const response: SearchApiResponse = yield call(
+      SearchApi.searchAllEntities,
+      { keyword: action.payload },
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SEARCH_WORKSPACE_ENTITIES_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }

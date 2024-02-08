@@ -7,7 +7,7 @@ import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
-import type { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 import type {
   LayoutSystemTypeConfig,
@@ -67,6 +67,7 @@ export interface ApplicationResponsePayload {
 export interface FetchApplicationPayload {
   applicationId?: string;
   pageId?: string;
+  pages?: FetchApplicationResponse;
   mode: APP_MODE;
 }
 
@@ -107,8 +108,6 @@ export interface ForkApplicationRequest {
   editMode?: boolean;
 }
 
-export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
-
 export interface UpdateApplicationPayload {
   icon?: string;
   color?: string;
@@ -119,6 +118,7 @@ export interface UpdateApplicationPayload {
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
+    themeSetting?: ThemeSetting;
     appPositioning?: LayoutSystemTypeConfig;
   };
   forkingEnabled?: boolean;
@@ -165,6 +165,9 @@ export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
     newReleasesCount?: string;
     releaseItems?: Array<Record<string, any>>;
   };
+}
+export interface FetchApplicationsOfWorkspaceResponse extends ApiResponse {
+  data: Array<ApplicationObject>;
 }
 export interface FetchReleaseItemsResponse extends ApiResponse {
   data: {
@@ -215,6 +218,7 @@ export interface UpdateApplicationResponse {
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
     appPositioning?: LayoutSystemTypeConfig;
+    themeSetting?: ThemeSetting;
   };
 }
 
@@ -282,10 +286,10 @@ export class ApplicationApi extends Api {
     return Api.get(ApplicationApi.baseURL);
   }
 
-  static async getAllApplication(): Promise<
-    AxiosPromise<GetAllApplicationResponse>
-  > {
-    return Api.get(ApplicationApi.baseURL + "/new");
+  static async fetchAllApplicationsOfWorkspace(
+    workspaceId: string,
+  ): Promise<any> {
+    return Api.get(ApplicationApi.baseURL + "/home?workspaceId=" + workspaceId);
   }
 
   static async getReleaseItems(): Promise<
@@ -373,12 +377,6 @@ export class ApplicationApi extends Api {
         "/fork/" +
         request.workspaceId,
     );
-  }
-
-  static async deleteMultipleApps(request: {
-    ids: string[];
-  }): Promise<AxiosPromise<ApiResponse>> {
-    return Api.post(`${ApplicationApi.baseURL}/delete-apps`, request.ids);
   }
 
   static async importApplicationToWorkspace(

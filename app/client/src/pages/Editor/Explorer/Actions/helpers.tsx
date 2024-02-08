@@ -30,13 +30,47 @@ export interface ActionGroupConfig {
   icon: JSX.Element;
   key: string;
   getURL: (
-    pageId: string,
+    parentEntityId: string,
     id: string,
     pluginType: PluginType,
     plugin?: Plugin,
   ) => string;
   getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => ReactNode;
 }
+
+export interface ResolveActionURLProps {
+  plugin?: Plugin;
+  parentEntityId: string;
+  pluginType: PluginType;
+  id: string;
+}
+
+export const resolveActionURL = ({
+  id,
+  parentEntityId,
+  plugin,
+  pluginType,
+}: ResolveActionURLProps) => {
+  if (!!plugin && pluginType === PluginType.SAAS) {
+    return saasEditorApiIdURL({
+      parentEntityId,
+      pluginPackageName: plugin.packageName,
+      apiId: id,
+    });
+  } else if (
+    pluginType === PluginType.DB ||
+    pluginType === PluginType.REMOTE ||
+    pluginType === PluginType.AI ||
+    pluginType === PluginType.INTERNAL
+  ) {
+    return queryEditorIdURL({
+      parentEntityId,
+      queryId: id,
+    });
+  } else {
+    return apiEditorIdURL({ parentEntityId, apiId: id });
+  }
+};
 
 // When we have new action plugins, we can just add it to this map
 // There should be no other place where we refer to the PluginType in entity explorer.
@@ -50,33 +84,17 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       PluginType.DB,
       PluginType.REMOTE,
       PluginType.AI,
+      PluginType.INTERNAL,
     ],
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      pageId: string,
+      parentEntityId: string,
       id: string,
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
-      if (!!plugin && pluginType === PluginType.SAAS) {
-        return saasEditorApiIdURL({
-          pageId,
-          pluginPackageName: plugin.packageName,
-          apiId: id,
-        });
-      } else if (
-        pluginType === PluginType.DB ||
-        pluginType === PluginType.REMOTE ||
-        pluginType === PluginType.AI
-      ) {
-        return queryEditorIdURL({
-          pageId,
-          queryId: id,
-        });
-      } else {
-        return apiEditorIdURL({ pageId, apiId: id });
-      }
+      return resolveActionURL({ pluginType, plugin, id, parentEntityId });
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
       const isGraphql = isGraphqlPlugin(plugin);

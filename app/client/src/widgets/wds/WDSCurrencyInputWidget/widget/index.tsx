@@ -53,10 +53,6 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     return defaultsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return anvilConfig;
   }
@@ -277,6 +273,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         errorMessage={validation.errorMessage}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
+        isReadOnly={this.props.isReadOnly}
         isRequired={this.props.isRequired}
         label={this.props.label}
         onCurrencyChange={this.onCurrencyChange}

@@ -47,9 +47,13 @@ export const getTemplateInformation = (payload: string) => ({
   payload,
 });
 
-export const showTemplatesModal = (payload: boolean) => ({
+export const showTemplatesModal = (payload: { isOpenFromCanvas: boolean }) => ({
   type: ReduxActionTypes.SHOW_TEMPLATES_MODAL,
   payload,
+});
+
+export const hideTemplatesModal = () => ({
+  type: ReduxActionTypes.HIDE_TEMPLATES_MODAL,
 });
 
 export const importTemplateIntoApplication = (
@@ -108,4 +112,9 @@ export const importTemplateIntoApplicationViaOnboardingFlow = (
     applicationId,
     workspaceId,
   },
+});
+
+export const setActiveLoadingTemplateId = (templateId: string) => ({
+  type: ReduxActionTypes.SET_ACTIVE_LOADING_TEMPLATE_ID,
+  payload: templateId,
 });

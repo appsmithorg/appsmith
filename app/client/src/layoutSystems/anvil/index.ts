@@ -3,7 +3,9 @@ import { AnvilEditorWrapper } from "./editor/AnvilEditorWrapper";
 import { AnvilViewerWrapper } from "./viewer/AnvilViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { LayoutSystem } from "layoutSystems/types";
+import { AnvilMainCanvas } from "./canvas/AnvilMainCanvas";
 import { AnvilCanvas } from "./canvas/AnvilCanvas";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 /**
  * getAnvilSystemPropsEnhancer
@@ -12,6 +14,12 @@ import { AnvilCanvas } from "./canvas/AnvilCanvas";
  *
  */
 const getAnvilSystemPropsEnhancer = (props: BaseWidgetProps) => {
+  const _props = { ...props };
+  if (props.detachFromLayout) {
+    // Add className to detached widgets
+    _props.className = getAnvilWidgetDOMId(props.widgetId);
+    return _props;
+  }
   return props;
 };
 
@@ -27,7 +35,8 @@ const getAnvilSystemWrapper = (renderMode: RenderModes) => {
  *
  * @returns current canvas component.
  */
-const getAnvilCanvasWrapper = () => {
+const getAnvilCanvasWrapper = (renderMode: RenderModes) => {
+  if (renderMode === RenderModes.CANVAS) return AnvilMainCanvas;
   return AnvilCanvas;
 };
 
@@ -46,7 +55,7 @@ const getAnvilCanvasPropsEnhancer = (props: BaseWidgetProps) => {
 export function getAnvilLayoutSystem(renderMode: RenderModes): LayoutSystem {
   return {
     canvasSystem: {
-      Canvas: getAnvilCanvasWrapper(),
+      Canvas: getAnvilCanvasWrapper(renderMode),
       propertyEnhancer: getAnvilCanvasPropsEnhancer,
     },
     widgetSystem: {

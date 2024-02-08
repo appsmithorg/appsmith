@@ -12,6 +12,12 @@
 :root {
   /* TODO: This needs to be fixed! This override is to maintain branding changes. */
   --ads-color-background-secondary: var(--ads-v2-color-bg-subtle);
+  /* All on canvas ui need to be above other editor elements
+     This includes the Modal overlay.
+     The maximum value of z-index in the theme is 9999.
+     This value makes sure that on-canvas ui is always above editor elements
+  */
+  --on-canvas-ui-z-index: 999999;
 }
 
 body {
@@ -247,4 +253,16 @@ div.bp3-popover-arrow {
 
 .reconnect-datasource-modal {
   z-index: 9 !important;
+}
+
+/** Conditional vertical margin applied to widgets.
+    If in a row of widgets (.aligned-widget-row), one of the widgets has a label ([data-field-label-wrapper]), then
+    all widgets (.anvil-widget-wrapper) in the row other than the widget with the label, will shift down using the 
+    margin-block-start property. This is to ensure that the widgets are aligned vertically.
+
+    The value of the margin-block-start property is calculated based on the spacing tokens used by the labels in input like components
+*/
+.aligned-widget-row:has(.anvil-widget-wrapper [data-field-label-wrapper])
+  .anvil-widget-wrapper:not(:has([data-field-label-wrapper])) {
+  margin-block-start: calc(var(--inner-spacing-2) + var(--sizing-3));
 }

@@ -6,10 +6,6 @@ import type {
   Workspace,
 } from "@appsmith/constants/workspaceConstants";
 
-export interface FetchWorkspaceRolesResponse extends ApiResponse {
-  data: WorkspaceRole[];
-}
-
 export interface FetchWorkspacesResponse extends ApiResponse {
   data: Workspace[];
 }
@@ -67,17 +63,11 @@ export interface CreateWorkspaceRequest {
 }
 
 class WorkspaceApi extends Api {
-  static rolesURL = "v1/groups";
   static workspacesURL = "v1/workspaces";
-  static async fetchRoles(): Promise<
-    AxiosPromise<FetchWorkspaceRolesResponse>
-  > {
-    return Api.get(WorkspaceApi.rolesURL);
-  }
-  static async fetchWorkspaces(): Promise<
+  static async fetchAllWorkspaces(): Promise<
     AxiosPromise<FetchWorkspacesResponse>
   > {
-    return Api.get(WorkspaceApi.workspacesURL);
+    return Api.get(`${WorkspaceApi.workspacesURL}/home`);
   }
   static async fetchWorkspace(
     request: FetchWorkspaceRequest,

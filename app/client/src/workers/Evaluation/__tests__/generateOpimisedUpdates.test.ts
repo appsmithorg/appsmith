@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { applyChange } from "deep-diff";
 import produce from "immer";
+import { klona } from "klona/full";
 import { range } from "lodash";
 import moment from "moment";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "sagas/EvaluationSaga.utils";
@@ -109,46 +110,6 @@ describe("generateOptimisedUpdates", () => {
           rhs: validationError,
         },
       ]);
-    });
-    describe("ignore invalid moment updates", () => {
-      test("should generate a null update when it sees an invalid moment object", () => {
-        const newState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = moment("invalid value") as any;
-        });
-        const updates = generateOptimisedUpdates(oldState, newState);
-        expect(updates).toEqual([
-          { kind: "E", path: ["Table1", "pageSize"], lhs: 0, rhs: null },
-        ]);
-      });
-      test("should generate a regular update when it sees a valid moment object", () => {
-        const validMoment = moment();
-        const newState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = validMoment as any;
-        });
-        const updates = generateOptimisedUpdates(oldState, newState);
-        expect(updates).toEqual([
-          { kind: "E", path: ["Table1", "pageSize"], lhs: 0, rhs: validMoment },
-        ]);
-      });
-      test("should generate no diff update when prev state is already null", () => {
-        const prevState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = null as any;
-          draft.Table1.triggerRowSelection = undefined as any;
-        });
-        const newState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = moment("invalid value") as any;
-          draft.Table1.triggerRowSelection = moment("invalid value") as any;
-        });
-        const updates = generateOptimisedUpdates(prevState, newState);
-        expect(updates).toEqual([
-          {
-            kind: "E",
-            path: ["Table1", "triggerRowSelection"],
-            lhs: undefined,
-            rhs: null,
-          },
-        ]);
-      });
     });
   });
 
@@ -507,5 +468,164 @@ describe("generateSerialisedUpdates and parseUpdatesAndDeleteUndefinedUpdates", 
     });
 
     expect(parseAndApplyUpdatesToOldState).toEqual(expectedState);
+  });
+  describe("serialise momement updates directly", () => {
+    test("should generate a null update when it sees an invalid moment object", () => {
+      const newState = produce(oldState, (draft) => {
+        draft.Table1.pageSize = moment("invalid value") as any;
+      });
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        oldState,
+        newState,
+        {},
+      );
+      const serialisedExpectedOutput = JSON.stringify([
+        { kind: "E", rhs: null, path: ["Table1", "pageSize"] },
+      ]);
+      expect(serialisedUpdates).toEqual(serialisedExpectedOutput);
+    });
+    test("should generate a regular update when it sees a valid moment object", () => {
+      const validMoment = moment();
+      const newState = produce(oldState, (draft) => {
+        draft.Table1.pageSize = validMoment as any;
+      });
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        oldState,
+        newState,
+        {},
+      );
+      const serialisedExpectedOutput = JSON.stringify([
+        { kind: "E", rhs: validMoment, path: ["Table1", "pageSize"] },
+      ]);
+      expect(serialisedUpdates).toEqual(serialisedExpectedOutput);
+    });
+  });
+  // we are testing a flow from worker thread diff updates to being applied to the main thread's state
+  describe("test main thread update flow", () => {
+    //this function takes in serialised updates from the webworker and applies it to the main thread's state
+    function generateMainThreadStateFromSerialisedUpdates(
+      serialisedUpdates: any,
+      prevState: any,
+    ) {
+      const parsedUpdates =
+        parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
+      return produce(prevState, (draft: any) => {
+        parsedUpdates.forEach((v: any) => {
+          applyChange(draft, undefined, v);
+        });
+      });
+    }
+    let workerStateWithCollection: any;
+    let mainThreadStateWithCollection: any;
+    const someDate = "2023-12-07T19:05:11.830Z";
+    test("large moment collection updates should be serialised, we should always see ISO string and no moment object properties", () => {
+      const largeCollection = [] as any;
+      for (let i = 0; i < 110; i++) {
+        largeCollection.push({ i, c: moment(someDate) });
+      }
+      //attaching a collection to some property in the workerState
+      workerStateWithCollection = produce(oldState, (draft) => {
+        draft.Table1.pageSize = largeCollection as any;
+      });
+      //generate serialised diff updates
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        oldState,
+        workerStateWithCollection,
+        {},
+      );
+      // parsing the updates generated by worker and applying it back to the main threadState
+      mainThreadStateWithCollection =
+        generateMainThreadStateFromSerialisedUpdates(
+          serialisedUpdates,
+          oldState,
+        );
+
+      const expectedMainThreadState = produce(oldState, (draft) => {
+        draft.Table1.pageSize = JSON.parse(
+          JSON.stringify(largeCollection),
+        ) as any;
+      });
+      //check first value has the correct date
+      expect(mainThreadStateWithCollection.Table1.pageSize[0].c).toEqual(
+        someDate,
+      );
+
+      expect(mainThreadStateWithCollection).toEqual(expectedMainThreadState);
+    });
+    test("update in a single moment value in a collection should always be serialised ", () => {
+      const someNewDate = "2023-12-07T19:05:11.930Z";
+      // updating a single value in the prev worker state
+      const updatedWorkerStateWithASingleValue = produce(
+        klona(workerStateWithCollection),
+        (draft: any) => {
+          draft.Table1.pageSize[0].c = moment(someNewDate) as any;
+        },
+      );
+
+      //generate serialised diff updates
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        workerStateWithCollection,
+        updatedWorkerStateWithASingleValue,
+        {},
+      );
+
+      // parsing the updates generated by worker and applying it back to the main threadState
+      const updatedMainThreadState =
+        generateMainThreadStateFromSerialisedUpdates(
+          serialisedUpdates,
+          mainThreadStateWithCollection,
+        ) as any;
+      // check if the main thread state has the updated value
+      expect(updatedMainThreadState.Table1.pageSize[0].c).toEqual(someNewDate);
+
+      const expectedMainThreadState = produce(
+        mainThreadStateWithCollection,
+        (draft: any) => {
+          draft.Table1.pageSize[0].c = JSON.parse(
+            JSON.stringify(moment(someNewDate)),
+          ) as any;
+        },
+      );
+
+      expect(updatedMainThreadState).toEqual(expectedMainThreadState);
+    });
+    test("update in a single moment value to an invalid value should always be serialised ", () => {
+      //some garbage value
+      const someNewDate = "fdfdfd";
+      // updating a single value in the prev worker state
+      const updatedWorkerStateWithASingleValue = produce(
+        klona(workerStateWithCollection),
+        (draft: any) => {
+          draft.Table1.pageSize[0].c = moment(someNewDate) as any;
+        },
+      );
+
+      //generate serialised diff updates
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        workerStateWithCollection,
+        updatedWorkerStateWithASingleValue,
+        {},
+      );
+
+      // parsing the updates generated by worker and applying it back to the main threadState
+      const updatedMainThreadState =
+        generateMainThreadStateFromSerialisedUpdates(
+          serialisedUpdates,
+          mainThreadStateWithCollection,
+        ) as any;
+      // check if the main thread state has the updated invalid value which should be null
+      expect(updatedMainThreadState.Table1.pageSize[0].c).toEqual(null);
+
+      const expectedMainThreadState = produce(
+        mainThreadStateWithCollection,
+        (draft: any) => {
+          draft.Table1.pageSize[0].c = JSON.parse(
+            JSON.stringify(moment(someNewDate)),
+          ) as any;
+        },
+      );
+
+      expect(updatedMainThreadState).toEqual(expectedMainThreadState);
+    });
   });
 });

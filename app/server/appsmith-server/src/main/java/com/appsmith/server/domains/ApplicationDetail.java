@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.server.domains.ce.ApplicationDetailCE;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,13 +9,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
-public class ApplicationDetail {
-    Application.AppPositioning appPositioning;
-    Application.NavigationSetting navigationSetting;
-
+@EqualsAndHashCode(callSuper = true)
+public class ApplicationDetail extends ApplicationDetailCE {
     public ApplicationDetail() {
-        this.appPositioning = null;
-        this.navigationSetting = null;
+        super();
     }
 }

@@ -11,8 +11,6 @@ const StyledThemeProvider = styled(ThemeProvider)`
   padding: 16px;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg);
-  color: var(--color-fg);
 `;
 
 export const theming = (Story, args) => {

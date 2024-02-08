@@ -10,9 +10,9 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("", () => {
+describe("", { tags: ["@tag.Widget", "@tag.Chart"] }, () => {
   before(() => {
-    entityExplorer.DragNDropWidget(draggableWidgets.CHART);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHART);
   });
 
   it("1. Test Series tile chart", () => {
@@ -85,7 +85,10 @@ describe("", () => {
     agHelper.AssertElementAbsence(
       propPane._selectPropDropdown("x-axis label orientation"),
     );
-    propPane.SelectPropertiesDropDown("Chart Type", "Custom Fusion Charts");
+    propPane.SelectPropertiesDropDown(
+      "Chart Type",
+      "Custom Fusion Charts (deprecated)",
+    );
     agHelper.AssertElementAbsence(
       propPane._selectPropDropdown("x-axis label orientation"),
     );

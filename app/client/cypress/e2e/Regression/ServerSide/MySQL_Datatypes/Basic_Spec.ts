@@ -14,20 +14,14 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let dsName: any, query: string;
 
-describe("MySQL Datatype tests", function () {
+describe("MySQL Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   before("Load dsl, Change theme, Create Mysql DS", () => {
-    featureFlagIntercept(
-      {
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      },
-      false,
-    );
     agHelper.AddDsl("Datatypes/mySQLdsl");
 
     appSettings.OpenPaneAndChangeTheme("Moon");
@@ -45,18 +39,6 @@ describe("MySQL Datatype tests", function () {
 
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
     dataSources.RunQuery();
-
-    //Creating SELECT query
-    dataSources.createQueryWithDatasourceSchemaTemplate(
-      dsName,
-      inputData.tableName,
-      "Select",
-    );
-    agHelper.RenameWithInPane("selectRecords");
-    dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
 
     //Other queries
     query = inputData.query.insertRecord;
@@ -76,6 +58,18 @@ describe("MySQL Datatype tests", function () {
     );
     agHelper.RenameWithInPane("dropTable");
     dataSources.EnterQuery(query);
+
+    //Creating SELECT query
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      inputData.tableName,
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
   });
 
   //Insert valid/true values into datasource
@@ -144,7 +138,8 @@ describe("MySQL Datatype tests", function () {
 
       //DS deletion
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
         (type) => {
           entityExplorer.ActionContextMenuByEntityName({
@@ -156,7 +151,6 @@ describe("MySQL Datatype tests", function () {
       );
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );

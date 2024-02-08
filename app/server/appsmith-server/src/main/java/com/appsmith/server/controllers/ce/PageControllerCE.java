@@ -71,7 +71,7 @@ public class PageControllerCE {
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(
             @RequestBody @NonNull CRUDPageResourceDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug(
                 "Going to create crud-page in application {}, branchName {}", resource.getApplicationId(), branchName);
         return createDBTablePageSolution
@@ -86,7 +86,7 @@ public class PageControllerCE {
             @PathVariable String defaultPageId,
             @NonNull @RequestBody CRUDPageResourceDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to create CRUD page {}, branchName {}", defaultPageId, branchName);
         return createDBTablePageSolution
                 .createPageFromDBTable(defaultPageId, resource, environmentId, branchName, Boolean.TRUE)
@@ -118,9 +118,10 @@ public class PageControllerCE {
     @GetMapping("/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> getPageById(
             @PathVariable String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl) {
         return applicationPageService
-                .getPageByBranchAndDefaultPageId(defaultPageId, branchName, false)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, false, migrateDsl)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
@@ -128,9 +129,10 @@ public class PageControllerCE {
     @GetMapping("/{defaultPageId}/view")
     public Mono<ResponseDTO<PageDTO>> getPageView(
             @PathVariable String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl) {
         return applicationPageService
-                .getPageByBranchAndDefaultPageId(defaultPageId, branchName, true)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, true, migrateDsl)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 

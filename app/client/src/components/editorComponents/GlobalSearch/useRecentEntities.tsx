@@ -8,7 +8,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { FocusEntity } from "navigation/FocusEntity";
 import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
 import { useMemo } from "react";
@@ -35,7 +35,7 @@ const useResentEntities = (): Array<
       (recentEntities || emptyArr)
         .map((entity) => {
           const { id, pageId, type } = entity;
-          if (type === FocusEntity.PAGE) {
+          if (type === FocusEntity.EDITOR) {
             if (!pages) return null;
             const result = pages.find((page) => page.pageId === id);
             if (result) {

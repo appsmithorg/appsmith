@@ -1,11 +1,13 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -24,7 +26,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -39,9 +40,9 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -59,8 +60,8 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     private final ExportableService<Datasource> datasourceExportableService;
     private final ExportableService<Plugin> pluginExportableService;
     private final ExportableService<NewPage> newPageExportableService;
-    private final ExportableService<NewAction> newActionExportableService;
-    private final ExportableService<ActionCollection> actionCollectionExportableService;
+    protected final ExportableService<NewAction> newActionExportableService;
+    protected final ExportableService<ActionCollection> actionCollectionExportableService;
     private final ExportableService<Theme> themeExportableService;
     private final ExportableService<CustomJSLib> customJSLibExportableService;
 
@@ -70,8 +71,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
      * @param applicationId which needs to be exported
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> exportApplicationById(
-            String applicationId, SerialiseApplicationObjective serialiseFor) {
+    public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseArtifactObjective serialiseFor) {
 
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
@@ -86,15 +86,15 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
         ApplicationJson applicationJson = new ApplicationJson();
         final MappedExportableResourcesDTO mappedResourcesDTO = new MappedExportableResourcesDTO();
         final ExportingMetaDTO exportingMetaDTO = new ExportingMetaDTO();
-        exportingMetaDTO.setApplicationId(applicationId);
+        exportingMetaDTO.setArtifactId(applicationId);
         exportingMetaDTO.setBranchName(null);
 
         if (applicationId == null || applicationId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)
-                || SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseFor);
+        boolean isGitSync = SerialiseArtifactObjective.VERSION_CONTROL.equals(serialiseFor)
+                || SerialiseArtifactObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseFor);
         exportingMetaDTO.setIsGitSync(isGitSync);
         exportingMetaDTO.setExportWithConfiguration(false);
 
@@ -134,17 +134,17 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
                     boolean isServerSchemaMigrated =
                             !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
-                    exportingMetaDTO.setApplicationLastCommittedAt(applicationLastCommittedAt);
+                    exportingMetaDTO.setArtifactLastCommittedAt(applicationLastCommittedAt);
                     exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
                     exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
                     applicationJson.setExportedApplication(application);
-                    applicationJson.setUpdatedResources(new ConcurrentHashMap<>());
+                    applicationJson.setModifiedResources(new ModifiedResources());
 
                     List<String> unpublishedPages = application.getPages().stream()
                             .map(ApplicationPage::getId)
                             .collect(Collectors.toList());
 
-                    exportingMetaDTO.setUnpublishedPages(unpublishedPages);
+                    exportingMetaDTO.setUnpublishedModulesOrPages(unpublishedPages);
 
                     return getExportableEntities(exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
                             .then(Mono.defer(() -> sanitizeEntities(
@@ -182,8 +182,8 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                 .thenReturn(applicationJson);
     }
 
-    private Mono<Void> sanitizeEntities(
-            SerialiseApplicationObjective serialiseFor,
+    protected Mono<Void> sanitizeEntities(
+            SerialiseArtifactObjective serialiseFor,
             ApplicationJson applicationJson,
             MappedExportableResourcesDTO mappedResourcesDTO,
             ExportingMetaDTO exportingMetaDTO) {
@@ -265,13 +265,15 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
 
         Mono<Void> combinedActionExportablesMono = actionCollectionExportablesMono.then(newActionExportablesMono);
 
-        return List.of(combinedActionExportablesMono);
+        List<Mono<Void>> monos = new ArrayList<>();
+        monos.add(combinedActionExportablesMono);
+        return monos;
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
         return applicationService
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getExportPermission())
-                .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
+                .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseArtifactObjective.SHARE));
     }
 
     public Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName) {
@@ -287,7 +289,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
             responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
             ExportFileDTO exportFileDTO = new ExportFileDTO();
-            exportFileDTO.setApplicationResource(jsonObject);
+            exportFileDTO.setArtifactResource(jsonObject);
             exportFileDTO.setHttpHeaders(responseHeaders);
             return exportFileDTO;
         });

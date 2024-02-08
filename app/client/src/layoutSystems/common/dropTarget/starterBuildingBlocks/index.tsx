@@ -6,12 +6,16 @@ import {
 } from "@appsmith/constants/messages";
 import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { importStarterBuildingBlockIntoApplication } from "actions/templateActions";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import {
+  importStarterBuildingBlockIntoApplication,
+  showTemplatesModal,
+} from "actions/templateActions";
 import {
   STARTER_BUILDING_BLOCKS,
   STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
 } from "constants/TemplatesConstants";
+import { Button, Text } from "design-system";
 import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -26,12 +30,7 @@ import {
   TemplateLayoutContentGrid,
   TemplateLayoutContentItem,
   TemplateLayoutContentItemContent,
-  TemplateLayoutDragAndDropText,
   TemplateLayoutFrame,
-  TemplateLayoutHeaderText,
-  TemplateLayoutOrText,
-  TemplateLayoutRowItemDescription,
-  TemplateLayoutRowItemTitle,
 } from "./StyledComponents";
 
 function StarterBuildingBlocks() {
@@ -41,6 +40,7 @@ function StarterBuildingBlocks() {
   const [templateSreenshot, setTemplateScreenshot] = useState<string | null>(
     null,
   ); // manage template background screenshot image
+
   const currentApplication = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
   const currentWorkSpace = useSelector(getCurrentAppWorkspace);
@@ -83,7 +83,7 @@ function StarterBuildingBlocks() {
       ),
     );
 
-    AnalyticsUtil.logEvent("FORK_APLICATIONTEMPLATE", {
+    AnalyticsUtil.logEvent("fork_APPLICATIONTEMPLATE", {
       applicationId: currentApplication?.id,
       workspaceId: currentWorkSpace.id,
       source: "canvas",
@@ -93,6 +93,15 @@ function StarterBuildingBlocks() {
         templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
         templatePageName,
       },
+    });
+  };
+
+  const onSeeMoreClick = () => {
+    dispatch(showTemplatesModal({ isOpenFromCanvas: true }));
+    AnalyticsUtil.logEvent("STARTER_BUILDING_BLOCK_SEE_MORE_CLICK", {
+      applicationId: currentApplication?.id,
+      workspaceId: currentWorkSpace.id,
+      source: "canvas",
     });
   };
 
@@ -107,18 +116,30 @@ function StarterBuildingBlocks() {
   }
 
   return (
-    <TemplateLayoutFrame screenshot={templateSreenshot}>
+    <TemplateLayoutFrame
+      data-testid="t--canvas-building-block-frame"
+      screenshot={templateSreenshot}
+    >
       <TemplateLayoutContainer
+        data-testid="t--canvas-building-block-container"
         onMouseEnter={() => setLayoutActive(true)}
         onMouseLeave={() => setLayoutActive(false)}
       >
-        <TemplateLayoutHeaderText layoutActive={layoutActive}>
+        <Text
+          kind="heading-m"
+          style={{
+            opacity: layoutActive ? "1" : "0.7",
+            color: "var(--colors-semantics-text-emphasis)",
+            marginBottom: "16px",
+          }}
+        >
           {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header)}
-        </TemplateLayoutHeaderText>
+        </Text>
 
         <TemplateLayoutContentGrid>
           {layoutItems.map((item, index) => (
             <TemplateLayoutContentItem
+              data-testid="t--canvas-building-block-item"
               key={item.id}
               onClick={() =>
                 onClick(
@@ -138,25 +159,42 @@ function StarterBuildingBlocks() {
               </IconContainer>
 
               <TemplateLayoutContentItemContent>
-                <TemplateLayoutRowItemTitle layoutActive={layoutActive}>
+                <Text
+                  kind={"heading-xs"}
+                  style={{
+                    color:
+                      "var(--colors-ui-content-heading-sub-section-heading)",
+                    opacity: layoutActive ? "1" : "0.7",
+                    fontWeight: 500,
+                  }}
+                >
                   {item.title}
-                </TemplateLayoutRowItemTitle>
-                <TemplateLayoutRowItemDescription layoutActive={layoutActive}>
+                </Text>
+                <Text
+                  kind="body-s"
+                  style={{
+                    color: "var(--colors-ui-content-supplementary)",
+                    opacity: layoutActive ? "1" : "0.7",
+                    textAlign: "center",
+                  }}
+                >
                   {item.description}
-                </TemplateLayoutRowItemDescription>
+                </Text>
               </TemplateLayoutContentItemContent>
             </TemplateLayoutContentItem>
           ))}
         </TemplateLayoutContentGrid>
+
+        <Button
+          className="mt-4"
+          data-testid="t--canvas-building-block-see-more"
+          kind="tertiary"
+          onClick={onSeeMoreClick}
+          size="md"
+        >
+          {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.seeMoreText)}
+        </Button>
       </TemplateLayoutContainer>
-
-      <TemplateLayoutOrText layoutActive={layoutActive}>
-        {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.or)}
-      </TemplateLayoutOrText>
-
-      <TemplateLayoutDragAndDropText layoutActive={layoutActive}>
-        {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.dragAndDrop)}
-      </TemplateLayoutDragAndDropText>
     </TemplateLayoutFrame>
   );
 }

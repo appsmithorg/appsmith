@@ -33,18 +33,20 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import type { JSAction } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import type { ActionEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { logActionExecutionError } from "./ActionExecution/errorUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import type {
   EvalTreeResponseData,
   JSVarMutatedEvents,
 } from "workers/Evaluation/types";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { getCollectionNameToDisplay } from "@appsmith/utils/actionExecutionUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -198,6 +200,7 @@ export function* updateTernDefinitions(
   isCreateFirstTree: boolean,
   jsData: Record<string, unknown> = {},
 ) {
+  const span = startRootSpan("updateTernDefinitions");
   const shouldUpdate: boolean =
     isCreateFirstTree ||
     some(updates, (update) => {
@@ -215,7 +218,10 @@ export function* updateTernDefinitions(
       );
     });
 
-  if (!shouldUpdate) return;
+  if (!shouldUpdate) {
+    endSpan(span);
+    return;
+  }
   const start = performance.now();
 
   // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
@@ -232,23 +238,30 @@ export function* updateTernDefinitions(
   const end = performance.now();
   log.debug("Tern", { updates });
   log.debug("Tern definitions updated took ", (end - start).toFixed(2));
+  endSpan(span);
 }
 
 export function* handleJSFunctionExecutionErrorLog(
-  collectionId: string,
-  collectionName: string,
   action: JSAction,
+  collection: JSCollection,
   errors: any[],
 ) {
+  const { id: collectionId, name: collectionName } = collection;
+
+  const collectionNameToDisplay = getCollectionNameToDisplay(
+    action,
+    collectionName,
+  );
+
   errors.length
     ? AppsmithConsole.addErrors([
         {
           payload: {
             id: `${collectionId}-${action.id}`,
             logType: LOG_TYPE.EVAL_ERROR,
-            text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
-              action.name
-            }`,
+            text: `${createMessage(
+              JS_EXECUTION_FAILURE,
+            )}: ${collectionNameToDisplay}.${action.name}`,
             messages: errors.map((error) => {
               // TODO: Remove this check once we address uncaught promise errors
               let errorMessage = error.errorMessage;
@@ -272,7 +285,7 @@ export function* handleJSFunctionExecutionErrorLog(
             }),
             source: {
               id: action.collectionId ? action.collectionId : action.id,
-              name: collectionName,
+              name: collectionNameToDisplay,
               type: ENTITY_TYPE.JSACTION,
               propertyPath: `${action.name}`,
             },

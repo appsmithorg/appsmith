@@ -5,6 +5,7 @@ import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getNumberOfEntitiesInCurrentPage,
+  getSelectedTableName,
 } from "@appsmith/selectors/entitiesSelector";
 import DatasourceStructureHeader from "./DatasourceStructureHeader";
 import { Button } from "design-system";
@@ -47,6 +48,10 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
+import { useEditorType } from "@appsmith/hooks";
+import history from "utils/history";
+import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
+import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
 
 interface Props {
   datasource: Datasource;
@@ -73,21 +78,23 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  const editorType = useEditorType(history.location.pathname);
+
   const canCreatePages = getHasCreatePagePermission(
     isFeatureEnabled,
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isFeatureEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const applicationId: string = useSelector(getCurrentApplicationId);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
 
-  const [tableName, setTableName] = useState("");
   const [previewData, setPreviewData] = useState([]);
   // this error is for when there's an issue with the datasource structure
   const [previewDataError, setPreviewDataError] = useState(false);
@@ -99,8 +106,12 @@ const DatasourceViewModeSchema = (props: Props) => {
       : GENERATE_PAGE_MODE.REPLACE_EMPTY,
   );
 
+  const tableName = useSelector(getSelectedTableName);
+
   const { failedFetchingPreviewData, fetchPreviewData, isLoading } =
     useDatasourceQuery({ setPreviewData, setPreviewDataError });
+
+  const isGeneratePageLoading = useSelector(getIsGeneratingTemplatePage);
 
   // default table name to first table
   useEffect(() => {
@@ -109,7 +120,11 @@ const DatasourceViewModeSchema = (props: Props) => {
       !!datasourceStructure.tables &&
       datasourceStructure.tables?.length > 0
     ) {
-      setTableName(datasourceStructure.tables[0].name);
+      dispatch(
+        setDatasourcePreviewSelectedTableName(
+          datasourceStructure.tables[0].name,
+        ),
+      );
     }
 
     // if the datasource structure is loading or undefined or if there's an error in the structure
@@ -122,7 +137,7 @@ const DatasourceViewModeSchema = (props: Props) => {
     ) {
       setPreviewData([]);
       setPreviewDataError(true);
-      setTableName("");
+      dispatch(setDatasourcePreviewSelectedTableName(""));
     }
   }, [datasourceStructure, isDatasourceStructureLoading]);
 
@@ -175,7 +190,8 @@ const DatasourceViewModeSchema = (props: Props) => {
       datasourceId: props.datasource.id,
       pluginId: props.datasource.pluginId,
     });
-    setTableName(table);
+    // This sets table name in redux state to be used to create appropriate query
+    dispatch(setDatasourcePreviewSelectedTableName(table));
   };
 
   const generatePageAction = () => {
@@ -272,8 +288,9 @@ const DatasourceViewModeSchema = (props: Props) => {
         <ButtonContainer>
           <Button
             className="t--datasource-generate-page"
+            isLoading={isGeneratePageLoading}
             key="datasource-generate-page"
-            kind="secondary"
+            kind="primary"
             onClick={generatePageAction}
             size="md"
           >

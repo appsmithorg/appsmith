@@ -1,9 +1,9 @@
 import {
   agHelper,
+  deployMode,
   draggableWidgets,
   entityExplorer,
   locators,
-  deployMode,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
@@ -12,7 +12,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("Statbox spec", () => {
+describe("Statbox spec", { tags: ["@tag.Widget", "@tag.Statbox"] }, () => {
   before(() => {
     /**
      * On the canvas we have a Statbox Widget
@@ -56,7 +56,7 @@ describe("Statbox spec", () => {
     });
   });
   it("2. Validate if the default widgets are present inside the statbox", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.assertPresence("Statbox1");
     PageLeftPane.expandCollapseItem("Statbox1");
     PageLeftPane.assertPresence("Text1");
@@ -65,6 +65,7 @@ describe("Statbox spec", () => {
     PageLeftPane.assertPresence("Text3");
   });
   it("3. Validate visibility", () => {
+    EditorNavigation.SelectEntityByName("Statbox1", EntityType.Widget);
     propPane.MoveToTab("Content");
     propPane.TogglePropertyState("Visible", "Off");
     // Ensure that the widget isnt visible once deployed
@@ -94,12 +95,12 @@ describe("Statbox spec", () => {
   });
 
   it("4. Validate if widgets can be D&D inside the Statbox widget", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.expandCollapseItem("Statbox1");
     propPane.DeleteWidgetFromPropertyPane("IconButton1");
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.ICONBUTTON, 260, 189);
     //Verifying if the dropped widget exists in the container
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.expandCollapseItem("Statbox1");
     PageLeftPane.assertPresence("IconButton1");
     //Verifying if the dropped widget exists once deployed
@@ -142,6 +143,7 @@ describe("Statbox spec", () => {
   });
 
   it("6. Rename, copy-paste and delete the widget", () => {
+    EditorNavigation.SelectEntityByName("Statbox1", EntityType.Widget);
     entityExplorer.RenameEntityFromExplorer("Statbox1", "Stats", true);
     propPane.CopyPasteWidgetFromPropertyPane("Stats");
     entityExplorer.DeleteWidgetFromEntityExplorer("Stats");

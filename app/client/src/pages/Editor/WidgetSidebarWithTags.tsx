@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
@@ -21,6 +21,10 @@ import {
   SearchInput,
   Text,
 } from "design-system";
+import {
+  WIDGET_PANEL_EMPTY_MESSAGE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
@@ -29,6 +33,16 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
     useState<WidgetCardsGroupedByTags>(groupedCards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+
+  const searchWildcards = useMemo(() => {
+    return cards
+      .filter((card) => card.isSearchWildcard)
+      .map((card) => ({
+        ...card,
+        tags: [WIDGET_TAGS.SUGGESTED_WIDGETS],
+      }));
+  }, [cards]);
 
   const fuse = useMemo(() => {
     const options = {
@@ -65,16 +79,20 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
 
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
-      setFilteredCards(groupWidgetCardsByTags(searchResult));
+
+      if (searchResult.length > 0) {
+        setFilteredCards(groupWidgetCardsByTags(searchResult));
+      } else {
+        setFilteredCards(groupWidgetCardsByTags(searchWildcards));
+      }
+
+      setIsEmpty(searchResult.length === 0);
     } else {
       setFilteredCards(groupedCards);
       setIsSearching(false);
+      setIsEmpty(false);
     }
   };
-
-  useEffect(() => {
-    if (isActive) searchInputRef.current?.focus();
-  }, [isActive]);
 
   const search = debounce((value: string) => {
     filterCards(value.toLowerCase());
@@ -89,7 +107,6 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
           autoComplete="off"
-          autoFocus
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
           placeholder="Search widgets"
@@ -101,6 +118,17 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
         className="flex-grow px-3 mt-2 overflow-y-scroll"
         data-testid="widget-sidebar-scrollable-wrapper"
       >
+        {isEmpty && (
+          <Text
+            color="#6A7585"
+            kind="body-m"
+            renderAs="p"
+            style={{ marginBottom: "15px" }}
+          >
+            {createMessage(WIDGET_PANEL_EMPTY_MESSAGE)} `
+            {searchInputRef.current?.value}`
+          </Text>
+        )}
         <div>
           {Object.keys(filteredCards).map((tag) => {
             const cardsForThisTag: WidgetCardProps[] =
@@ -111,7 +139,11 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
             }
 
             // We don't need to show suggested widgets when the user is searching
-            if (isSearching && tag === WIDGET_TAGS.SUGGESTED_WIDGETS) {
+            if (
+              isSearching &&
+              tag === WIDGET_TAGS.SUGGESTED_WIDGETS &&
+              !isEmpty
+            ) {
               return null;
             }
 

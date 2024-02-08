@@ -18,6 +18,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
@@ -41,7 +42,6 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
@@ -332,7 +332,7 @@ public class ActionExecutionSolutionCETest {
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
+                actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId, null);
         return actionExecutionResultMono;
     }
 
@@ -527,7 +527,8 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
-        Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> executionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -580,7 +581,8 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
-        Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> executionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -627,7 +629,8 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
-        Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> executionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -674,7 +677,8 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
-        Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> executionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -719,7 +723,7 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setViewMode(false);
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, null);
+                actionExecutionSolution.executeAction(executeActionDTO, null, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -764,7 +768,7 @@ public class ActionExecutionSolutionCETest {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
                     executeActionDTO.setViewMode(false);
-                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
+                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId, null);
                 });
 
         StepVerifier.create(resultMono)
@@ -1916,7 +1920,7 @@ public class ActionExecutionSolutionCETest {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
                     executeActionDTO.setViewMode(false);
-                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
+                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId, null);
                 });
 
         Mockito.doReturn(Mono.empty())

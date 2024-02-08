@@ -127,14 +127,17 @@ export function prepareWidgetsForAddition(
 ): WidgetLayoutProps[] | LayoutProps[] {
   if (!widgets || !widgets.length) return [];
 
-  const childTemplate: LayoutProps | null = Comp.getChildTemplate(layoutProps);
+  const childTemplate: LayoutProps | null = Comp.getChildTemplate(
+    layoutProps,
+    widgets,
+  );
 
   /**
    * If childTemplate is undefined,
    * return widgets as they are.
    * They will be added to the affected layout directly.
    */
-  if (!childTemplate) return widgets;
+  if (!childTemplate || childTemplate === null) return widgets;
 
   /**
    * Get the layout json of the new layout to wrap the widgets in.
@@ -185,4 +188,44 @@ export function addWidgetsToTemplate(
     );
   }
   return obj;
+}
+
+export function addWidgetsToChildTemplate(
+  layout: LayoutProps,
+  Comp: typeof BaseLayoutComponent,
+  draggedWidgets: WidgetLayoutProps[],
+  highlight: AnvilHighlightInfo,
+): LayoutProps {
+  /**
+   * Get the child template from the zone component.
+   */
+  let template: LayoutProps | null | undefined = Comp.getChildTemplate(
+    layout,
+    draggedWidgets,
+  );
+
+  if (template) {
+    template = { ...template, layoutId: generateReactKey() };
+    /**
+     * There is a template.
+     * => use the template to create the child layout.
+     * => add widgets to the child layout.
+     * => add child layout to the zone layout.
+     */
+    const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
+      template.layoutType,
+    );
+    /**
+     * If template has insertChild === true, then add the widgets to the layout.
+     */
+    if (template.insertChild) {
+      template = Comp.addChild(template, draggedWidgets, highlight);
+      return Comp.addChild(layout, [template], highlight);
+    }
+    // TODO: @Preet add check for absence of insertChild.
+  }
+  /**
+   * If no template is available, then add widgets directly to layout.
+   */
+  return Comp.addChild(layout, draggedWidgets, highlight);
 }

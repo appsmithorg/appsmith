@@ -1,5 +1,6 @@
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
+import { WDSThemePropertyPane } from "pages/Editor/WDSThemePropertyPane";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
@@ -13,8 +14,8 @@ import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
   APP_NAVIGATION_SETTING,
   createMessage,
-  GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER,
+  GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER_DESC,
   IN_APP_EMBED_SETTING,
   PAGE_SETTINGS_SECTION_CONTENT_HEADER,
@@ -27,13 +28,12 @@ import {
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
-import {
-  closeAppSettingsPaneAction,
-  updateAppSettingsPaneSelectedTabAction,
-} from "actions/appSettingsPaneActions";
+import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import BetaCard from "components/editorComponents/BetaCard";
 
 export enum AppSettingsTabs {
   General,
@@ -76,13 +76,14 @@ const PageSectionTitle = styled.p`
 
 const ThemeContentWrapper = styled.div`
   height: calc(100% - 48px);
-  overflow-y: overlay;
+  overflow-y: scroll;
 `;
 
 function AppSettings() {
   const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
   const dispatch = useDispatch();
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
     type: context?.type || AppSettingsTabs.General,
@@ -112,9 +113,13 @@ function AppSettings() {
         },
       }),
     );
-
     return () => {
-      dispatch(closeAppSettingsPaneAction());
+      dispatch(
+        updateAppSettingsPaneSelectedTabAction({
+          isOpen: false,
+          context: undefined,
+        }),
+      );
     };
   }, [selectedTab]);
 
@@ -192,7 +197,7 @@ function AppSettings() {
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />
         ))}
-        <Divider />
+        <Divider orientation={"horizontal"} />
         <PageSectionTitle>{PAGE_SETTINGS_SECTION_HEADER()}</PageSectionTitle>
         <DraggablePageList
           onPageSelect={(pageId: string) =>
@@ -221,12 +226,17 @@ function AppSettings() {
               return (
                 <>
                   <div className="px-4">
-                    <SectionTitle>
+                    <SectionTitle className="flex items-center gap-2">
                       {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
+                      <BetaCard />
                     </SectionTitle>
                   </div>
                   <ThemeContentWrapper>
-                    <ThemePropertyPane />
+                    {isWDSEnabled ? (
+                      <WDSThemePropertyPane />
+                    ) : (
+                      <ThemePropertyPane />
+                    )}
                   </ThemeContentWrapper>
                 </>
               );

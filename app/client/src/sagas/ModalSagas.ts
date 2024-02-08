@@ -49,16 +49,23 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
 } from "layoutSystems/common/utils/constants";
+import { getModalWidgetType } from "selectors/widgetSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
     const modalWidgetId = generateReactKey();
     const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    const modalWidgetType: string = yield select(getModalWidgetType);
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
     const newWidget: WidgetAddChild = {
       widgetId: MAIN_CONTAINER_WIDGET_ID,
       widgetName: action.payload.modalName,
-      type: WidgetTypes.MODAL_WIDGET,
+      type: modalWidgetType,
       newWidgetId: modalWidgetId,
       parentRowSpace: 1,
       parentColumnSpace: 1,
@@ -89,6 +96,19 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
           parentId: MAIN_CONTAINER_WIDGET_ID,
           direction: LayoutDirection.Vertical,
           addToBottom: true,
+        },
+      });
+    } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+      //TODO(#30604): Refactor to separate this logic from the anvil layout system
+      yield put({
+        type: AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET,
+        payload: {
+          highlight: { alignment: "none", canvasId: "0" },
+          newWidget: { ...newWidget, detachFromLayout: true },
+          dragMeta: {
+            draggedWidgetTypes: "WIDGETS",
+            draggedOn: "MAIN_CANVAS",
+          },
         },
       });
     } else {
@@ -169,6 +189,7 @@ export function* closeModalSaga(
 ) {
   try {
     const { modalName } = action.payload;
+
     let widgetIds: string[] = [];
     // If modalName is provided, we just want to close this modal
     if (modalName) {
@@ -185,11 +206,15 @@ export function* closeModalSaga(
       // If modalName is not provided, find all open modals
       // Get all meta prop records
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+      const modalWidgetType: string = yield select(getModalWidgetType);
 
       // Get widgetIds of all widgets of type MODAL_WIDGET
+      // Note: Not updating this code path for WDS_MODAL_WIDGET, as the functionality
+      // may require us to keep existing modals open.
+      // In this, the flow of switching back and forth between multiple modals is to be tested.
       const modalWidgetIds: string[] = yield select(
         getWidgetIdsByType,
-        WidgetTypes.MODAL_WIDGET,
+        modalWidgetType,
       );
 
       // Loop through all modal widgetIds

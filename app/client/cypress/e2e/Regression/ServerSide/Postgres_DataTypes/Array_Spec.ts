@@ -14,17 +14,13 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Array Datatype tests", function () {
+describe("Array Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
 
   before("Create DS, Add DS & setting theme", () => {
-    featureFlagIntercept({
-      ab_gsheet_schema_enabled: true,
-      ab_mock_mongo_schema_enabled: true,
-    });
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -34,23 +30,12 @@ describe("Array Datatype tests", function () {
   });
 
   it("1. Creating table query - arraytypes + Bug 14493", () => {
-    query = `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
-    dataSources.RunQuery();
-
-    //Creating SELECT query - arraytypes + Bug 14493
-    dataSources.createQueryWithDatasourceSchemaTemplate(
+    dataSources.CreateQueryForDS(
       dsName,
-      "public.arraytypes",
-      "Select",
+      `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`,
+      "createTable",
     );
-    agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
 
     //Creating other queries
     query = `INSERT INTO arraytypes ("name", "pay_by_quarter", "schedule")  VALUES ('{{Insertname.text}}', ARRAY{{Insertpaybyquarter.text.split(',').map(Number)}}, ARRAY[['{{Insertschedule.text.split(',').slice(0,2).toString()}}'],['{{Insertschedule.text.split(',').slice(2,4).toString()}}']]);`;
@@ -73,7 +58,17 @@ describe("Array Datatype tests", function () {
     query = `DROP table public."arraytypes"`;
     dataSources.CreateQueryFromOverlay(dsName, query, "dropTable"); //Creating query from EE overlay
 
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
+    //Creating SELECT query - arraytypes + Bug 14493
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.arraytypes",
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
   });
 
   it("2. Inserting record - arraytypes", () => {
@@ -169,8 +164,9 @@ describe("Array Datatype tests", function () {
   it("6. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    PageLeftPane.expandCollapseItem("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    dataSources.CreateQueryForDS(dsName);
     agHelper.RenameWithInPane("verifyArrayFunctions");
 
     query = `SELECT name FROM arraytypes WHERE pay_by_quarter[1] <> pay_by_quarter[2];`;
@@ -476,7 +472,7 @@ describe("Array Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("7. Deleting records - arraytypes", () => {
@@ -525,7 +521,6 @@ describe("Array Datatype tests", function () {
     EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.AssertQueryTableResponse(0, "0");
-    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes", false);
   });
 
@@ -534,13 +529,10 @@ describe("Array Datatype tests", function () {
     () => {
       //Verify Deletion of all created queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
       //Ds Deletion
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
       AppSidebar.navigate(AppSidebarButton.Editor);
     },

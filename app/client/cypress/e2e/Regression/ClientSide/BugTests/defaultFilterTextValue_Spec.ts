@@ -2,7 +2,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Select widget filterText", () => {
+describe("Select widget filterText", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     agHelper.AddDsl("defaultFilterText");
   });

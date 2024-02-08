@@ -11,17 +11,11 @@ import {
   START_WITH_DATA_CONNECT_SUBHEADING,
   START_WITH_DATA_SUBTITLE,
   START_WITH_DATA_TITLE,
-  START_WITH_TEMPLATE_CONNECT_HEADING,
-  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { AppState } from "@appsmith/reducers";
-import {
-  getApplicationByIdFromWorkspaces,
-  getCurrentPluginIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
+import { getCurrentPluginIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import {
   firstTimeUserOnboardingInit,
@@ -38,9 +32,9 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { Flex, Link, Text } from "design-system";
 import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { TemplateView } from "pages/Templates/TemplateView";
-import StartWithTemplates from "pages/Templates/StartWithTemplates";
-import { default as React, useEffect, useState } from "react";
+import { default as React, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   allTemplatesFiltersSelector,
@@ -49,16 +43,20 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
-import localStorage from "utils/localStorage";
-import { getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { fetchMockDatasources } from "actions/datasourceActions";
+import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
+import type { Datasource } from "entities/Datasource";
+import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
+import StartWithTemplatesWrapper from "./StartWithTemplatesWrapper";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -87,10 +85,8 @@ const BackWrapper = styled.div<{ hidden?: boolean }>`
   ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
 `;
 
-const TemplateWrapper = styled.div`
-  display: flex;
-  flex-grow: 1;
-  overflow: hidden;
+const LinkWrapper = styled(Link)<{ hidden?: boolean }>`
+  ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
 `;
 
 const OptionWrapper = styled.div`
@@ -188,18 +184,20 @@ const CreateNewAppsOption = ({
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
+  const applications = useSelector(getApplicationsOfWorkspace);
   const selectedPlugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, createNewAppPluginId || ""),
   );
-
-  const application = useSelector((state) =>
-    getApplicationByIdFromWorkspaces(
-      state,
-      currentApplicationIdForCreateNewApp,
-    ),
+  const application = applications.find(
+    (app) => app.id === currentApplicationIdForCreateNewApp,
   );
-  const isEnabledForStartWithData = useFeatureFlag(
-    FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
+
+  const selectedDatasource: Datasource | undefined = useSelector((state) =>
+    getDatasource(state, TEMP_DATASOURCE_ID || ""),
+  );
+
+  const isEnabledForStartWithDataDefault = useFeatureFlag(
+    FEATURE_FLAG.ab_start_with_data_default_enabled,
   );
 
   const dispatch = useDispatch();
@@ -229,28 +227,23 @@ const CreateNewAppsOption = ({
   };
 
   const onClickStartWithData = () => {
-    const devEnabled = localStorage.getItem(
-      "ab_onboarding_flow_start_with_data_dev_only_enabled",
-    );
-    if (devEnabled) {
-      // fetch plugins information to show list of all plugins
-      if (isEnabledForStartWithData) {
-        dispatch(fetchPlugins());
-        dispatch(fetchMockDatasources());
-        setUseType(START_WITH_TYPE.DATA);
-      }
-    } else {
-      if (application) {
-        AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
-        dispatch(
-          firstTimeUserOnboardingInit(
-            application.id,
-            application.defaultPageId as string,
-            "datasources/NEW",
-          ),
-        );
-      }
+    AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA", {
+      [FEATURE_FLAG.ab_start_with_data_default_enabled]:
+        isEnabledForStartWithDataDefault,
+    });
+    // fetch plugins information to show list of all plugins
+    dispatch(fetchPlugins({ workspaceId: application?.workspaceId }));
+    dispatch(fetchMockDatasources());
+    if (application?.workspaceId) {
+      dispatch(
+        fetchingEnvironmentConfigs({
+          editorId: application.id,
+          fetchDatasourceMeta: true,
+          workspaceId: application?.workspaceId,
+        }),
+      );
     }
+    setUseType(START_WITH_TYPE.DATA);
   };
 
   const goBackToInitialScreen = () => {
@@ -287,6 +280,43 @@ const CreateNewAppsOption = ({
     }
   };
 
+  const addAnalyticEventsForSkip = () => {
+    if (useType === START_WITH_TYPE.TEMPLATE) {
+      if (selectedTemplate) {
+        const template = getTemplateById(selectedTemplate);
+        if (template) {
+          AnalyticsUtil.logEvent(
+            "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_TEMPLATE_DETAILS_PAGE",
+            { title: template.title },
+          );
+        }
+      } else {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_START_FROM_TEMPLATE_PAGE",
+        );
+      }
+    } else if (useType === START_WITH_TYPE.DATA) {
+      if (createNewAppPluginId) {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_DATASOURCE_FORM_PAGE",
+          {
+            pluginId: createNewAppPluginId,
+            [FEATURE_FLAG.ab_start_with_data_default_enabled]:
+              isEnabledForStartWithDataDefault,
+          },
+        );
+      } else {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_START_FROM_DATA_PAGE",
+          {
+            [FEATURE_FLAG.ab_start_with_data_default_enabled]:
+              isEnabledForStartWithDataDefault,
+          },
+        );
+      }
+    }
+  };
+
   const onClickSkipButton = () => {
     if (application) {
       urlBuilder.updateURLParams(
@@ -308,9 +338,7 @@ const CreateNewAppsOption = ({
       );
     }
 
-    AnalyticsUtil.logEvent("START_FROM_TEMPLATES_CLICK_SKIP_BUTTON", {
-      startWithType: useType,
-    });
+    addAnalyticEventsForSkip();
   };
 
   const onClickBackButton = () => {
@@ -356,38 +384,64 @@ const CreateNewAppsOption = ({
     }
   };
 
+  const renderStartWithData = useCallback(() => {
+    return (
+      <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+        <Header
+          subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+          title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+        />
+        <WithDataWrapper>
+          {createNewAppPluginId && !!selectedDatasource ? (
+            selectedPlugin?.type === PluginType.SAAS ? (
+              <DatasourceForm
+                datasourceId={TEMP_DATASOURCE_ID}
+                isOnboardingFlow
+                pageId={application?.defaultPageId || ""}
+                pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
+              />
+            ) : (
+              <DataSourceEditor
+                applicationId={currentApplicationIdForCreateNewApp}
+                datasourceId={TEMP_DATASOURCE_ID}
+                isOnboardingFlow
+                pageId={application?.defaultPageId}
+              />
+            )
+          ) : (
+            <CreateNewDatasourceTab isOnboardingScreen />
+          )}
+        </WithDataWrapper>
+      </Flex>
+    );
+  }, [createNewAppPluginId, selectedDatasource, selectedPlugin]);
+
   const selectionOptions: CardProps[] = [
     {
+      onClick: onClickStartWithData,
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-with-data.svg`),
+      subTitle: createMessage(START_WITH_DATA_SUBTITLE),
+      testid: "t--start-from-data",
+      title: createMessage(START_WITH_DATA_TITLE),
+    },
+    {
       onClick: onClickStartFromScratch,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-scratch.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-from-scratch.svg`),
       subTitle: createMessage(START_FROM_SCRATCH_SUBTITLE),
       testid: "t--start-from-scratch",
       title: createMessage(START_FROM_SCRATCH_TITLE),
     },
     {
       onClick: onClickStartFromTemplate,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-usecase.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-from-templates.svg`),
       subTitle: createMessage(START_FROM_TEMPLATE_SUBTITLE),
       testid: "t--start-from-template",
       title: createMessage(START_FROM_TEMPLATE_TITLE),
     },
   ];
 
-  if (isEnabledForStartWithData) {
-    selectionOptions.unshift({
-      onClick: onClickStartWithData,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-data.png`),
-      subTitle: createMessage(START_WITH_DATA_SUBTITLE),
-      testid: "t--start-from-data",
-      title: createMessage(START_WITH_DATA_TITLE),
-    });
-  }
-
   useEffect(() => {
-    AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {
-      totalOptions: selectionOptions.length,
-    });
-    if (application)
+    if (application) {
       urlBuilder.updateURLParams(
         {
           applicationSlug: application.slug,
@@ -401,33 +455,51 @@ const CreateNewAppsOption = ({
         })),
       );
 
+      if (isEnabledForStartWithDataDefault) {
+        onClickStartWithData();
+      }
+    }
+  }, [application]);
+
+  useEffect(() => {
+    AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {
+      totalOptions: selectionOptions.length,
+    });
+
     return () => {
       resetCreateNewAppFlow();
     };
   }, []);
 
+  const isBackButtonHidden =
+    isEnabledForStartWithDataDefault &&
+    (!createNewAppPluginId || !selectedDatasource);
+
   return (
     <SectionWrapper>
       <BackWrapper hidden={!useType}>
-        <Link
+        <LinkWrapper
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
+          hidden={isBackButtonHidden}
           onClick={onClickBackButton}
           startIcon="arrow-left-line"
         >
           {createMessage(GO_BACK)}
-        </Link>
+        </LinkWrapper>
 
-        <Link
+        <LinkWrapper
           className="t--create-new-app-option-skip"
           data-testid="t--create-new-app-option-skip"
           endIcon="arrow-right-line"
           onClick={onClickSkipButton}
         >
           {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
-        </Link>
+        </LinkWrapper>
       </BackWrapper>
-      {useType === START_WITH_TYPE.TEMPLATE ? (
+      {isEnabledForStartWithDataDefault ? (
+        renderStartWithData()
+      ) : useType === START_WITH_TYPE.TEMPLATE ? (
         selectedTemplate ? (
           <TemplateView
             onClickUseTemplate={onClickUseTemplate}
@@ -436,43 +508,15 @@ const CreateNewAppsOption = ({
             templateId={selectedTemplate}
           />
         ) : (
-          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-            <Header
-              subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
-              title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
-            />
-            <TemplateWrapper>
-              <StartWithTemplates
-                currentApplicationIdForCreateNewApp={
-                  currentApplicationIdForCreateNewApp
-                }
-                setSelectedTemplate={setSelectedTemplate}
-              />
-            </TemplateWrapper>
-          </Flex>
+          <StartWithTemplatesWrapper
+            currentApplicationIdForCreateNewApp={
+              currentApplicationIdForCreateNewApp
+            }
+            setSelectedTemplate={setSelectedTemplate}
+          />
         )
       ) : useType === START_WITH_TYPE.DATA ? (
-        <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-          <Header
-            subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
-            title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
-          />
-          <WithDataWrapper>
-            {createNewAppPluginId ? (
-              selectedPlugin?.type === PluginType.SAAS ? (
-                <div>Load Gsheets</div>
-              ) : (
-                <DataSourceEditor
-                  applicationId={currentApplicationIdForCreateNewApp}
-                  datasourceId={TEMP_DATASOURCE_ID}
-                  pageId={application?.defaultPageId}
-                />
-              )
-            ) : (
-              <CreateNewDatasourceTab />
-            )}
-          </WithDataWrapper>
-        </Flex>
+        renderStartWithData()
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">

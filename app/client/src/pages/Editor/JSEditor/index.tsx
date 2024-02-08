@@ -1,10 +1,9 @@
 import React, { useMemo } from "react";
 import type { RouteComponentProps } from "react-router";
-import type { JSCollection } from "entities/JSCollection";
 import { useDispatch, useSelector } from "react-redux";
 import JsEditorForm from "./Form";
 import * as Sentry from "@sentry/react";
-import { getJSCollectionById } from "selectors/editorSelectors";
+import { getJSCollectionDataById } from "selectors/editorSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
@@ -14,25 +13,27 @@ import { updateFunctionProperty } from "actions/jsPaneActions";
 import type { OnUpdateSettingsProps } from "./JSFunctionSettings";
 import { saveJSObjectName } from "actions/jsActionActions";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
-interface ReduxStateProps {
-  jsCollection: JSCollection | undefined;
-  isCreating: boolean;
-}
 
-type Props = ReduxStateProps &
-  RouteComponentProps<{ apiId: string; pageId: string }>;
+type Props = RouteComponentProps<{
+  apiId: string;
+  pageId: string;
+  collectionId: string;
+}>;
 
 function JSEditor(props: Props) {
-  const { pageId } = props.match.params;
+  const { collectionId, pageId } = props.match.params;
   const dispatch = useDispatch();
-  const jsCollection = useSelector((state) =>
-    getJSCollectionById(state, props),
+  const jsCollectionData = useSelector((state) =>
+    getJSCollectionDataById(state, collectionId),
   );
   const { isCreating } = useSelector((state) => state.ui.jsPane);
+  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
+  const jsCollection = jsCollectionData?.config;
 
   const contextMenu = useMemo(() => {
     if (!jsCollection) {
@@ -61,9 +62,15 @@ function JSEditor(props: Props) {
   if (!!jsCollection) {
     return (
       <JsEditorForm
-        backLink={backLink}
+        backLink={isEditorPaneEnabled ? null : backLink}
         contextMenu={contextMenu}
-        jsCollection={jsCollection}
+        hideContextMenuOnEditor={Boolean(
+          jsCollectionData?.config.isMainJSCollection,
+        )}
+        hideEditIconOnEditor={Boolean(
+          jsCollectionData?.config.isMainJSCollection,
+        )}
+        jsCollectionData={jsCollectionData}
         onUpdateSettings={onUpdateSettings}
         saveJSObjectName={saveJSObjectName}
       />

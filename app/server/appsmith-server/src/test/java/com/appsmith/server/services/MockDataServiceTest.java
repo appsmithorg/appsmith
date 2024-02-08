@@ -5,6 +5,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;

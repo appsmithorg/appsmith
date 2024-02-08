@@ -10,7 +10,8 @@ const {
 } = require("cypress-image-snapshot/plugin");
 const { tagify } = require("cypress-tags");
 const { cypressHooks } = require("../scripts/cypress-hooks");
-const { cypressSplit } = require("../scripts/cypress-split");
+const { dynamicSplit } = require("../scripts/cypress-split-dynamic");
+const { staticSplit } = require("../scripts/cypress-split-static");
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -223,8 +224,22 @@ module.exports = async (on, config) => {
     },
   });
 
+  console.log("Type of 'config.specPattern':", typeof config.specPattern);
+  /**
+   * Cypress grep plug return specPattern as object and with absolute path
+   */
+  if (typeof config.specPattern == "object") {
+    config.specPattern = config.specPattern.map((spec) => {
+      return spec.replace(process.cwd() + "/", "");
+    });
+  }
+  console.log("config.specPattern:", config.specPattern);
+
   if (process.env["RUNID"]) {
-    config = await new cypressSplit().splitSpecs(on, config);
+    config =
+      process.env["CYPRESS_STATIC_ALLOCATION"] == "true"
+        ? await new staticSplit().splitSpecs(config)
+        : await new dynamicSplit().splitSpecs(config);
     cypressHooks(on, config);
   }
 

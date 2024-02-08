@@ -28,9 +28,9 @@ import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import {
   getAllTemplates,
+  hideTemplatesModal,
   setTemplateNotificationSeenAction,
   showStarterBuildingBlockDatasourcePrompt,
-  showTemplatesModal,
 } from "actions/templateActions";
 import {
   getTemplateNotificationSeen,
@@ -43,7 +43,7 @@ import {
   getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   fetchApplication,
   showReconnectDatasourceModal,
@@ -345,7 +345,7 @@ function* forkTemplateToApplicationSaga(
       isValid: boolean;
     } = yield call(apiCallForForkTemplateToApplicaion, action);
     if (isValid) {
-      yield put(showTemplatesModal(false));
+      yield put(hideTemplatesModal());
       yield put(getAllTemplates());
 
       toast.show(

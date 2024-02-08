@@ -71,9 +71,6 @@ const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
 const getPageListState = (state: AppState) => state.entities.pageList;
 
-export const getProviderCategories = (state: AppState) =>
-  state.ui.providers.providerCategories;
-
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
@@ -325,7 +322,8 @@ export const getCurrentPageName = createSelector(
 
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
-  (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
+  (_state: AppState) =>
+    selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
   (isAutoLayout, isWDSEnabled) => {
     const widgetConfigs = WidgetFactory.getConfigs();
 
@@ -355,6 +353,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout = false,
         displayName,
         iconSVG,
+        isSearchWildcard,
         key,
         searchTags,
         tags,
@@ -379,6 +378,7 @@ export const getWidgetCards = createSelector(
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
+        isSearchWildcard: isSearchWildcard,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -914,6 +914,18 @@ export const getActionById = createSelector(
     const action = actions.find((action) => action.config.id === id);
     if (action) {
       return action.config;
+    } else {
+      return undefined;
+    }
+  },
+);
+
+export const getJSCollectionDataById = createSelector(
+  [getJSCollections, (state: AppState, collectionId: string) => collectionId],
+  (jsActions, id) => {
+    const action = jsActions.find((action) => action.config.id === id);
+    if (action) {
+      return action;
     } else {
       return undefined;
     }

@@ -21,6 +21,9 @@ import { Virtuoso } from "react-virtuoso";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { hasCreateDSActionPermissionInApp } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useEditorType } from "@appsmith/hooks";
+import history from "utils/history";
+import ResizeObserver from "resize-observer-polyfill";
 
 interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
@@ -62,12 +65,14 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const datasourcePermissions = datasource?.userPermissions || [];
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const editorType = useEditorType(history.location.pathname);
 
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
+    isEnabled: isFeatureEnabled,
+    dsPermissions: datasourcePermissions,
     pagePermissions,
-  );
+    editorType,
+  });
 
   const onSelect = () => {
     setActive(false);
@@ -182,10 +187,28 @@ const DatasourceStructure = (props: DatasourceStructureProps) => {
   const [containerHeight, setContainerHeight] = useState<number>();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const updateContainerHeight = () => {
     if (containerRef.current?.offsetHeight) {
       setContainerHeight(containerRef.current?.offsetHeight);
     }
+  };
+
+  const resizeObserver = useRef(
+    new ResizeObserver(() => {
+      updateContainerHeight();
+    }),
+  );
+
+  useEffect(() => {
+    updateContainerHeight();
+    if (containerRef.current) {
+      resizeObserver.current.observe(containerRef.current);
+    }
+    return () => {
+      if (containerRef.current) {
+        resizeObserver.current.unobserve(containerRef.current);
+      }
+    };
   }, []);
 
   const Row = (index: number) => {

@@ -2,10 +2,11 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
   AppSidebar,
+  AppSidebarButton,
+  EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
@@ -33,6 +34,7 @@ export enum Widgets {
   Table,
   Chart,
   Text,
+  WDSTable,
 }
 type AppModes = "Edit" | "View";
 
@@ -59,6 +61,10 @@ export class DataSources {
   }; //Container KeyValuePair
   private _dsReviewSection = "[data-testid='t--ds-review-section']";
   public _addNewDataSource = ".t--add-datasource-button";
+  private _addNewDatasourceFromBlankScreen =
+    ".t--add-datasource-button-blank-screen";
+  public _newDatasourceBtn =
+    ".t--add-datasource-button, .t--add-datasource-button-blank-screen";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
@@ -124,7 +130,8 @@ export class DataSources {
   _selectedActiveTab = "button[aria-selected='true'] " + this._activeTab;
   _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
-  _datasourceCardGeneratePageBtn = ".t--generate-template";
+  _datasourceCardGeneratePageBtn =
+    ".t--generate-template, .t--datasource-generate-page";
   _queryOption = (option: string) =>
     "//div[contains(@class, 'rc-select-item-option-content') and text() = '" +
     option +
@@ -191,6 +198,10 @@ export class DataSources {
     ".t--datasource-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
+
+  private _pageSelectionMenu = "[data-testId='t--page-selection']";
+
+  private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
 
   private _suggestedWidget = (widgetType: string, parentClass: string) =>
     "//div[contains(@class, '" +
@@ -285,15 +296,19 @@ export class DataSources {
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
   private _dsSchemaContainer = `[data-testId="datasource-schema-container"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
-    `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
+    `${this._dsSchemaEntityItem}[data-testid='t--entity-item-${targetTableName}']`;
   private _dsPageTabListItem = (buttonText: string) =>
     `//div[contains(@class, 't--datasource-tab-list')]/button/span[text()='${buttonText}']`;
   _dsPageTabContainerTableName = (tableName: string) =>
     `.t--datasource-tab-container ${this._entityExplorerID(tableName)}`;
   _dsPageTableTriggermenuTarget = (tableName: string) =>
-    `${this._dsPageTabContainerTableName(tableName)} .t--template-menu-trigger`;
+    `${this._dsPageTabContainerTableName(tableName)} ${
+      this._entityTriggerElement
+    }`;
   _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
   _dsStructurePreviewMode = ".datasourceStructure-datasource-view-mode";
+  private _dsSchemaEntityItem = ".t--entity-item";
+  private _entityTriggerElement = ".t--template-menu-trigger";
 
   public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -420,9 +435,14 @@ export class DataSources {
     }).as("testDatasource");
   }
 
-  public CreatePlugIn(pluginName: string, waitForToastDisappear = false) {
+  public CreatePlugIn(
+    pluginName: string,
+    waitForToastDisappear = false,
+    index = 0,
+  ) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
+      .eq(index)
       .trigger("click", { force: true });
     this.agHelper.Sleep();
     //this.agHelper.WaitUntilEleAppear(this.locator._toastMsg);
@@ -441,11 +461,14 @@ export class DataSources {
 
   public NavigateToDSCreateNew() {
     AppSidebar.navigate(AppSidebarButton.Data);
-    Cypress._.times(2, () => {
-      this.agHelper.GetNClick(this._addNewDataSource, 0, true);
-      this.agHelper.Sleep();
+    cy.get("body").then(($body) => {
+      if ($body.find(this._addNewDataSource).length > 0) {
+        this.agHelper.GetNClick(this._addNewDataSource, 0, true);
+      } else {
+        this.agHelper.GetNClick(this._addNewDatasourceFromBlankScreen, 0, true);
+      }
     });
-    cy.get(this._newDatabases).should("be.visible");
+    this.agHelper.AssertElementVisibility(this._newDatabases);
   }
 
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
@@ -888,43 +911,23 @@ export class DataSources {
       });
   }
 
-  public NavigateFromActiveDS(
-    datasourceName: string,
-    createQuery: boolean,
-    validateTableDropdown = true,
-  ) {
-    const btnLocator =
-      createQuery == true
-        ? this._createQuery
-        : this._datasourceCardGeneratePageBtn;
-
-    this.AssertDSInActiveList(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
-    this.agHelper.GetNClick(btnLocator, 0, true);
-    this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
-    createQuery && this.AssertRunButtonVisibility();
-    validateTableDropdown &&
-      !createQuery &&
-      this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
-  }
-
   public AssertDSInActiveList(dsName: string | RegExp) {
     AppSidebar.navigate(AppSidebarButton.Data);
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
-  public CreateQueryFromActiveTab(datasourceName: string) {
-    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
-    this.agHelper.GetNClick(this._createQuery, 0, true);
-    this.agHelper.Sleep(2000); //for the CreateQuery
-    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
-    this.AssertRunButtonVisibility();
-  }
-
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
+    // Check if page selection is open (when multiple pages in app)
+    cy.get("body").then(($body) => {
+      if ($body.find(this._pageSelectionMenu).length > 0) {
+        // Select the current page
+        cy.get(this._pageSelectionMenu)
+          .find(this._pageSelectMenuItem)
+          .first()
+          .click();
+      }
+    });
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
     this.AssertRunButtonVisibility();
     if (queryName) this.agHelper.RenameWithInPane(queryName);
@@ -949,21 +952,29 @@ export class DataSources {
     queryName = "",
     cancelEditDs = true,
   ) {
-    AppSidebar.navigate(AppSidebarButton.Data);
-    cy.get(this._datasourceCard)
-      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
-    this.agHelper.Sleep(); //for the Datasource page to open
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     if (cancelEditDs) {
-      this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+      this.cancelIfEditing();
     }
     this.CreateQueryAfterDSSaved(query, queryName);
   }
 
+  public GeneratePageForDS(datasourceName: string) {
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
+    this.cancelIfEditing();
+    this.agHelper.GetNClick(this._datasourceCardGeneratePageBtn);
+  }
+
+  private cancelIfEditing() {
+    cy.get("body").then(($body) => {
+      if ($body.find(this._cancelEditDatasourceButton).length > 0) {
+        this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+      }
+    });
+  }
+
   DeleteQuery(queryName: string) {
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: queryName,
       action: "Delete",
@@ -1010,21 +1021,8 @@ export class DataSources {
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
     this.TestSaveDatasource(true, true);
-    this.assertHelper.AssertNetworkStatus("@getPage", 200);
+    this.assertHelper.AssertNetworkStatus("@getConsolidatedData", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
-  }
-
-  public AssertReconnectDS(datasourceName: string) {
-    cy.get(this._datasourceCard, { withinSubject: null })
-      .find(this._activeDS)
-      .contains(datasourceName)
-      .scrollIntoView()
-      .should("be.visible")
-      .closest(this._datasourceCard)
-      .scrollIntoView()
-      .within(() => {
-        this.agHelper.AssertElementVisibility(this._reconnect, true, 0, 20000);
-      });
   }
   public ReconnectModalValidation(
     dbName: string,
@@ -1125,17 +1123,19 @@ export class DataSources {
     isMongo = false,
   ) {
     let jsonHeaderString = "";
-    this.table.ReadTableRowColumnData(rowindex, colIndex).then(($cellData) => {
-      if (validateCellData) expect($cellData).to.eq(validateCellData);
+    this.table
+      .ReadTableRowColumnData(rowindex, colIndex, "v2")
+      .then(($cellData) => {
+        if (validateCellData) expect($cellData).to.eq(validateCellData);
 
-      jsonHeaderString =
-        isMongo == true
-          ? "Update Document " + headerString + ": " + $cellData
-          : "Update Row " + headerString + ": " + $cellData;
-      this.agHelper
-        .GetText(this.locator._jsonFormHeader)
-        .then(($header: any) => expect($header).to.eq(jsonHeaderString));
-    });
+        jsonHeaderString =
+          isMongo == true
+            ? "Update Document " + headerString + ": " + $cellData
+            : "Update Row " + headerString + ": " + $cellData;
+        this.agHelper
+          .GetText(this.locator._jsonFormHeader)
+          .then(($header: any) => expect($header).to.eq(jsonHeaderString));
+      });
   }
 
   ToggleUsePreparedStatement(
@@ -1415,7 +1415,7 @@ export class DataSources {
     tableName: string,
     templateName: string,
   ) {
-    this.CreateQueryFromActiveTab(datasourceName);
+    this.CreateQueryForDS(datasourceName);
     this.AssertTableInVirtuosoList(datasourceName, tableName);
     cy.get(this._dsVirtuosoElementTable(tableName)).click();
     this.agHelper.GetNClick(
@@ -1677,6 +1677,16 @@ export class DataSources {
           this.locator._widgetInCanvas(WIDGET.TABLE),
         );
         break;
+      case Widgets.WDSTable:
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TABLE_WIDGET_V2", parentClass),
+          index,
+          force,
+        );
+        this.agHelper.AssertElementVisibility(
+          this.locator._anvilWidgetInCanvas(WIDGET.WDSTABLE),
+        );
+        break;
       case Widgets.Chart:
         this.agHelper.GetNClick(
           this._suggestedWidget("CHART_WIDGET", parentClass),
@@ -1829,7 +1839,7 @@ export class DataSources {
       new RegExp("^" + datasourceName + "$"),
     );
     this.agHelper.WaitUntilEleAppear(this._createQuery);
-    this.agHelper.GetNClick(this._createQuery);
+    this.CreateQueryAfterDSSaved();
   }
 
   public AssertDataSourceInfo(info: string[]) {
@@ -1838,6 +1848,26 @@ export class DataSources {
         this.locator._visibleTextDiv($infs),
       );
     });
+  }
+
+  public GeneratePostgresCRUDPage(dbName: string) {
+    PageList.AddNewPage("Generate page with data");
+    this.agHelper.GetNClick(this._selectDatasourceDropdown);
+    this.agHelper.GetNClickByContains(
+      this._dropdownOption,
+      "Connect new datasource",
+    );
+    this.CreateDataSource("Postgres", false);
+    this.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
+    this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
+    this.agHelper.GetNClickByContains(this._dropdownOption, dbName);
+    this.agHelper.GetNClick(this._generatePageBtn);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.AssertContains("Successfully generated a page");
+    this.assertHelper.AssertNetworkStatus("@getActions", 200);
+    this.assertHelper.AssertNetworkStatus("@postExecute", 200);
+    this.agHelper.GetNClick(this._visibleTextSpan("Got it"));
+    this.assertHelper.AssertNetworkStatus("@updateLayout", 200);
   }
 
   public AssertTableInVirtuosoList(
@@ -1915,5 +1945,36 @@ export class DataSources {
       .parents(datasource.datasourceCard)
       .find(".ads-v2-listitem__bdesc")
       .invoke("text");
+  }
+
+  public SelectTableFromPreviewSchemaList(targetTableName: string) {
+    this.agHelper.GetNClick(
+      this._dsVirtuosoElementTable(targetTableName),
+      0,
+      false,
+      1000,
+    );
+  }
+
+  private IsTemplateMenuTriggerForSchemaTableVisible(index: number = 0) {
+    this.agHelper
+      .GetElement(`${this._dsSchemaContainer} ${this._dsSchemaEntityItem}`)
+      .eq(index)
+      .find(this._entityTriggerElement)
+      .should("be.visible");
+  }
+
+  public ClickTemplateMenuForSchemaTable(index: number = 0) {
+    this.agHelper
+      .GetElement(`${this._dsSchemaContainer} ${this._dsSchemaEntityItem}`)
+      .eq(index)
+      .realHover();
+    this.IsTemplateMenuTriggerForSchemaTableVisible(index);
+    this.agHelper
+      .GetElement(`${this._dsSchemaContainer} ${this._dsSchemaEntityItem}`)
+      .eq(index)
+      .find(this._entityTriggerElement)
+      .click();
+    this.IsTemplateMenuTriggerForSchemaTableVisible(index);
   }
 }

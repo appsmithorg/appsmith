@@ -10,6 +10,8 @@ import {
 import {
   actionChannel,
   call,
+  cancel,
+  cancelled,
   delay,
   fork,
   put,
@@ -84,6 +86,8 @@ import {
   getWorkspaceIdForImport,
 } from "@appsmith/selectors/applicationSelectors";
 import {
+  AUTOCOMMIT_DISABLED_TOAST,
+  AUTOCOMMIT_ENABLED_TOAST,
   createMessage,
   DELETE_BRANCH_SUCCESS,
   DISCARD_SUCCESS,
@@ -105,7 +109,7 @@ import {
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
@@ -118,9 +122,9 @@ import {
   getJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
-import { updateGitDefaultBranchSaga } from "@appsmith/sagas/GitExtendedSagas";
+import { gitExtendedSagas } from "@appsmith/sagas/GitExtendedSagas";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -387,7 +391,7 @@ function* switchBranch(action: ReduxAction<string>) {
     // Check if page exists in the branch. If not, instead of 404, take them to
     // the app home page
     const page = response.data.pages.find(
-      (page) => page.id === entityInfo.pageId,
+      (page) => page.id === entityInfo.params.pageId,
     );
     const homePage = response.data.pages.find((page) => page.isDefault);
     if (!page) {
@@ -830,7 +834,7 @@ function* disconnectGitSaga() {
         }),
       );
       yield put({
-        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+        type: ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
       });
 
       // while disconnecting another application, i.e. not the current one
@@ -875,7 +879,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === workspaceIdForImport,
       );
@@ -1145,6 +1149,128 @@ function* updateGitProtectedBranchesSaga({
   }
 }
 
+function* toggleAutocommitSaga() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  let response: ApiResponse<boolean>;
+  try {
+    response = yield call(GitSyncAPI.toggleAutocommit, applicationId);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_SUCCESS,
+      });
+      yield put({ type: ReduxActionTypes.GIT_GET_METADATA_INIT });
+      if (!!response.data) {
+        toast.show(createMessage(AUTOCOMMIT_ENABLED_TOAST), {
+          kind: "success",
+        });
+      } else {
+        toast.show(createMessage(AUTOCOMMIT_DISABLED_TOAST), {
+          kind: "success",
+        });
+      }
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR,
+      payload: { error, show: true },
+    });
+  }
+}
+
+function* getGitMetadataSaga() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  let response: ApiResponse<string[]>;
+  try {
+    response = yield call(GitSyncAPI.getGitMetadata, applicationId);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.GIT_GET_METADATA_SUCCESS,
+        payload: { gitMetadata: response.data },
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.GIT_GET_METADATA_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_GET_METADATA_ERROR,
+      payload: { error, show: true },
+    });
+  }
+}
+
+function* pollAutocommitProgressSaga(): any {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  try {
+    while (true) {
+      const response: ApiResponse<any> = yield call(
+        GitSyncAPI.getAutocommitProgress,
+        applicationId,
+      );
+      const isValidResponse: boolean = yield validateResponse(
+        response,
+        false,
+        getLogToSentryFromResponse(response),
+      );
+      if (isValidResponse) {
+        yield put({
+          type: ReduxActionTypes.GIT_SET_AUTOCOMMIT_PROGRESS,
+          payload: response.data,
+        });
+        if (!response?.data?.isRunning) {
+          yield put({
+            type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+            payload: response.data,
+          });
+        }
+      } else {
+        yield put({
+          type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
+          payload: {
+            error: response?.responseMeta?.error?.message,
+            show: true,
+          },
+        });
+      }
+      yield delay(1000);
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
+      payload: { error },
+    });
+  } finally {
+    if (yield cancelled()) {
+      yield put({
+        type: ReduxActionTypes.GIT_RESET_AUTOCOMMIT_PROGRESS,
+      });
+    }
+  }
+}
+
 const gitRequestBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
@@ -1164,7 +1290,6 @@ const gitRequestBlockingActions: Record<
   [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT]: generateSSHKeyPairSaga,
   [ReduxActionTypes.DELETE_BRANCH_INIT]: deleteBranch,
   [ReduxActionTypes.GIT_DISCARD_CHANGES]: discardChanges,
-  [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
   [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
     updateGitProtectedBranchesSaga,
 };
@@ -1173,6 +1298,7 @@ const gitRequestNonBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
 > = {
+  ...gitExtendedSagas,
   [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: fetchGlobalGitConfig,
   [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT]: fetchLocalGitConfig,
   [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,
@@ -1181,6 +1307,8 @@ const gitRequestNonBlockingActions: Record<
   [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
   [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
     fetchGitProtectedBranchesSaga,
+  [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT]: toggleAutocommitSaga,
+  [ReduxActionTypes.GIT_GET_METADATA_INIT]: getGitMetadataSaga,
 };
 
 /**
@@ -1211,7 +1339,18 @@ function* watchGitNonBlockingRequests() {
   }
 }
 
+function* watchGitAutocommitPolling() {
+  while (true) {
+    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING);
+    /* @ts-expect-error: not sure how to do typings of this */
+    const pollTask = yield fork(pollAutocommitProgressSaga);
+    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING);
+    yield cancel(pollTask);
+  }
+}
+
 export default function* gitSyncSagas() {
   yield fork(watchGitNonBlockingRequests);
   yield fork(watchGitBlockingRequests);
+  yield fork(watchGitAutocommitPolling);
 }

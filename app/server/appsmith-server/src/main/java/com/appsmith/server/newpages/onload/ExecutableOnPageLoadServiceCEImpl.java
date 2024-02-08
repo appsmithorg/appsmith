@@ -2,6 +2,7 @@ package com.appsmith.server.newpages.onload;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Executable;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -11,7 +12,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.executables.ExecutableOnLoadServiceCE;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
     public Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId) {
         return newActionService
                 .findByPageIdAndViewMode(creatorId, false, actionPermission.getEditPermission())
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .map(actionDTO -> (Executable) actionDTO)
                 .cache();
     }
@@ -55,7 +55,7 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
     public Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(String creatorId) {
         return newActionService
                 .findUnpublishedOnLoadActionsExplicitSetByUserInPage(creatorId)
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
     }
 
     @Override

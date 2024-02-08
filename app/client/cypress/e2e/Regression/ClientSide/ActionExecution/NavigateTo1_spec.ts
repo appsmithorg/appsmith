@@ -12,7 +12,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Navigate To feature", () => {
+describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
     PageList.AddNewPage(); // page 2
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
@@ -33,7 +33,9 @@ describe("Navigate To feature", () => {
     cy.url().should("include", "a=b").and("include", "test=123");
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-    agHelper.Sleep();
+    agHelper.WaitUntilEleAppear(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
+    );
     agHelper.ClickButton("Submit");
     agHelper.GetNAssertContains(
       locators._emptyPageTxt,

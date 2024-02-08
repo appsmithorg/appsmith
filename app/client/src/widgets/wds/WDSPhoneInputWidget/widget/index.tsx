@@ -48,10 +48,6 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     return defaultsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return anvilConfig;
   }
@@ -268,6 +264,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         errorMessage={validation.errorMessage}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
+        isReadOnly={this.props.isReadOnly}
         label={this.props.label}
         onFocusChange={this.onFocusChange}
         onISDCodeChange={this.onISDCodeChange}

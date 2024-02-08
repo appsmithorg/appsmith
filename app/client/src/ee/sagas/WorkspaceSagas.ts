@@ -1,6 +1,5 @@
 export * from "ce/sagas/WorkspaceSagas";
 import {
-  fetchRolesSaga,
   fetchWorkspaceSaga,
   saveWorkspaceSaga,
   createWorkspaceSaga,
@@ -11,13 +10,23 @@ import {
   deleteWorkspaceSaga,
   uploadWorkspaceLogoSaga,
   deleteWorkspaceLogoSaga,
+  fetchAllWorkspacesSaga,
+  searchWorkspaceEntitiesSaga,
+  fetchEntitiesOfWorkspaceSaga,
 } from "ce/sagas/WorkspaceSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
 
 export default function* workspaceSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT, fetchRolesSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
+      fetchAllWorkspacesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_ENTITIES_OF_WORKSPACE_INIT,
+      fetchEntitiesOfWorkspaceSaga,
+    ),
     takeLatest(ReduxActionTypes.FETCH_CURRENT_WORKSPACE, fetchWorkspaceSaga),
     takeLatest(ReduxActionTypes.SAVE_WORKSPACE_INIT, saveWorkspaceSaga),
     takeLatest(ReduxActionTypes.CREATE_WORKSPACE_INIT, createWorkspaceSaga),
@@ -34,5 +43,9 @@ export default function* workspaceSagas() {
     takeLatest(ReduxActionTypes.DELETE_WORKSPACE_INIT, deleteWorkspaceSaga),
     takeLatest(ReduxActionTypes.UPLOAD_WORKSPACE_LOGO, uploadWorkspaceLogoSaga),
     takeLatest(ReduxActionTypes.REMOVE_WORKSPACE_LOGO, deleteWorkspaceLogoSaga),
+    takeLatest(
+      ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
+      searchWorkspaceEntitiesSaga,
+    ),
   ]);
 }

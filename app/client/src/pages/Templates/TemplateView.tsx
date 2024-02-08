@@ -24,18 +24,12 @@ import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
 import { templateIdUrl } from "@appsmith/RouteBuilder";
 import TemplateViewHeader from "./TemplateViewHeader";
-
-const breakpointColumnsObject = {
-  default: 4,
-  3000: 3,
-  1500: 3,
-  1024: 2,
-  800: 1,
-};
+import { registerEditorWidgets } from "utils/editor/EditorUtils";
 
 const Wrapper = styled.div`
   overflow: auto;
   position: relative;
+  width: 100%;
 `;
 
 const TemplateViewWrapper = styled.div`
@@ -149,6 +143,9 @@ export function TemplateView({
   };
 
   useEffect(() => {
+    registerEditorWidgets();
+  }, []);
+  useEffect(() => {
     dispatch(getTemplateInformation(templateId));
     dispatch(getSimilarTemplatesInit(templateId));
     if (containerRef.current) {
@@ -195,7 +192,6 @@ export function TemplateView({
       </TemplateViewWrapper>
       {showSimilarTemplate && (
         <SimilarTemplates
-          breakpointCols={breakpointColumnsObject}
           isForkingEnabled={!!workspaceList.length}
           onBackPress={goToTemplateListView}
           onClick={onSimilarTemplateClick}

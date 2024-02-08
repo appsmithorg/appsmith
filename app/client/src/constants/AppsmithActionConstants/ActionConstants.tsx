@@ -7,7 +7,7 @@ import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/
 import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/GoogleSheetsSettingsConfig";
 import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
 import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
-import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 
 export interface ExecuteActionPayloadEvent {
   type: EventType;
@@ -21,7 +21,7 @@ export interface ExecutionResult {
 export interface TriggerSource {
   id: string;
   name: string;
-  entityType?: ENTITY_TYPE;
+  entityType?: EntityTypeValue;
   collectionId?: string;
   isJSAction?: boolean;
   actionId?: string;
@@ -71,6 +71,7 @@ export enum EventType {
   ON_TOGGLE = "ON_TOGGLE",
   ON_LOAD = "ON_LOAD",
   ON_MODAL_CLOSE = "ON_MODAL_CLOSE",
+  ON_MODAL_SUBMIT = "ON_MODAL_SUBMIT",
   ON_TEXT_CHANGE = "ON_TEXT_CHANGE",
   ON_SUBMIT = "ON_SUBMIT",
   ON_CHECK_CHANGE = "ON_CHECK_CHANGE",
@@ -121,6 +122,7 @@ export enum EventType {
   ON_CODE_DETECTED = "ON_CODE_DETECTED",
   ON_ADD_NEW_ROW_SAVE = "ON_ADD_NEW_ROW_SAVE",
   ON_ADD_NEW_ROW_DISCARD = "ON_ADD_NEW_ROW_DISCARD",
+  CUSTOM_WIDGET_EVENT = "CUSTOM_WIDGET_EVENT",
 }
 
 export interface PageAction {
@@ -170,6 +172,7 @@ export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.REMOTE]: saasActionSettingsConfig,
   [PluginType.JS]: [],
   [PluginType.AI]: saasActionSettingsConfig,
+  [PluginType.INTERNAL]: saasActionSettingsConfig,
 };
 
 export const defaultActionEditorConfigs: Record<PluginType, any> = {
@@ -179,6 +182,7 @@ export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.REMOTE]: [],
   [PluginType.JS]: [],
   [PluginType.AI]: [],
+  [PluginType.INTERNAL]: [],
 };
 
 export const defaultActionDependenciesConfig: Record<
@@ -191,6 +195,7 @@ export const defaultActionDependenciesConfig: Record<
   [PluginType.REMOTE]: {},
   [PluginType.JS]: {},
   [PluginType.AI]: {},
+  [PluginType.INTERNAL]: {},
 };
 
 export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
@@ -200,4 +205,5 @@ export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
   [PluginType.REMOTE]: apiActionDatasourceFormButtonConfig.REMOTE,
   [PluginType.JS]: [],
   [PluginType.AI]: apiActionDatasourceFormButtonConfig.AI,
+  [PluginType.INTERNAL]: [],
 };

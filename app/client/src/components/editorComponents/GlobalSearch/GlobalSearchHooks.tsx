@@ -3,7 +3,7 @@ import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
-import { getPageList, getPagePermissions } from "selectors/editorSelectors";
+import { getPageList } from "selectors/editorSelectors";
 import {
   getActions,
   getAllPageWidgets,
@@ -26,23 +26,37 @@ import {
 } from "./utils";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { createNewQueryAction } from "actions/apiPaneActions";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasCreateActionPermission,
+  getHasCreateDatasourceActionPermission,
   getHasCreateDatasourcePermission,
-  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { createNewQueryBasedOnParentEntity } from "@appsmith/actions/helpers";
+import { useWorkflowOptions } from "@appsmith/utils/workflowHelpers";
 
-export const useFilteredFileOperations = (query = "") => {
+export interface FilterFileOperationsProps {
+  canCreateActions: boolean;
+  query?: string;
+  showModules?: boolean;
+  showWorkflows?: boolean;
+}
+
+export const useFilteredFileOperations = ({
+  canCreateActions,
+  query = "",
+  showModules = true,
+  showWorkflows = true,
+}: FilterFileOperationsProps) => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
   const moduleOptions = useModuleOptions();
+  const workflowOptions = useWorkflowOptions();
 
   // helper map for sorting based on recent usage
   const recentlyUsedDSMap = useRecentlyUsedDSMap();
@@ -51,14 +65,7 @@ export const useFilteredFileOperations = (query = "") => {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const pagePermissions = useSelector(getPagePermissions);
-
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const canCreateActions = getHasCreateActionPermission(
-    isFeatureEnabled,
-    pagePermissions,
-  );
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
     isFeatureEnabled,
@@ -66,19 +73,20 @@ export const useFilteredFileOperations = (query = "") => {
   );
 
   // get all datasources, app ds listed first
-  const allDatasources = [...appWideDS, ...otherDS].filter((ds) =>
-    hasCreateDSActionPermissionInApp(
-      isFeatureEnabled,
-      ds.userPermissions ?? [],
-      pagePermissions,
-    ),
+  const allDatasources = [...appWideDS, ...otherDS].filter(
+    (ds) =>
+      getHasCreateDatasourceActionPermission(
+        isFeatureEnabled,
+        ds.userPermissions ?? [],
+      ) && canCreateActions,
   );
 
   return useFilteredAndSortedFileOperations({
     allDatasources,
     canCreateActions,
     canCreateDatasource,
-    moduleOptions,
+    moduleOptions: showModules ? moduleOptions : [],
+    workflowOptions: showWorkflows ? workflowOptions : [],
     plugins,
     recentlyUsedDSMap,
     query,
@@ -93,17 +101,25 @@ export const useFilteredAndSortedFileOperations = ({
   plugins = [],
   query,
   recentlyUsedDSMap = {},
+  workflowOptions = [],
 }: {
   allDatasources?: Datasource[];
   canCreateActions?: boolean;
   canCreateDatasource?: boolean;
   moduleOptions?: ActionOperation[];
   plugins?: Plugin[];
-  recentlyUsedDSMap?: Record<string, number>;
   query: string;
+  recentlyUsedDSMap?: Record<string, number>;
+  workflowOptions?: ActionOperation[];
 }) => {
   const fileOperations: ActionOperation[] = [];
+
   if (!canCreateActions) return fileOperations;
+
+  // Add Workflow operations
+  if (workflowOptions.length > 0) {
+    workflowOptions.map((workflowOp) => fileOperations.push(workflowOp));
+  }
 
   /**
    *  Work around to get the rest api cloud image.
@@ -128,8 +144,13 @@ export const useFilteredAndSortedFileOperations = ({
   const datasources = getSortedDatasources(allDatasources, recentlyUsedDSMap);
 
   const createQueryAction =
-    (dsId: string) => (pageId: string, from: EventLocation) =>
-      createNewQueryAction(pageId, from, dsId);
+    (dsId: string) =>
+    (
+      entityId: string,
+      from: EventLocation,
+      entityType?: ActionParentEntityTypeInterface,
+    ) =>
+      createNewQueryBasedOnParentEntity(entityId, from, dsId, entityType);
 
   // map into operations
   const dsOperations = datasources.map((ds) =>
@@ -152,6 +173,7 @@ export const useFilteredAndSortedFileOperations = ({
       integrationEditorURL({
         pageId,
         selectedTab: INTEGRATION_TABS.NEW,
+        generateEditorPath: true,
       }),
     );
   };

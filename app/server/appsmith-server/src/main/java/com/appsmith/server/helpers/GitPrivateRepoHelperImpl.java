@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.helpers.ce.GitPrivateRepoHelperCEImpl;
-import com.appsmith.server.services.ApplicationService;
 import org.springframework.stereotype.Component;
 
 @Component

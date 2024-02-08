@@ -28,6 +28,9 @@ import { CustomEChartIFrameComponent } from "./CustomEChartIFrameComponent";
 import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -385,8 +388,12 @@ export const mapStateToProps = (
   state: AppState,
   ownProps: ChartComponentProps,
 ) => {
+  const isPreviewMode = combinedPreviewModeSelector(state);
+  const appMode = getAppMode(state);
   return {
     needsOverlay:
+      appMode == APP_MODE.EDIT &&
+      !isPreviewMode &&
       ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId,
   };
 };

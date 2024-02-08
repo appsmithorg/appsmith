@@ -33,9 +33,8 @@ jobs:
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # In case this is second attempt try restoring status of the prior attempt from cache

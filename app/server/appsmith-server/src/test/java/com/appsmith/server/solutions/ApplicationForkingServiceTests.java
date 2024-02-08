@@ -19,6 +19,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -52,7 +53,6 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -316,7 +316,7 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        layoutCollectionService.createCollection(actionCollectionDTO).block();
+        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
 
         ObjectMapper objectMapper = new ObjectMapper();
         JSONObject parentDsl = new JSONObject(
@@ -1139,7 +1139,7 @@ public class ApplicationForkingServiceTests {
 
         StepVerifier.create(applicationMono)
                 .assertNext(forkedApplication -> {
-                    assertThat(forkedApplication.getPages().size()).isEqualTo(1);
+                    assertThat(forkedApplication.getPages()).hasSize(1);
                 })
                 .verifyComplete();
     }
@@ -1480,6 +1480,7 @@ public class ApplicationForkingServiceTests {
                             "client id",
                             "client secret",
                             "auth url",
+                            "180",
                             "access token url",
                             "scope",
                             Set.of("scope1", "scope2", "scope3"),
@@ -1708,6 +1709,7 @@ public class ApplicationForkingServiceTests {
                             "client id",
                             "client secret",
                             "auth url",
+                            "180",
                             "access token url",
                             "scope",
                             Set.of("scope1", "scope2", "scope3"),
@@ -1849,14 +1851,18 @@ public class ApplicationForkingServiceTests {
                             .findFirst()
                             .get();
                     DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(data.defaultEnvironmentId);
-                    assertThat(storage1.getDatasourceConfiguration()).isNull();
+                    assertThat(storage1.getDatasourceConfiguration()).isNotNull();
+                    assertThat(storage1.getDatasourceConfiguration().getConnection())
+                            .isNotNull();
+                    assertThat(storage1.getDatasourceConfiguration().getEndpoints())
+                            .isNotNull();
 
                     final Datasource ds2 = data.datasources.stream()
                             .filter(ds -> ds.getName().equals("datasource 2"))
                             .findFirst()
                             .get();
                     DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(data.defaultEnvironmentId);
-                    assertThat(storage2.getDatasourceConfiguration()).isNull();
+                    assertThat(storage2.getDatasourceConfiguration()).isNotNull();
 
                     assertThat(getUnpublishedActionName(data.actions))
                             .containsExactlyInAnyOrder(

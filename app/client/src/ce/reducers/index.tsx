@@ -21,8 +21,6 @@ import type { WorkspaceReduxState } from "@appsmith/reducers/uiReducers/workspac
 import type { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import type { ThemeState } from "reducers/uiReducers/themeReducer";
 import type { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
-import type { ImportedCollectionsReduxState } from "reducers/uiReducers/importedCollectionsReducer";
-import type { ProvidersReduxState } from "reducers/uiReducers/providerReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { ImportReduxState } from "reducers/uiReducers/importReducer";
 import type { HelpReduxState } from "reducers/uiReducers/helpReducer";
@@ -45,7 +43,7 @@ import type { DebuggerReduxState } from "reducers/uiReducers/debuggerReducer";
 import type { TourReducerState } from "reducers/uiReducers/tourReducer";
 import type { TableFilterPaneReduxState } from "reducers/uiReducers/tableFilterPaneReducer";
 import type { JsPaneReduxState } from "reducers/uiReducers/jsPaneReducer";
-import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { CanvasSelectionState } from "reducers/uiReducers/canvasSelectionReducer";
 import type { JSObjectNameReduxState } from "reducers/uiReducers/jsObjectNameReducer";
 import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
@@ -57,7 +55,6 @@ import type { AppThemingState } from "reducers/uiReducers/appThemingReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import type { SettingsReduxState } from "@appsmith/reducers/settingsReducer";
 import SettingsReducer from "@appsmith/reducers/settingsReducer";
-import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import type { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 import type { TenantReduxState } from "@appsmith/reducers/tenantReducer";
@@ -74,12 +71,15 @@ import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
+import type { IDEState } from "reducers/uiReducers/ideReducer";
 
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
 import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
+import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -93,6 +93,7 @@ export const reducerObject = {
 
 export interface AppState {
   ui: {
+    consolidatedPageLoad: ConsolidatedPageLoadState;
     analytics: AnalyticsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
@@ -104,10 +105,9 @@ export interface AppState {
     auth: AuthState;
     templates: TemplatesReduxState;
     workspaces: WorkspaceReduxState;
+    selectedWorkspace: SelectedWorkspaceReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
-    importedCollections: ImportedCollectionsReduxState;
-    providers: ProvidersReduxState;
     imports: ImportReduxState;
     queryPane: QueryPaneReduxState;
     datasourcePane: DatasourcePaneReduxState;
@@ -120,7 +120,6 @@ export interface AppState {
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
-    guidedTour: GuidedTourState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
     websocket: WebsocketReducerState;
@@ -144,6 +143,7 @@ export interface AppState {
     actionSelector: ActionSelectorReduxState;
     oneClickBinding: OneClickBindingState;
     activeField: ActiveField;
+    ide: IDEState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetsStructureReduxState;
@@ -159,6 +159,7 @@ export interface AppState {
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
     layoutElementPositions: LayoutElementPositionsReduxState;
+    moduleInstanceEntities: any;
   };
   evaluations: {
     tree: EvaluatedTreeState;

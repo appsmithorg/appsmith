@@ -25,11 +25,7 @@ jobs:
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'repository_dispatch'
-    defaults:
-      run:
-        working-directory: app/client
-        shell: bash
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -51,17 +47,14 @@ jobs:
     steps:
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
@@ -136,7 +129,7 @@ jobs:
           -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3000:3000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
           cd cicontainerlocal
-          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
+          docker run -d --name appsmith -p 80:80 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
@@ -148,7 +141,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: ./app/client/packages/rts
         run: |
-          cp .env.example .env        
+          cp .env.example .env
           ./start-server.sh &
 
       - name: Setting up the perf tests
@@ -189,7 +182,7 @@ jobs:
           echo ref=$ref >> $GITHUB_OUTPUT
 
       - name: Checkout Performance Infra code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: appsmithorg/performance-infra
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}

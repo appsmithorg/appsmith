@@ -2,6 +2,7 @@ import { capitalize } from "lodash";
 import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import type { ButtonWidgetProps } from "./types";
 
 export const propertyPaneStyleConfig = [
   {
@@ -58,12 +59,28 @@ export const propertyPaneStyleConfig = [
         propertyName: "iconName",
         label: "Select icon",
         helpText: "Sets the icon to be used for the button",
-        controlType: "ICON_SELECT",
+        controlType: "ICON_SELECT_V2",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
+        },
+        updateHook: (
+          props: ButtonWidgetProps,
+          propertyPath: string,
+          propertyValue: string,
+        ) => {
+          const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
+          if (!props.iconAlign) {
+            propertiesToUpdate.push({
+              propertyPath: "iconAlign",
+              propertyValue: "start",
+            });
+          }
+
+          return propertiesToUpdate;
         },
       },
       {
@@ -71,6 +88,7 @@ export const propertyPaneStyleConfig = [
         label: "Position",
         helpText: "Sets the icon alignment of the button",
         controlType: "ICON_TABS",
+        defaultValue: "start",
         fullWidth: false,
         options: [
           {

@@ -4,7 +4,7 @@ import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernServic
 import ReactDOM from "react-dom";
 import type { SlashCommandPayload } from "entities/Action";
 import { SlashCommand } from "entities/Action";
-import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -15,7 +15,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
 import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
-import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 
 export enum Shortcuts {
   PLUS = "PLUS",
@@ -116,7 +116,7 @@ export function Command(props: {
 
 export const generateQuickCommands = (
   entitiesForSuggestions: NavigationData[],
-  currentEntityType: ENTITY_TYPE,
+  currentEntityType: EntityTypeValue,
   searchText: string,
   {
     aiContext,
@@ -160,19 +160,19 @@ export const generateQuickCommands = (
     const name = suggestion.name;
     return {
       text:
-        suggestion.type === ENTITY_TYPE_VALUE.ACTION
+        suggestion.type === ENTITY_TYPE.ACTION
           ? `{{${name}.data}}`
-          : suggestion.type === ENTITY_TYPE_VALUE.JSACTION
+          : suggestion.type === ENTITY_TYPE.JSACTION
           ? `{{${name}.}}`
           : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
-      triggerCompletionsPostPick: suggestion.type !== ENTITY_TYPE_VALUE.ACTION,
+      triggerCompletionsPostPick: suggestion.type !== ENTITY_TYPE.ACTION,
       render: (element: HTMLElement, _: unknown, data: CommandsCompletion) => {
         let icon = null;
         const completionData = data.data as NavigationData;
-        if (completionData.type === ENTITY_TYPE_VALUE.JSACTION) {
+        if (completionData.type === ENTITY_TYPE.JSACTION) {
           icon = JsFileIconV2(16, 16);
         } else if (
           completionData.pluginId &&
@@ -246,7 +246,7 @@ export const generateQuickCommands = (
     commonCommands.unshift(askGPT);
   }
 
-  if (currentEntityType !== ENTITY_TYPE_VALUE.JSACTION) {
+  if (currentEntityType !== ENTITY_TYPE.JSACTION) {
     // New binding command is not applicable in JS Objects
     commonCommands.push(newBinding);
   }
@@ -259,7 +259,7 @@ export const generateQuickCommands = (
 
   filteredCommands.push(...commonCommandsMatchingSearchText);
 
-  if (currentEntityType !== ENTITY_TYPE_VALUE.JSACTION) {
+  if (currentEntityType !== ENTITY_TYPE.JSACTION) {
     // Binding suggestions and create query commands are not applicable in JS Objects
 
     // Get top 5 matching suggestions
@@ -277,7 +277,7 @@ export const generateQuickCommands = (
       filteredCommands.push(...suggestionsMatchingSearchText);
     }
 
-    if (currentEntityType === ENTITY_TYPE_VALUE.WIDGET) {
+    if (currentEntityType === ENTITY_TYPE.WIDGET) {
       const createNewCommands: CommandsCompletion[] = [];
       createNewCommands.push(...datasourceCommands);
 

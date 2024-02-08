@@ -1,12 +1,12 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
-const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal focus", function () {
+describe("Modal focus", { tags: ["@tag.Widget", "@tag.Modal"] }, function () {
   const someInputText = "some text";
 
   function setupModalWithInputWidget() {
@@ -23,7 +23,7 @@ describe("Modal focus", function () {
     EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     cy.get(widgets.modalWidget).should("exist");
 
-    cy.get(explorer.addWidget).click();
+    PageLeftPane.switchToAddNew();
 
     cy.wait(500);
     //drag input field into modal

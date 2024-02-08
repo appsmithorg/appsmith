@@ -30,6 +30,8 @@ public class OpenAIConstants {
     public static final String COMMAND = "command";
     public static final String MODEL = "model";
     public static final String MESSAGES = "messages";
+    public static final String VIEW_TYPE = "viewType";
+    public static final String COMPONENT_DATA = "componentData";
     public static final String SYSTEM_MESSAGES = "systemMessages";
     public static final String USER_MESSAGES = "userMessages";
     public static final String MAX_TOKENS = "maxTokens";
@@ -43,6 +45,8 @@ public class OpenAIConstants {
     // Other constants
     public static final String BODY = "body";
     public static final Integer DEFAULT_MAX_TOKEN = 16;
+    public static final String JSON = "json";
+    public static final String COMPONENT = "component";
 
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))

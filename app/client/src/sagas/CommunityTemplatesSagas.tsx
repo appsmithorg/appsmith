@@ -16,7 +16,7 @@ import type {
   PublishCommunityTemplateResponse,
 } from "api/TemplatesApi";
 import TemplatesAPI from "api/TemplatesApi";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { UpdateUserRequest } from "@appsmith/api/UserApi";
 import UserApi from "@appsmith/api/UserApi";
@@ -78,8 +78,6 @@ function* publishCommunityTemplateSaga(
 
     const response: PublishCommunityTemplateResponse = yield call(
       TemplatesAPI.publishCommunityTemplate,
-      applicationId,
-      workspaceId,
       requestObj,
     );
     const isValid: boolean = yield validateResponse(response);
