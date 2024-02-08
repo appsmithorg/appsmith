@@ -15,12 +15,8 @@ const Wrapper = styled.div<{ step: number }>`
   display: flex;
   height: 30px;
   width: 100%;
-  border-radius: var(--ads-v2-border-radius);
-  &:hover {
-    background: var(--ads-v2-color-bg-subtle);
-  }
   align-items: center;
-  cursor: pointer;
+  flex-shrink: 0;
 `;
 
 const FieldName = styled.div`
