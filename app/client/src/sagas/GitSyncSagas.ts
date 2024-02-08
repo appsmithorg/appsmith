@@ -33,11 +33,11 @@ import type {
   GenerateSSHKeyPairResponsePayload,
   GetSSHKeyPairReduxAction,
   GetSSHKeyResponseData,
+  GitStatusParams,
 } from "actions/gitSyncActions";
 import {
   fetchGitProtectedBranchesInit,
   updateGitProtectedBranchesInit,
-  fetchGitRemoteStatusSuccess,
   clearCommitSuccessfulState,
 } from "actions/gitSyncActions";
 import {
@@ -553,7 +553,7 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
   }
 }
 
-function* fetchGitStatusSaga() {
+function* fetchGitStatusSaga(action: ReduxAction<GitStatusParams>) {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -563,7 +563,7 @@ function* fetchGitStatusSaga() {
     response = yield GitSyncAPI.getGitStatus({
       applicationId,
       branch: gitMetaData?.branchName || "",
-      compareRemote: true,
+      compareRemote: action.payload.compareRemote ?? true,
     });
     const isValidResponse: boolean = yield validateResponse(
       response,
@@ -573,6 +573,9 @@ function* fetchGitStatusSaga() {
     if (isValidResponse) {
       // @ts-expect-error: response is of type unknown
       yield put(fetchGitStatusSuccess(response?.data));
+    }
+    if (typeof action.payload.onSuccessCallback === "function") {
+      action.payload.onSuccessCallback(response?.data);
     }
   } catch (error) {
     const payload = { error, show: true };
@@ -587,56 +590,8 @@ function* fetchGitStatusSaga() {
       payload,
     });
 
-    // non api error
-    if (!response || response?.responseMeta?.success) {
-      throw error;
-    }
-  }
-}
-
-interface FetchRemoteStatusSagaAction extends ReduxAction<undefined> {
-  onSuccessCallback?: (data: any) => void;
-  onErrorCallback?: (error: Error, response?: any) => void;
-}
-
-function* fetchGitRemoteStatusSaga(action: FetchRemoteStatusSagaAction) {
-  let response: ApiResponse | undefined;
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const gitMetaData: GitApplicationMetadata = yield select(
-      getCurrentAppGitMetaData,
-    );
-    response = yield GitSyncAPI.getGitRemoteStatus({
-      applicationId,
-      branch: gitMetaData?.branchName || "",
-    });
-    const isValidResponse: boolean = yield validateResponse(
-      response,
-      false,
-      getLogToSentryFromResponse(response),
-    );
-    if (isValidResponse) {
-      // @ts-expect-error: response is of type unknown
-      yield put(fetchGitRemoteStatusSuccess(response?.data));
-    }
-    if (typeof action?.onSuccessCallback === "function") {
-      action.onSuccessCallback(response?.data);
-    }
-  } catch (error) {
-    const payload = { error, show: !action?.onErrorCallback };
-    if ((error as Error)?.message?.includes("Auth fail")) {
-      payload.error = new Error(createMessage(ERROR_GIT_AUTH_FAIL));
-    } else if ((error as Error)?.message?.includes("Invalid remote: origin")) {
-      payload.error = new Error(createMessage(ERROR_GIT_INVALID_REMOTE));
-    }
-
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_GIT_REMOTE_STATUS_ERROR,
-      payload,
-    });
-
-    if (typeof action?.onErrorCallback === "function") {
-      action.onErrorCallback(error as Error, response);
+    if (typeof action.payload.onErrorCallback === "function") {
+      action.payload.onErrorCallback(error as Error, response);
     }
 
     // non api error
@@ -1281,7 +1236,6 @@ const gitRequestNonBlockingActions: Record<
   [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: fetchGlobalGitConfig,
   [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT]: fetchLocalGitConfig,
   [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,
-  [ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT]: fetchGitRemoteStatusSaga,
   [ReduxActionTypes.SHOW_CONNECT_GIT_MODAL]: showConnectGitModal,
   [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
   [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:

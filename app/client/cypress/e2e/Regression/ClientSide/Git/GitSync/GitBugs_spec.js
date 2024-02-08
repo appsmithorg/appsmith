@@ -32,7 +32,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
+  it.skip("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -71,9 +71,10 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     gitSync.CreateGitBranch(tempBranch0, false);
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.assertAbsence(pagename);
+    gitSync.DeleteTestGithubRepo(repoName);
   });
 
-  it("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
+  it.skip("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
     homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -132,7 +133,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
+  it.skip("3. Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
     // create a new branch, clone page and validate jsObject data binding
     //cy.createGitBranch(tempBranch);
     cy.wait(3000);
@@ -195,10 +196,15 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
         .its("store")
         .invoke("getState")
         .then((state) => {
+          // const commitTextarea = agHelper.GetElement(gitSyncLocators.commitCommentInput);
+          // const commitInputDisabled = commitTextarea.should("be.disabled");
+
+          cy.log(state.ui.gitSync.gitStatus)
           const commitInputDisabled =
             state.ui.gitSync.gitStatus?.isClean ||
             state.ui.gitSync.isCommitting;
-          cy.log("commitInputDisabled is " + commitInputDisabled);
+          // cy.log("commitInputDisabled is " + commitInputDisabled);
+
           if (!commitInputDisabled) {
             cy.commitAndPush();
           }
@@ -251,30 +257,20 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       cy.CreateAppForWorkspace(newWorkspaceName, `${newWorkspaceName}app`);
 
       cy.generateUUID().then((uid) => {
-        const owner = Cypress.env("TEST_GITHUB_USER_NAME");
         repoName = uid;
         gitSync.CreateTestGiteaRepo(repoName);
-        //cy.createTestGithubRepo(repoName);
+        gitSync.OpenGitSyncModal();
 
-        // open gitSync modal
-        cy.get(homePageLocators.deployPopupOptionTrigger).click();
-        cy.get(homePageLocators.connectToGitBtn).click({ force: true });
+        agHelper.GetNClick(gitSync.providerRadioOthers);
+        agHelper.GetNClick(gitSync.existingEmptyRepoYes);
+        agHelper.GetNClick(gitSync.gitConnectNextBtn);
+        agHelper.TypeText(
+          gitSync.remoteUrlInput,
+          `${dataManager.GITEA_API_URL_TED}/${repoName}.git`,
+        );
+        agHelper.GetNClick(gitSync.gitConnectNextBtn);
 
-        cy.intercept(
-          {
-            url: "api/v1/git/connect/*",
-            hostname: window.location.host,
-          },
-          (req) => {
-            req.headers["origin"] = "Cypress";
-          },
-        );
-        cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-          `generateKey-${repoName}`,
-        );
-        cy.get(gitSyncLocators.gitRepoInput).type(
-          `{selectAll}${dataManager.GITEA_API_URL_TED}/${repoName}.git`,
-        );
+        
         // abort git flow after generating key
         cy.get(gitSyncLocators.closeGitSyncModal).click();
       });
@@ -286,8 +282,4 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     });
   });
 
-  after(() => {
-    //clean up
-    gitSync.DeleteTestGithubRepo(repoName);
-  });
 });

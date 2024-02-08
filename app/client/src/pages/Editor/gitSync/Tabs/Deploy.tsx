@@ -31,7 +31,6 @@ import {
   getIsCommitSuccessful,
   getIsCommittingInProgress,
   getIsDiscardInProgress,
-  getIsFetchingGitRemoteStatus,
   getIsFetchingGitStatus,
   getIsPullingProgress,
   getPullFailed,
@@ -105,7 +104,6 @@ function Deploy() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus) as GitStatusData;
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
-  const remoteStatusLoading = useSelector(getIsFetchingGitRemoteStatus);
   const isPullingProgress = useSelector(getIsPullingProgress);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
@@ -338,7 +336,7 @@ function Deploy() {
                 value={commitMessageDisplay}
               />
             </SubmitWrapper>
-            {(isFetchingGitStatus || remoteStatusLoading) && (
+            {isFetchingGitStatus && (
               <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
             )}
             {/* <Space size={11} /> */}

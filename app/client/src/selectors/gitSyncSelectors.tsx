@@ -64,9 +64,6 @@ export const getIsFetchingLocalGitConfig = (state: AppState) =>
 
 export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 
-export const getGitRemoteStatus = (state: AppState) =>
-  state.ui.gitSync.gitRemoteStatus;
-
 export const getGitConnectError = (state: AppState) =>
   state.ui.gitSync.connectError?.error;
 
@@ -84,9 +81,6 @@ export const getGitDiscardError = (state: AppState) =>
 
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
-
-export const getIsFetchingGitRemoteStatus = (state: AppState) =>
-  state.ui.gitSync.isFetchingGitRemoteStatus;
 
 export const getIsPullingProgress = (state: AppState) =>
   state.ui.gitSync.pullInProgress;
