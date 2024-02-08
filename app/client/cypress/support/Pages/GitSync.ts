@@ -171,11 +171,16 @@ export class GitSync {
       }
 
       if (removeDefaultBranchProtection) {
-        cy.wait([`@protected-${repoName}`, `@branches-${repoName}`]).then((interceptions) => {
-            if(interceptions[0]?.response?.statusCode === 200 && interceptions[1]?.response?.statusCode === 200) {
+        cy.wait([`@protected-${repoName}`, `@branches-${repoName}`]).then(
+          (interceptions) => {
+            if (
+              interceptions[0]?.response?.statusCode === 200 &&
+              interceptions[1]?.response?.statusCode === 200
+            ) {
               this.clearBranchProtection();
             }
-        })
+          },
+        );
       }
 
       cy.wrap(repoName).as("gitRepoName");

@@ -295,14 +295,10 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   agHelper.AssertElementExist(gitSync._bottomBarPull);
-  
-  cy.intercept("GET", "/api/v1/git/status/app/*").as(
-    `gitStatus`,
-  );
 
-  cy.intercept("GET", "/api/v1/git/branch/app/*").as(
-    `gitBranches`,
-  );
+  cy.intercept("GET", "/api/v1/git/status/app/*").as(`gitStatus`);
+
+  cy.intercept("GET", "/api/v1/git/branch/app/*").as(`gitBranches`);
 
   cy.get(gitSyncLocators.bottomBarMergeButton).click({ force: true });
   //cy.wait(6000); // wait for git status call to finish
@@ -319,7 +315,10 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   );
   agHelper.WaitUntilEleDisappear(gitSync._mergeLoader);
   cy.wait(["@gitBranches", "@gitStatus"]).then((interceptions) => {
-    if(interceptions[0]?.response?.statusCode === 200 && interceptions[1]?.response?.statusCode === 200) {
+    if (
+      interceptions[0]?.response?.statusCode === 200 &&
+      interceptions[1]?.response?.statusCode === 200
+    ) {
       cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
       cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
       agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
