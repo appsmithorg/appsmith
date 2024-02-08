@@ -199,7 +199,6 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
           // const commitTextarea = agHelper.GetElement(gitSyncLocators.commitCommentInput);
           // const commitInputDisabled = commitTextarea.should("be.disabled");
 
-          cy.log(state.ui.gitSync.gitStatus)
           const commitInputDisabled =
             state.ui.gitSync.gitStatus?.isClean ||
             state.ui.gitSync.isCommitting;
@@ -270,7 +269,6 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
         );
         agHelper.GetNClick(gitSync.gitConnectNextBtn);
 
-        
         // abort git flow after generating key
         cy.get(gitSyncLocators.closeGitSyncModal).click();
       });
@@ -281,5 +279,4 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       cy.SearchApp(`${newWorkspaceName}app`);
     });
   });
-
 });
