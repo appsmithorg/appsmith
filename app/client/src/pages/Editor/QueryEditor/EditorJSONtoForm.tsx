@@ -490,7 +490,6 @@ export function EditorJSONtoForm(props: Props) {
                 pluginId={props.pluginId}
                 showSchema={showSchema}
                 showSuggestedWidgets={showSuggestedWidgets}
-                suggestedWidgets={actionResponse?.suggestedWidgets}
               />
             </SidebarWrapper>
           )}

@@ -13,8 +13,7 @@ import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/co
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
-import { Callout, SegmentedControl } from "design-system";
-import { SegmentedControlContainer } from "./QueryDebuggerTabs";
+import { Callout, Flex, SegmentedControl } from "design-system";
 import styled from "styled-components";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -30,8 +29,19 @@ import { getHasExecuteActionPermission } from "@appsmith/utils/BusinessFeatures/
 import { getResponsePaneHeight } from "selectors/debuggerSelectors";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { isString } from "lodash";
+import BindDataButton from "./BindDataButton";
 
 const HelpSection = styled.div``;
+
+export const ResponseDataContainer = styled.div`
+  padding: 0 var(--ads-v2-spaces-7);
+  padding-top: var(--ads-v2-spaces-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-4);
+  overflow-y: clip;
+  overflow-x: scroll;
+`;
 
 const ResponseContentWrapper = styled.div<{ isError: boolean }>`
   overflow-y: clip;
@@ -234,24 +244,31 @@ const QueryResponseTab = (props: Props) => {
         responseBodyTabs &&
         responseBodyTabs.length > 0 &&
         selectedTabIndex !== -1 && (
-          <SegmentedControlContainer>
-            <SegmentedControl
-              data-testid="t--response-tab-segmented-control"
-              defaultValue={segmentedControlOptions[0]?.value}
-              isFullWidth={false}
-              onChange={(value) => {
-                setSelectedControl(value);
-                onResponseTabSelect(value);
-              }}
-              options={segmentedControlOptions}
-              value={selectedControl}
-            />
+          <ResponseDataContainer>
+            <Flex justifyContent="space-between">
+              <SegmentedControl
+                data-testid="t--response-tab-segmented-control"
+                defaultValue={segmentedControlOptions[0]?.value}
+                isFullWidth={false}
+                onChange={(value) => {
+                  setSelectedControl(value);
+                  onResponseTabSelect(value);
+                }}
+                options={segmentedControlOptions}
+                value={selectedControl}
+              />
+              <BindDataButton
+                actionName={currentActionConfig.name}
+                hasResponse={!!actionResponse}
+                suggestedWidgets={actionResponse?.suggestedWidgets}
+              />
+            </Flex>
             {responseTabComponent(
               selectedControl || segmentedControlOptions[0]?.value,
               output,
               responsePaneHeight,
             )}
-          </SegmentedControlContainer>
+          </ResponseDataContainer>
         )}
       {!output && !error && (
         <NoResponse

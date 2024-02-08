@@ -54,16 +54,6 @@ export const TabbedViewContainer = styled.div`
   border-top: 1px solid var(--ads-v2-color-border);
 `;
 
-export const SegmentedControlContainer = styled.div`
-  padding: 0 var(--ads-v2-spaces-7);
-  padding-top: var(--ads-v2-spaces-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ads-v2-spaces-4);
-  overflow-y: clip;
-  overflow-x: scroll;
-`;
-
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
   currentActionConfig?: Action;

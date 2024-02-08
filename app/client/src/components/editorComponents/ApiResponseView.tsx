@@ -58,6 +58,7 @@ import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/Editor
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
+import BindDataButton from "../../pages/Editor/QueryEditor/BindDataButton";
 
 interface TextStyleProps {
   accent: "primary" | "secondary" | "error";
@@ -500,24 +501,31 @@ function ApiResponseView(props: Props) {
                   ) : responseTabs &&
                     responseTabs.length > 0 &&
                     selectedTabIndex !== -1 ? (
-                    <SegmentedControlContainer>
-                      <SegmentedControl
-                        data-testid="t--response-tab-segmented-control"
-                        defaultValue={segmentedControlOptions[0]?.value}
-                        isFullWidth={false}
-                        onChange={(value) => {
-                          setSelectedControl(value);
-                          onResponseTabSelect(value);
-                        }}
-                        options={segmentedControlOptions}
-                        value={selectedControl}
+                    <Flex>
+                      <SegmentedControlContainer>
+                        <SegmentedControl
+                          data-testid="t--response-tab-segmented-control"
+                          defaultValue={segmentedControlOptions[0]?.value}
+                          isFullWidth={false}
+                          onChange={(value) => {
+                            setSelectedControl(value);
+                            onResponseTabSelect(value);
+                          }}
+                          options={segmentedControlOptions}
+                          value={selectedControl}
+                        />
+                        {responseTabComponent(
+                          selectedControl || segmentedControlOptions[0]?.value,
+                          actionResponse?.body,
+                          responsePaneHeight,
+                        )}
+                      </SegmentedControlContainer>
+                      <BindDataButton
+                        actionName={currentActionConfig?.name || ""}
+                        hasResponse={!!actionResponse}
+                        suggestedWidgets={actionResponse.suggestedWidgets}
                       />
-                      {responseTabComponent(
-                        selectedControl || segmentedControlOptions[0]?.value,
-                        actionResponse?.body,
-                        responsePaneHeight,
-                      )}
-                    </SegmentedControlContainer>
+                    </Flex>
                   ) : null}
                 </ResponseBodyContainer>
               )}

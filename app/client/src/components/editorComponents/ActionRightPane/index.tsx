@@ -2,25 +2,17 @@ import React, { useContext, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "design-system-old";
 import { Divider } from "design-system";
-import SuggestedWidgets from "./SuggestedWidgets";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
-  BINDINGS_DISABLED_TOOLTIP,
-  BINDING_SECTION_LABEL,
   createMessage,
   NO_CONNECTIONS,
   SCHEMA_WALKTHROUGH_DESC,
   SCHEMA_WALKTHROUGH_TITLE,
 } from "@appsmith/constants/messages";
-import type {
-  SuggestedWidget,
-  SuggestedWidget as SuggestedWidgetsType,
-} from "api/ActionAPI";
-import { getPagePermissions } from "selectors/editorSelectors";
 import DatasourceStructureHeader from "pages/Editor/DatasourceInfo/DatasourceStructureHeader";
 import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import {
@@ -42,14 +34,10 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { DatasourceStructureContext } from "entities/Datasource";
 import Collapsible, {
   CollapsibleGroup,
   CollapsibleGroupContainer,
-  DisabledCollapsible,
 } from "components/common/Collapsible";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
@@ -162,7 +150,6 @@ export function useEntityDependencies(actionName: string) {
 }
 
 function ActionSidebar({
-  actionName,
   actionRightPaneBackLink,
   additionalSections,
   context,
@@ -172,12 +159,10 @@ function ActionSidebar({
   pluginId,
   showSchema,
   showSuggestedWidgets = true,
-  suggestedWidgets,
 }: {
   actionName: string;
   hasResponse: boolean;
   hasConnections: boolean | null;
-  suggestedWidgets?: SuggestedWidgetsType[];
   datasourceId: string;
   pluginId: string;
   context: DatasourceStructureContext;
@@ -289,22 +274,10 @@ function ActionSidebar({
     }
   }, [showSchema]);
 
-  const pagePermissions = useSelector(getPagePermissions);
-
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const canEditPage = getHasManagePagePermission(
-    isFeatureEnabled,
-    pagePermissions,
-  );
-
-  const suggestedWidgetsEnabled =
-    canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
 
   if (
     !hasConnections &&
-    !suggestedWidgetsEnabled &&
     !showSnipingMode &&
     // putting this here to make the placeholder only appear for rest APIs.
     pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
@@ -344,7 +317,6 @@ function ActionSidebar({
                 <Collapsible
                   CustomLabelComponent={DatasourceStructureHeader}
                   datasource={{ id: datasourceId }}
-                  expand={!suggestedWidgetsEnabled}
                   handleCustomCollapse={handleCustomCollapse}
                   label="Schema"
                 >
@@ -361,23 +333,6 @@ function ActionSidebar({
                 </Collapsible>
               </CollapsibleSection>
             </>
-          )}
-
-          {showSuggestedWidgets && showSchema && <StyledDivider />}
-          {showSuggestedWidgets && suggestedWidgetsEnabled && (
-            <CollapsibleSection height={"40%"} paddingTop={12} ref={bindingRef}>
-              <SuggestedWidgets
-                actionName={actionName}
-                hasWidgets={hasWidgets}
-                suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
-              />
-            </CollapsibleSection>
-          )}
-          {showSuggestedWidgets && !suggestedWidgetsEnabled && (
-            <DisabledCollapsible
-              label={createMessage(BINDING_SECTION_LABEL)}
-              tooltipLabel={createMessage(BINDINGS_DISABLED_TOOLTIP)}
-            />
           )}
         </CollapsibleGroup>
       </CollapsibleGroupContainer>

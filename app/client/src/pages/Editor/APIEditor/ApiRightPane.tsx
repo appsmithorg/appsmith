@@ -349,7 +349,6 @@ function ApiRightPane(props: ApiRightPaneProps) {
                   hasResponse={props.hasResponse}
                   pluginId={props.pluginId}
                   showSchema={showSchema}
-                  suggestedWidgets={props.suggestedWidgets}
                 />
               </ActionRightPaneWrapper>
             </TabPanel>
