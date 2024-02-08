@@ -117,7 +117,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         Mono<UpdateResult> updateUserDataMono =
                 userMono.flatMap(user -> userDataService.removeRecentWorkspaceAndApps(user.getId(), workspaceId));
 
-        Mono<Boolean> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono.flatMap(
+        Mono<Void> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono.flatMap(
                 permissionGroup -> permissionGroupService.leaveExplicitlyAssignedSelfRole(permissionGroup.getId()));
 
         return removeUserFromOldPermissionGroupMono.then(updateUserDataMono).then(userMono);
