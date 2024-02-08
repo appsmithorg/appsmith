@@ -19,8 +19,6 @@ import EditorNavigation, {
   AppSidebar,
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import { AppSettings } from "../../../../support/Pages/AppSettings/AppSettings";
-import HomePage from "../../../../locators/HomePage";
 
 let forkedApplicationDsl;
 let parentApplicationDsl: any;
@@ -30,30 +28,62 @@ describe(
   "Fork application across workspaces",
   { tags: ["@tag.Fork"] },
   function () {
-    before(() => {
-      agHelper.AddDsl("basicDsl");
+    it("1. Mark application as forkable", () => {
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
+
+      homePage.CreateNewApplication();
+      appSettings.OpenAppSettings();
+      appSettings.GoToEmbedSettings();
+      embedSettings.ToggleMarkForkable();
+      embedSettings.TogglePublicAccess();
+
+      inviteModal.OpenShareModal();
+      homePage.InviteUserToApplication(
+        fakerHelper.GetRandomText(5) + "@appsmith.com",
+        "App Viewer",
+      );
+
+      inviteModal.CloseModal();
+      deployMode.DeployApp();
+
+      cy.url().then((url) => {
+        forkableAppUrl = url;
+        cy.LogOut();
+        homePage.LogintoApp(
+          Cypress.env("TESTUSERNAME1"),
+          Cypress.env("TESTPASSWORD1"),
+        );
+        agHelper.VisitNAssert(forkableAppUrl);
+        agHelper.AssertElementVisibility(applicationLocators.forkButton);
+      });
     });
 
-    it("1. Check if the forked application has the same dsl as the original", function () {
-      const appname = localStorage.getItem("workspaceName");
+    it("2. Check if the forked application has the same dsl as the original", function () {
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      const workspaceName = fakerHelper.GetRandomNumber() + "workspace";
+
+      homePage.CreateNewWorkspace(workspaceName);
+      homePage.CreateAppInWorkspace(workspaceName);
+      agHelper.AddDsl("basicDsl");
       EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
 
       cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
       cy.testJsontext("defaultvalue", "A");
-      cy.wait("@inputUpdate").then((response) => {
+      cy.wait("@inputUpdate").then((response: any) => {
         parentApplicationDsl = response.response.body.data.dsl;
       });
 
       homePage.NavigateToHome();
       agHelper.WaitUntilEleAppear(homepagelocators.searchInput);
-      agHelper.GetElement(homepagelocators.searchInput).type(appname);
+      agHelper.GetElement(homepagelocators.searchInput).type(workspaceName);
       agHelper.WaitUntilEleAppear(homepagelocators.appMoreIcon);
       agHelper.GetNClick(homepagelocators.appMoreIcon, 0, true);
       agHelper.GetNClick(homepagelocators.forkAppFromMenu, 0, true);
       agHelper.GetNClick(homepagelocators.forkAppWorkspaceButton, 0, true);
       assertHelper.AssertNetworkStatus("@postForkAppWorkspace", 200);
       assertHelper.WaitForNetworkCall("@getConsolidatedData");
-      cy.get("@getConsolidatedData").then((httpResponse) => {
+      cy.get("@getConsolidatedData").then((httpResponse: any) => {
         const data = httpResponse.response.body.data?.pageWithMigratedDsl?.data;
         forkedApplicationDsl = data.layouts[0].dsl;
         cy.log(JSON.stringify(forkedApplicationDsl));
@@ -64,8 +94,8 @@ describe(
       });
     });
 
-    it("2. Non signed user should be able to fork a public forkable app", function () {
-      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    it("3. Non signed user should be able to fork a public forkable app", function () {
+      homePage.NavigateToHome();
       agHelper.GetElement(homepagelocators.homeIcon).click();
       agHelper.GetNClick(homepagelocators.createNew, 0);
       agHelper
@@ -100,7 +130,7 @@ describe(
           agHelper.GetNClick(applicationLocators.forkButton, 0, true);
           agHelper.GetNClick(loginPageLocators.signupLink);
           agHelper.GenerateUUID();
-          cy.get("@guid").then((uid) => {
+          cy.get("@guid").then((uid: any) => {
             agHelper
               .GetElement(signupPageLocators.username)
               .type(`${uid}@appsmith.com`);
@@ -113,39 +143,6 @@ describe(
             );
           });
         });
-      });
-    });
-
-    it("3. Mark application as forkable", () => {
-      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
-      let workSpaceName: string = fakerHelper.GetRandomText(5) + "workspace";
-
-      homePage.CreateNewWorkspace(workSpaceName, true);
-      homePage.CreateAppInWorkspace(workSpaceName);
-      appSettings.OpenAppSettings();
-      appSettings.GoToEmbedSettings();
-      embedSettings.ToggleMarkForkable();
-      embedSettings.TogglePublicAccess();
-
-      inviteModal.OpenShareModal();
-      homePage.InviteUserToApplication(
-        fakerHelper.GetRandomText(5) + "@appsmith.com",
-        "App Viewer",
-      );
-
-      inviteModal.CloseModal();
-      deployMode.DeployApp();
-
-      cy.url().then((url) => {
-        forkableAppUrl = url;
-        cy.LogOut();
-        homePage.LogintoApp(
-          Cypress.env("TESTUSERNAME1"),
-          Cypress.env("TESTPASSWORD1"),
-        );
-        agHelper.VisitNAssert(forkableAppUrl);
-        agHelper.AssertElementVisibility(applicationLocators.forkButton);
       });
     });
   },
