@@ -24,7 +24,9 @@ const EditorTitle = ({ title }: { title: string }) => {
       </Text>
       <Flex
         alignItems={"center"}
-        className={"hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer"}
+        className={
+          "hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer t--pages-switcher"
+        }
         gap={"spaces-1"}
         height={"100%"}
         justifyContent={"center"}
