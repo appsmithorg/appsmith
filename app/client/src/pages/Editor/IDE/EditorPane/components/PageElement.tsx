@@ -53,7 +53,10 @@ const PageElement = ({ page }: { page: Page }) => {
 
   useEffect(() => {
     if (ref.current && isCurrentPage) {
-      ref.current.scrollIntoView();
+      ref.current.scrollIntoView({
+        inline: "nearest",
+        block: "nearest",
+      });
     }
   }, [ref, isCurrentPage]);
 

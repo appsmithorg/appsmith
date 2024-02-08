@@ -23,7 +23,7 @@ import { getPagesActiveStatus } from "selectors/ideSelectors";
 
 const AnimatedFlex = animated(Flex);
 const defaultAnimationState = { height: "0%" };
-const expandedAnimationState = { height: "50%" };
+const expandedAnimationState = { height: "21.5%" };
 
 const PagesSection = () => {
   const dispatch = useDispatch();
@@ -95,7 +95,7 @@ const PagesSection = () => {
   return (
     <AnimatedFlex
       flexDirection={"column"}
-      height={"50%"}
+      height={"21.5%"}
       justifyContent={"center"}
       overflow={"hidden"}
       style={springs}
