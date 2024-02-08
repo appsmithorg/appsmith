@@ -31,20 +31,22 @@ describe(
       });
     });
     it("1. Verify user can connect more then 3 private repos in appsmith", function () {
-      agHelper.Sleep(3000); // adding wait for app to load
-      homePage.LogOutviaAPI();
+      homePage.Signout();
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
+        onboarding.closeIntroModal();
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
+      onboarding.closeIntroModal();
       gitSync.CreateNConnectToGit(repoName1, true, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName1 = repName;
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
+      onboarding.closeIntroModal();
       gitSync.CreateNConnectToGit(repoName2, true, true);
       cy.get("@gitRepoName").then((repName) => {
         repoName2 = repName;
