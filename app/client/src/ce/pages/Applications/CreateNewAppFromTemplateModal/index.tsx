@@ -16,7 +16,7 @@ import { Modal, ModalBody, ModalContent } from "design-system";
 import { isEmpty } from "lodash";
 import { TemplateView } from "pages/Templates/TemplateView";
 import TemplatesListLayoutSwitcher from "pages/Templates/TemplatesModal/TemplatesListLayoutSwitcher";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   activeLoadingTemplateId,
@@ -47,6 +47,7 @@ function CreateNewAppFromTemplatesModal({
   const [showTemplateDetails, setShowTemplateDetails] = useState("");
   const allTemplates = useSelector(getTemplatesSelector);
   const loadingTemplateId = useSelector(activeLoadingTemplateId);
+  const modadBodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setShowTemplateDetails("");
@@ -73,6 +74,12 @@ function CreateNewAppFromTemplatesModal({
       dispatch(getTemplateFilters());
     }
   }, [filters]);
+
+  useEffect(() => {
+    if (!showTemplateDetails && modadBodyRef.current) {
+      modadBodyRef.current.scrollTop = 0;
+    }
+  }, [showTemplateDetails]);
 
   const onClose = (open: boolean) => {
     if (open === false) {
@@ -101,7 +108,10 @@ function CreateNewAppFromTemplatesModal({
   return (
     <Modal onOpenChange={(open) => onClose(open)} open={isOpen}>
       <ModalContentWrapper data-testid="t--create-app-from-templates-dialog-component">
-        <ModalBodyWrapper isDetailedView={!!showTemplateDetails}>
+        <ModalBodyWrapper
+          isDetailedView={!!showTemplateDetails}
+          ref={modadBodyRef}
+        >
           {!!showTemplateDetails ? (
             <TemplateView
               handleBackPress={() => setShowTemplateDetails("")}
