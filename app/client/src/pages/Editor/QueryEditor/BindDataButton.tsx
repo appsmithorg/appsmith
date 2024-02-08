@@ -43,6 +43,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { useParams } from "react-router";
+import styled from "styled-components";
 
 interface BindDataButtonProps {
   suggestedWidgets?: SuggestedWidget[];
@@ -54,6 +55,10 @@ const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET_V2"];
 
 const connectExistingWidgetLabel = createMessage(CONNECT_EXISTING_WIDGET_LABEL);
 const addNewWidgetLabel = createMessage(ADD_NEW_WIDGET);
+
+const WidgetIcon = styled.img`
+  height: 15px;
+`;
 
 interface WidgetBindingInfo {
   label: string;
@@ -215,7 +220,7 @@ function renderHeading(heading: string) {
 function renderWidgetItem(icon: string | undefined, name: string | undefined) {
   return (
     <Flex alignItems="center" gap="spaces-2">
-      {icon && <img alt="widget-icon" height="15px" src={icon} />}
+      {icon && <WidgetIcon alt="widget-icon" height="15px" src={icon} />}
       <Text className="widget-name" kind="action-m">
         {name}
       </Text>

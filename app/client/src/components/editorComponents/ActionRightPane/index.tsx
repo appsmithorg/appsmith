@@ -1,41 +1,13 @@
-import React, { useContext, useEffect, useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "design-system-old";
-import { Divider } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
-import { getWidgets } from "sagas/selectors";
+import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
-import {
-  createMessage,
-  NO_CONNECTIONS,
-  SCHEMA_WALKTHROUGH_DESC,
-  SCHEMA_WALKTHROUGH_TITLE,
-} from "@appsmith/constants/messages";
-import {
-  getDatasourceStructureById,
-  getPluginDatasourceComponentFromId,
-} from "@appsmith/selectors/entitiesSelector";
-import { DatasourceComponentTypes } from "api/PluginApi";
-import { fetchDatasourceStructure } from "actions/datasourceActions";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import {
-  getFeatureWalkthroughShown,
-  isUserSignedUpFlagSet,
-  setFeatureWalkthroughShown,
-} from "utils/storage";
-import { SCHEMA_SECTION_ID } from "entities/Action";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { DatasourceStructureContext } from "entities/Datasource";
 import {
   CollapsibleGroup,
   CollapsibleGroupContainer,
 } from "components/common/Collapsible";
-
-const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
 const SideBar = styled.div`
   height: 100%;
@@ -86,37 +58,6 @@ const SideBar = styled.div`
   }
 `;
 
-const Placeholder = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  height: 100%;
-  padding: ${(props) => props.theme.spaces[8]}px;
-  text-align: center;
-`;
-
-export const CollapsibleSection = styled.div<{
-  height: string;
-  marginTop?: number;
-  paddingTop?: number;
-}>`
-  margin-top: ${(props) => props.marginTop && `${props.marginTop}px`};
-  padding-top: ${(props) => props.paddingTop && `${props.paddingTop}px`};
-  height: auto;
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  ${(props) => props.height && `height: ${props.height};`}
-  & > div {
-    height: 100%;
-  }
-`;
-
-const StyledDivider = styled(Divider)`
-  display: block;
-`;
-
 export function useEntityDependencies(actionName: string) {
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
   const entityDependencies = useMemo(
@@ -140,113 +81,11 @@ export function useEntityDependencies(actionName: string) {
 function ActionSidebar({
   actionRightPaneBackLink,
   additionalSections,
-  datasourceId,
-  hasConnections,
-  hasResponse,
-  pluginId,
-  showSchema,
-  showSuggestedWidgets = true,
 }: {
-  actionName: string;
-  hasResponse: boolean;
-  hasConnections: boolean | null;
-  datasourceId: string;
-  pluginId: string;
-  context: DatasourceStructureContext;
   additionalSections?: React.ReactNode;
   actionRightPaneBackLink: React.ReactNode;
-  showSuggestedWidgets?: boolean;
-  showSchema: boolean;
 }) {
-  const dispatch = useDispatch();
-  const widgets = useSelector(getWidgets);
-  const user = useSelector(getCurrentUser);
-  const { pushFeature } = useContext(WalkthroughContext) || {};
-  const bindingRef = useRef<HTMLDivElement | null>(null);
-
-  const pluginDatasourceForm = useSelector((state) =>
-    getPluginDatasourceComponentFromId(state, pluginId || ""),
-  );
-
-  const datasourceStructure = useSelector((state) =>
-    getDatasourceStructureById(state, datasourceId),
-  );
-
-  const hasWidgets = Object.keys(widgets).length > 1;
-
-  useEffect(() => {
-    if (
-      datasourceId &&
-      datasourceStructure === undefined &&
-      pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
-    ) {
-      dispatch(
-        fetchDatasourceStructure(
-          datasourceId,
-          true,
-          DatasourceStructureContext.QUERY_EDITOR,
-        ),
-      );
-    }
-  }, []);
-
-  const checkAndShowWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.ds_schema,
-    );
-
-    const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
-    // Adding walkthrough tutorial
-    isNewUser &&
-      !isFeatureWalkthroughShown &&
-      pushFeature &&
-      pushFeature({
-        targetId: `#${SCHEMA_SECTION_ID}`,
-        onDismiss: async () => {
-          await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.ds_schema,
-            true,
-          );
-        },
-        details: {
-          title: createMessage(SCHEMA_WALKTHROUGH_TITLE),
-          description: createMessage(SCHEMA_WALKTHROUGH_DESC),
-          imageURL: getAssetUrl(SCHEMA_GUIDE_GIF),
-        },
-        offset: {
-          position: "left",
-          left: -40,
-          highlightPad: 5,
-          indicatorLeft: -3,
-          style: {
-            transform: "none",
-          },
-        },
-        eventParams: {
-          [FEATURE_WALKTHROUGH_KEYS.ds_schema]: true,
-        },
-        delay: 2500,
-      });
-  };
-
-  useEffect(() => {
-    if (showSchema) {
-      checkAndShowWalkthrough();
-    }
-  }, [showSchema]);
-
-  const showSnipingMode = hasResponse && hasWidgets;
-
-  if (
-    !hasConnections &&
-    !showSnipingMode &&
-    // putting this here to make the placeholder only appear for rest APIs.
-    pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
-  ) {
-    return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
-  }
-
-  if (!additionalSections && !showSchema && !showSuggestedWidgets) {
+  if (!additionalSections) {
     return null;
   }
 

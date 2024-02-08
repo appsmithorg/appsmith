@@ -6,7 +6,7 @@ import {
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -35,6 +35,13 @@ import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import QueryResponseTab from "./QueryResponseTab";
+import {
+  getDatasourceStructureById,
+  getPluginDatasourceComponentFromId,
+} from "@appsmith/selectors/entitiesSelector";
+import { DatasourceComponentTypes } from "api/PluginApi";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { DatasourceStructureContext } from "entities/Datasource";
 
 const ResultsCount = styled.div`
   position: absolute;
@@ -82,6 +89,33 @@ function QueryDebuggerTabs({
   const selectedResponseTab = useSelector(getDebuggerSelectedTab);
   const responsePaneHeight = useSelector(getResponsePaneHeight);
   const errorCount = useSelector(getErrorCount);
+
+  const pluginDatasourceForm = useSelector((state) =>
+    getPluginDatasourceComponentFromId(
+      state,
+      currentActionConfig?.pluginId || "",
+    ),
+  );
+
+  const datasourceStructure = useSelector((state) =>
+    getDatasourceStructureById(state, currentActionConfig?.datasource.id || ""),
+  );
+
+  useEffect(() => {
+    if (
+      currentActionConfig?.datasource.id &&
+      datasourceStructure === undefined &&
+      pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      dispatch(
+        fetchDatasourceStructure(
+          currentActionConfig?.datasource.id,
+          true,
+          DatasourceStructureContext.QUERY_EDITOR,
+        ),
+      );
+    }
+  }, []);
 
   // Query is executed even once during the session, show the response data.
   if (actionResponse) {
