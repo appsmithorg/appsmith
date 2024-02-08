@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportableModule;
@@ -39,8 +40,9 @@ public class GitFileUtils extends GitFileUtilsCE {
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             NewActionService newActionService,
+            ActionCollectionService actionCollectionService,
             Gson gson) {
-        super(fileUtils, analyticsService, sessionUserService, newActionService, gson);
+        super(fileUtils, analyticsService, sessionUserService, newActionService, actionCollectionService, gson);
         this.gson = gson;
     }
 
