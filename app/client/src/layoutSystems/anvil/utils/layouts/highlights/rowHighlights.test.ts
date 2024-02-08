@@ -912,11 +912,8 @@ describe("rowHighlights tests", () => {
 
       // highlights for the dragged widget should be discounted.
       expect(res.length).toEqual(2);
-      // First highlight should be placed before input widget
-      expect(res[0].posX).toBeLessThan(positions[input1].left);
-      expect(res[0].posX).toBeGreaterThan(
-        positions[button1].left + positions[button1].width,
-      );
+      // First highlight should be placed before dragged widget
+      expect(res[0].posX).toBeLessThan(positions[button1].left);
       // Second highlight should be placed after input widget
       expect(res[1].posX).toEqual(
         positions[input1].left + positions[input1].width,

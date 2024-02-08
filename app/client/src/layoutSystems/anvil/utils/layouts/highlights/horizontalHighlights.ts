@@ -9,7 +9,10 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { getStartPosition } from "./highlightUtils";
-import { HIGHLIGHT_SIZE } from "../../constants";
+import {
+  DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT,
+  HIGHLIGHT_SIZE,
+} from "../../constants";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,
@@ -420,7 +423,9 @@ export function generateHighlights(
     ...(emptyLayout && !hasFillWidget
       ? {
           isVertical: true,
-          height: isInitialHighlight ? 40 : currentDimension.height,
+          height: isInitialHighlight
+            ? DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT
+            : currentDimension.height,
           width: HIGHLIGHT_SIZE,
           posX: ((layoutDimension.width - HIGHLIGHT_SIZE) * index) / 2,
           posY: isFirstHighlight ? 0 : posY + HIGHLIGHT_SIZE / 2,
