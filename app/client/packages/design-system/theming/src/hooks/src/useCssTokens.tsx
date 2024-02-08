@@ -50,13 +50,19 @@ const getColorCss = (color: ThemeToken["color"]) => {
   `;
 };
 
-export function useCssTokens(props: Theme) {
-  const { color, colorMode, fontFamily, typography, ...restTokens } = props;
+interface UseCssTokensProps extends Theme {
+  width: number | null;
+}
+
+export function useCssTokens(props: UseCssTokensProps) {
+  const { color, colorMode, fontFamily, typography, width, ...restTokens } =
+    props;
 
   const [colorClassName, setColorClassName] = useState<string>();
   const [colorModeClassName, setColorModeClassName] = useState<string>();
   const [fontFamilyClassName, setFontFamilyClassName] = useState<string>();
   const [typographyClassName, setTypographyClassName] = useState<string>();
+  const [widthClassName, setWidthClassName] = useState<string>();
   const [providerClassName, setProviderClassName] = useState<string>();
 
   useEffect(() => {
@@ -88,6 +94,14 @@ export function useCssTokens(props: Theme) {
   }, [restTokens]);
 
   useEffect(() => {
+    if (width != null) {
+      setWidthClassName(css`
+        --provider-width: ${width}px;
+      `);
+    }
+  }, [width]);
+
+  useEffect(() => {
     if (colorMode != null) {
       setColorModeClassName(css`
         color-scheme: ${colorMode};
@@ -100,6 +114,7 @@ export function useCssTokens(props: Theme) {
     colorModeClassName,
     fontFamilyClassName,
     typographyClassName,
+    widthClassName,
     providerClassName,
   };
 }

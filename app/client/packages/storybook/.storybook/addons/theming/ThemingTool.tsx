@@ -1,6 +1,7 @@
 import * as React from "react";
 import { memo, useState, useRef } from "react";
-import { IconButton, Icons } from "@storybook/components";
+import { IconButton } from "@storybook/components";
+import { Icon } from "@storybook/components/experimental";
 import { ThemingPopup } from "./ThemingPopup";
 import { createPortal } from "react-dom";
 
@@ -26,7 +27,7 @@ export const ThemingTool = memo(function MyAddonSelector() {
         onClick={togglePopup}
         ref={ref}
       >
-        <Icons icon="lightning" />
+        <Icon.Lightning />
       </IconButton>
       {isThemingPopupOpen &&
         createPortal(

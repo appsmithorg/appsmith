@@ -17,6 +17,8 @@
     "@capsizecss/core": "^3.1.1",
     "@capsizecss/metrics": "^1.2.0",
     "@emotion/sheet": "^1.2.2",
+    "@react-hook/debounce": "^4.0.0",
+    "@react-hook/resize-observer": "^1.2.6",
     "lodash": "*"
   }
 }

@@ -1,13 +1,15 @@
 import Color from "colorjs.io";
 import { useEffect, useState } from "react";
-import { TokensAccessor, defaultTokens, tokensConfigs } from "../../token";
-import { useSizing, useSpacing, useTypography } from "./";
+import { TokensAccessor, defaultTokens } from "../../token";
+import { useFluidSizing, useFluidSpacing, useFluidTypography } from "./";
 
 import type { ColorMode } from "../../color";
 import type { TokenSource, FontFamily, IconStyle } from "../../token";
 
+const { fluid, ...restDefaultTokens } = defaultTokens;
+
 const tokensAccessor = new TokensAccessor({
-  ...(defaultTokens as TokenSource),
+  ...(restDefaultTokens as TokenSource),
 });
 
 export interface UseThemeProps {
@@ -31,15 +33,14 @@ export function useTheme(props: UseThemeProps = {}) {
     userSizing = 1,
   } = props;
 
-  const { sizing } = useSizing(tokensConfigs.sizing, userDensity, userSizing);
-  const { innerSpacing, outerSpacing } = useSpacing(
-    tokensConfigs.outerSpacing,
-    tokensConfigs.innerSpacing,
+  const { sizing } = useFluidSizing(fluid, userDensity, userSizing);
+  const { innerSpacing, outerSpacing } = useFluidSpacing(
+    fluid,
     userDensity,
     userSizing,
   );
-  const { typography } = useTypography(
-    tokensConfigs.typography,
+  const { typography } = useFluidTypography(
+    fluid,
     fontFamily,
     userDensity,
     userSizing,
