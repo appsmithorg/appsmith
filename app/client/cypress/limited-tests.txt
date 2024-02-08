@@ -1,14 +1,6 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-#cypress/e2e/Regression/ClientSide/DynamicHeight/Text_With_Different_Size_spec.ts
-#cypress/e2e/Regression/ClientSide/Onboarding/StartFromScratch2_spec.ts
-#cypress/e2e/Regression/ClientSide/Onboarding/StartFromScratch3_spec.ts
-#cypress/e2e/Regression/ClientSide/Onboarding/StartFromData_spec.ts
-#cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-#cypress/e2e/Regression/ClientSide/Onboarding/StartFromScratch1_spec.ts
-#cypress/e2e/Regression/ClientSide/OtherUIFeatures/ApplicationURL_spec.js
-#cypress/e2e/Regression/ClientSide/Templates/Fork_Template_To_App_spec.ts
-#cypress/e2e/Regression/ClientSide/ExplorerTests/JSEditorContextMenu_Spec.ts
+
 
 # For running all specs - uncomment below:
 cypress/e2e/**/**/*
