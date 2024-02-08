@@ -19,8 +19,6 @@ import EditorNavigation, {
   AppSidebar,
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import { AppSettings } from "../../../../support/Pages/AppSettings/AppSettings";
-import HomePage from "../../../../locators/HomePage";
 
 let forkedApplicationDsl;
 let parentApplicationDsl: any;
