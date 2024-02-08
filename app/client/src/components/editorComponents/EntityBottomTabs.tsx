@@ -76,6 +76,7 @@ function EntityBottomTabs(
               key={tab.key}
               notificationCount={tab.count}
               value={tab.key}
+              id={`debugger-tab-${tab.key}`}
             >
               {tab.title}
             </Tab>
