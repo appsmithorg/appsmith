@@ -12,7 +12,7 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
       appName = "GitStatusLite" + uid;
       _.homePage.CreateNewWorkspace(wsName, true);
       _.homePage.CreateAppInWorkspace(wsName, appName);
-      _.gitSync.CreateNConnectToGitV2();
+      _.gitSync.CreateNConnectToGit();
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });

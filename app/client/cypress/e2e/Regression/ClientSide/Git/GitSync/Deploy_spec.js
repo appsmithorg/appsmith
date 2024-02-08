@@ -12,7 +12,7 @@ describe("Git sync modal: deploy tab", { tags: ["@tag.Git"] }, function () {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
-    _.gitSync.CreateNConnectToGitV2("Test");
+    _.gitSync.CreateNConnectToGit("Test");
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });

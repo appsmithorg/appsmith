@@ -15,7 +15,7 @@ describe("Git disconnect modal:", { tags: ["@tag.Git"] }, function () {
 
   it("1. should be opened with proper components", function () {
     cy.generateUUID().then((uid) => {
-      _.gitSync.CreateNConnectToGitV2(uid);
+      _.gitSync.CreateNConnectToGit(uid);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });

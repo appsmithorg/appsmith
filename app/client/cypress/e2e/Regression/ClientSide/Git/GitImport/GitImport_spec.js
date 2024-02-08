@@ -67,7 +67,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
       });
       cy.wait(1000);
 
-      gitSync.CreateNConnectToGitV2();
+      gitSync.CreateNConnectToGit();
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
         gitSync.CreateGitBranch(repoName);
@@ -85,7 +85,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
       newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, "gitImport");
     });
-    gitSync.ImportAppFromGitV2(newWorkspaceName, repoName);
+    gitSync.ImportAppFromGit(newWorkspaceName, repoName);
     cy.wait(5000);
     cy.get(reconnectDatasourceModal.Modal).should("be.visible");
     cy.ReconnectDatasource("TEDPostgres");

@@ -194,7 +194,7 @@ describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
 
   it("3. Connect the application to git and validate data in deploy mode and edit mode", function () {
     deployMode.NavigateBacktoEditor();
-    gitSync.CreateNConnectToGitV2(repoName);
+    gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });

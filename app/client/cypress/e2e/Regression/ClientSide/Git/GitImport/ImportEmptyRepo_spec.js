@@ -26,7 +26,7 @@ describe("Git import empty repository", { tags: ["@tag.Git"] }, function () {
       repoName = uid;
       //cy.createTestGithubRepo(repoName);
       _.gitSync.CreateTestGiteaRepo(repoName);
-      _.gitSync.ImportAppFromGitV2(undefined, repoName, false);
+      _.gitSync.ImportAppFromGit(undefined, repoName, false);
       cy.wait("@importFromGit").then((interception) => {
         const status = interception.response.body.responseMeta.status;
         const message = interception.response.body.responseMeta.error.message;

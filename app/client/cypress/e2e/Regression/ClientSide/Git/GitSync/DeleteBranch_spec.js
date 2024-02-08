@@ -10,7 +10,7 @@ let repoName, branchName;
 describe("Delete branch flow", { tags: ["@tag.Git"] }, () => {
   it("1. Connect app to git, create new branch and delete it", () => {
     // create git repo and connect app to git
-    gitSync.CreateNConnectToGitV2();
+    gitSync.CreateNConnectToGit();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });

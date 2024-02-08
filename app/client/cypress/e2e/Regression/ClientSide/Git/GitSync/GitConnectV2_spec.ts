@@ -25,7 +25,7 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   });
 
   it("Testing connect to git flow - V2", function () {
-    _.gitSync.CreateNConnectToGitV2();
+    _.gitSync.CreateNConnectToGit();
 
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
@@ -41,7 +41,7 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
       _.propPane.UpdatePropertyFieldValue("Text", "Hello World");
       _.gitSync.CommitAndPush();
 
-      _.gitSync.ImportAppFromGitV2(ws2Name, repoName);
+      _.gitSync.ImportAppFromGit(ws2Name, repoName);
       _.gitSync.SwitchGitBranch(branchName);
       EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
       _.propPane.ValidatePropertyFieldValue("Text", "Hello World");

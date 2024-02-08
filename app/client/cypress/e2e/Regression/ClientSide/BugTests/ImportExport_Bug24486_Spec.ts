@@ -25,7 +25,7 @@ describe("Issue 24486 - Issue with Export Application", () => {
 
   it("1. Should export the current branch", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
-    _.gitSync.CreateNConnectToGitV2();
+    _.gitSync.CreateNConnectToGit();
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
 

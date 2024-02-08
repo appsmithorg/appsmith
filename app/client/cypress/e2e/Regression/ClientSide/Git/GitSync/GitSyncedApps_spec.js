@@ -94,7 +94,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.get("span:contains('Got it')").click();
 
     // connect app to git
-    gitSync.CreateNConnectToGitV2(repoName);
+    gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });

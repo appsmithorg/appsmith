@@ -98,7 +98,7 @@ export class GitSync {
     "[data-testid='t--git-success-modal-start-using-git-cta']";
   private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
 
-  CreateNConnectToGitV2(
+  CreateNConnectToGit(
     repoName = "Repo",
     assertConnect = true,
     privateFlag = false,
@@ -170,7 +170,7 @@ export class GitSync {
     });
   }
 
-  public ImportAppFromGitV2(
+  public ImportAppFromGit(
     workspaceName: string,
     repoName: string,
     assertConnect = true,
@@ -296,7 +296,7 @@ export class GitSync {
     );
 
     cy.get("@guid").then((uid) => {
-      //using the same uid as generated during CreateNConnectToGitV2
+      //using the same uid as generated during CreateNConnectToGit
       this.agHelper.TypeText(
         this._branchSearchInput,
         `{selectall}` + `${branch + uid}` + `{enter}`,
