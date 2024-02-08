@@ -74,4 +74,17 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .permission(permission)
                 .all();
     }
+
+    @Override
+    public Optional<Workspace> findByIdAndPluginsPluginId(String id, String pluginId) {
+        return queryBuilder()
+                .spec((root, cq, cb) -> cb.and(
+                        cb.equal(root.get(fieldName(QWorkspace.workspace.id)), id),
+                        cb.isTrue(cb.function(
+                                "jsonb_path_exists",
+                                Boolean.class,
+                                root.get(fieldName(QWorkspace.workspace.plugins)),
+                                cb.literal("$[*] ? (@.id == \"" + pluginId + "\")")))))
+                .one();
+    }
 }

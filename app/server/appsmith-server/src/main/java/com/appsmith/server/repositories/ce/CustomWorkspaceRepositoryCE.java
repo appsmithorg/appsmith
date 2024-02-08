@@ -18,4 +18,6 @@ public interface CustomWorkspaceRepositoryCE extends AppsmithRepository<Workspac
     List<Workspace> findAllWorkspaces();
 
     List<Workspace> findAll(AclPermission permission);
+
+    Optional<Workspace> findByIdAndPluginsPluginId(String id, String pluginId);
 }

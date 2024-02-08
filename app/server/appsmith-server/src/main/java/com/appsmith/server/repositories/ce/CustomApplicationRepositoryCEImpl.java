@@ -268,13 +268,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Optional<Long> countByWorkspaceId(String workspaceId) {
-        return Optional.empty(); /*
-        Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
-        return queryBuilder().criteria(workspaceIdCriteria).count();*/
-    }
-
-    @Override
     public Optional<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId) {
         return Optional.empty(); /*
         String gitApplicationMetadata = "gitApplicationMetadata";

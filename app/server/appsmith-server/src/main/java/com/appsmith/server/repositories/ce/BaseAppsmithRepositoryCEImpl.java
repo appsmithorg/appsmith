@@ -282,14 +282,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     protected Set<String> getCurrentUserPermissionGroups() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
+        final Set<String> permissionGroups = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication().getPrincipal())
                 .map(principal -> getAllPermissionGroupsForUser((User) principal))
-                .doOnError(err -> {
-                    System.out.println(err);
-                })
                 .block();
+        return permissionGroups == null ? Collections.emptySet() : permissionGroups;
     }
 
     protected Query createQueryWithPermission(

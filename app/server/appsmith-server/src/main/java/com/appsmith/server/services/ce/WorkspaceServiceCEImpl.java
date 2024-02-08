@@ -4,7 +4,9 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -47,8 +49,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -204,7 +208,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                             .thenReturn(createdWorkspace);
                 })
                 .flatMap(this::createWorkspaceDependents)
-                .flatMap(analyticsService::sendCreateEvent);
+                .flatMap(analyticsService::sendCreateEvent)
+                .map(x -> x);
     }
 
     protected void prepareWorkspaceToCreate(Workspace workspace, User user) {
@@ -509,7 +514,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getPermissionGroupsForWorkspace(String workspaceId) {
-        return Mono.empty(); /*
         if (!StringUtils.hasLength(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
@@ -548,12 +552,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                             .collect(Collectors.toList());
                 });
 
-        return permissionGroupInfoDTOListMono;*/
+        return permissionGroupInfoDTOListMono;
     }
 
     @Override
     public Mono<Workspace> uploadLogo(String workspaceId, Part filePart) {
-        return Mono.empty(); /*
         if (filePart == null) {
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
         }
@@ -582,12 +585,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                             return assetService.remove(prevAssetId).thenReturn(savedWorkspace);
                         }
                     });
-                });*/
+                });
     }
 
     @Override
     public Mono<Workspace> deleteLogo(String workspaceId) {
-        return Mono.empty(); /*
         return repository
                 .findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
@@ -606,7 +608,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                             .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
                             .flatMap(analyticsService::sendDeleteEvent)
                             .then(repository.save(workspace));
-                });*/
+                });
     }
 
     @Override
@@ -616,7 +618,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     @Override
     public Mono<Workspace> archiveById(String workspaceId) {
-        return Mono.empty(); /*
         return applicationRepository.countByWorkspaceId(workspaceId).flatMap(appCount -> {
             if (appCount == 0) { // no application found under this workspace
                 // fetching the workspace first to make sure user has permission to archive
@@ -644,7 +645,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }
-        });*/
+        });
     }
 
     protected Mono<Workspace> archiveWorkspaceDependents(Workspace workspace) {

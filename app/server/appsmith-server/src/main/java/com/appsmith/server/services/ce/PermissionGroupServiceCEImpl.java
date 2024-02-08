@@ -109,7 +109,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Void> delete(String id) {
-        return Mono.empty(); /*
 
         return repository.findById(id).flatMap(permissionGroup -> {
             Mono<Void> returnMono = null;
@@ -124,7 +123,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
             }
 
             return returnMono;
-        });*/
+        });
     }
 
     @Override
@@ -237,26 +236,21 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     @Override
     public Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(
             Set<String> userIds, Set<String> permissionGroupIds) {
-        return Mono.empty(); /*
+        // TODO: This isn't bulk, it's updating each entry in turn.
         return repository
                 .findAllById(permissionGroupIds)
                 .flatMap(pg -> {
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
                     assignedToUserIds.removeAll(userIds);
 
-                    Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+                    // This is required to make sure the field is identified as dirty and updated in the database.
+                    pg.setAssignedToUserIds(new HashSet<>(assignedToUserIds));
 
-                    updateObj.set(path, assignedToUserIds);
-
-                    Mono<UpdateResult> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
-                    Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds));
-
-                    return updatePermissionGroupResultMono
-                            .zipWhen(updatedPermissionGroupResult -> clearCacheForUsersMono)
-                            .map(tuple -> tuple.getT1());
+                    return repository.save(pg);
                 })
-                .then(Mono.just(TRUE));*/
+                .last()
+                .map(ignored -> cleanPermissionGroupCacheForUsers(List.copyOf(userIds)))
+                .thenReturn(true);
     }
 
     @Override
