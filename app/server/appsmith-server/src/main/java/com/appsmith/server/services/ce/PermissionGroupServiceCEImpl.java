@@ -419,7 +419,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
                     return repository
                             .updateById(permissionGroupId, updateObj)
-                        .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
+                            .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
                 })
                 .map(tuple -> TRUE);
     }

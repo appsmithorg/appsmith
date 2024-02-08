@@ -19,8 +19,6 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
@@ -87,8 +85,12 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 try {
                     // The type witness is needed here to pick the right overloaded signature of the set method.
                     // Without it, we see a compile error.
-                    cu.<Object>set(root.get(entry.key()), cb.function(
-                            "json", Object.class, cb.literal(new ObjectMapper().writeValueAsString(collection))));
+                    cu.<Object>set(
+                            root.get(entry.key()),
+                            cb.function(
+                                    "json",
+                                    Object.class,
+                                    cb.literal(new ObjectMapper().writeValueAsString(collection))));
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }

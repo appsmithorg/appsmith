@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
@@ -37,6 +38,7 @@ public class SeedMongoData {
     @Bean
     ApplicationRunner init(
             UserRepositoryCake userRepository,
+            UserRepository userRepositoryDirect,
             WorkspaceRepositoryCake workspaceRepository,
             PluginRepositoryCake pluginRepository,
             TenantRepositoryCake tenantRepository,
@@ -134,11 +136,15 @@ public class SeedMongoData {
                     log.debug("Going to create bare users");
                     User user = new User();
                     user.setName((String) array[0]);
-                    user.setEmail((String) array[1]);
+                    final String email = (String) array[1];
+                    user.setEmail(email);
                     user.setState((UserState) array[2]);
                     user.setPolicies((Set<Policy>) array[3]);
                     user.setTenantId(tenantId);
-                    return userRepository.save(user);
+                    return userRepository
+                            .findByEmail(email)
+                            .flatMap(userRepository::delete)
+                            .then(userRepository.save(user));
                 })
                 .flatMap(user -> {
                     PermissionGroup permissionGroupUser = new PermissionGroup();

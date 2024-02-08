@@ -1,8 +1,10 @@
 package com.appsmith.server.themes.base;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
@@ -18,9 +20,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuples;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Slf4j
 public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, String> implements ThemeServiceCE {
@@ -74,7 +81,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName) {
-        return Mono.error(new ex.Marker("getApplicationTheme")); /*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
@@ -92,16 +98,15 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                     } else { // theme id is not present, return default theme
                         return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
                     }
-                });*/
+                });
     }
 
     @Override
     public Flux<Theme> getApplicationThemes(String applicationId, String branchName) {
-        return Flux.error(new ex.Marker("getApplicationThemes")); /*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
-                .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));*/
+                .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));
     }
 
     @Override
@@ -125,7 +130,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId, String branchName) {
-        return Mono.error(new ex.Marker("changeCurrentTheme")); /*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getEditPermission())
@@ -178,20 +182,22 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                                     })
                                     .flatMap(savedTheme ->
                                             analyticsService.sendObjectEvent(AnalyticsEvents.APPLY, savedTheme));
-                        }));*/
+                        }));
     }
 
     @Override
     public Mono<String> getDefaultThemeId() {
-        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
-            defaultThemeId = theme.getId();
-            return theme.getId();
-        });
+        if (StringUtils.isEmpty(defaultThemeId)) {
+            return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
+                defaultThemeId = theme.getId();
+                return theme.getId();
+            });
+        }
+        return Mono.just(defaultThemeId);
     }
 
     @Override
     public Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication) {
-        return Mono.error(new ex.Marker("cloneThemeToApplication")); /*
         return repository.findById(srcThemeId, READ_THEMES).flatMap(theme -> {
             if (theme.isSystemTheme()) { // it's a system theme, no need to copy
                 return Mono.just(theme);
@@ -203,7 +209,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                         destApplication.getPolicies(), Application.class, Theme.class));
                 return repository.save(theme);
             }
-        });*/
+        });
     }
 
     /**
@@ -214,7 +220,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
      */
     @Override
     public Mono<Theme> publishTheme(String applicationId) {
-        return Mono.error(new ex.Marker("publishTheme")); /*
         // fetch application to make sure user has permission to manage this application
         return applicationRepository
                 .findById(applicationId, applicationPermission.getEditPermission())
@@ -248,7 +253,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                                     ApplicationMode.PUBLISHED);
                         }
                     });
-                });*/
+                });
     }
 
     /**
@@ -267,7 +272,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
             Theme targetThemeResource,
             Application application,
             ApplicationMode applicationMode) {
-        return Mono.error(new ex.Marker("saveThemeForApplication")); /*
         return repository
                 .findById(currentThemeId, READ_THEMES)
                 .flatMap(currentTheme -> {
@@ -322,12 +326,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                     } else {
                         return Mono.just(theme); // old theme overwritten, no need to update application
                     }
-                });*/
+                });
     }
 
     @Override
     public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
-        return Mono.error(new ex.Marker("persistCurrentTheme")); /*
 
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
@@ -367,7 +370,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                     }
                     return repository.save(theme);
                 })
-                .flatMap(theme -> analyticsService.sendObjectEvent(AnalyticsEvents.FORK, theme));*/
+                .flatMap(theme -> analyticsService.sendObjectEvent(AnalyticsEvents.FORK, theme));
     }
 
     /**
@@ -381,7 +384,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
      * @return deleted theme mono
      */
     private Mono<Theme> deletePublishedCustomizedThemeCopy(String themeId) {
-        return Mono.error(new ex.Marker("deletePublishedCustomizedThemeCopy")); /*
         if (!StringUtils.hasLength(themeId)) {
             return Mono.empty();
         }
@@ -390,12 +392,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                 return repository.deleteById(themeId).thenReturn(theme);
             }
             return Mono.just(theme);
-        });*/
+        });
     }
 
     @Override
     public Mono<Theme> archiveById(String themeId) {
-        return Mono.error(new ex.Marker("archiveById")); /*
         return repository
                 .findById(themeId, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(
@@ -408,7 +409,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                 })
-                .flatMap(analyticsService::sendDeleteEvent);*/
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
     @Override
@@ -428,7 +429,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> updateName(String id, Theme themeDto) {
-        return Mono.error(new ex.Marker("updateName")); /*
         return repository
                 .findById(id, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.THEME, id)))
@@ -441,7 +441,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                         theme.setDisplayName(themeDto.getDisplayName());
                     }
                     return repository.save(theme);
-                });*/
+                });
     }
 
     @Override
@@ -477,7 +477,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
     @Override
     public Mono<Application> archiveApplicationThemes(Application application) {
         return repository
-                .archiveByApplicationId(String.valueOf(application.getId()))
+                .archiveByApplicationId(application.getId())
                 .then(repository.archiveDraftThemesById(
                         application.getEditModeThemeId(), application.getPublishedModeThemeId()))
                 .thenReturn(application);
