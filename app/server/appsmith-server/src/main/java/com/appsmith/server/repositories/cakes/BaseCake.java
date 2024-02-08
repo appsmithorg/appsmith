@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +44,23 @@ public abstract class BaseCake<T extends BaseDomain> {
 
     @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    // ---------------------------------------------------
+    // Wrappers for methods from BaseRepository
+    // ---------------------------------------------------
+
+    public Mono<T> archive(T entity) {
+        return Mono.fromSupplier(() -> repository.archive(entity)).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Mono<Boolean> archiveAllById(Collection<String> ids) {
+        return Mono.fromSupplier(() -> repository.archiveAllById(ids).orElse(null))
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id) > 0;
+    }
 
     // ---------------------------------------------------
     // Wrappers for methods from CRUDRepository

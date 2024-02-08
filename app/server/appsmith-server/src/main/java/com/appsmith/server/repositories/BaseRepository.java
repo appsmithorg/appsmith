@@ -9,6 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -30,8 +31,11 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
      * @param entity The entity which needs to be archived
      * @return Optional<T>
      */
-    default Optional<T> archive(T entity) {
-        return archiveById(entity.getId()) ? Optional.of(entity) : Optional.empty();
+    @Modifying
+    /*no-cake*/ default T archive(T entity) {
+        // TODO: Some code using this method relies on the `deletedAt` field being set. So we can't use `archiveById`.
+        entity.setDeletedAt(Instant.now());
+        return save(entity);
     }
 
     /**
@@ -42,7 +46,7 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
      */
     @Modifying
     @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.id = :id")
-    boolean archiveById(String id);
+    /*no-cake*/ int archiveById(String id);
 
     /**
      * This function directly updates the DB by setting the deleted flag to true for all the documents in the collection
@@ -53,5 +57,5 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
      */
     @Modifying
     @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.id IN :ids")
-    Optional<Boolean> archiveAllById(Collection<ID> ids);
+    /*no-cake*/ Optional<Boolean> archiveAllById(Collection<ID> ids);
 }
