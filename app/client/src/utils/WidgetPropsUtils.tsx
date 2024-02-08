@@ -14,7 +14,6 @@ import defaultTemplate from "templates/default";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetType } from "../WidgetProvider/factory";
 import type { DSLWidget } from "WidgetProvider/constants";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
 import { areIntersecting } from "./boxHelpers";
@@ -23,7 +22,6 @@ import type {
   WidgetDraggingBlock,
   XYCord,
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import { migrateDSL } from "@shared/dsl";
 
 export interface WidgetOperationParams {
   operation: WidgetOperation;
@@ -44,7 +42,6 @@ const defaultDSL = defaultTemplate;
  */
 export const extractCurrentDSL = ({
   dslTransformer,
-  migrateDSLLocally = true,
   response,
 }: {
   dslTransformer?: (dsl: DSLWidget) => DSLWidget;
@@ -53,20 +50,12 @@ export const extractCurrentDSL = ({
 }): { dsl: DSLWidget; layoutId: string | undefined } => {
   // If fetch page response doesn't exist
   // It means we are creating a new page
-  const newPage = !response;
   // Get the DSL from the response or default to the defaultDSL
   const currentDSL = response?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
 
   let dsl = currentDSL as DSLWidget;
-  if (migrateDSLLocally) {
-    // Run all the migrations on this DSL
-    dsl = migrateDSL(
-      currentDSL as ContainerWidgetProps<WidgetProps>,
-      newPage,
-    ) as DSLWidget;
-  }
   // If this DSL is meant to be transformed
   // then the dslTransformer would have been passed by the caller
   if (dslTransformer) {

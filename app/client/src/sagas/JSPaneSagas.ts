@@ -91,7 +91,6 @@ import { toast } from "design-system";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
-import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import {
   getJSActionNameToDisplay,
   getJSActionPathNameToDisplay,
@@ -616,13 +615,10 @@ function* handleRefactorJSActionNameSaga(
     return;
   }
 
-  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
   const params: FetchPageRequest = {
     id: data.payload.refactorAction.pageId || "",
+    migrateDSL: true,
   };
-  if (isServerDSLMigrationsEnabled) {
-    params.migrateDSL = true;
-  }
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
