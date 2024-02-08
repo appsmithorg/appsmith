@@ -32,7 +32,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     agHelper.SaveLocalStorageCache();
   });
 
-  it.skip("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
+  it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -74,7 +74,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     gitSync.DeleteTestGithubRepo(repoName);
   });
 
-  it.skip("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
+  it("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
     homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -133,7 +133,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it.skip("3. Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
+  it("3. Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
     // create a new branch, clone page and validate jsObject data binding
     //cy.createGitBranch(tempBranch);
     cy.wait(3000);
