@@ -24,8 +24,7 @@ describe(
     });
 
     it("1. Verify Repo limit flow for CE/EE instances", function () {
-      agHelper.Sleep(2000); // adding wait for app to load
-      homePage.LogOutviaAPI();
+      homePage.Signout();
       cy.generateUUID().then((uid) => {
         homePage.SignUp(`${uid}@appsmithtest.com`, uid);
         onboarding.closeIntroModal();
