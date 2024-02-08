@@ -29,7 +29,17 @@ const FileTabs = () => {
   }
 
   return (
-    <Flex className="editor-tabs" flex="1" gap="spaces-2" height="100%">
+    <Flex
+      className="editor-tabs"
+      flex="1"
+      gap="spaces-2"
+      height="100%"
+      // 4px left padding of parent
+      // 4px right padding of parnet
+      // 4px gap
+      // 26px width of the add button
+      width="calc(100% - 38px)"
+    >
       {files.map((tab: EntityItem) =>
         segment === EditorEntityTab.JS ? (
           <JSTab data={tab} key={tab.key} />

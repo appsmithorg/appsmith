@@ -1,8 +1,10 @@
 import React, { useCallback } from "react";
+import styled from "styled-components";
+import { Button } from "design-system";
+
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { Button } from "design-system";
 import Container from "./Container";
 import { useCurrentEditorState } from "../hooks";
 import {
@@ -12,6 +14,12 @@ import {
 } from "@appsmith/entities/IDE/constants";
 import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
+
+const StyledButton = styled(Button)`
+  && {
+    min-width: fit-content;
+  }
+`;
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -31,7 +39,7 @@ const SplitScreenTabs = () => {
   if (segment === EditorEntityTab.UI) return null;
   return (
     <Container>
-      <Button
+      <StyledButton
         isIconButton
         kind={"secondary"}
         onClick={onAddClick}

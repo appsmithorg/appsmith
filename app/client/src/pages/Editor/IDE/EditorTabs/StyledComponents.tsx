@@ -4,14 +4,16 @@ import { Flex } from "design-system";
 export const StyledTab = styled(Flex)`
   position: relative;
   top: 1px;
-  border-top: 1px solid transparent;
-  border-top-left-radius: var(--ads-v2-border-radius);
-  border-top-right-radius: var(--ads-v2-border-radius);
   padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-4);
   font-size: 12px;
   color: var(--ads-v2-colors-text-default);
   cursor: pointer;
   gap: var(--ads-v2-spaces-2);
+  border-top: 1px solid transparent;
+  border-top-left-radius: var(--ads-v2-border-radius);
+  border-top-right-radius: var(--ads-v2-border-radius);
+  align-items: center;
+  justify-content: center;
 
   // After element - the seperator in between tabs
   &:not(&.active):not(:has(+ .active)):not(:last-child):after {
@@ -32,4 +34,11 @@ export const StyledTab = styled(Flex)`
       1px 0px 0px 0px var(--ads-v2-color-border) inset,
       -1px 0px 0px 0px var(--ads-v2-color-border) inset;
   }
+`;
+
+export const TabTextContainer = styled.span`
+  max-width: 70px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
