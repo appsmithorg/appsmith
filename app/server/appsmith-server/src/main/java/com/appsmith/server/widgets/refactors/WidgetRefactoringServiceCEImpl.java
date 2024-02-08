@@ -52,7 +52,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     @Override
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("refactorReferencesInExistingEntities")); /*
         if (!isPageContext(refactorEntityNameDTO.getContextType())) {
             return Mono.empty().then();
         }

@@ -39,7 +39,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("findByApplicationId"); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
         return queryBuilder()
@@ -59,7 +59,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("findByApplicationIdAndNonDeletedEditMode"); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
         // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist.

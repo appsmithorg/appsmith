@@ -139,7 +139,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> getById(String id) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getById")); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -317,7 +317,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> update(String id, Application application) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("update")); /*
         return sessionUserService.getCurrentUser().flatMap(currentUser -> {
             application.setModifiedBy(currentUser.getUsername());
             // application.setIsPublic(null);
@@ -468,7 +468,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("changeViewAccess")); /*
         Mono<String> publicPermissionGroupIdMono =
                 permissionGroupService.getPublicPermissionGroupId().cache();
 
@@ -544,7 +544,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     private Mono<? extends Application> generateAndSetPoliciesForPublicView(
             Application application, String permissionGroupId, Boolean addViewAccess) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("generateAndSetPoliciesForPublicView")); /*
 
         Map<String, Policy> applicationPolicyMap =
                 policySolution.generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
@@ -731,7 +731,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
      */
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("createOrUpdateSshKeyPair")); /*
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
         return repository
                 .findById(applicationId, applicationPermission.getEditPermission())
@@ -809,7 +809,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
      */
     @Override
     public Mono<GitAuthDTO> getSshKey(String applicationId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getSshKey")); /*
         return repository
                 .findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -912,7 +912,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
      */
     @Override
     public Mono<Application> saveLastEditInformation(String applicationId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("saveLastEditInformation")); /*
         return sessionUserService.getCurrentUser().flatMap(currentUser -> {
             Application application = new Application();
             // need to set isPublic=null because it has a `false` as it's default value in domain class

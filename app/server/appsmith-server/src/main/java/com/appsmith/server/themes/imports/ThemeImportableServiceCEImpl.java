@@ -86,7 +86,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
 
     private Mono<Theme> updateExistingAppThemeFromJSON(
             Application destinationApp, String existingThemeId, Theme themeFromJson) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("updateExistingAppThemeFromJSON")); /*
         if (!StringUtils.hasLength(existingThemeId)) {
             return themeService.getOrSaveTheme(themeFromJson, destinationApp);
         }

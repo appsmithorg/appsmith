@@ -1124,7 +1124,7 @@ public class GitServiceCEImpl implements GitServiceCE {
      */
     @Override
     public Mono<Application> detachRemote(String defaultApplicationId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("detachRemote")); /*
         Mono<Application> disconnectMono = getApplicationById(
                         defaultApplicationId, applicationPermission.getGitConnectPermission())
                 .flatMap(defaultApplication -> {
@@ -2715,7 +2715,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<GitAuth> generateSSHKey(String keyType) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("generateSSHKey")); /*
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
 
         GitDeployKeys gitDeployKeys = new GitDeployKeys();

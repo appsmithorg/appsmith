@@ -26,7 +26,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
 
     @Override
     public Mono<Layout> createLayout(String pageId, Layout layout) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("createLayout")); /*
         if (pageId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
@@ -66,7 +66,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getLayout")); /*
         return newPageService
                 .findByIdAndLayoutsId(pageId, layoutId, pagePermission.getReadPermission(), viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(

@@ -73,7 +73,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource, String environmentId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("findByDatasourceAndEnvironmentId")); /*
         return this.findByDatasourceIdAndEnvironmentId(datasource.getId(), environmentId)
                 .map(datasourceStorage -> {
                     datasourceStorage.prepareTransientFields(datasource);
@@ -97,7 +97,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("findByDatasource")); /*
         return this.findByDatasourceId(datasource.getId()).map(datasourceStorage -> {
             datasourceStorage.prepareTransientFields(datasource);
             return datasourceStorage;
@@ -126,7 +126,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Mono<DatasourceStorage> updateDatasourceStorage(
             DatasourceStorage datasourceStorage, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("updateDatasourceStorage")); /*
         String datasourceId = datasourceStorage.getDatasourceId();
         String environmentId = datasourceStorage.getEnvironmentId();
 
@@ -385,7 +385,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
      * @return empty mono if no storage exists
      */
     private Mono<DatasourceStorage> checkDuplicateDatasourceStorage(DatasourceStorage datasourceStorage) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("checkDuplicateDatasourceStorage")); /*
 
         String datasourceId = datasourceStorage.getDatasourceId();
         String environmentId = datasourceStorage.getEnvironmentId();

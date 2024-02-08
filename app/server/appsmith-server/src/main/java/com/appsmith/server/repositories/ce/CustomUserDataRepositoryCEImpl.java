@@ -32,7 +32,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
 
     @Override
     public Optional<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
-        return Optional.empty(); /*
+        throw new ex.Marker("saveReleaseNotesViewedVersion"); /*
         return mongoOperations.upsert(
                 query(where("userId").is(userId)),
                 Update.update("releaseNotesViewedVersion", version).setOnInsert("userId", userId),
@@ -94,7 +94,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
 
     @Override
     public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
-        return Optional.empty(); /*
+        throw new ex.Marker("fetchMostRecentlyUsedWorkspaceId"); /*
         final Query query = query(where(fieldName(QUserData.userData.userId)).is(userId));
 
         query.fields().include(fieldName(QUserData.userData.recentlyUsedEntityIds));

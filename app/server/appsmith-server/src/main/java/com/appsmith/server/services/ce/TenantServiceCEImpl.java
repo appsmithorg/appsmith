@@ -73,7 +73,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("updateTenantConfiguration")); /*
         return repository
                 .findById(tenantId, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
@@ -107,7 +107,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
 
     @Override
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("findById")); /*
         return repository
                 .findById(tenantId, permission)
                 .switchIfEmpty(

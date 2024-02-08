@@ -79,7 +79,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryC
     @Override
     public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO")); /*
         return repository
                 .findUniqueCustomJsLib(jsLib)
                 // Read more why Mono.defer is used here.

@@ -88,7 +88,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByPageId(String pageId, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("findByPageId"); /*
         String unpublishedPage = "unpublishedAction" + "."
                 + "pageId";
         String publishedPage = "publishedAction" + "."
@@ -123,7 +123,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("findByPageIdAndViewMode"); /*
 
         List<Criteria> criteria = new ArrayList<>();
 
@@ -308,7 +308,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
             String pageId, AclPermission permission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue"); /*
         List<Criteria> criteriaList = new ArrayList<>();
 
         Criteria executeOnLoadCriteria = where("unpublishedAction" + "."
@@ -338,7 +338,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("findByApplicationId"); /*
 
         Criteria applicationCriteria = this.getCriterionForFindByApplicationId(applicationId);
 
@@ -358,7 +358,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("findByApplicationIdAndViewMode"); /*
 
         List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
@@ -366,7 +366,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, Boolean viewMode) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("getCriteriaForFindByApplicationIdAndViewMode"); /*
         List<Criteria> criteria = new ArrayList<>();
 
 
@@ -384,7 +384,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Optional<Long> countByDatasourceId(String datasourceId) {
-        return Optional.empty(); /*
+        throw new ex.Marker("countByDatasourceId"); /*
         Criteria unpublishedDatasourceCriteria =
                 where("unpublishedAction" + ".datasource._id").is(new ObjectId(datasourceId));
         Criteria publishedDatasourceCriteria =
@@ -554,7 +554,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Optional<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("publishActions"); /*
         Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
 
 

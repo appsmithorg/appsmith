@@ -239,7 +239,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
     }
 
     private Mono<Workspace> storeWorkspacePlugin(PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("storeWorkspacePlugin")); /*
 
         Mono<Workspace> pluginInWorkspaceMono =
                 workspaceService.findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());

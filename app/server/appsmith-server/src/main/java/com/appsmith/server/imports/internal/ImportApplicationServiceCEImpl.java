@@ -761,7 +761,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
     @Override
     public Mono<ApplicationImportDTO> getApplicationImportDTO(
             String applicationId, String workspaceId, Application application) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getApplicationImportDTO")); /*
         return findDatasourceByApplicationId(applicationId, workspaceId)
                 .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .map(tuple2 -> {
@@ -791,7 +791,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
 
     @Override
     public Mono<List<Datasource>> findDatasourceByApplicationId(Long applicationId, Long workspaceId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("findDatasourceByApplicationId")); /*
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
         Mono<List<Datasource>> listMono = datasourceService
                 .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
@@ -922,7 +922,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(
             Application application, AnalyticsEvents event) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("sendImportExportApplicationAnalyticsEvent")); /*
         return workspaceService.getById(application.getWorkspaceId()).flatMap(workspace -> {
             final Map<String, Object> eventData = Map.of(
                     FieldName.APPLICATION, application,

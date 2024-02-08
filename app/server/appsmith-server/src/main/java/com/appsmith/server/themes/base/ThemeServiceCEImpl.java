@@ -74,7 +74,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getApplicationTheme")); /*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
@@ -97,7 +97,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Flux<Theme> getApplicationThemes(String applicationId, String branchName) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("getApplicationThemes")); /*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
@@ -125,7 +125,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId, String branchName) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("changeCurrentTheme")); /*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getEditPermission())
@@ -191,7 +191,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("cloneThemeToApplication")); /*
         return repository.findById(srcThemeId, READ_THEMES).flatMap(theme -> {
             if (theme.isSystemTheme()) { // it's a system theme, no need to copy
                 return Mono.just(theme);
@@ -214,7 +214,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
      */
     @Override
     public Mono<Theme> publishTheme(String applicationId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("publishTheme")); /*
         // fetch application to make sure user has permission to manage this application
         return applicationRepository
                 .findById(applicationId, applicationPermission.getEditPermission())
@@ -267,7 +267,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
             Theme targetThemeResource,
             Application application,
             ApplicationMode applicationMode) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("saveThemeForApplication")); /*
         return repository
                 .findById(currentThemeId, READ_THEMES)
                 .flatMap(currentTheme -> {
@@ -327,7 +327,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("persistCurrentTheme")); /*
 
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
@@ -381,7 +381,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
      * @return deleted theme mono
      */
     private Mono<Theme> deletePublishedCustomizedThemeCopy(String themeId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("deletePublishedCustomizedThemeCopy")); /*
         if (!StringUtils.hasLength(themeId)) {
             return Mono.empty();
         }
@@ -395,7 +395,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> archiveById(String themeId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("archiveById")); /*
         return repository
                 .findById(themeId, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(
@@ -428,7 +428,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> updateName(String id, Theme themeDto) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("updateName")); /*
         return repository
                 .findById(id, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.THEME, id)))

@@ -35,7 +35,7 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
     @Override
     public Optional<UpdateResult> updateStructure(
             String datasourceId, String environmentId, DatasourceStructure structure) {
-        return Optional.empty(); /*
+        throw new ex.Marker("updateStructure"); /*
         return mongoOperations.upsert(
                 new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
                 Update.update("structure", structure),

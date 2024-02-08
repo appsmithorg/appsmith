@@ -692,7 +692,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> findByIdAndEnvironmentId(String id, String environmentId) {
-        return Mono.empty();
+        return Mono.error(new ex.Marker("findByIdAndEnvironmentId"));
         /*
         return repository.findById(id).flatMap(datasource -> {
             return datasourceStorageService
@@ -800,7 +800,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> archiveById(String id) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("archiveById")); /*
         return repository
                 .findById(id, datasourcePermission.getDeletePermission())
                 .switchIfEmpty(

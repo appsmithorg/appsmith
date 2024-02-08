@@ -42,7 +42,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCak
 
     @Override
     public Mono<ActionDTO> addSingleActionToCollection(String collectionId, ActionDTO action) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("addSingleActionToCollection")); /*
         if (collectionId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }

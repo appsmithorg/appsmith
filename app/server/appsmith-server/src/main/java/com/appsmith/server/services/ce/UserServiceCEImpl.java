@@ -177,7 +177,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
      */
     @Override
     public Mono<User> switchCurrentWorkspace(String workspaceId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("switchCurrentWorkspace")); /*
         if (workspaceId == null || workspaceId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspaceId"));
         }

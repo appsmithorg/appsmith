@@ -79,7 +79,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
      */
     public Mono<List<String>> forkApplications(
             String toWorkspaceId, Application application, String sourceEnvironmentId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("forkApplications")); /*
 
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
@@ -460,7 +460,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     }
 
     private Mono<UpdateResult> forkThemes(Application srcApplication, Application destApplication) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("forkThemes")); /*
         return Mono.zip(
                         themeService.cloneThemeToApplication(srcApplication.getEditModeThemeId(), destApplication),
                         themeService.cloneThemeToApplication(srcApplication.getPublishedModeThemeId(), destApplication))
@@ -476,7 +476,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     }
 
     private Mono<Application> forkApplicationDocument(Application application) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("forkApplicationDocument")); /*
         if (!org.springframework.util.StringUtils.hasText(application.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
@@ -504,7 +504,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     @Override
     public Mono<Application> forkApplicationToWorkspaceWithEnvironment(
             String srcApplicationId, String targetWorkspaceId, String sourceEnvironmentId) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("forkApplicationToWorkspaceWithEnvironment")); /*
         final Mono<Application> sourceApplicationMono = applicationService
                 .findById(srcApplicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -643,7 +643,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     private Mono<Boolean> checkPermissionsForForking(
             String srcApplicationId, String targetWorkspaceId, String branchName) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("checkPermissionsForForking")); /*
         Optional<String> optionalBranchName = Optional.ofNullable(branchName);
         Optional<AclPermission> optionalAclPermission = Optional.empty();
         Mono<Application> applicationMonoWithOutPermission = applicationService

@@ -106,7 +106,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     }
 
     private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(String userIdentifier, User user) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("forceAllRemoteFeatureFlagsForUser")); /*
         Mono<String> instanceIdMono = configService.getInstanceId();
         // TODO: Convert to current tenant when the feature is enabled
         Mono<Tenant> defaultTenantMono = tenantRepository.findBySlug(DEFAULT);

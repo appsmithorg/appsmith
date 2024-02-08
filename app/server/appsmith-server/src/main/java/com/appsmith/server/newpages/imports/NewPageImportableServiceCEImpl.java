@@ -487,7 +487,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
     }
 
     private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("saveNewPageAndUpdateDefaultResources")); /*
         NewPage update = new NewPage();
         return newPageService.save(newPage).flatMap(page -> {
             update.setDefaultResources(

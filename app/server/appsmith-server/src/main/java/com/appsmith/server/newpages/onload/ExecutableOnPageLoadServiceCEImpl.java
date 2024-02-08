@@ -60,7 +60,7 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
 
     @Override
     public Mono<Layout> findAndUpdateLayout(String creatorId, String layoutId, Layout layout) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("findAndUpdateLayout")); /*
         Mono<PageDTO> pageDTOMono = newPageService
                 .findByIdAndLayoutsId(creatorId, layoutId, pagePermission.getEditPermission(), false)
                 .switchIfEmpty(Mono.error(new AppsmithException(

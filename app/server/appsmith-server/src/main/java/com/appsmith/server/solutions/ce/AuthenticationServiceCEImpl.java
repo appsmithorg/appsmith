@@ -65,7 +65,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
             String pageId,
             String branchName,
             ServerHttpRequest httpRequest) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getAuthorizationCodeURLForGenericOAuth2")); /*
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
 
@@ -152,7 +152,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
      * @return url for redirecting client to including a response_status
      */
     public Mono<String> getAccessTokenForGenericOAuth2(AuthorizationCodeCallbackDTO callbackDTO) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getAccessTokenForGenericOAuth2")); /*
         final String error = callbackDTO.getError();
         String code = callbackDTO.getCode();
         final String state = callbackDTO.getState();
@@ -290,7 +290,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     }
 
     private Mono<String> getPageRedirectUrl(String state, String error) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getPageRedirectUrl")); /*
         final String[] splitState = state.split(",");
 
         final String pageId = splitState[0];
@@ -331,7 +331,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
             String branchName,
             ServerHttpRequest request,
             String importForGit) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getAppsmithToken")); /*
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
         // If successful, then request for appsmithToken
@@ -446,7 +446,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
 
     public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
             String datasourceId, String environmentId, String appsmithToken) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getAccessTokenFromCloud")); /*
         // Check if user has access to manage datasource
         // If yes, check if datasource is in intermediate state
         // If yes, request for token and store in datasource

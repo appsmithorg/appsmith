@@ -72,7 +72,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     @Override
     public Optional<T> findById(ID id) {
-        return Optional.empty(); /*
+        throw new ex.Marker("findById"); /*
         Assert.notNull(id, "The given id must not be null!");
         Query query = new Query(getIdCriteria(id));
         query.addCriteria(notDeleted());
@@ -86,7 +86,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     @Override
     public List<T> findAll(Example example, Sort sort) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("findAll"); /*
         Assert.notNull(example, "Sample must not be null!");
         Assert.notNull(sort, "Sort must not be null!");
 

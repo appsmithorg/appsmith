@@ -99,7 +99,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public List<Application> findAllUserApps(AclPermission permission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("findAllUserApps"); /*
         Optional<User> currentUserWithTenantMono = ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> (User) auth.getPrincipal())
@@ -177,7 +177,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Optional<UpdateResult> setDefaultPage(String applicationId, String pageId) {
-        return Optional.empty(); /*
+        throw new ex.Marker("setDefaultPage"); /*
         // Since this can only happen during edit, the page in question is unpublished page. Hence the update should
         // be to pages and not publishedPages
 
@@ -198,7 +198,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Optional<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("setGitAuth"); /*
         Update updateObj = new Update();
         gitAuth.setGeneratedAt(Instant.now());
         String path = String.format(
@@ -269,7 +269,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Optional<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId) {
-        return Optional.empty(); /*
+        throw new ex.Marker("getGitConnectedApplicationWithPrivateRepoCount"); /*
         String gitApplicationMetadata = "gitApplicationMetadata";
         Query query = new Query();
         query.addCriteria(where("workspaceId").is(workspaceId));
@@ -297,7 +297,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Optional<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
-        return Optional.empty(); /*
+        throw new ex.Marker("getApplicationByDefaultApplicationIdAndDefaultBranch"); /*
         String gitApplicationMetadata = "gitApplicationMetadata";
 
         Query query = new Query();
@@ -311,7 +311,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Optional<UpdateResult> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("setAppTheme"); /*
         Update updateObj = new Update();
         if (StringUtils.hasLength(editModeThemeId)) {
             updateObj = updateObj.set("editModeThemeId", editModeThemeId);
@@ -339,7 +339,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Optional<Long> countByNameAndWorkspaceId(
             String applicationName, String workspaceId, AclPermission permission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("countByNameAndWorkspaceId"); /*
         Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
         Criteria applicationNameCriteria = where("name").is(applicationName);
 
@@ -352,7 +352,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public List<Object> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
             String workspaceId, AclPermission permission, String permissionGroupId) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission"); /*
         Criteria workspaceIdCriteria =
                 Criteria.where("workspaceId").is(workspaceId);
 
@@ -372,7 +372,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Optional<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
             AclPermission permission, String permissionGroupId) {
-        return Optional.empty(); /*
+        throw new ex.Marker("getAllApplicationsCountAccessibleToARoleWithPermission"); /*
 
         Query query = new Query();
         Criteria permissionGroupCriteria = Criteria.where("policies")
@@ -388,7 +388,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Optional<UpdateResult> unprotectAllBranches(String applicationId, AclPermission permission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("unprotectAllBranches"); /*
         String isProtectedFieldPath = "gitApplicationMetadata" + "." + "isProtectedBranch";
 
         Criteria defaultApplicationIdCriteria = Criteria.where("gitApplicationMetadata" + "." + "defaultApplicationId")

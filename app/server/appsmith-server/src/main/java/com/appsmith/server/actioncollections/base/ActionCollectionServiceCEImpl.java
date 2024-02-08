@@ -317,7 +317,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> update(String id, ActionCollectionDTO actionCollectionDTO) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("update")); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -403,7 +403,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("deleteUnpublishedActionCollection")); /*
         Mono<String> branchedCollectionId = StringUtils.isEmpty(branchName)
                 ? Mono.just(id)
                 : this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getDeletePermission())
@@ -456,7 +456,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(
             String applicationId, AclPermission permission) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("archiveActionCollectionByApplicationId")); /*
         return Mono.justOrEmpty(repository
                 .findByApplicationId(applicationId, permission, null))
                 .flatMap(actionCollection -> {
@@ -516,7 +516,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> archiveById(String id) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("archiveById")); /*
         Mono<ActionCollection> actionCollectionMono = repository
                 .findById(id)
                 .switchIfEmpty(Mono.error(
@@ -565,7 +565,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> archiveByIdAndBranchName(String id, String branchName) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("archiveByIdAndBranchName")); /*
         Mono<ActionCollection> branchedCollectionMono = this.findByBranchNameAndDefaultCollectionId(
                         branchName, id, actionPermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(

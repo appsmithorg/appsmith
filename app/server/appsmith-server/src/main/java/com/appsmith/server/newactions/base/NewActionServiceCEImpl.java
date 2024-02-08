@@ -714,7 +714,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
     @Override
     public Mono<NewAction> findById(String id) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("findById")); /*
         return repository.findById(id).flatMap(this::sanitizeAction);*/
     }
 
@@ -725,7 +725,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
     @Override
     public Mono<NewAction> findById(String id, AclPermission aclPermission) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("findById")); /*
         return repository.findById(id, aclPermission).flatMap(this::sanitizeAction);*/
     }
 
@@ -847,7 +847,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("deleteUnpublishedAction")); /*
         Mono<NewAction> actionMono = repository
                 .findById(id, actionPermission.getDeletePermission())
                 .switchIfEmpty(
@@ -1448,7 +1448,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
     @Override
     public Mono<NewAction> archiveById(String id) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("archiveById")); /*
         Mono<NewAction> actionMono = repository
                 .findById(id)
                 .switchIfEmpty(
@@ -1478,7 +1478,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
     @Override
     public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("archiveByIdAndBranchName")); /*
         Mono<NewAction> branchedActionMono =
                 this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getDeletePermission());
 
@@ -1522,7 +1522,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     }
 
     private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("updateDatasourcePolicyForPublicAction")); /*
         if (datasource.getId() == null) {
             // This seems to be a nested datasource. Return as is.
             return Mono.just(datasource);
@@ -1569,7 +1569,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
     public Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("findByBranchNameAndDefaultActionId")); /*
         log.debug("Going to find action based on branchName and defaultActionId with id: {} ", defaultActionId);
         if (!StringUtils.hasLength(branchName)) {
             return repository
@@ -1586,7 +1586,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
 
     public Mono<String> findBranchedIdByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("findBranchedIdByBranchNameAndDefaultActionId")); /*
         if (!StringUtils.hasLength(branchName)) {
             return Mono.just(defaultActionId);
         }

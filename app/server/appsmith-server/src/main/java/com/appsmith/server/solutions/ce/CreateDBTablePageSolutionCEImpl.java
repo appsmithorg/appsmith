@@ -190,7 +190,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
      */
     public Mono<CRUDPageResponseDTO> createPageFromDBTable(
             String defaultPageId, CRUDPageResourceDTO pageResourceDTO, String environmentId, String branchName) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("createPageFromDBTable")); /*
 
         /*
            1. Fetch page from the application

@@ -40,7 +40,7 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
      * In case the user doesn't exist, create and save the user.
      */
     public Mono<User> checkAndCreateUser(OidcUser oidcUser, OidcUserRequest userRequest) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("checkAndCreateUser")); /*
 
         String username = (!StringUtils.isEmpty(oidcUser.getEmail())) ? oidcUser.getEmail() : oidcUser.getName();
 

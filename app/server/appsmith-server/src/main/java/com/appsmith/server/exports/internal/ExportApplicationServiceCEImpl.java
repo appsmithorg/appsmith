@@ -58,7 +58,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
      * @return application reference from which entire application can be rehydrated
      */
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseArtifactObjective serialiseFor) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("exportApplicationById")); /*
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
         /*
@@ -289,7 +289,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
      * @return The application which is imported or exported
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("sendImportExportApplicationAnalyticsEvent")); /*
         return applicationService.findById(applicationId).flatMap(application -> workspaceService
                 .getById(application.getWorkspaceId())
                 .flatMap(workspace -> {

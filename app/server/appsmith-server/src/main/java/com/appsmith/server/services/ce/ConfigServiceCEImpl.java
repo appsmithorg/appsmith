@@ -34,7 +34,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Config> updateByName(Config config) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("updateByName")); /*
         final String name = config.getName();
         return repository
                 .findByName(name)
@@ -71,7 +71,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Void> delete(String name) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("delete")); /*
         return repository
                 .findByName(name)
                 .switchIfEmpty(

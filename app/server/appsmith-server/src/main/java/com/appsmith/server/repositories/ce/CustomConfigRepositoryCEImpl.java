@@ -32,7 +32,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
 
     @Override
     public Optional<Config> findByNameAsUser(String name, User user, AclPermission permission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("findByNameAsUser"); /*
 
         return getAllPermissionGroupsForUser(user).flatMap(permissionGroups -> {
             Criteria nameCriteria = where("name").is(name);

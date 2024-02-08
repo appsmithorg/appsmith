@@ -35,7 +35,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public List<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("getApplicationThemes"); /*
         Criteria appThemeCriteria =
                 Criteria.where("applicationId").is(applicationId);
         Criteria systemThemeCriteria =
