@@ -1,13 +1,10 @@
 import type { AppState } from "@appsmith/reducers";
-import {
-  DEFAULT_FEATURE_FLAG_VALUE,
-  type FeatureFlag,
-} from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import { createSelector } from "reselect";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export const selectFeatureFlags = (state: AppState) =>
-  state ? DEFAULT_FEATURE_FLAG_VALUE : DEFAULT_FEATURE_FLAG_VALUE;
+  state.ui.users.featureFlag.data;
 
 export const selectFeatureFlagCheck = (
   state: AppState,
