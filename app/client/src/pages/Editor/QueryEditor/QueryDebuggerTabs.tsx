@@ -71,7 +71,7 @@ interface QueryDebuggerTabsProps {
   runErrorMessage?: string;
   actionResponse?: ActionResponse;
   onRunClick: () => void;
-  showSchema: boolean;
+  showSchema?: boolean;
 }
 
 function QueryDebuggerTabs({
