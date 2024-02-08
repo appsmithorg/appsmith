@@ -21,7 +21,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -248,14 +247,11 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
                     updateObj.set(path, assignedToUserIds);
 
-                    Mono<UpdateResult> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
-                    Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds));
-
-                    return updatePermissionGroupResultMono
-                            .zipWhen(updatedPermissionGroupResult -> clearCacheForUsersMono)
-                            .map(tuple -> tuple.getT1());
+                    return repository.updateById(pg.getId(), updateObj);
                 })
-                .then(Mono.just(TRUE));
+                .last()
+                .map(ignored -> cleanPermissionGroupCacheForUsers(List.copyOf(userIds)))
+                .thenReturn(true);
     }
 
     @Override
@@ -312,10 +308,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     @Override
     public boolean isEntityAccessible(BaseDomain object, String permission, String permissionGroupId) {
         return object.getPolicies().stream()
-                .filter(policy -> policy.getPermission().equals(permission)
-                        && policy.getPermissionGroups().contains(permissionGroupId))
-                .findFirst()
-                .isPresent();
+                .anyMatch(policy -> policy.getPermission().equals(permission)
+                        && policy.getPermissionGroups().contains(permissionGroupId));
     }
 
     protected Mono<PermissionGroup> sendEventUsersAssociatedToRole(
@@ -383,44 +377,40 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
 
     @Override
-    public Mono<Boolean> leaveExplicitlyAssignedSelfRole(String permissionGroupId) {
+    public Mono<Void> leaveExplicitlyAssignedSelfRole(String permissionGroupId) {
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         Mono<PermissionGroup> permissionGroupMono = repository.findById(permissionGroupId);
 
-        return Mono.zip(currentUserMono, permissionGroupMono)
-                .flatMap(tuple -> {
-                    User currentUser = tuple.getT1();
-                    PermissionGroup permissionGroup = tuple.getT2();
+        return Mono.zip(currentUserMono, permissionGroupMono).flatMap(tuple -> {
+            User currentUser = tuple.getT1();
+            PermissionGroup permissionGroup = tuple.getT2();
 
-                    String userId = currentUser.getId();
+            String userId = currentUser.getId();
 
-                    if (!StringUtils.hasLength(userId)) {
-                        return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
-                    }
+            if (!StringUtils.hasLength(userId)) {
+                return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
+            }
 
-                    Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
+            Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
 
-                    if (!assignedToUserIds.contains(userId)) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.USER_NOT_ASSIGNED_TO_ROLE,
-                                currentUser.getUsername(),
-                                permissionGroup.getName()));
-                    }
+            if (!assignedToUserIds.contains(userId)) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.USER_NOT_ASSIGNED_TO_ROLE, currentUser.getUsername(), permissionGroup.getName()));
+            }
 
-                    assignedToUserIds.remove(userId);
+            assignedToUserIds.remove(userId);
 
-                    Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+            Update updateObj = new Update();
+            String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
-                    updateObj.set(path, assignedToUserIds);
+            updateObj.set(path, assignedToUserIds);
 
-                    return repository
-                            .updateById(permissionGroupId, updateObj)
-                            .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
-                })
-                .map(tuple -> TRUE);
+            return repository
+                    .updateById(permissionGroupId, updateObj)
+                    .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
+        });
     }
 
     @Override
