@@ -30,7 +30,7 @@ public class Migration046DeleteArchivedPlugins {
                 Query.query(new Criteria()
                         .orOperator(
                                 Criteria.where(FieldName.DELETED).is(true),
-                                Criteria.where(FieldName.DELETED_AT).isNull())),
+                                Criteria.where(FieldName.DELETED_AT).not().isNull())),
                 Plugin.class);
 
         mongoTemplate.updateMulti(
