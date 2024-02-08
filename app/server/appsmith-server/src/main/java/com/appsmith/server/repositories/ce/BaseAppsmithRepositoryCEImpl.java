@@ -355,79 +355,71 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Flux<T> queryAllExecute(QueryAllParams<T> params) {
-        return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> getCurrentUserPermissionGroupsIfRequired(
-                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
-                .flatMapMany(permissionGroups -> {
-                    final ArrayList<Criteria> criteriaList = new ArrayList<>(params.getCriteria());
-                    criteriaList.add(notDeleted());
+        return tryGetPermissionGroups(params).flatMapMany(permissionGroups -> {
+            final ArrayList<Criteria> criteriaList = new ArrayList<>(params.getCriteria());
+            criteriaList.add(notDeleted());
 
-                    final Criteria permissionCriteria = userAcl(permissionGroups, params.getPermission());
-                    if (permissionCriteria != null) {
-                        criteriaList.add(permissionCriteria);
-                    }
+            final Criteria permissionCriteria = userAcl(permissionGroups, params.getPermission());
+            if (permissionCriteria != null) {
+                criteriaList.add(permissionCriteria);
+            }
 
-                    final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+            final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
 
-                    if (!CollectionUtils.isEmpty(params.getFields())) {
-                        query.fields().include(params.getFields().toArray(new String[0]));
-                    }
+            if (!CollectionUtils.isEmpty(params.getFields())) {
+                query.fields().include(params.getFields().toArray(new String[0]));
+            }
 
-                    if (params.getSkip() > NO_SKIP) {
-                        query.skip(params.getSkip());
-                    }
+            if (params.getSkip() > NO_SKIP) {
+                query.skip(params.getSkip());
+            }
 
-                    if (params.getLimit() != NO_RECORD_LIMIT) {
-                        query.limit(params.getLimit());
-                    }
+            if (params.getLimit() != NO_RECORD_LIMIT) {
+                query.limit(params.getLimit());
+            }
 
-                    if (params.getSort() != null) {
-                        query.with(params.getSort());
-                    }
+            if (params.getSort() != null) {
+                query.with(params.getSort());
+            }
 
-                    return mongoOperations
-                            .query(this.genericDomain)
-                            .matching(query.cursorBatchSize(10_000))
-                            .all()
-                            .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-                });
+            return mongoOperations
+                    .query(this.genericDomain)
+                    .matching(query.cursorBatchSize(10_000))
+                    .all()
+                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
+        });
     }
 
     public Mono<T> queryOneExecute(QueryAllParams<T> params) {
-        return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> getCurrentUserPermissionGroupsIfRequired(
-                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
-                .flatMap(permissionGroups1 -> mongoOperations
-                        .query(this.genericDomain)
-                        .matching(createQueryWithPermission(
-                                        params.getCriteria(),
-                                        params.getFields(),
-                                        permissionGroups1,
-                                        params.getPermission())
-                                .cursorBatchSize(10_000))
-                        .one()
-                        .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups1)));
+        return tryGetPermissionGroups(params).flatMap(permissionGroups -> mongoOperations
+                .query(this.genericDomain)
+                .matching(createQueryWithPermission(
+                                params.getCriteria(), params.getFields(), permissionGroups, params.getPermission())
+                        .cursorBatchSize(10_000))
+                .one()
+                .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups)));
     }
 
     public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
-        return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> getCurrentUserPermissionGroupsIfRequired(
-                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
-                .flatMap(permissionGroups1 -> mongoOperations
-                        .query(this.genericDomain)
-                        .matching(createQueryWithPermission(
-                                params.getCriteria(), params.getFields(), permissionGroups1, params.getPermission()))
-                        .first()
-                        .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups1)));
+        return tryGetPermissionGroups(params).flatMap(permissionGroups -> mongoOperations
+                .query(this.genericDomain)
+                .matching(createQueryWithPermission(
+                        params.getCriteria(), params.getFields(), permissionGroups, params.getPermission()))
+                .first()
+                .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups)));
     }
 
     public Mono<Long> countExecute(QueryAllParams<T> params) {
+        return tryGetPermissionGroups(params)
+                .flatMap(permissionGroups -> mongoOperations.count(
+                        createQueryWithPermission(params.getCriteria(), permissionGroups, params.getPermission()),
+                        this.genericDomain));
+    }
+
+    private Mono<Set<String>> tryGetPermissionGroups(QueryAllParams<T> params) {
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.defer(() -> getCurrentUserPermissionGroupsIfRequired(
-                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
-                .flatMap(permissionGroups1 -> mongoOperations.count(
-                        createQueryWithPermission(params.getCriteria(), permissionGroups1, params.getPermission()),
-                        this.genericDomain));
+                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())));
     }
 
     public Mono<T> setUserPermissionsInObject(T obj) {
