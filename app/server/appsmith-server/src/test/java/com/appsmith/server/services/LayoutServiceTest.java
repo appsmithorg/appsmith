@@ -1385,7 +1385,7 @@ public class LayoutServiceTest {
                     // We have reached here means we didn't get a throwable. That's good
                     assertThat(layoutDTO).isNotNull();
                     // Since this is still a bad mustache binding, we couldn't have extracted the action name
-                    assertThat(layoutDTO.getLayoutOnLoadActions().size()).isEqualTo(0);
+                    assertThat(layoutDTO.getLayoutOnLoadActions()).hasSize(0);
                 })
                 .verifyComplete();
     }

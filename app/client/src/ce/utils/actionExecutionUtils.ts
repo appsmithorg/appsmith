@@ -37,6 +37,13 @@ export function getJSActionNameToDisplay(action: JSAction) {
   return action.name;
 }
 
+export function getCollectionNameToDisplay(
+  _: JSAction,
+  collectionName: string,
+) {
+  return collectionName;
+}
+
 export function getActionExecutionAnalytics(
   action: Action,
   plugin: Plugin,
