@@ -11,6 +11,7 @@ import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.helpers.bridge.Update;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.persistence.EntityManager;
@@ -18,6 +19,8 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
@@ -27,6 +30,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +82,19 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         cu.where(cb.equal(root.get(FieldName.ID), id));
 
         for (var entry : updateObj.getSetOps()) {
-            cu.set(root.get(entry.key()), entry.value());
+            final Object value = entry.value();
+            if (value instanceof Collection<?> collection) {
+                try {
+                    // The type witness is needed here to pick the right overloaded signature of the set method.
+                    // Without it, we see a compile error.
+                    cu.<Object>set(root.get(entry.key()), cb.function(
+                            "json", Object.class, cb.literal(new ObjectMapper().writeValueAsString(collection))));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                cu.set(root.get(entry.key()), value);
+            }
         }
 
         final int count = entityManager.createQuery(cu).executeUpdate();

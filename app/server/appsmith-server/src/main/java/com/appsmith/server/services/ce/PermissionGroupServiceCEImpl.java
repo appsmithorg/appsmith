@@ -6,11 +6,13 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.bridge.Update;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -20,6 +22,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -38,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GROUP;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepositoryCake, PermissionGroup, String>
@@ -241,14 +245,19 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
                     assignedToUserIds.removeAll(userIds);
 
-                    // This is required to make sure the field is identified as dirty and updated in the database.
-                    pg.setAssignedToUserIds(new HashSet<>(assignedToUserIds));
+                    Update updateObj = new Update();
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
-                    return repository.save(pg);
+                    updateObj.set(path, assignedToUserIds);
+
+                    Mono<UpdateResult> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
+                    Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds));
+
+                    return updatePermissionGroupResultMono
+                            .zipWhen(updatedPermissionGroupResult -> clearCacheForUsersMono)
+                            .map(tuple -> tuple.getT1());
                 })
-                .last()
-                .map(ignored -> cleanPermissionGroupCacheForUsers(List.copyOf(userIds)))
-                .thenReturn(true);
+                .then(Mono.just(TRUE));
     }
 
     @Override
@@ -403,10 +412,14 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
                     assignedToUserIds.remove(userId);
 
-                    // Need this line so this field is identified as dirty and updated in the database.
-                    permissionGroup.setAssignedToUserIds(new HashSet<>(assignedToUserIds));
+                    Update updateObj = new Update();
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
-                    return repository.save(permissionGroup).then(cleanPermissionGroupCacheForUsers(List.of(userId)));
+                    updateObj.set(path, assignedToUserIds);
+
+                    return repository
+                            .updateById(permissionGroupId, updateObj)
+                        .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
                 })
                 .map(tuple -> TRUE);
     }
