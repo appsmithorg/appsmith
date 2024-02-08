@@ -308,7 +308,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
     0,
     false,
   );
-  cy.wait(6000);
+  agHelper.WaitUntilEleDisappear(gitSync._mergeLoader);
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
   agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);

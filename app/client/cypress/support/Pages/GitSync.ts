@@ -63,6 +63,7 @@ export class GitSync {
   public _branchProtectionUpdateBtn =
     "[data-testid='t--git-protected-branches-update-btn']";
   public _disconnectGitBtn = "[data-testid='t--git-disconnect-btn']";
+  public _mergeLoader = "[data-testid='t--git-merge-loader']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
