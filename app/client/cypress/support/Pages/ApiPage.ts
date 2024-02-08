@@ -135,7 +135,7 @@ export class ApiPage {
     this.EnterURL(url, "", toVerifySave);
     this.agHelper.Sleep(); //Is needed for the entered url value to be registered, else failing locally & CI
     this.AssertRunButtonDisability();
-    if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
+    if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout, toVerifySave);
   }
 
   AssertRunButtonDisability(disabled = false) {
@@ -245,10 +245,10 @@ export class ApiPage {
       );
   }
 
-  SetAPITimeout(timeout: number) {
+  SetAPITimeout(timeout: number, toVerifySave = true) {
     this.SelectPaneTab("Settings");
     cy.xpath(this._queryTimeout).clear().type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
-    this.agHelper.AssertAutoSave();
+    toVerifySave && this.agHelper.AssertAutoSave();
     this.SelectPaneTab("Headers");
   }
 
