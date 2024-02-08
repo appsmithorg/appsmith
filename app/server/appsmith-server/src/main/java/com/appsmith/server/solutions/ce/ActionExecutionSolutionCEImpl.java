@@ -42,6 +42,7 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -115,6 +116,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final DatasourceStorageService datasourceStorageService;
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
+    private final TenantService tenantService;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -141,7 +143,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             AnalyticsService analyticsService,
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
-            ConfigService configService) {
+            ConfigService configService,
+            TenantService tenantService) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -160,6 +163,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.datasourceStorageService = datasourceStorageService;
         this.environmentPermission = environmentPermission;
         this.configService = configService;
+        this.tenantService = tenantService;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -182,13 +186,15 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 .flatMap(executeActionDTO -> newActionService
                         .findByBranchNameAndDefaultActionId(
                                 branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
-                        .zipWith(configService.getInstanceId())
+                        .zipWith(configService.getInstanceId().zipWith(tenantService.getDefaultTenantId()))
                         .flatMap(tuple -> {
                             NewAction branchedAction = tuple.getT1();
-                            String instanceId = tuple.getT2();
+                            String instanceId = tuple.getT2().getT1();
+                            String tenantId = tuple.getT2().getT2();
                             executeActionDTO.setActionId(branchedAction.getId());
                             executeActionDTO.setWorkspaceId(branchedAction.getWorkspaceId());
                             executeActionDTO.setInstanceId(instanceId);
+                            executeActionDTO.setTenantId(tenantId);
 
                             boolean isEmbedded;
                             if (executeActionDTO.getViewMode()) {

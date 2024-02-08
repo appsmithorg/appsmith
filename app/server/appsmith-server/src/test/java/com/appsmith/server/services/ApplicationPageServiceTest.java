@@ -144,8 +144,8 @@ public class ApplicationPageServiceTest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
-                    assertThat(application.getPages().size())
-                            .isEqualTo(application.getPublishedPages().size());
+                    assertThat(application.getPages())
+                            .hasSize(application.getPublishedPages().size());
                 })
                 .verifyComplete();
     }

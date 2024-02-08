@@ -2,7 +2,11 @@ import React from "react";
 import type { Datasource } from "entities/Datasource";
 import { map, get, isArray } from "lodash";
 import styled from "styled-components";
-import { isHidden, isKVArray } from "components/formControls/utils";
+import {
+  formatFileSize,
+  isHidden,
+  isKVArray,
+} from "components/formControls/utils";
 import log from "loglevel";
 import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
@@ -15,6 +19,8 @@ import { EnvConfigSection } from "@appsmith/components/EnvConfigSection";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { isMultipleEnvEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { Text } from "design-system";
+import { Table } from "design-system-old";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
@@ -152,7 +158,12 @@ export function renderDatasourceSection(
           );
         } else {
           try {
-            const { configProperty, controlType, label } = section;
+            const {
+              configProperty,
+              controlType,
+              label,
+              subtitle = "",
+            } = section;
             const customConfigProperty =
               `datasourceStorages.${currentEnvironment}.` + configProperty;
             const reactKey = datasource.id + "_" + label;
@@ -188,6 +199,55 @@ export function renderDatasourceSection(
                     ComparisonOperationsEnum.VIEW_MODE))
             ) {
               value = section.initialValue;
+            }
+
+            if (controlType === "MULTIPLE_FILE_PICKER") {
+              if (value && Array.isArray(value) && value.length > 0) {
+                const isPlural = value.length > 1;
+
+                return (
+                  <div>
+                    <FieldWrapper key={reactKey}>
+                      <Key>{label}: </Key>{" "}
+                      <Value>
+                        {value.length} file{isPlural ? "s" : ""} uploaded
+                      </Value>
+                    </FieldWrapper>
+                    <div className="mt-2 max-w-[50%]">
+                      <Table
+                        columns={[
+                          {
+                            Header: "Name",
+                            accessor: "name",
+                          },
+                          {
+                            Header: "Size",
+                            accessor: "size",
+                            Cell: (props: any) => formatFileSize(props.value),
+                          },
+                        ]}
+                        data={value}
+                      />
+                    </div>
+                    {section.labelVisibleWithFiles && (
+                      <div className="mt-2 max-w-[50%]">
+                        <Text kind="body-s">
+                          {section.labelVisibleWithFiles}
+                        </Text>
+                      </div>
+                    )}
+                  </div>
+                );
+              } else {
+                return (
+                  <div>
+                    <FieldWrapper key={reactKey}>
+                      <Key>{label}: </Key> No Files Uploaded
+                    </FieldWrapper>
+                    <Text kind="body-s">{subtitle}</Text>
+                  </div>
+                );
+              }
             }
 
             if (!value || (isArray(value) && value.length < 1)) {
