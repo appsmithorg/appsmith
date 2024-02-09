@@ -1,4 +1,4 @@
-import { agHelper } from "../../Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../Objects/Registry";
 export class Sidebar {
   buttons: string[];
   locators = {
@@ -24,6 +24,8 @@ export class Sidebar {
   }
 
   assertVisible() {
-    agHelper.AssertElementVisibility(this.locators.sidebar);
+    ObjectsRegistry.AggregateHelper.AssertElementVisibility(
+      this.locators.sidebar,
+    );
   }
 }
