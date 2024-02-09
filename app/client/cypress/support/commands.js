@@ -427,6 +427,7 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
   }).then((response) => {
     expect(response.status).equal(200); //Verifying logout is success
   });
+  agHelper.CypressReload();
 });
 
 Cypress.Commands.add("SearchApp", (appname) => {
