@@ -1016,7 +1016,7 @@ public class DatabaseChangelog1 {
         ensureIndexes(
                 mongoTemplate,
                 Application.class,
-                makeIndex("gitApplicationMetadata.defaultApplicationId", "gitApplicationMetadata.branchName", "deleted")
+                makeIndex("GitArtifactMetadata.defaultApplicationId", "GitArtifactMetadata.branchName", "deleted")
                         .named("defaultApplicationId_branchName_deleted"));
     }
 

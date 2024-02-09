@@ -180,11 +180,11 @@ public class PageServiceTest {
         newApp.setName(UUID.randomUUID().toString());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName(uniquePrefix + "_pageServiceTest");
-        newApp.setGitApplicationMetadata(gitData);
+        newApp.setGitArtifactMetadata(gitData);
         return applicationPageService
                 .createApplication(newApp, workspaceId)
                 .flatMap(application -> {
-                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                    application.getGitArtifactMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application).zipWhen(application1 -> exportService
                             .exportByArtifactIdAndBranchName(
                                     application1.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
@@ -787,7 +787,7 @@ public class PageServiceTest {
         gitConnectedApplication = setupGitConnectedTestApplication("clonePage");
         final String pageId = gitConnectedApplication.getPages().get(0).getId();
         final String branchName =
-                gitConnectedApplication.getGitApplicationMetadata().getBranchName();
+                gitConnectedApplication.getGitArtifactMetadata().getBranchName();
 
         final PageDTO page =
                 newPageService.findPageById(pageId, READ_PAGES, false).block();
@@ -1170,7 +1170,7 @@ public class PageServiceTest {
 
         gitConnectedApplication = setupGitConnectedTestApplication("reorderPage");
         final String branchName =
-                gitConnectedApplication.getGitApplicationMetadata().getBranchName();
+                gitConnectedApplication.getGitArtifactMetadata().getBranchName();
         final ApplicationPage[] pageIds = new ApplicationPage[4];
 
         PageDTO testPage1 = new PageDTO();

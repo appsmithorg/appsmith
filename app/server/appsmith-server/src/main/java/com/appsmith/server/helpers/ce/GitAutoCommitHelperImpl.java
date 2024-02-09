@@ -56,8 +56,8 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
         Mono<Boolean> featureEnabledMono =
                 featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled);
         Mono<Boolean> autoCommitDisabledForThisBranchMono = applicationMono.flatMap(application -> {
-            if (GitUtils.isAutoCommitEnabled(application.getGitApplicationMetadata())) {
-                return gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName);
+            if (GitUtils.isAutoCommitEnabled(application.getGitArtifactMetadata())) {
+                return gitPrivateRepoHelper.isBranchProtected(application.getGitArtifactMetadata(), branchName);
             } else {
                 return Mono.just(Boolean.TRUE);
             }
@@ -94,7 +94,7 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                 .map(objects -> {
                                     Application application = objects.getT1();
                                     GitProfile gitProfile = objects.getT2();
-                                    GitArtifactMetadata gitArtifactMetadata = application.getGitApplicationMetadata();
+                                    GitArtifactMetadata gitArtifactMetadata = application.getGitArtifactMetadata();
 
                                     AutoCommitEvent autoCommitEvent = new AutoCommitEvent();
                                     autoCommitEvent.setApplicationId(defaultApplicationId);

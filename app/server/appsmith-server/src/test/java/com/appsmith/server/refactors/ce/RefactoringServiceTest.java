@@ -191,11 +191,11 @@ public class RefactoringServiceTest {
         newApp.setName(UUID.randomUUID().toString());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
-        newApp.setGitApplicationMetadata(gitData);
+        newApp.setGitArtifactMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService
                             .save(application1)
                             .zipWhen(application11 -> exportService.exportByArtifactIdAndBranchName(
@@ -211,7 +211,7 @@ public class RefactoringServiceTest {
                 .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
                 .block();
 
-        branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
+        branchName = gitConnectedApp.getGitArtifactMetadata().getBranchName();
 
         workspaceId = workspace.getId();
         datasource = new Datasource();

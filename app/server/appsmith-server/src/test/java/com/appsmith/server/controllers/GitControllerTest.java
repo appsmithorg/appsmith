@@ -3,7 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApiKeyRequestDto;
@@ -201,12 +201,12 @@ public class GitControllerTest {
         application.setWorkspaceId(createdWorkspace.getId());
         Application createdApp =
                 applicationPageService.createApplication(application).block();
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-        gitApplicationMetadata.setRepoName("test-repo");
-        gitApplicationMetadata.setDefaultApplicationId(createdApp.getId());
-        gitApplicationMetadata.setDefaultBranchName(mainBranch);
-        gitApplicationMetadata.setBranchName(mainBranch);
-        createdApp.setGitApplicationMetadata(gitApplicationMetadata);
+        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata.setRepoName("test-repo");
+        GitArtifactMetadata.setDefaultApplicationId(createdApp.getId());
+        GitArtifactMetadata.setDefaultBranchName(mainBranch);
+        GitArtifactMetadata.setBranchName(mainBranch);
+        createdApp.setGitArtifactMetadata(GitArtifactMetadata);
         return applicationRepository.save(createdApp).block();
     }
 }

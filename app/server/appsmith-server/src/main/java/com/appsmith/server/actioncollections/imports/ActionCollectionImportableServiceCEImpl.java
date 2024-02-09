@@ -145,9 +145,9 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                     .collectMap(ActionCollection::getGitSyncId);
 
                     Mono<Map<String, ActionCollection>> actionCollectionsInBranchesMono;
-                    if (importedApplication.getGitApplicationMetadata() != null) {
+                    if (importedApplication.getGitArtifactMetadata() != null) {
                         final String defaultApplicationId =
-                                importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
+                                importedApplication.getGitArtifactMetadata().getDefaultApplicationId();
                         actionCollectionsInBranchesMono = getCollectionsInOtherBranchesFlux(defaultApplicationId)
                                 .filter(actionCollection -> actionCollection.getGitSyncId() != null)
                                 .collectMap(ActionCollection::getGitSyncId);
@@ -229,9 +229,9 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                     actionCollection.setWorkspaceId(workspaceId);
                                     actionCollection.setApplicationId(importedApplication.getId());
 
-                                    if (importedApplication.getGitApplicationMetadata() != null) {
+                                    if (importedApplication.getGitArtifactMetadata() != null) {
                                         final String defaultApplicationId = importedApplication
-                                                .getGitApplicationMetadata()
+                                                .getGitArtifactMetadata()
                                                 .getDefaultApplicationId();
                                         if (actionsCollectionsInBranches.containsKey(actionCollection.getGitSyncId())) {
                                             ActionCollection branchedActionCollection =
@@ -252,7 +252,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                             // in this instance
                                             DefaultResources defaultResources = new DefaultResources();
                                             defaultResources.setApplicationId(importedApplication
-                                                    .getGitApplicationMetadata()
+                                                    .getGitArtifactMetadata()
                                                     .getDefaultApplicationId());
                                             defaultResources.setCollectionId(actionCollection.getId());
                                             defaultResources.setBranchName(importingMetaDTO.getBranchName());

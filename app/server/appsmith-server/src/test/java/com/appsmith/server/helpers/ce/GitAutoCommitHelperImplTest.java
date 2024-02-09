@@ -75,7 +75,7 @@ public class GitAutoCommitHelperImplTest {
     @Test
     public void autoCommitApplication_WhenFeatureFlagIsDisabled_AutoCommitNotTriggered() {
         Application application = new Application();
-        application.setGitApplicationMetadata(new GitArtifactMetadata());
+        application.setGitArtifactMetadata(new GitArtifactMetadata());
 
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.FALSE));
@@ -94,7 +94,7 @@ public class GitAutoCommitHelperImplTest {
     @Test
     public void autoCommitApplication_WhenBranchIsProtected_AutoCommitNotTriggered() {
         Application application = new Application();
-        application.setGitApplicationMetadata(new GitArtifactMetadata());
+        application.setGitArtifactMetadata(new GitArtifactMetadata());
 
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
@@ -117,7 +117,7 @@ public class GitAutoCommitHelperImplTest {
         metadata.setAutoCommitConfig(new AutoCommitConfig());
         metadata.getAutoCommitConfig().setEnabled(Boolean.FALSE);
 
-        application.setGitApplicationMetadata(metadata);
+        application.setGitArtifactMetadata(metadata);
 
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
@@ -136,7 +136,7 @@ public class GitAutoCommitHelperImplTest {
     @Test
     public void autoCommitApplication_WhenAnotherCommitIsRunning_AutoCommitNotTriggered() {
         Application application = new Application();
-        application.setGitApplicationMetadata(new GitArtifactMetadata());
+        application.setGitArtifactMetadata(new GitArtifactMetadata());
 
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
@@ -168,7 +168,7 @@ public class GitAutoCommitHelperImplTest {
         gitAuth.setPublicKey("public-key");
         metaData.setGitAuth(gitAuth);
 
-        application.setGitApplicationMetadata(metaData);
+        application.setGitArtifactMetadata(metaData);
 
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
@@ -191,7 +191,7 @@ public class GitAutoCommitHelperImplTest {
         autoCommitEvent.setAuthorEmail(gitProfile.getAuthorEmail());
         autoCommitEvent.setAuthorName(gitProfile.getAuthorName());
         autoCommitEvent.setWorkspaceId(application.getWorkspaceId());
-        autoCommitEvent.setRepoName(application.getGitApplicationMetadata().getRepoName());
+        autoCommitEvent.setRepoName(application.getGitArtifactMetadata().getRepoName());
         autoCommitEvent.setPrivateKey(gitAuth.getPrivateKey());
         autoCommitEvent.setPublicKey(gitAuth.getPublicKey());
 

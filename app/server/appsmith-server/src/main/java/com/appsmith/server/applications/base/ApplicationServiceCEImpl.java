@@ -138,7 +138,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Flux<Application> get(MultiValueMap<String, String> params) {
         if (!StringUtils.isEmpty(params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME))) {
             params.add(
-                    "gitApplicationMetadata.branchName",
+                    "GitArtifactMetadata.branchName",
                     params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME));
             params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         }
@@ -303,8 +303,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         }
         return super.create(application).onErrorResume(DuplicateKeyException.class, error -> {
             if (error.getMessage() != null
-                    // Catch only if error message contains workspace_app_deleted_gitApplicationMetadata mongo error
-                    && error.getMessage().contains("workspace_app_deleted_gitApplicationMetadata")) {
+                    // Catch only if error message contains workspace_app_deleted_GitArtifactMetadata mongo error
+                    && error.getMessage().contains("workspace_app_deleted_GitArtifactMetadata")) {
                 if (suffix > MAX_RETRIES) {
                     return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
                 } else {
@@ -352,7 +352,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             }
 
             Mono<String> applicationIdMono;
-            GitArtifactMetadata gitData = application.getGitApplicationMetadata();
+            GitArtifactMetadata gitData = application.getGitArtifactMetadata();
             if (gitData != null
                     && !StringUtils.isEmpty(gitData.getBranchName())
                     && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
@@ -370,11 +370,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         log.error("failed to update application {}", appId, error);
                         if (error instanceof DuplicateKeyException) {
                             // Error message : E11000 duplicate key error collection: appsmith.application index:
-                            // workspace_app_deleted_gitApplicationMetadata dup key:
+                            // workspace_app_deleted_GitArtifactMetadata dup key:
                             // { organizationId: "******", name: "AppName", deletedAt: null }
-                            if (error.getCause()
-                                    .getMessage()
-                                    .contains("workspace_app_deleted_gitApplicationMetadata")) {
+                            if (error.getCause().getMessage().contains("workspace_app_deleted_GitArtifactMetadata")) {
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME));
                             }
@@ -407,14 +405,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
         String defaultIdPath = "id";
         if (!isBlank(branchName)) {
-            defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
+            defaultIdPath = "GitArtifactMetadata.defaultApplicationId";
         }
         return repository.updateFieldByDefaultIdAndBranchName(
                 defaultApplicationId,
                 defaultIdPath,
                 fieldNameValueMap,
                 branchName,
-                "gitApplicationMetadata.branchName",
+                "GitArtifactMetadata.branchName",
                 MANAGE_APPLICATIONS);
     }
 
@@ -423,7 +421,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         branchName, defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
                     application.setPages(null);
-                    application.setGitApplicationMetadata(null);
+                    application.setGitArtifactMetadata(null);
 
                     return verifyIfForkingIsAllowed(branchedApplication, application)
                             .then(updateApplication(application, branchedApplication));
@@ -750,7 +748,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)))
                 .flatMap(application -> {
-                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitArtifactMetadata();
                     // Check if the current application is the root application
 
                     if (gitData != null
@@ -765,7 +763,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                         gitArtifactMetadata.setDefaultApplicationId(applicationId);
                         gitArtifactMetadata.setGitAuth(gitAuth);
-                        application.setGitApplicationMetadata(gitArtifactMetadata);
+                        application.setGitArtifactMetadata(gitArtifactMetadata);
                         return save(application);
                     }
                     // Children application with update SSH key request for root application
@@ -781,11 +779,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return repository
                             .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .flatMap(defaultApplication -> {
-                                GitArtifactMetadata gitArtifactMetadata =
-                                        defaultApplication.getGitApplicationMetadata();
+                                GitArtifactMetadata gitArtifactMetadata = defaultApplication.getGitArtifactMetadata();
                                 gitArtifactMetadata.setDefaultApplicationId(defaultApplication.getId());
                                 gitArtifactMetadata.setGitAuth(gitAuth);
-                                defaultApplication.setGitApplicationMetadata(gitArtifactMetadata);
+                                defaultApplication.setGitArtifactMetadata(gitArtifactMetadata);
                                 return save(defaultApplication);
                             });
                 })
@@ -826,7 +823,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
                 .flatMap(application -> {
-                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitArtifactMetadata();
                     List<GitDeployKeyDTO> gitDeployKeyDTOList = GitDeployKeyGenerator.getSupportedProtocols();
                     if (gitData == null) {
                         return Mono.error(new AppsmithException(
@@ -853,9 +850,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .map(rootApplication -> {
                                 GitAuthDTO gitAuthDTO = new GitAuthDTO();
-                                GitAuth gitAuth = rootApplication
-                                        .getGitApplicationMetadata()
-                                        .getGitAuth();
+                                GitAuth gitAuth =
+                                        rootApplication.getGitArtifactMetadata().getGitAuth();
                                 gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                                 gitAuthDTO.setPublicKey(gitAuth.getPublicKey());
                                 gitAuthDTO.setPrivateKey(gitAuth.getPrivateKey());
@@ -982,7 +978,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * As part of git sync feature a new application will be created for each branch with reference to main application
      * feat/new-branch ----> new application in Appsmith
      * Get all the applications which refer to the current application and archive those first one by one
-     * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
+     * GitArtifactMetadata has a field called defaultApplicationId which refers to the main application
      *
      * @param defaultApplicationId Main Application from which the branch was created
      * @return Application flux which match the condition

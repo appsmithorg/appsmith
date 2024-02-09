@@ -334,7 +334,7 @@ public class ApplicationFetcherUnitTest {
                     gitArtifactMetadata.setDefaultApplicationId(application.getId());
                     gitArtifactMetadata.setBranchName("master");
                     gitArtifactMetadata.setRemoteUrl("remnoteUrl");
-                    branchApp.setGitApplicationMetadata(gitArtifactMetadata);
+                    branchApp.setGitArtifactMetadata(gitArtifactMetadata);
 
                     // Set dummy applicationPages
                     ApplicationPage unpublishedPage = new ApplicationPage();

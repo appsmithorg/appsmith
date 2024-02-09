@@ -3,7 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.helpers.ce.GitPrivateRepoHelperCEImpl;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -38,7 +38,7 @@ public class GitPrivateRepoHelperImpl extends GitPrivateRepoHelperCEImpl impleme
 
     @Override
     @FeatureFlagged(featureFlagName = license_git_branch_protection_enabled)
-    public Mono<Boolean> isBranchProtected(GitApplicationMetadata metaData, String branchName) {
+    public Mono<Boolean> isBranchProtected(GitArtifactMetadata metaData, String branchName) {
         boolean result = false;
         if (metaData != null) {
             List<String> branchProtectionRules = metaData.getBranchProtectionRules();

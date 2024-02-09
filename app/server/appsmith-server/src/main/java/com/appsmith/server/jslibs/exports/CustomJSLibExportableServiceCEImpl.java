@@ -50,7 +50,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                 .zipWith(exportableArtifactMono)
                 .map(tuple2 -> {
                     Application application = (Application) tuple2.getT2();
-                    GitArtifactMetadata gitArtifactMetadata = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = application.getGitArtifactMetadata();
                     Instant applicationLastCommittedAt =
                             gitArtifactMetadata != null ? gitArtifactMetadata.getLastCommittedAt() : null;
 

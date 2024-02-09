@@ -1104,7 +1104,7 @@ public class ApplicationForkingServiceTests {
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
         gitArtifactMetadata.setGitAuth(gitAuth);
-        createdSrcApplication.setGitApplicationMetadata(gitArtifactMetadata);
+        createdSrcApplication.setGitArtifactMetadata(gitArtifactMetadata);
 
         themeService.updateTheme(createdSrcApplication.getId(), null, theme).block();
         createdSrcApplication = applicationService.save(createdSrcApplication).block();
@@ -1122,7 +1122,7 @@ public class ApplicationForkingServiceTests {
         gitArtifactMetadata1.setDefaultBranchName("feature1");
         gitArtifactMetadata1.setIsRepoPrivate(false);
         gitArtifactMetadata1.setRepoName("testRepo");
-        createdBranchApplication.setGitApplicationMetadata(gitArtifactMetadata1);
+        createdBranchApplication.setGitArtifactMetadata(gitArtifactMetadata1);
         createdBranchApplication =
                 applicationService.save(createdBranchApplication).block();
 
@@ -1136,7 +1136,7 @@ public class ApplicationForkingServiceTests {
         Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
         Application resultApplication = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(
-                        createdBranchApplication.getGitApplicationMetadata().getDefaultApplicationId(),
+                        createdBranchApplication.getGitArtifactMetadata().getDefaultApplicationId(),
                         createdDestWorkspace.getId(),
                         createdSrcDefaultEnvironmentId)
                 .block();

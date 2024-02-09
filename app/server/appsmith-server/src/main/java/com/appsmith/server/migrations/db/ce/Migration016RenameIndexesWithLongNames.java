@@ -54,10 +54,7 @@ public class Migration016RenameIndexesWithLongNames {
             ensureIndexes(
                     mongoTemplate,
                     Application.class,
-                    makeIndex(
-                                    "gitApplicationMetadata.defaultApplicationId",
-                                    "gitApplicationMetadata.branchName",
-                                    "deleted")
+                    makeIndex("GitArtifactMetadata.defaultApplicationId", "GitArtifactMetadata.branchName", "deleted")
                             .named("defaultApplicationId_branchName_deleted"));
         }
 
@@ -96,9 +93,7 @@ public class Migration016RenameIndexesWithLongNames {
 
         // organization-to-workspace-indexes-recreate
         if (dropIndexIfExists(
-                mongoTemplate,
-                Application.class,
-                "workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+                mongoTemplate, Application.class, "workspace_application_deleted_GitArtifactMetadata_compound_index")) {
             ensureIndexes(
                     mongoTemplate,
                     Application.class,
@@ -106,10 +101,10 @@ public class Migration016RenameIndexesWithLongNames {
                                     fieldName(QApplication.application.workspaceId),
                                     fieldName(QApplication.application.name),
                                     fieldName(QApplication.application.deletedAt),
-                                    "gitApplicationMetadata.remoteUrl",
-                                    "gitApplicationMetadata.branchName")
+                                    "GitArtifactMetadata.remoteUrl",
+                                    "GitArtifactMetadata.branchName")
                             .unique()
-                            .named("workspace_app_deleted_gitApplicationMetadata"));
+                            .named("workspace_app_deleted_GitArtifactMetadata"));
         }
 
         DatabaseChangelog2.doAddPermissionGroupIndex(mongoTemplate); // Idempotent index-only migration, do it again.

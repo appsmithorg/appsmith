@@ -5,7 +5,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -266,19 +266,19 @@ public class ModuleInstanceApplicationShareTest {
 
         gitConnectedApp = new Application();
         gitConnectedApp.setWorkspaceId(workspaceId);
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         gitData.setDefaultBranchName("testBranch");
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        gitConnectedApp.setGitApplicationMetadata(gitData);
+        gitConnectedApp.setGitArtifactMetadata(gitData);
         // This will be altered in update app by branch test
         gitConnectedApp.setName("gitConnectedApp");
         gitConnectedApp = applicationPageService
                 .createApplication(gitConnectedApp)
                 .flatMap(application -> {
-                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                    application.getGitArtifactMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application);
                 })
                 // Assign the branchName to all the resources connected to the application

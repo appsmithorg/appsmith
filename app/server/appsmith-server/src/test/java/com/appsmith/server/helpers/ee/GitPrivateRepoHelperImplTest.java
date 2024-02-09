@@ -2,7 +2,7 @@ package com.appsmith.server.helpers.ee;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
@@ -142,7 +142,7 @@ public class GitPrivateRepoHelperImplTest {
                 .verifyComplete();
     }
 
-    boolean isBranchProtected(GitApplicationMetadata metaData, String branchName) {
+    boolean isBranchProtected(GitArtifactMetadata metaData, String branchName) {
         return Boolean.TRUE.equals(
                 gitPrivateRepoHelper.isBranchProtected(metaData, branchName).block());
     }
@@ -153,7 +153,7 @@ public class GitPrivateRepoHelperImplTest {
                 .thenReturn(Mono.just(true));
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
 
-        GitApplicationMetadata metaData = new GitApplicationMetadata();
+        GitArtifactMetadata metaData = new GitArtifactMetadata();
 
         assertFalse(isBranchProtected(null, "master"));
         assertFalse(isBranchProtected(metaData, "master"));

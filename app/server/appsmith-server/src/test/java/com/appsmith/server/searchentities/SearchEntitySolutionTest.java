@@ -215,13 +215,13 @@ class SearchEntitySolutionTest {
                 .block();
         assert defaultApplication != null;
         applicationIds.add(defaultApplication.getId());
-        GitArtifactMetadata metadata = defaultApplication.getGitApplicationMetadata();
+        GitArtifactMetadata metadata = defaultApplication.getGitArtifactMetadata();
         metadata.setDefaultApplicationId(defaultApplication.getId());
         applicationService.save(defaultApplication).block();
 
         Application childBranch = mockGitConnectedApplication("feat/test", "main", searchString, workspace);
         applicationPageService.createApplication(childBranch, workspace.getId()).block();
-        GitArtifactMetadata metadata1 = childBranch.getGitApplicationMetadata();
+        GitArtifactMetadata metadata1 = childBranch.getGitArtifactMetadata();
         metadata1.setDefaultApplicationId(defaultApplication.getId());
 
         applicationService.save(childBranch).block();
@@ -251,7 +251,7 @@ class SearchEntitySolutionTest {
         gitArtifactMetadata.setBranchName(branchName);
         gitArtifactMetadata.setDefaultBranchName(defaultBranchName);
         gitArtifactMetadata.setRemoteUrl("git@test.com:user/testRepo.git");
-        application.setGitApplicationMetadata(gitArtifactMetadata);
+        application.setGitArtifactMetadata(gitArtifactMetadata);
         return application;
     }
 

@@ -56,7 +56,7 @@ public interface GitServiceCE {
     Mono<List<GitBranchDTO>> listBranchForApplication(
             String defaultApplicationId, Boolean pruneBranches, String currentBranch);
 
-    Mono<GitArtifactMetadata> getGitApplicationMetadata(String defaultApplicationId);
+    Mono<GitArtifactMetadata> getGitArtifactMetadata(String defaultApplicationId);
 
     Mono<GitStatusDTO> getStatus(String defaultApplicationId, boolean compareRemote, String branchName);
 

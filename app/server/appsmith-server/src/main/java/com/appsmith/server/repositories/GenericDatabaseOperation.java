@@ -283,9 +283,9 @@ public class GenericDatabaseOperation {
      */
     private boolean isConnectedToGit(BaseDomain domain) {
         if (domain instanceof Application) {
-            return ((Application) domain).getGitApplicationMetadata() != null
+            return ((Application) domain).getGitArtifactMetadata() != null
                     && StringUtils.isNotEmpty(
-                            ((Application) domain).getGitApplicationMetadata().getDefaultApplicationId());
+                            ((Application) domain).getGitArtifactMetadata().getDefaultApplicationId());
         } else if (domain instanceof BranchAwareDomain) {
             BranchAwareDomain branchAwareDomain = (BranchAwareDomain) domain;
             return branchAwareDomain.getDefaultResources() != null
@@ -304,7 +304,7 @@ public class GenericDatabaseOperation {
      */
     private String getBranchResourceIdKey(BaseDomain domain) {
         if (domain instanceof Application) {
-            return "gitApplicationMetadata.defaultApplicationId";
+            return "GitArtifactMetadata.defaultApplicationId";
         } else if (domain instanceof NewPage) {
             return "defaultResources.pageId";
         } else if (domain instanceof NewAction) {
@@ -470,7 +470,7 @@ public class GenericDatabaseOperation {
 
     private Query getBranchedApplicationQuery(Application application) {
         Criteria branchedApplicationCriteria = where(getBranchResourceIdKey(application))
-                .is(application.getGitApplicationMetadata().getDefaultApplicationId());
+                .is(application.getGitArtifactMetadata().getDefaultApplicationId());
         Criteria criteria = new Criteria().andOperator(branchedApplicationCriteria, notDeleted());
         return Query.query(criteria);
     }

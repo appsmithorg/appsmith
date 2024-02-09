@@ -116,7 +116,7 @@ public class GitUtils {
      * @return              true if the application is default branched, false otherwise
      */
     public static boolean isDefaultBranchedApplication(Application application) {
-        GitArtifactMetadata metadata = application.getGitApplicationMetadata();
+        GitArtifactMetadata metadata = application.getGitArtifactMetadata();
         return isApplicationConnectedToGit(application)
                 && !StringUtils.isEmptyOrNull(metadata.getBranchName())
                 && metadata.getBranchName().equals(metadata.getDefaultBranchName());
@@ -128,7 +128,7 @@ public class GitUtils {
      * @return              true if the application is connected to Git, false otherwise
      */
     public static boolean isApplicationConnectedToGit(Application application) {
-        GitArtifactMetadata metadata = application.getGitApplicationMetadata();
+        GitArtifactMetadata metadata = application.getGitArtifactMetadata();
         return metadata != null
                 && !StringUtils.isEmptyOrNull(metadata.getDefaultApplicationId())
                 && !StringUtils.isEmptyOrNull(metadata.getRemoteUrl());

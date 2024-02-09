@@ -3,6 +3,7 @@ package com.appsmith.server.newactions.exports;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableService;
@@ -41,10 +42,11 @@ public class NewActionExportableServiceImpl extends NewActionExportableServiceCE
     public void sanitizeEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            ApplicationJson applicationJson,
+            ArtifactExchangeJson artifactExchangeJson,
             SerialiseArtifactObjective serialiseFor) {
         Map<String, String> moduleInstanceIdToNameMap = mappedExportableResourcesDTO.getModuleInstanceIdToNameMap();
 
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         for (NewAction newAction : applicationJson.getActionList()) {
             if (Boolean.TRUE.equals(newAction.getIsPublic())) {
                 String originalModuleInstanceId = newAction.getModuleInstanceId();
