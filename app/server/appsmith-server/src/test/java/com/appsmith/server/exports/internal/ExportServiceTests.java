@@ -225,7 +225,7 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
@@ -357,7 +357,7 @@ public class ExportServiceTests {
                     assertThat(exportedApplication.getLastUpdateTime()).isNull();
                     assertThat(exportedApplication.getLastEditedAt()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
-                    assertThat(exportedApplication.getGitArtifactMetadata()).isNull();
+                    assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
                     assertThat(exportedApplication.getEditModeThemeId()).isNull();
                     assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
                     assertThat(exportedApplication.getExportWithConfiguration()).isNull();
@@ -737,7 +737,7 @@ public class ExportServiceTests {
                     assertThat(exportedApp.getWorkspaceId()).isNull();
                     assertThat(exportedApp.getPages()).hasSize(1);
                     assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
-                    assertThat(exportedApp.getGitArtifactMetadata()).isNull();
+                    assertThat(exportedApp.getGitApplicationMetadata()).isNull();
 
                     assertThat(exportedApp.getApplicationDetail()).isNotNull();
                     assertThat(exportedApp.getApplicationDetail().getThemeSetting())
@@ -822,15 +822,15 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -879,7 +879,7 @@ public class ExportServiceTests {
                     List<NewAction> actionList = tuple.getT3();
 
                     final String branchName =
-                            application.getGitArtifactMetadata().getBranchName();
+                            application.getGitApplicationMetadata().getBranchName();
                     pageList.forEach(page -> {
                         assertThat(page.getDefaultResources()).isNotNull();
                         assertThat(page.getDefaultResources().getBranchName()).isEqualTo(branchName);
@@ -932,15 +932,15 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -1415,14 +1415,14 @@ public class ExportServiceTests {
         appNavigationSetting.setOrientation("top");
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -1476,14 +1476,14 @@ public class ExportServiceTests {
         testApplication.setName(
                 "importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode");
         testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -1952,7 +1952,7 @@ public class ExportServiceTests {
                     GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
                     gitArtifactMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitArtifactMetadata(gitArtifactMetadata);
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application);
                 })
                 .delayElement(Duration.ofMillis(
@@ -2057,7 +2057,7 @@ public class ExportServiceTests {
                     GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
                     gitArtifactMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitArtifactMetadata(gitArtifactMetadata);
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application).thenReturn(objects);
                 })
                 .delayElement(Duration.ofMillis(

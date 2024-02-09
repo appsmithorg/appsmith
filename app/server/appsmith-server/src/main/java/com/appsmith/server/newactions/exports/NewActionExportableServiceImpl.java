@@ -47,6 +47,7 @@ public class NewActionExportableServiceImpl extends NewActionExportableServiceCE
         Map<String, String> moduleInstanceIdToNameMap = mappedExportableResourcesDTO.getModuleInstanceIdToNameMap();
 
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+
         for (NewAction newAction : applicationJson.getActionList()) {
             if (Boolean.TRUE.equals(newAction.getIsPublic())) {
                 String originalModuleInstanceId = newAction.getModuleInstanceId();

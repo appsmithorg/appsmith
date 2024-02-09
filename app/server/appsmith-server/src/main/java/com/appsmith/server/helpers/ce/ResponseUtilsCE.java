@@ -298,9 +298,9 @@ public class ResponseUtilsCE {
     }
 
     public Application updateApplicationWithDefaultResources(Application application) {
-        if (application.getGitArtifactMetadata() != null
-                && !StringUtils.isEmpty(application.getGitArtifactMetadata().getDefaultApplicationId())) {
-            application.setId(application.getGitArtifactMetadata().getDefaultApplicationId());
+        if (application.getGitApplicationMetadata() != null
+                && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
+            application.setId(application.getGitApplicationMetadata().getDefaultApplicationId());
         }
         if (!CollectionUtils.isEmpty(application.getPages())) {
             application.getPages().forEach(page -> {

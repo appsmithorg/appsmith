@@ -1165,17 +1165,20 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
         applicationMetadata.setName(application.getName());
         applicationMetadata.setMode(appMode);
         applicationMetadata.setVisibility(isApplicationPublic ? FieldName.PUBLIC : FieldName.PRIVATE);
-        if (application.getGitArtifactMetadata() != null
-                && !StringUtils.isEmpty(application.getGitArtifactMetadata().getBranchName())) {
+        if (application.getGitApplicationMetadata() != null
+                && !StringUtils.isEmpty(application.getGitApplicationMetadata().getBranchName())) {
             AuditLogGitMetadata auditLogGitMetadata = new AuditLogGitMetadata();
-            auditLogGitMetadata.setBranch(application.getGitArtifactMetadata().getBranchName());
-            if (!StringUtils.isEmpty(application.getGitArtifactMetadata().getRemoteUrl())) {
+            auditLogGitMetadata.setBranch(
+                    application.getGitApplicationMetadata().getBranchName());
+            if (!StringUtils.isEmpty(application.getGitApplicationMetadata().getRemoteUrl())) {
                 auditLogGitMetadata.setRepoURL(
-                        application.getGitArtifactMetadata().getRemoteUrl());
+                        application.getGitApplicationMetadata().getRemoteUrl());
             }
-            if (application.getGitArtifactMetadata().getIsRepoPrivate() != null) {
+            if (application.getGitApplicationMetadata().getIsRepoPrivate() != null) {
                 auditLogGitMetadata.setRepoType(
-                        application.getGitArtifactMetadata().getIsRepoPrivate() ? FieldName.PRIVATE : FieldName.PUBLIC);
+                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                                ? FieldName.PRIVATE
+                                : FieldName.PUBLIC);
             }
             applicationMetadata.setGit(auditLogGitMetadata);
         }

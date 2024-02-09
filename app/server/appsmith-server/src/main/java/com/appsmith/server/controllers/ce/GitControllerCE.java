@@ -60,7 +60,7 @@ public class GitControllerCE {
     /**
      * applicationId is the defaultApplicationId
      * For every git connected app, the master branch applicationId is used as defaultApplicationId
-     * This is stored in GitArtifactMetadata
+     * This is stored in gitApplicationMetadata
      * Note : The master branch here refers to the app that was created even before connecting to git
      */
     @JsonView(Views.Public.class)
@@ -97,7 +97,7 @@ public class GitControllerCE {
     @JsonView({Views.Metadata.class})
     @GetMapping("/metadata/app/{defaultApplicationId}")
     public Mono<ResponseDTO<GitArtifactMetadata>> getGitMetadata(@PathVariable String defaultApplicationId) {
-        return service.getGitArtifactMetadata(defaultApplicationId)
+        return service.getGitApplicationMetadata(defaultApplicationId)
                 .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
 

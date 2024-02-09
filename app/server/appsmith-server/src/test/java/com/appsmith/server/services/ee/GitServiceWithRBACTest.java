@@ -342,14 +342,14 @@ public class GitServiceWithRBACTest {
         Application application1 =
                 applicationPageService.createApplication(testApplication).block();
 
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        GitArtifactMetadata.setDefaultApplicationId(application1.getId());
-        GitArtifactMetadata.setRepoName("testRepo");
-        application1.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        gitApplicationMetadata.setDefaultApplicationId(application1.getId());
+        gitApplicationMetadata.setRepoName("testRepo");
+        application1.setGitApplicationMetadata(gitApplicationMetadata);
         application1 = applicationService.save(application1).block();
 
         PageDTO page = new PageDTO();
@@ -416,14 +416,14 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class))).thenReturn(Mono.just(true));
 
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
         gitAuth.setGeneratedAt(Instant.now());
         gitAuth.setDocUrl("docUrl");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("connectApplicationToGit_WithCRUDPermissionsOnApplication_ConnectSuccess");
         testApplication.setWorkspaceId(workspaceId);
         Application application1 =
@@ -486,15 +486,16 @@ public class GitServiceWithRBACTest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
-                    GitArtifactMetadata GitArtifactMetadata1 = application.getGitArtifactMetadata();
-                    assertThat(GitArtifactMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
-                    assertThat(GitArtifactMetadata1.getBranchName()).isEqualTo("defaultBranchName");
-                    assertThat(GitArtifactMetadata1.getGitAuth().getPrivateKey())
+                    GitArtifactMetadata gitApplicationMetadata1 = application.getGitApplicationMetadata();
+                    assertThat(gitApplicationMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
+                    assertThat(gitApplicationMetadata1.getBranchName()).isEqualTo("defaultBranchName");
+                    assertThat(gitApplicationMetadata1.getGitAuth().getPrivateKey())
                             .isNotNull();
-                    assertThat(GitArtifactMetadata1.getGitAuth().getPublicKey()).isNotNull();
-                    assertThat(GitArtifactMetadata1.getGitAuth().getGeneratedAt())
+                    assertThat(gitApplicationMetadata1.getGitAuth().getPublicKey())
                             .isNotNull();
-                    assertThat(GitArtifactMetadata1.getRepoName()).isEqualTo("testRepo");
+                    assertThat(gitApplicationMetadata1.getGitAuth().getGeneratedAt())
+                            .isNotNull();
+                    assertThat(gitApplicationMetadata1.getRepoName()).isEqualTo("testRepo");
                 })
                 .verifyComplete();
     }
@@ -541,14 +542,14 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class))).thenReturn(Mono.just(true));
 
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
         gitAuth.setGeneratedAt(Instant.now());
         gitAuth.setDocUrl("docUrl");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("connectApplicationToGit_WithNoCRUDPermissionsOnApplication_throwException");
         testApplication.setWorkspaceId(workspaceId);
         Application application1 =
@@ -611,24 +612,24 @@ public class GitServiceWithRBACTest {
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
         gitAuth.setGeneratedAt(Instant.now());
         gitAuth.setDocUrl("docUrl");
-        GitArtifactMetadata.setRemoteUrl("test.com");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        GitArtifactMetadata.setRepoName("repoName");
-        GitArtifactMetadata.setDefaultApplicationId("TestId");
-        GitArtifactMetadata.setDefaultBranchName("defaultBranchFromRemote");
-        GitArtifactMetadata.setBranchName("defaultBranch");
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setRemoteUrl("test.com");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        gitApplicationMetadata.setRepoName("repoName");
+        gitApplicationMetadata.setDefaultApplicationId("TestId");
+        gitApplicationMetadata.setDefaultBranchName("defaultBranchFromRemote");
+        gitApplicationMetadata.setBranchName("defaultBranch");
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("detachRemote_withCRUDOnApplication_Success");
         testApplication.setWorkspaceId(workspaceId);
         testApplication =
                 applicationPageService.createApplication(testApplication).block();
-        testApplication.getGitArtifactMetadata().setDefaultApplicationId(testApplication.getId());
+        testApplication.getGitApplicationMetadata().setDefaultApplicationId(testApplication.getId());
         testApplication = applicationRepository.save(testApplication).block();
 
         String username = UUID.randomUUID().toString() + "@test.com";
@@ -783,7 +784,7 @@ public class GitServiceWithRBACTest {
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
 
-                    assertThat(application.getGitArtifactMetadata()).isNull();
+                    assertThat(application.getGitApplicationMetadata()).isNull();
                     application.getPages().forEach(page -> assertThat(page.getDefaultPageId())
                             .isEqualTo(page.getId()));
                     application.getPublishedPages().forEach(page -> assertThat(page.getDefaultPageId())
@@ -875,24 +876,24 @@ public class GitServiceWithRBACTest {
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
         gitAuth.setGeneratedAt(Instant.now());
         gitAuth.setDocUrl("docUrl");
-        GitArtifactMetadata.setRemoteUrl("test.com");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        GitArtifactMetadata.setRepoName("repoName");
-        GitArtifactMetadata.setDefaultApplicationId("TestId");
-        GitArtifactMetadata.setDefaultBranchName("defaultBranchFromRemote");
-        GitArtifactMetadata.setBranchName("defaultBranch");
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setRemoteUrl("test.com");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        gitApplicationMetadata.setRepoName("repoName");
+        gitApplicationMetadata.setDefaultApplicationId("TestId");
+        gitApplicationMetadata.setDefaultBranchName("defaultBranchFromRemote");
+        gitApplicationMetadata.setBranchName("defaultBranch");
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("detachRemote_withNoPermissions_throwException");
         testApplication.setWorkspaceId(workspaceId);
         testApplication =
                 applicationPageService.createApplication(testApplication).block();
-        testApplication.getGitArtifactMetadata().setDefaultApplicationId(testApplication.getId());
+        testApplication.getGitApplicationMetadata().setDefaultApplicationId(testApplication.getId());
         testApplication = applicationRepository.save(testApplication).block();
 
         String applicationId = testApplication.getId();
@@ -1115,7 +1116,7 @@ public class GitServiceWithRBACTest {
         Mono<GitPullDTO> applicationMono = runAs(
                 gitService.pullApplication(
                         application.getId(),
-                        application.getGitArtifactMetadata().getBranchName()),
+                        application.getGitApplicationMetadata().getBranchName()),
                 user);
 
         StepVerifier.create(applicationMono)
@@ -1190,7 +1191,7 @@ public class GitServiceWithRBACTest {
         Mono<GitPullDTO> applicationMono = runAs(
                 gitService.pullApplication(
                         application.getId(),
-                        application.getGitArtifactMetadata().getBranchName()),
+                        application.getGitApplicationMetadata().getBranchName()),
                 user);
 
         StepVerifier.create(applicationMono)
@@ -1530,9 +1531,9 @@ public class GitServiceWithRBACTest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
-                    assertThat(application1.getGitArtifactMetadata().getBranchName())
+                    assertThat(application1.getGitApplicationMetadata().getBranchName())
                             .isEqualTo("branchNotInLocal");
-                    assertThat(application1.getGitArtifactMetadata().getDefaultApplicationId())
+                    assertThat(application1.getGitApplicationMetadata().getDefaultApplicationId())
                             .isEqualTo(gitConnectedApplication.getId());
                 })
                 .verifyComplete();
@@ -1652,16 +1653,19 @@ public class GitServiceWithRBACTest {
                 .assertNext(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
                     assertThat(application.getName()).isEqualTo("testRepo");
-                    assertThat(application.getGitArtifactMetadata()).isNotNull();
-                    assertThat(application.getGitArtifactMetadata().getBranchName())
+                    assertThat(application.getGitApplicationMetadata()).isNotNull();
+                    assertThat(application.getGitApplicationMetadata().getBranchName())
                             .isEqualTo("defaultBranch");
-                    assertThat(application.getGitArtifactMetadata().getDefaultBranchName())
+                    assertThat(application.getGitApplicationMetadata().getDefaultBranchName())
                             .isEqualTo("defaultBranch");
-                    assertThat(application.getGitArtifactMetadata().getRemoteUrl())
+                    assertThat(application.getGitApplicationMetadata().getRemoteUrl())
                             .isEqualTo("git@github.com:test/testRepo.git");
-                    assertThat(application.getGitArtifactMetadata().getIsRepoPrivate())
+                    assertThat(application.getGitApplicationMetadata().getIsRepoPrivate())
                             .isEqualTo(true);
-                    assertThat(application.getGitArtifactMetadata().getGitAuth().getPublicKey())
+                    assertThat(application
+                                    .getGitApplicationMetadata()
+                                    .getGitAuth()
+                                    .getPublicKey())
                             .isEqualTo(gitAuth.getPublicKey());
                 })
                 .verifyComplete();
@@ -1718,7 +1722,7 @@ public class GitServiceWithRBACTest {
     public void deleteBranch_withCRUDOnApplication_Success() throws IOException, GitAPIException {
         Application application =
                 createApplicationConnectedToGit("deleteBranch_withCRUDOnApplication_Success", "master");
-        application.getGitArtifactMetadata().setDefaultBranchName("test");
+        application.getGitApplicationMetadata().setDefaultBranchName("test");
         applicationService.save(application).block();
         Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
@@ -1779,7 +1783,7 @@ public class GitServiceWithRBACTest {
     public void deleteBranch_withNoPermissions_throwException() throws IOException, GitAPIException {
         Application application =
                 createApplicationConnectedToGit("deleteBranch_withNoPermissions_throwException", "master");
-        application.getGitArtifactMetadata().setDefaultBranchName("test");
+        application.getGitApplicationMetadata().setDefaultBranchName("test");
         applicationService.save(application).block();
         Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
@@ -1865,12 +1869,12 @@ public class GitServiceWithRBACTest {
                 .thenReturn(Mono.just(Paths.get("textPath")));
 
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("createBranch_withCRUDOnApp_newApplicationCreated");
         testApplication.setWorkspaceId(workspaceId);
         testApplication =
@@ -1995,7 +1999,7 @@ public class GitServiceWithRBACTest {
                                 gitService.createBranch(
                                         application.getId(),
                                         createGitBranchDTO,
-                                        application.getGitArtifactMetadata().getBranchName()),
+                                        application.getGitApplicationMetadata().getBranchName()),
                                 user)
                         .then(applicationService.findByBranchNameAndDefaultApplicationId(
                                 createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)));
@@ -2011,7 +2015,7 @@ public class GitServiceWithRBACTest {
                                 .findNewPagesByApplicationId(application.getId(), READ_PAGES)
                                 .collectList(),
                         applicationService.findById(
-                                application.getGitArtifactMetadata().getDefaultApplicationId()))))
+                                application.getGitApplicationMetadata().getDefaultApplicationId()))))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
                     List<NewAction> actionList = tuple.getT2().getT1();
@@ -2019,7 +2023,7 @@ public class GitServiceWithRBACTest {
                     List<NewPage> pageList = tuple.getT2().getT3();
                     Application parentApplication = tuple.getT2().getT4();
 
-                    GitArtifactMetadata gitData = application.getGitArtifactMetadata();
+                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotEqualTo(gitData.getDefaultApplicationId());
                     assertThat(gitData.getDefaultApplicationId()).isEqualTo(parentApplication.getId());
@@ -2153,12 +2157,12 @@ public class GitServiceWithRBACTest {
                 .thenReturn(Mono.just(Paths.get("textPath")));
 
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("createBranch_withNoPermissions_newApplicationCreated");
         testApplication.setWorkspaceId(workspaceId);
         testApplication =
@@ -2260,7 +2264,7 @@ public class GitServiceWithRBACTest {
                                 gitService.createBranch(
                                         application.getId(),
                                         createGitBranchDTO,
-                                        application.getGitArtifactMetadata().getBranchName()),
+                                        application.getGitApplicationMetadata().getBranchName()),
                                 user)
                         .then(applicationService.findByBranchNameAndDefaultApplicationId(
                                 createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)));
@@ -2276,7 +2280,7 @@ public class GitServiceWithRBACTest {
                                 .findNewPagesByApplicationId(application.getId(), READ_PAGES)
                                 .collectList(),
                         applicationService.findById(
-                                application.getGitArtifactMetadata().getDefaultApplicationId()))))
+                                application.getGitApplicationMetadata().getDefaultApplicationId()))))
                 .expectErrorMatches(error -> {
                     return error instanceof AppsmithException
                             && error.getMessage()

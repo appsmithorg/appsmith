@@ -387,8 +387,8 @@ class GitBranchEETest {
         queryInstanceReqDTO.setSourceModuleId(originalQueryModule.getId());
 
         String branchName = null;
-        if (application.getGitArtifactMetadata() != null) {
-            branchName = application.getGitArtifactMetadata().getBranchName();
+        if (application.getGitApplicationMetadata() != null) {
+            branchName = application.getGitApplicationMetadata().getBranchName();
             queryInstanceReqDTO.setContextId(pageDTO.getDefaultResources().getPageId());
         } else {
             queryInstanceReqDTO.setContextId(pageDTO.getId());
@@ -416,7 +416,7 @@ class GitBranchEETest {
         jsInstanceReqDTO.setName(jsModuleInstanceName);
         jsInstanceReqDTO.setSourceModuleId(originalJsModule.getId());
 
-        if (application.getGitArtifactMetadata() != null) {
+        if (application.getGitApplicationMetadata() != null) {
             jsInstanceReqDTO.setContextId(pageDTO.getDefaultResources().getPageId());
         } else {
             jsInstanceReqDTO.setContextId(pageDTO.getId());
@@ -737,12 +737,12 @@ class GitBranchEETest {
 
         // 1. Create app
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("moduleInstancesInBaseBranch");
         testApplication.setWorkspaceId(workspaceId);
 
@@ -762,7 +762,7 @@ class GitBranchEETest {
                 .createBranch(
                         connectedApp.getId(),
                         createGitBranchDTO,
-                        connectedApp.getGitArtifactMetadata().getBranchName())
+                        connectedApp.getGitApplicationMetadata().getBranchName())
                 .then(applicationService.findByBranchNameAndDefaultApplicationId(
                         createGitBranchDTO.getBranchName(), connectedApp.getId(), READ_APPLICATIONS))
                 .cache();
@@ -783,8 +783,9 @@ class GitBranchEETest {
                 .collectList()
                 .cache();
 
-        Mono<Application> defaultApplicationMono = branchedApplicationMono.flatMap(application ->
-                applicationService.findById(application.getGitArtifactMetadata().getDefaultApplicationId()));
+        Mono<Application> defaultApplicationMono =
+                branchedApplicationMono.flatMap(application -> applicationService.findById(
+                        application.getGitApplicationMetadata().getDefaultApplicationId()));
 
         Mono<List<ModuleInstance>> moduleInstanceListMono = pageListMono
                 .flatMapIterable(pageList -> pageList)
@@ -935,12 +936,12 @@ class GitBranchEETest {
 
         // 1. Create app
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("moduleInstancesInNewBranch");
         testApplication.setWorkspaceId(workspaceId);
 
@@ -957,7 +958,7 @@ class GitBranchEETest {
                 .createBranch(
                         connectedApp.getId(),
                         createGitBranchDTO,
-                        connectedApp.getGitArtifactMetadata().getBranchName())
+                        connectedApp.getGitApplicationMetadata().getBranchName())
                 .then(applicationService.findByBranchNameAndDefaultApplicationId(
                         createGitBranchDTO.getBranchName(), connectedApp.getId(), READ_APPLICATIONS))
                 .block();
@@ -987,8 +988,8 @@ class GitBranchEETest {
                 .collectList()
                 .cache();
 
-        Mono<Application> defaultApplicationMono = applicationMono.flatMap(application ->
-                applicationService.findById(application.getGitArtifactMetadata().getDefaultApplicationId()));
+        Mono<Application> defaultApplicationMono = applicationMono.flatMap(application -> applicationService.findById(
+                application.getGitApplicationMetadata().getDefaultApplicationId()));
 
         Mono<List<ModuleInstance>> moduleInstanceListMono = pageListMono
                 .flatMapIterable(pageList -> pageList)
@@ -1077,12 +1078,12 @@ class GitBranchEETest {
 
         // 1. Create app
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("moduleInstancesDiscardedInNewBranch");
         testApplication.setWorkspaceId(workspaceId);
 
@@ -1099,7 +1100,7 @@ class GitBranchEETest {
                 .createBranch(
                         connectedApp.getId(),
                         createGitBranchDTO,
-                        connectedApp.getGitArtifactMetadata().getBranchName())
+                        connectedApp.getGitApplicationMetadata().getBranchName())
                 .then(applicationService.findByBranchNameAndDefaultApplicationId(
                         createGitBranchDTO.getBranchName(), connectedApp.getId(), READ_APPLICATIONS))
                 .block();
@@ -1171,12 +1172,12 @@ class GitBranchEETest {
 
         // 1. Create app
         Application testApplication = new Application();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
-        GitArtifactMetadata.setGitAuth(gitAuth);
-        testApplication.setGitArtifactMetadata(GitArtifactMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("moduleInstancesInNewBranch");
         testApplication.setWorkspaceId(workspaceId);
 
@@ -1195,7 +1196,7 @@ class GitBranchEETest {
         // 3. Create Query Action in base application
         ActionDTO queryAction = getActionDTOForQuery(baseApplication);
         Mono<ActionDTO> createQueryMono =
-                layoutActionService.createSingleActionWithBranch(queryAction, GitArtifactMetadata.getBranchName());
+                layoutActionService.createSingleActionWithBranch(queryAction, gitApplicationMetadata.getBranchName());
         // 3.1. Verify Query Action creation in base application
         StepVerifier.create(createQueryMono)
                 .assertNext(createdAction -> {
@@ -1206,7 +1207,7 @@ class GitBranchEETest {
                 .verifyComplete();
         // 3.2. Set execute on load for Query Action
         layoutActionService
-                .setExecuteOnLoad(basePublicEntityRef1.get(), GitArtifactMetadata.getBranchName(), true)
+                .setExecuteOnLoad(basePublicEntityRef1.get(), gitApplicationMetadata.getBranchName(), true)
                 .block();
 
         // 4. Create new branch from base branch
@@ -1214,7 +1215,7 @@ class GitBranchEETest {
                 .createBranch(
                         connectedApp.getId(),
                         createGitBranchDTO,
-                        connectedApp.getGitArtifactMetadata().getBranchName())
+                        connectedApp.getGitApplicationMetadata().getBranchName())
                 .then(applicationService.findByBranchNameAndDefaultApplicationId(
                         createGitBranchDTO.getBranchName(), connectedApp.getId(), READ_APPLICATIONS))
                 .block();

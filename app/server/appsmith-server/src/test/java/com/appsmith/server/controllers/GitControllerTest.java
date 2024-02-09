@@ -201,12 +201,12 @@ public class GitControllerTest {
         application.setWorkspaceId(createdWorkspace.getId());
         Application createdApp =
                 applicationPageService.createApplication(application).block();
-        GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
-        GitArtifactMetadata.setRepoName("test-repo");
-        GitArtifactMetadata.setDefaultApplicationId(createdApp.getId());
-        GitArtifactMetadata.setDefaultBranchName(mainBranch);
-        GitArtifactMetadata.setBranchName(mainBranch);
-        createdApp.setGitArtifactMetadata(GitArtifactMetadata);
+        GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
+        gitApplicationMetadata.setRepoName("test-repo");
+        gitApplicationMetadata.setDefaultApplicationId(createdApp.getId());
+        gitApplicationMetadata.setDefaultBranchName(mainBranch);
+        gitApplicationMetadata.setBranchName(mainBranch);
+        createdApp.setGitApplicationMetadata(gitApplicationMetadata);
         return applicationRepository.save(createdApp).block();
     }
 }

@@ -2170,11 +2170,11 @@ public class ApplicationShareTest {
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        application.setGitArtifactMetadata(gitData);
+        application.setGitApplicationMetadata(gitData);
         Application createdApplication = applicationPageService
                 .createApplication(application)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -2214,11 +2214,11 @@ public class ApplicationShareTest {
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        application.setGitArtifactMetadata(gitData);
+        application.setGitApplicationMetadata(gitData);
         Application createdApplication = applicationPageService
                 .createApplication(application)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -2236,7 +2236,7 @@ public class ApplicationShareTest {
                     gitData1.setRemoteUrl("git@test.com:user/testRepo.git");
                     gitData1.setRepoName("testRepo");
                     gitData1.setDefaultApplicationId(createdApplication.getId());
-                    application1.setGitArtifactMetadata(gitData1);
+                    application1.setGitApplicationMetadata(gitData1);
 
                     return applicationService.save(application1);
                 })
@@ -2310,11 +2310,11 @@ public class ApplicationShareTest {
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        application.setGitArtifactMetadata(gitData);
+        application.setGitApplicationMetadata(gitData);
         Application createdApplication = applicationPageService
                 .createApplication(application)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -2332,7 +2332,7 @@ public class ApplicationShareTest {
                     gitData1.setRemoteUrl("git@test.com:user/testRepo.git");
                     gitData1.setRepoName("testRepo");
                     gitData1.setDefaultApplicationId(createdApplication.getId());
-                    application1.setGitArtifactMetadata(gitData1);
+                    application1.setGitApplicationMetadata(gitData1);
 
                     return applicationService.save(application1);
                 })

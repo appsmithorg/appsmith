@@ -61,9 +61,9 @@ public class ApplicationServiceHelperImpl extends ApplicationServiceHelperCEComp
     }
 
     private boolean isDefaultBranchApplication(Application application) {
-        return Objects.isNull(application.getGitArtifactMetadata())
+        return Objects.isNull(application.getGitApplicationMetadata())
                 || application
-                        .getGitArtifactMetadata()
+                        .getGitApplicationMetadata()
                         .getDefaultApplicationId()
                         .equals(application.getId());
     }

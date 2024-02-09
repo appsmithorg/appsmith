@@ -163,7 +163,7 @@ public class GitUtilsTest {
         GitArtifactMetadata gitMetadata = new GitArtifactMetadata();
         gitMetadata.setRemoteUrl("https://git.example.com/repo.git");
         gitMetadata.setDefaultApplicationId(UUID.randomUUID().toString());
-        connectedApplication.setGitArtifactMetadata(gitMetadata);
+        connectedApplication.setGitApplicationMetadata(gitMetadata);
 
         assertTrue(isApplicationConnectedToGit(connectedApplication));
     }
@@ -182,7 +182,7 @@ public class GitUtilsTest {
         Application notConnectedApplication = new Application();
         GitArtifactMetadata gitMetadata = new GitArtifactMetadata();
         gitMetadata.setRemoteUrl("https://git.example.com/repo.git");
-        notConnectedApplication.setGitArtifactMetadata(gitMetadata);
+        notConnectedApplication.setGitApplicationMetadata(gitMetadata);
 
         assertFalse(isApplicationConnectedToGit(notConnectedApplication));
     }
@@ -193,7 +193,7 @@ public class GitUtilsTest {
         Application notConnectedApplication = new Application();
         GitArtifactMetadata gitMetadata = new GitArtifactMetadata();
         gitMetadata.setDefaultApplicationId(UUID.randomUUID().toString());
-        notConnectedApplication.setGitArtifactMetadata(gitMetadata);
+        notConnectedApplication.setGitApplicationMetadata(gitMetadata);
 
         assertFalse(isApplicationConnectedToGit(notConnectedApplication));
     }
@@ -205,7 +205,7 @@ public class GitUtilsTest {
         GitArtifactMetadata gitMetadata = new GitArtifactMetadata();
         gitMetadata.setDefaultApplicationId("");
         gitMetadata.setRemoteUrl("");
-        notConnectedApplication.setGitArtifactMetadata(gitMetadata);
+        notConnectedApplication.setGitApplicationMetadata(gitMetadata);
 
         assertFalse(isApplicationConnectedToGit(notConnectedApplication));
     }
@@ -219,7 +219,7 @@ public class GitUtilsTest {
         metadata.setRemoteUrl("https://git.example.com/repo.git");
         metadata.setBranchName("main");
         metadata.setDefaultBranchName("main");
-        defaultBranchApplication.setGitArtifactMetadata(metadata);
+        defaultBranchApplication.setGitApplicationMetadata(metadata);
 
         assertTrue(isDefaultBranchedApplication(defaultBranchApplication));
     }
@@ -233,7 +233,7 @@ public class GitUtilsTest {
         metadata.setRemoteUrl("https://git.example.com/repo.git");
         metadata.setBranchName("feature-branch");
         metadata.setDefaultBranchName("main");
-        nonDefaultBranchApplication.setGitArtifactMetadata(metadata);
+        nonDefaultBranchApplication.setGitApplicationMetadata(metadata);
 
         assertFalse(isDefaultBranchedApplication(nonDefaultBranchApplication));
     }
@@ -250,7 +250,7 @@ public class GitUtilsTest {
     public void testIsDefaultBranchedApplication_NullMetadata() {
         // Create a mock Application with null Git metadata
         Application nullMetadataApplication = new Application();
-        nullMetadataApplication.setGitArtifactMetadata(null);
+        nullMetadataApplication.setGitApplicationMetadata(null);
 
         assertFalse(isDefaultBranchedApplication(nullMetadataApplication));
     }
@@ -264,7 +264,7 @@ public class GitUtilsTest {
         metadata.setRemoteUrl("https://git.example.com/repo.git");
         metadata.setBranchName(null);
         metadata.setDefaultBranchName("main");
-        nullBranchNameApplication.setGitArtifactMetadata(metadata);
+        nullBranchNameApplication.setGitApplicationMetadata(metadata);
 
         assertFalse(isDefaultBranchedApplication(nullBranchNameApplication));
     }
@@ -278,7 +278,7 @@ public class GitUtilsTest {
         metadata.setRemoteUrl("https://git.example.com/repo.git");
         metadata.setBranchName("main");
         metadata.setDefaultBranchName(null);
-        nullDefaultBranchNameApplication.setGitArtifactMetadata(metadata);
+        nullDefaultBranchNameApplication.setGitApplicationMetadata(metadata);
 
         assertFalse(isDefaultBranchedApplication(nullDefaultBranchNameApplication));
     }

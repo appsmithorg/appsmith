@@ -363,11 +363,11 @@ public class CreateDBTablePageSolutionTests {
         gitConnectedApp.setName(UUID.randomUUID().toString());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("crudTestBranch");
-        gitConnectedApp.setGitArtifactMetadata(gitData);
+        gitConnectedApp.setGitApplicationMetadata(gitData);
         applicationPageService
                 .createApplication(gitConnectedApp, testWorkspace.getId())
                 .flatMap(application -> {
-                    application.getGitArtifactMetadata().setDefaultApplicationId(application.getId());
+                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     gitData.setDefaultApplicationId(application.getId());
                     return applicationService.save(application).zipWhen(application1 -> exportService
                             .exportByArtifactIdAndBranchName(application1.getId(), gitData.getBranchName(), APPLICATION)

@@ -272,13 +272,13 @@ public class ModuleInstanceApplicationShareTest {
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        gitConnectedApp.setGitArtifactMetadata(gitData);
+        gitConnectedApp.setGitApplicationMetadata(gitData);
         // This will be altered in update app by branch test
         gitConnectedApp.setName("gitConnectedApp");
         gitConnectedApp = applicationPageService
                 .createApplication(gitConnectedApp)
                 .flatMap(application -> {
-                    application.getGitArtifactMetadata().setDefaultApplicationId(application.getId());
+                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application);
                 })
                 // Assign the branchName to all the resources connected to the application

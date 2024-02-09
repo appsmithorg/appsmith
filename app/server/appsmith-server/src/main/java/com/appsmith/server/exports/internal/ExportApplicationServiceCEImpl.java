@@ -127,7 +127,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
         return applicationMono
                 .flatMap(application -> {
                     // Refactor application to remove the ids
-                    GitArtifactMetadata gitArtifactMetadata = application.getGitArtifactMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = application.getGitApplicationMetadata();
                     Instant applicationLastCommittedAt =
                             gitArtifactMetadata != null ? gitArtifactMetadata.getLastCommittedAt() : null;
                     boolean isClientSchemaMigrated =

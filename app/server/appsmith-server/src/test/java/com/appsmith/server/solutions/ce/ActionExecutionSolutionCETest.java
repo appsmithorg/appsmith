@@ -255,11 +255,11 @@ public class ActionExecutionSolutionCETest {
         newApp.setName(UUID.randomUUID().toString());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
-        newApp.setGitArtifactMetadata(gitData);
+        newApp.setGitApplicationMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1).zipWhen(application11 -> exportService
                             .exportByArtifactIdAndBranchName(
                                     application11.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
@@ -275,7 +275,7 @@ public class ActionExecutionSolutionCETest {
                 .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
                 .block();
 
-        branchName = gitConnectedApp.getGitArtifactMetadata().getBranchName();
+        branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
 
         datasource = new Datasource();
         datasource.setName("Default Database");

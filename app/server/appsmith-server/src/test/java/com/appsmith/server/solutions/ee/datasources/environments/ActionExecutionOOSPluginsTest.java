@@ -247,11 +247,11 @@ public class ActionExecutionOOSPluginsTest {
             newApp.setName(UUID.randomUUID().toString());
             GitArtifactMetadata gitData = new GitArtifactMetadata();
             gitData.setBranchName("actionServiceTest");
-            newApp.setGitArtifactMetadata(gitData);
+            newApp.setGitApplicationMetadata(gitData);
             gitConnectedApp = applicationPageService
                     .createApplication(newApp, workspaceId)
                     .flatMap(application -> {
-                        application.getGitArtifactMetadata().setDefaultApplicationId(application.getId());
+                        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                         return applicationService
                                 .save(application)
                                 .zipWhen(application1 -> exportService.exportByArtifactIdAndBranchName(
@@ -267,7 +267,7 @@ public class ActionExecutionOOSPluginsTest {
                     .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
                     .block();
 
-            branchName = gitConnectedApp.getGitArtifactMetadata().getBranchName();
+            branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
         datasource = new Datasource();

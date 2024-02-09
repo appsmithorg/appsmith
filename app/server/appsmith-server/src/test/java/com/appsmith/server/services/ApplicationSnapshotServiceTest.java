@@ -151,7 +151,7 @@ public class ApplicationSnapshotServiceTest {
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
         gitArtifactMetadata.setDefaultApplicationId(testDefaultAppId);
         gitArtifactMetadata.setBranchName(testBranchName);
-        testApplication.setGitArtifactMetadata(gitArtifactMetadata);
+        testApplication.setGitApplicationMetadata(gitArtifactMetadata);
         Mono<Tuple2<ApplicationSnapshot, Application>> tuple2Mono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application -> applicationSnapshotService

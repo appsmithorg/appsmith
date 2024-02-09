@@ -668,7 +668,7 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
     public void organizationToWorkspaceIndexesRecreate(MongoTemplate mongoTemplate) {
         // If this migration is re-run
-        dropIndexIfExists(mongoTemplate, Application.class, "workspace_app_deleted_GitArtifactMetadata");
+        dropIndexIfExists(mongoTemplate, Application.class, "workspace_app_deleted_gitApplicationMetadata");
         dropIndexIfExists(mongoTemplate, Datasource.class, "workspace_datasource_deleted_compound_index");
 
         ensureIndexes(
@@ -678,10 +678,10 @@ public class DatabaseChangelog2 {
                                 fieldName(QApplication.application.workspaceId),
                                 fieldName(QApplication.application.name),
                                 fieldName(QApplication.application.deletedAt),
-                                "GitArtifactMetadata.remoteUrl",
-                                "GitArtifactMetadata.branchName")
+                                "gitApplicationMetadata.remoteUrl",
+                                "gitApplicationMetadata.branchName")
                         .unique()
-                        .named("workspace_app_deleted_GitArtifactMetadata"));
+                        .named("workspace_app_deleted_gitApplicationMetadata"));
         ensureIndexes(
                 mongoTemplate,
                 Datasource.class,

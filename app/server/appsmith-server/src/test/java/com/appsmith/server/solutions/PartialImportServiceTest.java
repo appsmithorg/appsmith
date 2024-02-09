@@ -174,7 +174,7 @@ public class PartialImportServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -230,16 +230,16 @@ public class PartialImportServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         return applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();

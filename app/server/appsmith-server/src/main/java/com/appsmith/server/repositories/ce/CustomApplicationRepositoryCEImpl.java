@@ -175,8 +175,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         gitAuth.setGeneratedAt(Instant.now());
         String path = String.format(
                 "%s.%s",
-                fieldName(QApplication.application.GitArtifactMetadata),
-                fieldName(QApplication.application.GitArtifactMetadata.gitAuth));
+                fieldName(QApplication.application.gitApplicationMetadata),
+                fieldName(QApplication.application.gitApplicationMetadata.gitAuth));
 
         updateObj.set(path, gitAuth);
         return this.updateById(applicationId, updateObj, aclPermission);
@@ -196,12 +196,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             String branchName,
             AclPermission aclPermission) {
 
-        String GitArtifactMetadata = fieldName(QApplication.application.GitArtifactMetadata);
-        Criteria defaultAppCriteria = where(GitArtifactMetadata + "."
-                        + fieldName(QApplication.application.GitArtifactMetadata.defaultApplicationId))
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+        Criteria defaultAppCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId);
-        Criteria branchNameCriteria = where(
-                        GitArtifactMetadata + "." + fieldName(QApplication.application.GitArtifactMetadata.branchName))
+        Criteria branchNameCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.branchName))
                 .is(branchName);
         return queryBuilder()
                 .criteria(defaultAppCriteria, branchNameCriteria)
@@ -214,13 +214,13 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
             String defaultApplicationId, String branchName, Optional<AclPermission> aclPermission) {
 
-        String GitArtifactMetadata = fieldName(QApplication.application.GitArtifactMetadata);
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
-        Criteria defaultAppCriteria = where(GitArtifactMetadata + "."
-                        + fieldName(QApplication.application.GitArtifactMetadata.defaultApplicationId))
+        Criteria defaultAppCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId);
-        Criteria branchNameCriteria = where(
-                        GitArtifactMetadata + "." + fieldName(QApplication.application.GitArtifactMetadata.branchName))
+        Criteria branchNameCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.branchName))
                 .is(branchName);
         return queryBuilder()
                 .criteria(defaultAppCriteria, branchNameCriteria)
@@ -231,10 +231,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Flux<Application> getApplicationByGitDefaultApplicationId(
             String defaultApplicationId, AclPermission permission) {
-        String GitArtifactMetadata = fieldName(QApplication.application.GitArtifactMetadata);
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
-        Criteria applicationIdCriteria = where(GitArtifactMetadata + "."
-                        + fieldName(QApplication.application.GitArtifactMetadata.defaultApplicationId))
+        Criteria applicationIdCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId);
         return queryBuilder()
                 .criteria(applicationIdCriteria)
@@ -251,26 +251,26 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId) {
-        String GitArtifactMetadata = fieldName(QApplication.application.GitArtifactMetadata);
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         Query query = new Query();
         query.addCriteria(where(fieldName(QApplication.application.workspaceId)).is(workspaceId));
-        query.addCriteria(
-                where(GitArtifactMetadata + "." + fieldName(QApplication.application.GitArtifactMetadata.isRepoPrivate))
-                        .is(Boolean.TRUE));
+        query.addCriteria(where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate))
+                .is(Boolean.TRUE));
         query.addCriteria(notDeleted());
         return mongoOperations.count(query, Application.class);
     }
 
     @Override
     public Flux<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId) {
-        String GitArtifactMetadata = fieldName(QApplication.application.GitArtifactMetadata);
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         // isRepoPrivate and gitAuth will be stored only with default application which ensures we will have only single
         // application per repo
-        Criteria repoCriteria = where(GitArtifactMetadata + "."
-                        + fieldName(QApplication.application.GitArtifactMetadata.isRepoPrivate))
+        Criteria repoCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate))
                 .exists(Boolean.TRUE);
-        Criteria gitAuthCriteria = where(
-                        GitArtifactMetadata + "." + fieldName(QApplication.application.GitArtifactMetadata.gitAuth))
+        Criteria gitAuthCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.gitAuth))
                 .exists(Boolean.TRUE);
         Criteria workspaceIdCriteria =
                 where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
@@ -283,11 +283,11 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
-        String GitArtifactMetadata = fieldName(QApplication.application.GitArtifactMetadata);
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
         Query query = new Query();
-        query.addCriteria(where(GitArtifactMetadata + "."
-                        + fieldName(QApplication.application.GitArtifactMetadata.defaultApplicationId))
+        query.addCriteria(where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId));
         query.addCriteria(notDeleted());
         return mongoOperations.findOne(query, Application.class);
@@ -369,11 +369,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<UpdateResult> unprotectAllBranches(String applicationId, AclPermission permission) {
-        String isProtectedFieldPath = fieldName(QApplication.application.GitArtifactMetadata) + "."
-                + fieldName(QApplication.application.GitArtifactMetadata.isProtectedBranch);
+        String isProtectedFieldPath = fieldName(QApplication.application.gitApplicationMetadata) + "."
+                + fieldName(QApplication.application.gitApplicationMetadata.isProtectedBranch);
 
-        Criteria defaultApplicationIdCriteria = Criteria.where(fieldName(QApplication.application.GitArtifactMetadata)
-                        + "." + fieldName(QApplication.application.GitArtifactMetadata.defaultApplicationId))
+        Criteria defaultApplicationIdCriteria = Criteria.where(
+                        fieldName(QApplication.application.gitApplicationMetadata) + "."
+                                + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(applicationId);
 
         Update unsetProtected = new Update().set(isProtectedFieldPath, false);
@@ -390,14 +391,15 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Mono<UpdateResult> protectBranchedApplications(
             String applicationId, List<String> branchNames, AclPermission permission) {
-        String isProtectedFieldPath = fieldName(QApplication.application.GitArtifactMetadata) + "."
-                + fieldName(QApplication.application.GitArtifactMetadata.isProtectedBranch);
+        String isProtectedFieldPath = fieldName(QApplication.application.gitApplicationMetadata) + "."
+                + fieldName(QApplication.application.gitApplicationMetadata.isProtectedBranch);
 
-        String branchNameFieldPath = fieldName(QApplication.application.GitArtifactMetadata) + "."
-                + fieldName(QApplication.application.GitArtifactMetadata.branchName);
+        String branchNameFieldPath = fieldName(QApplication.application.gitApplicationMetadata) + "."
+                + fieldName(QApplication.application.gitApplicationMetadata.branchName);
 
-        Criteria defaultApplicationIdCriteria = Criteria.where(fieldName(QApplication.application.GitArtifactMetadata)
-                        + "." + fieldName(QApplication.application.GitArtifactMetadata.defaultApplicationId))
+        Criteria defaultApplicationIdCriteria = Criteria.where(
+                        fieldName(QApplication.application.gitApplicationMetadata) + "."
+                                + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(applicationId);
         Criteria branchMatchCriteria = Criteria.where(branchNameFieldPath).in(branchNames);
         Update setProtected = new Update().set(isProtectedFieldPath, true);

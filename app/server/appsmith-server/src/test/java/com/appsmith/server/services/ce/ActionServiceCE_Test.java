@@ -256,11 +256,11 @@ public class ActionServiceCE_Test {
         newApp.setName(UUID.randomUUID().toString());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
-        newApp.setGitArtifactMetadata(gitData);
+        newApp.setGitApplicationMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
                 .flatMap(application2 -> {
-                    application2.getGitArtifactMetadata().setDefaultApplicationId(application2.getId());
+                    application2.getGitApplicationMetadata().setDefaultApplicationId(application2.getId());
                     return applicationService.save(application2).zipWhen(application1 -> exportService
                             .exportByArtifactIdAndBranchName(
                                     application1.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
@@ -276,7 +276,7 @@ public class ActionServiceCE_Test {
                 .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
                 .block();
 
-        branchName = gitConnectedApp.getGitArtifactMetadata().getBranchName();
+        branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
 
         datasource = new Datasource();
         datasource.setName("Default Database");

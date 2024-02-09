@@ -118,7 +118,7 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
         Application application = (Application) exportableArtifact;
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
-        GitArtifactMetadata gitArtifactMetadata = application.getGitArtifactMetadata();
+        GitArtifactMetadata gitArtifactMetadata = application.getGitApplicationMetadata();
         Instant applicationLastCommittedAt =
                 gitArtifactMetadata != null ? gitArtifactMetadata.getLastCommittedAt() : null;
         boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());

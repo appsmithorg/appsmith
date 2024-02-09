@@ -256,7 +256,7 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -428,7 +428,7 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(exportedApplication.getLastUpdateTime()).isNull();
                     assertThat(exportedApplication.getLastEditedAt()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
-                    assertThat(exportedApplication.getGitArtifactMetadata()).isNull();
+                    assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
                     assertThat(exportedApplication.getEditModeThemeId()).isNull();
                     assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
                     assertThat(exportedApplication.getExportWithConfiguration()).isNull();
@@ -806,7 +806,7 @@ public class ImportExportApplicationServiceGACTest {
                     assertThat(exportedApp.getWorkspaceId()).isNull();
                     assertThat(exportedApp.getPages()).hasSize(1);
                     assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
-                    assertThat(exportedApp.getGitArtifactMetadata()).isNull();
+                    assertThat(exportedApp.getGitApplicationMetadata()).isNull();
 
                     assertThat(exportedApp.getPolicies()).isNull();
                     assertThat(exportedApp.getUserPermissions()).isNull();
@@ -1374,15 +1374,15 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -1429,7 +1429,7 @@ public class ImportExportApplicationServiceGACTest {
                     List<NewAction> actionList = tuple.getT3();
 
                     final String branchName =
-                            application.getGitArtifactMetadata().getBranchName();
+                            application.getGitApplicationMetadata().getBranchName();
                     pageList.forEach(page -> {
                         assertThat(page.getDefaultResources()).isNotNull();
                         assertThat(page.getDefaultResources().getBranchName()).isEqualTo(branchName);
@@ -1589,15 +1589,15 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -1663,15 +1663,15 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -1761,15 +1761,15 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -1895,8 +1895,10 @@ public class ImportExportApplicationServiceGACTest {
         // Import the same application again to find if the added page is deleted
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitArtifactMetadata(new GitArtifactMetadata());
-                    importedApplication.getGitArtifactMetadata().setDefaultApplicationId(importedApplication.getId());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+                    importedApplication
+                            .getGitApplicationMetadata()
+                            .setDefaultApplicationId(importedApplication.getId());
                     return applicationService
                             .save(importedApplication)
                             .then(importService
@@ -1995,8 +1997,10 @@ public class ImportExportApplicationServiceGACTest {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitArtifactMetadata(new GitArtifactMetadata());
-                    importedApplication.getGitArtifactMetadata().setDefaultApplicationId(importedApplication.getId());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+                    importedApplication
+                            .getGitApplicationMetadata()
+                            .setDefaultApplicationId(importedApplication.getId());
                     return applicationService
                             .save(importedApplication)
                             .then(importService
@@ -2109,8 +2113,10 @@ public class ImportExportApplicationServiceGACTest {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitArtifactMetadata(new GitArtifactMetadata());
-                    importedApplication.getGitArtifactMetadata().setDefaultApplicationId(importedApplication.getId());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+                    importedApplication
+                            .getGitApplicationMetadata()
+                            .setDefaultApplicationId(importedApplication.getId());
                     return applicationService
                             .save(importedApplication)
                             .then(importService
@@ -2213,8 +2219,10 @@ public class ImportExportApplicationServiceGACTest {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitArtifactMetadata(new GitArtifactMetadata());
-                    importedApplication.getGitArtifactMetadata().setDefaultApplicationId(importedApplication.getId());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+                    importedApplication
+                            .getGitApplicationMetadata()
+                            .setDefaultApplicationId(importedApplication.getId());
                     return applicationService
                             .save(importedApplication)
                             .then(importService
@@ -2295,8 +2303,10 @@ public class ImportExportApplicationServiceGACTest {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitArtifactMetadata(new GitArtifactMetadata());
-                    importedApplication.getGitArtifactMetadata().setDefaultApplicationId(importedApplication.getId());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+                    importedApplication
+                            .getGitApplicationMetadata()
+                            .setDefaultApplicationId(importedApplication.getId());
                     return applicationService
                             .save(importedApplication)
                             .then(importService
@@ -2383,8 +2393,10 @@ public class ImportExportApplicationServiceGACTest {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitArtifactMetadata(new GitArtifactMetadata());
-                    importedApplication.getGitArtifactMetadata().setDefaultApplicationId(importedApplication.getId());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+                    importedApplication
+                            .getGitApplicationMetadata()
+                            .setDefaultApplicationId(importedApplication.getId());
                     return applicationService
                             .save(importedApplication)
                             .then(importService
@@ -2475,8 +2487,10 @@ public class ImportExportApplicationServiceGACTest {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitArtifactMetadata(new GitArtifactMetadata());
-                    importedApplication.getGitArtifactMetadata().setDefaultApplicationId(importedApplication.getId());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+                    importedApplication
+                            .getGitApplicationMetadata()
+                            .setDefaultApplicationId(importedApplication.getId());
                     return applicationService
                             .save(importedApplication)
                             .then(importService
@@ -2539,8 +2553,10 @@ public class ImportExportApplicationServiceGACTest {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitArtifactMetadata(new GitArtifactMetadata());
-                    importedApplication.getGitArtifactMetadata().setDefaultApplicationId(importedApplication.getId());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+                    importedApplication
+                            .getGitApplicationMetadata()
+                            .setDefaultApplicationId(importedApplication.getId());
                     return applicationService
                             .save(importedApplication)
                             .then(importService
@@ -3153,14 +3169,14 @@ public class ImportExportApplicationServiceGACTest {
         appNavigationSetting.setOrientation("top");
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -3211,14 +3227,14 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setName(
                 "importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode");
         testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -3723,16 +3739,16 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -3819,16 +3835,16 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -3840,16 +3856,16 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData1 = new GitArtifactMetadata();
         gitData1.setBranchName("feature");
         gitData1.setDefaultBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData1);
+        testApplication.setGitApplicationMetadata(gitData1);
 
         Application branchApp = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application2 -> {
-                    application2.getGitArtifactMetadata().setDefaultApplicationId(application.getId());
+                    application2.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application2);
                 })
                 .block();
@@ -3930,16 +3946,16 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -3952,16 +3968,16 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData1 = new GitArtifactMetadata();
         gitData1.setBranchName("feature");
         gitData1.setDefaultBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData1);
+        testApplication.setGitApplicationMetadata(gitData1);
 
         Application branchApp = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application2 -> {
-                    application2.getGitArtifactMetadata().setDefaultApplicationId(application.getId());
+                    application2.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application2);
                 })
                 .block();
@@ -4042,16 +4058,16 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
 
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -4064,16 +4080,16 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         GitArtifactMetadata gitData1 = new GitArtifactMetadata();
         gitData1.setBranchName("feature");
         gitData1.setDefaultBranchName("master");
-        testApplication.setGitArtifactMetadata(gitData1);
+        testApplication.setGitApplicationMetadata(gitData1);
 
         Application branchApp = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application2 -> {
-                    application2.getGitArtifactMetadata().setDefaultApplicationId(application.getId());
+                    application2.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application2);
                 })
                 .block();
@@ -4697,11 +4713,11 @@ public class ImportExportApplicationServiceGACTest {
         testApplication.setLastDeployedAt(Instant.now());
         GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setRemoteUrl("git@example.com:username/git-repo.git");
-        testApplication.setGitArtifactMetadata(gitData);
+        testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -4947,10 +4963,10 @@ public class ImportExportApplicationServiceGACTest {
                 })
                 .flatMap(application -> {
                     // set git meta data for the application and set a last commit date
-                    GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+                    GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    GitArtifactMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitArtifactMetadata(GitArtifactMetadata);
+                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationRepository.save(application);
                 })
                 .delayElement(Duration.ofMillis(
@@ -5050,10 +5066,10 @@ public class ImportExportApplicationServiceGACTest {
                 .flatMap(objects -> {
                     Application application = objects.getT2();
                     // set git meta data for the application and set a last commit date
-                    GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
+                    GitArtifactMetadata gitApplicationMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    GitArtifactMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitArtifactMetadata(GitArtifactMetadata);
+                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationRepository.save(application).thenReturn(objects);
                 })
                 .delayElement(Duration.ofMillis(

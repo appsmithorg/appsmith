@@ -546,7 +546,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
                     // If the forking application is connected to git, do not copy those data to the new forked
                     // application
-                    application.setGitArtifactMetadata(null);
+                    application.setGitApplicationMetadata(null);
 
                     boolean allowFork = (
                             // Is this a non-anonymous user that has access to this application?
@@ -599,15 +599,15 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .flatMap(application -> {
                         // For git connected application user can update the default branch
                         // In such cases we should fork the application from the new default branch
-                        if (!(application.getGitArtifactMetadata() == null)
+                        if (!(application.getGitApplicationMetadata() == null)
                                 && !application
-                                        .getGitArtifactMetadata()
+                                        .getGitApplicationMetadata()
                                         .getBranchName()
                                         .equals(application
-                                                .getGitArtifactMetadata()
+                                                .getGitApplicationMetadata()
                                                 .getDefaultBranchName())) {
                             return applicationService.findByBranchNameAndDefaultApplicationId(
-                                    application.getGitArtifactMetadata().getDefaultBranchName(),
+                                    application.getGitApplicationMetadata().getDefaultBranchName(),
                                     srcApplicationId,
                                     applicationPermission.getReadPermission());
                         }

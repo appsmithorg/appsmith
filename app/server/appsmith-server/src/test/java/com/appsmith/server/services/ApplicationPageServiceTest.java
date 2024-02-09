@@ -385,17 +385,17 @@ public class ApplicationPageServiceTest {
         application.setName(appName);
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
         gitArtifactMetadata.setBranchName("branch1");
-        application.setGitArtifactMetadata(gitArtifactMetadata);
+        application.setGitApplicationMetadata(gitArtifactMetadata);
 
         Mono<Application> importAppMono = applicationPageService
                 .createApplication(application, workspace.getId())
                 .flatMap(createdApp -> {
-                    createdApp.getGitArtifactMetadata().setDefaultApplicationId(createdApp.getId());
+                    createdApp.getGitApplicationMetadata().setDefaultApplicationId(createdApp.getId());
                     return applicationService.save(createdApp);
                 })
                 .flatMap(createdApp -> {
                     createdApp.setId(null);
-                    createdApp.getGitArtifactMetadata().setBranchName("branch2");
+                    createdApp.getGitApplicationMetadata().setBranchName("branch2");
                     // just duplicate the app, we're not considering the pages, they remain same in both apps
                     return applicationRepository.save(createdApp);
                 })

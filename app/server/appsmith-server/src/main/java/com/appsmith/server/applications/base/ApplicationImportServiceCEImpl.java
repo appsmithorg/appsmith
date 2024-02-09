@@ -456,9 +456,9 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                         })
                         .flatMap(application -> {
                             Mono<Application> parentApplicationMono;
-                            if (application.getGitArtifactMetadata() != null) {
+                            if (application.getGitApplicationMetadata() != null) {
                                 parentApplicationMono = applicationService.findById(
-                                        application.getGitArtifactMetadata().getDefaultApplicationId());
+                                        application.getGitApplicationMetadata().getDefaultApplicationId());
                             } else {
                                 parentApplicationMono = Mono.just(application);
                             }
