@@ -13,15 +13,16 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
@@ -80,6 +81,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -152,10 +154,10 @@ public class ModuleInstanceApplicationShareTest {
     NewPageRepository newPageRepository;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @Autowired
     EnvironmentPermission environmentPermission;
@@ -280,10 +282,12 @@ public class ModuleInstanceApplicationShareTest {
                     return applicationService.save(application);
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(application ->
-                        exportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                .flatMap(application -> exportService.exportByArtifactIdAndBranchName(
+                        application.getId(), gitData.getBranchName(), APPLICATION))
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
+                .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
+                        workspaceId, gitConnectedApp.getId(), applicationJson, gitData.getBranchName()))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         DefaultResources defaultResources = new DefaultResources();

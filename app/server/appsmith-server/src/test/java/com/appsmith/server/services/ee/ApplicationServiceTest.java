@@ -9,6 +9,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -26,13 +27,13 @@ import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -161,10 +162,10 @@ public class ApplicationServiceTest {
     NewPageRepository newPageRepository;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @Autowired
     EnvironmentPermission environmentPermission;
@@ -251,10 +252,11 @@ public class ApplicationServiceTest {
                     return applicationService.save(application);
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(application ->
-                        exportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                .flatMap(application -> exportService.exportByArtifactIdAndBranchName(
+                        application.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION))
+                .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
+                        workspaceId, gitConnectedApp.getId(), applicationJson, gitData.getBranchName()))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         DefaultResources defaultResources = new DefaultResources();

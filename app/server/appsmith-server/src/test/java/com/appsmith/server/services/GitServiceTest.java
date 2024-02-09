@@ -13,6 +13,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDeployApplicationResultDTO;
@@ -22,7 +23,7 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -117,7 +118,7 @@ public class GitServiceTest {
     AnalyticsService analyticsService;
 
     @SpyBean
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
     UserRepository userRepository;
@@ -1079,9 +1080,11 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(Mono.just(applicationJson));
-        Mockito.when(importApplicationService.importApplicationInWorkspaceFromGit(
-                        anyString(), any(ApplicationJson.class), anyString(), anyString()))
-                .thenReturn(Mono.just(rootApplication));
+
+        Mockito.doReturn(Mono.just(rootApplication))
+                .when(importService)
+                .importArtifactInWorkspaceFromGit(
+                        anyString(), anyString(), any(ArtifactExchangeJson.class), anyString());
 
         Mono<Application> resultDTOMono = applicationRepository
                 .findById(defaultAppId)

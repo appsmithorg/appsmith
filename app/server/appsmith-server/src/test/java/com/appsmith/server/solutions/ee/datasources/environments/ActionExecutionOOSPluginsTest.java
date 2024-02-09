@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
@@ -19,11 +20,11 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -129,10 +130,10 @@ public class ActionExecutionOOSPluginsTest {
     DatasourceService datasourceService;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @SpyBean
     PluginService pluginService;
@@ -253,12 +254,13 @@ public class ActionExecutionOOSPluginsTest {
                         application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                         return applicationService
                                 .save(application)
-                                .zipWhen(application1 -> exportApplicationService.exportApplicationById(
-                                        application1.getId(), gitData.getBranchName()));
+                                .zipWhen(application1 -> exportService.exportByArtifactIdAndBranchName(
+                                        application1.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
-                            workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importService.importArtifactInWorkspaceFromGit(
+                            workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getBranchName()))
+                    .map(importableArtifact -> (Application) importableArtifact)
                     .block();
 
             gitConnectedPage = newPageService

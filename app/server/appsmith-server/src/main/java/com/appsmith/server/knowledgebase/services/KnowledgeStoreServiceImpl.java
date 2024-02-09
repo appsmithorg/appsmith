@@ -15,7 +15,7 @@ import com.appsmith.server.dtos.LicenseValidationRequestDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.KnowledgeStoreRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -38,6 +38,7 @@ import reactor.util.function.Tuple2;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static com.appsmith.server.constants.ProcessingStatus.IDLE;
 import static com.appsmith.server.constants.ProcessingStatus.IN_PROGRESS;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.KNOWLEDGE_BASE_GENERATION;
@@ -53,7 +54,7 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
     private final LicenseAPIManager licenseAPIManager;
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
-    private final ExportApplicationService exportApplicationService;
+    private final ExportService exportService;
     private final Gson gson;
     private final AnalyticsService analyticsService;
 
@@ -65,7 +66,7 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
             LicenseAPIManager licenseAPIManager,
             ApplicationService applicationService,
             ApplicationPermission applicationPermission,
-            ExportApplicationService exportApplicationService,
+            ExportService exportService,
             Gson gson,
             AnalyticsService analyticsService) {
 
@@ -77,7 +78,7 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
         this.licenseAPIManager = licenseAPIManager;
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
-        this.exportApplicationService = exportApplicationService;
+        this.exportService = exportService;
         this.gson = gson;
         this.analyticsService = analyticsService;
     }
@@ -337,7 +338,7 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
         return applicationService
                 .findBranchedApplicationId("", applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedAppId ->
-                        exportApplicationService.exportApplicationById(branchedAppId, KNOWLEDGE_BASE_GENERATION))
+                        exportService.exportByArtifactId(branchedAppId, KNOWLEDGE_BASE_GENERATION, APPLICATION))
                 .map(gson::toJson);
     }
 

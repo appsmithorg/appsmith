@@ -34,7 +34,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -89,6 +89,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,7 +101,7 @@ import static org.mockito.Mockito.doReturn;
 class ImportWithModulesTest {
 
     @Autowired
-    private ImportApplicationService importApplicationService;
+    private ImportService importService;
 
     @SpyBean
     private FeatureFlagService featureFlagService;
@@ -183,8 +184,10 @@ class ImportWithModulesTest {
 
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
-        final Mono<ApplicationImportDTO> resultMono = workspaceMono.flatMap(
-                workspace -> importApplicationService.extractFileAndSaveApplication(workspace.getId(), filePart));
+        final Mono<ApplicationImportDTO> resultMono = workspaceMono
+                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
+                        filePart, workspace.getId(), null, APPLICATION))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         List<PermissionGroup> permissionGroups = workspaceMono
                 .flatMapMany(savedWorkspace -> {
@@ -431,8 +434,9 @@ class ImportWithModulesTest {
         Workspace workspace = workspaceService.create(newWorkspace).block();
 
         // First import the app
-        ApplicationImportDTO applicationImportDTO = importApplicationService
-                .extractFileAndSaveApplication(workspace.getId(), filePart)
+        ApplicationImportDTO applicationImportDTO = importService
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null, APPLICATION)
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
 
         // Then create the module
@@ -772,8 +776,9 @@ class ImportWithModulesTest {
         publishPackageService.publishPackage(packageDTO.getId()).block();
 
         // Then import the app
-        ApplicationImportDTO applicationImportDTO = importApplicationService
-                .extractFileAndSaveApplication(workspace.getId(), filePart)
+        ApplicationImportDTO applicationImportDTO = importService
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null, APPLICATION)
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
 
         // Fetch all application resources and check validity

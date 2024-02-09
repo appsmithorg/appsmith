@@ -15,11 +15,11 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -66,6 +66,7 @@ import java.util.Optional;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PAGE_LAYOUT;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -75,10 +76,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class ImportExportApplicationServiceEETest {
 
     @Autowired
-    private ImportApplicationService importApplicationService;
+    private ImportService importService;
 
     @Autowired
-    private ExportApplicationService exportApplicationService;
+    private ExportService exportService;
 
     @Autowired
     private Gson gson;
@@ -187,8 +188,9 @@ public class ImportExportApplicationServiceEETest {
         testDatasource.setDatasourceStorages(storages);
         datasourceService.create(testDatasource).block();
 
-        final Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
-                testWorkspace.getId(), applicationJson);
+        final Mono<Application> resultMono = importService
+                .importNewArtifactInWorkspaceFromJson(testWorkspace.getId(), applicationJson)
+                .map(importableArtifact -> (Application) importableArtifact);
 
         Mono<List<Datasource>> datasourcesMono = resultMono.flatMap(application -> datasourceService
                 .getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
@@ -314,7 +316,8 @@ public class ImportExportApplicationServiceEETest {
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
-                            .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
+                            .then(exportService.exportByArtifactIdAndBranchName(testApp.getId(), "", APPLICATION))
+                            .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
         StepVerifier.create(resultMono)

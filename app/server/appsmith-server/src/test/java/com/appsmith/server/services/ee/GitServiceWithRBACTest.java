@@ -1612,6 +1612,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.cloneApplication(
                         Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
+
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));

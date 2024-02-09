@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApiKeyService;
@@ -83,7 +83,7 @@ public class GitControllerTest {
     private GitFileUtils gitFileUtils;
 
     @MockBean
-    private ImportApplicationService importApplicationService;
+    private ImportService importService;
 
     @Autowired
     private PermissionGroupService permissionGroupService;
@@ -153,9 +153,10 @@ public class GitControllerTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(Mono.just(applicationJson));
-        Mockito.when(importApplicationService.importApplicationInWorkspaceFromGit(
-                        anyString(), any(ApplicationJson.class), anyString(), anyString()))
-                .thenReturn(Mono.just(application));
+
+        Mockito.when(importService.importArtifactInWorkspaceFromGit(
+                        anyString(), anyString(), any(ApplicationJson.class), anyString()))
+                .thenAnswer(invocationOnMock -> (Mono.just(application)));
 
         gitService.toggleAutoDeploymentSettings(application.getId()).block();
         String bearerToken = gitService
@@ -163,18 +164,19 @@ public class GitControllerTest {
                 .block();
 
         // fetch the application again as the policies field has been changed after bot user is added
-        application = applicationRepository.findById(application.getId()).block();
+        Application newApplication =
+                applicationRepository.findById(application.getId()).block();
         // remove the edit permission for api_user from application
         Set<String> apiUserPermissionGroups =
                 permissionGroupService.getSessionUserPermissionGroupIds().block();
         assert apiUserPermissionGroups != null;
-        for (Policy policy : application.getPolicies()) {
+        for (Policy policy : newApplication.getPolicies()) {
             if (policy.getPermission()
                     .equals(applicationPermission.getEditPermission().getValue())) {
                 policy.getPermissionGroups().removeAll(apiUserPermissionGroups);
             }
         }
-        applicationRepository.save(application).block();
+        applicationRepository.save(newApplication).block();
 
         webTestClient
                 .post()

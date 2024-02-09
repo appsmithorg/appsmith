@@ -24,6 +24,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.constants.FieldName;
@@ -76,14 +77,14 @@ import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -210,10 +211,10 @@ public class AuditLogServiceTest {
     ApplicationService applicationService;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @Autowired
     NewPageService newPageService;
@@ -1138,8 +1139,10 @@ public class AuditLogServiceTest {
         String resourceType = auditLogService.getResourceType(new Application());
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
-        ApplicationImportDTO applicationImportDTO = importApplicationService
-                .extractFileAndSaveApplication(createdWorkspace.getId(), filePart)
+        ApplicationImportDTO applicationImportDTO = importService
+                .extractArtifactExchangeJsonAndSaveArtifact(
+                        filePart, createdWorkspace.getId(), null, ArtifactJsonType.APPLICATION)
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
         Application createdApplication = applicationImportDTO.getApplication();
 
@@ -1203,8 +1206,9 @@ public class AuditLogServiceTest {
                 .block();
         String resourceType = auditLogService.getResourceType(application);
 
-        ApplicationJson applicationJSon = exportApplicationService
-                .exportApplicationById(createdApplication.getId(), "")
+        ApplicationJson applicationJSon = exportService
+                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactJsonType.APPLICATION)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(
@@ -1420,8 +1424,12 @@ public class AuditLogServiceTest {
         ApplicationImportDTO forkedApplication = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(
                         createdApplication.getId(), createdWorkspace.getId(), environmentId)
-                .flatMap(application1 -> importApplicationService.getApplicationImportDTO(
-                        application1.getId(), application1.getWorkspaceId(), application1))
+                .flatMap(application1 -> importService.getArtifactImportDTO(
+                        application1.getWorkspaceId(),
+                        application1.getId(),
+                        application1,
+                        ArtifactJsonType.APPLICATION))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(

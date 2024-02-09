@@ -43,13 +43,13 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.packages.crud.CrudPackageService;
@@ -152,6 +152,7 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGE_INSTANCES;
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.APPLICATION_DEVELOPER;
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
@@ -183,10 +184,10 @@ public class ApplicationShareTest {
     DatasourceService datasourceService;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @Autowired
     LayoutActionService layoutActionService;
@@ -2222,10 +2223,11 @@ public class ApplicationShareTest {
                 })
                 .block();
 
-        Application branchedApplication = exportApplicationService
-                .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
-                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspace.getId(), applicationJson, null, gitData.getBranchName()))
+        Application branchedApplication = exportService
+                .exportByArtifactIdAndBranchName(createdApplication.getId(), gitData.getBranchName(), APPLICATION)
+                .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
+                        workspace.getId(), null, applicationJson, gitData.getBranchName()))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitData1 = new GitApplicationMetadata();
                     gitData1.setBranchName("testBranch");
@@ -2317,10 +2319,11 @@ public class ApplicationShareTest {
                 })
                 .block();
 
-        Application branchedApplication = exportApplicationService
-                .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
-                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspace.getId(), applicationJson, null, gitData.getBranchName()))
+        Application branchedApplication = exportService
+                .exportByArtifactIdAndBranchName(createdApplication.getId(), gitData.getBranchName(), APPLICATION)
+                .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
+                        workspace.getId(), null, applicationJson, gitData.getBranchName()))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitData1 = new GitApplicationMetadata();
                     gitData1.setBranchName("testBranch");

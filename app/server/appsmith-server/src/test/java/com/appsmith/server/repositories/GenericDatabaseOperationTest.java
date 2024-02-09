@@ -19,7 +19,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -101,7 +101,7 @@ public class GenericDatabaseOperationTest {
     RoleConfigurationSolution roleConfigurationSolution;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
     ApplicationRepository applicationRepository;
@@ -177,8 +177,9 @@ public class GenericDatabaseOperationTest {
                         ApplicationJson.class);
 
         // Import application in master branch
-        importedApplicationMasterBranchId = importApplicationService
-                .importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, application.getId(), "master")
+        importedApplicationMasterBranchId = importService
+                .importArtifactInWorkspaceFromGit(workspace.getId(), application.getId(), applicationJson, "master")
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block()
                 .getId();
 
@@ -215,9 +216,10 @@ public class GenericDatabaseOperationTest {
         ApplicationJson applicationJson = new Gson().fromJson(applicationJsonFeature1, ApplicationJson.class);
 
         // Import application in feature1 branch
-        importedApplicationFeature1BranchId = importApplicationService
-                .importApplicationInWorkspaceFromGit(
-                        workspace.getId(), applicationJson, srcApplication.getId(), "feature1")
+        importedApplicationFeature1BranchId = importService
+                .importArtifactInWorkspaceFromGit(
+                        workspace.getId(), srcApplication.getId(), applicationJson, "feature1")
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block()
                 .getId();
 
@@ -258,8 +260,9 @@ public class GenericDatabaseOperationTest {
                         ApplicationJson.class);
 
         // Import application in master branch
-        application = importApplicationService
-                .importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, application.getId(), "master")
+        application = importService
+                .importArtifactInWorkspaceFromGit(workspace.getId(), application.getId(), applicationJson, "master")
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         // Import in feature branch
@@ -281,16 +284,18 @@ public class GenericDatabaseOperationTest {
         applicationJson = new Gson().fromJson(applicationJsonFeature1, ApplicationJson.class);
 
         // Import application in feature1 branch
-        importApplicationService
-                .importApplicationInWorkspaceFromGit(
-                        workspace.getId(), applicationJson, srcApplication.getId(), "feature1")
+        importService
+                .importArtifactInWorkspaceFromGit(
+                        workspace.getId(), srcApplication.getId(), applicationJson, "feature1")
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         // Import again in master branch to simulate merge
         applicationJson = new Gson().fromJson(applicationJsonFeature1, ApplicationJson.class);
 
-        mergedApplicationToMasterId = importApplicationService
-                .importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, application.getId(), "master")
+        mergedApplicationToMasterId = importService
+                .importArtifactInWorkspaceFromGit(workspace.getId(), application.getId(), applicationJson, "master")
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block()
                 .getId();
     }
