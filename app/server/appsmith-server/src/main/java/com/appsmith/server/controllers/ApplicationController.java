@@ -10,11 +10,9 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exports.exportable.ExportService;
-import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.imports.importable.ImportService;
-import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.ApplicationMemberService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -48,8 +46,6 @@ public class ApplicationController extends ApplicationControllerCE {
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportApplicationService importApplicationService,
-            ExportApplicationService exportApplicationService,
             ThemeService themeService,
             ApplicationSnapshotService applicationSnapshotService,
             ApplicationMemberService applicationMemberService,
@@ -62,8 +58,6 @@ public class ApplicationController extends ApplicationControllerCE {
                 applicationPageService,
                 applicationFetcher,
                 applicationForkingService,
-                importApplicationService,
-                exportApplicationService,
                 themeService,
                 applicationSnapshotService,
                 partialExportService,

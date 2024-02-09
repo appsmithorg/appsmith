@@ -23,7 +23,7 @@ import com.appsmith.server.dtos.ApiKeyRequestDto;
 import com.appsmith.server.dtos.GitDeployApplicationResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.AppsmithRoleUtils;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -32,7 +32,7 @@ import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -91,8 +91,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
             GitFileUtils fileUtils,
-            ImportApplicationService importApplicationService,
-            ExportApplicationService exportApplicationService,
+            ImportService importService,
+            ExportService exportService,
             GitExecutor gitExecutor,
             ResponseUtils responseUtils,
             EmailConfig emailConfig,
@@ -125,8 +125,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 newActionService,
                 actionCollectionService,
                 fileUtils,
-                importApplicationService,
-                exportApplicationService,
+                importService,
+                exportService,
                 gitExecutor,
                 responseUtils,
                 emailConfig,

@@ -82,7 +82,6 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -160,9 +159,6 @@ public class ImportServiceTests {
 
     @Autowired
     ExportService exportService;
-
-    //    @Autowired
-    //    ExportApplicationService exportApplicationService;
 
     @Autowired
     Gson gson;
@@ -1115,7 +1111,6 @@ public class ImportServiceTests {
     }
 
     @Test
-    @Disabled
     @WithUserDetails(value = "api_user")
     public void importApplicationInWorkspace_WhenCustomizedThemes_ThemesCreated() {
         FilePart filePart =
@@ -4618,11 +4613,7 @@ public class ImportServiceTests {
                         })
                         .zipWith(applicationJson)
                         .flatMap(objects -> importService
-                                .restoreSnapshot(
-                                        workspaceId,
-                                        objects.getT2(),
-                                        objects.getT1().getId(),
-                                        null)
+                                .restoreSnapshot(workspaceId, objects.getT1().getId(), null, objects.getT2())
                                 .map(importableArtifact -> (Application) importableArtifact)
                                 .zipWith(Mono.just(objects.getT1())))
                         .flatMap(objects -> {
