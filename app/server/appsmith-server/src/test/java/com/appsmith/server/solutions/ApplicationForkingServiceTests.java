@@ -20,6 +20,7 @@ import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -44,7 +45,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -187,7 +188,7 @@ public class ApplicationForkingServiceTests {
     private UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
-    private ImportApplicationService importApplicationService;
+    private ImportService importService;
 
     @Autowired
     private EnvironmentPermission environmentPermission;
@@ -359,8 +360,12 @@ public class ApplicationForkingServiceTests {
                 .map(Workspace::getId)
                 .flatMap(targetWorkspaceId -> applicationForkingService
                         .forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspaceId, sourceEnvironmentId)
-                        .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                                application.getId(), application.getWorkspaceId(), application)));
+                        .flatMap(application -> importService.getArtifactImportDTO(
+                                application.getWorkspaceId(),
+                                application.getId(),
+                                application,
+                                ArtifactJsonType.APPLICATION)))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono.zipWhen(applicationImportDTO -> Mono.zip(
                         newActionService
@@ -488,8 +493,9 @@ public class ApplicationForkingServiceTests {
 
         final Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, sourceEnvironmentId)
-                .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                        application.getId(), application.getWorkspaceId(), application));
+                .flatMap(application -> importService.getArtifactImportDTO(
+                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -501,7 +507,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "admin@solutiontest.com")
+    @WithUserDetails(value = "api_user")
     public void forkingEnabledPublicApp_noPermission_ForkApplicationSuccess() {
         Workspace targetWorkspace = new Workspace();
         targetWorkspace.setName("Target Workspace");
@@ -1269,8 +1275,9 @@ public class ApplicationForkingServiceTests {
 
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
-                .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                        application.getId(), application.getWorkspaceId(), application));
+                .flatMap(application -> importService.getArtifactImportDTO(
+                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
                 .assertNext(forkedApplicationImportDTO -> {
@@ -1298,8 +1305,9 @@ public class ApplicationForkingServiceTests {
 
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
-                .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                        application.getId(), application.getWorkspaceId(), application));
+                .flatMap(application -> importService.getArtifactImportDTO(
+                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
                 .assertNext(forkedApplicationImportDTO -> {
@@ -1327,8 +1335,9 @@ public class ApplicationForkingServiceTests {
 
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
-                .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                        application.getId(), application.getWorkspaceId(), application));
+                .flatMap(application -> importService.getArtifactImportDTO(
+                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
                 .assertNext(forkedApplicationImportDTO -> {

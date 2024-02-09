@@ -29,13 +29,7 @@ const FileTabs = () => {
   }
 
   return (
-    <Flex
-      className="editor-tabs"
-      flex="1"
-      gap="spaces-2"
-      overflow="hidden"
-      paddingBottom="spaces-2"
-    >
+    <Flex data-test-id="editor-tabs" flex="1" gap="spaces-2" height="100%">
       {files.map((tab: EntityItem) =>
         segment === EditorEntityTab.JS ? (
           <JSTab data={tab} key={tab.key} />

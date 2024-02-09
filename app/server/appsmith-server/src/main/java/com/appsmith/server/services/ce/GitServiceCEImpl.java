@@ -18,7 +18,6 @@ import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.GitDefaultCommitMessage;
-import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -41,7 +40,7 @@ import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -50,7 +49,7 @@ import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -109,7 +108,9 @@ import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.external.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
+import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
 import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
 import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
@@ -139,8 +140,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils fileUtils;
-    private final ImportApplicationService importApplicationService;
-    private final ExportApplicationService exportApplicationService;
+    private final ImportService importService;
+    private final ExportService exportService;
     private final GitExecutor gitExecutor;
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
@@ -486,12 +487,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find " + errorEntity));
                     }
                     return Mono.zip(
-                            exportApplicationService.exportApplicationById(
-                                    branchedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL),
+                            exportService.exportByArtifactId(branchedApplication.getId(), VERSION_CONTROL, APPLICATION),
                             Mono.just(branchedApplication));
                 })
                 .flatMap(tuple -> {
-                    ApplicationJson applicationJson = tuple.getT1();
+                    ApplicationJson applicationJson = (ApplicationJson) tuple.getT1();
                     Application childApplication = tuple.getT2();
                     GitArtifactMetadata gitData = childApplication.getGitApplicationMetadata();
                     Path baseRepoSuffix = Paths.get(
@@ -836,15 +836,22 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         gitArtifactMetadata.setLastCommittedAt(Instant.now());
 
                                         // Set branchName for each application resource
-                                        return exportApplicationService
-                                                .exportApplicationById(
-                                                        applicationId, SerialiseArtifactObjective.VERSION_CONTROL)
-                                                .flatMap(applicationJson -> {
+                                        return exportService
+                                                .exportByArtifactId(applicationId, VERSION_CONTROL, APPLICATION)
+                                                .flatMap(artifactExchangeJson -> {
+                                                    ApplicationJson applicationJson =
+                                                            (ApplicationJson) artifactExchangeJson;
                                                     applicationJson
                                                             .getExportedApplication()
                                                             .setGitApplicationMetadata(gitArtifactMetadata);
-                                                    return importApplicationService.importApplicationInWorkspaceFromGit(
-                                                            workspaceId, applicationJson, applicationId, defaultBranch);
+                                                    return importService
+                                                            .importArtifactInWorkspaceFromGit(
+                                                                    workspaceId,
+                                                                    applicationId,
+                                                                    applicationJson,
+                                                                    defaultBranch)
+                                                            .map(importableArtifact ->
+                                                                    (Application) importableArtifact);
                                                 });
                                     }
                                 })
@@ -1327,20 +1334,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 srcApplication.setGitApplicationMetadata(srcBranchGitData);
                                 return Mono.zip(
                                         applicationService.save(srcApplication),
-                                        exportApplicationService.exportApplicationById(
-                                                srcApplicationId, SerialiseArtifactObjective.VERSION_CONTROL));
+                                        exportService.exportByArtifactId(
+                                                srcApplicationId, VERSION_CONTROL, APPLICATION));
                             })
                             .onErrorResume(error -> Mono.error(new AppsmithException(
                                     AppsmithError.GIT_ACTION_FAILED, "branch", error.getMessage())));
                 })
                 .flatMap(tuple -> {
                     Application savedApplication = tuple.getT1();
-                    return importApplicationService
-                            .importApplicationInWorkspaceFromGit(
+                    return importService
+                            .importArtifactInWorkspaceFromGit(
                                     savedApplication.getWorkspaceId(),
-                                    tuple.getT2(),
                                     savedApplication.getId(),
+                                    tuple.getT2(),
                                     branchDTO.getBranchName())
+                            .map(importableArtifact -> (Application) importableArtifact)
                             .flatMap(application -> {
                                 // Commit and push for new branch created this is to avoid issues when user tries to
                                 // create a
@@ -1531,9 +1539,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Get the latest application mono with all the changes
                     ApplicationJson applicationJson = tuple.getT1();
                     Application application = tuple.getT2();
-                    return importApplicationService
-                            .importApplicationInWorkspaceFromGit(
-                                    application.getWorkspaceId(), applicationJson, application.getId(), branchName)
+                    return importService
+                            .importArtifactInWorkspaceFromGit(
+                                    application.getWorkspaceId(), application.getId(), applicationJson, branchName)
+                            .map(importableArtifact -> (Application) importableArtifact)
                             .flatMap(application1 -> addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_CHECKOUT_REMOTE_BRANCH,
                                     application1,
@@ -1916,8 +1925,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     fetchRemoteMono = Mono.just("ignored");
                                 }
 
-                                Mono<ApplicationJson> exportAppMono = exportApplicationService.exportApplicationById(
-                                        application.getId(), SerialiseArtifactObjective.VERSION_CONTROL);
+                                Mono<ApplicationJson> exportAppMono = exportService
+                                        .exportByArtifactId(application.getId(), VERSION_CONTROL, APPLICATION)
+                                        .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
                                 return Mono.zip(exportAppMono, fetchRemoteMono) // zip will run them in parallel
                                         .map(Tuple2::getT1);
@@ -2255,12 +2265,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                     mergeStatusDTO.setMergeAble(Boolean.TRUE);
 
                     // 4. Get the latest application mono with all the changes
-                    return importApplicationService
-                            .importApplicationInWorkspaceFromGit(
+                    return importService
+                            .importArtifactInWorkspaceFromGit(
                                     destApplication.getWorkspaceId(),
-                                    applicationJson,
                                     destApplication.getId(),
+                                    applicationJson,
                                     destinationBranch.replaceFirst("origin/", ""))
+                            .map(importableArtifact -> (Application) importableArtifact)
                             .flatMap(application1 -> {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setDoPush(true);
@@ -2462,8 +2473,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                         applicationService
                                 .findByBranchNameAndDefaultApplicationId(
                                         branchName, defaultApplicationId, applicationPermission.getEditPermission())
-                                .zipWhen(application -> exportApplicationService.exportApplicationById(
-                                        application.getId(), SerialiseArtifactObjective.VERSION_CONTROL)))
+                                .zipWhen(application -> exportService
+                                        .exportByArtifactId(application.getId(), VERSION_CONTROL, APPLICATION)
+                                        .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)))
                 .flatMap(tuple -> {
                     GitArtifactMetadata defaultApplicationMetadata = tuple.getT1();
                     Application application = tuple.getT2().getT1();
@@ -2684,9 +2696,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 }
 
                                 applicationJson.getExportedApplication().setGitApplicationMetadata(gitArtifactMetadata);
-                                return importApplicationService
-                                        .importApplicationInWorkspaceFromGit(
-                                                workspaceId, applicationJson, application.getId(), defaultBranch)
+                                return importService
+                                        .importArtifactInWorkspaceFromGit(
+                                                workspaceId, application.getId(), applicationJson, defaultBranch)
+                                        .map(importableArtifact -> (Application) importableArtifact)
                                         .onErrorResume(throwable -> deleteApplicationCreatedFromGitImport(
                                                         application.getId(),
                                                         application.getWorkspaceId(),
@@ -2697,8 +2710,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .flatMap(application -> applicationPageService.publish(application.getId(), false))
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                        application.getId(), application.getWorkspaceId(), application))
+                .flatMap(application -> importService.getArtifactImportDTO(
+                        application.getWorkspaceId(), application.getId(), application, APPLICATION))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 // Add analytics event
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
@@ -2923,10 +2937,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 "discard changes",
                                                 "Please create a new branch and resolve the conflicts on remote repository before proceeding ahead."));
                             })
-                            .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
+                            .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
                                     branchedApplication.getWorkspaceId(),
-                                    applicationJson,
                                     branchedApplication.getId(),
+                                    applicationJson,
                                     branchName))
                             // Update the last deployed status after the rebase
                             .flatMap(application -> publishAndOrGetApplication(application.getId(), true));
@@ -3121,12 +3135,13 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     // Get the latest application with all the changes
                     // Commit and push changes to sync with remote
-                    return importApplicationService
-                            .importApplicationInWorkspaceFromGit(
+                    return importService
+                            .importArtifactInWorkspaceFromGit(
                                     branchedApplication.getWorkspaceId(),
-                                    applicationJson,
                                     branchedApplication.getId(),
+                                    applicationJson,
                                     branchName)
+                            .map(importableArtifact -> (Application) importableArtifact)
                             .flatMap(application -> addAnalyticsForGitOperation(
                                             AnalyticsEvents.GIT_PULL,
                                             application,
