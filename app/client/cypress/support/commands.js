@@ -374,6 +374,8 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       assertHelper.AssertNetworkStatus("getAllWorkspaces");
       assertHelper.AssertNetworkStatus("getConsolidatedData");
     }
+    agHelper.AssertElementExist(homePageTS._homePageContainer);
+    agHelper.AssertElementVisibility(homePageTS._homePageContainer);
   });
 });
 
@@ -1277,8 +1279,7 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
 });
 
 Cypress.Commands.add("createSuperUser", () => {
-  cy.wait(1000);
-  cy.get(welcomePage.firstName).should("be.visible");
+  agHelper.AssertElementVisibility(welcomePage.firstName);
   cy.get(welcomePage.lastName).should("be.visible");
   cy.get(welcomePage.email).should("be.visible");
   cy.get(welcomePage.password).should("be.visible");
