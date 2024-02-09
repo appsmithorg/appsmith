@@ -866,7 +866,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             String defaultApplicationId,
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("findByBranchNameAndDefaultApplicationId")); /*
         if (StringUtils.isEmpty(branchName)) {
             return repository
                     .queryBuilder()

@@ -358,7 +358,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionEx(
             String id, Optional<AclPermission> permission) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("deleteUnpublishedActionCollectionEx")); /*
         Mono<ActionCollection> actionCollectionMono = repository
                 .findById(id, permission)
                 .switchIfEmpty(Mono.error(

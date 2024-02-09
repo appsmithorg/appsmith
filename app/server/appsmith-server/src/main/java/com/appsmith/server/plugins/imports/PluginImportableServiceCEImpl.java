@@ -29,7 +29,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("importEntities")); /*
         return workspaceMono
                 .map(workspace -> workspace.getPlugins().stream()
                         .map(WorkspacePlugin::getPluginId)

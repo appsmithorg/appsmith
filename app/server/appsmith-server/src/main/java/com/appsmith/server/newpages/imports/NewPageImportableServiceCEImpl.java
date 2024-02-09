@@ -54,7 +54,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("importEntities")); /*
 
         List<NewPage> importedNewPageList = applicationJson.getPageList();
 
@@ -202,7 +202,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<List<NewPage>> existingPagesMono,
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("savePagesToApplicationMono")); /*
 
         // The access source has been changes because the order of execution has changed.
         List<ApplicationPage> editModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
@@ -531,7 +531,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             boolean appendToApp,
             Mono<Application> importApplicationMono,
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("importUnpublishedPages")); /*
         Mono<List<ApplicationPage>> unpublishedPagesMono = Mono.just(editModeApplicationPages);
         if (appendToApp) {
             unpublishedPagesMono = unpublishedPagesMono
@@ -571,7 +571,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Map<String, String> actionIdMap,
             Map<String, List<String>> unpublishedActionIdToCollectionIdsMap,
             Map<String, List<String>> publishedActionIdToCollectionIdsMap) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("mapActionAndCollectionIdWithPageLayout")); /*
 
         Set<String> layoutOnLoadActionsForPage = getLayoutOnLoadActionsForPage(
                 newPage, actionIdMap, unpublishedActionIdToCollectionIdsMap, publishedActionIdToCollectionIdsMap);

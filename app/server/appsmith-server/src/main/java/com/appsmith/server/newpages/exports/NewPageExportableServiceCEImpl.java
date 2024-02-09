@@ -34,7 +34,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getExportableEntities")); /*
         Optional<AclPermission> optionalPermission = Optional.ofNullable(pagePermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 

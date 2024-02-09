@@ -29,7 +29,7 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getExportableEntities")); /*
         return workspaceService
                 .getById(applicationJson.getExportedApplication().getWorkspaceId())
                 .map(workspace -> workspace.getPlugins().stream()

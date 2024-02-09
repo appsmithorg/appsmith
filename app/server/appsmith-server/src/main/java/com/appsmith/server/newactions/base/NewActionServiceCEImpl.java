@@ -623,7 +623,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     @Override
     public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
             String id, ActionDTO action, Optional<AclPermission> permission) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("updateUnpublishedActionWithoutAnalytics")); /*
         log.debug(
                 "Updating unpublished action without analytics with action id: {} ",
                 action != null ? action.getId() : null);

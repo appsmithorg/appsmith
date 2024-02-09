@@ -38,10 +38,12 @@ public class Theme extends BaseDomain {
     String workspaceId;
 
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     private Object config;
 
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     private Object properties;
 

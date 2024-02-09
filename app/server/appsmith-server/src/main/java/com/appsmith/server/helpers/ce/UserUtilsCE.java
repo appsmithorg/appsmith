@@ -52,7 +52,7 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> makeSuperUser(List<User> users) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("makeSuperUser")); /*
         return getSuperAdminPermissionGroup()
                 .flatMap(permissionGroup -> {
                     Set<String> assignedToUserIds = new HashSet<>();
@@ -76,7 +76,7 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> removeSuperUser(List<User> users) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("removeSuperUser")); /*
         return getSuperAdminPermissionGroup()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getAssignedToUserIds() == null) {
@@ -180,7 +180,7 @@ public class UserUtilsCE {
 
     protected Mono<PermissionGroup> addPermissionsToPermissionGroup(
             PermissionGroup permissionGroup, Set<Permission> permissions) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("addPermissionsToPermissionGroup")); /*
         Set<Permission> existingPermissions = new HashSet<>(permissionGroup.getPermissions());
         existingPermissions.addAll(permissions);
         permissionGroup.setPermissions(existingPermissions);

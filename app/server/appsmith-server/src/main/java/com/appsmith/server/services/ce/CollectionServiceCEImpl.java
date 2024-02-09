@@ -79,7 +79,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCak
 
     @Override
     public Mono<NewAction> removeSingleActionFromCollection(String collectionId, Mono<NewAction> actionMono) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("removeSingleActionFromCollection")); /*
         if (collectionId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }

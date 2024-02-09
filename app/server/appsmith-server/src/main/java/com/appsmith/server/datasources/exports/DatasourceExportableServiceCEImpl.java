@@ -56,7 +56,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getExportableEntities")); /*
 
         Mono<String> defaultEnvironmentIdMono = applicationMono
                 .map(Application::getWorkspaceId)

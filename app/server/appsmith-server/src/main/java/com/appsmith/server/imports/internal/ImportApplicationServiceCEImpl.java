@@ -363,7 +363,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currUserMono) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("getImportApplicationMono")); /*
         Mono<Application> importApplicationMono = Mono.just(importedApplication)
                 .map(application -> {
                     if (application.getApplicationVersion() == null) {
@@ -831,7 +831,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             String branchName,
             ApplicationJson applicationJson,
             List<String> pagesToImport) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("mergeApplicationJsonWithApplication")); /*
         // Update the application JSON to prepare it for merging inside an existing application
         if (applicationJson.getExportedApplication() != null) {
             // setting some properties to null so that target application is not updated by these properties

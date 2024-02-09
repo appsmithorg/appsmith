@@ -53,7 +53,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("importEntities")); /*
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             // appending to existing app, theme should not change
             return Mono.empty().then();

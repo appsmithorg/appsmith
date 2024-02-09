@@ -463,7 +463,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("queryFirstExecute")); /*
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.defer(
                         () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))

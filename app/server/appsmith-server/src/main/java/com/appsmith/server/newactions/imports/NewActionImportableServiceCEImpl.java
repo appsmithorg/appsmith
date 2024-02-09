@@ -214,7 +214,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             Application application,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("importActions")); /*
         /* Mono.just(application) is created to avoid the eagerly fetching of existing actions
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
          * /

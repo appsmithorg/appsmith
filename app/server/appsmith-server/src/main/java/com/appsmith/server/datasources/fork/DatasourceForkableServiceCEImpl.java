@@ -59,7 +59,7 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
             ForkingMetaDTO sourceMeta,
             ForkingMetaDTO targetMeta,
             Mono<List<Datasource>> existingDatasourcesInNewWorkspaceMono) {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("createForkedEntity")); /*
 
         return existingDatasourcesInNewWorkspaceMono.flatMap(existingDatasourcesWithoutStorages -> {
             if (datasourceToFork.getWorkspaceId().equals(targetMeta.getWorkspaceId())) {
