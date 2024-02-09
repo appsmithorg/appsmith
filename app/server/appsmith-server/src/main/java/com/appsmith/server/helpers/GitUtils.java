@@ -2,7 +2,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
@@ -103,10 +103,10 @@ public class GitUtils {
         return sshUrl.split("\\.")[0].replaceFirst("git@", "");
     }
 
-    public static String getDefaultBranchName(GitApplicationMetadata gitApplicationMetadata) {
-        return StringUtils.isEmptyOrNull(gitApplicationMetadata.getDefaultBranchName())
-                ? gitApplicationMetadata.getBranchName()
-                : gitApplicationMetadata.getDefaultBranchName();
+    public static String getDefaultBranchName(GitArtifactMetadata gitArtifactMetadata) {
+        return StringUtils.isEmptyOrNull(gitArtifactMetadata.getDefaultBranchName())
+                ? gitArtifactMetadata.getBranchName()
+                : gitArtifactMetadata.getDefaultBranchName();
     }
 
     /**
@@ -116,7 +116,7 @@ public class GitUtils {
      * @return              true if the application is default branched, false otherwise
      */
     public static boolean isDefaultBranchedApplication(Application application) {
-        GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+        GitArtifactMetadata metadata = application.getGitApplicationMetadata();
         return isApplicationConnectedToGit(application)
                 && !StringUtils.isEmptyOrNull(metadata.getBranchName())
                 && metadata.getBranchName().equals(metadata.getDefaultBranchName());
@@ -128,7 +128,7 @@ public class GitUtils {
      * @return              true if the application is connected to Git, false otherwise
      */
     public static boolean isApplicationConnectedToGit(Application application) {
-        GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+        GitArtifactMetadata metadata = application.getGitApplicationMetadata();
         return metadata != null
                 && !StringUtils.isEmptyOrNull(metadata.getDefaultApplicationId())
                 && !StringUtils.isEmptyOrNull(metadata.getRemoteUrl());
@@ -146,9 +146,9 @@ public class GitUtils {
         return isMigrationRequired;
     }
 
-    public static boolean isAutoCommitEnabled(GitApplicationMetadata gitApplicationMetadata) {
-        return gitApplicationMetadata.getAutoCommitConfig() == null
-                || gitApplicationMetadata.getAutoCommitConfig().getEnabled();
+    public static boolean isAutoCommitEnabled(GitArtifactMetadata gitArtifactMetadata) {
+        return gitArtifactMetadata.getAutoCommitConfig() == null
+                || gitArtifactMetadata.getAutoCommitConfig().getEnabled();
     }
 
     public static String generateGitBotUserEmail(String applicationId) {
