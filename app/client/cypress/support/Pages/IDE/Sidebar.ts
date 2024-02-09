@@ -1,3 +1,4 @@
+import { agHelper } from "../../Objects/ObjectsCore";}
 export class Sidebar {
   buttons: string[];
   locators = {
@@ -22,7 +23,7 @@ export class Sidebar {
     );
   }
 
-  assertVisible(timeout?: number) {
-    cy.get(this.locators.sidebar, { timeout }).should("be.visible");
+  assertVisible() {
+    agHelper.AssertElementVisibility(this.locators.sidebar)
   }
 }

@@ -408,26 +408,11 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
   //   locators._specificToast("Internal server error while processing request"),
   // );
 
-  // Logout is a POST request in CE
-  let httpMethod = "POST";
-  if (CURRENT_REPO === REPO.EE) {
-    httpMethod = "GET";
-  }
-
   if (CURRENT_REPO === REPO.CE)
     toCheckgetPluginForm &&
       assertHelper.AssertNetworkResponseData("@getConsolidatedData", false);
 
-  cy.request({
-    method: httpMethod,
-    url: "/api/v1/logout",
-    headers: {
-      "X-Requested-By": "Appsmith",
-    },
-  }).then((response) => {
-    expect(response.status).equal(200); //Verifying logout is success
-  });
-  agHelper.CypressReload();
+  homePageTS.LogOutviaAPI();
 });
 
 Cypress.Commands.add("SearchApp", (appname) => {
@@ -1335,15 +1320,11 @@ Cypress.Commands.add("createSuperUser", () => {
     });
   }
 
-  cy.wait(2000);
-
   if (CURRENT_REPO === REPO.CE) {
-    cy.get("#loading").should("not.exist");
+    agHelper.AssertElementAbsence("#loading", Cypress.config().pageLoadTimeout);
     AppSidebar.assertVisible();
   }
-
   cy.LogOut();
-  cy.wait(2000);
 });
 
 Cypress.Commands.add("SignupFromAPI", (uname, pword) => {

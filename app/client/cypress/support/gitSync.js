@@ -165,7 +165,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
     timeout: Cypress.config().pageLoadTimeout,
   }).should("not.exist");
   assertHelper.AssertDocumentReady();
-  AppSidebar.assertVisible(Cypress.config().pageLoadTimeout);
+  AppSidebar.assertVisible();
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
@@ -184,7 +184,7 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
     }).should("not.exist");
   }
   assertHelper.AssertDocumentReady();
-  AppSidebar.assertVisible(Cypress.config().pageLoadTimeout);
+  AppSidebar.assertVisible();
 });
 
 Cypress.Commands.add("createTestGithubRepo", (repo, privateFlag = false) => {
