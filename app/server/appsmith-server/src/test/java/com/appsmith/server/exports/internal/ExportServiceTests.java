@@ -28,7 +28,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -225,7 +225,7 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
@@ -822,8 +822,8 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -932,8 +932,8 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -1415,8 +1415,8 @@ public class ExportServiceTests {
         appNavigationSetting.setOrientation("top");
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
@@ -1476,8 +1476,8 @@ public class ExportServiceTests {
         testApplication.setName(
                 "importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode");
         testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
@@ -1949,10 +1949,10 @@ public class ExportServiceTests {
                 })
                 .flatMap(application -> {
                     // set git meta data for the application and set a last commit date
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application);
                 })
                 .delayElement(Duration.ofMillis(
@@ -2054,10 +2054,10 @@ public class ExportServiceTests {
                 .flatMap(objects -> {
                     Application application = objects.getT2();
                     // set git meta data for the application and set a last commit date
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application).thenReturn(objects);
                 })
                 .delayElement(Duration.ofMillis(

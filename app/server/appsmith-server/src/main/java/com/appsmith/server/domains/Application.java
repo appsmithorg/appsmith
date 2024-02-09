@@ -97,7 +97,7 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
-    GitApplicationMetadata gitApplicationMetadata;
+    GitArtifactMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)

@@ -13,7 +13,7 @@ import java.util.Map;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
 @Data
-public class GitApplicationMetadata implements AppsmithDomain {
+public class GitArtifactMetadata implements AppsmithDomain {
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     @JsonView(Views.Public.class)
     String branchName;
@@ -42,6 +42,13 @@ public class GitApplicationMetadata implements AppsmithDomain {
     // container-volumes/git_repo/workspaceId/defaultApplicationId/branchName/applicationDirectoryStructure...
     @JsonView(Views.Public.class)
     String defaultApplicationId;
+
+    // We are maintaining this attribute separately from defaultApplicationId to maintain backward compatibility with
+    // the directory structure that folks might on their file systems
+    // Default artifact id used for storing the artifact files in local volume :
+    // container-volumes/git_repo/workspaceId/artifactType/defaultArtifactId/branchName/artifactDirectoryStructure...
+    @JsonView(Views.Public.class)
+    String defaultArtifactId;
 
     // Git credentials used to push changes to remote repo and will be stored with default application only to optimise
     // space requirement and update operation
