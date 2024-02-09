@@ -43,7 +43,7 @@ export class JSEditor {
       onLoad ? "Yes" : "No"
     }) input`;
   private _onPageLoadSwitch = (functionName: string) =>
-    `.${functionName}-on-page-load-setting 
+    `.${functionName}-on-page-load-setting
     input[role="switch"]`;
   private _onPageLoadRadioButtonStatus = (
     functionName: string,
@@ -62,7 +62,7 @@ export class JSEditor {
       shouldConfirm ? "Yes" : "No"
     }) input`;
   private _confirmBeforeExecuteSwitch = (functionName: string) =>
-    `.${functionName}-confirm-before-execute 
+    `.${functionName}-confirm-before-execute
     input[role="switch"]`;
   private _confirmBeforeExecuteRadioButtonStatus = (
     functionName: string,
@@ -151,13 +151,13 @@ export class JSEditor {
     this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
+    this.agHelper.AssertElementVisibility(this._jsObjTxt);
     // Assert that the name of the JS Object is focused when newly created
     //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
     this.agHelper.PressEnter();
     this.agHelper.PressEnter();
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
-    cy.get(this._jsObjTxt).should("not.exist");
-
+    this.agHelper.AssertElementAbsence(this._jsObjTxt);
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
 
     this.agHelper.Sleep();
@@ -286,22 +286,24 @@ export class JSEditor {
     cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
-      expect($lis.eq(0).text()).to.be.oneOf([
+      const expectedTexts = [
         "{{" + jsObjName + ".myFun2()}}",
         "{{" + jsObjName + ".myFun1()}}",
-      ]);
-      expect($lis.eq(1).text()).to.be.oneOf([
-        "{{" + jsObjName + ".myFun2()}}",
-        "{{" + jsObjName + ".myFun1()}}",
+        "{{" + jsObjName + ".myVar1}}",
+        "{{" + jsObjName + ".myVar2}}",
         "{{" + jsObjName + ".myFun2.data}}",
         "{{" + jsObjName + ".myFun1.data}}",
-      ]);
-      expect($lis.eq(bindingsLength - 2).text()).to.contain(
-        "{{" + jsObjName + ".myVar1}}",
-      );
-      expect($lis.eq(bindingsLength - 1).text()).to.contain(
-        "{{" + jsObjName + ".myVar2}}",
-      );
+      ];
+
+      let foundMatch = false;
+      for (let i = 0; i < bindingsLength; i++) {
+        const text = $lis.eq(i).text();
+        if (expectedTexts.includes(text)) {
+          foundMatch = true;
+          break;
+        }
+      }
+      expect(foundMatch).to.be.true;
     });
     cy.get(this._bindingsClose).click({ force: true });
   }

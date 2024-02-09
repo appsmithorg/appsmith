@@ -7,7 +7,9 @@ import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import history, { NavigationMethod } from "utils/history";
-import { StyledTab } from "./StyledComponents";
+import { StyledTab, TabTextContainer } from "./StyledComponents";
+import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { Tooltip } from "design-system";
 
 const JSTab = ({ data }: { data: EntityItem }) => {
   const activeActionId = useActiveAction();
@@ -30,7 +32,10 @@ const JSTab = ({ data }: { data: EntityItem }) => {
       className={clsx("editor-tab", activeActionId === data.key && "active")}
       onClick={navigateToJSCollection}
     >
-      {data.title}
+      {JsFileIconV2(12, 12)}
+      <Tooltip content={data.title} mouseEnterDelay={1}>
+        <TabTextContainer>{data.title}</TabTextContainer>
+      </Tooltip>
     </StyledTab>
   );
 };

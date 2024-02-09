@@ -550,7 +550,7 @@ describe("generateDataTreeWidget", () => {
         },
         setData: {
           path: "tableData",
-          type: "object",
+          type: "array",
         },
       },
       text: {
@@ -592,7 +592,7 @@ describe("generateDataTreeWidget", () => {
         },
         setData: {
           path: "Table1.tableData",
-          type: "object",
+          type: "array",
         },
         "primaryColumns.action.setIsRequired": {
           path: "Table1.primaryColumns.action.isRequired",
