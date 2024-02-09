@@ -73,15 +73,16 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Optional<Application> findByName(String name, AclPermission permission) {
-        Criteria nameCriteria = where("name").is(name);
-        return queryBuilder().criteria(nameCriteria).permission(permission).one();
+        return queryBuilder()
+                .spec(Bridge.conditioner().eq("name", name))
+                .permission(permission)
+                .one();
     }
 
     @Override
     public List<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
         return queryBuilder()
-                .spec(Bridge.<Application>conditioner()
-                        .eq(fieldName(QApplication.application.workspaceId), workspaceId))
+                .spec(Bridge.conditioner().eq(fieldName(QApplication.application.workspaceId), workspaceId))
                 .permission(permission)
                 .all();
     }

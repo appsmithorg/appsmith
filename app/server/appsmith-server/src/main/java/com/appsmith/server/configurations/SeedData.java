@@ -1,10 +1,13 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
@@ -13,6 +16,7 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import jakarta.persistence.EntityManager;
@@ -26,6 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.Modifying;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -191,6 +196,45 @@ public class SeedData {
                     new JSONObject(Map.of(FieldName.PERMISSION_GROUP_ID, publicPermissionGroup.getId())),
                     FieldName.PUBLIC_PERMISSION_GROUP));
         });
+    }
+
+    @Bean
+    public List<Plugin> savedPlugins(EntityManager entityManager, PluginRepository pluginRepository) {
+        final List<Plugin> plugins = Arrays.asList(
+                Plugin.builder()
+                        .name("PostgreSQL")
+                        .packageName("postgres-plugin")
+                        .type(PluginType.DB)
+                        .uiComponent("DbEditorForm")
+                        .defaultInstall(true)
+                        .build(),
+                Plugin.builder()
+                        .name("REST API")
+                        .packageName("restapi-plugin")
+                        .type(PluginType.API)
+                        .uiComponent("ApiEditorForm")
+                        .defaultInstall(true)
+                        .build(),
+                Plugin.builder()
+                        .name("MongoDB")
+                        .packageName("mongo-plugin")
+                        .type(PluginType.DB)
+                        .uiComponent("UQIDbEditorForm")
+                        .defaultInstall(true)
+                        .build());
+
+        for (final Plugin plugin : plugins) {
+            Plugin pluginToSave = pluginRepository
+                    .findByPackageName(plugin.getPackageName())
+                    .map(existingPlugin -> {
+                        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(plugin, existingPlugin);
+                        return existingPlugin;
+                    })
+                    .orElse(plugin);
+            pluginRepository.save(pluginToSave);
+        }
+
+        return plugins;
     }
 
     @Bean

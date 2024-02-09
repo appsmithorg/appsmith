@@ -13,6 +13,8 @@ import java.util.Set;
 
 public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<PermissionGroup> {
 
+    List<PermissionGroup> findByAssignedToUserIdsIn(String userId);
+
     List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission);
 

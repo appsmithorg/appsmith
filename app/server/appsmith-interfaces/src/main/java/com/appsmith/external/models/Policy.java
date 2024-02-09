@@ -2,21 +2,25 @@ package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
+@ToString
 @Builder
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Policy {
+public class Policy implements Serializable {
+
     String permission;
 
     @Builder.Default
-    private Set<String> permissionGroups = new HashSet<>();
+    Set<String> permissionGroups = new HashSet<>();
 }

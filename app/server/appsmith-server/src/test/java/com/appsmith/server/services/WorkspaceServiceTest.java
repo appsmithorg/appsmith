@@ -1054,7 +1054,10 @@ public class WorkspaceServiceTest {
 
         Application application = new Application();
         application.setName("User Management Admin Test Application");
-        Mono<Application> applicationMono = applicationPageService.createApplication(application, workspace1.getId());
+        Mono<Application> applicationMono = applicationPageService
+                .createApplication(application, workspace1.getId())
+                .cache();
+        assertThat(applicationMono.block()).isNotNull();
 
         // Create datasource for this workspace
         Mono<Datasource> datasourceMono = workspaceService
@@ -1071,7 +1074,9 @@ public class WorkspaceServiceTest {
                     storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
                     datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
-                });
+                })
+                .cache();
+        assertThat(datasourceMono.block()).isNotNull();
 
         Mono<Workspace> userAddedToWorkspaceMono = adminPermissionGroupMono
                 .flatMap(adminPermissionGroup -> {
@@ -1162,9 +1167,7 @@ public class WorkspaceServiceTest {
                     assertThat(app.getPolicies()).isNotEmpty();
                     assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
-                    /*
-                     * Check for datasource permissions after the user addition
-                     */
+                    // Check for datasource permissions after the user addition
                     Policy manageDatasourcePolicy = Policy.builder()
                             .permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
@@ -1185,7 +1188,7 @@ public class WorkspaceServiceTest {
                     assertThat(datasource.getPolicies())
                             .containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                 })
-                .verifyComplete();
+                .verifyComplete(); // */
     }
 
     /**

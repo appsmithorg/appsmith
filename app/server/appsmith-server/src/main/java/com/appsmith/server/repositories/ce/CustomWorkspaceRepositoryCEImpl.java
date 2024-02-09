@@ -70,7 +70,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         final User user =
                 Objects.requireNonNull(sessionUserService.getCurrentUser().block());
         return queryBuilder()
-                .spec(Bridge.<Workspace>conditioner().eq(fieldName(QWorkspace.workspace.tenantId), user.getTenantId()))
+                .spec(Bridge.conditioner().eq(fieldName(QWorkspace.workspace.tenantId), user.getTenantId()))
                 .permission(permission)
                 .all();
     }

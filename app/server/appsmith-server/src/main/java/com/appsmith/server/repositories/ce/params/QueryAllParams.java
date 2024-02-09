@@ -67,8 +67,9 @@ public class QueryAllParams<T extends BaseDomain> {
         return this;
     }
 
-    public QueryAllParams<T> spec(Specification<T> spec) {
-        specifications.add(spec);
+    @SuppressWarnings("unchecked") // This should be okay with the way we use this fluent API.
+    public QueryAllParams<T> spec(Specification<? extends BaseDomain> spec) {
+        specifications.add((Specification<T>) spec);
         return this;
     }
 

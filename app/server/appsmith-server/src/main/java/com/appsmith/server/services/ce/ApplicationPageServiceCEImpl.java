@@ -448,7 +448,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         application.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, workspaceId, application);
+        Mono<Application> applicationWithPoliciesMono = userMono.flatMap(
+                        user -> setApplicationPolicies(user, workspaceId, application))
+                .cache();
 
         return applicationWithPoliciesMono
                 .zipWith(userMono)
@@ -494,20 +496,21 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application) {
-        return userMono.flatMap(user -> {
-            Mono<Workspace> workspaceMono = workspaceRepository
-                    .findById(workspaceId /*, workspacePermission.getApplicationCreatePermission()*/)
-                    .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
+        return userMono.flatMap(user -> setApplicationPolicies(user, workspaceId, application));
+    }
 
-            return workspaceMono.map(org -> {
-                application.setWorkspaceId(org.getId());
-                Set<Policy> documentPolicies =
-                        policyGenerator.getAllChildPolicies(org.getPolicies(), Workspace.class, Application.class);
-                application.setPolicies(documentPolicies);
-                return application;
-            });
-        });
+    public Mono<Application> setApplicationPolicies(User user, String workspaceId, Application application) {
+        return workspaceRepository
+                .findById(workspaceId, workspacePermission.getApplicationCreatePermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
+                .map(org -> {
+                    application.setWorkspaceId(org.getId());
+                    Set<Policy> documentPolicies =
+                            policyGenerator.getAllChildPolicies(org.getPolicies(), Workspace.class, Application.class);
+                    application.setPolicies(documentPolicies);
+                    return application;
+                });
     }
 
     public void generateAndSetPagePolicies(Application application, PageDTO page) {

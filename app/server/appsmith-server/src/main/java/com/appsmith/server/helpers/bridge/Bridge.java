@@ -21,7 +21,7 @@ public class Bridge<T extends BaseDomain> implements Specification<T> {
 
     private Bridge() {}
 
-    public static <T extends BaseDomain> Conditioner<T> conditioner() {
+    public static Conditioner<? extends BaseDomain> conditioner() {
         return new Conditioner<>();
     }
 

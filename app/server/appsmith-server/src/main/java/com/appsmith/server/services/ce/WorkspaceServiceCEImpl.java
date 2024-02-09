@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
@@ -30,7 +31,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.mongodb.DBObject;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -38,9 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -426,7 +423,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
-        if (resource.getPolicies().isEmpty()) {
+        if (CollectionUtils.isNullOrEmpty(resource.getPolicies())) {
             resource.setPolicies(null);
         }
 
@@ -453,28 +450,14 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
             });
         }
 
-        updateDefaultGroups_thenReturnWorkspaceMono.map(workspaceFromDb -> {
-            AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, workspaceFromDb);
-            return workspaceFromDb;
-        });
-        updateDefaultGroups_thenReturnWorkspaceMono.flatMap(this::validateObject);
-        updateDefaultGroups_thenReturnWorkspaceMono.then(Mono.defer(() -> {
-            Query query = new Query(Criteria.where("id").is(id));
-            DBObject update = getDbObject(resource);
-            Update updateObj = new Update();
-            Map<String, Object> updateMap = update.toMap();
-            updateMap.forEach(updateObj::set);
-            return mongoTemplate
-                    .updateFirst(query, updateObj, resource.getClass())
-                    .flatMap(updateResult -> {
-                        if (updateResult.getMatchedCount() == 0) {
-                            return Mono.error(
-                                    new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id));
-                        }
-                        return repository.findById(id).flatMap(analyticsService::sendUpdateEvent);
-                    });
-        }));
-        return updateDefaultGroups_thenReturnWorkspaceMono;
+        return updateDefaultGroups_thenReturnWorkspaceMono
+                .map(workspaceFromDb -> {
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, workspaceFromDb);
+                    return workspaceFromDb;
+                })
+                .flatMap(this::validateObject)
+                .then(Mono.defer(() -> repository.updateById(id, resource, workspacePermission.getEditPermission())))
+                .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override

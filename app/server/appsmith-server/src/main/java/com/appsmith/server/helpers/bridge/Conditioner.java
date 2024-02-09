@@ -21,6 +21,7 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         EQ_IGNORE_CASE,
         IS_TRUE,
         IN,
+        JSON_IN,
     }
 
     public record Check(Op op, String key, Object value) {}
@@ -47,6 +48,13 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
                     inCluse.value(value);
                 }
                 predicate = inCluse;
+
+            } else if (check.op == Op.JSON_IN) {
+                predicate = cb.isTrue(cb.function(
+                        "jsonb_path_exists",
+                        Boolean.class,
+                        root.get(check.key),
+                        cb.literal("$[*] ? (@ == \"" + check.value + "\")")));
 
             } else {
                 throw new IllegalArgumentException();
@@ -75,6 +83,14 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
 
     public Conditioner<T> in(String needle, Collection<String> haystack) {
         checks.add(new Check(Op.IN, needle, haystack));
+        return this;
+    }
+
+    /**
+     * Check that the string `needle` is present in the JSON array at `key`.
+     */
+    public Specification<T> jsonIn(String needle, String key) {
+        checks.add(new Check(Op.JSON_IN, key, needle));
         return this;
     }
 }

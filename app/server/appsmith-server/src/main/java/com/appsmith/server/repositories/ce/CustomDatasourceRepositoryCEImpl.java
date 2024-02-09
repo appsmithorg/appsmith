@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.domain.Sort;
@@ -53,11 +54,10 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     @Override
     @Deprecated
     public Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
-        Criteria workspaceIdCriteria =
-                where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         return queryBuilder()
-                .criteria(nameCriteria, workspaceIdCriteria)
+                .spec(Bridge.conditioner()
+                        .eq(fieldName(QDatasource.datasource.name), name)
+                        .eq(fieldName(QDatasource.datasource.workspaceId), workspaceId))
                 .permission(aclPermission)
                 .one();
     }
