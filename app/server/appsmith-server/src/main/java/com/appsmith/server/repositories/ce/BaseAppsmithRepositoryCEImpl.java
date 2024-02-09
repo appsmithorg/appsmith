@@ -266,7 +266,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(
             AclPermission permission, boolean includeAnonymousUserPermissions) {
-        return permission == null ? Mono.just(Set.of()) : getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
+        return permission == null
+                ? Mono.just(Set.of())
+                : getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
     }
 
     public Mono<Set<String>> getCurrentUserPermissionGroups() {
@@ -291,13 +293,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             List<String> projectionFieldNames,
             Set<String> permissionGroups,
             AclPermission aclPermission) {
-        Query query = new Query();
-        criterias.stream().forEach(criteria -> query.addCriteria(criteria));
-        if (aclPermission == null) {
-            query.addCriteria(new Criteria().andOperator(notDeleted()));
-        } else {
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, aclPermission)));
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
+        criteriaList.add(notDeleted());
+        if (aclPermission != null) {
+            criteriaList.add(userAcl(permissionGroups, aclPermission));
         }
+
+        final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
 
         if (!isEmpty(projectionFieldNames)) {
             query.fields().include(projectionFieldNames.toArray(new String[0]));
