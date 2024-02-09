@@ -2,12 +2,10 @@ import template from "../../../../../locators/TemplatesLocators.json";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
+  dataSources,
   onboarding,
   templates,
-  dataSources,
-  homePage,
 } from "../../../../../support/Objects/ObjectsCore";
-import FirstTimeUserOnboardingLocators from "../../../../../locators/FirstTimeUserOnboarding.json";
 import {
   AppSidebar,
   AppSidebarButton,
@@ -15,7 +13,7 @@ import {
 import PageList from "../../../../../support/Pages/PageList";
 
 describe(
-  "Start with scratch userflow",
+  "Starter building blocks on canvas",
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   function () {
     beforeEach(() => {
