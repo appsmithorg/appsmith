@@ -22,7 +22,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -251,7 +251,7 @@ public class ActionExecutionSolutionCETest {
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
         newApp.setGitApplicationMetadata(gitData);
         gitConnectedApp = applicationPageService

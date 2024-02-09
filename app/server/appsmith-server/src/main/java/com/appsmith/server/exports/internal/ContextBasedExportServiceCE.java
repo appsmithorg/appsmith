@@ -21,7 +21,7 @@ public interface ContextBasedExportServiceCE<T extends ExportableArtifact, U ext
 
     Mono<T> findExistingArtifactForAnalytics(String artifactId);
 
-    void getArtifactReadyForExport(
+    Mono<Void> getArtifactReadyForExport(
             ExportableArtifact exportableArtifact,
             ArtifactExchangeJson artifactExchangeJson,
             ExportingMetaDTO exportingMetaDTO);

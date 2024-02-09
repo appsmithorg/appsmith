@@ -16,7 +16,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -545,7 +545,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
          * */
         return applicationMono
                 .flatMapMany(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     if (GitUtils.isApplicationConnectedToGit(application)) {
                         return applicationService.findAllApplicationsByDefaultApplicationId(
                                 gitData.getDefaultApplicationId(), applicationPermission.getDeletePermission());
@@ -558,7 +558,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .then(applicationMono)
                 .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null
                             && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
                             && !StringUtils.isEmpty(gitData.getRepoName())) {
@@ -684,7 +684,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 page.setId(null);
                                 page.setApplicationId(applicationId);
                                 DefaultResources defaults = new DefaultResources();
-                                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                                GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                                 if (gitData != null) {
                                     defaults.setApplicationId(gitData.getDefaultApplicationId());
                                     defaults.setBranchName(gitData.getBranchName());

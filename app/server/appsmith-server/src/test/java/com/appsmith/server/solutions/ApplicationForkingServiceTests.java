@@ -26,7 +26,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -1088,17 +1088,17 @@ public class ApplicationForkingServiceTests {
 
         Theme theme = new Theme();
         theme.setDisplayName("theme_" + uniqueString);
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-        gitApplicationMetadata.setDefaultApplicationId(createdSrcApplication.getId());
-        gitApplicationMetadata.setBranchName("master");
-        gitApplicationMetadata.setDefaultBranchName("feature1");
-        gitApplicationMetadata.setIsRepoPrivate(false);
-        gitApplicationMetadata.setRepoName("testRepo");
+        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+        gitArtifactMetadata.setDefaultApplicationId(createdSrcApplication.getId());
+        gitArtifactMetadata.setBranchName("master");
+        gitArtifactMetadata.setDefaultBranchName("feature1");
+        gitArtifactMetadata.setIsRepoPrivate(false);
+        gitArtifactMetadata.setRepoName("testRepo");
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
         gitAuth.setPrivateKey("privatekey");
-        gitApplicationMetadata.setGitAuth(gitAuth);
-        createdSrcApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        gitArtifactMetadata.setGitAuth(gitAuth);
+        createdSrcApplication.setGitApplicationMetadata(gitArtifactMetadata);
 
         themeService.updateTheme(createdSrcApplication.getId(), null, theme).block();
         createdSrcApplication = applicationService.save(createdSrcApplication).block();
@@ -1110,13 +1110,13 @@ public class ApplicationForkingServiceTests {
                 .createApplication(branchApp, createdSrcApplication.getWorkspaceId())
                 .block();
 
-        GitApplicationMetadata gitApplicationMetadata1 = new GitApplicationMetadata();
-        gitApplicationMetadata1.setDefaultApplicationId(createdSrcApplication.getId());
-        gitApplicationMetadata1.setBranchName("feature1");
-        gitApplicationMetadata1.setDefaultBranchName("feature1");
-        gitApplicationMetadata1.setIsRepoPrivate(false);
-        gitApplicationMetadata1.setRepoName("testRepo");
-        createdBranchApplication.setGitApplicationMetadata(gitApplicationMetadata1);
+        GitArtifactMetadata gitArtifactMetadata1 = new GitArtifactMetadata();
+        gitArtifactMetadata1.setDefaultApplicationId(createdSrcApplication.getId());
+        gitArtifactMetadata1.setBranchName("feature1");
+        gitArtifactMetadata1.setDefaultBranchName("feature1");
+        gitArtifactMetadata1.setIsRepoPrivate(false);
+        gitArtifactMetadata1.setRepoName("testRepo");
+        createdBranchApplication.setGitApplicationMetadata(gitArtifactMetadata1);
         createdBranchApplication =
                 applicationService.save(createdBranchApplication).block();
 

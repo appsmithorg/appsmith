@@ -15,7 +15,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -176,7 +176,7 @@ public class PageServiceTest {
     private Application setupGitConnectedTestApplication(String uniquePrefix) {
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName(uniquePrefix + "_pageServiceTest");
         newApp.setGitApplicationMetadata(gitData);
         return applicationPageService
