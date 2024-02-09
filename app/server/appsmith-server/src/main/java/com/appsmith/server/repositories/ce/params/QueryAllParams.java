@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce.params;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.helpers.bridge.Update;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import org.springframework.data.domain.Sort;
@@ -50,6 +51,10 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public Mono<Long> count() {
         return repo.countExecute(this);
+    }
+
+    public Mono<Integer> update(Update update) {
+        return repo.updateExecute(this, update);
     }
 
     public QueryAllParams<T> criteria(Criteria... criteria) {

@@ -27,7 +27,8 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
     public record Check(Op op, String key, Object value) {}
 
     @Override
-    public Predicate toPredicate(@NonNull Root<T> root, @NonNull CriteriaQuery<?> cq, @NonNull CriteriaBuilder cb) {
+    public Predicate toPredicate(
+            @NonNull Root<T> root, @NonNull CriteriaQuery<?> ignored, @NonNull CriteriaBuilder cb) {
         final List<Predicate> predicates = new ArrayList<>();
 
         for (Check check : checks) {

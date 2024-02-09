@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
@@ -24,11 +26,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -45,6 +50,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -56,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -477,6 +484,62 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         this.genericDomain));
     }
 
+    public Mono<Integer> updateExecute(QueryAllParams<T> params, com.appsmith.server.helpers.bridge.Update update) {
+        return Mono.justOrEmpty(params.getPermissionGroups())
+                .switchIfEmpty(Mono.defer(() -> Mono.justOrEmpty(
+                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .map(ArrayList::new)
+                .flatMap(permissionGroups -> {
+                    final EntityManager em = getEntityManager();
+
+                    final CriteriaBuilder cb = em.getCriteriaBuilder();
+                    final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+                    final CriteriaUpdate<T> cu = cb.createCriteriaUpdate(genericDomain);
+                    final Root<T> root = cu.from(genericDomain);
+
+                    final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
+
+                    Predicate predicate = cb.and(
+                            Specification.allOf(specifications).toPredicate(root, cq, cb),
+                            root.get(FieldName.DELETED_AT).isNull());
+
+                    if (!permissionGroups.isEmpty()) {
+                        Map<String, String> fnVars = new HashMap<>();
+                        fnVars.put("p", params.getPermission().getValue());
+                        final List<String> conditions = new ArrayList<>();
+                        for (var i = 0; i < permissionGroups.size(); i++) {
+                            fnVars.put("g" + i, permissionGroups.get(i));
+                            conditions.add("@ == $g" + i);
+                        }
+
+                        try {
+                            predicate = cb.and(
+                                    predicate,
+                                    cb.isTrue(cb.function(
+                                            "jsonb_path_exists",
+                                            Boolean.class,
+                                            root.get(fieldName(QPermissionGroup.permissionGroup.policies)),
+                                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                                                    + String.join(" || ", conditions) + ")))"),
+                                            cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
+                        } catch (JsonProcessingException e) {
+                            // This should never happen, were serializing a Map<String, String>, which ideally should
+                            // never fail.
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    cu.where(predicate);
+
+                    for (com.appsmith.server.helpers.bridge.Update.SetOp op : update.getSetOps()) {
+                        cu.set(op.key(), op.value());
+                    }
+
+                    return Mono.fromSupplier(() -> em.createQuery(cu).executeUpdate())
+                            .subscribeOn(Schedulers.boundedElastic());
+                });
+    }
+
     public T setUserPermissionsInObject(T obj) {
         return setUserPermissionsInObject(obj, getCurrentUserPermissionGroups());
     }
@@ -631,7 +694,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Optional<List<BulkWriteResult>> bulkUpdate(List<T> domainObjects) {
-        return Optional.empty(); /*
         if (CollectionUtils.isEmpty(domainObjects)) {
             return Optional.of(Collections.emptyList());
         }
@@ -652,6 +714,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(genericDomain))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();*/
+                .collectList()
+                .blockOptional();
     }
 }
