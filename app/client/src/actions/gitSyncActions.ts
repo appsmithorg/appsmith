@@ -11,14 +11,14 @@ import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import {
   type GitStatusData,
-  type GitRemoteStatusData,
   GitSettingsTab,
 } from "reducers/uiReducers/gitSyncReducer";
 import type { ResponseMeta } from "api/ApiResponses";
-import { noop } from "lodash";
 
 export interface GitStatusParams {
   compareRemote?: boolean;
+  onSuccessCallback?: (data: any) => void;
+  onErrorCallback?: (error: Error, response?: any) => void;
 }
 
 export const setIsGitSyncModalOpen = (payload: {
@@ -180,20 +180,6 @@ export const fetchGitStatusInit = (payload?: GitStatusParams) => ({
 
 export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
   type: ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS,
-  payload,
-});
-
-export const fetchGitRemoteStatusInit = ({
-  onErrorCallback = noop,
-  onSuccessCallback = noop,
-} = {}) => ({
-  type: ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT,
-  onSuccessCallback,
-  onErrorCallback,
-});
-
-export const fetchGitRemoteStatusSuccess = (payload: GitRemoteStatusData) => ({
-  type: ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_SUCCESS,
   payload,
 });
 
