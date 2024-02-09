@@ -13,6 +13,8 @@ export class GitSync {
   public _gitSyncModal = "[data-testid=t--git-sync-modal]";
   private _closeGitSyncModal =
     "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']";
+  private _closeGitSettingsModal =
+    "//div[@data-testid='t--git-settings-modal']//button[@aria-label='Close']";
   //private _closeGitSyncModal = ".ads-v2-modal__content-header-close-button";
   private _gitRepoInput =
     "//label[text()='Remote URL']/following-sibling::div//input";
@@ -55,6 +57,14 @@ export class GitSync {
     "[data-testid='t--git-protected-branches-select']";
   public _protectedBranchesUpdateBtn =
     "[data-testid='t--git-protected-branches-update-btn']";
+  public _settingsTabBranch = "[data-testid='t--tab-BRANCH']";
+  public _settingsTabGeneral = "[data-testid='t--tab-GENERAL']";
+  public _branchProtectionSelectDropdown =
+    "[data-testid='t--git-protected-branches-select']";
+  public _branchProtectionUpdateBtn =
+    "[data-testid='t--git-protected-branches-update-btn']";
+  public _disconnectGitBtn = "[data-testid='t--git-disconnect-btn']";
+  public _mergeLoader = "[data-testid='t--git-merge-loader']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -64,24 +74,6 @@ export class GitSync {
   CloseGitSyncModal() {
     this.agHelper.GetNClick(this._closeGitSyncModal);
     this.agHelper.AssertElementAbsence(this._gitSyncModal);
-  }
-
-  CreateNConnectToGit(
-    repoName = "Repo",
-    assertConnect = true,
-    privateFlag = false,
-  ) {
-    this.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      repoName += uid;
-      this.CreateTestGiteaRepo(repoName, privateFlag);
-      //this.CreateLocalGithubRepo(repoName);
-      this.AuthorizeKeyToGitea(repoName, assertConnect);
-      // cy.get("@remoteUrl").then((remoteUrl: any) => {
-      //   this.AuthorizeLocalGitSSH(remoteUrl);
-      // });
-      cy.wrap(repoName).as("gitRepoName");
-    });
   }
 
   public CreateTestGiteaRepo(repo: string, privateFlag = false) {
@@ -98,86 +90,6 @@ export class GitSync {
     });
   }
 
-  public AuthorizeKeyToGitea(
-    repo: string,
-    assertConnect = true,
-    importFlow = false,
-  ) {
-    let generatedKey,
-      submitBtnName = importFlow ? "Import" : "Connect";
-    if (!importFlow) {
-      this.OpenGitSyncModal();
-      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-        `generateKey-${repo}`,
-      );
-    } else {
-      cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
-        `generateKey-${repo}`,
-      );
-    }
-    this.agHelper.AssertAttribute(
-      this._gitRepoInput,
-      "placeholder",
-      "git@example.com:user/repository.git",
-    );
-    this.agHelper.TypeText(
-      this._gitRepoInput,
-      `${this.dataManager.GITEA_API_URL_TED}/${repo}.git`,
-      //`git@github.com:${owner}/${repo}.git`,
-    );
-
-    this.agHelper.ClickButton("Generate key");
-    this.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      this.assertHelper.AssertNetworkStatus("@generateKey-" + repo, [200, 201]);
-      cy.get(`@generateKey-${repo}`).then((result: any) => {
-        generatedKey = result.response.body.data.publicKey;
-        generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-        // fetch the generated key and post to the github repo
-        cy.request({
-          method: "POST",
-          url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
-          headers: {
-            Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-          },
-          body: {
-            title: "key_" + uid,
-            key: generatedKey,
-            read_only: false,
-          },
-        }).then((resp: any) => {
-          cy.log("Deploy Key Id ", resp.body.key_id);
-          cy.wrap(resp.body.key_id).as("deployKeyId");
-        });
-      });
-    });
-    this.agHelper.GetNClick(this._useDefaultConfig); //Uncheck the Use default configuration
-    this.agHelper.TypeText(
-      this._gitConfigNameInput,
-      "testusername",
-      //`{selectall}${testUsername}`,
-    );
-    this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
-
-    this.agHelper.ClickButton(submitBtnName);
-
-    if (assertConnect) {
-      if (!importFlow) {
-        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
-        this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
-        this.CloseGitSyncModal();
-        this.agHelper.Sleep(2000); //for generatedKey to be available in CI runs
-        this.assertHelper.AssertNetworkStatus("@generatedKey", 201);
-      } else {
-        this.assertHelper.AssertContains(
-          "Error while accessing the file system",
-          "not.exist",
-        );
-        this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
-      }
-    }
-  }
-
   private providerRadioOthers = "[data-testid='t--git-provider-radio-others']";
   private existingEmptyRepoYes = "[data-testid='t--existing-empty-repo-yes']";
   private gitConnectNextBtn = "[data-testid='t--git-connect-next-button']";
@@ -188,10 +100,11 @@ export class GitSync {
     "[data-testid='t--git-success-modal-start-using-git-cta']";
   private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
 
-  CreateNConnectToGitV2(
+  CreateNConnectToGit(
     repoName = "Repo",
     assertConnect = true,
     privateFlag = false,
+    removeDefaultBranchProtection = true,
   ) {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -200,6 +113,14 @@ export class GitSync {
 
       cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
         `generateKey-${repoName}`,
+      );
+
+      cy.intercept("GET", "/api/v1/git/branch/app/*/protected").as(
+        `protected-${repoName}`,
+      );
+
+      cy.intercept("GET", "/api/v1/git/branch/app/*").as(
+        `branches-${repoName}`,
       );
 
       this.OpenGitSyncModal();
@@ -250,11 +171,24 @@ export class GitSync {
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
       }
 
+      if (removeDefaultBranchProtection) {
+        cy.wait([`@protected-${repoName}`, `@branches-${repoName}`]).then(
+          (interceptions) => {
+            if (
+              interceptions[0]?.response?.statusCode === 200 &&
+              interceptions[1]?.response?.statusCode === 200
+            ) {
+              this.clearBranchProtection();
+            }
+          },
+        );
+      }
+
       cy.wrap(repoName).as("gitRepoName");
     });
   }
 
-  public ImportAppFromGitV2(
+  public ImportAppFromGit(
     workspaceName: string,
     repoName: string,
     assertConnect = true,
@@ -310,13 +244,21 @@ export class GitSync {
     }
   }
 
-  public ImportAppFromGit(
-    workspaceName: string,
-    repo: string,
-    assertConnect = true,
-  ) {
-    this.homePage.ImportGitApp(workspaceName);
-    this.AuthorizeKeyToGitea(repo, assertConnect, true);
+  public clearBranchProtection() {
+    this.agHelper.GetNClick(this._bottomSettingsBtn);
+    this.agHelper.GetNClick(this._settingsTabBranch);
+    this.agHelper.GetNClick(this._branchProtectionSelectDropdown);
+    // const dropdownEl = this.agHelper.GetElement(this._protectedBranchesSelect);
+    const selectedOptionsEl = this.agHelper.GetElement(
+      ".rc-select-dropdown .rc-select-item-option-active",
+    );
+    console.log("ss", selectedOptionsEl);
+    selectedOptionsEl.each((el) => {
+      el.trigger("click");
+    });
+
+    this.agHelper.GetNClick(this._branchProtectionUpdateBtn);
+    this.agHelper.GetNClick(this._closeGitSettingsModal);
   }
 
   DeleteTestGithubRepo(repo: any) {
