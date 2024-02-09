@@ -228,9 +228,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
                     // find existing actions in all the branches of this application and put them in a map
                     Mono<Map<String, NewAction>> actionsInOtherBranchesMono;
-                    if (importedApplication.getGitApplicationMetadata() != null) {
+                    if (importedApplication.getGitArtifactMetadata() != null) {
                         final String defaultApplicationId =
-                                importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
+                                importedApplication.getGitArtifactMetadata().getDefaultApplicationId();
                         actionsInOtherBranchesMono = getActionInOtherBranchesMono(defaultApplicationId)
                                 .filter(newAction -> newAction.getGitSyncId() != null)
                                 .collectMap(NewAction::getGitSyncId);
@@ -318,7 +318,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                             .get(newAction.getPluginId()));
                                     newActionService.generateAndSetActionPolicies(parentPage, newAction);
 
-                                    if (importedApplication.getGitApplicationMetadata() != null) {
+                                    if (importedApplication.getGitArtifactMetadata() != null) {
                                         // application is git connected, check if the action is already present in
                                         // any other branch
                                         if (actionsInOtherBranches.containsKey(newAction.getGitSyncId())) {
@@ -337,7 +337,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                             // instance
                                             DefaultResources defaultResources = new DefaultResources();
                                             defaultResources.setApplicationId(importedApplication
-                                                    .getGitApplicationMetadata()
+                                                    .getGitArtifactMetadata()
                                                     .getDefaultApplicationId());
                                             defaultResources.setActionId(newAction.getId());
                                             defaultResources.setBranchName(importingMetaDTO.getBranchName());

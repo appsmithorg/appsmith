@@ -7,7 +7,7 @@ import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.ApplicationSnapshot;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -243,9 +243,9 @@ public class ApplicationSnapshotServiceUnitTest {
         application.setId("branched-app-id");
         application.setName("Snapshot test");
         application.setWorkspaceId("workspace-id");
-        application.setGitApplicationMetadata(new GitApplicationMetadata());
-        application.getGitApplicationMetadata().setDefaultApplicationId("default-app-id");
-        application.getGitApplicationMetadata().setBranchName("development");
+        application.setGitArtifactMetadata(new GitArtifactMetadata());
+        application.getGitArtifactMetadata().setDefaultApplicationId("default-app-id");
+        application.getGitArtifactMetadata().setBranchName("development");
 
         // create pages for the application that have git related fields populated
         List<ApplicationPage> pages = new ArrayList<>();
@@ -290,7 +290,7 @@ public class ApplicationSnapshotServiceUnitTest {
                 .assertNext(application1 -> {
                     assertThat(application1.getName()).isEqualTo(application.getName());
                     assertThat(application1.getId())
-                            .isEqualTo(application.getGitApplicationMetadata().getDefaultApplicationId());
+                            .isEqualTo(application.getGitArtifactMetadata().getDefaultApplicationId());
                     assertThat(application1.getPages().get(0).getId())
                             .isEqualTo(application.getPages().get(0).getDefaultPageId());
                 })

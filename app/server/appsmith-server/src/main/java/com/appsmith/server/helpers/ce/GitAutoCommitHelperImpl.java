@@ -2,7 +2,7 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.events.AutoCommitEvent;
@@ -56,8 +56,8 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
         Mono<Boolean> featureEnabledMono =
                 featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled);
         Mono<Boolean> autoCommitDisabledForThisBranchMono = applicationMono.flatMap(application -> {
-            if (GitUtils.isAutoCommitEnabled(application.getGitApplicationMetadata())) {
-                return gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName);
+            if (GitUtils.isAutoCommitEnabled(application.getGitArtifactMetadata())) {
+                return gitPrivateRepoHelper.isBranchProtected(application.getGitArtifactMetadata(), branchName);
             } else {
                 return Mono.just(Boolean.TRUE);
             }
@@ -94,21 +94,20 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                 .map(objects -> {
                                     Application application = objects.getT1();
                                     GitProfile gitProfile = objects.getT2();
-                                    GitApplicationMetadata gitApplicationMetadata =
-                                            application.getGitApplicationMetadata();
+                                    GitArtifactMetadata gitArtifactMetadata = application.getGitArtifactMetadata();
 
                                     AutoCommitEvent autoCommitEvent = new AutoCommitEvent();
                                     autoCommitEvent.setApplicationId(defaultApplicationId);
                                     autoCommitEvent.setBranchName(branchName);
-                                    autoCommitEvent.setRepoName(gitApplicationMetadata.getRepoName());
+                                    autoCommitEvent.setRepoName(gitArtifactMetadata.getRepoName());
                                     autoCommitEvent.setWorkspaceId(application.getWorkspaceId());
                                     autoCommitEvent.setAuthorName(gitProfile.getAuthorName());
                                     autoCommitEvent.setAuthorEmail(gitProfile.getAuthorEmail());
-                                    autoCommitEvent.setRepoUrl(gitApplicationMetadata.getRemoteUrl());
+                                    autoCommitEvent.setRepoUrl(gitArtifactMetadata.getRemoteUrl());
                                     autoCommitEvent.setPrivateKey(
-                                            gitApplicationMetadata.getGitAuth().getPrivateKey());
+                                            gitArtifactMetadata.getGitAuth().getPrivateKey());
                                     autoCommitEvent.setPublicKey(
-                                            gitApplicationMetadata.getGitAuth().getPublicKey());
+                                            gitArtifactMetadata.getGitAuth().getPublicKey());
                                     // it's a synchronous call, no need to return anything
                                     autoCommitEventHandler.publish(autoCommitEvent);
                                     return Boolean.TRUE;

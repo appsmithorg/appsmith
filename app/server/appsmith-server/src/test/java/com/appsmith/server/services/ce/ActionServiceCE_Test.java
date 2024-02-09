@@ -21,7 +21,7 @@ import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -254,13 +254,13 @@ public class ActionServiceCE_Test {
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
-        newApp.setGitApplicationMetadata(gitData);
+        newApp.setGitArtifactMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
                 .flatMap(application2 -> {
-                    application2.getGitApplicationMetadata().setDefaultApplicationId(application2.getId());
+                    application2.getGitArtifactMetadata().setDefaultApplicationId(application2.getId());
                     return applicationService.save(application2).zipWhen(application1 -> exportService
                             .exportByArtifactIdAndBranchName(
                                     application1.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
@@ -276,7 +276,7 @@ public class ActionServiceCE_Test {
                 .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
                 .block();
 
-        branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
+        branchName = gitConnectedApp.getGitArtifactMetadata().getBranchName();
 
         datasource = new Datasource();
         datasource.setName("Default Database");

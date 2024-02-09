@@ -16,7 +16,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -541,11 +541,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         /* As part of git sync feature a new application will be created for each branch with reference to main application
          * feat/new-branch ----> new application in Appsmith
          * Get all the applications which refer to the current application and archive those first one by one
-         * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
+         * GitArtifactMetadata has a field called defaultApplicationId which refers to the main application
          * */
         return applicationMono
                 .flatMapMany(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitArtifactMetadata();
                     if (GitUtils.isApplicationConnectedToGit(application)) {
                         return applicationService.findAllApplicationsByDefaultApplicationId(
                                 gitData.getDefaultApplicationId(), applicationPermission.getDeletePermission());
@@ -558,7 +558,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .then(applicationMono)
                 .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitArtifactMetadata();
                     if (gitData != null
                             && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
                             && !StringUtils.isEmpty(gitData.getRepoName())) {
@@ -688,7 +688,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 page.setId(null);
                                 page.setApplicationId(applicationId);
                                 DefaultResources defaults = new DefaultResources();
-                                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                                GitArtifactMetadata gitData = application.getGitArtifactMetadata();
                                 if (gitData != null) {
                                     defaults.setApplicationId(gitData.getDefaultApplicationId());
                                     defaults.setBranchName(gitData.getBranchName());
@@ -782,16 +782,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     // For git connected application user can update the default branch
                     // In such cases we should fork the application from the new default branch
                     if (StringUtils.isEmpty(branchName)
-                            && !Optional.ofNullable(application.getGitApplicationMetadata())
+                            && !Optional.ofNullable(application.getGitArtifactMetadata())
                                     .isEmpty()
                             && !application
-                                    .getGitApplicationMetadata()
+                                    .getGitArtifactMetadata()
                                     .getBranchName()
-                                    .equals(application
-                                            .getGitApplicationMetadata()
-                                            .getDefaultBranchName())) {
+                                    .equals(application.getGitArtifactMetadata().getDefaultBranchName())) {
                         return applicationService.findByBranchNameAndDefaultApplicationId(
-                                application.getGitApplicationMetadata().getDefaultBranchName(),
+                                application.getGitArtifactMetadata().getDefaultBranchName(),
                                 applicationId,
                                 applicationPermission.getEditPermission());
                     }
@@ -832,7 +830,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     // 3. Set up fields for copy of application
 
                     // Remove the git related data before cloning
-                    sourceApplication.setGitApplicationMetadata(null);
+                    sourceApplication.setGitArtifactMetadata(null);
 
                     // Create a new clone application object without the pages using the parameterized Application
                     // constructor

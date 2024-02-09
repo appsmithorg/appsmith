@@ -3,10 +3,11 @@ package com.appsmith.server.moduleinstances.exports;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportableModule;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
@@ -63,14 +64,16 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         Optional<AclPermission> optionalPermission = Optional.ofNullable(moduleInstancePermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
         Flux<ModuleInstance> moduleInstanceFlux = crudModuleInstanceService
-                .findByPageIds(exportingMetaDTO.getUnpublishedModulesOrPages(), optionalPermission)
+                .findByPageIds(exportingMetaDTO.getUnpublishedContextIds(), optionalPermission)
                 .filter(moduleInstance ->
                         moduleInstance.getUnpublishedModuleInstance().getDeletedAt() == null);
 

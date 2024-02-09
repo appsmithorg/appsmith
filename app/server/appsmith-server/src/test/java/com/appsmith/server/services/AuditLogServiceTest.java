@@ -42,7 +42,7 @@ import com.appsmith.server.domains.AuditLogUserGroupMetadata;
 import com.appsmith.server.domains.AuditLogUserMetadata;
 import com.appsmith.server.domains.AuditLogWorkflowMetadata;
 import com.appsmith.server.domains.AuditLogWorkspaceMetadata;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -407,17 +407,17 @@ public class AuditLogServiceTest {
                     return applicationPageService.createPage(page).thenReturn(application1);
                 })
                 .flatMap(application1 -> {
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    GitArtifactMetadata GitArtifactMetadata = new GitArtifactMetadata();
                     GitAuth gitAuth = new GitAuth();
                     gitAuth.setPublicKey("testkey");
                     gitAuth.setPrivateKey("privatekey");
-                    gitApplicationMetadata.setGitAuth(gitAuth);
-                    gitApplicationMetadata.setDefaultApplicationId(application1.getId());
-                    gitApplicationMetadata.setRepoName("testRepo");
-                    gitApplicationMetadata.setRemoteUrl(String.format("git@github.com:test/%s.git", name));
-                    gitApplicationMetadata.setBranchName(branchName);
-                    gitApplicationMetadata.setDefaultBranchName(branchName);
-                    application1.setGitApplicationMetadata(gitApplicationMetadata);
+                    GitArtifactMetadata.setGitAuth(gitAuth);
+                    GitArtifactMetadata.setDefaultApplicationId(application1.getId());
+                    GitArtifactMetadata.setRepoName("testRepo");
+                    GitArtifactMetadata.setRemoteUrl(String.format("git@github.com:test/%s.git", name));
+                    GitArtifactMetadata.setBranchName(branchName);
+                    GitArtifactMetadata.setDefaultBranchName(branchName);
+                    application1.setGitArtifactMetadata(GitArtifactMetadata);
                     return applicationService.save(application1);
                 });
     }

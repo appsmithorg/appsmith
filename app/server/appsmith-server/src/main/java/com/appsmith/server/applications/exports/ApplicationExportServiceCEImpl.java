@@ -9,7 +9,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.ExportableArtifact;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -110,7 +110,7 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
     }
 
     @Override
-    public void getArtifactReadyForExport(
+    public Mono<Void> getArtifactReadyForExport(
             ExportableArtifact exportableArtifact,
             ArtifactExchangeJson artifactExchangeJson,
             ExportingMetaDTO exportingMetaDTO) {
@@ -118,9 +118,9 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
         Application application = (Application) exportableArtifact;
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
-        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+        GitArtifactMetadata gitArtifactMetadata = application.getGitArtifactMetadata();
         Instant applicationLastCommittedAt =
-                gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
+                gitArtifactMetadata != null ? gitArtifactMetadata.getLastCommittedAt() : null;
         boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
         boolean isServerSchemaMigrated = !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
 
@@ -133,7 +133,9 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
         List<String> unpublishedPages =
                 application.getPages().stream().map(ApplicationPage::getId).collect(Collectors.toList());
 
-        exportingMetaDTO.setUnpublishedModulesOrPages(unpublishedPages);
+        exportingMetaDTO.setUnpublishedContextIds(unpublishedPages);
+
+        return Mono.empty().then();
     }
 
     @Override

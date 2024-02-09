@@ -5,7 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
@@ -383,19 +383,19 @@ public class ApplicationPageServiceTest {
         final String appName = "app" + UUID.randomUUID();
         Application application = new Application();
         application.setName(appName);
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-        gitApplicationMetadata.setBranchName("branch1");
-        application.setGitApplicationMetadata(gitApplicationMetadata);
+        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+        gitArtifactMetadata.setBranchName("branch1");
+        application.setGitArtifactMetadata(gitArtifactMetadata);
 
         Mono<Application> importAppMono = applicationPageService
                 .createApplication(application, workspace.getId())
                 .flatMap(createdApp -> {
-                    createdApp.getGitApplicationMetadata().setDefaultApplicationId(createdApp.getId());
+                    createdApp.getGitArtifactMetadata().setDefaultApplicationId(createdApp.getId());
                     return applicationService.save(createdApp);
                 })
                 .flatMap(createdApp -> {
                     createdApp.setId(null);
-                    createdApp.getGitApplicationMetadata().setBranchName("branch2");
+                    createdApp.getGitArtifactMetadata().setBranchName("branch2");
                     // just duplicate the app, we're not considering the pages, they remain same in both apps
                     return applicationRepository.save(createdApp);
                 })

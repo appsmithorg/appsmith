@@ -8,7 +8,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -60,7 +60,7 @@ public class GitControllerCE {
     /**
      * applicationId is the defaultApplicationId
      * For every git connected app, the master branch applicationId is used as defaultApplicationId
-     * This is stored in gitApplicationMetadata
+     * This is stored in GitArtifactMetadata
      * Note : The master branch here refers to the app that was created even before connecting to git
      */
     @JsonView(Views.Public.class)
@@ -96,8 +96,8 @@ public class GitControllerCE {
 
     @JsonView({Views.Metadata.class})
     @GetMapping("/metadata/app/{defaultApplicationId}")
-    public Mono<ResponseDTO<GitApplicationMetadata>> getGitMetadata(@PathVariable String defaultApplicationId) {
-        return service.getGitApplicationMetadata(defaultApplicationId)
+    public Mono<ResponseDTO<GitArtifactMetadata>> getGitMetadata(@PathVariable String defaultApplicationId) {
+        return service.getGitArtifactMetadata(defaultApplicationId)
                 .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
 

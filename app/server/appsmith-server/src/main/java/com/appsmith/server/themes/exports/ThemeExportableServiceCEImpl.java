@@ -1,8 +1,10 @@
 package com.appsmith.server.themes.exports;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableServiceCE;
@@ -28,8 +30,10 @@ public class ThemeExportableServiceCEImpl implements ExportableServiceCE<Theme> 
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         Mono<Theme> defaultThemeMono = themeService
                 .getSystemTheme(Theme.DEFAULT_THEME_NAME)
@@ -39,7 +43,8 @@ public class ThemeExportableServiceCEImpl implements ExportableServiceCE<Theme> 
                 })
                 .cache();
 
-        return applicationMono
+        return exportableArtifactMono
+                .map(artifact -> (Application) artifact)
                 .flatMap(application -> themeService
                         .getThemeById(application.getEditModeThemeId(), READ_THEMES)
                         .switchIfEmpty(Mono.defer(() -> defaultThemeMono)) // setting default theme if theme is missing

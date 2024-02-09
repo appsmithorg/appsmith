@@ -13,7 +13,7 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.PermissionGroup;
@@ -168,17 +168,17 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                         defaultApplicationId,
                         applicationPermission.getManageDefaultBranchPermission())
                 .flatMap(defaultBranchedApplication -> {
-                    if (defaultBranchedApplication.getGitApplicationMetadata() == null) {
+                    if (defaultBranchedApplication.getGitArtifactMetadata() == null) {
                         // application not connected to Git, throw error
                         return Mono.error(new AppsmithException(INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
-                    // fetch all applications that has gitApplicationMetadata.defaultApplication=defaultApplicationId
+                    // fetch all applications that has GitArtifactMetadata.defaultApplication=defaultApplicationId
                     return applicationService
                             .findAllApplicationsByDefaultApplicationId(
                                     defaultApplicationId, applicationPermission.getEditPermission())
                             .flatMap(application -> {
                                 // update the application with the new default branch name
-                                application.getGitApplicationMetadata().setDefaultBranchName(newDefaultBranchName);
+                                application.getGitArtifactMetadata().setDefaultBranchName(newDefaultBranchName);
                                 return applicationService.save(application);
                             })
                             .then()
@@ -187,9 +187,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 .flatMap(defaultBranchedApplication -> {
                     // all applications in DB have new default branch set but this rootApplication still have old one
                     // as it was fetched before the update. we need this object to send analytics event
-                    String oldDefaultBranch = defaultBranchedApplication
-                            .getGitApplicationMetadata()
-                            .getDefaultBranchName();
+                    String oldDefaultBranch =
+                            defaultBranchedApplication.getGitArtifactMetadata().getDefaultBranchName();
 
                     Map<String, Object> map = Map.of(
                             "old_branch", oldDefaultBranch,
@@ -222,7 +221,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
     public Mono<List<String>> updateProtectedBranches(String defaultApplicationId, List<String> branchNames) {
         return getApplicationById(defaultApplicationId, applicationPermission.getManageProtectedBranchPermission())
                 .flatMap(rootApplication -> {
-                    GitApplicationMetadata metadata = rootApplication.getGitApplicationMetadata();
+                    GitArtifactMetadata metadata = rootApplication.getGitArtifactMetadata();
                     // keep a copy of old protected branches as it's required to send analytics event later
                     List<String> oldProtectedBranches = metadata.getBranchProtectionRules() != null
                             ? metadata.getBranchProtectionRules()
@@ -241,8 +240,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
     public Mono<List<String>> getProtectedBranches(String defaultApplicationId) {
         return getApplicationById(defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    return Mono.justOrEmpty(gitApplicationMetadata.getBranchProtectionRules());
+                    GitArtifactMetadata GitArtifactMetadata = application.getGitArtifactMetadata();
+                    return Mono.justOrEmpty(GitArtifactMetadata.getBranchProtectionRules());
                 })
                 .defaultIfEmpty(List.of());
     }
@@ -338,7 +337,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             String defaultApplicationId, String branchName) {
         return getApplicationById(defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
-                    GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                    GitArtifactMetadata metadata = application.getGitArtifactMetadata();
                     if (metadata == null || !metadata.isAutoDeploymentEnabled()) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION, ERROR_AUTO_DEPLOYMENT_NOT_CONFIGURED));
@@ -361,7 +360,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                     resultDTO.setBranchName(branchName);
                     resultDTO.setApplicationName(application.getName());
                     resultDTO.setDeployedAt(Instant.now());
-                    resultDTO.setRepoUrl(application.getGitApplicationMetadata().getRemoteUrl());
+                    resultDTO.setRepoUrl(application.getGitArtifactMetadata().getRemoteUrl());
                     return resultDTO;
                 });
     }
@@ -422,26 +421,26 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
         // try to find whether the target branch is already checked out, otherwise return error
         return getApplicationById(defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    GitArtifactMetadata GitArtifactMetadata = application.getGitArtifactMetadata();
                     // toggle the auto deployment flag
-                    if (gitApplicationMetadata.isAutoDeploymentEnabled()) {
-                        gitApplicationMetadata.setAutoDeploymentEnabled(false);
+                    if (GitArtifactMetadata.isAutoDeploymentEnabled()) {
+                        GitArtifactMetadata.setAutoDeploymentEnabled(false);
                     } else {
-                        gitApplicationMetadata.setAutoDeploymentEnabled(true);
+                        GitArtifactMetadata.setAutoDeploymentEnabled(true);
                     }
 
                     return applicationService
                             .save(application)
                             .flatMap(savedApplication -> {
                                 // send the analytics event
-                                if (!gitApplicationMetadata.isAutoDeploymentEnabled()) {
+                                if (!GitArtifactMetadata.isAutoDeploymentEnabled()) {
                                     return sendGitAnalyticsEvent(
                                             AnalyticsEvents.GIT_CD_DISABLED, savedApplication, null);
                                 } else {
                                     return Mono.empty();
                                 }
                             })
-                            .thenReturn(gitApplicationMetadata.isAutoDeploymentEnabled());
+                            .thenReturn(GitArtifactMetadata.isAutoDeploymentEnabled());
                 });
     }
 
@@ -454,7 +453,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
      */
     protected Mono<Void> sendGitAnalyticsEvent(
             AnalyticsEvents analyticsEvents, Application application, Map<String, Object> extraProps) {
-        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        GitArtifactMetadata gitData = application.getGitArtifactMetadata();
         Map<String, Object> analyticsProps = new HashMap<>();
         analyticsProps.put("appId", gitData.getDefaultApplicationId());
         analyticsProps.put("orgId", application.getWorkspaceId());

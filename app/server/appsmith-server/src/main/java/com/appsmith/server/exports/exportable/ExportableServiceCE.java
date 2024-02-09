@@ -2,9 +2,7 @@ package com.appsmith.server.exports.exportable;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ExportableArtifact;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
@@ -19,8 +17,8 @@ public interface ExportableServiceCE<T extends BaseDomain> {
     Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson);
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson);
 
     default Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
@@ -34,7 +32,7 @@ public interface ExportableServiceCE<T extends BaseDomain> {
     default void sanitizeEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            ApplicationJson applicationJson,
+            ArtifactExchangeJson artifactExchangeJson,
             SerialiseArtifactObjective serialiseFor) {}
 
     default void sanitizeEntities(
@@ -42,7 +40,7 @@ public interface ExportableServiceCE<T extends BaseDomain> {
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ArtifactExchangeJson artifactExchangeJson,
             SerialiseArtifactObjective serialiseFor,
-            Boolean isContextAgnositc) {}
+            Boolean isContextAgnostic) {}
 
     default Set<String> mapNameToIdForExportableEntities(
             MappedExportableResourcesDTO mappedExportableResourcesDTO, List<T> entityList) {

@@ -18,7 +18,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
@@ -2164,17 +2164,17 @@ public class ApplicationShareTest {
         Application application = new Application();
         application.setName(testName);
         application.setWorkspaceId(workspace.getId());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("release");
         gitData.setDefaultBranchName("release");
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        application.setGitApplicationMetadata(gitData);
+        application.setGitArtifactMetadata(gitData);
         Application createdApplication = applicationPageService
                 .createApplication(application)
                 .flatMap(application1 -> {
-                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -2208,17 +2208,17 @@ public class ApplicationShareTest {
         Application application = new Application();
         application.setName(testName);
         application.setWorkspaceId(workspace.getId());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("release");
         gitData.setDefaultBranchName("release");
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        application.setGitApplicationMetadata(gitData);
+        application.setGitArtifactMetadata(gitData);
         Application createdApplication = applicationPageService
                 .createApplication(application)
                 .flatMap(application1 -> {
-                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -2229,14 +2229,14 @@ public class ApplicationShareTest {
                         workspace.getId(), null, applicationJson, gitData.getBranchName()))
                 .map(importableArtifact -> (Application) importableArtifact)
                 .flatMap(application1 -> {
-                    GitApplicationMetadata gitData1 = new GitApplicationMetadata();
+                    GitArtifactMetadata gitData1 = new GitArtifactMetadata();
                     gitData1.setBranchName("testBranch");
                     gitData1.setDefaultBranchName("release");
                     gitData1.setRepoName("testRepo");
                     gitData1.setRemoteUrl("git@test.com:user/testRepo.git");
                     gitData1.setRepoName("testRepo");
                     gitData1.setDefaultApplicationId(createdApplication.getId());
-                    application1.setGitApplicationMetadata(gitData1);
+                    application1.setGitArtifactMetadata(gitData1);
 
                     return applicationService.save(application1);
                 })
@@ -2304,17 +2304,17 @@ public class ApplicationShareTest {
         Application application = new Application();
         application.setName(testName);
         application.setWorkspaceId(workspace.getId());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("release");
         gitData.setDefaultBranchName("release");
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        application.setGitApplicationMetadata(gitData);
+        application.setGitArtifactMetadata(gitData);
         Application createdApplication = applicationPageService
                 .createApplication(application)
                 .flatMap(application1 -> {
-                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 })
                 .block();
@@ -2325,14 +2325,14 @@ public class ApplicationShareTest {
                         workspace.getId(), null, applicationJson, gitData.getBranchName()))
                 .map(importableArtifact -> (Application) importableArtifact)
                 .flatMap(application1 -> {
-                    GitApplicationMetadata gitData1 = new GitApplicationMetadata();
+                    GitArtifactMetadata gitData1 = new GitArtifactMetadata();
                     gitData1.setBranchName("testBranch");
                     gitData1.setDefaultBranchName("release");
                     gitData1.setRepoName("testRepo");
                     gitData1.setRemoteUrl("git@test.com:user/testRepo.git");
                     gitData1.setRepoName("testRepo");
                     gitData1.setDefaultApplicationId(createdApplication.getId());
-                    application1.setGitApplicationMetadata(gitData1);
+                    application1.setGitArtifactMetadata(gitData1);
 
                     return applicationService.save(application1);
                 })

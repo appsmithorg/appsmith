@@ -180,9 +180,9 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 getModuleInstancesInCurrentAppMono(importedApplication).collectMap(ModuleInstance::getGitSyncId);
 
         Mono<Map<String, ModuleInstance>> moduleInstancesInBranchesMono;
-        if (importedApplication.getGitApplicationMetadata() != null) {
+        if (importedApplication.getGitArtifactMetadata() != null) {
             final String defaultApplicationId =
-                    importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
+                    importedApplication.getGitArtifactMetadata().getDefaultApplicationId();
             moduleInstancesInBranchesMono = repository
                     .findByDefaultApplicationId(defaultApplicationId, Optional.empty())
                     .filter(moduleInstance -> moduleInstance.getGitSyncId() != null)
@@ -217,10 +217,9 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                         // If pageId is missing in the moduleInstanceDTO create a fallback pageId
                         final String fallbackParentPageId = unpublishedModuleInstance.getPageId();
 
-                        if (importedApplication.getGitApplicationMetadata() != null) {
-                            final String defaultApplicationId = importedApplication
-                                    .getGitApplicationMetadata()
-                                    .getDefaultApplicationId();
+                        if (importedApplication.getGitArtifactMetadata() != null) {
+                            final String defaultApplicationId =
+                                    importedApplication.getGitArtifactMetadata().getDefaultApplicationId();
                             if (moduleInstancesInBranches.containsKey(moduleInstance.getGitSyncId())) {
                                 ModuleInstance branchedModuleInstance =
                                         moduleInstancesInBranches.get(moduleInstance.getGitSyncId());

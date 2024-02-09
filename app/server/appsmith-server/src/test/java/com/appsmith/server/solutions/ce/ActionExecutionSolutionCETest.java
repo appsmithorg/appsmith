@@ -23,7 +23,7 @@ import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -253,13 +253,13 @@ public class ActionExecutionSolutionCETest {
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
-        newApp.setGitApplicationMetadata(gitData);
+        newApp.setGitArtifactMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
                 .flatMap(application1 -> {
-                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    application1.getGitArtifactMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1).zipWhen(application11 -> exportService
                             .exportByArtifactIdAndBranchName(
                                     application11.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
@@ -275,7 +275,7 @@ public class ActionExecutionSolutionCETest {
                 .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
                 .block();
 
-        branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
+        branchName = gitConnectedApp.getGitArtifactMetadata().getBranchName();
 
         datasource = new Datasource();
         datasource.setName("Default Database");

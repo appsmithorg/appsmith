@@ -60,7 +60,7 @@ public class ApplicationTemplateServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        //        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        //        testApplication.setGitArtifactMetadata(new GitArtifactMetadata());
 
         cloudServicesConfig.setBaseUrl(String.format("http://localhost:%s", mockCloudServices.getPort()));
         mockCloudServices.enqueue(

@@ -2,7 +2,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AutoCommitConfig;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.exceptions.AppsmithException;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -160,10 +160,10 @@ public class GitUtilsTest {
     public void testIsApplicationConnectedToGit_Connected() {
         // Create a mock Application with connected Git metadata
         Application connectedApplication = new Application();
-        GitApplicationMetadata gitMetadata = new GitApplicationMetadata();
+        GitArtifactMetadata gitMetadata = new GitArtifactMetadata();
         gitMetadata.setRemoteUrl("https://git.example.com/repo.git");
         gitMetadata.setDefaultApplicationId(UUID.randomUUID().toString());
-        connectedApplication.setGitApplicationMetadata(gitMetadata);
+        connectedApplication.setGitArtifactMetadata(gitMetadata);
 
         assertTrue(isApplicationConnectedToGit(connectedApplication));
     }
@@ -180,9 +180,9 @@ public class GitUtilsTest {
     public void testIsApplicationConnectedToGit_NotConnected_NullDefaultApplicationId() {
         // Create a mock Application with Git metadata and null defaultApplicationId
         Application notConnectedApplication = new Application();
-        GitApplicationMetadata gitMetadata = new GitApplicationMetadata();
+        GitArtifactMetadata gitMetadata = new GitArtifactMetadata();
         gitMetadata.setRemoteUrl("https://git.example.com/repo.git");
-        notConnectedApplication.setGitApplicationMetadata(gitMetadata);
+        notConnectedApplication.setGitArtifactMetadata(gitMetadata);
 
         assertFalse(isApplicationConnectedToGit(notConnectedApplication));
     }
@@ -191,9 +191,9 @@ public class GitUtilsTest {
     public void testIsApplicationConnectedToGit_NotConnected_NullRemoteUrl() {
         // Create a mock Application with Git metadata and null remoteUrl
         Application notConnectedApplication = new Application();
-        GitApplicationMetadata gitMetadata = new GitApplicationMetadata();
+        GitArtifactMetadata gitMetadata = new GitArtifactMetadata();
         gitMetadata.setDefaultApplicationId(UUID.randomUUID().toString());
-        notConnectedApplication.setGitApplicationMetadata(gitMetadata);
+        notConnectedApplication.setGitArtifactMetadata(gitMetadata);
 
         assertFalse(isApplicationConnectedToGit(notConnectedApplication));
     }
@@ -202,10 +202,10 @@ public class GitUtilsTest {
     public void testIsApplicationConnectedToGit_NotConnected_EmptyMetadata() {
         // Create a mock Application with empty Git metadata
         Application notConnectedApplication = new Application();
-        GitApplicationMetadata gitMetadata = new GitApplicationMetadata();
+        GitArtifactMetadata gitMetadata = new GitArtifactMetadata();
         gitMetadata.setDefaultApplicationId("");
         gitMetadata.setRemoteUrl("");
-        notConnectedApplication.setGitApplicationMetadata(gitMetadata);
+        notConnectedApplication.setGitArtifactMetadata(gitMetadata);
 
         assertFalse(isApplicationConnectedToGit(notConnectedApplication));
     }
@@ -214,12 +214,12 @@ public class GitUtilsTest {
     public void testIsDefaultBranchedApplication_DefaultBranch() {
         // Create a mock Application with connected Git metadata and default branch
         Application defaultBranchApplication = new Application();
-        GitApplicationMetadata metadata = new GitApplicationMetadata();
+        GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setDefaultApplicationId(UUID.randomUUID().toString());
         metadata.setRemoteUrl("https://git.example.com/repo.git");
         metadata.setBranchName("main");
         metadata.setDefaultBranchName("main");
-        defaultBranchApplication.setGitApplicationMetadata(metadata);
+        defaultBranchApplication.setGitArtifactMetadata(metadata);
 
         assertTrue(isDefaultBranchedApplication(defaultBranchApplication));
     }
@@ -228,12 +228,12 @@ public class GitUtilsTest {
     public void testIsDefaultBranchedApplication_NotDefaultBranch() {
         // Create a mock Application with connected Git metadata and non-default branch
         Application nonDefaultBranchApplication = new Application();
-        GitApplicationMetadata metadata = new GitApplicationMetadata();
+        GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setDefaultApplicationId(UUID.randomUUID().toString());
         metadata.setRemoteUrl("https://git.example.com/repo.git");
         metadata.setBranchName("feature-branch");
         metadata.setDefaultBranchName("main");
-        nonDefaultBranchApplication.setGitApplicationMetadata(metadata);
+        nonDefaultBranchApplication.setGitArtifactMetadata(metadata);
 
         assertFalse(isDefaultBranchedApplication(nonDefaultBranchApplication));
     }
@@ -250,7 +250,7 @@ public class GitUtilsTest {
     public void testIsDefaultBranchedApplication_NullMetadata() {
         // Create a mock Application with null Git metadata
         Application nullMetadataApplication = new Application();
-        nullMetadataApplication.setGitApplicationMetadata(null);
+        nullMetadataApplication.setGitArtifactMetadata(null);
 
         assertFalse(isDefaultBranchedApplication(nullMetadataApplication));
     }
@@ -259,12 +259,12 @@ public class GitUtilsTest {
     public void testIsDefaultBranchedApplication_NullBranchName() {
         // Create a mock Application with connected Git metadata and null branch name
         Application nullBranchNameApplication = new Application();
-        GitApplicationMetadata metadata = new GitApplicationMetadata();
+        GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setDefaultApplicationId(UUID.randomUUID().toString());
         metadata.setRemoteUrl("https://git.example.com/repo.git");
         metadata.setBranchName(null);
         metadata.setDefaultBranchName("main");
-        nullBranchNameApplication.setGitApplicationMetadata(metadata);
+        nullBranchNameApplication.setGitArtifactMetadata(metadata);
 
         assertFalse(isDefaultBranchedApplication(nullBranchNameApplication));
     }
@@ -273,12 +273,12 @@ public class GitUtilsTest {
     public void testIsDefaultBranchedApplication_NullDefaultBranchName() {
         // Create a mock Application with connected Git metadata and null default branch name
         Application nullDefaultBranchNameApplication = new Application();
-        GitApplicationMetadata metadata = new GitApplicationMetadata();
+        GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setDefaultApplicationId(UUID.randomUUID().toString());
         metadata.setRemoteUrl("https://git.example.com/repo.git");
         metadata.setBranchName("main");
         metadata.setDefaultBranchName(null);
-        nullDefaultBranchNameApplication.setGitApplicationMetadata(metadata);
+        nullDefaultBranchNameApplication.setGitArtifactMetadata(metadata);
 
         assertFalse(isDefaultBranchedApplication(nullDefaultBranchNameApplication));
     }
@@ -306,7 +306,7 @@ public class GitUtilsTest {
 
     @Test
     public void isAutoCommitEnabled() {
-        GitApplicationMetadata metadata = new GitApplicationMetadata();
+        GitArtifactMetadata metadata = new GitArtifactMetadata();
         // should be true when auto commit config is null
         assertThat(GitUtils.isAutoCommitEnabled(metadata)).isTrue();
 

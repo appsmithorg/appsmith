@@ -3,7 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
@@ -330,11 +330,11 @@ public class ApplicationFetcherUnitTest {
                     branchApp.setName("branched App");
                     branchApp.setWorkspaceId(application.getWorkspaceId());
                     branchApp.setId("org-" + 5 + "-app-" + 5);
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
-                    gitApplicationMetadata.setBranchName("master");
-                    gitApplicationMetadata.setRemoteUrl("remnoteUrl");
-                    branchApp.setGitApplicationMetadata(gitApplicationMetadata);
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+                    gitArtifactMetadata.setDefaultApplicationId(application.getId());
+                    gitArtifactMetadata.setBranchName("master");
+                    gitArtifactMetadata.setRemoteUrl("remnoteUrl");
+                    branchApp.setGitArtifactMetadata(gitArtifactMetadata);
 
                     // Set dummy applicationPages
                     ApplicationPage unpublishedPage = new ApplicationPage();

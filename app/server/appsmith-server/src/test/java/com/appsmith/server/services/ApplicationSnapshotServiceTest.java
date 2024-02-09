@@ -4,7 +4,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationSnapshot;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -148,10 +148,10 @@ public class ApplicationSnapshotServiceTest {
         testApplication.setWorkspaceId(workspace.getId());
 
         // this app will have default app id=testDefaultAppId and branch name=test branch name
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-        gitApplicationMetadata.setDefaultApplicationId(testDefaultAppId);
-        gitApplicationMetadata.setBranchName(testBranchName);
-        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+        gitArtifactMetadata.setDefaultApplicationId(testDefaultAppId);
+        gitArtifactMetadata.setBranchName(testBranchName);
+        testApplication.setGitArtifactMetadata(gitArtifactMetadata);
         Mono<Tuple2<ApplicationSnapshot, Application>> tuple2Mono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application -> applicationSnapshotService

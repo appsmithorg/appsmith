@@ -5,7 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ExportableArtifact;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -34,8 +34,10 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         /**
          * Since we are exporting for git, we only consider unpublished JS libraries
          * Ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1672225134025919
@@ -45,12 +47,12 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                     jsLibList.forEach(CustomJSLib::sanitiseToExportDBObject);
                     return jsLibList;
                 })
-                .zipWith(applicationMono)
+                .zipWith(exportableArtifactMono)
                 .map(tuple2 -> {
-                    Application application = tuple2.getT2();
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    Application application = (Application) tuple2.getT2();
+                    GitArtifactMetadata gitArtifactMetadata = application.getGitArtifactMetadata();
                     Instant applicationLastCommittedAt =
-                            gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
+                            gitArtifactMetadata != null ? gitArtifactMetadata.getLastCommittedAt() : null;
 
                     List<CustomJSLib> unpublishedCustomJSLibList = tuple2.getT1();
                     Set<String> updatedCustomJSLibSet;

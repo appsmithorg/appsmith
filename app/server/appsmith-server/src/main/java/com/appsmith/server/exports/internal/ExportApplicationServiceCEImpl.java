@@ -12,7 +12,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
@@ -127,9 +127,9 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
         return applicationMono
                 .flatMap(application -> {
                     // Refactor application to remove the ids
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = application.getGitArtifactMetadata();
                     Instant applicationLastCommittedAt =
-                            gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
+                            gitArtifactMetadata != null ? gitArtifactMetadata.getLastCommittedAt() : null;
                     boolean isClientSchemaMigrated =
                             !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
                     boolean isServerSchemaMigrated =
@@ -144,7 +144,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             .map(ApplicationPage::getId)
                             .collect(Collectors.toList());
 
-                    exportingMetaDTO.setUnpublishedModulesOrPages(unpublishedPages);
+                    exportingMetaDTO.setUnpublishedContextIds(unpublishedPages);
 
                     return getExportableEntities(exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
                             .then(Mono.defer(() -> sanitizeEntities(

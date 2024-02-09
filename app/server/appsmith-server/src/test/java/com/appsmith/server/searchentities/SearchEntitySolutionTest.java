@@ -2,7 +2,7 @@ package com.appsmith.server.searchentities;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.SearchEntityDTO;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -215,13 +215,13 @@ class SearchEntitySolutionTest {
                 .block();
         assert defaultApplication != null;
         applicationIds.add(defaultApplication.getId());
-        GitApplicationMetadata metadata = defaultApplication.getGitApplicationMetadata();
+        GitArtifactMetadata metadata = defaultApplication.getGitArtifactMetadata();
         metadata.setDefaultApplicationId(defaultApplication.getId());
         applicationService.save(defaultApplication).block();
 
         Application childBranch = mockGitConnectedApplication("feat/test", "main", searchString, workspace);
         applicationPageService.createApplication(childBranch, workspace.getId()).block();
-        GitApplicationMetadata metadata1 = childBranch.getGitApplicationMetadata();
+        GitArtifactMetadata metadata1 = childBranch.getGitArtifactMetadata();
         metadata1.setDefaultApplicationId(defaultApplication.getId());
 
         applicationService.save(childBranch).block();
@@ -247,11 +247,11 @@ class SearchEntitySolutionTest {
         Application application = new Application();
         application.setName(searchString + "_application");
         application.setWorkspaceId(workspace.getId());
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-        gitApplicationMetadata.setBranchName(branchName);
-        gitApplicationMetadata.setDefaultBranchName(defaultBranchName);
-        gitApplicationMetadata.setRemoteUrl("git@test.com:user/testRepo.git");
-        application.setGitApplicationMetadata(gitApplicationMetadata);
+        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+        gitArtifactMetadata.setBranchName(branchName);
+        gitArtifactMetadata.setDefaultBranchName(defaultBranchName);
+        gitArtifactMetadata.setRemoteUrl("git@test.com:user/testRepo.git");
+        application.setGitArtifactMetadata(gitArtifactMetadata);
         return application;
     }
 
