@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import styled from "styled-components";
 import { Button } from "design-system";
 
 import FileTabs from "./FileTabs";
@@ -14,12 +13,6 @@ import {
 } from "@appsmith/entities/IDE/constants";
 import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
-
-const StyledButton = styled(Button)`
-  && {
-    min-width: fit-content;
-  }
-`;
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -39,7 +32,7 @@ const SplitScreenTabs = () => {
   if (segment === EditorEntityTab.UI) return null;
   return (
     <Container>
-      <StyledButton
+      <Button
         isIconButton
         kind={"secondary"}
         onClick={onAddClick}
