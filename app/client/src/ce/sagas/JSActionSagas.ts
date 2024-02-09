@@ -68,8 +68,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "sagas/selectors";
 import { removeFocusHistoryRequest } from "actions/focusHistoryActions";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "../entities/FeatureFlag";
+import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
 
 export function* fetchJSCollectionsSaga(
@@ -292,11 +291,10 @@ export function* deleteJSCollectionSaga(
         kind: "success",
       });
       const currentUrl = window.location.pathname;
-      const isPagePaneSegmentsEnabled: boolean = yield select(
-        selectFeatureFlagCheck,
-        FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+      const isEditorPaneSegmentsEnabled: boolean = yield select(
+        getIsEditorPaneSegmentsEnabled,
       );
-      if (isPagePaneSegmentsEnabled) {
+      if (isEditorPaneSegmentsEnabled) {
         yield call(handleJSEntityRedirect, id);
       } else if (pageId) {
         history.push(builderURL({ pageId }));

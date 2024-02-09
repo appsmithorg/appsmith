@@ -3,11 +3,10 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   onboarding,
-  templates,
   dataSources,
+  templates,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
-import FirstTimeUserOnboardingLocators from "../../../../locators/FirstTimeUserOnboarding.json";
 import {
   AppSidebar,
   AppSidebarButton,
@@ -18,20 +17,20 @@ describe(
   { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
   function () {
     beforeEach(() => {
-      homePage.LogOutviaAPI();
-      featureFlagIntercept({
-        ab_show_templates_instead_of_blank_canvas_enabled: true,
-        ab_create_new_apps_enabled: true,
-      });
+      homePage.Signout(true);
+      featureFlagIntercept(
+        {
+          ab_show_templates_instead_of_blank_canvas_enabled: true,
+          ab_create_new_apps_enabled: true,
+        },
+        false,
+      );
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
-        onboarding.closeIntroModal();
       });
       agHelper.GetNClick(onboarding.locators.startFromScratchCard);
-
-      agHelper.GetNClick(FirstTimeUserOnboardingLocators.introModalCloseBtn);
-
+      onboarding.closeIntroModal();
       featureFlagIntercept({
         ab_show_templates_instead_of_blank_canvas_enabled: true,
       });
@@ -56,6 +55,7 @@ describe(
         .first()
         .prev()
         .should("have.text", "Building Blocks");
+      agHelper.GetNClick(template.closeButton);
     });
 
     it("2. `Connect your data` pop up should come up when we fork a building block from canvas.", function () {

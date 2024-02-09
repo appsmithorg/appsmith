@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce.params;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import org.springframework.data.domain.Sort;
@@ -29,6 +30,12 @@ public class QueryAllParams<T extends BaseDomain> {
     private int limit = NO_RECORD_LIMIT;
     private int skip = NO_SKIP;
 
+    /**
+     * When this flag is true, permission checks will include the affects of anonymous user permissions. This is the
+     * default and very-usually, what we want. When it's false, we are only checking for the permissions of the user.
+     */
+    private boolean includeAnonymousUserPermissions = true;
+
     public QueryAllParams(BaseAppsmithRepositoryCEImpl<T> repo) {
         this.repo = repo;
     }
@@ -45,6 +52,10 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.queryFirstExecute(this);
     }
 
+    public Mono<Long> count() {
+        return repo.countExecute(this);
+    }
+
     public QueryAllParams<T> criteria(Criteria... criteria) {
         if (criteria == null) {
             return this;
@@ -58,6 +69,11 @@ public class QueryAllParams<T extends BaseDomain> {
         }
         this.criteria.addAll(criterias);
         return this;
+    }
+
+    public QueryAllParams<T> byId(String id) {
+        final Criteria w = Criteria.where(FieldName.ID);
+        return criteria(id == null ? w.isNull() : w.is(id));
     }
 
     public QueryAllParams<T> fields(String... fields) {
@@ -94,6 +110,11 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public QueryAllParams<T> skip(int skip) {
         this.skip = skip;
+        return this;
+    }
+
+    public QueryAllParams<T> includeAnonymousUserPermissions(boolean value) {
+        includeAnonymousUserPermissions = value;
         return this;
     }
 }

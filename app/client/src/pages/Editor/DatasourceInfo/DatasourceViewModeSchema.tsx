@@ -253,6 +253,7 @@ const DatasourceViewModeSchema = (props: Props) => {
               context={DatasourceStructureContext.DATASOURCE_VIEW_MODE}
               customEditDatasourceFn={customEditDatasourceFn}
               datasourceId={props.datasource.id}
+              datasourceName={props.datasource.name}
               datasourceStructure={datasourceStructure}
               onEntityTableClick={onEntityTableClick}
               step={0}

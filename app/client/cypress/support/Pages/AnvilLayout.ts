@@ -55,8 +55,6 @@ export class AnvilLayout {
           // to activate ANVIL canvas
           .trigger("mousemove", left + xPos, top + yPos, {
             eventConstructor: "MouseEvent",
-            clientX: left + xPos,
-            clientY: top + yPos,
             force: true,
           });
         this.agHelper.Sleep(200);
