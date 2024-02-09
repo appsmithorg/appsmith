@@ -8,7 +8,6 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
@@ -38,7 +37,7 @@ public class SeedMongoData {
     @Bean
     ApplicationRunner init(
             UserRepositoryCake userRepository,
-            UserRepository userRepositoryDirect,
+            UserRepositoryCake userRepositoryDirect,
             WorkspaceRepositoryCake workspaceRepository,
             PluginRepositoryCake pluginRepository,
             TenantRepositoryCake tenantRepository,

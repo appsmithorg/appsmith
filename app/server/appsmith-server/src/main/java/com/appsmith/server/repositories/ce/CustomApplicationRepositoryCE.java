@@ -91,4 +91,10 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Optional<UpdateResult> protectBranchedApplications(
             String applicationId, List<String> branchNames, AclPermission permission);
+
+    Optional<Application> findByBranchNameAndDefaultApplicationId(
+            String branchName,
+            String defaultApplicationId,
+            List<String> projectionFieldNames,
+            AclPermission aclPermission);
 }

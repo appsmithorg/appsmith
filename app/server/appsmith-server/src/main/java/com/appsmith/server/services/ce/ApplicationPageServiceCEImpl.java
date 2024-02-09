@@ -530,7 +530,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         log.debug("Archiving application with id: {}", id);
 
         Mono<Application> applicationMono = applicationRepository
-                .findById(id /*, applicationPermission.getDeletePermission()*/)
+                .findById(id, applicationPermission.getDeletePermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .cache();

@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
@@ -39,13 +40,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        throw new ex.Marker("findByApplicationId"); /*
-        Criteria applicationIdCriteria =
-                where("applicationId").is(applicationId);
         return queryBuilder()
-                .criteria(applicationIdCriteria)
+                .spec(Bridge.conditioner().eq("applicationId", applicationId))
                 .permission(aclPermission)
-                .all();*/
+                .all();
     }
 
     @Override

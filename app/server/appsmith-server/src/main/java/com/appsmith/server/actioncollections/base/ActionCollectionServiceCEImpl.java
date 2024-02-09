@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -456,9 +457,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(
             String applicationId, AclPermission permission) {
-        return Mono.error(new ex.Marker("archiveActionCollectionByApplicationId")); /*
-        return Mono.justOrEmpty(repository
-                .findByApplicationId(applicationId, permission, null))
+        return repository
+                .findByApplicationId(applicationId, permission, null)
                 .flatMap(actionCollection -> {
                     Set<String> actionIds = new HashSet<>();
                     actionIds.addAll(actionCollection
@@ -481,7 +481,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                             })
                             .then(repository.archive(actionCollection));
                 })
-                .collectList();*/
+                .collectList();
     }
 
     @Override

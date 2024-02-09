@@ -1,11 +1,13 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.helpers.bridge.Bridge;
+import com.appsmith.server.helpers.bridge.Update;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -26,6 +28,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -309,18 +312,25 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
+    @Modifying
+    @Transactional
     public Optional<UpdateResult> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        throw new ex.Marker("setAppTheme"); /*
-        Update updateObj = new Update();
+        final Update update = Bridge.update();
+
         if (StringUtils.hasLength(editModeThemeId)) {
-            updateObj = updateObj.set("editModeThemeId", editModeThemeId);
+            update.set(fieldName(QApplication.application.editModeThemeId), editModeThemeId);
         }
         if (StringUtils.hasLength(publishedModeThemeId)) {
-            updateObj = updateObj.set("publishedModeThemeId", publishedModeThemeId);
+            update.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
         }
 
-        return this.updateById(applicationId, updateObj, aclPermission);*/
+        int count = queryBuilder()
+                .spec(Bridge.conditioner().eq(FieldName.ID, applicationId))
+                .permission(aclPermission)
+                .update2(update);
+
+        return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
     }
 
     @Override
@@ -420,5 +430,18 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Update setProtected = new Update().set(isProtectedFieldPath, true);
 
         return updateByCriteria(List.of(defaultApplicationIdCriteria, branchMatchCriteria), setProtected, permission);*/
+    }
+
+    @Override
+    public Optional<Application> findByBranchNameAndDefaultApplicationId(
+            String branchName,
+            String defaultApplicationId,
+            List<String> projectionFieldNames,
+            AclPermission aclPermission) {
+        return queryBuilder()
+                .byId(defaultApplicationId)
+                .fields(projectionFieldNames)
+                .permission(aclPermission)
+                .one();
     }
 }

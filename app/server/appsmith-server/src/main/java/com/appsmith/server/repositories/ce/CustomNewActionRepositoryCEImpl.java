@@ -7,26 +7,23 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
-import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -558,16 +555,34 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    @Modifying
+    @Transactional
     public Optional<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
-        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
+        // *
+        var em = getEntityManager();
+        var cb = em.getCriteriaBuilder();
+        var cu = cb.createCriteriaUpdate(genericDomain);
+        var root = cu.from(genericDomain);
 
-        queryBuilder()
+        cu.where(cb.equal(root.get(fieldName(QNewAction.newAction.applicationId)), applicationId));
+        cu.<Object>set(
+                root.get(fieldName(QNewAction.newAction.publishedAction)),
+                root.get(fieldName(QNewAction.newAction.unpublishedAction)));
+        int count = em.createQuery(cu).executeUpdate(); // */
+
+        /*
+        int count = queryBuilder()
                 .permission(permission)
                 .spec(Bridge.conditioner().eq(fieldName(QNewAction.newAction.applicationId), applicationId))
-                .update(Bridge.update()
+                .update2(Bridge.update()
                         .set(
                                 fieldName(QNewAction.newAction.publishedAction),
-                                fieldName(QNewAction.newAction.unpublishedAction)));
+                                fieldName(QNewAction.newAction.unpublishedAction))); // */
+
+        return Optional.of(List.of(BulkWriteResult.unacknowledged())); // */
+
+        /*
+        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
 
         Optional<Set<String>> permissionGroupsMono =
                 Optional.of(getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission)));
@@ -599,7 +614,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                             .subscribeOn(Schedulers.boundedElastic())
                             .blockOptional();
                 })
-                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
+                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));//*/
     }
 
     @Override

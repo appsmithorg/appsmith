@@ -866,14 +866,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             String defaultApplicationId,
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
-        return Mono.error(new ex.Marker("findByBranchNameAndDefaultApplicationId")); /*
         if (StringUtils.isEmpty(branchName)) {
             return repository
-                    .queryBuilder()
-                    .byId(defaultApplicationId)
-                    .fields(projectionFieldNames)
-                    .permission(aclPermission)
-                    .one()
+                    .findByBranchNameAndDefaultApplicationId(
+                            branchName, defaultApplicationId, projectionFieldNames, aclPermission)
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
         }
@@ -883,7 +879,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
-                        defaultApplicationId + "," + branchName)));*/
+                        defaultApplicationId + "," + branchName)));
     }
 
     @Override

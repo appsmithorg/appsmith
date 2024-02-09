@@ -57,6 +57,10 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.updateExecute(this, update);
     }
 
+    public Integer update2(Update update) {
+        return repo.updateExecute2(this, update);
+    }
+
     public QueryAllParams<T> criteria(Criteria... criteria) {
         if (criteria == null) {
             return this;
