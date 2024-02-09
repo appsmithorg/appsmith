@@ -205,6 +205,7 @@ function WidgetsEditor() {
             onDragStart={onDragStart}
             style={{
               fontFamily: fontFamily,
+              contain: "layout",
             }}
           >
             {showNavigation()}
