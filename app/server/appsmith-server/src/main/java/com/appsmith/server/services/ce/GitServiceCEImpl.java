@@ -2716,7 +2716,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application -> applicationPageService.publish(application.getId(), false))
                 // Add un-configured datasource to the list to response
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getId(), application.getWorkspaceId(), application, APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 // Add analytics event
                 .flatMap(applicationImportDTO -> {
