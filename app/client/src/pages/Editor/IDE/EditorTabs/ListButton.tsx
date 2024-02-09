@@ -9,6 +9,7 @@ import {
   MenuTrigger,
   Text,
 } from "design-system";
+import { ListIconContainer, TabTextContainer } from "./StyledComponents";
 
 interface Props {
   items: EntityItem[];
@@ -16,7 +17,11 @@ interface Props {
 }
 
 const ListButton = (props: Props) => {
+  const { items, navigateToTab } = props;
   const [isOpen, setOpen] = useState(false);
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <Menu onOpenChange={setOpen} open={isOpen}>
@@ -26,24 +31,25 @@ const ListButton = (props: Props) => {
           kind="tertiary"
           onClick={() => setOpen(true)}
         >
-          <Text kind="action-m">{props.items.length}</Text>
+          <Text kind="action-m">{items.length}</Text>
         </Button>
       </MenuTrigger>
       <MenuContent
-        align={"start"}
+        align={"end"}
         data-testId={"t--page-selection"}
-        height={props.items.length <= 6 ? "fit-content" : "186px"}
+        height={items.length <= 6 ? "fit-content" : "186px"}
         side={"bottom"}
       >
-        {props.items.map((item) => (
-          <MenuItem key={item.key} onClick={() => props.navigateToTab(item)}>
+        {items.map((item) => (
+          <MenuItem key={item.key} onClick={() => navigateToTab(item)}>
             <Flex
               alignItems="center"
               className={"text-ellipsis whitespace-nowrap overflow-hidden"}
-              gap="spaces-4"
+              gap="spaces-2"
+              width="10rem"
             >
-              {item.icon}
-              <Text>{item.title}</Text>
+              <ListIconContainer>{item.icon}</ListIconContainer>
+              <TabTextContainer>{item.title}</TabTextContainer>
             </Flex>
           </MenuItem>
         ))}

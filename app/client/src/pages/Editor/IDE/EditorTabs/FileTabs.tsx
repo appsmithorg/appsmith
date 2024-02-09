@@ -1,9 +1,13 @@
 import React from "react";
-import { Flex } from "design-system";
+import { Flex, Tooltip } from "design-system";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
 import clsx from "classnames";
-import { StyledTab } from "./StyledComponents";
+import {
+  StyledTab,
+  TabIconContainer,
+  TabTextContainer,
+} from "./StyledComponents";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 
 interface Props {
@@ -29,7 +33,10 @@ const FileTabs = (props: Props) => {
           key={tab.key}
           onClick={() => navigateToTab(tab)}
         >
-          {tab.title}
+          <TabIconContainer>{tab.icon}</TabIconContainer>
+          <Tooltip content={tab.title} mouseEnterDelay={1}>
+            <TabTextContainer>{tab.title}</TabTextContainer>
+          </Tooltip>
         </StyledTab>
       ))}
     </Flex>

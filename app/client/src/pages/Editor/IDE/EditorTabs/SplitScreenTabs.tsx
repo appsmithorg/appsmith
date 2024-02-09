@@ -31,7 +31,7 @@ const SplitScreenTabs = () => {
     if (segmentMode === EditorEntityTabState.Add) return;
     if (segment === EditorEntityTab.JS) onJSAddClick();
     if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
-  }, [segment, segmentMode]);
+  }, [segment, segmentMode, onQueryAddClick, onJSAddClick]);
 
   const tabsConfig = TabSelectors[segment];
   const pageId = useSelector(getCurrentPageId);
