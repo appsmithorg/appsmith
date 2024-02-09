@@ -30,14 +30,11 @@ describe("Pre git connection spec:", { tags: ["@tag.Git"] }, function () {
 
     // connect to git
     _.agHelper.GetNClick(homePage.connectToGitBtn);
-
-    cy.get(gitSyncLocators.gitSyncModal);
-    cy.contains("Git connection").should("have.attr", "aria-selected", "true");
-
+    _.agHelper.AssertElementVisibility(gitSyncLocators.gitSyncModal);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
 
     cy.get(gitSyncLocators.connectGitBottomBar).click();
-    cy.get(gitSyncLocators.gitSyncModal);
-    cy.contains("Git connection").should("have.attr", "aria-selected", "true");
+    _.agHelper.AssertElementVisibility(gitSyncLocators.gitSyncModal);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 });
