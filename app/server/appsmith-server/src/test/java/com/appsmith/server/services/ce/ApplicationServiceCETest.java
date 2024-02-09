@@ -45,11 +45,11 @@ import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -152,6 +152,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
@@ -234,10 +235,10 @@ public class ApplicationServiceCETest {
     PluginRepository pluginRepository;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @Autowired
     ThemeService themeService;
@@ -351,12 +352,14 @@ public class ApplicationServiceCETest {
                 .block();
 
         // Assign the branchName to all the resources connected to the application
-        ApplicationJson gitConnectedApplicationJson = exportApplicationService
-                .exportApplicationById(newGitConnectedApp.getId(), gitData.getBranchName())
+        ApplicationJson gitConnectedApplicationJson = exportService
+                .exportByArtifactIdAndBranchName(newGitConnectedApp.getId(), gitData.getBranchName(), APPLICATION)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .block();
-        gitConnectedApp = importApplicationService
-                .importApplicationInWorkspaceFromGit(
-                        workspaceId, gitConnectedApplicationJson, newGitConnectedApp.getId(), gitData.getBranchName())
+        gitConnectedApp = importService
+                .importArtifactInWorkspaceFromGit(
+                        workspaceId, newGitConnectedApp.getId(), gitConnectedApplicationJson, gitData.getBranchName())
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         testPlugin = pluginService.findByPackageName("restapi-plugin").block();
@@ -4055,10 +4058,12 @@ public class ApplicationServiceCETest {
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService
                 .createApplication(testApplication)
-                .flatMap(application1 -> exportApplicationService
-                        .exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
-                        .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                                workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
+                .flatMap(application1 -> exportService
+                        .exportByArtifactIdAndBranchName(gitConnectedApp.getId(), gitData.getBranchName(), APPLICATION)
+                        .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
+                        .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
+                                workspaceId, application1.getId(), applicationJson, gitData.getBranchName())))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         Mono<Application> getApplication = applicationService.findByIdAndBranchName(gitConnectedApp.getId(), "release");

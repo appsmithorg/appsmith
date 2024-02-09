@@ -1,9 +1,12 @@
 import { LICENSE_FEATURE_FLAGS } from "../Constants";
+import { ObjectsRegistry } from "./Registry";
 import produce from "immer";
+
 export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
 ) => {
+  getConsolidatedDataApi(flags, false);
   const response = {
     responseMeta: {
       status: 200,
@@ -19,9 +22,20 @@ export const featureFlagIntercept = (
   };
   cy.intercept("GET", "/api/v1/users/features", response);
 
+  if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
+};
+
+export const getConsolidatedDataApi = (
+  flags: Record<string, boolean> = {},
+  reload = true,
+) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
-      if (res.statusCode === 200) {
+      if (
+        res.statusCode === 200 ||
+        res.statusCode === 401 ||
+        res.statusCode === 500
+      ) {
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {
           draft.data.featureFlags.data = { ...flags };
@@ -37,20 +51,7 @@ export const featureFlagIntercept = (
       }
     });
   }).as("getConsolidatedData");
-
-  if (reload) {
-    cy.reload();
-    cy.waitUntil(() =>
-      cy.document().should((doc) => {
-        expect(doc.readyState).to.equal("complete");
-      }),
-    );
-    cy.waitUntil(() =>
-      cy
-        .window({ timeout: Cypress.config().pageLoadTimeout })
-        .then((win) => expect(win).haveOwnProperty("onload")),
-    );
-  }
+  if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
 };
 
 export const featureFlagInterceptForLicenseFlags = () => {
@@ -111,6 +112,5 @@ export const featureFlagInterceptForLicenseFlags = () => {
     });
   }).as("getConsolidatedData");
 
-  cy.reload();
-  cy.wait(2000); //for the page to re-load finish for CI runs
+  ObjectsRegistry.AggregateHelper.CypressReload();
 };

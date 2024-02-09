@@ -174,6 +174,7 @@ import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlags
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { executeGoogleApi } from "./loadGoogleApi";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -2029,6 +2030,7 @@ function* loadFilePickerSaga() {
   // This adds overlay on document body
   // This is done for google sheets file picker, as file picker needs to be shown on blank page
   // when overlay needs to be shown, we get showPicker search param in redirect url
+  yield executeGoogleApi();
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
   const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);

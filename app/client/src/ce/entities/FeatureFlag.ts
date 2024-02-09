@@ -11,10 +11,8 @@ export const FEATURE_FLAG = {
   release_table_serverside_filtering_enabled:
     "release_table_serverside_filtering_enabled",
   license_branding_enabled: "license_branding_enabled",
-  release_git_status_lite_enabled: "release_git_status_lite_enabled",
   license_sso_saml_enabled: "license_sso_saml_enabled",
   license_sso_oidc_enabled: "license_sso_oidc_enabled",
-  release_git_connect_v2_enabled: "release_git_connect_v2_enabled",
   license_private_embeds_enabled: "license_private_embeds_enabled",
   release_show_publish_app_to_community_enabled:
     "release_show_publish_app_to_community_enabled",
@@ -65,10 +63,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_wds_enabled: true,
   release_table_serverside_filtering_enabled: false,
   license_branding_enabled: false,
-  release_git_status_lite_enabled: false,
   license_sso_saml_enabled: false,
   license_sso_oidc_enabled: false,
-  release_git_connect_v2_enabled: false,
   license_private_embeds_enabled: false,
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
