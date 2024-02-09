@@ -4,13 +4,18 @@ import classNames from "classnames";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { Navigation } from "pages/AppViewer/Navigation";
+import { useCurrentAppState } from "../IDE/hooks";
+import { EditorState } from "@appsmith/entities/IDE/constants";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 const NavigationPreview = forwardRef(
-  (
-    props: { isAppSettingsPaneWithNavigationTabOpen?: boolean },
-    ref: LegacyRef<HTMLDivElement> | undefined,
-  ) => {
-    const { isAppSettingsPaneWithNavigationTabOpen } = props;
+  (props: unknown, ref: LegacyRef<HTMLDivElement> | undefined) => {
+    const isNavigationSelectedInSettings = useSelector(
+      getIsAppSettingsPaneWithNavigationTabOpen,
+    );
+    const appState = useCurrentAppState();
+    const isAppSettingsPaneWithNavigationTabOpen =
+      appState === EditorState.SETTINGS && isNavigationSelectedInSettings;
     const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
     return (
