@@ -33,6 +33,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
 import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
+import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
 import com.appsmith.server.plugins.base.PluginService;
@@ -90,6 +91,9 @@ class CrudModuleServiceTest {
 
     @Autowired
     PackagePermissionChecker packagePermissionChecker;
+
+    @Autowired
+    ModulePermission modulePermission;
 
     @Autowired
     CrudPackageService crudPackageService;
@@ -676,8 +680,9 @@ class CrudModuleServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<List<Module>> allModulesMono =
-                crudModuleService.getAllModules(packageId.get()).collectList();
+        Mono<List<Module>> allModulesMono = crudModuleService
+                .getAllModules(packageId.get(), modulePermission.getReadPermission())
+                .collectList();
 
         StepVerifier.create(allModulesMono)
                 .assertNext(allModules -> {
@@ -765,8 +770,9 @@ class CrudModuleServiceTest {
                 })
                 .verify();
 
-        Mono<List<Module>> allModulesMono =
-                crudModuleService.getAllModules(packageId.get()).collectList();
+        Mono<List<Module>> allModulesMono = crudModuleService
+                .getAllModules(packageId.get(), modulePermission.getReadPermission())
+                .collectList();
 
         StepVerifier.create(allModulesMono)
                 .assertNext(allModules -> {

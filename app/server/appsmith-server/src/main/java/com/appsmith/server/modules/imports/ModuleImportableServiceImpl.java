@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
@@ -25,6 +26,7 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
 
     private final CrudPackageService crudPackageService;
     private final CrudModuleService crudModuleService;
+    private final ModulePermission modulePermission;
 
     @Override
     public Mono<Void> importEntities(
@@ -55,10 +57,10 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
         return crudPackageService
                 .getAllPublishedPackagesByUniqueRef(importingMetaDTO.getWorkspaceId(), moduleList)
                 .flatMap(aPackage -> {
-                    // TODO: What happens if this instance has also created a package from this unique ref ,
+                    // TODO: What happens if this instance has also created a package from this unique ref,
                     //  and has reached this version, but with a separate interface/definition ?
                     return crudModuleService
-                            .getAllModules(aPackage.getId())
+                            .getAllModules(aPackage.getId(), modulePermission.getReadPermission())
                             .doOnNext(module -> {
                                 moduleUUIDToModuleMap.put(module.getModuleUUID(), module);
                             })

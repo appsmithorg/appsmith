@@ -47,6 +47,12 @@ public class PackagePermissionImpl implements PackagePermission {
 
     @Override
     public AclPermission getExportPermission(boolean isGitSync, boolean exportWithConfiguration) {
-        return null;
+        // Check permissions depending upon the serialization objective:
+        // Git-sync => Edit permission
+        // Share package
+        //      : Normal package => Export permission
+        //      : Sample package where datasource config needs to be shared => Read permission
+        // If Git-sync, then use edit permissions, else use EXPORT_PACKAGE permission to fetch package
+        return isGitSync ? getEditPermission() : getExportPermission();
     }
 }

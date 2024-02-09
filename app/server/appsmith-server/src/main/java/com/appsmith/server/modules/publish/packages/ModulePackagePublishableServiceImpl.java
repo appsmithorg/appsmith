@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Module;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackagePublishingMetaDTO;
 import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,12 @@ import java.util.stream.Collectors;
 @Service
 public class ModulePackagePublishableServiceImpl implements PackagePublishableService<Module> {
     private final CrudModuleService crudModuleService;
+    private final ModulePermission modulePermission;
 
     @Override
     public Mono<List<Module>> publishEntities(PackagePublishingMetaDTO publishingMetaDTO) {
         Mono<List<Module>> sourceModuleListMono = crudModuleService
-                .getAllModules(publishingMetaDTO.getOriginPackageId())
+                .getAllModules(publishingMetaDTO.getOriginPackageId(), modulePermission.getReadPermission())
                 .collectList();
 
         return sourceModuleListMono.flatMap(sourceModules -> {

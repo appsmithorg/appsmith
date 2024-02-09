@@ -13,7 +13,7 @@ import java.util.List;
 public interface CrudModuleService extends BaseModuleService, CrudModuleServiceCECompatible {
     Mono<List<ModuleDTO>> getAllModuleDTOs(String packageId, ResourceModes resourceMode);
 
-    Flux<Module> getAllModules(String packageId);
+    Flux<Module> getAllModules(String packageId, AclPermission aclPermission);
 
     Mono<ModuleDTO> createModule(ModuleDTO moduleDTO);
 

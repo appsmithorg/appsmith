@@ -116,7 +116,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     @Override
     public Mono<List<ModuleDTO>> getAllModuleDTOs(String packageId, ResourceModes resourceMode) {
-        return getAllModules(packageId)
+        return getAllModules(packageId, modulePermission.getReadPermission())
                 .flatMap(module -> {
                     ModuleDTO moduleDTO;
                     if (resourceMode.equals(ResourceModes.EDIT)) {
@@ -172,8 +172,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     }
 
     @Override
-    public Flux<Module> getAllModules(String packageId) {
-        return repository.getAllModulesByPackageId(packageId, modulePermission.getReadPermission());
+    public Flux<Module> getAllModules(String packageId, AclPermission aclPermission) {
+        return repository.getAllModulesByPackageId(packageId, aclPermission);
     }
 
     @Override
