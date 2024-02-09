@@ -501,7 +501,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "admin@solutiontest.com")
+    @WithUserDetails(value = "api_user")
     public void forkingEnabledPublicApp_noPermission_ForkApplicationSuccess() {
         Workspace targetWorkspace = new Workspace();
         targetWorkspace.setName("Target Workspace");
