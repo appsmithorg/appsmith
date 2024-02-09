@@ -68,10 +68,7 @@ describe(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
       );
-      cy.get(homePageLocators.searchInput).clear().type(appName);
-      cy.wait(2000);
-      cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
-      cy.get(homePageLocators.appEditIcon).click();
+      homePage.SearchAndOpenApp(appName);
       cy.wait(2000);
       gitSync.CreateGitBranch(childBranch);
       // verify user is able to create JSObject
@@ -152,11 +149,8 @@ describe(
     it("5. Login as test user, create new branch and verify given permission on new and old branch ", function () {
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
       featureFlagIntercept({ license_gac_enabled: true });
+      homePage.SearchAndOpenApp(appName);
       cy.wait(2000);
-      cy.get(homePageLocators.searchInput).clear().type(appName);
-      cy.wait(2000);
-      cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
-      cy.get(homePageLocators.appEditIcon).click();
       cy.switchGitBranch(childBranch);
       cy.get(explorer.AddPage).should("not.exist");
       cy.get(explorer.addDBQueryEntity).should("not.exist");

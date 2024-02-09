@@ -130,5 +130,9 @@ export default function* workspaceSagas() {
       ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
       searchWorkspaceEntitiesSaga,
     ),
+    takeLatest(
+      ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
+      fetchInviteGroupsSuggestionsSaga,
+    ),
   ]);
 }
