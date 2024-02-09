@@ -68,6 +68,9 @@ const ideReducer = createReducer(initialState, {
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
   },
+  [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: () => {
+    return klona(initialState);
+  },
 });
 
 export interface IDEState {
