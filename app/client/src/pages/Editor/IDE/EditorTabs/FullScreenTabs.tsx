@@ -45,10 +45,11 @@ const FullScreenTabs = () => {
     <Container>
       <FileTabs navigateToTab={onClick} tabs={files} />
       <Button
+        id="editor-mode-minimize"
         isIconButton
         kind="tertiary"
         onClick={setSplitScreenMode}
-        startIcon="icon-align-left"
+        startIcon="minimize"
       />
     </Container>
   );

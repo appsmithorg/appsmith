@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
+import { Button } from "design-system";
+
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { Button } from "design-system";
 import Container from "./Container";
 import { useCurrentEditorState } from "../hooks";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";

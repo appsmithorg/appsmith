@@ -71,7 +71,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -329,7 +328,6 @@ public class ExportServiceTests {
     }
 
     @Test
-    @Disabled
     @WithUserDetails(value = "api_user")
     public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
         Mono<ApplicationJson> resultMono = exportService
@@ -341,7 +339,7 @@ public class ExportServiceTests {
                         && throwable
                                 .getMessage()
                                 .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                        FieldName.APPLICATION_ID, "invalidAppId")))
+                                        FieldName.APPLICATION, "invalidAppId")))
                 .verify();
     }
 
@@ -1269,7 +1267,6 @@ public class ExportServiceTests {
      * Test to check if the application can be exported with read only access if this is sample application
      */
     @Test
-    @Disabled
     @WithUserDetails(value = "usertest@usertest.com")
     public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
         Mono<ApplicationJson> exportApplicationMono = exportService
