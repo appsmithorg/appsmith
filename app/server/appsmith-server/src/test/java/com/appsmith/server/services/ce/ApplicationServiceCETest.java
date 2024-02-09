@@ -2783,7 +2783,7 @@ public class ApplicationServiceCETest {
 
         StepVerifier.create(forkedApp)
                 .assertNext(application1 -> {
-                    assertThat(application1.getPages().size()).isEqualTo(2);
+                    assertThat(application1.getPages()).hasSize(2);
                 })
                 .verifyComplete();
     }
@@ -3019,10 +3019,10 @@ public class ApplicationServiceCETest {
                     List<NewPage> pages = tuple.getT2();
 
                     assertThat(application).isNotNull();
-                    assertThat(application.getPages().size()).isEqualTo(1);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPublishedPages()).hasSize(1);
 
-                    assertThat(pages.size()).isEqualTo(1);
+                    assertThat(pages).hasSize(1);
                     NewPage newPage = pages.get(0);
                     assertThat(newPage.getUnpublishedPage().getName())
                             .isEqualTo(newPage.getPublishedPage().getName());
@@ -3144,7 +3144,7 @@ public class ApplicationServiceCETest {
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(1);
+                    assertThat(editedApplicationPages).hasSize(1);
                     assertThat(editedApplicationPages).doesNotContain(applicationPage);
                 })
                 .verifyComplete();
@@ -3188,7 +3188,7 @@ public class ApplicationServiceCETest {
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(1);
+                    assertThat(editedApplicationPages).hasSize(1);
                     assertThat(editedApplicationPages).doesNotContain(applicationPage);
                 })
                 .verifyComplete();
@@ -3249,7 +3249,7 @@ public class ApplicationServiceCETest {
                     assertThat(isFound).isTrue();
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(2);
+                    assertThat(editedApplicationPages).hasSize(2);
                     isFound = false;
                     for (ApplicationPage page : editedApplicationPages) {
                         if (page.getId().equals(unpublishedEditedPage.getId())
@@ -3310,7 +3310,7 @@ public class ApplicationServiceCETest {
         StepVerifier.create(viewModeApplicationMono)
                 .assertNext(viewApplication -> {
                     List<ApplicationPage> editedApplicationPages = viewApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(2);
+                    assertThat(editedApplicationPages).hasSize(2);
                     boolean isFound = false;
                     for (ApplicationPage page : editedApplicationPages) {
                         if (page.getId().equals(applicationPage.getId())
@@ -3457,7 +3457,7 @@ public class ApplicationServiceCETest {
 
                     assertThat(cloneApp).isNotNull();
                     assertThat(pages.get(0).getId()).isNotEqualTo(pageId);
-                    assertThat(actions.size()).isEqualTo(4);
+                    assertThat(actions).hasSize(4);
                     Set<String> actionNames = actions.stream()
                             .map(action -> action.getUnpublishedAction().getName())
                             .collect(Collectors.toSet());
@@ -3467,7 +3467,7 @@ public class ApplicationServiceCETest {
                                     "Clone App Test action2",
                                     "Clone App Test action3",
                                     "jsFunc");
-                    assertThat(actionCollections.size()).isEqualTo(1);
+                    assertThat(actionCollections).hasSize(1);
                     Set<String> actionCollectionNames = actionCollections.stream()
                             .map(actionCollection ->
                                     actionCollection.getUnpublishedCollection().getName())
@@ -3550,7 +3550,7 @@ public class ApplicationServiceCETest {
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
-                    assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+                    assertThat(applicationPagesDTO.getPages()).hasSize(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream()
                             .map(pageNameIdDTO -> pageNameIdDTO.getName())
                             .collect(Collectors.toList());

@@ -8,6 +8,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import type { AppThemeProperties } from "entities/AppTheming";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export default function Preview({ width }: { width: number }) {
   const {
@@ -72,6 +73,7 @@ export default function Preview({ width }: { width: number }) {
   return (
     <div ref={containerRef}>
       <CustomComponent
+        dynamicHeight={DynamicHeight.FIXED}
         execute={(name, contextObject) => {
           toast.show(
             `${createMessage(
@@ -94,6 +96,7 @@ export default function Preview({ width }: { width: number }) {
         }}
         height={dimensions.height}
         key={key}
+        minDynamicHeight={0}
         model={model || {}}
         onConsole={(type, args) => {
           updateDebuggerLogs?.({

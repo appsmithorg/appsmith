@@ -2,6 +2,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.helpers.ce.GitFileUtilsCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -15,13 +16,13 @@ import org.springframework.stereotype.Component;
 @Component
 @Import({FileUtilsImpl.class})
 public class GitFileUtils extends GitFileUtilsCE {
-
     public GitFileUtils(
             FileInterface fileUtils,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             NewActionService newActionService,
+            ActionCollectionService actionCollectionService,
             Gson gson) {
-        super(fileUtils, analyticsService, sessionUserService, newActionService, gson);
+        super(fileUtils, analyticsService, sessionUserService, newActionService, actionCollectionService, gson);
     }
 }

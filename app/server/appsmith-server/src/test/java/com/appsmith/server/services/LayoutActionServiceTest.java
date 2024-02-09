@@ -472,7 +472,7 @@ public class LayoutActionServiceTest {
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
                     List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
-                    assertThat(actionUpdates.size()).isEqualTo(1);
+                    assertThat(actionUpdates).hasSize(1);
                     assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
                     assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
                 })
@@ -509,7 +509,7 @@ public class LayoutActionServiceTest {
                     assertThat(actionDTO.getName()).isEqualTo("secondAction");
 
                     List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
-                    assertThat(actionUpdates.size()).isEqualTo(2);
+                    assertThat(actionUpdates).hasSize(2);
 
                     Optional<LayoutExecutableUpdateDTO> firstActionUpdateOptional = actionUpdates.stream()
                             .filter(actionUpdate -> actionUpdate.getName().equals("firstAction"))
@@ -747,7 +747,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO = updatedLayout
@@ -865,7 +865,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that all three the actions dont belong to the same set
                     final Set<DslExecutableDTO> firstSet =
@@ -958,7 +958,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     DslExecutableDTO actionDTO = updatedLayout
                             .getLayoutOnLoadActions()
@@ -1132,7 +1132,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO1 = updatedLayout
@@ -1204,7 +1204,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO1 = updatedLayout
