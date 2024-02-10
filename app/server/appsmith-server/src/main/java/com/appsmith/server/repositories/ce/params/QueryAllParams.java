@@ -63,11 +63,7 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.countExecute(this);
     }
 
-    public Mono<Integer> update(Update update) {
-        return repo.updateExecute(this, update);
-    }
-
-    public Integer update2(Update update) {
+    public Integer update(Update update) {
         return repo.updateExecute2(this, update);
     }
 

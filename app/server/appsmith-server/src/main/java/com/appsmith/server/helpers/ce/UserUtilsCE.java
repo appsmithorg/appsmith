@@ -22,7 +22,6 @@ import java.util.Set;
 
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 public class UserUtilsCE {
 
@@ -69,10 +68,7 @@ public class UserUtilsCE {
                     // Make Super User is called before the first administrator is created.
                     return permissionGroupRepository.updateById(
                             permissionGroup.getId(),
-                            Bridge.update()
-                                    .set(
-                                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds),
-                                            assignedToUserIds));
+                            Bridge.update().set(QPermissionGroup.permissionGroup.assignedToUserIds, assignedToUserIds));
                 })
                 .thenMany(Flux.fromIterable(users))
                 .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(

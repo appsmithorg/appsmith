@@ -7,6 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
@@ -23,7 +24,6 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Update;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -558,7 +558,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Modifying
     @Transactional
     public Optional<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
-        // *
+        /*
         var em = getEntityManager();
         var cb = em.getCriteriaBuilder();
         var cu = cb.createCriteriaUpdate(genericDomain);
@@ -570,14 +570,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 root.get(fieldName(QNewAction.newAction.unpublishedAction)));
         int count = em.createQuery(cu).executeUpdate(); // */
 
-        /*
+        // *
         int count = queryBuilder()
                 .permission(permission)
-                .spec(Bridge.conditioner().eq(fieldName(QNewAction.newAction.applicationId), applicationId))
-                .update2(Bridge.update()
-                        .set(
-                                fieldName(QNewAction.newAction.publishedAction),
-                                fieldName(QNewAction.newAction.unpublishedAction))); // */
+                .spec(Bridge.conditioner().equal(fieldName(QNewAction.newAction.applicationId), applicationId))
+                .update(Bridge.update()
+                        .set(QNewAction.newAction.publishedAction, QNewAction.newAction.unpublishedAction)); // */
 
         return Optional.of(List.of(BulkWriteResult.unacknowledged())); // */
 
@@ -618,18 +616,23 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    @Modifying
+    @Transactional
     public Optional<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
-        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
-        String unpublishedDeletedAtFieldName =
-                String.format("%s.%s", fieldName(QNewAction.newAction.unpublishedAction), "deletedAt");
-        Criteria deletedFromUnpublishedCriteria =
-                where(unpublishedDeletedAtFieldName).ne(null);
+        int count = queryBuilder()
+                // .spec(Bridge.conditioner().equal(fieldName(QNewAction.newAction.applicationId),
+                // applicationId).notEqual(unpublishedDeletedAtFieldName, null))
+                .spec((root, cq, cb) -> cb.and(
+                        cb.equal(root.get(fieldName(QNewAction.newAction.applicationId)), applicationId),
+                        cb.isNotNull(cb.function(
+                                "jsonb_extract_path_text",
+                                String.class,
+                                root.get(fieldName(QNewAction.newAction.unpublishedAction)),
+                                cb.literal(FieldName.DELETED_AT)))))
+                .permission(permission)
+                .update(Bridge.update().set(QNewAction.newAction.deletedAt, Instant.now()));
 
-        Update update = new Update();
-        update.set(FieldName.DELETED, true);
-        update.set(FieldName.DELETED_AT, Instant.now());
-        return updateByCriteria(List.of(applicationIdCriteria, deletedFromUnpublishedCriteria), update, permission)
-                .blockOptional();
+        return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
     }
 
     @Override

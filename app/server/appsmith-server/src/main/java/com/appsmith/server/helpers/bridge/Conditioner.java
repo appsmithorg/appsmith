@@ -17,7 +17,8 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
     private final List<Check> checks = new ArrayList<>();
 
     public enum Op {
-        EQ,
+        EQUAL,
+        NOT_EQUAL,
         EQ_IGNORE_CASE,
         IS_TRUE,
         IN,
@@ -34,8 +35,11 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         for (Check check : checks) {
             Predicate predicate;
 
-            if (Objects.requireNonNull(check.op) == Op.EQ) {
+            if (Objects.requireNonNull(check.op) == Op.EQUAL) {
                 predicate = cb.equal(root.get(check.key), cb.literal(check.value));
+
+            } else if (Objects.requireNonNull(check.op) == Op.NOT_EQUAL) {
+                predicate = cb.notEqual(root.get(check.key), cb.literal(check.value));
 
             } else if (check.op == Op.EQ_IGNORE_CASE) {
                 predicate = cb.equal(cb.lower(root.get(check.key)), cb.literal(((String) check.value).toLowerCase()));
@@ -67,8 +71,13 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         return cb.and(predicates.toArray(new Predicate[0]));
     }
 
-    public Conditioner<T> eq(String key, String value) {
-        checks.add(new Check(Op.EQ, key, value));
+    public Conditioner<T> equal(String key, String value) {
+        checks.add(new Check(Op.EQUAL, key, value));
+        return this;
+    }
+
+    public Conditioner<T> notEqual(String key, String value) {
+        checks.add(new Check(Op.NOT_EQUAL, key, value));
         return this;
     }
 

@@ -41,7 +41,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
-                .spec(Bridge.conditioner().eq("applicationId", applicationId))
+                .spec(Bridge.conditioner().equal("applicationId", applicationId))
                 .permission(aclPermission)
                 .all();
     }

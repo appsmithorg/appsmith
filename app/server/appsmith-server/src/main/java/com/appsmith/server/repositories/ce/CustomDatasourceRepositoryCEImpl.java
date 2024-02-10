@@ -56,8 +56,8 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     public Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
         return queryBuilder()
                 .spec(Bridge.conditioner()
-                        .eq(fieldName(QDatasource.datasource.name), name)
-                        .eq(fieldName(QDatasource.datasource.workspaceId), workspaceId))
+                        .equal(fieldName(QDatasource.datasource.name), name)
+                        .equal(fieldName(QDatasource.datasource.workspaceId), workspaceId))
                 .permission(aclPermission)
                 .one();
     }

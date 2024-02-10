@@ -77,7 +77,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Optional<Application> findByName(String name, AclPermission permission) {
         return queryBuilder()
-                .spec(Bridge.conditioner().eq("name", name))
+                .spec(Bridge.conditioner().equal("name", name))
                 .permission(permission)
                 .one();
     }
@@ -85,7 +85,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public List<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
         return queryBuilder()
-                .spec(Bridge.conditioner().eq(fieldName(QApplication.application.workspaceId), workspaceId))
+                .spec(Bridge.conditioner().equal(fieldName(QApplication.application.workspaceId), workspaceId))
                 .permission(permission)
                 .all();
     }
@@ -319,16 +319,16 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         final Update update = Bridge.update();
 
         if (StringUtils.hasLength(editModeThemeId)) {
-            update.set(fieldName(QApplication.application.editModeThemeId), editModeThemeId);
+            update.set(QApplication.application.editModeThemeId, editModeThemeId);
         }
         if (StringUtils.hasLength(publishedModeThemeId)) {
-            update.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
+            update.set(QApplication.application.publishedModeThemeId, publishedModeThemeId);
         }
 
         int count = queryBuilder()
-                .spec(Bridge.conditioner().eq(FieldName.ID, applicationId))
+                .spec(Bridge.conditioner().equal(FieldName.ID, applicationId))
                 .permission(aclPermission)
-                .update2(update);
+                .update(update);
 
         return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
     }

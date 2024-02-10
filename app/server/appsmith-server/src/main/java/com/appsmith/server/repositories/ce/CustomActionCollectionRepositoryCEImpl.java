@@ -35,7 +35,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
                 .spec(Bridge.conditioner()
-                        .eq(fieldName(QActionCollection.actionCollection.applicationId), applicationId))
+                        .equal(fieldName(QActionCollection.actionCollection.applicationId), applicationId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();

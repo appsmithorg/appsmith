@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GROUP;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepositoryCake, PermissionGroup, String>
@@ -246,9 +245,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     assignedToUserIds.removeAll(userIds);
 
                     Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
-                    updateObj.set(path, assignedToUserIds);
+                    updateObj.set(QPermissionGroup.permissionGroup.assignedToUserIds, assignedToUserIds);
 
                     Mono<UpdateResult> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
                     Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds));
@@ -413,9 +411,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     assignedToUserIds.remove(userId);
 
                     Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
-                    updateObj.set(path, assignedToUserIds);
+                    updateObj.set(QPermissionGroup.permissionGroup.assignedToUserIds, assignedToUserIds);
 
                     return repository
                             .updateById(permissionGroupId, updateObj)

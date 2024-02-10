@@ -5,7 +5,8 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.PageDTO;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,27 +17,22 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 @Entity
 public class NewPage extends BranchAwareDomain {
-    @ManyToOne
-    @JoinColumn(name = "application_id", referencedColumnName = "id")
     @JsonView(Views.Public.class)
-    private Application application;
-
-    @Column(name = "application_id", insertable = false, updatable = false)
-    private String applicationId;
+    String applicationId;
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
-    private PageDTO unpublishedPage;
+    PageDTO unpublishedPage;
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
-    private PageDTO publishedPage;
+    PageDTO publishedPage;
 
     @Override
     public void sanitiseToExportDBObject() {
-        this.setApplication(null);
+        this.setApplicationId(null);
         this.setId(null);
         if (this.getUnpublishedPage() != null) {
             this.getUnpublishedPage().sanitiseToExportDBObject();

@@ -583,7 +583,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         cu.where(predicate);
 
         for (com.appsmith.server.helpers.bridge.Update.SetOp op : update.getSetOps()) {
-            cu.set(op.key(), op.value());
+            Object value = op.value();
+            if (value instanceof Path<?> valuePath) {
+                value = root.get(fieldName(valuePath));
+            }
+
+            cu.set(root.get(fieldName(op.key())), value);
         }
 
         return em.createQuery(cu).executeUpdate();

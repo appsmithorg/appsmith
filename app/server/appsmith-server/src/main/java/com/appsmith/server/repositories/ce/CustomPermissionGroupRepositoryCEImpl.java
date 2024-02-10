@@ -94,7 +94,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                     // The type witness is needed here to pick the right overloaded signature of the set method.
                     // Without it, we see a compile error.
                     cu.<Object>set(
-                            root.get(entry.key()),
+                            root.get(fieldName(entry.key())),
                             cb.function(
                                     "json",
                                     Object.class,
@@ -103,7 +103,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                     throw new RuntimeException(e);
                 }
             } else {
-                cu.set(root.get(entry.key()), value);
+                cu.set(root.get(fieldName(entry.key())), value);
             }
         }
 
@@ -160,7 +160,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
         return queryBuilder()
                 .spec(Bridge.conditioner()
-                        .eq(
+                        .equal(
                                 fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
                                 Workspace.class.getSimpleName())
                         .in(fieldName(QPermissionGroup.permissionGroup.defaultDomainId), workspaceIds))

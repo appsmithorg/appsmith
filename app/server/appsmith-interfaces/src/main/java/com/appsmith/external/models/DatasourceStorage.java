@@ -3,10 +3,7 @@ package com.appsmith.external.models;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,14 +26,8 @@ import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATAS
 @Entity
 public class DatasourceStorage extends BaseDomain {
 
-    @Column(name = "datasource_id", insertable = false, updatable = false)
     @JsonView(Views.Public.class)
     String datasourceId;
-
-    @ManyToOne
-    @JoinColumn(name = "datasource_id", referencedColumnName = "id")
-    @JsonView(Views.Internal.class)
-    private Datasource datasource;
 
     @JsonView(Views.Public.class)
     String environmentId;
