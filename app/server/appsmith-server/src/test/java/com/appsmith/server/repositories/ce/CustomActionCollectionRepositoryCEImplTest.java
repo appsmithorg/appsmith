@@ -45,7 +45,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
                     actionCollections1.forEach(newAction -> {
                         newAction.setWorkspaceId("workspace-" + newAction.getId());
                     });
-                    return actionCollectionRepository.bulkUpdate(actionCollections1);
+                    return actionCollectionRepository.bulkUpdate(actionCollectionRepository, actionCollections1);
                 })
                 .thenMany(actionCollectionRepository.findByApplicationId(applicationId));
 

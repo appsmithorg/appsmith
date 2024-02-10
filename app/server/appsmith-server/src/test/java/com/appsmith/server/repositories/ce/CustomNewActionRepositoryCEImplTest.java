@@ -54,7 +54,7 @@ public class CustomNewActionRepositoryCEImplTest {
                     newActions.forEach(newAction -> {
                         newAction.setWorkspaceId("workspace-" + newAction.getId());
                     });
-                    return newActionRepository.bulkUpdate(newActions);
+                    return newActionRepository.bulkUpdate(newActionRepository, newActions);
                 })
                 .thenMany(newActionRepository.findByApplicationId(applicationId));
 
@@ -76,6 +76,7 @@ public class CustomNewActionRepositoryCEImplTest {
 
         for (int i = 0; i < 2; i++) {
             NewAction action = new NewAction();
+            action.setModifiedBy("user " + i);
             action.setId(duplicateId);
             actionList.add(action);
         }

@@ -49,5 +49,5 @@ public interface AppsmithRepository<T extends BaseDomain> {
      */
     Optional<List<InsertManyResult>> bulkInsert(BaseRepository<T, String> baseRepository, List<T> domainList);
 
-    Optional<List<BulkWriteResult>> bulkUpdate(List<T> domainList);
+    Optional<List<BulkWriteResult>> bulkUpdate(BaseRepository<T, String> baseRepository, List<T> domainList);
 }

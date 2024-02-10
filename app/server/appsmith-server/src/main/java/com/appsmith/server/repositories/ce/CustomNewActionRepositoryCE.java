@@ -3,7 +3,6 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -74,8 +73,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Optional<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Optional<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
-
-    List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
     List<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 

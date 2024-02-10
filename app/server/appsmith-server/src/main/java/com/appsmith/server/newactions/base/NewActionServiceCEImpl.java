@@ -451,7 +451,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
         return Flux.fromIterable(newActionList)
                 .flatMap(this::validateAction)
                 .collectList()
-                .flatMap(repository::bulkUpdate);
+                .flatMap(entities -> repository.bulkUpdate(repository, entities));
     }
 
     protected boolean isValidActionName(ActionDTO action) {
@@ -1716,7 +1716,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
                     return newAction;
                 })
                 .collectList()
-                .flatMap(actions -> repository.bulkUpdate(actions))
+                .flatMap(actions -> repository.bulkUpdate(repository, actions))
                 .thenReturn(mapsDTO);
     }
 

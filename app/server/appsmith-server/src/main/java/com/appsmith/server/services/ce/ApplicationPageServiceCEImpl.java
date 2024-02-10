@@ -1138,7 +1138,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         // this is a map of pluginType to count of actions for that pluginType, required for analytics
         Mono<Map<PluginType, Integer>> actionCountByPluginTypeMapMono = newActionService
                 .countActionsByPluginType(applicationId)
-                .collectMap(PluginTypeAndCountDTO::getPluginType, PluginTypeAndCountDTO::getCount);
+                .collectMap(PluginTypeAndCountDTO::getPluginType, pluginTypeAndCountDTO -> pluginTypeAndCountDTO
+                        .getCount()
+                        .intValue());
 
         Mono<List<ActionCollection>> publishedActionCollectionsListMono = actionCollectionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)

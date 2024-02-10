@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryTransient;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
@@ -26,6 +24,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * TODO :
@@ -40,7 +39,7 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(unique = true, nullable = false)
     protected String id;
 
     @JsonView(Views.Internal.class)
@@ -74,8 +73,11 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
 
     @PrePersist
     @PreUpdate
-    public void preUpdate() {
+    public void preSave() {
         setPolicyMap(PolicyMap.fromPolicies(policies));
+        if (id == null) {
+            setId(UUID.randomUUID().toString());
+        }
     }
 
     @JsonView(Views.Public.class)

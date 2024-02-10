@@ -19,8 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
@@ -37,8 +35,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
@@ -66,7 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -731,38 +726,38 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             return Optional.of(Collections.emptyList());
         }
 
-        // Ensure none of the objects have an ID set.
-        if (entities.stream().anyMatch(e -> e.getId() != null)) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "id");
+        // Ensure there's no duplicated ID. Only doing this because MongoDB version of this method had this protection.
+        HashSet<String> seenIds = new HashSet<>();
+        for (T entity : entities) {
+            final String id = entity.getId();
+            if (seenIds.contains(id)) {
+                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "id");
+            }
+            seenIds.add(id);
         }
 
         baseRepository.saveAll(entities);
-
         return Optional.of(List.of(InsertManyResult.unacknowledged()));
     }
 
-    public Optional<List<BulkWriteResult>> bulkUpdate(List<T> domainObjects) {
+    public Optional<List<BulkWriteResult>> bulkUpdate(BaseRepository<T, String> baseRepository, List<T> domainObjects) {
         if (CollectionUtils.isEmpty(domainObjects)) {
             return Optional.of(Collections.emptyList());
         }
 
-        // convert the list of new actions to a list of DBObjects
-        List<WriteModel<Document>> dbObjects = domainObjects.stream()
-                .map(actionCollection -> {
-                    assert actionCollection.getId() != null;
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(actionCollection, document);
-                    document.remove("_id");
-                    return (WriteModel<Document>) new UpdateOneModel<Document>(
-                            new Document("_id", new ObjectId(actionCollection.getId())),
-                            new Document("$set", document));
-                })
-                .collect(Collectors.toList());
+        final Map<String, T> updatesById = new HashMap<>();
+        domainObjects.forEach(e -> updatesById.put(e.getId(), e));
 
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(genericDomain))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList()
-                .blockOptional();
+        final List<T> entitiesToSave = new ArrayList<>();
+        baseRepository
+                .findAllById(domainObjects.stream().map(BaseDomain::getId).toList())
+                .forEach(entitiesToSave::add);
+
+        for (final T e : entitiesToSave) {
+            AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updatesById.get(e.getId()), e);
+        }
+
+        baseRepository.saveAll(entitiesToSave);
+        return Optional.of(List.of(BulkWriteResult.unacknowledged()));
     }
 }
