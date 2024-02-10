@@ -26,5 +26,5 @@ public interface ApplicationRepositoryCE extends BaseRepository<Application, Str
 
     Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
 
-    Optional<Long> countByWorkspaceId(String workspaceId);
+    Optional<Long> countByWorkspaceIdAndDeletedAtNull(String workspaceId);
 }

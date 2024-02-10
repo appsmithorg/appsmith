@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,24 +34,20 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public List<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
-        throw new ex.Marker("getApplicationThemes"); /*
-        Criteria appThemeCriteria =
-                Criteria.where("applicationId").is(applicationId);
-        Criteria systemThemeCriteria =
-                Criteria.where("isSystemTheme").is(Boolean.TRUE);
-        Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
-        return queryBuilder().criteria(criteria).permission(aclPermission).all();*/
+        return queryBuilder()
+                .spec((root, cq, cb) -> cb.or(
+                        cb.equal(root.get(fieldName(QTheme.theme.applicationId)), applicationId),
+                        cb.isTrue(root.get(fieldName(QTheme.theme.isSystemTheme)))))
+                .permission(aclPermission)
+                .all();
     }
 
     @Override
     public List<Theme> getSystemThemes() {
-        return Collections.emptyList(); /*
-        Criteria systemThemeCriteria =
-                Criteria.where("isSystemTheme").is(Boolean.TRUE);
         return queryBuilder()
-                .criteria(systemThemeCriteria)
+                .spec(Bridge.conditioner().isTrue(fieldName(QTheme.theme.isSystemTheme)))
                 .permission(AclPermission.READ_THEMES)
-                .all();*/
+                .all();
     }
 
     @Override

@@ -3,21 +3,26 @@ package com.appsmith.server.helpers.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import net.minidev.json.JSONObject;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 public class UserUtilsCE {
 
@@ -52,7 +57,6 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> makeSuperUser(List<User> users) {
-        return Mono.error(new ex.Marker("makeSuperUser")); /*
         return getSuperAdminPermissionGroup()
                 .flatMap(permissionGroup -> {
                     Set<String> assignedToUserIds = new HashSet<>();
@@ -60,19 +64,20 @@ public class UserUtilsCE {
                     if (permissionGroup.getAssignedToUserIds() != null) {
                         assignedToUserIds.addAll(permissionGroup.getAssignedToUserIds());
                     }
-                    assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
-                    Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+                    assignedToUserIds.addAll(users.stream().map(User::getId).toList());
 
-                    updateObj.set(path, assignedToUserIds);
                     // Make Super User is called before the first administrator is created.
-                    return permissionGroupRepository.updateById(permissionGroup.getId(), updateObj);
+                    return permissionGroupRepository.updateById(
+                            permissionGroup.getId(),
+                            Bridge.update()
+                                    .set(
+                                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds),
+                                            assignedToUserIds));
                 })
-                .then(Mono.just(users))
-                .flatMapMany(Flux::fromIterable)
+                .thenMany(Flux.fromIterable(users))
                 .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(
                         user.getEmail(), user.getTenantId()))
-                .then(Mono.just(Boolean.TRUE));//*/
+                .then(Mono.just(Boolean.TRUE));
     }
 
     public Mono<Boolean> removeSuperUser(List<User> users) {
