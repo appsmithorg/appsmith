@@ -12,10 +12,8 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
-import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.validation.constraints.NotNull;
@@ -38,7 +36,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -566,9 +563,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         });
     }
 
-    public Mono<List<InsertManyResult>> bulkInsert(List<T> domainList) {
+    public Mono<Void> bulkInsert(List<T> domainList) {
         if (CollectionUtils.isEmpty(domainList)) {
-            return Mono.just(Collections.emptyList());
+            return Mono.empty();
         }
 
         // convert the list of domains to a list of DBObjects
@@ -583,12 +580,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(genericDomain))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
-                .collectList();
+                .collectList()
+                .then();
     }
 
-    public Mono<List<BulkWriteResult>> bulkUpdate(List<T> domainObjects) {
+    public Mono<Void> bulkUpdate(List<T> domainObjects) {
         if (CollectionUtils.isEmpty(domainObjects)) {
-            return Mono.just(Collections.emptyList());
+            return Mono.empty();
         }
 
         // convert the list of new actions to a list of DBObjects
@@ -607,6 +605,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(genericDomain))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();
+                .collectList()
+                .then();
     }
 }
