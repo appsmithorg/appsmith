@@ -25,6 +25,11 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Component
 @Slf4j
 public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Theme> implements CustomThemeRepositoryCE {
+
+    // @Autowired
+    // @Lazy
+    // private ThemeRepository repository;
+
     public CustomThemeRepositoryCEImpl(
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
@@ -34,7 +39,11 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public List<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
-        return queryBuilder()
+        // final BooleanExpression expression =
+        //         QTheme.theme.applicationId.eq(applicationId).and(QTheme.theme.isSystemTheme.isTrue());
+        // // getBaseRepository().findAll(expression);
+        return queryBuilder(/*repository*/ )
+                // .spec(expression)
                 .spec((root, cq, cb) -> cb.or(
                         cb.equal(root.get(fieldName(QTheme.theme.applicationId)), applicationId),
                         cb.isTrue(root.get(fieldName(QTheme.theme.isSystemTheme)))))

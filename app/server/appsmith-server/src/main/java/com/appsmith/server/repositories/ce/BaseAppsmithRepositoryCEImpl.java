@@ -10,6 +10,8 @@ import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.AppsmithRepository;
+import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,6 +24,8 @@ import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -32,6 +36,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +89,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  * ```
  * Ref: https://theappsmith.slack.com/archives/CPQNLFHTN/p1669100205502599?thread_ts=1668753437.497369&cid=CPQNLFHTN
  */
-public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
+public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> implements AppsmithRepository<T> {
 
     @Autowired // TODO: Add constructor parameter.
     @Getter
@@ -347,9 +352,47 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return new QueryAllParams<>(this);
     }
 
-    public List<T> queryAllExecute(QueryAllParams<T> params) {
+    public QueryAllParams<T> queryBuilder(BaseRepository<T, String> actualRepo) {
+        return new QueryAllParams<>(this, actualRepo);
+    }
+
+    @SneakyThrows
+    public List<T> queryAllExecute(QueryAllParams<T> params, BaseRepository<T, String> actualRepo) {
         if (!params.getCriteria().isEmpty()) {
             throw new RuntimeException("Querying with criteria, instead of specifications!");
+        }
+
+        if (!params.getQuerydslExpressions().isEmpty()) {
+            // perform query with querydsl repository.
+            List<String> pg;
+            if (CollectionUtils.isEmpty(params.getPermissionGroups())) {
+                pg = new ArrayList<>(
+                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())));
+            } else {
+                pg = new ArrayList<>(params.getPermissionGroups());
+            }
+
+            final List<BooleanExpression> expressions = params.getQuerydslExpressions();
+
+            expressions.add(QBaseDomain.baseDomain.deletedAt.isNull());
+
+            if (!CollectionUtils.isEmpty(pg)) {
+                Map<String, String> fnVars = new HashMap<>();
+                fnVars.put("p", params.getPermission().getValue());
+                final List<String> conditions = new ArrayList<>();
+                for (var i = 0; i < pg.size(); i++) {
+                    fnVars.put("g" + i, pg.get(i));
+                    conditions.add("@ == $g" + i);
+                }
+                expressions.add(Expressions.booleanTemplate(
+                        "jsonb_path_exists({0}, {2}, {3})",
+                        QPermissionGroup.permissionGroup.policies,
+                        "$[*] ? (@.permission == $p && exists(@.permissionGroups ? (" + String.join(" || ", conditions)
+                                + ")))",
+                        new ObjectMapper().writeValueAsString(fnVars)));
+            }
+
+            actualRepo.findAll(Expressions.allOf(expressions.toArray(new BooleanExpression[0])));
         }
 
         return Mono.justOrEmpty(params.getPermissionGroups())
