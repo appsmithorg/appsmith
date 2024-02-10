@@ -109,7 +109,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
 
     @Override
     public Flux<Plugin> get(MultiValueMap<String, String> params) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("get")); /*
 
         // Remove branch name as plugins are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
@@ -185,7 +185,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
 
     @Override
     public Flux<Workspace> installDefaultPlugins(List<Plugin> plugins) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("installDefaultPlugins")); /*
         final List<WorkspacePlugin> newWorkspacePlugins = plugins.stream()
                 .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
                 .map(plugin -> {
@@ -623,7 +623,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
 
     @Override
     public Flux<Plugin> saveAll(Iterable<Plugin> plugins) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("saveAll")); /*
         return repository.saveAll(plugins);*/
     }
 

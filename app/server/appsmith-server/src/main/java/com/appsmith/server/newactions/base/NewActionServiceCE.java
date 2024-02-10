@@ -22,6 +22,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,7 +61,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<NewAction> findById(String id);
 
-    Flux<NewAction> findAllById(Iterable<String> id);
+    Flux<NewAction> findAllById(Collection<String> id);
 
     Mono<NewAction> findById(String id, AclPermission aclPermission);
 

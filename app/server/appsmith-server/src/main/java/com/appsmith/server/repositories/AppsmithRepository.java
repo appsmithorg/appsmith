@@ -47,7 +47,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
      * @param domainList List of domains that'll be saved in bulk
      * @return List of actions that were passed in the method
      */
-    Optional<List<InsertManyResult>> bulkInsert(List<T> domainList);
+    Optional<List<InsertManyResult>> bulkInsert(BaseRepository<T, String> baseRepository, List<T> domainList);
 
     Optional<List<BulkWriteResult>> bulkUpdate(List<T> domainList);
 }

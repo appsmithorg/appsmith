@@ -75,6 +75,7 @@ import reactor.util.function.Tuple2;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -442,7 +443,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
         return Flux.fromIterable(newActionList)
                 .flatMap(this::validateAction)
                 .collectList()
-                .flatMap(repository::bulkInsert);
+                .flatMap(entities -> repository.bulkInsert(repository, entities));
     }
 
     @Override
@@ -719,7 +720,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     }
 
     @Override
-    public Flux<NewAction> findAllById(Iterable<String> id) {
+    public Flux<NewAction> findAllById(Collection<String> id) {
         return repository.findAllByIdIn(id).flatMap(this::sanitizeAction);
     }
 
@@ -1056,7 +1057,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
     @Override
     public Flux<ActionDTO> getUnpublishedActions(
             MultiValueMap<String, String> params, String branchName, Boolean includeJsActions) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("getUnpublishedActions")); /*
 
         MultiValueMap<String, String> updatedParams = new LinkedMultiValueMap<>(params);
         // Get branched applicationId and pageId

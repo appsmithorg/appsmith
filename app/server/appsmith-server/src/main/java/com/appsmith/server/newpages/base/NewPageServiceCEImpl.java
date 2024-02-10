@@ -581,7 +581,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Flux<NewPage> saveAll(List<NewPage> pages) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("saveAll")); /*
         pages.stream()
                 .filter(newPage -> newPage.getGitSyncId() == null)
                 .forEach(newPage -> newPage.setGitSyncId(newPage.getId() + "_" + new ObjectId()));

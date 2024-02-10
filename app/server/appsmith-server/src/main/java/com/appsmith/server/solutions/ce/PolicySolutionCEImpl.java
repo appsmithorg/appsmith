@@ -153,7 +153,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
             Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission")); /*
 
         // Find all the datasources without permission to update the policies.
         return datasourceRepository
@@ -175,7 +175,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
 
     public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(
             String workspaceId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("updateWithNewPoliciesToApplicationsByWorkspaceId")); /*
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
@@ -197,7 +197,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(
             String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("updateWithApplicationPermissionsToAllItsPages")); /*
 
         // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures
         // that all the published
@@ -224,7 +224,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<Theme> updateThemePolicies(
             Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("updateThemePolicies")); /*
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
         if (StringUtils.hasLength(application.getEditModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
@@ -262,7 +262,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<NewAction> updateWithPagePermissionsToAllItsActions(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("updateWithPagePermissionsToAllItsActions")); /*
 
         return newActionRepository
                 .findByApplicationId(applicationId)
@@ -281,7 +281,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("updateWithPagePermissionsToAllItsActionCollections")); /*
 
         return actionCollectionRepository
                 .findByApplicationId(applicationId)

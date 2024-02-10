@@ -171,7 +171,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Optional<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages) {
-        return Optional.empty(); /*
+        throw new ex.Marker("setPages"); /*
         return mongoOperations.updateFirst(
             Query.query(getIdCriteria(applicationId)),
             new Update().set("pages", pages),
@@ -226,7 +226,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             List<String> projectionFieldNames,
             String branchName,
             AclPermission aclPermission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("getApplicationByGitBranchAndDefaultApplicationId"); /*
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         Bridge<Application> defaultAppCriteria = Bridge.<Application>where(
                         gitApplicationMetadata + "." + "defaultApplicationId")
@@ -341,7 +341,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             String branchName,
             String branchNamePath,
             AclPermission permission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("updateFieldByDefaultIdAndBranchName"); /*
         return super.updateFieldByDefaultIdAndBranchName(
                 defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission);*/
     }
@@ -419,7 +419,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Optional<UpdateResult> protectBranchedApplications(
             String applicationId, List<String> branchNames, AclPermission permission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("protectBranchedApplications"); /*
         String isProtectedFieldPath = "gitApplicationMetadata" + "." + "isProtectedBranch";
 
         String branchNameFieldPath = "gitApplicationMetadata" + "." + "branchName";

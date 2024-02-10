@@ -71,7 +71,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
             actionCollections.add(actionCollection);
         }
 
-        StepVerifier.create(actionCollectionRepository.bulkInsert(actionCollections))
+        StepVerifier.create(actionCollectionRepository.bulkInsert(actionCollectionRepository, actionCollections))
                 .verifyError();
     }
 
@@ -91,7 +91,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
         }
 
         Mono<List<ActionCollection>> actionCollectionsMono = actionCollectionRepository
-                .bulkInsert(actionCollectionList)
+                .bulkInsert(actionCollectionRepository, actionCollectionList)
                 .thenMany(actionCollectionRepository.findByApplicationId(applicationId))
                 .collectList();
 

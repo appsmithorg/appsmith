@@ -91,7 +91,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("getWithPermission")); /*
         List<Criteria> criterias = new ArrayList<>();
 
         if (params != null && !params.isEmpty()) {
@@ -112,7 +112,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
 
     @Override
     public Flux<T> get(MultiValueMap<String, String> params) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("get")); /*
         // In the base service we aren't handling the query parameters. In order to filter records using the query
         // params,
         // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
@@ -194,7 +194,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
             Pageable pageable,
             Sort sort,
             AclPermission permission) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("filterByEntityFields")); /*
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }

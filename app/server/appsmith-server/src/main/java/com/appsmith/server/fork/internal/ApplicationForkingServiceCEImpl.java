@@ -374,7 +374,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     private Flux<NewPage> updateActionAndCollectionsIdsInForkedPages(
             List<NewPage> clonedPages, Map<String, String> actionIdsMap, Map<String, String> actionCollectionIdsMap) {
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("updateActionAndCollectionsIdsInForkedPages")); /*
         final List<Mono<NewPage>> pageSaveMonos = new ArrayList<>();
 
         for (final NewPage page : clonedPages) {
@@ -440,7 +440,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
      */
     private Flux<NewPage> doOnlyForkApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(
             Application application, List<String> applicationIds) {
-        return Flux.empty(); /*
+        return Flux.error(
+                new ex.Marker("doOnlyForkApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages")); /*
         final String templateApplicationId = application.getId();
         return forkApplicationDocument(application).flatMapMany(savedApplication -> {
             applicationIds.add(savedApplication.getId());

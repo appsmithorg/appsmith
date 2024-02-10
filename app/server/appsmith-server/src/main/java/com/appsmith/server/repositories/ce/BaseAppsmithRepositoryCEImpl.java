@@ -220,7 +220,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             String branchName,
             String branchNamePath,
             AclPermission permission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("updateFieldByDefaultIdAndBranchName"); /*
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
@@ -726,25 +726,19 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                      */
     }
 
-    public Optional<List<InsertManyResult>> bulkInsert(List<T> domainList) {
-        return Optional.empty(); /*
-        if (CollectionUtils.isEmpty(domainList)) {
-            return Mono.just(Collections.emptyList());
+    public Optional<List<InsertManyResult>> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {
+        if (CollectionUtils.isEmpty(entities)) {
+            return Optional.of(Collections.emptyList());
         }
 
-        // convert the list of domains to a list of DBObjects
-        List<Document> dbObjects = domainList.stream()
-                .map(domain -> {
-                    Document document = new Document();
-                    mongoOperations.getConverter().write(domain, document);
-                    return document;
-                })
-                .collect(Collectors.toList());
+        // Ensure none of the objects have an ID set.
+        if (entities.stream().anyMatch(e -> e.getId() != null)) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "id");
+        }
 
-        return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(genericDomain))
-                .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
-                .collectList();*/
+        baseRepository.saveAll(entities);
+
+        return Optional.of(List.of(InsertManyResult.unacknowledged()));
     }
 
     public Optional<List<BulkWriteResult>> bulkUpdate(List<T> domainObjects) {

@@ -265,7 +265,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
-        return Optional.empty(); /*
+        throw new ex.Marker("publishPages"); /*
         Criteria applicationIdCriteria = where("id").in(pageIds);
 
         Optional<Set<String>> permissionGroupsMono =

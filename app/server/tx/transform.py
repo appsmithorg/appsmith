@@ -188,9 +188,11 @@ def generate_cake_class(domain):
         else:
             wrapper = "%s"
 
+        signature = signature.replace(f"BaseRepository<{domain}, String>", f"BaseCake<{domain}>")
+
         call = re.sub(
             r"[A-Za-z.]+?(<[^<>]+?>|<[^\s]+?>)?\s(\w+)([,)])", r"\2\3", signature
-        )
+        ).replace("baseRepository", "repository")
         reactor_methods.append(
             f"/** @see {method.ref} */\n"
             + "public "
