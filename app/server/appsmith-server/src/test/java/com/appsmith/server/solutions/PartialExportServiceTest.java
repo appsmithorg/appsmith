@@ -20,7 +20,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
-import com.appsmith.server.exports.internal.PartialExportService;
+import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newpages.base.NewPageService;

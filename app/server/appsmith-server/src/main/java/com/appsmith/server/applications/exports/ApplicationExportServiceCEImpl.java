@@ -20,6 +20,7 @@ import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
+import com.appsmith.server.exports.internal.artifactbased.ArtifactBasedExportServiceCE;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class ApplicationExportServiceCEImpl implements ApplicationExportServiceCE {
+public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServiceCE<Application, ApplicationJson> {
 
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
