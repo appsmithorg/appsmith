@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import {
   getActiveTemplateSelector,
   getForkableWorkspaces,
+  isImportingTemplateSelector,
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
@@ -50,6 +51,7 @@ function TemplateViewHeader({
   const isImportingTemplateToApp = useSelector(
     isImportingTemplateToAppSelector,
   );
+  const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const goBack = () => {
     if (handleBackPress) {
       handleBackPress();
@@ -100,7 +102,10 @@ function TemplateViewHeader({
             <Button
               className="template-fork-button"
               data-testid="template-fork-button"
-              isLoading={onClickUseTemplate && isImportingTemplateToApp}
+              isLoading={
+                onClickUseTemplate &&
+                (isImportingTemplateToApp || isImportingTemplate)
+              }
               onClick={onForkButtonTrigger}
               size="md"
               startIcon="fork-2"
