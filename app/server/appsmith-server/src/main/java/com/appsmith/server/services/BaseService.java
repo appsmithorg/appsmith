@@ -30,7 +30,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -113,12 +112,12 @@ public abstract class BaseService<
         }
 
         return Mono.fromSupplier(() -> repository
-                .queryBuilder()
-                .criteria(criterias)
-                .permission(aclPermission)
-                .all())
-            .flatMapMany(Flux::fromIterable)
-            .subscribeOn(Schedulers.boundedElastic());
+                        .queryBuilder()
+                        .criteria(criterias)
+                        .permission(aclPermission)
+                        .all())
+                .flatMapMany(Flux::fromIterable)
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
@@ -212,12 +211,12 @@ public abstract class BaseService<
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
         Flux<T> result = Mono.fromSupplier(() -> repository
-                .queryBuilder()
-                .criteria(criteria)
-                .permission(permission)
-                .sort(sort)
-                .all())
-            .flatMapMany(Flux::fromIterable);
+                        .queryBuilder()
+                        .criteria(criteria)
+                        .permission(permission)
+                        .sort(sort)
+                        .all())
+                .flatMapMany(Flux::fromIterable);
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
@@ -249,8 +248,14 @@ public abstract class BaseService<
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
 
-        Flux<T> result = repository.queryAllWithStrictPermissionGroups(
-                List.of(criteria), Optional.empty(), Optional.ofNullable(permission), sort, -1, 0);
+        Flux<T> result = Mono.fromSupplier(() -> repository
+                        .queryBuilder()
+                        .criteria(criteria)
+                        .permission(permission)
+                        .sort(sort)
+                        .includeAnonymousUserPermissions(false)
+                        .all())
+                .flatMapMany(Flux::fromIterable);
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

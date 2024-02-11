@@ -311,11 +311,8 @@ class TenantServiceCETest {
         // Verify that the tenant is updated for the feature flag migration failure
         StepVerifier.create(tenantService.getById(tenant.getId()))
                 .assertNext(updatedTenant -> {
-                    assertThat(updatedTenant
-                                    .getTenantConfiguration()
-                                    .getFeaturesWithPendingMigration()
-                                    .size())
-                            .isEqualTo(1);
+                    assertThat(updatedTenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+                            .hasSize(1);
                     assertThat(updatedTenant.getTenantConfiguration().getMigrationStatus())
                             .isEqualTo(IN_PROGRESS);
                 })

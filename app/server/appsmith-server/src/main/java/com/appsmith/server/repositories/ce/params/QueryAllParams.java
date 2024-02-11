@@ -37,6 +37,12 @@ public class QueryAllParams<T extends BaseDomain> {
     private int limit = NO_RECORD_LIMIT;
     private int skip = NO_SKIP;
 
+    /**
+     * When this flag is true, permission checks will include the affects of anonymous user permissions. This is the
+     * default and very-usually, what we want. When it's false, we are only checking for the permissions of the user.
+     */
+    private boolean includeAnonymousUserPermissions = true;
+
     public QueryAllParams(BaseAppsmithRepositoryCEImpl<T> repo) {
         this(repo, null);
     }
@@ -138,6 +144,11 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public QueryAllParams<T> skip(int skip) {
         this.skip = skip;
+        return this;
+    }
+
+    public QueryAllParams<T> includeAnonymousUserPermissions(boolean value) {
+        includeAnonymousUserPermissions = value;
         return this;
     }
 }

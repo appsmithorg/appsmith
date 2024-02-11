@@ -35,6 +35,7 @@ import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,8 +159,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(tuple2 -> {
                     ImportableArtifact context = tuple2.getT2();
                     ArtifactExchangeJson artifactExchangeJson = tuple2.getT1();
-                    return getArtifactImportDTO(
-                            context.getWorkspaceId(), context.getId(), context, artifactExchangeJson);
+                    return getArtifactImportDTO(context.getWorkspaceId(), context.getId(), context, artifactJsonType);
                 });
 
         return Mono.create(
@@ -304,7 +304,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     @Override
     public Mono<? extends ImportableArtifact> restoreSnapshot(
-            String workspaceId, ArtifactExchangeJson artifactExchangeJson, String artifactId, String branchName) {
+            String workspaceId, String artifactId, String branchName, ArtifactExchangeJson artifactExchangeJson) {
 
         /**
          * Like Git, restore snapshot is a system level operation. So, we're not checking for any permissions here.
@@ -379,10 +379,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * @param workspaceId          ID in which the context is to be merged
-     * @param artifactId           default ID of the artifact where this artifactExchangeJson is going to get merged with
-     * @param importableArtifact   the context (i.e. application, packages which is imported)
-     * @param artifactExchangeJson the Json entity from which the import is happening
+     * @param workspaceId        ID in which the context is to be merged
+     * @param artifactId         default ID of the artifact where this artifactExchangeJson is going to get merged with
+     * @param importableArtifact the context (i.e. application, packages which is imported)
+     * @param artifactJsonType   the Json entity from which the import is happening
      * @return ImportableArtifactDTO
      */
     @Override
@@ -390,9 +390,19 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             String workspaceId,
             String artifactId,
             ImportableArtifact importableArtifact,
-            ArtifactExchangeJson artifactExchangeJson) {
-        return getContextBasedImportService(artifactExchangeJson)
-                .getImportableArtifactDTO(workspaceId, artifactId, importableArtifact);
+            ArtifactJsonType artifactJsonType) {
+
+        ContextBasedImportService<?, ?, ?> contextBasedImportService = getContextBasedImportService(artifactJsonType);
+
+        return findDatasourceByArtifactId(workspaceId, artifactId, artifactJsonType)
+                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
+                .map(tuple2 -> {
+                    List<Datasource> datasourceList = tuple2.getT1();
+                    String environmentId = tuple2.getT2();
+
+                    return contextBasedImportService.getImportableArtifactDTO(
+                            importableArtifact, datasourceList, environmentId);
+                });
     }
 
     /**
@@ -482,7 +492,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         currUserMono)))
                 .cache();
 
-        Mono<? extends ImportableArtifact> importMono = importedArtifactMono
+        final Mono<? extends ImportableArtifact> importMono = importedArtifactMono
                         .then(Mono.defer(() -> generateImportableEntities(
                                 importingMetaDTO,
                                 mappedImportableResourcesDTO,
@@ -503,8 +513,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                             return Mono.error(new AppsmithException(
                                     AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                         })
-                // .as(transactionalOperator::transactional)
-                ;
+                /*.as(transactionalOperator::transactional)*/ ;
 
         final Mono<? extends ImportableArtifact> resultMono = importMono
                 .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
@@ -668,16 +677,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 artifactExchangeJson,
                 true));
 
-        // Directly updates required theme information in DB
-        Mono<Void> importedThemesMono = themeImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedArtifactMono,
-                artifactExchangeJson,
-                true);
-
-        return Flux.merge(List.of(importedDatasourcesMono, importedThemesMono));
+        return Flux.merge(List.of(importedDatasourcesMono));
     }
 
     /**
@@ -734,5 +734,21 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         return analyticsService
                 .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), analyticsData)
                 .thenReturn(importableArtifact);
+    }
+
+    @Override
+    public Mono<List<Datasource>> findDatasourceByArtifactId(
+            String workspaceId, String defaultArtifactId, ArtifactJsonType artifactJsonType) {
+
+        return getContextBasedImportService(artifactJsonType)
+                .getDatasourceIdSetConsumedInArtifact(defaultArtifactId)
+                .flatMap(datasourceIdSet -> {
+                    return datasourceImportableService
+                            .getEntitiesPresentInWorkspace(workspaceId)
+                            .filter(datasource -> datasourceIdSet.contains(datasource.getId()))
+                            .collectList();
+                })
+                // if we didn't receive any actions then the list of importable datasource should be zero.
+                .switchIfEmpty(Mono.just(new ArrayList<>()));
     }
 }

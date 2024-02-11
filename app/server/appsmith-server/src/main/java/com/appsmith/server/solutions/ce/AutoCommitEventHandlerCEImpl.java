@@ -50,7 +50,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final AnalyticsService analyticsService;
 
     public static final String AUTO_COMMIT_MSG_FORMAT =
-            "System generated commit, to support new features after upgrading Appsmith to the version: %s";
+            "System generated commit, to support new features in Appsmith %s";
 
     @Override
     public void publish(AutoCommitEvent autoCommitEvent) {

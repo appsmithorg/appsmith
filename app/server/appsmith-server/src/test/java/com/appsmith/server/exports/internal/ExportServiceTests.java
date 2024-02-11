@@ -27,7 +27,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -70,7 +70,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -225,7 +224,7 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
@@ -328,7 +327,6 @@ public class ExportServiceTests {
     }
 
     @Test
-    @Disabled
     @WithUserDetails(value = "api_user")
     public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
         Mono<ApplicationJson> resultMono = exportService
@@ -340,7 +338,7 @@ public class ExportServiceTests {
                         && throwable
                                 .getMessage()
                                 .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                        FieldName.APPLICATION_ID, "invalidAppId")))
+                                        FieldName.APPLICATION, "invalidAppId")))
                 .verify();
     }
 
@@ -823,8 +821,8 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -933,8 +931,8 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -1268,7 +1266,6 @@ public class ExportServiceTests {
      * Test to check if the application can be exported with read only access if this is sample application
      */
     @Test
-    @Disabled
     @WithUserDetails(value = "usertest@usertest.com")
     public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
         Mono<ApplicationJson> exportApplicationMono = exportService
@@ -1417,8 +1414,8 @@ public class ExportServiceTests {
         appNavigationSetting.setOrientation("top");
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
@@ -1478,8 +1475,8 @@ public class ExportServiceTests {
         testApplication.setName(
                 "importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode");
         testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
@@ -1819,7 +1816,7 @@ public class ExportServiceTests {
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
-                    assertThat(pages.size()).isEqualTo(2);
+                    assertThat(pages).hasSize(2);
                     assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
                     assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
@@ -1951,10 +1948,10 @@ public class ExportServiceTests {
                 })
                 .flatMap(application -> {
                     // set git meta data for the application and set a last commit date
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application);
                 })
                 .delayElement(Duration.ofMillis(
@@ -1988,18 +1985,18 @@ public class ExportServiceTests {
                     assertThat(updatedActionCollectionNames).isNotNull();
 
                     // only the first page should be present in the updated resources
-                    assertThat(updatedPageNames.size()).isEqualTo(1);
+                    assertThat(updatedPageNames).hasSize(1);
                     assertThat(updatedPageNames).contains(renamedPageName);
 
                     // only actions from first page should be present in the updated resources
                     // 1 query + 1 method from action collection
-                    assertThat(updatedActionNames.size()).isEqualTo(2);
+                    assertThat(updatedActionNames).hasSize(2);
                     assertThat(updatedActionNames).contains("first_page_action" + NAME_SEPARATOR + renamedPageName);
                     assertThat(updatedActionNames)
                             .contains("TestJsObject.testMethod" + NAME_SEPARATOR + renamedPageName);
 
                     // only action collections from first page should be present in the updated resources
-                    assertThat(updatedActionCollectionNames.size()).isEqualTo(1);
+                    assertThat(updatedActionCollectionNames).hasSize(1);
                     assertThat(updatedActionCollectionNames)
                             .contains("TestJsObject" + NAME_SEPARATOR + renamedPageName);
                 })
@@ -2055,10 +2052,10 @@ public class ExportServiceTests {
                 .flatMap(objects -> {
                     Application application = objects.getT2();
                     // set git meta data for the application and set a last commit date
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application).thenReturn(objects);
                 })
                 .delayElement(Duration.ofMillis(
@@ -2086,7 +2083,7 @@ public class ExportServiceTests {
                     assertThat(updatedActionNames).isNotNull();
 
                     // action should be present in the updated resources although action not updated but datasource is
-                    assertThat(updatedActionNames.size()).isEqualTo(1);
+                    assertThat(updatedActionNames).hasSize(1);
                     updatedActionNames.forEach(actionName -> {
                         assertThat(actionName).contains("MyAction");
                     });

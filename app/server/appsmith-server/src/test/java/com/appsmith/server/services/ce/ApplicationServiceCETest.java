@@ -23,7 +23,7 @@ import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -45,11 +45,11 @@ import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -151,6 +151,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
@@ -232,10 +233,10 @@ public class ApplicationServiceCETest {
     PluginRepositoryCake pluginRepository;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @Autowired
     ThemeService themeService;
@@ -331,7 +332,7 @@ public class ApplicationServiceCETest {
 
         Application gitConnectedApp1 = new Application();
         gitConnectedApp1.setWorkspaceId(workspaceId);
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         gitData.setDefaultBranchName("testBranch");
         gitData.setRepoName("testRepo");
@@ -349,12 +350,14 @@ public class ApplicationServiceCETest {
                 .block();
 
         // Assign the branchName to all the resources connected to the application
-        ApplicationJson gitConnectedApplicationJson = exportApplicationService
-                .exportApplicationById(newGitConnectedApp.getId(), gitData.getBranchName())
+        ApplicationJson gitConnectedApplicationJson = exportService
+                .exportByArtifactIdAndBranchName(newGitConnectedApp.getId(), gitData.getBranchName(), APPLICATION)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .block();
-        gitConnectedApp = importApplicationService
-                .importApplicationInWorkspaceFromGit(
-                        workspaceId, gitConnectedApplicationJson, newGitConnectedApp.getId(), gitData.getBranchName())
+        gitConnectedApp = importService
+                .importArtifactInWorkspaceFromGit(
+                        workspaceId, newGitConnectedApp.getId(), gitConnectedApplicationJson, gitData.getBranchName())
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         testPlugin = pluginService.findByPackageName("restapi-plugin").block();
@@ -834,7 +837,7 @@ public class ApplicationServiceCETest {
         Mono<Application> updateApplication = applicationService
                 .update(gitConnectedApp.getId(), gitConnectedApp)
                 .flatMap(t -> {
-                    GitApplicationMetadata gitData = t.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = t.getGitApplicationMetadata();
                     return applicationService.findByBranchNameAndDefaultApplicationId(
                             gitData.getBranchName(), gitData.getDefaultApplicationId(), READ_APPLICATIONS);
                 });
@@ -928,7 +931,7 @@ public class ApplicationServiceCETest {
         Mono<UserHomepageDTO> allApplications = applicationFetcher.getAllApplications();
 
         Application branchedApplication = new Application();
-        GitApplicationMetadata childBranchGitData = new GitApplicationMetadata();
+        GitArtifactMetadata childBranchGitData = new GitArtifactMetadata();
         AppsmithBeanUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
         childBranchGitData.setBranchName("childBranch");
         branchedApplication.setGitApplicationMetadata(childBranchGitData);
@@ -1219,10 +1222,10 @@ public class ApplicationServiceCETest {
         Application testApplication = new Application();
         testApplication.setName("branch1");
         testApplication.setWorkspaceId(workspaceId);
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-        gitApplicationMetadata.setDefaultApplicationId(gitConnectedApp.getId());
-        gitApplicationMetadata.setBranchName("test");
-        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+        gitArtifactMetadata.setDefaultApplicationId(gitConnectedApp.getId());
+        gitArtifactMetadata.setBranchName("test");
+        testApplication.setGitApplicationMetadata(gitArtifactMetadata);
         Application application =
                 applicationPageService.createApplication(testApplication).block();
 
@@ -1366,10 +1369,10 @@ public class ApplicationServiceCETest {
         Application testApplication = new Application();
         testApplication.setName("branch2");
         testApplication.setWorkspaceId(workspaceId);
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-        gitApplicationMetadata.setDefaultApplicationId(gitConnectedApp.getId());
-        gitApplicationMetadata.setBranchName("test2");
-        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+        gitArtifactMetadata.setDefaultApplicationId(gitConnectedApp.getId());
+        gitArtifactMetadata.setBranchName("test2");
+        testApplication.setGitApplicationMetadata(gitArtifactMetadata);
         Application application =
                 applicationPageService.createApplication(testApplication).block();
 
@@ -2718,17 +2721,17 @@ public class ApplicationServiceCETest {
         Application defaultApp = applicationPageService
                 .createApplication(application)
                 .flatMap(application1 -> {
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                    gitApplicationMetadata.setDefaultApplicationId(application1.getId());
-                    gitApplicationMetadata.setBranchName("master");
-                    gitApplicationMetadata.setDefaultBranchName("feature1");
-                    gitApplicationMetadata.setIsRepoPrivate(false);
-                    gitApplicationMetadata.setRepoName("testRepo");
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+                    gitArtifactMetadata.setDefaultApplicationId(application1.getId());
+                    gitArtifactMetadata.setBranchName("master");
+                    gitArtifactMetadata.setDefaultBranchName("feature1");
+                    gitArtifactMetadata.setIsRepoPrivate(false);
+                    gitArtifactMetadata.setRepoName("testRepo");
                     GitAuth gitAuth = new GitAuth();
                     gitAuth.setPublicKey("testkey");
                     gitAuth.setPrivateKey("privatekey");
-                    gitApplicationMetadata.setGitAuth(gitAuth);
-                    application1.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setGitAuth(gitAuth);
+                    application1.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationService.save(application1);
                 })
                 .block();
@@ -2740,17 +2743,17 @@ public class ApplicationServiceCETest {
         Mono<Application> forkedApp = applicationPageService
                 .createApplication(application)
                 .flatMap(application1 -> {
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                    gitApplicationMetadata.setDefaultApplicationId(application1.getId());
-                    gitApplicationMetadata.setBranchName("feature1");
-                    gitApplicationMetadata.setDefaultBranchName("feature1");
-                    gitApplicationMetadata.setIsRepoPrivate(false);
-                    gitApplicationMetadata.setRepoName("testRepo");
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+                    gitArtifactMetadata.setDefaultApplicationId(application1.getId());
+                    gitArtifactMetadata.setBranchName("feature1");
+                    gitArtifactMetadata.setDefaultBranchName("feature1");
+                    gitArtifactMetadata.setIsRepoPrivate(false);
+                    gitArtifactMetadata.setRepoName("testRepo");
                     GitAuth gitAuth = new GitAuth();
                     gitAuth.setPublicKey("testkey");
                     gitAuth.setPrivateKey("privatekey");
-                    gitApplicationMetadata.setGitAuth(gitAuth);
-                    application1.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setGitAuth(gitAuth);
+                    application1.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationService.save(application1);
                 })
                 .flatMap(application1 -> {
@@ -2764,7 +2767,7 @@ public class ApplicationServiceCETest {
 
         StepVerifier.create(forkedApp)
                 .assertNext(application1 -> {
-                    assertThat(application1.getPages().size()).isEqualTo(2);
+                    assertThat(application1.getPages()).hasSize(2);
                 })
                 .verifyComplete();
     }
@@ -2969,7 +2972,7 @@ public class ApplicationServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void publishApplication_withGitConnectedApp_success() {
-        GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
+        GitArtifactMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         gitConnectedApp.setUnpublishedApplicationDetail(new ApplicationDetail());
         gitConnectedApp
@@ -3000,10 +3003,10 @@ public class ApplicationServiceCETest {
                     List<NewPage> pages = tuple.getT2();
 
                     assertThat(application).isNotNull();
-                    assertThat(application.getPages().size()).isEqualTo(1);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPublishedPages()).hasSize(1);
 
-                    assertThat(pages.size()).isEqualTo(1);
+                    assertThat(pages).hasSize(1);
                     NewPage newPage = pages.get(0);
                     assertThat(newPage.getUnpublishedPage().getName())
                             .isEqualTo(newPage.getPublishedPage().getName());
@@ -3125,7 +3128,7 @@ public class ApplicationServiceCETest {
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(1);
+                    assertThat(editedApplicationPages).hasSize(1);
                     assertThat(editedApplicationPages).doesNotContain(applicationPage);
                 })
                 .verifyComplete();
@@ -3169,7 +3172,7 @@ public class ApplicationServiceCETest {
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(1);
+                    assertThat(editedApplicationPages).hasSize(1);
                     assertThat(editedApplicationPages).doesNotContain(applicationPage);
                 })
                 .verifyComplete();
@@ -3230,7 +3233,7 @@ public class ApplicationServiceCETest {
                     assertThat(isFound).isTrue();
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(2);
+                    assertThat(editedApplicationPages).hasSize(2);
                     isFound = false;
                     for (ApplicationPage page : editedApplicationPages) {
                         if (page.getId().equals(unpublishedEditedPage.getId())
@@ -3291,7 +3294,7 @@ public class ApplicationServiceCETest {
         StepVerifier.create(viewModeApplicationMono)
                 .assertNext(viewApplication -> {
                     List<ApplicationPage> editedApplicationPages = viewApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(2);
+                    assertThat(editedApplicationPages).hasSize(2);
                     boolean isFound = false;
                     for (ApplicationPage page : editedApplicationPages) {
                         if (page.getId().equals(applicationPage.getId())
@@ -3438,7 +3441,7 @@ public class ApplicationServiceCETest {
 
                     assertThat(cloneApp).isNotNull();
                     assertThat(pages.get(0).getId()).isNotEqualTo(pageId);
-                    assertThat(actions.size()).isEqualTo(4);
+                    assertThat(actions).hasSize(4);
                     Set<String> actionNames = actions.stream()
                             .map(action -> action.getUnpublishedAction().getName())
                             .collect(Collectors.toSet());
@@ -3448,7 +3451,7 @@ public class ApplicationServiceCETest {
                                     "Clone App Test action2",
                                     "Clone App Test action3",
                                     "jsFunc");
-                    assertThat(actionCollections.size()).isEqualTo(1);
+                    assertThat(actionCollections).hasSize(1);
                     Set<String> actionCollectionNames = actionCollections.stream()
                             .map(actionCollection ->
                                     actionCollection.getUnpublishedCollection().getName())
@@ -3531,7 +3534,7 @@ public class ApplicationServiceCETest {
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
-                    assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+                    assertThat(applicationPagesDTO.getPages()).hasSize(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream()
                             .map(pageNameIdDTO -> pageNameIdDTO.getName())
                             .collect(Collectors.toList());
@@ -3793,7 +3796,7 @@ public class ApplicationServiceCETest {
                 .thenReturn(savedApplication)
                 .flatMap(savedMainApp -> {
                     Application unsavedChildApp = new Application();
-                    unsavedChildApp.setGitApplicationMetadata(new GitApplicationMetadata());
+                    unsavedChildApp.setGitApplicationMetadata(new GitArtifactMetadata());
                     unsavedChildApp.getGitApplicationMetadata().setDefaultApplicationId(savedMainApp.getId());
                     unsavedChildApp.setName("ssh-key-child-app");
                     unsavedChildApp.setWorkspaceId(workspaceId);
@@ -3825,7 +3828,7 @@ public class ApplicationServiceCETest {
                     assertThat(gitAuth.getGeneratedAt()).isNotNull();
 
                     // child app should have null as GitAuth inside the metadata
-                    GitApplicationMetadata metadata = childApp.getGitApplicationMetadata();
+                    GitArtifactMetadata metadata = childApp.getGitApplicationMetadata();
                     assertThat(metadata.getDefaultApplicationId()).isEqualTo(mainApp.getId());
                     assertThat(metadata.getGitAuth()).isNull();
                 })
@@ -3964,12 +3967,12 @@ public class ApplicationServiceCETest {
         Application testApplication = new Application();
         String appName = "deleteApplication_WithDeployKeysNotConnectedToRemote_Success";
         testApplication.setName(appName);
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPrivateKey("privateKey");
         gitAuth.setPublicKey("publicKey");
-        gitApplicationMetadata.setGitAuth(gitAuth);
-        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        gitArtifactMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitArtifactMetadata);
         Application application = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .block();
@@ -4030,16 +4033,18 @@ public class ApplicationServiceCETest {
         Application testApplication = new Application();
         testApplication.setName("getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication");
         testApplication.setWorkspaceId(workspaceId);
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("release");
         gitData.setDefaultApplicationId(gitConnectedApp.getId());
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService
                 .createApplication(testApplication)
-                .flatMap(application1 -> exportApplicationService
-                        .exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
-                        .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                                workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
+                .flatMap(application1 -> exportService
+                        .exportByArtifactIdAndBranchName(gitConnectedApp.getId(), gitData.getBranchName(), APPLICATION)
+                        .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
+                        .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
+                                workspaceId, application1.getId(), applicationJson, gitData.getBranchName())))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         Mono<Application> getApplication = applicationService.findByIdAndBranchName(gitConnectedApp.getId(), "release");

@@ -114,7 +114,7 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
-    GitApplicationMetadata gitApplicationMetadata;
+    GitArtifactMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { CollapsibleTabProps } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
@@ -53,6 +53,14 @@ function EntityBottomTabs(
     }
   };
 
+  // Avoid having tabs without any tab selected
+  useEffect(() => {
+    const tab = props.tabs.find((tab) => tab.key === props.selectedTabKey);
+    if (!tab && props.tabs.length && props.onSelect) {
+      props.onSelect(props.tabs[0].key);
+    }
+  }, [props.selectedTabKey]);
+
   return (
     <Tabs
       className="h-full"
@@ -65,6 +73,7 @@ function EntityBottomTabs(
           return (
             <Tab
               data-testid={"t--tab-" + tab.key}
+              id={`debugger-tab-${tab.key}`}
               key={tab.key}
               notificationCount={tab.count}
               value={tab.key}

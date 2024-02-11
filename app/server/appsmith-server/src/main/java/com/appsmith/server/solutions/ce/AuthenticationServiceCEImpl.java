@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.SSLHelper;
+import com.appsmith.external.helpers.restApiUtils.helpers.OAuth2Utils;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
@@ -294,16 +295,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 if (issuedAtResponse != null) {
                                     issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
                                 }
-                                // We expect at least one of the following to be present
-                                Object expiresAtResponse = response.get(Authentication.EXPIRES_AT);
-                                Object expiresInResponse = response.get(Authentication.EXPIRES_IN);
-                                Instant expiresAt = null;
-                                if (expiresAtResponse != null) {
-                                    expiresAt =
-                                            Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
-                                } else if (expiresInResponse != null) {
-                                    expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
-                                }
+                                Instant expiresAt = OAuth2Utils.getAuthenticationExpiresAt(oAuth2, response, issuedAt);
                                 authenticationResponse.setExpiresAt(expiresAt);
                                 // Replacing with returned scope instead
                                 if (scope != null && !scope.isBlank()) {

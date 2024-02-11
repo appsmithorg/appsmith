@@ -3,9 +3,10 @@ package com.appsmith.server.newactions.exports;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableServiceCE;
@@ -44,14 +45,16 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         Optional<AclPermission> optionalPermission = Optional.ofNullable(actionPermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
         Flux<NewAction> actionFlux = newActionService.findByPageIdsForExport(
-                exportingMetaDTO.getUnpublishedModulesOrPages(), optionalPermission);
+                exportingMetaDTO.getUnpublishedContextIds(), optionalPermission);
 
         return actionFlux
                 .collectList()

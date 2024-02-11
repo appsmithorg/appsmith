@@ -34,8 +34,10 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         return workspaceService
                 .getById(applicationJson.getExportedApplication().getWorkspaceId())
                 .map(workspace -> workspace.getPlugins().stream()

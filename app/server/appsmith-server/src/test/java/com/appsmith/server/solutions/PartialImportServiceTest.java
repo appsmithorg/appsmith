@@ -11,7 +11,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -174,7 +174,7 @@ public class PartialImportServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -230,8 +230,8 @@ public class PartialImportServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
@@ -296,15 +296,15 @@ public class PartialImportServiceTest {
                     List<ActionCollection> actionCollectionList = object.getT3();
 
                     // Verify that the application has the imported resource
-                    assertThat(application.getPages().size()).isEqualTo(1);
+                    assertThat(application.getPages()).hasSize(1);
 
-                    assertThat(actionCollectionList.size()).isEqualTo(1);
+                    assertThat(actionCollectionList).hasSize(1);
                     assertThat(actionCollectionList
                                     .get(0)
                                     .getUnpublishedCollection()
                                     .getName())
                             .isEqualTo("utils");
-                    assertThat(actionList.size()).isEqualTo(4);
+                    assertThat(actionList).hasSize(4);
                     Set<String> actionNames = Set.of("DeleteQuery", "UpdateQuery", "SelectQuery", "InsertQuery");
                     actionList.forEach(action -> {
                         assertThat(actionNames.contains(
@@ -354,17 +354,17 @@ public class PartialImportServiceTest {
                     List<ActionCollection> actionCollectionList = object.getT3();
 
                     // Verify that the application has the imported resource
-                    assertThat(application1.getPages().size()).isEqualTo(2);
+                    assertThat(application1.getPages()).hasSize(2);
 
-                    assertThat(application1.getUnpublishedCustomJSLibs().size()).isEqualTo(1);
+                    assertThat(application1.getUnpublishedCustomJSLibs()).hasSize(1);
 
-                    assertThat(actionCollectionList.size()).isEqualTo(1);
+                    assertThat(actionCollectionList).hasSize(1);
                     assertThat(actionCollectionList
                                     .get(0)
                                     .getUnpublishedCollection()
                                     .getName())
                             .isEqualTo("Github_Transformer");
-                    assertThat(actionList.size()).isEqualTo(1);
+                    assertThat(actionList).hasSize(1);
                     Set<String> actionNames = Set.of("get_force_roster");
                     actionList.forEach(action -> {
                         assertThat(actionNames.contains(
@@ -416,16 +416,16 @@ public class PartialImportServiceTest {
                     List<ActionCollection> actionCollectionList = object.getT3();
 
                     // Verify that the application has the imported resource
-                    assertThat(application.getPages().size()).isEqualTo(1);
+                    assertThat(application.getPages()).hasSize(1);
 
-                    assertThat(actionCollectionList.size()).isEqualTo(2);
+                    assertThat(actionCollectionList).hasSize(2);
                     Set<String> nameList = Set.of("utils", "utils1");
                     actionCollectionList.forEach(collection -> {
                         assertThat(nameList.contains(
                                         collection.getUnpublishedCollection().getName()))
                                 .isTrue();
                     });
-                    assertThat(actionList.size()).isEqualTo(8);
+                    assertThat(actionList).hasSize(8);
                     Set<String> actionNames = Set.of(
                             "DeleteQuery",
                             "UpdateQuery",

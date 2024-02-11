@@ -7,6 +7,7 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -29,7 +30,7 @@ import org.springframework.stereotype.Service;
 public class PartialImportServiceImpl extends PartialImportServiceCEImpl implements PartialImportService {
 
     public PartialImportServiceImpl(
-            ImportApplicationService importApplicationService,
+            ImportService importService,
             WorkspaceService workspaceService,
             ApplicationService applicationService,
             AnalyticsService analyticsService,
@@ -49,7 +50,7 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             NewPageService newPageService,
             RefactoringService refactoringService) {
         super(
-                importApplicationService,
+                importService,
                 workspaceService,
                 applicationService,
                 analyticsService,

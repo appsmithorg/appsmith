@@ -25,8 +25,6 @@ import NewQueryScreen from "./NewQuery";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import history from "utils/history";
 import { showDebuggerFlag } from "../../../selectors/debuggerSelectors";
-import classNames from "classnames";
-import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   createMessage,
@@ -196,17 +194,20 @@ function CreateNewSaasIntegration({
     }
   }, [active]);
   return !isAirgappedInstance ? (
-    <div id="new-saas-api" ref={newSaasAPIRef}>
-      <Text kind="heading-m">SaaS Integrations</Text>
-      <NewApiScreen
-        history={history}
-        isCreating={isCreating}
-        location={location}
-        pageId={pageId}
-        showSaasAPIs
-        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-      />
-    </div>
+    <>
+      <StyledDivider />
+      <div id="new-saas-api" ref={newSaasAPIRef}>
+        <Text kind="heading-m">SaaS Integrations</Text>
+        <NewApiScreen
+          history={history}
+          isCreating={isCreating}
+          location={location}
+          pageId={pageId}
+          showSaasAPIs
+          showUnsupportedPluginDialog={showUnsupportedPluginDialog}
+        />
+      </div>
+    </>
   ) : null;
 }
 
@@ -219,17 +220,20 @@ function CreateNewAIIntegration({
   const isAirgappedInstance = isAirgapped();
 
   return !isAirgappedInstance ? (
-    <div id="new-ai-query">
-      <Text kind="heading-m">AI Integrations</Text>
-      <AIDataSources
-        history={history}
-        isCreating={isCreating}
-        location={location}
-        pageId={pageId}
-        showSaasAPIs
-        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-      />
-    </div>
+    <>
+      <StyledDivider />
+      <div id="new-ai-query">
+        <Text kind="heading-m">AI Integrations</Text>
+        <AIDataSources
+          history={history}
+          isCreating={isCreating}
+          location={location}
+          pageId={pageId}
+          showSaasAPIs
+          showUnsupportedPluginDialog={showUnsupportedPluginDialog}
+        />
+      </div>
+    </>
   ) : null;
 }
 
@@ -241,7 +245,6 @@ interface CreateNewDatasourceScreenProps {
   canCreateDatasource?: boolean;
   showDebugger: boolean;
   pageId: string;
-  isAppSidebarEnabled: boolean;
   isEnabledForCreateNew: boolean;
   isOnboardingScreen?: boolean;
 }
@@ -273,7 +276,6 @@ class CreateNewDatasourceTab extends React.Component<
     const {
       canCreateDatasource = false,
       dataSources,
-      isAppSidebarEnabled,
       isCreating,
       isEnabledForCreateNew,
       isOnboardingScreen,
@@ -288,12 +290,7 @@ class CreateNewDatasourceTab extends React.Component<
         />
       ) : null;
     return (
-      <NewIntegrationsContainer
-        className={classNames({
-          "p-4": isAppSidebarEnabled,
-        })}
-        id="new-integrations-wrapper"
-      >
+      <NewIntegrationsContainer className="p-4" id="new-integrations-wrapper">
         {dataSources.length === 0 && <AddDatasourceSecurely />}
         {dataSources.length === 0 && this.props.mockDatasources.length > 0 && (
           <>
@@ -334,7 +331,6 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
-        <StyledDivider />
         <CreateNewSaasIntegration
           active={false}
           history={history}
@@ -343,7 +339,6 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
-        <StyledDivider />
         <CreateNewAIIntegration
           history={history}
           isCreating={isCreating}
@@ -384,7 +379,6 @@ const mapStateToProps = (state: AppState) => {
 
   const isEnabledForCreateNew =
     !!featureFlags[FEATURE_FLAG.ab_create_new_apps_enabled];
-  const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
@@ -393,7 +387,6 @@ const mapStateToProps = (state: AppState) => {
     canCreateDatasource,
     showDebugger,
     pageId,
-    isAppSidebarEnabled,
     isEnabledForCreateNew,
   };
 };

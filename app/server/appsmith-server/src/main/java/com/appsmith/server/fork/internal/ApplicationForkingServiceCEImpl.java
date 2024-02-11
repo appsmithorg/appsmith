@@ -11,6 +11,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -30,7 +31,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
@@ -75,7 +76,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ResponseUtils responseUtils;
     protected final WorkspacePermission workspacePermission;
     protected final ApplicationPermission applicationPermission;
-    private final ImportApplicationService importApplicationService;
+    private final ImportService importService;
     private final ApplicationPageService applicationPageService;
     protected final NewPageRepositoryCake newPageRepository;
     private final NewActionService newActionService;
@@ -628,9 +629,13 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     return forkApplicationToWorkspaceWithEnvironment(
                                     fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
                             .map(responseUtils::updateApplicationWithDefaultResources)
-                            .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                                    application.getId(), application.getWorkspaceId(), application));
-                }); // */
+                            .flatMap(application -> importService.getArtifactImportDTO(
+                                    application.getWorkspaceId(),
+                                    application.getId(),
+                                    application,
+                                    ArtifactJsonType.APPLICATION))
+                            .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
+                });
     }
 
     private Mono<Application> sendForkApplicationAnalyticsEvent(

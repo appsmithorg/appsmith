@@ -1836,7 +1836,7 @@ public class DatasourceServiceTest {
 
         StepVerifier.create(listMono)
                 .assertNext(datasources -> {
-                    assertThat(datasources.size()).isEqualTo(4);
+                    assertThat(datasources).hasSize(4);
 
                     assertThat(datasources).allMatch(datasourceDTO -> Set.of("A", "B", "C", "D")
                             .contains(datasourceDTO.getName()));
@@ -1927,7 +1927,7 @@ public class DatasourceServiceTest {
 
         StepVerifier.create(datasourceMono)
                 .assertNext(dbDatasource -> {
-                    assertThat(dbDatasource.getDatasourceStorages().size()).isEqualTo(1);
+                    assertThat(dbDatasource.getDatasourceStorages()).hasSize(1);
                     assertThat(dbDatasource.getDatasourceStorages().get(defaultEnvironmentId))
                             .isNotNull();
                     DatasourceStorageDTO datasourceStorageDTO =

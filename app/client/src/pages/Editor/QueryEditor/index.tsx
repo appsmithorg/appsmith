@@ -37,6 +37,7 @@ import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/Conv
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
 import { PluginType } from "entities/Action";
+import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -148,9 +149,7 @@ function QueryEditor(props: QueryEditorProps) {
     [pageId, history, integrationEditorURL],
   );
 
-  const isPagesPaneEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
+  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
@@ -164,7 +163,7 @@ function QueryEditor(props: QueryEditorProps) {
     <QueryEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
       changeQueryPage={changeQueryPage}
-      closeEditorLink={isPagesPaneEnabled ? null : closeEditorLink}
+      closeEditorLink={isEditorPaneEnabled ? null : closeEditorLink}
       moreActionsMenu={moreActionsMenu}
       notification={notification}
       onCreateDatasourceClick={onCreateDatasourceClick}

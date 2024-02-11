@@ -58,17 +58,19 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
 
-        Mono<String> defaultEnvironmentIdMono = applicationMono
-                .map(Application::getWorkspaceId)
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+
+        Mono<String> defaultEnvironmentIdMono = exportableArtifactMono
+                .map(ExportableArtifact::getWorkspaceId)
                 .flatMap(workspaceId -> workspaceService.getDefaultEnvironmentId(workspaceId, null));
 
         Optional<AclPermission> optionalPermission = Optional.ofNullable(datasourcePermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
-        Flux<Datasource> datasourceFlux = applicationMono.flatMapMany(application -> {
+        Flux<Datasource> datasourceFlux = exportableArtifactMono.flatMapMany(application -> {
             return datasourceService.getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), optionalPermission);
         });
 
@@ -146,7 +148,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ArtifactExchangeJson artifactExchangeJson,
             SerialiseArtifactObjective serialiseFor,
-            Boolean isContextAgnositc) {
+            Boolean isContextAgnostic) {
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         sanitizeEntities(exportingMetaDTO, mappedExportableResourcesDTO, applicationJson, serialiseFor);
     }
@@ -155,8 +157,10 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
     public void sanitizeEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            ApplicationJson applicationJson,
+            ArtifactExchangeJson artifactExchangeJson,
             SerialiseArtifactObjective serialiseFor) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         // Save decrypted fields for datasources for internally used sample apps and templates
         // only when serialising for file sharing
         if (TRUE.equals(exportingMetaDTO.getExportWithConfiguration())

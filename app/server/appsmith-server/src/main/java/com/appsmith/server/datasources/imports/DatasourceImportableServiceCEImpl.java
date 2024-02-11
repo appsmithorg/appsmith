@@ -385,4 +385,9 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
         }
         return Mono.just("");
     }
+
+    @Override
+    public Flux<Datasource> getEntitiesPresentInWorkspace(String workspaceId) {
+        return datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty());
+    }
 }

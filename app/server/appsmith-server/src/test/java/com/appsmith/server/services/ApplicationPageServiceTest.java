@@ -5,7 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
@@ -144,8 +144,8 @@ public class ApplicationPageServiceTest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
-                    assertThat(application.getPages().size())
-                            .isEqualTo(application.getPublishedPages().size());
+                    assertThat(application.getPages())
+                            .hasSize(application.getPublishedPages().size());
                 })
                 .verifyComplete();
     }
@@ -383,9 +383,9 @@ public class ApplicationPageServiceTest {
         final String appName = "app" + UUID.randomUUID();
         Application application = new Application();
         application.setName(appName);
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-        gitApplicationMetadata.setBranchName("branch1");
-        application.setGitApplicationMetadata(gitApplicationMetadata);
+        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+        gitArtifactMetadata.setBranchName("branch1");
+        application.setGitApplicationMetadata(gitArtifactMetadata);
 
         Mono<Application> importAppMono = applicationPageService
                 .createApplication(application, workspace.getId())
