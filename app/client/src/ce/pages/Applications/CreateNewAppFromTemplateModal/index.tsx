@@ -12,7 +12,7 @@ import {
   importTemplateToWorkspace,
   setActiveLoadingTemplateId,
 } from "actions/templateActions";
-import { Modal, ModalBody, ModalContent } from "design-system";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import { isEmpty } from "lodash";
 import { TemplateView } from "pages/Templates/TemplateView";
 import TemplatesListLayoutSwitcher from "pages/Templates/TemplatesModal/TemplatesListLayoutSwitcher";
@@ -108,6 +108,13 @@ function CreateNewAppFromTemplatesModal({
   return (
     <Modal onOpenChange={(open) => onClose(open)} open={isOpen}>
       <ModalContentWrapper data-testid="t--create-app-from-templates-dialog-component">
+        <ModalHeader>
+          <StartWithTemplatesHeader
+            isModalLayout
+            subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
+            title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
+          />
+        </ModalHeader>
         <ModalBodyWrapper
           isDetailedView={!!showTemplateDetails}
           ref={modadBodyRef}
@@ -123,18 +130,11 @@ function CreateNewAppFromTemplatesModal({
               templateId={showTemplateDetails}
             />
           ) : (
-            <>
-              <StartWithTemplatesHeader
-                isModalLayout
-                subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
-                title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
-              />
-              <TemplatesListLayoutSwitcher
-                isForkingEnabled
-                onForkTemplateClick={onClickUseTemplate}
-                onTemplateClick={onTemplateClick}
-              />
-            </>
+            <TemplatesListLayoutSwitcher
+              isForkingEnabled
+              onForkTemplateClick={onClickUseTemplate}
+              onTemplateClick={onTemplateClick}
+            />
           )}
         </ModalBodyWrapper>
       </ModalContentWrapper>
