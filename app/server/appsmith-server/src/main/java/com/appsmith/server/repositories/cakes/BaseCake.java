@@ -76,6 +76,10 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
         return Mono.fromSupplier(() -> repository.save(entity)).subscribeOn(Schedulers.boundedElastic());
     }
 
+    public Flux<T> findAll() {
+        return Mono.fromSupplier(repository::findAll).flatMapMany(Flux::fromIterable).subscribeOn(Schedulers.boundedElastic());
+    }
+
     public Mono<T> findById(String id) {
         return Mono.fromSupplier(() -> repository.findById(id).orElse(null)).subscribeOn(Schedulers.boundedElastic());
     }

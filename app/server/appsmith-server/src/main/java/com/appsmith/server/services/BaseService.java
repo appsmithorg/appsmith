@@ -23,6 +23,7 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -97,7 +98,7 @@ public abstract class BaseService<
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
-        List<Criteria> criterias = new ArrayList<>();
+        List<Criteria> criterias;
 
         if (params != null && !params.isEmpty()) {
             criterias = params.entrySet().stream()
@@ -107,12 +108,17 @@ public abstract class BaseService<
                         return Criteria.where(key).in(values);
                     })
                     .collect(Collectors.toList());
+        } else {
+            criterias = new ArrayList<>();
         }
-        return repository
+
+        return Mono.fromSupplier(() -> repository
                 .queryBuilder()
                 .criteria(criterias)
                 .permission(aclPermission)
-                .all(); // */
+                .all())
+            .flatMapMany(Flux::fromIterable)
+            .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
@@ -120,7 +126,7 @@ public abstract class BaseService<
         // In the base service we aren't handling the query parameters. In order to filter records using the query
         // params,
         // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
-        return repository.findAll(); // */
+        return repository.findAll();
     }
 
     @Override
@@ -205,16 +211,17 @@ public abstract class BaseService<
                 .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
-        Flux<T> result = repository
+        Flux<T> result = Mono.fromSupplier(() -> repository
                 .queryBuilder()
                 .criteria(criteria)
                 .permission(permission)
                 .sort(sort)
-                .all();
+                .all())
+            .flatMapMany(Flux::fromIterable);
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result; // */
+        return result;
     }
 
     /**
@@ -247,6 +254,6 @@ public abstract class BaseService<
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result; // */
+        return result;
     }
 }
