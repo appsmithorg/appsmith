@@ -89,7 +89,7 @@ public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServic
                 .switchIfEmpty(
                         Mono.defer(() -> applicationService.findByIdAndExportWithConfiguration(artifactId, TRUE)))
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, artifactId)));
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, artifactId)));
     }
 
     @Override
