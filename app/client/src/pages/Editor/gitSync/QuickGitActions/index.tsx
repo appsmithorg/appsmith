@@ -303,10 +303,6 @@ export default function QuickGitActions() {
   const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);
 
-  const isGitConnectV2Enabled = useFeatureFlag(
-    FEATURE_FLAG.release_git_connect_v2_enabled,
-  );
-
   const isAutocommitFeatureEnabled = useFeatureFlag(
     FEATURE_FLAG.release_git_autocommit_feature_enabled,
   );
@@ -325,22 +321,12 @@ export default function QuickGitActions() {
       });
     },
     settings: () => {
-      if (isGitConnectV2Enabled) {
-        dispatch(
-          setGitSettingsModalOpenAction({
-            open: true,
-            tab: GitSettingsTab.GENERAL,
-          }),
-        );
-      } else {
-        dispatch(
-          setIsGitSyncModalOpen({
-            isOpen: true,
-            tab: GitSyncModalTab.GIT_CONNECTION,
-            isDeploying: true,
-          }),
-        );
-      }
+      dispatch(
+        setGitSettingsModalOpenAction({
+          open: true,
+          tab: GitSettingsTab.GENERAL,
+        }),
+      );
       AnalyticsUtil.logEvent("GS_SETTING_CLICK", {
         source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
       });

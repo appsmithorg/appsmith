@@ -130,7 +130,6 @@ export class AggregateHelper {
     cy.fixture(dslFile).then((val) => {
       cy.url().then((url) => {
         pageid = url.split("/")[5]?.split("-").pop() as string;
-        cy.log(pageid + "page id");
         //Fetch the layout id
         cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
           const respBody = JSON.stringify(response.body);
@@ -152,7 +151,6 @@ export class AggregateHelper {
               "X-Requested-By": "Appsmith",
             },
           }).then((dslDumpResp) => {
-            //cy.log("Pages resposne is : " + dslDumpResp.body);
             expect(dslDumpResp.status).equal(200);
             //this.Sleep(3000); //for dsl to settle in layouts api & then refresh
             this.RefreshPage();
@@ -279,7 +277,6 @@ export class AggregateHelper {
   ) {
     let locator;
     if (typeof selector == "string") {
-      //cy.log(selector, "selector");
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
           ? cy.xpath(selector, {
@@ -314,7 +311,6 @@ export class AggregateHelper {
   public GetElementsNAssertTextPresence(selector: string, text: string) {
     this.GetElement(selector).then(($elements: any) => {
       let found = false;
-      cy.log("elements length is" + $elements.length);
       $elements.each((index: any, element: any) => {
         const eleText = Cypress.$(element).text().trim();
         if (eleText === text) {
@@ -349,7 +345,6 @@ export class AggregateHelper {
           if ($body.find(this.locator._evalPopup).length > 0) {
             this.GetElement(this.locator._evalPopup).then(($evalPopUp) => {
               $evalPopUp.remove();
-              cy.log("Eval pop up removed");
             });
           }
           break;
@@ -362,7 +357,6 @@ export class AggregateHelper {
               .parents("div.rc-tooltip")
               .then(($tooltipElement) => {
                 $tooltipElement.remove();
-                cy.log(toolTipOrToasttext + " tooltip removed");
               });
           }
           break;
@@ -382,7 +376,6 @@ export class AggregateHelper {
                 "'))",
             ).then(($toastContainer) => {
               $toastContainer.remove();
-              cy.log(toolTipOrToasttext + " toast removed");
             });
           }
           break;
@@ -590,7 +583,6 @@ export class AggregateHelper {
     endpoint = "dropdownwidget",
   ) {
     const mode = window.localStorage.getItem("inDeployedMode");
-    //cy.log("mode frm deployed is:" + mode)
     const modeSelector =
       mode == "true"
         ? this.locator._selectWidgetDropdownInDeployed(endpoint)
@@ -598,7 +590,6 @@ export class AggregateHelper {
     const finalSelector = insideParent
       ? this.locator._divWithClass(insideParent) + modeSelector
       : modeSelector;
-    cy.log(finalSelector);
 
     this.GetNClick(finalSelector, index);
     cy.get(this.locator._dropDownValue(dropdownOption)).click({ force: true });
@@ -724,7 +715,6 @@ export class AggregateHelper {
     // .type("{ctrl}{shift}{downarrow}{del}", { force: true });
     cy.focused().then(($cm: any) => {
       if ($cm.contents != "") {
-        cy.log("The field is not empty");
         this.ScrollIntoView(this.locator._actionTextArea(actionName), index)
           .click({ force: true })
           .focused()
@@ -778,7 +768,9 @@ export class AggregateHelper {
         ctrlKey: ctrlKey,
         metaKey,
       })
-      .wait(waitTimeInterval);
+      .then(($element) => {
+        return cy.wrap($element).wait(waitTimeInterval);
+      });
   }
 
   public GetClosestNClick(
@@ -1003,7 +995,6 @@ export class AggregateHelper {
     this.GetElement(selector)
       .invoke("attr", "data-selected-value")
       .then((dataSelectedValue) => {
-        cy.log("dataSelectedValue:" + dataSelectedValue);
         if (dataSelectedValue !== undefined) {
           this.GetElement(selector).should(
             "have.attr",
@@ -1130,6 +1121,11 @@ export class AggregateHelper {
       this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
+  public CypressReload() {
+    cy.reload();
+    this.assertHelper.AssertDocumentReady();
+  }
+
   public ActionContextMenuWithInPane({
     action = "Delete",
     entityType = EntityItems.JSObject,
@@ -1201,6 +1197,7 @@ export class AggregateHelper {
   public EnterValue(
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
+    toVerifySave = true,
   ) {
     const { apiOrQuery, directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
@@ -1211,7 +1208,7 @@ export class AggregateHelper {
         valueToEnter,
       );
     }
-    this.AssertAutoSave();
+    toVerifySave && this.AssertAutoSave();
   }
 
   public VerifyCodeInputValue(propFieldName: string, value: string) {
@@ -1615,9 +1612,10 @@ export class AggregateHelper {
   }
 
   public AssertURL(url: string) {
-    cy.url({ timeout: Cypress.config().pageLoadTimeout }).should(
-      "include",
-      url,
+    this.WaitForCondition(() =>
+      cy.url().then((currentUrl) => {
+        return currentUrl.includes(url);
+      }),
     );
     this.assertHelper.AssertDocumentReady();
   }
@@ -1668,6 +1666,18 @@ export class AggregateHelper {
     index = 0,
   ) {
     return this.GetElement(widgetSelector).eq(index).invoke("css", attribute);
+  }
+
+  public GetWidgetCSSValue(
+    widgetSelector: string,
+    attribute: string,
+    index = 0,
+  ) {
+    return this.GetElement(widgetSelector)
+      .eq(index)
+      .then(($element) => {
+        cy.wrap($element.css(attribute)).as("cssAttributeValue");
+      });
   }
 
   GetWidgetByName(widgetName: string) {
@@ -1726,10 +1736,8 @@ export class AggregateHelper {
   }
 
   public VisitNAssert(url: string, apiToValidate = "") {
-    cy.visit(url, { timeout: 60000 });
-    // cy.window({ timeout: 60000 }).then((win) => {
-    //   win.location.href = url;
-    // });
+    cy.visit(url);
+    this.AssertURL(url);
     if (
       apiToValidate.includes("getAllWorkspaces") &&
       Cypress.env("AIRGAPPED")

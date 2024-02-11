@@ -31,9 +31,7 @@ import {
   getIsCommitSuccessful,
   getIsCommittingInProgress,
   getIsDiscardInProgress,
-  getIsFetchingGitRemoteStatus,
   getIsFetchingGitStatus,
-  getIsGitStatusLiteEnabled,
   getIsPullingProgress,
   getPullFailed,
   getUpstreamErrorDocUrl,
@@ -48,7 +46,6 @@ import {
   clearDiscardErrorState,
   commitToRepoInit,
   discardChanges,
-  fetchGitRemoteStatusInit,
   fetchGitStatusInit,
   gitPullInit,
 } from "actions/gitSyncActions";
@@ -107,7 +104,6 @@ function Deploy() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus) as GitStatusData;
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
-  const remoteStatusLoading = useSelector(getIsFetchingGitRemoteStatus);
   const isPullingProgress = useSelector(getIsPullingProgress);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
@@ -129,7 +125,6 @@ function Deploy() {
   const currentApplication = useSelector(getCurrentApplication);
   const { changeReasonText, isAutoUpdate, isManualUpdate } =
     changeInfoSinceLastCommit(currentApplication);
-  const isGitStatusLiteEnabled = useSelector(getIsGitStatusLiteEnabled);
 
   const handleCommit = (doPush: boolean) => {
     setShowDiscardWarning(false);
@@ -160,12 +155,7 @@ function Deploy() {
   const commitButtonText = createMessage(COMMIT_AND_PUSH);
 
   useEffect(() => {
-    if (isGitStatusLiteEnabled) {
-      dispatch(fetchGitRemoteStatusInit());
-      dispatch(fetchGitStatusInit({ compareRemote: false }));
-    } else {
-      dispatch(fetchGitStatusInit({ compareRemote: true }));
-    }
+    dispatch(fetchGitStatusInit({ compareRemote: true }));
     return () => {
       dispatch(clearCommitSuccessfulState());
     };
@@ -346,7 +336,7 @@ function Deploy() {
                 value={commitMessageDisplay}
               />
             </SubmitWrapper>
-            {(isFetchingGitStatus || remoteStatusLoading) && (
+            {isFetchingGitStatus && (
               <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
             )}
             {/* <Space size={11} /> */}
