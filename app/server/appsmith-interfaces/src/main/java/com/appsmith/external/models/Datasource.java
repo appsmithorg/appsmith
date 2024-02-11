@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +17,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,14 +49,10 @@ public class Datasource extends BranchAwareDomain {
     String templateName;
 
     // This is only kept public for embedded datasource
-    @OneToOne
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
-
-    @OneToMany(mappedBy = "datasourceId")
-    @JsonView(Views.Internal.class)
-    @ToString.Exclude
-    private List<DatasourceStorage> storages;
 
     @Transient
     @JsonView(Views.Public.class)

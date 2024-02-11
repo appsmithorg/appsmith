@@ -682,7 +682,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id /*, aclPermission*/);
+        return repository.findById(id, aclPermission);
     }
 
     @Override
@@ -762,14 +762,14 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission) {
-        return repository.findAllByWorkspaceId(workspaceId /*, permission*/);
+        return repository.findAllByWorkspaceId(workspaceId, permission.orElse(null));
     }
 
     @Override
     public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission) {
 
         return repository
-                .findAllByWorkspaceId(workspaceId /*, permission*/)
+                .findAllByWorkspaceId(workspaceId, permission.orElse(null))
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(datasource -> datasourceStorageService
                         .findByDatasource(datasource)

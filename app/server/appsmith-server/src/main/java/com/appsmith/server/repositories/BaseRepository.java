@@ -18,11 +18,11 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
         extends CrudRepository<T, ID>, QuerydslPredicateExecutor<T>, JpaSpecificationExecutor<T> {
 
     @Override
-    @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt is null and e.id = :id")
+    @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt IS NULL AND e.id = :id")
     Optional<T> findById(ID id);
 
     @Override
-    @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt is null")
+    @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt IS NULL")
     Iterable<T> findAll();
 
     /**

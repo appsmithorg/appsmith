@@ -3,12 +3,15 @@ package com.appsmith.external.models;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Transient;
+import org.hibernate.annotations.Type;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -32,6 +35,8 @@ public class DatasourceStorage extends BaseDomain {
     @JsonView(Views.Public.class)
     String environmentId;
 
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
 
@@ -42,6 +47,8 @@ public class DatasourceStorage extends BaseDomain {
     @JsonView(Views.Public.class)
     Boolean isConfigured;
 
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Set<String> invalids = new HashSet<>();
