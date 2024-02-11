@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.cakes.BaseCake;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,16 +26,20 @@ import reactor.core.scheduler.Scheduler;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
-public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, ID extends Serializable>
+public abstract class BaseService<
+                R extends BaseCake<T, ? extends AppsmithRepository<T>>, T extends BaseDomain, ID extends Serializable>
         implements CrudService<T, ID> {
 
     final Scheduler scheduler;
@@ -91,7 +97,6 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
-        return Flux.error(new ex.Marker("getWithPermission")); /*
         List<Criteria> criterias = new ArrayList<>();
 
         if (params != null && !params.isEmpty()) {
@@ -107,16 +112,15 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
                 .queryBuilder()
                 .criteria(criterias)
                 .permission(aclPermission)
-                .all(); //*/
+                .all(); // */
     }
 
     @Override
     public Flux<T> get(MultiValueMap<String, String> params) {
-        return Flux.error(new ex.Marker("get")); /*
         // In the base service we aren't handling the query parameters. In order to filter records using the query
         // params,
         // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
-        return repository.findAll(); //*/
+        return repository.findAll(); // */
     }
 
     @Override
@@ -194,7 +198,6 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
             Pageable pageable,
             Sort sort,
             AclPermission permission) {
-        return Flux.error(new ex.Marker("filterByEntityFields")); /*
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
@@ -211,7 +214,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result; //*/
+        return result; // */
     }
 
     /**
@@ -234,7 +237,6 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
-        return Flux.error(new ex.Marker("unknown")); /*
         List<Criteria> criteriaList = searchableEntityFields.stream()
                 .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
                 .toList();
@@ -245,6 +247,6 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result; //*/
+        return result; // */
     }
 }

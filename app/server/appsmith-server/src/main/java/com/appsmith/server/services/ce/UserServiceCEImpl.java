@@ -74,6 +74,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -177,7 +178,6 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
      */
     @Override
     public Mono<User> switchCurrentWorkspace(String workspaceId) {
-        return Mono.error(new ex.Marker("switchCurrentWorkspace")); /*
         if (workspaceId == null || workspaceId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspaceId"));
         }
@@ -209,7 +209,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                     // Throw an exception if the workspaceId is not part of the user's workspaces
                     return Mono.error(new AppsmithException(
                             AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), workspaceId));
-                }); //*/
+                }); // */
     }
 
     /**

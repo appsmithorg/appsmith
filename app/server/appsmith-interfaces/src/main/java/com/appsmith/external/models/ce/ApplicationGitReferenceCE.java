@@ -1,10 +1,10 @@
 package com.appsmith.external.models.ce;
 
-import com.appsmith.external.dtos.ModifiedResources;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A DTO class to hold complete information about an application, which will then be serialized to a file so as to
@@ -32,5 +32,5 @@ public class ApplicationGitReferenceCE {
      * This field can be used while saving resources to local file system and only update the resource files which
      * are updated in the database.
      */
-    ModifiedResources modifiedResources;
+    Map<String, Set<String>> updatedResources;
 }

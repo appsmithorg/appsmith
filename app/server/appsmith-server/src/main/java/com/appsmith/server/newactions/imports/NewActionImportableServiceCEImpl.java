@@ -30,6 +30,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.helpers.ImportExportUtils.sanitizeDatasourceInActionDTO;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -162,7 +166,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         for (ActionCollection collection :
                                 importActionCollectionResultDTO.getExistingActionCollections()) {
                             if (!savedCollectionIds.contains(collection.getId())) {
-                                // invalidCollectionIds.add(collection.getId());
+                                invalidCollectionIds.add(collection.getId());
                             }
                         }
                         log.info("Deleting {} action collections which are no more used", invalidCollectionIds.size());
@@ -214,10 +218,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             Application application,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return Mono.error(new ex.Marker("importActions")); /*
         /* Mono.just(application) is created to avoid the eagerly fetching of existing actions
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
-         * /
+         */
         return Mono.just(application)
                 .flatMap(importedApplication -> {
                     Mono<Map<String, NewAction>> actionsInCurrentAppMono =
@@ -422,7 +425,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             tuple.getT2().getImportedActionIds().size(),
                             tuple.getT1());
                     return tuple.getT2();
-                }); //*/
+                });
     }
 
     private void updateActionNameBeforeMerge(List<NewAction> importedNewActionList, Set<String> refactoringNames) {
@@ -503,7 +506,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             return null;
         }
         actionIdMap.put(action.getValidName() + parentPage.getId(), action.getId());
-        // action.setPageId(parentPage.getId());
+        action.setPageId(parentPage.getId());
 
         // Update defaultResources in actionDTO
         DefaultResources defaultResources = new DefaultResources();
@@ -543,7 +546,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     }
 
     private void putActionIdInMap(NewAction newAction, ImportActionResultDTO importActionResultDTO) {
-        /*/ Populate actionIdsMap to associate the appropriate actions to run on page load
+        // Populate actionIdsMap to associate the appropriate actions to run on page load
         String defaultResourcesActionId = newAction.getDefaultResources().getActionId();
 
         if (defaultResourcesActionId == null) {
@@ -591,6 +594,6 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         .get(publishedAction.getCollectionId());
                 actionIds.put(defaultResourcesActionId, newAction.getId());
             }
-        }*/
+        }
     }
 }

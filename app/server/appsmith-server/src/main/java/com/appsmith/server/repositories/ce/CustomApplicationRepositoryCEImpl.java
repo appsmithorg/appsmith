@@ -360,7 +360,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public List<Object> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+    public List<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
             String workspaceId, AclPermission permission, String permissionGroupId) {
         throw new ex.Marker("getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission"); /*
         Criteria workspaceIdCriteria =

@@ -6,8 +6,10 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.types.Predicate;
@@ -36,14 +38,18 @@ import java.util.Set;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @RequiredArgsConstructor
-public abstract class BaseCake<T extends BaseDomain> {
-    private final BaseRepository<T, String> repository;
+public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T, String> & AppsmithRepository<T>> {
+    private final R repository;
 
     @Autowired
     private EntityManager entityManager;
 
     @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    public QueryAllParams<T> queryBuilder() {
+        return repository.queryBuilder();
+    }
 
     // ---------------------------------------------------
     // Wrappers for methods from BaseRepository
@@ -58,8 +64,8 @@ public abstract class BaseCake<T extends BaseDomain> {
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id) > 0;
+    public Mono<Boolean> archiveById(String id) {
+        return Mono.fromSupplier(() -> repository.archiveById(id) > 0).subscribeOn(Schedulers.boundedElastic());
     }
 
     // ---------------------------------------------------

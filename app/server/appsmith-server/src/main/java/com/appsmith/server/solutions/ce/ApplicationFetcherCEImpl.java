@@ -1,14 +1,18 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ReleaseNode;
 import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -25,15 +29,21 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,7 +76,6 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
      */
     @Deprecated
     public Mono<UserHomepageDTO> getAllApplications() {
-        return Mono.error(new ex.Marker("unknown")); /*
 
         Mono<User> userMono = sessionUserService
                 .getCurrentUser()
@@ -121,7 +130,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             .map(responseUtils::updateApplicationWithDefaultResources);
 
                     Mono<Map<String, Collection<Application>>> applicationsMapMono =
-                            applicationFlux.collectMultimap(a -> a.getWorkspace().toString(), Function.identity());
+                            applicationFlux.collectMultimap(Application::getWorkspaceId, Function.identity());
 
                     Flux<Workspace> workspacesFromRepoFlux = workspaceService
                             .getAll(workspacePermission.getReadPermission())
@@ -136,7 +145,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             .cache();
 
                     Mono<Map<String, List<MemberInfoDTO>>> userAndPermissionGroupMapDTO = workspacesFromRepoFlux
-                            .map(w -> w.getId().toString())
+                            .map(Workspace::getId)
                             .collect(Collectors.toSet())
                             .flatMap(workspaceIds -> userWorkspaceService.getWorkspaceMembers(workspaceIds));
 
@@ -204,7 +213,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                                 }
                                 return userHomepageDTO;
                             });
-                }); //*/
+                });
     }
 
     public Mono<ReleaseItemsDTO> getReleaseItems() {

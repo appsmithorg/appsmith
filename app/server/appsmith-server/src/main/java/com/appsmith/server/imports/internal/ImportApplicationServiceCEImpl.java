@@ -1,12 +1,15 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -20,9 +23,12 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.migrations.ApplicationVersion;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -42,15 +48,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
+import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicationProperties;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -363,7 +377,6 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currUserMono) {
-        return Mono.error(new ex.Marker("getImportApplicationMono")); /*
         Mono<Application> importApplicationMono = Mono.just(importedApplication)
                 .map(application -> {
                     if (application.getApplicationVersion() == null) {
@@ -466,7 +479,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 .onErrorResume(error -> {
                     log.error("Error while creating or updating application object", error);
                     return Mono.error(error);
-                }); //*/
+                }); // */
     }
 
     /**
@@ -496,7 +509,6 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
            6. Extract and save pages in the application
            7. Extract and save actions in the application
         */
-        return Mono.error(new ex.Marker("unknown")); /*
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         // check for validation error and raise exception if error found
@@ -547,7 +559,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
          Calling the workspaceMono first to avoid creating multiple mongo transactions.
          If the first db call inside a transaction is a Flux, then there's a chance of creating multiple mongo
          transactions which will lead to NoSuchTransaction exception.
-        * /
+        */
         final Mono<Application> importedApplicationMono = workspaceMono
                 .then(applicationSpecificImportedEntitiesMono)
                 .then(getImportApplicationMono(
@@ -555,43 +567,43 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 .cache();
 
         Mono<Application> importMono = importedApplicationMono
-                .then(getImportableEntities(
-                        importingMetaDTO,
-                        mappedImportableResourcesDTO,
-                        workspaceMono,
-                        importedApplicationMono,
-                        applicationJson))
-                .then(importedApplicationMono)
-                .flatMap(application -> {
-                    return newActionImportableService
-                            .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO)
-                            .then(newPageImportableService.updateImportedEntities(
-                                    application, importingMetaDTO, mappedImportableResourcesDTO))
-                            .thenReturn(application);
-                })
-                .flatMap(application -> {
-                    log.info("Imported application with id {}", application.getId());
-                    // Need to update the application object with updated pages and publishedPages
-                    Application updateApplication = new Application();
-                    updateApplication.setPages(application.getPages());
-                    updateApplication.setPublishedPages(application.getPublishedPages());
+                        .then(getImportableEntities(
+                                importingMetaDTO,
+                                mappedImportableResourcesDTO,
+                                workspaceMono,
+                                importedApplicationMono,
+                                applicationJson))
+                        .then(importedApplicationMono)
+                        .flatMap(application -> {
+                            return newActionImportableService
+                                    .updateImportedEntities(application, importingMetaDTO, mappedImportableResourcesDTO)
+                                    .then(newPageImportableService.updateImportedEntities(
+                                            application, importingMetaDTO, mappedImportableResourcesDTO))
+                                    .thenReturn(application);
+                        })
+                        .flatMap(application -> {
+                            log.info("Imported application with id {}", application.getId());
+                            // Need to update the application object with updated pages and publishedPages
+                            Application updateApplication = new Application();
+                            updateApplication.setPages(application.getPages());
+                            updateApplication.setPublishedPages(application.getPublishedPages());
 
-                    return applicationService.update(application.getId(), updateApplication);
-                })
-                .flatMap(application -> {
-                    return Flux.fromIterable(application.getPages())
-                            .map(ApplicationPage::getId)
-                            .flatMap(updateLayoutService::updatePageLayoutsByPageId)
-                            .collectList()
-                            .thenReturn(application);
-                })
-                .onErrorResume(throwable -> {
-                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                    log.error("Error importing application. Error: {}", errorMessage, throwable);
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
-                })
-                .as(transactionalOperator::transactional);
+                            return applicationService.update(application.getId(), updateApplication);
+                        })
+                        .flatMap(application -> {
+                            return Flux.fromIterable(application.getPages())
+                                    .map(ApplicationPage::getId)
+                                    .flatMap(updateLayoutService::updatePageLayoutsByPageId)
+                                    .collectList()
+                                    .thenReturn(application);
+                        })
+                        .onErrorResume(throwable -> {
+                            String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                            log.error("Error importing application. Error: {}", errorMessage, throwable);
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
+                        })
+                /*.as(transactionalOperator::transactional)*/ ;
 
         final Mono<Application> resultMono = importMono
                 .flatMap(application ->
@@ -638,7 +650,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
-        return Mono.create(sink -> resultMono.subscribe(sink::success, sink::error, null, sink.currentContext())); //*/
+        return Mono.create(sink -> resultMono.subscribe(sink::success, sink::error, null, sink.currentContext())); // */
     }
 
     private Mono<Void> getImportableEntities(
@@ -761,7 +773,6 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
     @Override
     public Mono<ApplicationImportDTO> getApplicationImportDTO(
             String applicationId, String workspaceId, Application application) {
-        return Mono.error(new ex.Marker("getApplicationImportDTO")); /*
         return findDatasourceByApplicationId(applicationId, workspaceId)
                 .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .map(tuple2 -> {
@@ -786,12 +797,11 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                         applicationImportDTO.setIsPartialImport(false);
                     }
                     return applicationImportDTO;
-                }); //*/
+                }); // */
     }
 
     @Override
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
-        return Mono.error(new ex.Marker("findDatasourceByApplicationId")); /*
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
         Mono<List<Datasource>> listMono = datasourceService
                 .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
@@ -813,7 +823,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
 
                     return Mono.just(datasourceList);
-                }); //*/
+                }); // */
     }
 
     /**
@@ -831,7 +841,6 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             String branchName,
             ApplicationJson applicationJson,
             List<String> pagesToImport) {
-        return Mono.error(new ex.Marker("mergeApplicationJsonWithApplication")); /*
         // Update the application JSON to prepare it for merging inside an existing application
         if (applicationJson.getExportedApplication() != null) {
             // setting some properties to null so that target application is not updated by these properties
@@ -910,7 +919,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     true,
                     permissionProvider,
                     userPermissionGroups);
-        }); //*/
+        }); // */
     }
 
     /**
@@ -922,7 +931,6 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(
             Application application, AnalyticsEvents event) {
-        return Mono.error(new ex.Marker("sendImportExportApplicationAnalyticsEvent")); /*
         return workspaceService.getById(application.getWorkspaceId()).flatMap(workspace -> {
             final Map<String, Object> eventData = Map.of(
                     FieldName.APPLICATION, application,
@@ -934,7 +942,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     FieldName.EVENT_DATA, eventData);
 
             return analyticsService.sendObjectEvent(event, application, data);
-        }); //*/
+        }); // */
     }
 
     /**

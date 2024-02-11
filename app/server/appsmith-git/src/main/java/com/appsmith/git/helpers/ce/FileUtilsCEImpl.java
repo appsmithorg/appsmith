@@ -1,7 +1,6 @@
 package com.appsmith.git.helpers.ce;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
-import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.FileInterface;
@@ -228,7 +227,7 @@ public class FileUtilsCEImpl implements FileInterface {
             ApplicationGitReference applicationGitReference, Path baseRepo, Gson gson) {
 
         Set<String> validDatasourceFileNames = new HashSet<>();
-        ModifiedResources modifiedResources = applicationGitReference.getModifiedResources();
+        Map<String, Set<String>> updatedResources = applicationGitReference.getUpdatedResources();
 
         // Remove unwanted directories which was present in v1 of the git file format version
         deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY));
@@ -261,8 +260,9 @@ public class FileUtilsCEImpl implements FileInterface {
             Map<String, String> validWidgetToParentMap = new HashMap<>();
             final String pageName = pageResource.getKey();
             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-            boolean isResourceUpdated =
-                    modifiedResources != null && modifiedResources.isResourceUpdated(PAGE_LIST, pageName);
+            Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(PAGE_LIST))
+                    ? updatedResources.get(PAGE_LIST).contains(pageName)
+                    : Boolean.FALSE;
             if (Boolean.TRUE.equals(isResourceUpdated)) {
                 // Save page metadata
                 saveResource(
@@ -300,16 +300,15 @@ public class FileUtilsCEImpl implements FileInterface {
         scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
 
         // Save JS Libs if there's at least one change
-        if (modifiedResources != null
-                && !CollectionUtils.isEmpty(
-                        modifiedResources.getModifiedResourceMap().get(CUSTOM_JS_LIB_LIST))) {
+        if (updatedResources != null && !CollectionUtils.isEmpty(updatedResources.get(CUSTOM_JS_LIB_LIST))) {
             Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
             Set<Map.Entry<String, Object>> jsLibEntries =
                     applicationGitReference.getJsLibraries().entrySet();
             Set<String> validJsLibs = new HashSet<>();
             jsLibEntries.forEach(jsLibEntry -> {
                 String uidString = jsLibEntry.getKey();
-                boolean isResourceUpdated = modifiedResources.isResourceUpdated(CUSTOM_JS_LIB_LIST, uidString);
+                boolean isResourceUpdated =
+                        updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString);
 
                 String fileNameWithExtension = getJsLibFileName(uidString) + CommonConstants.JSON_EXTENSION;
 
@@ -339,8 +338,9 @@ public class FileUtilsCEImpl implements FileInterface {
             if (names.length > 1 && StringUtils.hasLength(names[1])) {
                 // For actions, we are referring to validNames to maintain unique file names as just name
                 // field don't guarantee unique constraint for actions within JSObject
-                boolean isResourceUpdated = modifiedResources != null
-                        && modifiedResources.isResourceUpdated(ACTION_LIST, resource.getKey());
+                Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(ACTION_LIST))
+                        ? updatedResources.get(ACTION_LIST).contains(resource.getKey())
+                        : Boolean.FALSE;
                 final String queryName = names[0].replace(".", "-");
                 final String pageName = names[1];
                 Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -389,8 +389,9 @@ public class FileUtilsCEImpl implements FileInterface {
                     validActionCollectionsMap.put(pageName, new HashSet<>());
                 }
                 validActionCollectionsMap.get(pageName).add(actionCollectionName);
-                boolean isResourceUpdated = modifiedResources != null
-                        && modifiedResources.isResourceUpdated(ACTION_COLLECTION_LIST, resource.getKey());
+                Boolean isResourceUpdated = !CollectionUtils.isEmpty(updatedResources.get(ACTION_COLLECTION_LIST))
+                        ? updatedResources.get(ACTION_COLLECTION_LIST).contains(resource.getKey())
+                        : Boolean.FALSE;
                 if (Boolean.TRUE.equals(isResourceUpdated)) {
                     saveActionCollection(
                             resource.getValue(),

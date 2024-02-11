@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
@@ -28,6 +29,7 @@ import reactor.core.scheduler.Scheduler;
 
 import java.util.Map;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -59,6 +61,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
 
     @Override
     public Mono<String> getDefaultTenantId() {
+
         // If the value exists in cache, return it as is
         if (StringUtils.hasLength(tenantId)) {
             return Mono.just(tenantId);
@@ -73,7 +76,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return Mono.error(new ex.Marker("updateTenantConfiguration")); /*
         return repository
                 .findById(tenantId, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
@@ -102,16 +104,15 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
                     tenant.setTenantConfiguration(oldConfig);
                     return repository.updateById(tenantId, tenant, MANAGE_TENANT);
-                }); //*/
+                }); // */
     }
 
     @Override
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
-        return Mono.error(new ex.Marker("findById")); /*
         return repository
                 .findById(tenantId, permission)
                 .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId))); //*/
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
     }
 
     /*

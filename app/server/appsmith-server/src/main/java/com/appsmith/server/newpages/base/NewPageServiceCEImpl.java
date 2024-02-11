@@ -50,6 +50,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
+
 @Slf4j
 public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, NewPage, String>
         implements NewPageServiceCE {
@@ -219,8 +222,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Mono<Void> deleteAll() {
-        return Mono.error(new ex.Marker("unknown")); /*
-        return repository.deleteAll(); //*/
+        return repository.deleteAll(); // */
     }
 
     @Override
@@ -405,7 +407,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view) {
-        return Mono.error(new ex.Marker("findNamesByApplicationNameAndViewMode")); /*
 
         AclPermission permission;
         if (view) {
@@ -431,11 +432,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
             applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
             applicationPagesDTO.setPages(nameIdDTOList);
             return applicationPagesDTO;
-        }); //*/
+        }); // */
     }
 
     private Flux<PageNameIdDTO> findNamesByApplication(Application application, Boolean viewMode) {
-        return Flux.error(new ex.Marker("findNamesByApplication")); /*
         List<ApplicationPage> pages;
 
         if (Boolean.TRUE.equals(viewMode)) {
@@ -459,7 +459,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                         }
                     }
                     return pageNameIdDTO;
-                }); //*/
+                }); // */
     }
 
     @Override
@@ -491,7 +491,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
     // Remove if not used
     public Mono<List<String>> findAllPageIdsInApplication(
             String applicationId, AclPermission aclPermission, Boolean view) {
-        return Mono.error(new ex.Marker("findAllPageIdsInApplication")); /*
         return findNewPagesByApplicationId(applicationId, aclPermission)
                 .flatMap(newPage -> {
                     // Look if the page is migrated
@@ -508,12 +507,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                     // Looks like the page has been deleted in the `view` mode. Don't return the id for this page.
                     return Mono.empty();
                 })
-                .collectList(); //*/
+                .collectList(); // */
     }
 
     @Override
     public Mono<PageDTO> updatePage(String pageId, PageDTO page) {
-        return Mono.error(new ex.Marker("updatePage")); /*
         return repository
                 .findById(pageId, pagePermission.getEditPermission())
                 .switchIfEmpty(
@@ -527,26 +525,24 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                 })
                 .flatMap(savedPage -> applicationService
                         .saveLastEditInformation(savedPage.getApplicationId())
-                        .then(getPageByViewMode(savedPage, false))); //*/
+                        .then(getPageByViewMode(savedPage, false))); // */
     }
 
     @Override
     public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
-        return Mono.error(new ex.Marker("updatePageByDefaultPageIdAndBranch")); /*
         return repository
                 .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(newPage -> updatePage(newPage.getId(), page))
-                .map(responseUtils::updatePageDTOWithDefaultResources); //*/
+                .map(responseUtils::updatePageDTOWithDefaultResources); // */
     }
 
     @Override
     public Mono<NewPage> save(NewPage page) {
-        return Mono.error(new ex.Marker("save")); /*
         // gitSyncId will be used to sync resource across instances
         if (page.getGitSyncId() == null) {
             page.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
         }
-        return repository.save(page); //*/
+        return repository.save(page); // */
     }
 
     @Override
@@ -575,17 +571,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .cache();
 
-        return pageMono.flatMap(newPage -> Mono.justOrEmpty(repository.archiveById(id)))
-                .then(pageMono);
+        return pageMono.flatMap(newPage -> repository.archiveById(id)).then(pageMono);
     }
 
     @Override
     public Flux<NewPage> saveAll(List<NewPage> pages) {
-        return Flux.error(new ex.Marker("saveAll")); /*
         pages.stream()
                 .filter(newPage -> newPage.getGitSyncId() == null)
                 .forEach(newPage -> newPage.setGitSyncId(newPage.getId() + "_" + new ObjectId()));
-        return repository.saveAll(pages); //*/
+        return repository.saveAll(pages); // */
     }
 
     @Override
@@ -598,7 +592,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
             String branchName, String defaultPageId, AclPermission permission) {
 
         if (!StringUtils.hasText(defaultPageId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+            return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID));
         } else if (!StringUtils.hasText(branchName)) {
             return this.findById(defaultPageId, permission)
                     .switchIfEmpty(Mono.error(
@@ -612,11 +606,9 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
-        return Mono.error(new ex.Marker("findBranchedPageId")); /*
         if (!StringUtils.hasText(branchName)) {
             if (!StringUtils.hasText(defaultPageId)) {
-                return Mono.error(
-                        new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
+                return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
             return Mono.just(defaultPageId);
         }
@@ -624,23 +616,23 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                 .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName)))
-                .map(NewPage::getId); //*/
+                .map(NewPage::getId); // */
     }
 
     @Override
     public Mono<String> findRootApplicationIdFromNewPage(String branchName, String defaultPageId) {
-        return Mono.error(new ex.Marker("findRootApplicationIdFromNewPage")); /*
         Mono<NewPage> getPageMono;
         if (!StringUtils.hasLength(branchName)) {
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
+            return Mono.error(new ex.Marker("need queryBuilder from service")); /*
             getPageMono = repository
                     .queryBuilder()
                     .byId(defaultPageId)
                     .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
                     .permission(pagePermission.getReadPermission())
-                    .one();
+                    .one();//*/
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(
                     branchName, defaultPageId, pagePermission.getReadPermission());
@@ -655,7 +647,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                     } else {
                         return newPage.getApplicationId();
                     }
-                }); //*/
+                }); // */
     }
 
     // Remove the code
@@ -699,8 +691,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                     .flatMap(rootApplicationId -> findApplicationPagesByApplicationIdViewModeAndBranch(
                             rootApplicationId, branchName, isViewMode, true));
         } else {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
+            return Mono.error(
+                    new AppsmithException(INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
         }
     }
 

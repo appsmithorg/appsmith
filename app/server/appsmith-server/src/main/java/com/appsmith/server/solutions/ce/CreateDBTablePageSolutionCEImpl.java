@@ -3,9 +3,11 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.HttpMethodConverter;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
@@ -62,6 +64,7 @@ import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -190,7 +193,6 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
      */
     public Mono<CRUDPageResponseDTO> createPageFromDBTable(
             String defaultPageId, CRUDPageResourceDTO pageResourceDTO, String environmentId, String branchName) {
-        return Mono.error(new ex.Marker("createPageFromDBTable")); /*
 
         /*
            1. Fetch page from the application
@@ -199,7 +201,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
            4. Map template datasource columns with resource datasource
            5. Clone layout from template application page and update using the column map created in step 4
            6. Clone and update actions in page from the template application
-        * /
+        */
 
         // All SQL datasources will be mapped to postgresql as actionBody will be same and the same logic is used
         // in template application resource file : CRUD-DB-Table-Template-Application.json
@@ -226,7 +228,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         Mono<NewPage> pageMono = getOrCreatePage(defaultApplicationId, defaultPageId, tableName, branchName);
 
         Mono<DatasourceStorage> datasourceStorageMono = datasourceService
-                .findById(Long.valueOf(datasourceId), datasourcePermission.getActionCreatePermission())
+                .findById(datasourceId, datasourcePermission.getActionCreatePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
@@ -397,7 +399,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                      * `sanitizeGenerateCRUDPageTemplateInfo` method in the respective plugin. In the default case no
                      * changes are made to the template. e.g. please check the sanitizeGenerateCRUDPageTemplateInfo
                      * method defined in AmazonS3Plugin.java .
-                     * /
+                     */
                     Mono<Void> sanitizeTemplateInfoMono = pluginExecutorHelper
                             .getPluginExecutorFromPackageName(plugin.getPackageName())
                             .flatMap(pluginExecutor -> pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(
@@ -453,7 +455,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                                     return crudPage;
                                                 });
                                     }));
-                }); //*/
+                });
     }
 
     /**

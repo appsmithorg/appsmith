@@ -91,8 +91,8 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
 
                     applicationJson.setActionCollectionList(actionCollections);
                     applicationJson
-                            .getModifiedResources()
-                            .putResource(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
+                            .getUpdatedResources()
+                            .put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
                     return actionCollections;
                 })
@@ -125,7 +125,7 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                         actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
                 mappedExportableResourcesDTO
                         .getCollectionIdToNameMap()
-                        .put(actionCollection.getId().toString(), updatedCollectionId);
+                        .put(actionCollection.getId(), updatedCollectionId);
                 actionCollection.setId(updatedCollectionId);
             }
             if (actionCollection.getPublishedCollection() != null) {
@@ -141,7 +141,7 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                             actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
                     mappedExportableResourcesDTO
                             .getCollectionIdToNameMap()
-                            .put(actionCollection.getId().toString(), updatedCollectionId);
+                            .put(actionCollection.getId(), updatedCollectionId);
                     actionCollection.setId(updatedCollectionId);
                 }
             }

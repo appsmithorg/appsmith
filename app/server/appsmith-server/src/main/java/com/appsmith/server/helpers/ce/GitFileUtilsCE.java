@@ -185,7 +185,7 @@ public class GitFileUtilsCE {
      */
     public ApplicationGitReference createApplicationReference(ApplicationJson applicationJson) {
         ApplicationGitReference applicationReference = new ApplicationGitReference();
-        applicationReference.setModifiedResources(applicationJson.getModifiedResources());
+        applicationReference.setUpdatedResources(applicationJson.getUpdatedResources());
 
         setApplicationInApplicationReference(applicationJson, applicationReference);
 
@@ -223,7 +223,7 @@ public class GitFileUtilsCE {
                 .collect(Collectors.toList());
 
         ApplicationJson applicationMetadata = new ApplicationJson();
-        applicationJson.setModifiedResources(null);
+        applicationJson.setUpdatedResources(null);
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
     }
@@ -536,6 +536,7 @@ public class GitFileUtilsCE {
         // Don't commit application name as while importing we are using the repoName as application name
         application.setName(null);
         application.setPublishedPages(null);
+        application.setIsPublic(null);
         application.setSlug(null);
         application.setPublishedApplicationDetail(null);
         removeUnwantedFieldsFromBaseDomain(application);

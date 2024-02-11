@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.helpers.bridge.Update;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
@@ -19,6 +20,8 @@ public interface AppsmithRepository<T extends BaseDomain> {
     // Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
 
     Optional<T> updateById(String id, T resource, AclPermission permission);
+
+    /*no-cake*/ QueryAllParams<T> queryBuilder();
 
     List<T> queryAllWithStrictPermissionGroups(
             List<Criteria> criterias,

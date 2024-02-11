@@ -1,12 +1,17 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
@@ -15,7 +20,10 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -30,8 +38,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -58,7 +72,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
      * @return application reference from which entire application can be rehydrated
      */
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseArtifactObjective serialiseFor) {
-        return Mono.error(new ex.Marker("exportApplicationById")); /*
+
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
         /*
@@ -68,7 +82,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
            4. Fetch actions from the application
            5. Filter out relevant datasources using actions reference
            6. Fetch action collections from the application
-        * /
+        */
         ApplicationJson applicationJson = new ApplicationJson();
         final MappedExportableResourcesDTO mappedResourcesDTO = new MappedExportableResourcesDTO();
         final ExportingMetaDTO exportingMetaDTO = new ExportingMetaDTO();
@@ -124,7 +138,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                     exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
                     exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
                     applicationJson.setExportedApplication(application);
-                    applicationJson.setModifiedResources(new ModifiedResources());
+                    applicationJson.setUpdatedResources(new ConcurrentHashMap<>());
 
                     List<String> unpublishedPages = application.getPages().stream()
                             .map(ApplicationPage::getId)
@@ -165,7 +179,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             .thenReturn(applicationJson);
                 })
                 .flatMap(unused -> sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
-                .thenReturn(applicationJson); //*/
+                .thenReturn(applicationJson);
     }
 
     protected Mono<Void> sanitizeEntities(
@@ -289,7 +303,6 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
      * @return The application which is imported or exported
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
-        return Mono.error(new ex.Marker("sendImportExportApplicationAnalyticsEvent")); /*
         return applicationService.findById(applicationId).flatMap(application -> workspaceService
                 .getById(application.getWorkspaceId())
                 .flatMap(workspace -> {
@@ -303,6 +316,6 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             FieldName.EVENT_DATA, eventData);
 
                     return analyticsService.sendObjectEvent(event, application, data);
-                })); //*/
+                }));
     }
 }

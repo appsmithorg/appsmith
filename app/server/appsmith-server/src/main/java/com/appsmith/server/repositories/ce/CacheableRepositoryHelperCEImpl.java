@@ -160,21 +160,19 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
     @Override
     public Mono<User> getAnonymousUser() {
-        return Mono.error(new ex.Marker("unknown")); /*
         String defaultTenantId = inMemoryCacheableRepositoryHelper.getDefaultTenantId();
         if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
             return getAnonymousUser(defaultTenantId);
         }
 
-        Criteria defaultTenantCriteria =
-                Criteria.where("slug").is(FieldName.DEFAULT);
+        Criteria defaultTenantCriteria = Criteria.where("slug").is(FieldName.DEFAULT);
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
 
         return mongoOperations.findOne(query, Tenant.class).flatMap(defaultTenant -> {
             inMemoryCacheableRepositoryHelper.setDefaultTenantId(defaultTenant.getId());
             return getAnonymousUser(defaultTenant.getId());
-        }); //*/
+        }); // */
     }
 
     @Override

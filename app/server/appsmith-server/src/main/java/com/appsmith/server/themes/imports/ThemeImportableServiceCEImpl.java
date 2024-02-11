@@ -13,7 +13,10 @@ import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.themes.base.ThemeService;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 
 public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> {
 
@@ -53,7 +56,6 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.error(new ex.Marker("importEntities")); /*
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             // appending to existing app, theme should not change
             return Mono.empty().then();
@@ -81,12 +83,11 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                                 applicationPermission.getEditPermission());
                     })
                     .then();
-        }); //*/
+        });
     }
 
     private Mono<Theme> updateExistingAppThemeFromJSON(
             Application destinationApp, String existingThemeId, Theme themeFromJson) {
-        return Mono.error(new ex.Marker("updateExistingAppThemeFromJSON")); /*
         if (!StringUtils.hasLength(existingThemeId)) {
             return themeService.getOrSaveTheme(themeFromJson, destinationApp);
         }
@@ -111,7 +112,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                             return repository.updateById(existingThemeId, themeFromJson, MANAGE_THEMES);
                         }
                     }
-                }); //*/
+                });
     }
 
     @Override

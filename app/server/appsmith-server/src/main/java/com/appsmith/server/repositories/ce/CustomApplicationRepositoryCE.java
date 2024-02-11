@@ -81,7 +81,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Optional<Long> countByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 
-    List<Object> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+    List<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
             String workspaceId, AclPermission permission, String permissionGroupId);
 
     Optional<Long> getAllApplicationsCountAccessibleToARoleWithPermission(

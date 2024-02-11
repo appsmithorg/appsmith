@@ -1,24 +1,32 @@
 package com.appsmith.server.applications.base;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -64,6 +72,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
 import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -139,7 +148,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> getById(String id) {
-        return Mono.error(new ex.Marker("getById")); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -148,7 +156,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                 .findById(id, applicationPermission.getReadPermission())
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id))); //*/
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
     }
 
     @Override
@@ -176,7 +184,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> findById(String id, Optional<AclPermission> aclPermission) {
-        return Mono.empty(); // repository.findById(id, aclPermission).flatMap(this::setTransientFields);
+        return repository.findById(id, aclPermission.orElse(null)).flatMap(this::setTransientFields);
     }
 
     @Override
@@ -259,7 +267,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
         if (application.getApplicationVersion() != null) {
             int appVersion = application.getApplicationVersion();
             if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "applicationVersion"));
+                return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER,
+                        QApplication.application
+                                .applicationVersion
+                                .getMetadata()
+                                .getName()));
             }
         }
         return repository.save(application).flatMap(this::setTransientFields);
@@ -317,10 +330,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> update(String id, Application application) {
-        return Mono.error(new ex.Marker("update")); /*
         return sessionUserService.getCurrentUser().flatMap(currentUser -> {
             application.setModifiedBy(currentUser.getUsername());
-            // application.setIsPublic(null);
+            application.setIsPublic(null);
             application.setLastEditedAt(Instant.now());
             if (!StringUtils.isEmpty(application.getName())) {
                 application.setSlug(TextUtils.makeSlug(application.getName()));
@@ -332,7 +344,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                         || appVersion > ApplicationVersion.LATEST_VERSION) {
                     return Mono.error(new AppsmithException(
                             AppsmithError.INVALID_PARAMETER,
-                            "applicationVersion"));
+                            QApplication.application
+                                    .applicationVersion
+                                    .getMetadata()
+                                    .getName()));
                 }
             }
 
@@ -385,7 +400,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 FieldName.EVENT_DATA, eventData);
                         return analyticsService.sendUpdateEvent(application1, data);
                     }));
-        }); //*/
+        });
     }
 
     public Mono<UpdateResult> update(
@@ -468,7 +483,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
-        return Mono.error(new ex.Marker("changeViewAccess")); /*
         Mono<String> publicPermissionGroupIdMono =
                 permissionGroupService.getPublicPermissionGroupId().cache();
 
@@ -500,7 +514,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the create method will still generate its event.
         return Mono.create(
-                sink -> updateApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext())); //*/
+                sink -> updateApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     @Override
@@ -544,7 +558,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     private Mono<? extends Application> generateAndSetPoliciesForPublicView(
             Application application, String permissionGroupId, Boolean addViewAccess) {
-        return Mono.error(new ex.Marker("generateAndSetPoliciesForPublicView")); /*
 
         Map<String, Policy> applicationPolicyMap =
                 policySolution.generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
@@ -575,7 +588,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 policySolution.removePoliciesFromExistingObject(applicationPolicyMap, application);
                     }
                     return repository.save(updatedApplication);
-                }); //*/
+                });
     }
 
     protected List<Mono<Void>> updatePoliciesForIndependentDomains(
@@ -731,7 +744,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
      */
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
-        return Mono.error(new ex.Marker("createOrUpdateSshKeyPair")); /*
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
         return repository
                 .findById(applicationId, applicationPermission.getEditPermission())
@@ -798,7 +810,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 return Mono.just(application);
                             });
                 })
-                .thenReturn(gitAuth); //*/
+                .thenReturn(gitAuth);
     }
 
     /**
@@ -809,7 +821,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
      */
     @Override
     public Mono<GitAuthDTO> getSshKey(String applicationId) {
-        return Mono.error(new ex.Marker("getSshKey")); /*
         return repository
                 .findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -852,7 +863,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
                                 return gitAuthDTO;
                             });
-                }); //*/
+                });
     }
 
     public Mono<Application> findByBranchNameAndDefaultApplicationId(
@@ -867,11 +878,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
+            throw new ex.Marker("this findById signature seems to be missing"); /*
             return repository
-                    .findByBranchNameAndDefaultApplicationId(
-                            branchName, defaultApplicationId, projectionFieldNames, aclPermission)
+                    .findById(defaultApplicationId, projectionFieldNames, aclPermission)
                     .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
+                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));//*/
         }
         return repository
                 .getApplicationByGitBranchAndDefaultApplicationId(
@@ -908,25 +919,24 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
      */
     @Override
     public Mono<Application> saveLastEditInformation(String applicationId) {
-        return Mono.error(new ex.Marker("saveLastEditInformation")); /*
         return sessionUserService.getCurrentUser().flatMap(currentUser -> {
             Application application = new Application();
             // need to set isPublic=null because it has a `false` as it's default value in domain class
-            // application.setIsPublic(null);
+            application.setIsPublic(null);
             application.setLastEditedAt(Instant.now());
             application.setIsManualUpdate(true);
             application.setModifiedBy(currentUser.getUsername());
             /*
              We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
              by the updateById method of the BaseAppsmithRepositoryImpl
-            * /
+            */
             return repository
                     .updateById(
                             applicationId,
                             application,
                             applicationPermission.getEditPermission()) // it'll do a set operation
                     .flatMap(this::setTransientFields);
-        }); //*/
+        });
     }
 
     public Mono<String> findBranchedApplicationId(
@@ -1086,8 +1096,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
                     unpublishedNavSetting.setLogoAssetId(null);
                     branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(unpublishedNavSetting);
-                    repository.save(branchedApplication);
-                    return Mono.just(navLogoAssetId);
+                    return repository.save(branchedApplication).thenReturn(navLogoAssetId);
                 })
                 .flatMap(assetService::remove);
     }
@@ -1103,14 +1112,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches) {
-        return Mono.justOrEmpty(
-                        repository.unprotectAllBranches(applicationId, applicationPermission.getEditPermission()))
+        return repository
+                .unprotectAllBranches(applicationId, applicationPermission.getEditPermission())
                 .then(Mono.defer(() -> {
                     // Mono.defer is used to ensure the following code is executed only after the previous Mono
                     // completes
                     if (protectedBranches != null && !protectedBranches.isEmpty()) {
-                        return Mono.justOrEmpty(repository.protectBranchedApplications(
-                                applicationId, protectedBranches, applicationPermission.getEditPermission()));
+                        return repository.protectBranchedApplications(
+                                applicationId, protectedBranches, applicationPermission.getEditPermission());
                     }
                     return Mono.empty();
                 }))

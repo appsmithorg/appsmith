@@ -34,7 +34,6 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Config> updateByName(Config config) {
-        return Mono.error(new ex.Marker("updateByName")); /*
         final String name = config.getName();
         return repository
                 .findByName(name)
@@ -44,7 +43,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
                     log.debug("Found config with name: {} and id: {}", name, dbConfig.getId());
                     dbConfig.setConfig(config.getConfig());
                     return repository.save(dbConfig);
-                }); //*/
+                }); // */
     }
 
     @Override
@@ -71,12 +70,11 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Void> delete(String name) {
-        return Mono.error(new ex.Marker("delete")); /*
         return repository
                 .findByName(name)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
-                .flatMap(repository::delete); //*/
+                .flatMap(repository::delete); // */
     }
 
     @Override

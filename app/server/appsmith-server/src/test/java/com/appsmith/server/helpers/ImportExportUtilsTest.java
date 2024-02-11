@@ -1,6 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
@@ -39,12 +38,11 @@ class ImportExportUtilsTest {
         ApplicationJson applicationJson = new ApplicationJson();
         Assertions.assertFalse(ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName));
 
-        applicationJson.setModifiedResources(new ModifiedResources());
+        applicationJson.setUpdatedResources(Map.of());
         Assertions.assertFalse(ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName));
 
-        ModifiedResources modifiedResources = new ModifiedResources();
-        modifiedResources.putResource(FieldName.PAGE_LIST, Set.of("Page1", "Page2"));
-        applicationJson.setModifiedResources(modifiedResources);
+        Map<String, Set<String>> stringSetMap = Map.of(FieldName.PAGE_LIST, Set.of("Page1", "Page2"));
+        applicationJson.setUpdatedResources(stringSetMap);
         Assertions.assertTrue(ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName));
 
         Assertions.assertFalse(ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName.toLowerCase()));

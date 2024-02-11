@@ -188,7 +188,7 @@ def generate_cake_class(domain):
         else:
             wrapper = "%s"
 
-        signature = signature.replace(f"BaseRepository<{domain}, String>", f"BaseCake<{domain}>")
+        signature = signature.replace(f"BaseRepository<{domain}, String>", f"BaseCake<{domain}, {domain}Repository>")
 
         call = re.sub(
             r"[A-Za-z.]+?(<[^<>]+?>|<[^\s]+?>)?\s(\w+)([,)])", r"\2\3", signature
@@ -243,7 +243,7 @@ def generate_cake_class(domain):
     import java.util.Set;
 
     @Component
-    public class {domain}RepositoryCake extends BaseCake<{domain}> {{
+    public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{
         private final {domain}Repository repository;
 
         public {domain}RepositoryCake({domain}Repository repository) {{

@@ -500,16 +500,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
-        return Mono.error(new ex.Marker("queryFirstExecute")); /*
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(
-                        () -> getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission()))))
+                .switchIfEmpty(Mono.defer(() -> Mono.just(
+                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .flatMap(permissionGroups1 -> mongoOperations
                         .query(this.genericDomain)
                         .matching(createQueryWithPermission(
                                 params.getCriteria(), params.getFields(), permissionGroups1, params.getPermission()))
                         .first()
-                        .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups1))); //*/
+                        .flatMap(obj -> Mono.just(setUserPermissionsInObject(obj, permissionGroups1)))); // */
     }
 
     public Mono<Long> countExecute(QueryAllParams<T> params) {

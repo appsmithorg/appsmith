@@ -79,7 +79,6 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryC
     @Override
     public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
-        return Mono.error(new ex.Marker("persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO")); /*
         return repository
                 .findUniqueCustomJsLib(jsLib)
                 // Read more why Mono.defer is used here.
@@ -90,7 +89,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryC
                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
                        The second check provides us with a backdoor to overwrite any faulty data that would have come in any time earlier.
                        Currently, once a custom JS lib data gets persisted there is no way to update it - the isForceInstall flag will allow a way to update this data.
-                    * /
+                    */
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
                         return repository.save(jsLib);
@@ -98,7 +97,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryC
 
                     return Mono.just(foundJSLib);
                 })
-                .map(CustomJSLibContextDTO::getDTOFromCustomJSLib); //*/
+                .map(CustomJSLibContextDTO::getDTOFromCustomJSLib); // */
     }
 
     @Override

@@ -1,8 +1,10 @@
 package com.appsmith.server.datasources.fork;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.NewAction;
@@ -59,7 +61,6 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
             ForkingMetaDTO sourceMeta,
             ForkingMetaDTO targetMeta,
             Mono<List<Datasource>> existingDatasourcesInNewWorkspaceMono) {
-        return Mono.error(new ex.Marker("createForkedEntity")); /*
 
         return existingDatasourcesInNewWorkspaceMono.flatMap(existingDatasourcesWithoutStorages -> {
             if (datasourceToFork.getWorkspaceId().equals(targetMeta.getWorkspaceId())) {
@@ -117,7 +118,7 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
                         newDs.getDatasourceStorages().put(targetMeta.getEnvironmentId(), storageDTO);
                         return createSuffixedDatasource(newDs);
                     }));
-        });//*/
+        }); // */
     }
 
     /**

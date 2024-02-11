@@ -3,7 +3,9 @@ package com.appsmith.server.plugins.imports;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
@@ -12,6 +14,11 @@ import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.plugins.base.PluginService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin> {
@@ -29,7 +36,6 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.error(new ex.Marker("importEntities")); /*
         return workspaceMono
                 .map(workspace -> workspace.getPlugins().stream()
                         .map(WorkspacePlugin::getPluginId)
@@ -48,7 +54,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
                 .collectList()
                 .elapsed()
                 .doOnNext(tuples -> log.debug("time to get plugin map: {}", tuples.getT1()))
-                .then(); //*/
+                .then();
     }
 
     @Override

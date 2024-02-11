@@ -4,6 +4,7 @@ import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.FeaturesRequestDTO;
 import com.appsmith.server.dtos.FeaturesResponseDTO;
@@ -15,13 +16,14 @@ import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.SignatureVerifier;
-import com.appsmith.server.repositories.TenantRepository;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -35,14 +37,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 
 @Slf4j
 @RequiredArgsConstructor
 public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
 
-    private final TenantRepository tenantRepository;
+    private final TenantRepositoryCake tenantRepository;
     private final ConfigService configService;
     private final CloudServicesConfig cloudServicesConfig;
     private final CommonConfig commonConfig;
@@ -106,7 +110,6 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     }
 
     private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(String userIdentifier, User user) {
-        return Mono.error(new ex.Marker("forceAllRemoteFeatureFlagsForUser")); /*
         Mono<String> instanceIdMono = configService.getInstanceId();
         // TODO: Convert to current tenant when the feature is enabled
         Mono<Tenant> defaultTenantMono = tenantRepository.findBySlug(DEFAULT);
@@ -118,7 +121,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                             objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3(), appsmithVersion);
                     return this.getRemoteFeatureFlagsByIdentity(featureFlagIdentityTraits);
                 })
-                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of())); //*/
+                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of())); // */
     }
 
     /**

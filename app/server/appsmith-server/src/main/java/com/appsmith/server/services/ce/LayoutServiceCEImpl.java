@@ -1,13 +1,21 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 public class LayoutServiceCEImpl implements LayoutServiceCE {
@@ -26,7 +34,6 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
 
     @Override
     public Mono<Layout> createLayout(String pageId, Layout layout) {
-        return Mono.error(new ex.Marker("createLayout")); /*
         if (pageId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
@@ -50,7 +57,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
                     return page;
                 })
                 .flatMap(newPageService::saveUnpublishedPage)
-                .then(Mono.just(layout)); //*/
+                .then(Mono.just(layout)); // */
     }
 
     @Override
@@ -66,7 +73,6 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
-        return Mono.error(new ex.Marker("getLayout")); /*
         return newPageService
                 .findByIdAndLayoutsId(pageId, layoutId, pagePermission.getReadPermission(), viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -81,7 +87,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
                             .get();
                     matchedLayout.setViewMode(viewMode);
                     return matchedLayout;
-                }); //*/
+                }); // */
     }
 
     @Override

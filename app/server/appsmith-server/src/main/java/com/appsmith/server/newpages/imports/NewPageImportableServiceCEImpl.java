@@ -1,5 +1,9 @@
 package com.appsmith.server.newpages.imports;
 
+import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewPage;
@@ -9,6 +13,9 @@ import com.appsmith.server.dtos.ImportActionResultDTO;
 import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
@@ -17,6 +24,8 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -24,10 +33,16 @@ import reactor.util.function.Tuples;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.constants.ResourceModes.EDIT;
+import static com.appsmith.server.constants.ResourceModes.VIEW;
 
 @Slf4j
 public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPage> {
@@ -54,7 +69,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.error(new ex.Marker("importEntities")); /*
 
         List<NewPage> importedNewPageList = applicationJson.getPageList();
 
@@ -92,7 +106,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         mappedImportableResourcesDTO)
                 .cache();
 
-        return updatedApplicationMono.then(importedNewPagesMono).then(); //*/
+        return updatedApplicationMono.then(importedNewPagesMono).then();
     }
 
     @Override
@@ -202,7 +216,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<List<NewPage>> existingPagesMono,
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return Mono.error(new ex.Marker("savePagesToApplicationMono")); /*
 
         // The access source has been changes because the order of execution has changed.
         List<ApplicationPage> editModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
@@ -351,7 +364,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             application.setPages(applicationPages.get(EDIT));
             application.setPublishedPages(applicationPages.get(VIEW));
             return application;
-        }); //*/
+        });
     }
 
     /**
@@ -373,7 +386,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             String branchName,
             Mono<List<NewPage>> existingPages,
             ImportArtifactPermissionProvider permissionProvider) {
-        return Flux.error(new ex.Marker("importAndSavePages")); /*
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
@@ -483,18 +495,17 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 .onErrorResume(error -> {
                     log.error("Error importing page", error);
                     return Mono.error(error);
-                }); //*/
+                });
     }
 
     private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
-        return Mono.error(new ex.Marker("saveNewPageAndUpdateDefaultResources")); /*
         NewPage update = new NewPage();
         return newPageService.save(newPage).flatMap(page -> {
             update.setDefaultResources(
                     DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(page, branchName)
                             .getDefaultResources());
             return newPageService.update(page.getId(), update);
-        }); //*/
+        });
     }
 
     private Map<String, String> updateNewPagesBeforeMerge(List<NewPage> existingPages, List<NewPage> importedPages) {
@@ -531,7 +542,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             boolean appendToApp,
             Mono<Application> importApplicationMono,
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono) {
-        return Mono.error(new ex.Marker("importUnpublishedPages")); /*
         Mono<List<ApplicationPage>> unpublishedPagesMono = Mono.just(editModeApplicationPages);
         if (appendToApp) {
             unpublishedPagesMono = unpublishedPagesMono
@@ -562,7 +572,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         return unpublishedPages;
                     });
         }
-        return unpublishedPagesMono; //*/
+        return unpublishedPagesMono;
     }
 
     // This method will update the action id in saved page for layoutOnLoadAction
@@ -571,7 +581,6 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Map<String, String> actionIdMap,
             Map<String, List<String>> unpublishedActionIdToCollectionIdsMap,
             Map<String, List<String>> publishedActionIdToCollectionIdsMap) {
-        return Mono.error(new ex.Marker("mapActionAndCollectionIdWithPageLayout")); /*
 
         Set<String> layoutOnLoadActionsForPage = getLayoutOnLoadActionsForPage(
                 newPage, actionIdMap, unpublishedActionIdToCollectionIdsMap, publishedActionIdToCollectionIdsMap);
@@ -634,7 +643,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 .onErrorResume(error -> {
                     log.error("Error while updating action collection id in page layout", error);
                     return Mono.error(error);
-                }); //*/
+                });
     }
 
     private Set<String> getLayoutOnLoadActionsForPage(

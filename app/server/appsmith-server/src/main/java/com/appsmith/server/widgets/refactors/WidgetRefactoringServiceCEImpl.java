@@ -6,6 +6,7 @@ import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.EntityType;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_WIDGET;
+import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,7 +55,6 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     @Override
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
-        return Mono.error(new ex.Marker("refactorReferencesInExistingEntities")); /*
         if (!isPageContext(refactorEntityNameDTO.getContextType())) {
             return Mono.empty().then();
         }
@@ -99,7 +101,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
             return Mono.just(page);
         });
 
-        return pageDTOMono.then(); //*/
+        return pageDTOMono.then();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.appsmith.server.actioncollections.base;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
@@ -41,6 +40,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,6 +50,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.toMap;
 
@@ -318,13 +319,12 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> update(String id, ActionCollectionDTO actionCollectionDTO) {
-        return Mono.error(new ex.Marker("update")); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<ActionCollection> actionCollectionMono = Mono.justOrEmpty(repository
-                .findById(Long.valueOf(id), actionPermission.getEditPermission()))
+        Mono<ActionCollection> actionCollectionMono = repository
+                .findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
@@ -344,7 +344,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(repository::setUserPermissionsInObject)
                 .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
-                                actionCollection.getUnpublishedCollection(), false))); //*/
+                                actionCollection.getUnpublishedCollection(), false))); // */
     }
 
     @Override
@@ -359,9 +359,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionEx(
             String id, Optional<AclPermission> permission) {
-        return Mono.error(new ex.Marker("deleteUnpublishedActionCollectionEx")); /*
         Mono<ActionCollection> actionCollectionMono = repository
-                .findById(id, permission)
+                .findById(id, permission.orElse(null))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
         return actionCollectionMono
@@ -399,12 +398,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
                     return modifiedActionCollectionMono;
                 })
-                .flatMap(updatedAction -> generateActionCollectionByViewMode(updatedAction, false)); //*/
+                .flatMap(updatedAction -> generateActionCollectionByViewMode(updatedAction, false)); // */
     }
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName) {
-        return Mono.error(new ex.Marker("deleteUnpublishedActionCollection")); /*
         Mono<String> branchedCollectionId = StringUtils.isEmpty(branchName)
                 ? Mono.just(id)
                 : this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getDeletePermission())
@@ -414,7 +412,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(this::deleteUnpublishedActionCollection)
                 .map(responseUtils::updateCollectionDTOWithDefaultResources)
                 .flatMap(actionCollectionDTO ->
-                        saveLastEditInformationInParent(actionCollectionDTO).thenReturn(actionCollectionDTO)); //*/
+                        saveLastEditInformationInParent(actionCollectionDTO).thenReturn(actionCollectionDTO)); // */
     }
 
     @Override
@@ -516,7 +514,6 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> archiveById(String id) {
-        return Mono.error(new ex.Marker("archiveById")); /*
         Mono<ActionCollection> actionCollectionMono = repository
                 .findById(id)
                 .switchIfEmpty(Mono.error(
@@ -560,12 +557,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(
                         actionCollection -> repository.archive(actionCollection).thenReturn(actionCollection))
                 .flatMap(deletedActionCollection -> analyticsService.sendDeleteEvent(
-                        deletedActionCollection, getAnalyticsProperties(deletedActionCollection))); //*/
+                        deletedActionCollection, getAnalyticsProperties(deletedActionCollection))); // */
     }
 
     @Override
     public Mono<ActionCollection> archiveByIdAndBranchName(String id, String branchName) {
-        return Mono.error(new ex.Marker("archiveByIdAndBranchName")); /*
         Mono<ActionCollection> branchedCollectionMono = this.findByBranchNameAndDefaultCollectionId(
                         branchName, id, actionPermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(
@@ -574,7 +570,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return branchedCollectionMono
                 .map(ActionCollection::getId)
                 .flatMap(this::archiveById)
-                .map(responseUtils::updateActionCollectionWithDefaultResources); //*/
+                .map(responseUtils::updateActionCollectionWithDefaultResources); // */
     }
 
     @Override
@@ -785,7 +781,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         // Store the default resource ids
         // Only store defaultPageId for collectionDTO level resource
         DefaultResources defaultDTOResource = new DefaultResources();
-        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(collectionDTO.getDefaultResources(), defaultDTOResource);
+        copyNewFieldValuesIntoOldObject(collectionDTO.getDefaultResources(), defaultDTOResource);
 
         defaultDTOResource.setApplicationId(null);
         defaultDTOResource.setCollectionId(null);
@@ -798,7 +794,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         // Only store branchName, defaultApplicationId and defaultActionCollectionId for ActionCollection
         // level resource
         DefaultResources defaults = new DefaultResources();
-        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
+        copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
         defaults.setPageId(null);
         if (StringUtils.isEmpty(defaults.getApplicationId())) {
             defaults.setApplicationId(actionCollection.getApplicationId());

@@ -16,4 +16,4 @@ container-volumes
 dependency-reduced-pom.xml
 appsmith-server/failedServerTests.txt
 *Cake.java
-!BaseCake.java
+!Base*Cake.java

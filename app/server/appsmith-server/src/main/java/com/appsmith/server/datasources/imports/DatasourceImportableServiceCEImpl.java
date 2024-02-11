@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ImportableArtifact;
@@ -18,19 +19,28 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
 public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Datasource> {
@@ -76,7 +86,6 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.error(new ex.Marker("importEntities")); /*
         return workspaceMono.flatMap(workspace -> {
             final Flux<Datasource> existingDatasourceFlux = datasourceService
                     .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.empty())
@@ -95,7 +104,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             return datasourceMapMono
                     .doOnNext(mappedImportableResourcesDTO::setDatasourceNameToIdMap)
                     .then();
-        });//*/
+        }); // */
     }
 
     private Mono<List<Datasource>> getExistingDatasourceMono(String applicationId, Flux<Datasource> datasourceFlux) {
@@ -118,7 +127,6 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             Workspace workspace,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return Mono.error(new ex.Marker("importDatasources")); /*
         return Mono.zip(existingDatasourceMono, workspaceService.getDefaultEnvironmentId(workspace.getId(), null))
                 .flatMapMany(objects -> {
                     List<Datasource> existingDatasources = objects.getT1();
@@ -244,7 +252,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                 .map(tuple -> {
                     log.debug("Time taken to import datasources: {} ms", tuple.getT1());
                     return tuple.getT2();
-                });//*/
+                }); // */
     }
 
     /**
@@ -261,11 +269,10 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             Workspace workspace,
             String environmentId,
             ImportArtifactPermissionProvider permissionProvider) {
-        return Mono.error(new ex.Marker("createUniqueDatasourceIfNotPresent")); /*
         /*
            1. If same datasource is present return
            2. If unable to find the datasource create a new datasource with unique name and return
-        * /
+        */
         final DatasourceConfiguration datasourceConfig = datasourceStorage.getDatasourceConfiguration();
         AuthenticationResponse authResponse = new AuthenticationResponse();
         if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
@@ -315,7 +322,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                 .onErrorResume(throwable -> {
                     log.error("failed to import datasource", throwable);
                     return Mono.error(throwable);
-                });//*/
+                }); // */
     }
 
     /**

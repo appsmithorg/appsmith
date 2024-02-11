@@ -23,15 +23,20 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @AllArgsConstructor
 @Slf4j
@@ -153,7 +158,6 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
             Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
-        return Flux.error(new ex.Marker("updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission")); /*
 
         // Find all the datasources without permission to update the policies.
         return datasourceRepository
@@ -170,12 +174,11 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     return Mono.just(updatedDatasource);
                 })
                 .collectList()
-                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources)); //*/
+                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources)); // */
     }
 
     public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(
             String workspaceId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
-        return Flux.error(new ex.Marker("updateWithNewPoliciesToApplicationsByWorkspaceId")); /*
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
@@ -191,13 +194,12 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications)); //*/
+                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications)); // */
     }
 
     @Override
     public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(
             String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
-        return Flux.error(new ex.Marker("updateWithApplicationPermissionsToAllItsPages")); /*
 
         // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures
         // that all the published
@@ -218,13 +220,12 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedPages -> newPageRepository.saveAll(updatedPages)); //*/
+                .flatMapMany(updatedPages -> newPageRepository.saveAll(updatedPages)); // */
     }
 
     @Override
     public Flux<Theme> updateThemePolicies(
             Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
-        return Flux.error(new ex.Marker("updateThemePolicies")); /*
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
         if (StringUtils.hasLength(application.getEditModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
@@ -244,7 +245,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(themeRepository::saveAll); //*/
+                .flatMapMany(themeRepository::saveAll); // */
     }
 
     /**
@@ -262,7 +263,6 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<NewAction> updateWithPagePermissionsToAllItsActions(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
-        return Flux.error(new ex.Marker("updateWithPagePermissionsToAllItsActions")); /*
 
         return newActionRepository
                 .findByApplicationId(applicationId)
@@ -275,13 +275,12 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(newActionRepository::saveAll); //*/
+                .flatMapMany(newActionRepository::saveAll); // */
     }
 
     @Override
     public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
-        return Flux.error(new ex.Marker("updateWithPagePermissionsToAllItsActionCollections")); /*
 
         return actionCollectionRepository
                 .findByApplicationId(applicationId)
@@ -294,7 +293,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(actionCollectionRepository::saveAll); //*/
+                .flatMapMany(actionCollectionRepository::saveAll); // */
     }
 
     @Override
