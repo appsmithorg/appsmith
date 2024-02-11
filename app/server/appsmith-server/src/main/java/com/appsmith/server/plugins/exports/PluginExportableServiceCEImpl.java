@@ -47,7 +47,7 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
                     return plugin;
                 })
                 .collectList()
-                .then();*/
+                .then(); //*/
     }
 
     @Override

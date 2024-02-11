@@ -149,7 +149,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
                     return mongoTemplate.find(query, Plugin.class);
                 })
                 .flatMap(plugin ->
-                        getTemplates(plugin).doOnSuccess(plugin::setTemplates).thenReturn(plugin));*/
+                        getTemplates(plugin).doOnSuccess(plugin::setTemplates).thenReturn(plugin)); //*/
     }
 
     @Override
@@ -205,7 +205,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
                 workspace.getPlugins().addAll(newWorkspacePlugins);
                 return workspaceService.save(workspace);
             }
-        });*/
+        }); //*/
     }
 
     @Override
@@ -287,7 +287,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
 
                         return workspaceService.save(workspace);
                     });
-        }));*/
+        })); //*/
     }
 
     public Mono<Plugin> findByName(String name) {
@@ -322,7 +322,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
                                          installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
                                  return Mono.just(new Plugin());
                              }))
-                             .block();*/
+                             .block(); //*/
     }
 
     private Mono<Plugin> downloadAndStartPlugin(String workspaceId, Plugin plugin) {
@@ -624,7 +624,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
     @Override
     public Flux<Plugin> saveAll(Iterable<Plugin> plugins) {
         return Flux.error(new ex.Marker("saveAll")); /*
-        return repository.saveAll(plugins);*/
+        return repository.saveAll(plugins); //*/
     }
 
     @Override

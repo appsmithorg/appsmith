@@ -235,7 +235,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     });
 
                     return mongoOperations.updateFirst(query, update, this.genericDomain);
-                });*/
+                }); //*/
     }
 
     public Mono<UpdateResult> updateById(Long id, Update updateObj, AclPermission permission) {
@@ -340,7 +340,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .sort(sort)
                 .limit(limit)
                 .skip(skip)
-                .all());*/
+                .all()); //*/
     }
 
     public QueryAllParams<T> queryBuilder() {
@@ -509,7 +509,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         .matching(createQueryWithPermission(
                                 params.getCriteria(), params.getFields(), permissionGroups1, params.getPermission()))
                         .first()
-                        .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups1)));*/
+                        .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups1))); //*/
     }
 
     public Mono<Long> countExecute(QueryAllParams<T> params) {

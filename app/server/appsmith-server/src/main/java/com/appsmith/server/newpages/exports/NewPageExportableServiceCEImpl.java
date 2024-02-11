@@ -103,7 +103,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
 
                     return newPageList;
                 })
-                .then();*/
+                .then(); //*/
     }
 
     @Override

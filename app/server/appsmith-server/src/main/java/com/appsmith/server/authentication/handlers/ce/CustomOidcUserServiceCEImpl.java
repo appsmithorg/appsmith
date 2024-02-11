@@ -73,6 +73,6 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
                 .onErrorMap(
                         AppsmithException.class,
                         error -> new OAuth2AuthenticationException(
-                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")));*/
+                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), ""))); //*/
     }
 }

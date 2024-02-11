@@ -333,7 +333,7 @@ public class SeedData {
         entityManager
         .createNativeQuery(
                 "CREATE OR REPLACE FUNCTION jsonb_question_pipe(l jsonb, r text[]) RETURNS jsonb RETURN l ?| r")
-        .executeUpdate();*/
+        .executeUpdate(); //*/
         return true;
     }
 }

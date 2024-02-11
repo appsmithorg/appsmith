@@ -96,6 +96,6 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
             return updatedActionMono
                     .then(Mono.defer(() -> updatedActionCollectionMono))
                     .then();
-        });*/
+        }); //*/
     }
 }

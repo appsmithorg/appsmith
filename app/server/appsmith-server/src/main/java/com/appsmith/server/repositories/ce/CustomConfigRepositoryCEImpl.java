@@ -44,6 +44,6 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
                     .matching(query)
                     .one()
                     .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-        });*/
+        }); //*/
     }
 }

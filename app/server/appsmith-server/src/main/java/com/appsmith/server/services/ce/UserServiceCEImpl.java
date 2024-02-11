@@ -209,7 +209,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                     // Throw an exception if the workspaceId is not part of the user's workspaces
                     return Mono.error(new AppsmithException(
                             AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), workspaceId));
-                });*/
+                }); //*/
     }
 
     /**

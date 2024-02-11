@@ -39,6 +39,6 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
         return mongoOperations.upsert(
                 new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
                 Update.update("structure", structure),
-                DatasourceStorageStructure.class);*/
+                DatasourceStorageStructure.class); //*/
     }
 }

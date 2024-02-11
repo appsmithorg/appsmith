@@ -165,7 +165,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             .thenReturn(applicationJson);
                 })
                 .flatMap(unused -> sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
-                .thenReturn(applicationJson);*/
+                .thenReturn(applicationJson); //*/
     }
 
     protected Mono<Void> sanitizeEntities(
@@ -303,6 +303,6 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             FieldName.EVENT_DATA, eventData);
 
                     return analyticsService.sendObjectEvent(event, application, data);
-                }));*/
+                })); //*/
     }
 }

@@ -66,7 +66,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
      */
     @Deprecated
     public Mono<UserHomepageDTO> getAllApplications() {
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("unknown")); /*
 
         Mono<User> userMono = sessionUserService
                 .getCurrentUser()
@@ -204,7 +204,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                                 }
                                 return userHomepageDTO;
                             });
-                });*/
+                }); //*/
     }
 
     public Mono<ReleaseItemsDTO> getReleaseItems() {

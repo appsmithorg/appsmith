@@ -50,7 +50,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
                     return page;
                 })
                 .flatMap(newPageService::saveUnpublishedPage)
-                .then(Mono.just(layout));*/
+                .then(Mono.just(layout)); //*/
     }
 
     @Override
@@ -81,7 +81,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
                             .get();
                     matchedLayout.setViewMode(viewMode);
                     return matchedLayout;
-                });*/
+                }); //*/
     }
 
     @Override

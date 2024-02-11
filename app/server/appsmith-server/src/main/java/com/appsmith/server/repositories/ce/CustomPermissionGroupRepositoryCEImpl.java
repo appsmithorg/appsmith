@@ -200,6 +200,6 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .criteria(assignedToUserIdCriteria)
                 .fields(includeFields.orElse(null))
                 .permission(permission.orElse(null))
-                .all();*/
+                .all(); //*/
     }
 }

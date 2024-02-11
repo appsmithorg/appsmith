@@ -172,6 +172,6 @@ public class ImportExportUtils {
                       Instant datasourceUpdatedAt = datasourceName != null ? datasourceNameToUpdatedAtMap.get(datasourceName) : null;
                       return datasourceUpdatedAt != null
                               && applicationLastCommittedAt != null
-                              && datasourceUpdatedAt.isAfter(applicationLastCommittedAt);*/
+                              && datasourceUpdatedAt.isAfter(applicationLastCommittedAt); //*/
     }
 }

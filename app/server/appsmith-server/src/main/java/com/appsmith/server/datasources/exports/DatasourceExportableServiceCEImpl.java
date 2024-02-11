@@ -98,7 +98,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
 
                     return datasourceList;
                 })
-                .then();*/
+                .then(); //*/
     }
 
     @Override

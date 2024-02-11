@@ -44,7 +44,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
                     log.debug("Found config with name: {} and id: {}", name, dbConfig.getId());
                     dbConfig.setConfig(config.getConfig());
                     return repository.save(dbConfig);
-                });*/
+                }); //*/
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
                 .findByName(name)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
-                .flatMap(repository::delete);*/
+                .flatMap(repository::delete); //*/
     }
 
     @Override

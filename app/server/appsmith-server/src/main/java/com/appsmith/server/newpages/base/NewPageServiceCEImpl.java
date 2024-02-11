@@ -219,8 +219,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Mono<Void> deleteAll() {
-        return Mono.empty(); /*
-        return repository.deleteAll();*/
+        return Mono.error(new ex.Marker("unknown")); /*
+        return repository.deleteAll(); //*/
     }
 
     @Override
@@ -431,7 +431,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
             applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
             applicationPagesDTO.setPages(nameIdDTOList);
             return applicationPagesDTO;
-        });*/
+        }); //*/
     }
 
     private Flux<PageNameIdDTO> findNamesByApplication(Application application, Boolean viewMode) {
@@ -459,7 +459,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                         }
                     }
                     return pageNameIdDTO;
-                });*/
+                }); //*/
     }
 
     @Override
@@ -508,7 +508,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                     // Looks like the page has been deleted in the `view` mode. Don't return the id for this page.
                     return Mono.empty();
                 })
-                .collectList();*/
+                .collectList(); //*/
     }
 
     @Override
@@ -527,7 +527,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                 })
                 .flatMap(savedPage -> applicationService
                         .saveLastEditInformation(savedPage.getApplicationId())
-                        .then(getPageByViewMode(savedPage, false)));*/
+                        .then(getPageByViewMode(savedPage, false))); //*/
     }
 
     @Override
@@ -536,7 +536,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
         return repository
                 .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(newPage -> updatePage(newPage.getId(), page))
-                .map(responseUtils::updatePageDTOWithDefaultResources);*/
+                .map(responseUtils::updatePageDTOWithDefaultResources); //*/
     }
 
     @Override
@@ -546,7 +546,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
         if (page.getGitSyncId() == null) {
             page.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
         }
-        return repository.save(page);*/
+        return repository.save(page); //*/
     }
 
     @Override
@@ -585,7 +585,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
         pages.stream()
                 .filter(newPage -> newPage.getGitSyncId() == null)
                 .forEach(newPage -> newPage.setGitSyncId(newPage.getId() + "_" + new ObjectId()));
-        return repository.saveAll(pages);*/
+        return repository.saveAll(pages); //*/
     }
 
     @Override
@@ -624,7 +624,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                 .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName)))
-                .map(NewPage::getId);*/
+                .map(NewPage::getId); //*/
     }
 
     @Override
@@ -655,7 +655,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                     } else {
                         return newPage.getApplicationId();
                     }
-                });*/
+                }); //*/
     }
 
     // Remove the code

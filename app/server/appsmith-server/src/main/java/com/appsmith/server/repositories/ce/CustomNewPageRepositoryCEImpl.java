@@ -68,7 +68,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder()
                 .criteria(applicationIdCriteria, activeEditModeCriteria)
                 .permission(aclPermission)
-                .all();*/
+                .all(); //*/
     }
 
     @Override
@@ -170,7 +170,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .criteria(idsCriterion)
                 .fields(includedFields)
                 .permission(aclPermission)
-                .all();*/
+                .all(); //*/
     }
 
     private Criteria getNameCriterion(String name, Boolean viewMode) {
@@ -241,7 +241,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                         publishedCustomSlugFieldPath,
                         applicationIdFieldPath)
                 .permission(aclPermission)
-                .all();*/
+                .all(); //*/
     }
 
     @Override
@@ -293,7 +293,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                     })
                     .subscribeOn(Schedulers.boundedElastic())
                     .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
-        });*/
+        }); //*/
     }
 
     @Override

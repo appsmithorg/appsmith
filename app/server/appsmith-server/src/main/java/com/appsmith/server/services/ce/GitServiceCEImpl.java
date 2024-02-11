@@ -685,7 +685,7 @@ public class GitServiceCEImpl implements GitServiceCE {
          *  The ssh keys is already present in application object from generate SSH key step
          *  We would be updating the remote url and default branchName
          * */
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("unknown")); /*
 
         if (StringUtils.isEmptyOrNull(gitConnectDTO.getRemoteUrl())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
@@ -957,7 +957,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
 
         return Mono.create(
-                sink -> connectApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));*/
+                sink -> connectApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext())); //*/
     }
 
     @Override
@@ -1219,7 +1219,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .then(addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCONNECT, application, false))
                                 .map(responseUtils::updateApplicationWithDefaultResources));
 
-        return Mono.create(sink -> disconnectMono.subscribe(sink::success, sink::error, null, sink.currentContext()));*/
+        return Mono.create(sink -> disconnectMono.subscribe(sink::success, sink::error, null, sink.currentContext())); //*/
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
@@ -2737,7 +2737,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return gitDeployKeysRepository.save(gitDeployKeys1);
                             });
                 })
-                .thenReturn(gitAuth);*/
+                .thenReturn(gitAuth); //*/
     }
 
     @Override

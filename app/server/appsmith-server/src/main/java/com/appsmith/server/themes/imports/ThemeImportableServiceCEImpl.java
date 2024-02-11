@@ -81,7 +81,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                                 applicationPermission.getEditPermission());
                     })
                     .then();
-        });*/
+        }); //*/
     }
 
     private Mono<Theme> updateExistingAppThemeFromJSON(
@@ -111,7 +111,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                             return repository.updateById(existingThemeId, themeFromJson, MANAGE_THEMES);
                         }
                     }
-                });*/
+                }); //*/
     }
 
     @Override

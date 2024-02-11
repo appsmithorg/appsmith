@@ -74,7 +74,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCak
                 .map(collection -> {
                     log.debug("Action {} added to Collection {}", action.getId(), collection.getId());
                     return action;
-                });*/
+                }); //*/
     }
 
     @Override
@@ -113,6 +113,6 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCak
                     log.debug("Action {} removed from Collection {}", action.getId(), collection.getId());
                     return repository.save(collection);
                 })
-                .then(actionMono);*/
+                .then(actionMono); //*/
     }
 }

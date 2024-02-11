@@ -122,7 +122,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .flatMapMany(permissionGroups -> queryBuilder()
                         .permission(permission)
                         .permissionGroups(permissionGroups)
-                        .all());*/
+                        .all()); //*/
     }
 
     @Override
@@ -166,7 +166,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return bridgeOperations.updateFirst(
             Query.query(getIdCriteria(applicationId)),
             new Update().push("pages", applicationPage),
-            Application.class);*/
+            Application.class); //*/
     }
 
     @Override
@@ -175,7 +175,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return mongoOperations.updateFirst(
             Query.query(getIdCriteria(applicationId)),
             new Update().set("pages", pages),
-            Application.class);*/
+            Application.class); //*/
     }
 
     @Override
@@ -196,7 +196,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 new Update().set("pages.$.isDefault", true),
                 Application.class);
 
-        return setAllAsNonDefaultMono.then(setDefaultMono);*/
+        return setAllAsNonDefaultMono.then(setDefaultMono); //*/
     }
 
     @Override
@@ -210,7 +210,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 "gitAuth");
 
         updateObj.set(path, gitAuth);
-        return this.updateById(applicationId, updateObj, aclPermission);*/
+        return this.updateById(applicationId, updateObj, aclPermission); //*/
     }
 
     @Override
@@ -238,7 +238,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .fields(projectionFieldNames)
                 .permission(aclPermission)
                 .one()
-                .blockOptional();*/
+                .blockOptional(); //*/
     }
 
     @Override
@@ -278,7 +278,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         query.addCriteria(where("workspaceId").is(workspaceId));
         query.addCriteria(where(gitApplicationMetadata + "." + "isRepoPrivate").is(Boolean.TRUE));
         query.addCriteria(notDeleted());
-        return mongoOperations.count(query, Application.class);*/
+        return mongoOperations.count(query, Application.class); //*/
     }
 
     @Override
@@ -308,7 +308,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
                 .is(defaultApplicationId));
         query.addCriteria(notDeleted());
-        return mongoOperations.findOne(query, Application.class);*/
+        return mongoOperations.findOne(query, Application.class); //*/
     }
 
     @Override
@@ -343,7 +343,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             AclPermission permission) {
         throw new ex.Marker("updateFieldByDefaultIdAndBranchName"); /*
         return super.updateFieldByDefaultIdAndBranchName(
-                defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission);*/
+                defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission); //*/
     }
 
     @Override
@@ -356,7 +356,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return queryBuilder()
                 .criteria(workspaceIdCriteria, applicationNameCriteria)
                 .permission(permission)
-                .count();*/
+                .count(); //*/
     }
 
     @Override
@@ -376,7 +376,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         ArrayList<Criteria> criteria =
                 new ArrayList<>(List.of(workspaceIdCriteria, permissionGroupCriteria, notDeleted()));
         return queryAllWithoutPermissions(criteria, List.of("id"), null, -1)
-                .map(application -> application.getId());*/
+                .map(application -> application.getId()); //*/
     }
 
     @Override
@@ -393,7 +393,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         query.addCriteria(permissionGroupCriteria);
         query.addCriteria(notDeleted());
-        return mongoOperations.count(query, Application.class);*/
+        return mongoOperations.count(query, Application.class); //*/
     }
 
     @Override
@@ -406,7 +406,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         Update unsetProtected = new Update().set(isProtectedFieldPath, false);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria), unsetProtected, permission);*/
+        return updateByCriteria(List.of(defaultApplicationIdCriteria), unsetProtected, permission); //*/
     }
 
     /**
@@ -429,7 +429,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria branchMatchCriteria = Criteria.where(branchNameFieldPath).in(branchNames);
         Update setProtected = new Update().set(isProtectedFieldPath, true);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria, branchMatchCriteria), setProtected, permission);*/
+        return updateByCriteria(List.of(defaultApplicationIdCriteria, branchMatchCriteria), setProtected, permission); //*/
     }
 
     @Override

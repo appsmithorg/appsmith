@@ -466,7 +466,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 .onErrorResume(error -> {
                     log.error("Error while creating or updating application object", error);
                     return Mono.error(error);
-                });*/
+                }); //*/
     }
 
     /**
@@ -496,7 +496,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
            6. Extract and save pages in the application
            7. Extract and save actions in the application
         */
-        return Mono.empty(); /*
+        return Mono.error(new ex.Marker("unknown")); /*
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         // check for validation error and raise exception if error found
@@ -638,7 +638,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
-        return Mono.create(sink -> resultMono.subscribe(sink::success, sink::error, null, sink.currentContext()));*/
+        return Mono.create(sink -> resultMono.subscribe(sink::success, sink::error, null, sink.currentContext())); //*/
     }
 
     private Mono<Void> getImportableEntities(
@@ -786,11 +786,11 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                         applicationImportDTO.setIsPartialImport(false);
                     }
                     return applicationImportDTO;
-                });*/
+                }); //*/
     }
 
     @Override
-    public Mono<List<Datasource>> findDatasourceByApplicationId(Long applicationId, Long workspaceId) {
+    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
         return Mono.error(new ex.Marker("findDatasourceByApplicationId")); /*
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
         Mono<List<Datasource>> listMono = datasourceService
@@ -813,7 +813,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
 
                     return Mono.just(datasourceList);
-                });*/
+                }); //*/
     }
 
     /**
@@ -910,7 +910,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     true,
                     permissionProvider,
                     userPermissionGroups);
-        });*/
+        }); //*/
     }
 
     /**
@@ -934,7 +934,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                     FieldName.EVENT_DATA, eventData);
 
             return analyticsService.sendObjectEvent(event, application, data);
-        });*/
+        }); //*/
     }
 
     /**

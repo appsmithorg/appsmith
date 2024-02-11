@@ -118,7 +118,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                             objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3(), appsmithVersion);
                     return this.getRemoteFeatureFlagsByIdentity(featureFlagIdentityTraits);
                 })
-                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));*/
+                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of())); //*/
     }
 
     /**

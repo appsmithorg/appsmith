@@ -48,7 +48,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
                 .collectList()
                 .elapsed()
                 .doOnNext(tuples -> log.debug("time to get plugin map: {}", tuples.getT1()))
-                .then();*/
+                .then(); //*/
     }
 
     @Override

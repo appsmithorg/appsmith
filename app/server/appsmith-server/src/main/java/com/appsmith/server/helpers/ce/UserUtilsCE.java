@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers.ce;
 
-import com.appsmith.server.acl.AclPermission;
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
@@ -18,8 +19,15 @@ import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
+import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
 
@@ -42,15 +50,13 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> isSuperUser(User user) {
-        return Mono.justOrEmpty(configRepository.findByNameAsUser(
-                        INSTANCE_CONFIG, user, AclPermission.MANAGE_INSTANCE_CONFIGURATION))
+        return Mono.justOrEmpty(configRepository.findByNameAsUser(INSTANCE_CONFIG, user, MANAGE_INSTANCE_CONFIGURATION))
                 .map(config -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
 
     public Mono<Boolean> isCurrentUserSuperUser() {
-        return Mono.justOrEmpty(
-                        configRepository.findByName(INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION))
+        return Mono.justOrEmpty(configRepository.findByName(INSTANCE_CONFIG, MANAGE_INSTANCE_CONFIGURATION))
                 .map(config -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
@@ -77,7 +83,6 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> removeSuperUser(List<User> users) {
-        return Mono.error(new ex.Marker("removeSuperUser")); /*
         return getSuperAdminPermissionGroup()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getAssignedToUserIds() == null) {
@@ -93,7 +98,7 @@ public class UserUtilsCE {
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(
                         user.getEmail(), user.getTenantId()))
-                .then(Mono.just(Boolean.TRUE));//*/
+                .then(Mono.just(Boolean.TRUE));
     }
 
     protected Mono<Config> createInstanceConfigForSuperUser() {
@@ -106,7 +111,6 @@ public class UserUtilsCE {
     }
 
     protected Mono<Tuple2<PermissionGroup, Config>> createConfigAndPermissionGroupForSuperAdmin() {
-        return Mono.empty(); /*
         return Mono.zip(createInstanceAdminConfigObject(), createInstanceAdminPermissionGroupWithoutPermissions())
                 .flatMap(tuple -> {
                     Config savedInstanceConfig = tuple.getT1();
@@ -134,19 +138,17 @@ public class UserUtilsCE {
                     return Mono.zip(
                             addPermissionsToPermissionGroup(savedPermissionGroup, configPermissions),
                             configRepository.save(savedInstanceConfig));
-                });//*/
+                });
     }
 
     private Mono<Config> createInstanceAdminConfigObject() {
-        return Mono.empty(); /*
         Config instanceAdminConfiguration = new Config();
         instanceAdminConfiguration.setName(FieldName.INSTANCE_CONFIG);
 
-        return configRepository.save(instanceAdminConfiguration);//*/
+        return configRepository.save(instanceAdminConfiguration);
     }
 
     private Mono<PermissionGroup> createInstanceAdminPermissionGroupWithoutPermissions() {
-        return Mono.empty(); /*
         PermissionGroup instanceAdminPermissionGroup = new PermissionGroup();
         instanceAdminPermissionGroup.setName(FieldName.INSTANCE_ADMIN_ROLE);
 
@@ -176,16 +178,15 @@ public class UserUtilsCE {
                     Set.of(readPermissionGroupPolicy, assignPermissionGroupPolicy, unassignPermissionGroupPolicy));
 
             return permissionGroupRepository.save(savedPermissionGroup);
-        });*/
+        });
     }
 
     protected Mono<PermissionGroup> addPermissionsToPermissionGroup(
             PermissionGroup permissionGroup, Set<Permission> permissions) {
-        return Mono.error(new ex.Marker("addPermissionsToPermissionGroup")); /*
         Set<Permission> existingPermissions = new HashSet<>(permissionGroup.getPermissions());
         existingPermissions.addAll(permissions);
         permissionGroup.setPermissions(existingPermissions);
-        return permissionGroupRepository.save(permissionGroup);*/
+        return permissionGroupRepository.save(permissionGroup);
     }
 
     public Mono<PermissionGroup> getSuperAdminPermissionGroup() {

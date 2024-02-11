@@ -322,7 +322,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                 .onErrorResume(e -> {
                     log.error("Error saving action collections", e);
                     return Mono.error(e);
-                });*/
+                }); //*/
     }
 
     private void updateActionCollectionNameBeforeMerge(

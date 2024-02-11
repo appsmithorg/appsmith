@@ -36,7 +36,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         return mongoOperations.upsert(
                 query(where("userId").is(userId)),
                 Update.update("releaseNotesViewedVersion", version).setOnInsert("userId", userId),
-                UserData.class);*/
+                UserData.class); //*/
     }
 
     @Override
@@ -104,6 +104,6 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
             return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds)
                     ? ""
                     : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
-        });*/
+        }); //*/
     }
 }

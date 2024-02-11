@@ -65,6 +65,8 @@ import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -290,7 +292,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .findById(id, datasourcePermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
-        return Mono.empty(); /*
 
         // This is meant to be an update for just the datasource - like a renamed
         return datasourceMono
@@ -310,7 +311,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     Boolean userInvokedUpdate = TRUE.equals(isUserRefreshedUpdate) ? TRUE : FALSE;
                     analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, userInvokedUpdate);
                     return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
-                });*/
+                });
     }
 
     @Override
@@ -350,7 +351,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             datasourceStorage.prepareTransientFields(dbDatasource);
 
             return datasourceStorageService
-                    .updateDatasourceStorage(datasourceStorage, activeEnvironmentId, Boolean.TRUE)
+                    .updateDatasourceStorage(datasourceStorage, activeEnvironmentId, TRUE)
                     .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
                     .map(datasourceStorageDTO1 -> {
                         dbDatasource.getDatasourceStorages().put(trueEnvironmentId, datasourceStorageDTO1);
@@ -629,7 +630,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     // In case of endpoint identifier as empty string, no rate limiting will be applied
                     // Currently this function is overridden only by postgresPlugin class, in future it will be done for
                     // all plugins wherever applicable.
-                    if (isFlagEnabled && Boolean.FALSE.equals(isBlank(rateLimitIdentifier))) {
+                    if (isFlagEnabled && FALSE.equals(isBlank(rateLimitIdentifier))) {
                         return rateLimitService.isEndpointBlockedForConnectionRequest(
                                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
                     } else {
@@ -653,7 +654,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     // In case of endpoint identifier as empty string, no rate limiting will be applied
                     // Currently this function is overridden only by postgresPlugin class, in future it will be done for
                     // all plugins wherever applicable.
-                    if (isFlagEnabled && Boolean.FALSE.equals(isBlank(rateLimitIdentifier))) {
+                    if (isFlagEnabled && FALSE.equals(isBlank(rateLimitIdentifier))) {
                         return rateLimitService.tryIncreaseCounter(
                                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
                     } else {
@@ -692,8 +693,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> findByIdAndEnvironmentId(String id, String environmentId) {
-        return Mono.error(new ex.Marker("findByIdAndEnvironmentId"));
-        /*
         return repository.findById(id).flatMap(datasource -> {
             return datasourceStorageService
                     .findByDatasourceAndEnvironmentId(datasource, environmentId)
@@ -705,7 +704,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         datasource.setDatasourceStorages(storages);
                         return datasource;
                     });
-        });//*/
+        });
     }
 
     @Override
@@ -800,7 +799,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> archiveById(String id) {
-        return Mono.error(new ex.Marker("archiveById")); /*
         return repository
                 .findById(id, datasourcePermission.getDeletePermission())
                 .switchIfEmpty(
@@ -834,7 +832,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(datasource);
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
-                });//*/
+                });
     }
 
     /**

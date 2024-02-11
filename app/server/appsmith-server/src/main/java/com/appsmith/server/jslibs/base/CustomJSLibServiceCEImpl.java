@@ -98,7 +98,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryC
 
                     return Mono.just(foundJSLib);
                 })
-                .map(CustomJSLibContextDTO::getDTOFromCustomJSLib);*/
+                .map(CustomJSLibContextDTO::getDTOFromCustomJSLib); //*/
     }
 
     @Override

@@ -170,7 +170,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     return Mono.just(updatedDatasource);
                 })
                 .collectList()
-                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));*/
+                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources)); //*/
     }
 
     public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(
@@ -191,7 +191,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));*/
+                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications)); //*/
     }
 
     @Override
@@ -218,7 +218,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedPages -> newPageRepository.saveAll(updatedPages));*/
+                .flatMapMany(updatedPages -> newPageRepository.saveAll(updatedPages)); //*/
     }
 
     @Override
@@ -244,7 +244,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(themeRepository::saveAll);*/
+                .flatMapMany(themeRepository::saveAll); //*/
     }
 
     /**
@@ -275,7 +275,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(newActionRepository::saveAll);*/
+                .flatMapMany(newActionRepository::saveAll); //*/
     }
 
     @Override
@@ -294,7 +294,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(actionCollectionRepository::saveAll);*/
+                .flatMapMany(actionCollectionRepository::saveAll); //*/
     }
 
     @Override

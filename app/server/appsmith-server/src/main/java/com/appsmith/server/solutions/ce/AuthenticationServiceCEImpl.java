@@ -121,7 +121,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     }
 
                     return Mono.just(uriComponentsBuilder.toUriString());
-                });*/
+                }); //*/
     }
 
     private Mono<DatasourceStorage> validateRequiredFieldsForGenericOAuth2(DatasourceStorage datasourceStorage) {
@@ -286,7 +286,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         e -> {
                             log.debug("Error while retrieving access token: ", e);
                             return this.getPageRedirectUrl(state, "appsmith_error");
-                        });*/
+                        }); //*/
     }
 
     private Mono<String> getPageRedirectUrl(String state, String error) {
@@ -320,7 +320,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         + (StringUtils.hasText(branchName) ? "&branch=" + branchName : ""))
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
-                        + responseStatus + "&view_mode=true"));*/
+                        + responseStatus + "&view_mode=true")); //*/
     }
 
     @Override
@@ -441,7 +441,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             return datasourceStorageService
                                     .save(datasourceStorage)
                                     .then(Mono.error(error));
-                        }));*/
+                        })); //*/
     }
 
     public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
@@ -594,7 +594,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             return datasourceStorageService
                                     .save(datasourceStorage)
                                     .then(Mono.error(error));
-                        }));*/
+                        })); //*/
     }
 
     public Mono<DatasourceStorage> refreshAuthentication(DatasourceStorage datasourceStorage) {

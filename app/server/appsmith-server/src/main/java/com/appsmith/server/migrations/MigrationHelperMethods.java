@@ -145,7 +145,7 @@ public class MigrationHelperMethods {
                     layout.setMongoEscapedWidgetNames(publishedMongoEscapedWidget.get(layout.getId()));
                 });
             }
-        });*/
+        }); //*/
     }
 
     // Method to embed userSetOnLoad in imported actions as per modified serialization format where we are serialising

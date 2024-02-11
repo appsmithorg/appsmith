@@ -422,7 +422,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             tuple.getT2().getImportedActionIds().size(),
                             tuple.getT1());
                     return tuple.getT2();
-                });*/
+                }); //*/
     }
 
     private void updateActionNameBeforeMerge(List<NewAction> importedNewActionList, Set<String> refactoringNames) {

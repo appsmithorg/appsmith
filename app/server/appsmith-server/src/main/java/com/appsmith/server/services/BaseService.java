@@ -107,7 +107,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
                 .queryBuilder()
                 .criteria(criterias)
                 .permission(aclPermission)
-                .all();*/
+                .all(); //*/
     }
 
     @Override
@@ -116,7 +116,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
         // In the base service we aren't handling the query parameters. In order to filter records using the query
         // params,
         // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
-        return repository.findAll();*/
+        return repository.findAll(); //*/
     }
 
     @Override
@@ -211,7 +211,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result;*/
+        return result; //*/
     }
 
     /**
@@ -234,7 +234,7 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
-        return Flux.empty(); /*
+        return Flux.error(new ex.Marker("unknown")); /*
         List<Criteria> criteriaList = searchableEntityFields.stream()
                 .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
                 .toList();
@@ -245,6 +245,6 @@ public abstract class BaseService<R extends BaseCake<T>, T extends BaseDomain, I
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result;*/
+        return result; //*/
     }
 }

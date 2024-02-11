@@ -66,7 +66,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     private Criteria getIdCriteria(Object id) {
         return null; /*
-                     return where(entityInformation.getIdAttribute()).is(id);*/
+                     return where(entityInformation.getIdAttribute()).is(id); //*/
     }
 
     @Override
@@ -80,7 +80,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .query(entityInformation.getJavaType())
                 .inCollection(entityInformation.getCollectionName())
                 .matching(query)
-                .one();*/
+                .one(); //*/
     }
 
     @Override
@@ -113,6 +113,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                             .with(sort);
 
                     return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
-                });*/
+                }); //*/
     }
 }

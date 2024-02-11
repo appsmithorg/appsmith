@@ -148,7 +148,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                 .findById(id, applicationPermission.getReadPermission())
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));*/
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id))); //*/
     }
 
     @Override
@@ -385,7 +385,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 FieldName.EVENT_DATA, eventData);
                         return analyticsService.sendUpdateEvent(application1, data);
                     }));
-        });*/
+        }); //*/
     }
 
     public Mono<UpdateResult> update(
@@ -500,7 +500,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the create method will still generate its event.
         return Mono.create(
-                sink -> updateApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));*/
+                sink -> updateApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext())); //*/
     }
 
     @Override
@@ -575,7 +575,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 policySolution.removePoliciesFromExistingObject(applicationPolicyMap, application);
                     }
                     return repository.save(updatedApplication);
-                });*/
+                }); //*/
     }
 
     protected List<Mono<Void>> updatePoliciesForIndependentDomains(
@@ -798,7 +798,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 return Mono.just(application);
                             });
                 })
-                .thenReturn(gitAuth);*/
+                .thenReturn(gitAuth); //*/
     }
 
     /**
@@ -852,7 +852,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
                                 return gitAuthDTO;
                             });
-                });*/
+                }); //*/
     }
 
     public Mono<Application> findByBranchNameAndDefaultApplicationId(
@@ -926,7 +926,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                             application,
                             applicationPermission.getEditPermission()) // it'll do a set operation
                     .flatMap(this::setTransientFields);
-        });*/
+        }); //*/
     }
 
     public Mono<String> findBranchedApplicationId(

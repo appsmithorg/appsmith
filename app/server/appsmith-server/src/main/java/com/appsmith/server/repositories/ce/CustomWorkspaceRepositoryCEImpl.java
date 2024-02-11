@@ -56,13 +56,13 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(workspaceIdCriteria, tenantIdCriteria)
                 .permission(aclPermission)
                 .sort(sort)
-                .all();*/
+                .all(); //*/
     }
 
     @Override
     public List<Workspace> findAllWorkspaces() {
         return Collections.emptyList(); /*
-        return mongoOperations.find(new Query(), Workspace.class);*/
+        return mongoOperations.find(new Query(), Workspace.class); //*/
     }
 
     @Override

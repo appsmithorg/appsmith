@@ -102,7 +102,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
                     tenant.setTenantConfiguration(oldConfig);
                     return repository.updateById(tenantId, tenant, MANAGE_TENANT);
-                });*/
+                }); //*/
     }
 
     @Override
@@ -111,7 +111,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
         return repository
                 .findById(tenantId, permission)
                 .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));*/
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId))); //*/
     }
 
     /*

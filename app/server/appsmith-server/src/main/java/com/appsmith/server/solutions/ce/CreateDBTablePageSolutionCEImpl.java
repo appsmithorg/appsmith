@@ -453,7 +453,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                                     return crudPage;
                                                 });
                                     }));
-                });*/
+                }); //*/
     }
 
     /**

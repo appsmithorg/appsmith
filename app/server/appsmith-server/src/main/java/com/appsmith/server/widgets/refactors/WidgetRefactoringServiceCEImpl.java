@@ -99,7 +99,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
             return Mono.just(page);
         });
 
-        return pageDTOMono.then();*/
+        return pageDTOMono.then(); //*/
     }
 
     @Override

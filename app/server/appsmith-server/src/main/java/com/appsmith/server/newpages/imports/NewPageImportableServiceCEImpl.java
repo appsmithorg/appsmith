@@ -92,7 +92,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         mappedImportableResourcesDTO)
                 .cache();
 
-        return updatedApplicationMono.then(importedNewPagesMono).then();*/
+        return updatedApplicationMono.then(importedNewPagesMono).then(); //*/
     }
 
     @Override
@@ -351,7 +351,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             application.setPages(applicationPages.get(EDIT));
             application.setPublishedPages(applicationPages.get(VIEW));
             return application;
-        });*/
+        }); //*/
     }
 
     /**
@@ -483,7 +483,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 .onErrorResume(error -> {
                     log.error("Error importing page", error);
                     return Mono.error(error);
-                });*/
+                }); //*/
     }
 
     private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
@@ -494,7 +494,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                     DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(page, branchName)
                             .getDefaultResources());
             return newPageService.update(page.getId(), update);
-        });*/
+        }); //*/
     }
 
     private Map<String, String> updateNewPagesBeforeMerge(List<NewPage> existingPages, List<NewPage> importedPages) {
@@ -562,7 +562,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         return unpublishedPages;
                     });
         }
-        return unpublishedPagesMono;*/
+        return unpublishedPagesMono; //*/
     }
 
     // This method will update the action id in saved page for layoutOnLoadAction
@@ -634,7 +634,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 .onErrorResume(error -> {
                     log.error("Error while updating action collection id in page layout", error);
                     return Mono.error(error);
-                });*/
+                }); //*/
     }
 
     private Set<String> getLayoutOnLoadActionsForPage(

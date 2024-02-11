@@ -344,7 +344,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(repository::setUserPermissionsInObject)
                 .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
-                                actionCollection.getUnpublishedCollection(), false)));*/
+                                actionCollection.getUnpublishedCollection(), false))); //*/
     }
 
     @Override
@@ -399,7 +399,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
                     return modifiedActionCollectionMono;
                 })
-                .flatMap(updatedAction -> generateActionCollectionByViewMode(updatedAction, false));*/
+                .flatMap(updatedAction -> generateActionCollectionByViewMode(updatedAction, false)); //*/
     }
 
     @Override
@@ -414,7 +414,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(this::deleteUnpublishedActionCollection)
                 .map(responseUtils::updateCollectionDTOWithDefaultResources)
                 .flatMap(actionCollectionDTO ->
-                        saveLastEditInformationInParent(actionCollectionDTO).thenReturn(actionCollectionDTO));*/
+                        saveLastEditInformationInParent(actionCollectionDTO).thenReturn(actionCollectionDTO)); //*/
     }
 
     @Override
@@ -560,7 +560,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(
                         actionCollection -> repository.archive(actionCollection).thenReturn(actionCollection))
                 .flatMap(deletedActionCollection -> analyticsService.sendDeleteEvent(
-                        deletedActionCollection, getAnalyticsProperties(deletedActionCollection)));*/
+                        deletedActionCollection, getAnalyticsProperties(deletedActionCollection))); //*/
     }
 
     @Override
@@ -574,7 +574,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return branchedCollectionMono
                 .map(ActionCollection::getId)
                 .flatMap(this::archiveById)
-                .map(responseUtils::updateActionCollectionWithDefaultResources);*/
+                .map(responseUtils::updateActionCollectionWithDefaultResources); //*/
     }
 
     @Override

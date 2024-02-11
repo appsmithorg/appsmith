@@ -32,7 +32,7 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
                 "name",
                 "packageName",
                 "iconLocation");
-        return queryBuilder().criteria(criteria).fields(projections).all();*/
+        return queryBuilder().criteria(criteria).fields(projections).all(); //*/
     }
 
     @Override
