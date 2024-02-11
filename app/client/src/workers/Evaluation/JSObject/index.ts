@@ -1,7 +1,7 @@
 import { get, isEmpty, set } from "lodash";
 import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -335,14 +335,6 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
       JSobject variable values are picked from evalProps until the unevalValue is not modified.
       Hence, we need to set the value in evalProps to ensure it doesn't have stale values.
       */
-      set(
-        dataTreeEvaluator.evalProps,
-        getEvalValuePath(`${jsObjectName}.${variableName}`, {
-          isPopulated: true,
-          fullPath: true,
-        }),
-        value,
-      );
     }
   }
 }

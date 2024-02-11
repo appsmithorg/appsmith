@@ -5,10 +5,9 @@ import type {
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
-import { isObject, isUndefined, set } from "lodash";
+import { isObject, set } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  getEvalValuePath,
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
@@ -58,7 +57,6 @@ export function setToEvalPathsIdenticalToState({
 }
 export function validateAndParseWidgetProperty({
   configTree,
-  evalPathsIdenticalToState,
   evalPropertyValue,
   evalProps,
   fullPropertyPath,
@@ -82,14 +80,12 @@ export function validateAndParseWidgetProperty({
   const widgetConfig = configTree[widget.widgetName] as WidgetEntityConfig;
   const validation = widgetConfig.validationPaths[propertyPath];
 
-  const { isValid, messages, parsed, transformed } = validateWidgetProperty(
+  const { isValid, messages, parsed } = validateWidgetProperty(
     validation,
     evalPropertyValue,
     widget,
     propertyPath,
   );
-
-  let evaluatedValue;
 
   // remove already present validation errors
   resetValidationErrorsForEntityProperty({
@@ -98,10 +94,7 @@ export function validateAndParseWidgetProperty({
   });
 
   if (isValid) {
-    evaluatedValue = parsed;
   } else {
-    evaluatedValue = isUndefined(transformed) ? evalPropertyValue : transformed;
-
     const evalErrors: EvaluationError[] =
       messages?.map((message) => {
         return {
@@ -119,21 +112,6 @@ export function validateAndParseWidgetProperty({
       configTree,
     });
   }
-
-  const evalPath = getEvalValuePath(fullPropertyPath, {
-    isPopulated: false,
-    fullPath: true,
-  });
-  const isParsedValueTheSame = parsed === evaluatedValue;
-
-  setToEvalPathsIdenticalToState({
-    evalPath,
-    evalPathsIdenticalToState,
-    evalProps,
-    isParsedValueTheSame,
-    fullPropertyPath,
-    value: evaluatedValue,
-  });
 
   return parsed;
 }
