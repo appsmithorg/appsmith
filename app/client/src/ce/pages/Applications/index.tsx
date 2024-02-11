@@ -128,6 +128,7 @@ import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededE
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -623,6 +624,11 @@ export function ApplicationsSection(props: any) {
     });
   };
 
+  const onCreateNewApplicationFromTemplate = () => {
+    AnalyticsUtil.logEvent("TEMPLATE_DROPDOWN_CLICK");
+    onStartFromTemplateClick();
+  };
+
   function NoWorkspaceFound() {
     return (
       <div className="flex flex-col items-center justify-center mt-[180px]">
@@ -753,7 +759,7 @@ export function ApplicationsSection(props: any) {
                   enableImportExport={enableImportExport}
                   isMobile={isMobile}
                   onCreateNewApplication={onClickAddNewAppButton}
-                  onStartFromTemplate={onStartFromTemplateClick}
+                  onStartFromTemplate={onCreateNewApplicationFromTemplate}
                   setSelectedWorkspaceIdForImportApplication={
                     setSelectedWorkspaceIdForImportApplication
                   }
