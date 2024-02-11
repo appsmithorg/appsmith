@@ -108,13 +108,15 @@ function CreateNewAppFromTemplatesModal({
   return (
     <Modal onOpenChange={(open) => onClose(open)} open={isOpen}>
       <ModalContentWrapper data-testid="t--create-app-from-templates-dialog-component">
-        <ModalHeader>
-          <StartWithTemplatesHeader
-            isModalLayout
-            subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
-            title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
-          />
-        </ModalHeader>
+        {!showTemplateDetails && (
+          <ModalHeader>
+            <StartWithTemplatesHeader
+              isModalLayout
+              subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
+              title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
+            />
+          </ModalHeader>
+        )}
         <ModalBodyWrapper
           isDetailedView={!!showTemplateDetails}
           ref={modadBodyRef}
