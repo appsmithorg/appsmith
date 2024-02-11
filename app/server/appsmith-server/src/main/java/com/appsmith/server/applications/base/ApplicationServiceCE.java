@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.services.CrudService;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
+
+    Flux<Application> get(MultiValueMap<String, String> params);
 
     Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName);
 

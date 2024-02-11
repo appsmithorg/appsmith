@@ -19,7 +19,6 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -71,12 +70,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     public Mono<Theme> getById(String s) {
         // we don't allow to get a theme by id from DB
         throw new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION);
-    }
-
-    @Override
-    public Flux<Theme> get(MultiValueMap<String, String> params) {
-        // we return all system themes
-        return repository.getSystemThemes();
     }
 
     @Override

@@ -39,7 +39,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -365,17 +364,6 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.deleteAppNavigationLogo(branchName, defaultApplicationId)
                 .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
-    }
-
-    // !! This API endpoint should not be exposed !!
-    @Override
-    @JsonView(Views.Public.class)
-    @GetMapping("")
-    public Mono<ResponseDTO<List<Application>>> getAll(
-            @RequestParam MultiValueMap<String, String> params,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return Mono.just(new ResponseDTO<>(
-                HttpStatus.BAD_REQUEST.value(), null, AppsmithError.UNSUPPORTED_OPERATION.getMessage()));
     }
 
     @JsonView(Views.Public.class)

@@ -39,6 +39,14 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
     }
 
     @JsonView(Views.Public.class)
+    @GetMapping
+    public Mono<ResponseDTO<List<Theme>>> getAll() {
+        return service.getSystemThemes()
+                .collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @JsonView(Views.Public.class)
     @GetMapping("applications/{applicationId}")
     public Mono<ResponseDTO<List<Theme>>> getApplicationThemes(
             @PathVariable String applicationId,

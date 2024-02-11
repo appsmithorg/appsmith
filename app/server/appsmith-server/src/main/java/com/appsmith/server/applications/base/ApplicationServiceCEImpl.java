@@ -134,6 +134,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.workspacePermission = workspacePermission;
     }
 
+    /**
+     * @deprecated Not used anymore. It's currently only used in tests.
+     */
+    @Deprecated(forRemoval = true)
     @Override
     public Flux<Application> get(MultiValueMap<String, String> params) {
         if (!StringUtils.isEmpty(params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME))) {

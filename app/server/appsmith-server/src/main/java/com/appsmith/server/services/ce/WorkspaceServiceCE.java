@@ -17,6 +17,8 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Workspace> create(Workspace workspace);
 
+    Flux<Workspace> getForCurrentUser();
+
     Mono<Workspace> createDefault(Workspace workspace, User user);
 
     Mono<Workspace> create(Workspace workspace, User user, Boolean isDefault);

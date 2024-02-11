@@ -18,12 +18,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
@@ -42,6 +46,21 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
     public PluginControllerCE(PluginService service, PluginTriggerSolution pluginTriggerSolution) {
         super(service);
         this.pluginTriggerSolution = pluginTriggerSolution;
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping
+    public Mono<ResponseDTO<List<Plugin>>> getAll(
+            @RequestParam MultiValueMap<String, String> params,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to get all resources from base controller {}", params);
+        MultiValueMap<String, String> modifiableParams = new LinkedMultiValueMap<>(params);
+        if (!StringUtils.isEmpty(branchName)) {
+            modifiableParams.add(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, branchName);
+        }
+        return service.get(modifiableParams)
+                .collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @JsonView(Views.Public.class)

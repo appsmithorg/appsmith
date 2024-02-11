@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -12,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface CrudService<T extends BaseDomain, ID> {
-
-    Flux<T> get(MultiValueMap<String, String> params);
 
     Mono<T> create(T resource);
 

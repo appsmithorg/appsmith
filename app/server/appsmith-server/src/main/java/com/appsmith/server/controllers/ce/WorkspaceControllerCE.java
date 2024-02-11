@@ -36,6 +36,14 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
         this.userWorkspaceService = userWorkspaceService;
     }
 
+    @JsonView(Views.Public.class)
+    @GetMapping
+    public Mono<ResponseDTO<List<Workspace>>> getAll() {
+        return service.getForCurrentUser()
+                .collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
     /**
      * This function would be used to fetch default permission groups of workspace, for which user has access to invite users.
      *

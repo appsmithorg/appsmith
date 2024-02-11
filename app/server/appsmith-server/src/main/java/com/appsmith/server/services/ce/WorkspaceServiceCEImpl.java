@@ -44,7 +44,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -127,7 +126,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     @Override
-    public Flux<Workspace> get(MultiValueMap<String, String> params) {
+    public Flux<Workspace> getForCurrentUser() {
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
             Set<String> workspaceIds = user.getWorkspaceIds();
             if (workspaceIds == null || workspaceIds.isEmpty()) {

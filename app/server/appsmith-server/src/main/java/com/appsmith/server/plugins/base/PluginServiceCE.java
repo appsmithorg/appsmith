@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.services.CrudService;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -14,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 public interface PluginServiceCE extends CrudService<Plugin, String> {
+
+    Flux<Plugin> get(MultiValueMap<String, String> params);
 
     Flux<Plugin> getDefaultPlugins();
 
