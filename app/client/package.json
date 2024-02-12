@@ -332,6 +332,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-sort-destructure-keys": "^1.5.0",
     "eslint-plugin-storybook": "^0.6.15",
+    "eslint-plugin-testing-library": "^6.2.0",
     "esm": "^3.2.25",
     "factory.ts": "^0.5.1",
     "husky": "^8.0.0",
