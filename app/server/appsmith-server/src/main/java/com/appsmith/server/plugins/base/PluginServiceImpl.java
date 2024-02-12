@@ -1,5 +1,6 @@
 package com.appsmith.server.plugins.base;
 
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.WorkspaceService;
@@ -23,6 +24,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            PluginRepository repositoryDirect,
             PluginRepositoryCake repository,
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
@@ -36,6 +38,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 workspaceService,

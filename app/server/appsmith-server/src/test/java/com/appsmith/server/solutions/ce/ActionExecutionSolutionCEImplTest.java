@@ -18,6 +18,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
@@ -94,6 +95,9 @@ class ActionExecutionSolutionCEImplTest {
     ObjectMapper objectMapper;
 
     @MockBean
+    NewActionRepository repositoryDirect;
+
+    @MockBean
     NewActionRepositoryCake repository;
 
     @SpyBean
@@ -149,6 +153,7 @@ class ActionExecutionSolutionCEImplTest {
                 actionPermission,
                 observationRegistry,
                 objectMapper,
+                repositoryDirect,
                 repository,
                 datasourceService,
                 pluginService,

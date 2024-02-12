@@ -19,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
@@ -72,7 +73,7 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @Service
-public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake, Workspace, String>
+public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, WorkspaceRepositoryCake, Workspace, String>
         implements WorkspaceServiceCE {
 
     private final PluginRepositoryCake pluginRepository;
@@ -93,6 +94,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            WorkspaceRepository repositoryDirect,
             WorkspaceRepositoryCake repository,
             AnalyticsService analyticsService,
             PluginRepositoryCake pluginRepository,
@@ -107,7 +109,14 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
             PermissionGroupPermission permissionGroupPermission,
             WorkspaceServiceHelper workspaceServiceHelper) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repositoryDirect,
+                repository,
+                analyticsService);
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
         this.assetRepository = assetRepository;
@@ -129,7 +138,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                 log.error("No workspace set for user: {}. Returning empty list of workspaces", user.getEmail());
                 return Flux.empty();
             }
-            return repository.findAllById(workspaceIds);
+            return cake.findAllById(workspaceIds);
         });
     }
 
@@ -196,7 +205,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                             return org;
                         }))
                 // Save the workspace in the db
-                .flatMap(repository::save)
+                .flatMap(cake::save)
                 .zipWhen(createdWorkspace -> generateDefaultPermissionGroups(createdWorkspace, user))
                 .flatMap(tuple -> {
                     Workspace createdWorkspace = tuple.getT1();
@@ -233,7 +242,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                     permissionGroup, createdWorkspace.getId());
             createdWorkspace = policySolution.addPoliciesToExistingObject(policyMap, createdWorkspace);
         }
-        return repository.save(createdWorkspace);
+        return cake.save(createdWorkspace);
     }
 
     @Override
@@ -415,8 +424,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
         // Ensure the resource has the same ID as from the parameter.
         resource.setId(id);
 
-        Mono<Workspace> findWorkspaceMono = repository
-                .findById(id, workspacePermission.getEditPermission())
+        Mono<Workspace> findWorkspaceMono = cake.findById(id, workspacePermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)))
                 .cache();
@@ -456,7 +464,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                     return workspaceFromDb;
                 })
                 .flatMap(this::validateObject)
-                .then(Mono.defer(() -> repository.updateById(id, resource, workspacePermission.getEditPermission())))
+                .then(Mono.defer(() -> cake.updateById(id, resource, workspacePermission.getEditPermission())))
                 .flatMap(analyticsService::sendUpdateEvent);
     }
 
@@ -467,7 +475,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     @Override
     public Mono<Workspace> findById(String id, AclPermission permission) {
-        return repository.findById(id, permission);
+        return cake.findById(id, permission);
     }
 
     @Override
@@ -480,19 +488,19 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
         if (StringUtils.hasLength(workspace.getName())) {
             workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
         }
-        return repository.save(workspace);
+        return cake.save(workspace);
     }
 
     @Override
     public Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId) {
-        return repository.findByIdAndPluginsPluginId(workspaceId, pluginId);
+        return cake.findByIdAndPluginsPluginId(workspaceId, pluginId);
     }
 
     @Override
     public Flux<Workspace> findByIdsIn(Set<String> ids, String tenantId, AclPermission permission) {
         Sort sort = Sort.by(FieldName.NAME);
 
-        return repository.findByIdsIn(ids, tenantId, permission, sort);
+        return cake.findByIdsIn(ids, tenantId, permission, sort);
     }
 
     @Override
@@ -502,7 +510,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
         }
 
         // Read the workspace
-        Mono<Workspace> workspaceMono = repository.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceMono = cake.findById(workspaceId, workspacePermission.getReadPermission());
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux =
@@ -544,8 +552,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
         }
 
-        final Mono<Workspace> findWorkspaceMono = repository
-                .findById(workspaceId, workspacePermission.getEditPermission())
+        final Mono<Workspace> findWorkspaceMono = cake.findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
@@ -561,7 +568,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                     final String prevAssetId = workspace.getLogoAssetId();
 
                     workspace.setLogoAssetId(uploadedAsset.getId());
-                    return repository.save(workspace).flatMap(savedWorkspace -> {
+                    return cake.save(workspace).flatMap(savedWorkspace -> {
                         if (StringUtils.isEmpty(prevAssetId)) {
                             return Mono.just(savedWorkspace);
                         } else {
@@ -573,8 +580,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     @Override
     public Mono<Workspace> deleteLogo(String workspaceId) {
-        return repository
-                .findById(workspaceId, workspacePermission.getEditPermission())
+        return cake.findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .flatMap(workspace -> {
@@ -590,13 +596,13 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                                     AppsmithError.NO_RESOURCE_FOUND, FieldName.ASSET, prevAssetId)))
                             .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
                             .flatMap(analyticsService::sendDeleteEvent)
-                            .then(repository.save(workspace));
+                            .then(cake.save(workspace));
                 });
     }
 
     @Override
     public Flux<Workspace> getAll() {
-        return repository.findAllWorkspaces();
+        return cake.findAllWorkspaces();
     }
 
     @Override
@@ -606,8 +612,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                 .flatMap(appCount -> {
                     if (appCount == 0) { // no application found under this workspace
                         // fetching the workspace first to make sure user has permission to archive
-                        return repository
-                                .findById(workspaceId, workspacePermission.getDeletePermission())
+                        return cake.findById(workspaceId, workspacePermission.getDeletePermission())
                                 .switchIfEmpty(Mono.error(new AppsmithException(
                                         AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                                 .flatMap(workspace -> {
@@ -629,7 +634,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                                             .then(Mono.just(workspace));
                                 })
                                 .flatMap(this::archiveWorkspaceDependents)
-                                .flatMap(repository::archive)
+                                .flatMap(cake::archive)
                                 .flatMap(analyticsService::sendDeleteEvent);
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
@@ -654,6 +659,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     @Override
     public Flux<Workspace> getAll(AclPermission permission) {
-        return repository.findAll(permission);
+        return cake.findAll(permission);
     }
 }

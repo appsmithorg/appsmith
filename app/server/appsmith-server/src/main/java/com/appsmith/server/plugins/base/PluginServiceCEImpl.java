@@ -11,6 +11,7 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -60,7 +61,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugin, String> implements PluginServiceCE {
+public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRepositoryCake, Plugin, String>
+        implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
     protected final WorkspaceService workspaceService;
@@ -97,6 +99,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            PluginRepository repositoryDirect,
             PluginRepositoryCake repository,
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
@@ -104,7 +107,14 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
             ObjectMapper objectMapper) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repositoryDirect,
+                repository,
+                analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
@@ -166,12 +176,12 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
 
     @Override
     public Flux<Plugin> getDefaultPlugins() {
-        return repository.findByDefaultInstall(true);
+        return cake.findByDefaultInstall(true);
     }
 
     @Override
     public Flux<Plugin> getDefaultPluginIcons() {
-        return repository.findDefaultPluginIcons();
+        return cake.findDefaultPluginIcons();
     }
 
     @Override
@@ -249,8 +259,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
         return pluginInWorkspaceMono.switchIfEmpty(Mono.defer(() -> {
             log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
             // If the plugin is not found in the workspace, its not installed already. Install now.
-            return repository
-                    .findById(pluginDTO.getPluginId())
+            return cake.findById(pluginDTO.getPluginId())
                     .map(plugin -> {
                         log.debug("Before publishing to the redis queue");
                         // Publish the event to the pub/sub queue
@@ -292,16 +301,16 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
     }
 
     public Mono<Plugin> findByName(String name) {
-        return repository.findByName(name);
+        return cake.findByName(name);
     }
 
     public Mono<Plugin> findByPackageName(String packageName) {
-        return repository.findByPackageName(packageName);
+        return cake.findByPackageName(packageName);
     }
 
     @Override
     public Mono<Plugin> findById(String id) {
-        return repository.findById(id);
+        return cake.findById(id);
     }
 
     @Override
@@ -312,8 +321,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
 
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
-        Mono<Plugin> pluginMono = repository.findById(
-                installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
+        Mono<Plugin> pluginMono =
+                cake.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
         return pluginMono
                 .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
                 .switchIfEmpty(Mono.defer(() -> {
@@ -623,17 +632,17 @@ public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugi
 
     @Override
     public Flux<Plugin> saveAll(Iterable<Plugin> plugins) {
-        return repository.saveAll(plugins);
+        return cake.saveAll(plugins);
     }
 
     @Override
     public Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
-        return repository.findAllByIdsWithoutPermission(ids, includeFields);
+        return cake.findAllByIdsWithoutPermission(ids, includeFields);
     }
 
     @Override
     public Flux<Plugin> getAllRemotePlugins() {
-        return repository.findByType(PluginType.REMOTE);
+        return cake.findByType(PluginType.REMOTE);
     }
 
     private Map loadPluginResourceGivenPluginAsMap(Plugin plugin, String resourcePath) {

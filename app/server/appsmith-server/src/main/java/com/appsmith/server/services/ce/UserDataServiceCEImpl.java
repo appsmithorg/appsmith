@@ -12,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.projections.UserDataProfilePhotoProjection;
+import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -42,7 +43,7 @@ import java.util.Map;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 
-public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, UserData, String>
+public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserDataRepositoryCake, UserData, String>
         implements UserDataServiceCE {
 
     private final UserRepositoryCake userRepository;
@@ -71,6 +72,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            UserDataRepository repositoryDirect,
             UserDataRepositoryCake repository,
             AnalyticsService analyticsService,
             UserRepositoryCake userRepository,
@@ -80,7 +82,14 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
             FeatureFlagService featureFlagService,
             ApplicationRepositoryCake applicationRepository,
             TenantService tenantService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repositoryDirect,
+                repository,
+                analyticsService);
         this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
         this.assetService = assetService;
@@ -101,7 +110,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
         // collection is treated to be sparse. That is, missing objects in the database are the same as empty objects.
         return StringUtils.isEmpty(userId)
                 ? Mono.empty()
-                : repository.findByUserId(userId).defaultIfEmpty(new UserData(userId));
+                : cake.findByUserId(userId).defaultIfEmpty(new UserData(userId));
     }
 
     @Override
@@ -119,8 +128,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     @Override
     public Mono<Map<String, String>> getProfilePhotoAssetIdsForUserIds(Collection<String> userIds) {
-        return repository
-                .findByUserIdIn(userIds)
+        return cake.findByUserIdIn(userIds)
                 .collectMap(
                         UserDataProfilePhotoProjection::getUserId,
                         UserDataProfilePhotoProjection::getProfilePhotoAssetId);
@@ -171,11 +179,11 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
                         .getDefaultTenantId()
                         .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId())))
-                .flatMap(repository::findByUserId)
+                .flatMap(cake::findByUserId)
                 .defaultIfEmpty(new UserData(user.getId()))
                 .flatMap(userData -> {
                     userData.setReleaseNotesViewedVersion(version);
-                    return repository.save(userData);
+                    return cake.save(userData);
                 })
                 .thenReturn(user);
     }
@@ -217,7 +225,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
                 .flatMap(userData -> {
                     String profilePhotoAssetId = userData.getProfilePhotoAssetId();
                     userData.setProfilePhotoAssetId(null);
-                    return repository.save(userData).thenReturn(profilePhotoAssetId);
+                    return cake.save(userData).thenReturn(profilePhotoAssetId);
                 })
                 .flatMap(assetService::remove);
     }
@@ -276,7 +284,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
                     userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
                     return Mono.zip(
                             analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
-                            repository.save(userData));
+                            cake.save(userData));
                 })
                 .map(Tuple2::getT2);
     }
@@ -347,7 +355,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
                 .findIdsByWorkspaceId(workspaceId)
                 .map(IdOnly::id)
                 .collectList()
-                .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
+                .flatMap(appIdsList -> cake.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
     }
 
     /**

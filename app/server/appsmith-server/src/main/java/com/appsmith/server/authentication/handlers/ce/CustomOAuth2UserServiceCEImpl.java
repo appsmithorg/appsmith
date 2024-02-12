@@ -3,6 +3,7 @@ package com.appsmith.server.authentication.handlers.ce;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,8 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
     private UserService userService;
 
     @Autowired
-    public CustomOAuth2UserServiceCEImpl(UserRepositoryCake repository, UserService userService) {
+    public CustomOAuth2UserServiceCEImpl(
+            UserRepository repositoryDirect, UserRepositoryCake repository, UserService userService) {
         this.repository = repository;
         this.userService = userService;
     }

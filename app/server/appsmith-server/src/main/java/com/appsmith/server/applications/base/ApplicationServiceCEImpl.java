@@ -31,6 +31,7 @@ import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -79,7 +80,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 @Service
-public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryCake, Application, String>
+public class ApplicationServiceCEImpl
+        extends BaseService<ApplicationRepository, ApplicationRepositoryCake, Application, String>
         implements ApplicationServiceCE {
 
     private final PolicySolution policySolution;
@@ -104,6 +106,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            ApplicationRepository repositoryDirect,
             ApplicationRepositoryCake repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
@@ -119,7 +122,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repositoryDirect,
+                repository,
+                analyticsService);
         this.policySolution = policySolution;
         this.configService = configService;
         this.responseUtils = responseUtils;
@@ -152,8 +162,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository
-                .findById(id, applicationPermission.getReadPermission())
+        return cake.findById(id, applicationPermission.getReadPermission())
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
@@ -173,28 +182,28 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> findById(String id) {
-        return repository.findById(id).flatMap(this::setTransientFields);
+        return cake.findById(id).flatMap(this::setTransientFields);
     }
 
     @Override
     @Deprecated
     public Mono<Application> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission).flatMap(this::setTransientFields);
+        return cake.findById(id, aclPermission).flatMap(this::setTransientFields);
     }
 
     @Override
     public Mono<Application> findById(String id, Optional<AclPermission> aclPermission) {
-        return repository.findById(id, aclPermission.orElse(null)).flatMap(this::setTransientFields);
+        return cake.findById(id, aclPermission.orElse(null)).flatMap(this::setTransientFields);
     }
 
     @Override
     public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
-        return repository.findByIdAndWorkspaceId(id, workspaceId, permission).flatMap(this::setTransientFields);
+        return cake.findByIdAndWorkspaceId(id, workspaceId, permission).flatMap(this::setTransientFields);
     }
 
     @Override
     public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
-        return setTransientFields(repository.findByWorkspaceId(workspaceId, permission));
+        return setTransientFields(cake.findByWorkspaceId(workspaceId, permission));
     }
 
     /**
@@ -250,12 +259,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
-        return repository.findByClonedFromApplicationId(applicationId, permission);
+        return cake.findByClonedFromApplicationId(applicationId, permission);
     }
 
     @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
-        return repository.findByName(name, permission).flatMap(this::setTransientFields);
+        return cake.findByName(name, permission).flatMap(this::setTransientFields);
     }
 
     @Override
@@ -275,7 +284,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 .getName()));
             }
         }
-        return repository.save(application).flatMap(this::setTransientFields);
+        return cake.save(application).flatMap(this::setTransientFields);
     }
 
     @Override
@@ -364,8 +373,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             } else {
                 applicationIdMono = Mono.just(id);
             }
-            return applicationIdMono.flatMap(appId -> repository
-                    .updateById(appId, application, applicationPermission.getEditPermission())
+            return applicationIdMono.flatMap(appId -> cake.updateById(
+                            appId, application, applicationPermission.getEditPermission())
                     .onErrorResume(error -> {
                         log.error("failed to update application {}", appId, error);
                         if (error instanceof DuplicateKeyException) {
@@ -409,7 +418,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
         if (!isBlank(branchName)) {
             defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
         }
-        return repository.updateFieldByDefaultIdAndBranchName(
+        return cake.updateFieldByDefaultIdAndBranchName(
                 defaultApplicationId,
                 defaultIdPath,
                 fieldNameValueMap,
@@ -478,7 +487,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> archive(Application application) {
-        return repository.archive(application);
+        return cake.archive(application);
     }
 
     @Override
@@ -486,8 +495,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
         Mono<String> publicPermissionGroupIdMono =
                 permissionGroupService.getPublicPermissionGroupId().cache();
 
-        Mono<Application> updateApplicationMono = repository
-                .findById(id, applicationPermission.getMakePublicPermission())
+        Mono<Application> updateApplicationMono = cake.findById(id, applicationPermission.getMakePublicPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .zipWith(publicPermissionGroupIdMono)
@@ -526,15 +534,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                 .switchIfEmpty(this.findByBranchNameAndDefaultApplicationId(
                         branchName, defaultApplicationId, applicationPermission.getMakePublicPermission()))
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
-                .then(repository
-                        .findById(defaultApplicationId, applicationPermission.getMakePublicPermission())
+                .then(cake.findById(defaultApplicationId, applicationPermission.getMakePublicPermission())
                         .flatMap(this::setTransientFields)
                         .map(responseUtils::updateApplicationWithDefaultResources));
     }
 
     @Override
     public Flux<Application> findAllApplicationsByWorkspaceId(String workspaceId) {
-        return repository.findByWorkspaceId(workspaceId);
+        return cake.findByWorkspaceId(workspaceId);
     }
 
     @Override
@@ -548,8 +555,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Application> getApplicationInViewMode(String applicationId) {
-        return repository
-                .findById(applicationId, applicationPermission.getReadPermission())
+        return cake.findById(applicationId, applicationPermission.getReadPermission())
                 .map(application -> {
                     application.setViewMode(true);
                     return application;
@@ -562,11 +568,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
         Map<String, Policy> applicationPolicyMap =
                 policySolution.generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
 
-        Flux<String> otherApplicationsForThisRoleFlux = repository
-                .getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
-                        application.getWorkspaceId(), READ_APPLICATIONS, permissionGroupId)
-                .filter(applicationId -> !application.getId().equals(applicationId))
-                .cache();
+        Flux<String> otherApplicationsForThisRoleFlux =
+                cake.getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+                                application.getWorkspaceId(), READ_APPLICATIONS, permissionGroupId)
+                        .filter(applicationId -> !application.getId().equals(applicationId))
+                        .cache();
 
         List<Mono<Void>> updateInheritedDomainsList =
                 updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
@@ -587,7 +593,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                         updatedApplication =
                                 policySolution.removePoliciesFromExistingObject(applicationPolicyMap, application);
                     }
-                    return repository.save(updatedApplication);
+                    return cake.save(updatedApplication);
                 });
     }
 
@@ -745,8 +751,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
-        return repository
-                .findById(applicationId, applicationPermission.getEditPermission())
+        return cake.findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)))
                 .flatMap(application -> {
@@ -778,8 +783,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                     }
                     gitAuth.setRegeneratedKey(true);
 
-                    return repository
-                            .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                    return cake.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .flatMap(defaultApplication -> {
                                 GitArtifactMetadata gitArtifactMetadata =
                                         defaultApplication.getGitApplicationMetadata();
@@ -821,8 +825,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
      */
     @Override
     public Mono<GitAuthDTO> getSshKey(String applicationId) {
-        return repository
-                .findById(applicationId, applicationPermission.getEditPermission())
+        return cake.findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
                 .flatMap(application -> {
@@ -849,8 +852,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                                 "Can't find root application. Please configure the application with git");
                     }
 
-                    return repository
-                            .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                    return cake.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .map(rootApplication -> {
                                 GitAuthDTO gitAuthDTO = new GitAuthDTO();
                                 GitAuth gitAuth = rootApplication
@@ -884,8 +886,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));//*/
         }
-        return repository
-                .getApplicationByGitBranchAndDefaultApplicationId(
+        return cake.getApplicationByGitBranchAndDefaultApplicationId(
                         defaultApplicationId, projectionFieldNames, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
@@ -897,14 +898,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
     public Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(
             String branchName, String defaultApplicationId, String fieldName, AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
-            return repository
-                    .findById(defaultApplicationId, aclPermission)
+            return cake.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
         }
 
-        return repository
-                .getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
+        return cake.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
@@ -930,8 +929,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
              We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
              by the updateById method of the BaseAppsmithRepositoryImpl
             */
-            return repository
-                    .updateById(
+            return cake.updateById(
                             applicationId,
                             application,
                             applicationPermission.getEditPermission()) // it'll do a set operation
@@ -948,8 +946,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             }
             return Mono.just(defaultApplicationId);
         }
-        return repository
-                .getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
+        return cake.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
@@ -966,8 +963,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             }
             return Mono.just(defaultApplicationId);
         }
-        return repository
-                .getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName.get(), permission)
+        return cake.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName.get(), permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
@@ -987,17 +983,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
     @Override
     public Flux<Application> findAllApplicationsByDefaultApplicationId(
             String defaultApplicationId, AclPermission permission) {
-        return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId, permission);
+        return cake.getApplicationByGitDefaultApplicationId(defaultApplicationId, permission);
     }
 
     @Override
     public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(String workspaceId) {
-        return repository.getGitConnectedApplicationWithPrivateRepoCount(workspaceId);
+        return cake.getGitConnectedApplicationWithPrivateRepoCount(workspaceId);
     }
 
     @Override
     public Flux<Application> getGitConnectedApplicationsByWorkspaceId(String workspaceId) {
-        return repository.getGitConnectedApplicationByWorkspaceId(workspaceId);
+        return cake.getGitConnectedApplicationByWorkspaceId(workspaceId);
     }
 
     public String getRandomAppCardColor() {
@@ -1008,17 +1004,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
     @Override
     public Mono<UpdateResult> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
+        return cake.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
     }
 
     @Override
     public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
-        return repository.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId);
+        return cake.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId);
     }
 
     @Override
     public Mono<Application> findByIdAndExportWithConfiguration(String applicationId, Boolean exportWithConfiguration) {
-        return repository.findByIdAndExportWithConfiguration(applicationId, exportWithConfiguration);
+        return cake.findByIdAndExportWithConfiguration(applicationId, exportWithConfiguration);
     }
 
     @Override
@@ -1066,8 +1062,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Boolean> isApplicationNameTaken(String applicationName, String workspaceId, AclPermission permission) {
-        return repository
-                .countByNameAndWorkspaceId(applicationName, workspaceId, permission)
+        return cake.countByNameAndWorkspaceId(applicationName, workspaceId, permission)
                 .map(count -> count > 0);
     }
 
@@ -1096,7 +1091,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
                     unpublishedNavSetting.setLogoAssetId(null);
                     branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(unpublishedNavSetting);
-                    return repository.save(branchedApplication).thenReturn(navLogoAssetId);
+                    return cake.save(branchedApplication).thenReturn(navLogoAssetId);
                 })
                 .flatMap(assetService::remove);
     }
@@ -1112,13 +1107,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
 
     @Override
     public Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches) {
-        return repository
-                .unprotectAllBranches(applicationId, applicationPermission.getEditPermission())
+        return cake.unprotectAllBranches(applicationId, applicationPermission.getEditPermission())
                 .then(Mono.defer(() -> {
                     // Mono.defer is used to ensure the following code is executed only after the previous Mono
                     // completes
                     if (protectedBranches != null && !protectedBranches.isEmpty()) {
-                        return repository.protectBranchedApplications(
+                        return cake.protectBranchedApplications(
                                 applicationId, protectedBranches, applicationPermission.getEditPermission());
                     }
                     return Mono.empty();

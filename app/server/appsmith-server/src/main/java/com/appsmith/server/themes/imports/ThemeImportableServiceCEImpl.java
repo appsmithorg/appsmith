@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.themes.base.ThemeService;
@@ -27,6 +28,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
 
     public ThemeImportableServiceCEImpl(
             ThemeService themeService,
+            ThemeRepository repositoryDirect,
             ThemeRepositoryCake repository,
             ApplicationService applicationService,
             ApplicationPermission applicationPermission) {

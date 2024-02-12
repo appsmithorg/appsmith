@@ -2,6 +2,7 @@ package com.appsmith.server.jslibs.base;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
+import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.repositories.cakes.CustomJSLibRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import jakarta.validation.Validator;
@@ -19,6 +20,7 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            CustomJSLibRepository repositoryDirect,
             CustomJSLibRepositoryCake repository,
             AnalyticsService analyticsService,
             ContextBasedJsLibService<Application> applicationContextBasedJsLibService) {
@@ -27,6 +29,7 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 applicationContextBasedJsLibService);

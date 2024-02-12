@@ -1,6 +1,7 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.CustomOAuth2UserServiceCEImpl;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +20,9 @@ public class CustomOAuth2UserServiceImpl extends CustomOAuth2UserServiceCEImpl
     private UserService userService;
 
     @Autowired
-    public CustomOAuth2UserServiceImpl(UserRepositoryCake repository, UserService userService) {
-        super(repository, userService);
+    public CustomOAuth2UserServiceImpl(
+            UserRepository repositoryDirect, UserRepositoryCake repository, UserService userService) {
+        super(repositoryDirect, repository, userService);
         this.repository = repository;
         this.userService = userService;
     }

@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
+import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.repositories.cakes.CustomJSLibRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -25,7 +26,8 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 
 @Slf4j
-public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryCake, CustomJSLib, String>
+public class CustomJSLibServiceCEImpl
+        extends BaseService<CustomJSLibRepository, CustomJSLibRepositoryCake, CustomJSLib, String>
         implements CustomJSLibServiceCE {
     protected final ContextBasedJsLibService<Application> applicationContextBasedJsLibService;
 
@@ -34,10 +36,18 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryC
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            CustomJSLibRepository repositoryDirect,
             CustomJSLibRepositoryCake repository,
             AnalyticsService analyticsService,
             ContextBasedJsLibService<Application> applicationContextBasedJsLibService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repositoryDirect,
+                repository,
+                analyticsService);
         this.applicationContextBasedJsLibService = applicationContextBasedJsLibService;
     }
 
@@ -79,11 +89,10 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryC
     @Override
     public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
-        return repository
-                .findUniqueCustomJsLib(jsLib)
+        return cake.findUniqueCustomJsLib(jsLib)
                 // Read more why Mono.defer is used here.
                 // https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
-                .switchIfEmpty(Mono.defer(() -> repository.save(jsLib)))
+                .switchIfEmpty(Mono.defer(() -> cake.save(jsLib)))
                 .flatMap(foundJSLib -> {
                     /*
                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
@@ -92,7 +101,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryC
                     */
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
-                        return repository.save(jsLib);
+                        return cake.save(jsLib);
                     }
 
                     return Mono.just(foundJSLib);
@@ -131,7 +140,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryC
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
                 .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
-                .flatMapMany(repository::findCustomJsLibsInContext)
+                .flatMapMany(cake::findCustomJsLibsInContext)
                 .collectList()
                 .map(jsLibList -> {
                     jsLibList.sort(Comparator.comparing(CustomJSLib::getUidString));

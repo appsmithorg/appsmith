@@ -7,6 +7,7 @@ import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.ratelimiting.RateLimitService;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.EmailVerificationTokenRepositoryCake;
 import com.appsmith.server.repositories.cakes.PasswordResetTokenRepositoryCake;
@@ -30,6 +31,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            UserRepository repositoryDirect,
             UserRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
@@ -56,6 +58,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
+                repositoryDirect,
                 repository,
                 workspaceService,
                 analyticsService,

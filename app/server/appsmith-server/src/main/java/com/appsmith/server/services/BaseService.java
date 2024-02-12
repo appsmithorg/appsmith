@@ -9,16 +9,19 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.AppsmithRepository;
+import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.cakes.BaseCake;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import jakarta.validation.Validator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,11 +41,17 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
+@RequiredArgsConstructor
 public abstract class BaseService<
-                R extends BaseCake<T, ? extends AppsmithRepository<T>>, T extends BaseDomain, ID extends Serializable>
+                R extends BaseRepository<T, ID> & AppsmithRepository<T>,
+                C extends BaseCake<T, ? extends CrudRepository<T, String>>,
+                T extends BaseDomain,
+                ID extends Serializable>
         implements CrudService<T, ID> {
 
     final Scheduler scheduler;
+
+    protected final Validator validator;
 
     protected final MongoConverter mongoConverter;
 
@@ -50,26 +59,11 @@ public abstract class BaseService<
 
     protected final R repository;
 
-    protected final Validator validator;
+    protected final C cake;
 
     protected final AnalyticsService analyticsService;
 
     private static final String ENTITY_FIELDS = "entity_fields";
-
-    public BaseService(
-            Scheduler scheduler,
-            Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
-            R repository,
-            AnalyticsService analyticsService) {
-        this.scheduler = scheduler;
-        this.validator = validator;
-        this.mongoConverter = mongoConverter;
-        this.mongoTemplate = reactiveMongoTemplate;
-        this.repository = repository;
-        this.analyticsService = analyticsService;
-    }
 
     @Override
     public Mono<T> update(ID id, T resource) {
@@ -87,12 +81,11 @@ public abstract class BaseService<
             resource.setPolicies(null);
         }
 
-        return repository
-                .findOne((root, query, builder) -> builder.equal(root.get(key), id))
+        return cake.findOne((root, query, builder) -> builder.equal(root.get(key), id))
                 .flatMap(dbResource -> {
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, dbResource);
                     dbResource.setUpdatedAt(Instant.now());
-                    return repository.save(dbResource);
+                    return cake.save(dbResource);
                 });
     }
 
@@ -125,7 +118,7 @@ public abstract class BaseService<
         // In the base service we aren't handling the query parameters. In order to filter records using the query
         // params,
         // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
-        return repository.findAll();
+        return cake.findAll();
     }
 
     @Override
@@ -134,15 +127,14 @@ public abstract class BaseService<
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository
-                .findById((String) id)
+        return cake.findById((String) id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
     @Override
     public Mono<T> create(T object) {
         return validateObject(object)
-                .flatMap(repository::save)
+                .flatMap(cake::save)
                 .flatMap(savedResource ->
                         analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }

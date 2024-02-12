@@ -10,6 +10,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -30,7 +31,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Slf4j
-public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, String> implements ThemeServiceCE {
+public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeRepositoryCake, Theme, String>
+        implements ThemeServiceCE {
 
     private final ApplicationRepositoryCake applicationRepository;
     private final ApplicationService applicationService;
@@ -43,13 +45,21 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            ThemeRepository repositoryDirect,
             ThemeRepositoryCake repository,
             AnalyticsService analyticsService,
             ApplicationRepositoryCake applicationRepository,
             ApplicationService applicationService,
             PolicyGenerator policyGenerator,
             ApplicationPermission applicationPermission) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repositoryDirect,
+                repository,
+                analyticsService);
         this.applicationRepository = applicationRepository;
         this.applicationService = applicationService;
         this.policyGenerator = policyGenerator;
@@ -58,7 +68,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> create(Theme resource) {
-        return repository.save(resource).flatMap(analyticsService::sendCreateEvent);
+        return cake.save(resource).flatMap(analyticsService::sendCreateEvent);
     }
 
     @Override
@@ -76,7 +86,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
     @Override
     public Flux<Theme> get(MultiValueMap<String, String> params) {
         // we return all system themes
-        return repository.getSystemThemes();
+        return cake.getSystemThemes();
     }
 
     @Override
@@ -92,11 +102,10 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                         themeId = application.getPublishedModeThemeId();
                     }
                     if (StringUtils.hasLength(themeId)) {
-                        return repository
-                                .findById(themeId, READ_THEMES)
-                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
+                        return cake.findById(themeId, READ_THEMES)
+                                .switchIfEmpty(cake.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
                     } else { // theme id is not present, return default theme
-                        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
+                        return cake.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
                     }
                 });
     }
@@ -106,12 +115,12 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
-                .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));
+                .flatMapMany(application -> cake.getApplicationThemes(application.getId(), READ_THEMES));
     }
 
     @Override
     public Flux<Theme> getSystemThemes() {
-        return repository.getSystemThemes();
+        return cake.getSystemThemes();
     }
 
     @Override
@@ -135,10 +144,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                         branchName, applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .flatMap(application -> repository
-                        .findById(application.getEditModeThemeId(), READ_THEMES)
+                .flatMap(application -> cake.findById(application.getEditModeThemeId(), READ_THEMES)
                         .defaultIfEmpty(new Theme())
-                        .zipWith(repository.findById(newThemeId, READ_THEMES))
+                        .zipWith(cake.findById(newThemeId, READ_THEMES))
                         .flatMap(themeTuple2 -> {
                             Theme currentTheme = themeTuple2.getT1();
                             Theme newTheme = themeTuple2.getT2();
@@ -150,7 +158,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                                 newTheme.setWorkspaceId(null);
                                 newTheme.setPolicies(policyGenerator.getAllChildPolicies(
                                         application.getPolicies(), Application.class, Theme.class));
-                                saveThemeMono = repository.save(newTheme);
+                                saveThemeMono = cake.save(newTheme);
                             } else {
                                 saveThemeMono = Mono.just(newTheme);
                             }
@@ -162,8 +170,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                                                 && !StringUtils.hasLength(currentTheme.getApplicationId())) {
                                             // current theme is neither a system theme nor app theme, delete the user
                                             // customizations
-                                            return repository
-                                                    .delete(currentTheme)
+                                            return cake.delete(currentTheme)
                                                     .then(applicationRepository.setAppTheme(
                                                             application.getId(),
                                                             savedTheme.getId(),
@@ -188,7 +195,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
     @Override
     public Mono<String> getDefaultThemeId() {
         if (StringUtils.isEmpty(defaultThemeId)) {
-            return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
+            return cake.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
                 defaultThemeId = theme.getId();
                 return theme.getId();
             });
@@ -198,7 +205,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication) {
-        return repository.findById(srcThemeId, READ_THEMES).flatMap(theme -> {
+        return cake.findById(srcThemeId, READ_THEMES).flatMap(theme -> {
             if (theme.isSystemTheme()) { // it's a system theme, no need to copy
                 return Mono.just(theme);
             } else { // it's a customized theme, create a copy and return the copy
@@ -207,7 +214,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                 theme.setWorkspaceId(null);
                 theme.setPolicies(policyGenerator.getAllChildPolicies(
                         destApplication.getPolicies(), Application.class, Theme.class));
-                return repository.save(theme);
+                return cake.save(theme);
             }
         });
     }
@@ -227,9 +234,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                     Mono<Theme> editModeThemeMono;
                     if (!StringUtils.hasLength(
                             application.getEditModeThemeId())) { // theme id is empty, use the default theme
-                        editModeThemeMono = repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
+                        editModeThemeMono = cake.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
                     } else { // theme id is not empty, fetch it by id
-                        editModeThemeMono = repository.findById(application.getEditModeThemeId(), READ_THEMES);
+                        editModeThemeMono = cake.findById(application.getEditModeThemeId(), READ_THEMES);
                     }
 
                     return editModeThemeMono.flatMap(editModeTheme -> {
@@ -272,8 +279,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
             Theme targetThemeResource,
             Application application,
             ApplicationMode applicationMode) {
-        return repository
-                .findById(currentThemeId, READ_THEMES)
+        return cake.findById(currentThemeId, READ_THEMES)
                 .flatMap(currentTheme -> {
                     // update the attributes of entity as per the request DTO
                     currentTheme.setConfig(targetThemeResource.getConfig());
@@ -299,7 +305,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                         // id
                         newThemeCreated = true;
                     }
-                    return repository.save(currentTheme).zipWith(Mono.just(newThemeCreated));
+                    return cake.save(currentTheme).zipWith(Mono.just(newThemeCreated));
                 })
                 .flatMap(savedThemeTuple -> {
                     Theme theme = savedThemeTuple.getT1();
@@ -342,7 +348,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                     if (!StringUtils.hasLength(themeId)) { // theme id is not present, raise error
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     } else {
-                        return repository.findById(themeId, READ_THEMES).map(theme -> Tuples.of(theme, application));
+                        return cake.findById(themeId, READ_THEMES).map(theme -> Tuples.of(theme, application));
                     }
                 })
                 .flatMap(themeAndApplicationTuple -> {
@@ -368,7 +374,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                     } else {
                         theme.setDisplayName(theme.getName());
                     }
-                    return repository.save(theme);
+                    return cake.save(theme);
                 })
                 .flatMap(theme -> analyticsService.sendObjectEvent(AnalyticsEvents.FORK, theme));
     }
@@ -387,9 +393,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
         if (!StringUtils.hasLength(themeId)) {
             return Mono.empty();
         }
-        return repository.findById(themeId).flatMap(theme -> {
+        return cake.findById(themeId).flatMap(theme -> {
             if (!theme.isSystemTheme()) {
-                return repository.deleteById(themeId).thenReturn(theme);
+                return cake.deleteById(themeId).thenReturn(theme);
             }
             return Mono.just(theme);
         });
@@ -397,14 +403,13 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> archiveById(String themeId) {
-        return repository
-                .findById(themeId, MANAGE_THEMES)
+        return cake.findById(themeId, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.THEME)))
                 .flatMap(theme -> {
                     if (StringUtils.hasLength(
                             theme.getApplicationId())) { // only persisted themes are allowed to be deleted
-                        return repository.archive(theme);
+                        return cake.archive(theme);
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
@@ -414,23 +419,22 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> getSystemTheme(String themeName) {
-        return repository.getSystemThemeByName(themeName);
+        return cake.getSystemThemeByName(themeName);
     }
 
     @Override
     public Mono<Theme> getThemeById(String themeId, AclPermission permission) {
-        return repository.findById(themeId, permission);
+        return cake.findById(themeId, permission);
     }
 
     @Override
     public Mono<Theme> save(Theme theme) {
-        return repository.save(theme);
+        return cake.save(theme);
     }
 
     @Override
     public Mono<Theme> updateName(String id, Theme themeDto) {
-        return repository
-                .findById(id, MANAGE_THEMES)
+        return cake.findById(id, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.THEME, id)))
                 .flatMap(theme -> {
                     if (StringUtils.hasLength(themeDto.getName())) {
@@ -440,18 +444,17 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
                     if (StringUtils.hasLength(themeDto.getDisplayName())) {
                         theme.setDisplayName(themeDto.getDisplayName());
                     }
-                    return repository.save(theme);
+                    return cake.save(theme);
                 });
     }
 
     @Override
     public Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication) {
         if (theme == null) { // this application was exported without theme, assign the legacy theme to it
-            return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
+            return cake.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
         } else if (theme.isSystemTheme()) {
-            return repository
-                    .getSystemThemeByName(theme.getName())
-                    .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
+            return cake.getSystemThemeByName(theme.getName())
+                    .switchIfEmpty(cake.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
         } else {
             // create a new theme
             Theme newTheme = new Theme();
@@ -463,7 +466,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
             newTheme.setName(theme.getName());
             newTheme.setDisplayName(theme.getDisplayName());
             newTheme.setSystemTheme(false);
-            return repository.save(newTheme);
+            return cake.save(newTheme);
         }
     }
 
@@ -476,9 +479,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
      */
     @Override
     public Mono<Application> archiveApplicationThemes(Application application) {
-        return repository
-                .archiveByApplicationId(application.getId())
-                .then(repository.archiveDraftThemesById(
+        return cake.archiveByApplicationId(application.getId())
+                .then(cake.archiveDraftThemesById(
                         application.getEditModeThemeId(), application.getPublishedModeThemeId()))
                 .thenReturn(application);
     }

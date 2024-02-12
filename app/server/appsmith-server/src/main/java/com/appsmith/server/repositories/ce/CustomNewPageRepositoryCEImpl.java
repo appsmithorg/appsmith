@@ -3,12 +3,15 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -264,36 +267,15 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
+    @Modifying
+    @Transactional
     public Optional<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
-        throw new ex.Marker("publishPages"); /*
-        Criteria applicationIdCriteria = where("id").in(pageIds);
+        int count = queryBuilder()
+                .permission(permission)
+                .spec(Bridge.conditioner().in(fieldName(QNewPage.newPage.id), pageIds))
+                .update(Bridge.update().set(QNewPage.newPage.publishedPage, QNewPage.newPage.unpublishedPage)); // */
 
-        Optional<Set<String>> permissionGroupsMono =
-                Optional.of(getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission)));
-
-        return permissionGroupsMono.flatMap(permissionGroups -> {
-            return Mono.fromCallable(() -> {
-                        AggregationOperation matchAggregationWithPermission = null;
-                        if (permission == null) {
-                            matchAggregationWithPermission =
-                                    Aggregation.match(new Criteria().andOperator(notDeleted()));
-                        } else {
-                            matchAggregationWithPermission = Aggregation.match(
-                                    new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-                        }
-                        AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
-                        AggregationOperation wholeProjection = Aggregation.project(NewPage.class);
-                        AggregationOperation addFieldsOperation = Aggregation.addFields()
-                                .addField("publishedPage")
-                                .withValueOf(Fields.field("unpublishedPage"))
-                                .build();
-                        Aggregation combinedAggregation = Aggregation.newAggregation(
-                                matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
-                        return mongoTemplate.aggregate(combinedAggregation, NewPage.class, NewPage.class);
-                    })
-                    .subscribeOn(Schedulers.boundedElastic())
-                    .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
-        }); //*/
+        return Optional.of(List.of(BulkWriteResult.unacknowledged()));
     }
 
     @Override

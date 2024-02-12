@@ -25,6 +25,7 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -99,6 +100,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Autowired
     public DatasourceServiceCEImpl(
+            DatasourceRepository repositoryDirect,
             DatasourceRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,

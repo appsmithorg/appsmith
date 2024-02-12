@@ -188,7 +188,7 @@ def generate_cake_class(domain):
         else:
             wrapper = "%s"
 
-        signature = signature.replace(f"BaseRepository<{domain}, String>", f"BaseCake<{domain}, {domain}Repository>")
+        signature = signature.replace(f"BaseRepository<{domain}, String>", f"{domain}RepositoryCake")
 
         call = re.sub(
             r"[A-Za-z.]+?(<[^<>]+?>|<[^\s]+?>)?\s(\w+)([,)])", r"\2\3", signature
@@ -352,7 +352,7 @@ def convert(domain):
     to_entity(domain)
     #switch_repo_types(domain)
     generate_cake_class(domain)
-    use_cake(domain)
+    #use_cake(domain)  # Commenting this out since we want both cake and repo to co-exist now.
 
 
 def main():

@@ -27,6 +27,7 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
@@ -91,6 +92,9 @@ public class ActionCollectionServiceImplTest {
     RefactoringService refactoringService;
 
     @MockBean
+    ActionCollectionRepository actionCollectionRepositoryDirect;
+
+    @MockBean
     ActionCollectionRepositoryCake actionCollectionRepository;
 
     @MockBean
@@ -137,6 +141,7 @@ public class ActionCollectionServiceImplTest {
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
+                actionCollectionRepositoryDirect,
                 actionCollectionRepository,
                 analyticsService,
                 newActionService,

@@ -2,6 +2,7 @@ package com.appsmith.server.newpages.base;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -24,6 +25,7 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            NewPageRepository repositoryDirect,
             NewPageRepositoryCake repository,
             AnalyticsService analyticsService,
             ApplicationService applicationService,
@@ -38,6 +40,7 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 applicationService,

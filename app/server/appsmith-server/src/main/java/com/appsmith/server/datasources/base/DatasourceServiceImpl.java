@@ -5,6 +5,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements DatasourceService {
 
     public DatasourceServiceImpl(
+            DatasourceRepository repositoryDirect,
             DatasourceRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
@@ -42,6 +44,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             FeatureFlagService featureFlagService) {
 
         super(
+                repositoryDirect,
                 repository,
                 workspaceService,
                 analyticsService,

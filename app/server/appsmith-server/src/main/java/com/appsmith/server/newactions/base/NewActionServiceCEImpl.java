@@ -43,6 +43,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -99,7 +100,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake, NewAction, String>
+public class NewActionServiceCEImpl extends BaseService<NewActionRepository, NewActionRepositoryCake, NewAction, String>
         implements NewActionServiceCE {
 
     public static final String DATA = "data";
@@ -140,6 +141,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            NewActionRepository repositoryDirect,
             NewActionRepositoryCake repository,
             AnalyticsService analyticsService,
             DatasourceService datasourceService,
@@ -162,7 +164,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake,
             DefaultResourcesService<NewAction> defaultResourcesService,
             DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repositoryDirect,
+                repository,
+                analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;

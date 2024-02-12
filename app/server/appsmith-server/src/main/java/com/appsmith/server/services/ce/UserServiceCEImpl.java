@@ -25,6 +25,7 @@ import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.EmailVerificationTokenRepositoryCake;
 import com.appsmith.server.repositories.cakes.PasswordResetTokenRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -88,7 +89,8 @@ import static java.lang.Boolean.TRUE;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Slf4j
-public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, String> implements UserServiceCE {
+public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositoryCake, User, String>
+        implements UserServiceCE {
 
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
@@ -125,6 +127,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            UserRepository repositoryDirect,
             UserRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
@@ -142,7 +145,14 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repositoryDirect,
+                repository,
+                analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
@@ -166,7 +176,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
     @Override
     public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
-        return repository.findByEmailAndTenantId(email, tenantId);
+        return cake.findByEmailAndTenantId(email, tenantId);
     }
 
     /**
@@ -183,7 +193,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
         }
         return sessionUserService
                 .getCurrentUser()
-                .flatMap(user -> repository.findByEmail(user.getUsername()))
+                .flatMap(user -> cake.findByEmail(user.getUsername()))
                 .flatMap(user -> {
                     log.debug("Going to set workspaceId: {} for user: {}", workspaceId, user.getId());
 
@@ -203,7 +213,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
                     if (maybeWorkspaceId.isPresent()) {
                         user.setCurrentWorkspaceId(maybeWorkspaceId.get());
-                        return repository.save(user);
+                        return cake.save(user);
                     }
 
                     // Throw an exception if the workspaceId is not part of the user's workspaces
@@ -237,9 +247,8 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
         final String token = UUID.randomUUID().toString();
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
-        return repository
-                .findByEmail(email)
-                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
+        return cake.findByEmail(email)
+                .switchIfEmpty(cake.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
@@ -367,8 +376,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                         return emailTokenDTO.getEmail();
                     }
                 })
-                .flatMap(emailAddress -> repository
-                        .findByEmail(emailAddress)
+                .flatMap(emailAddress -> cake.findByEmail(emailAddress)
                         .switchIfEmpty(Mono.error(
                                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
                         .flatMap(userFromDb -> {
@@ -396,7 +404,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                                             FieldName.TOKEN,
                                             emailTokenDTO.getToken())))
                                     .flatMap(passwordResetTokenRepository::delete)
-                                    .then(repository.save(userFromDb))
+                                    .then(cake.save(userFromDb))
                                     .doOnSuccess(result -> {
                                         // In a separate thread, we delete all other sessions of this user.
                                         sessionUserService
@@ -443,7 +451,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
         // Save the new user
         return userWithTenantMono
                 .flatMap(this::validateObject)
-                .flatMap(repository::save)
+                .flatMap(cake::save)
                 .flatMap(this::addUserPoliciesAndSaveToRepo)
                 .flatMap(crudUser -> {
                     if (isAdminUser) {
@@ -452,14 +460,13 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                     return Mono.just(crudUser);
                 })
                 .then(Mono.zip(
-                        repository.findByEmail(user.getUsername()),
-                        userDataService.getForUserEmail(user.getUsername())))
+                        cake.findByEmail(user.getUsername()), userDataService.getForUserEmail(user.getUsername())))
                 .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
     private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
         // TODO: Add policies to the user
-        return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(repository::save);
+        return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(cake::save);
     }
 
     @Override
@@ -473,8 +480,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
-        return repository
-                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
+        return cake.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -482,7 +488,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                         savedUser.setSource(user.getSource());
                         // In case of form login, store the encrypted password.
                         savedUser.setPassword(user.getPassword());
-                        return repository.save(savedUser).map(updatedUser -> {
+                        return cake.save(savedUser).map(updatedUser -> {
                             UserSignupDTO userSignupDTO = new UserSignupDTO();
                             userSignupDTO.setUser(updatedUser);
                             return userSignupDTO;
@@ -581,8 +587,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
     @Override
     public Mono<User> update(String id, User userUpdate) {
-        Mono<User> userFromRepository = repository
-                .findById(id, MANAGE_USERS)
+        Mono<User> userFromRepository = cake.findById(id, MANAGE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, userUpdate));
@@ -597,8 +602,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
      */
     @Override
     public Mono<User> updateWithoutPermission(String id, User update) {
-        Mono<User> userFromRepository = repository
-                .findById(id)
+        Mono<User> userFromRepository = cake.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));
@@ -611,7 +615,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
         }
 
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
-        return repository.save(existingUser);
+        return cake.save(existingUser);
     }
 
     @Override
@@ -645,7 +649,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                     .getCurrentUser()
                     .flatMap(user -> {
                         user.setName(inputName);
-                        return repository.save(user).flatMap(savedUser -> {
+                        return cake.save(user).flatMap(savedUser -> {
                             if (exchange != null) {
                                 // Can we do this in a separate thread, async?
                                 return sessionUserService
@@ -692,7 +696,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
     @Override
     public Mono<Boolean> isUsersEmpty() {
-        return repository.isUsersEmpty();
+        return cake.isUsersEmpty();
     }
 
     @Override
@@ -748,7 +752,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
     @Override
     public Flux<User> getAllByEmails(Set<String> emails, AclPermission permission) {
-        return repository.findAllByEmailIn(emails);
+        return cake.findAllByEmailIn(emails);
     }
 
     @Override
@@ -771,8 +775,8 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
         final String token = UUID.randomUUID().toString();
 
         // Check if the user exists in our DB. If not, we will not send the email verification link to the user
-        Mono<User> userMono = repository.findByEmail(email).cache();
-        return userMono.switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
+        Mono<User> userMono = cake.findByEmail(email).cache();
+        return userMono.switchIfEmpty(cake.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
@@ -883,7 +887,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
             Mono<WebSession> sessionMono = exchange.getSession();
             Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
-            Mono<User> userMono = repository.findByEmail(parsedEmailTokenDTO.getEmail());
+            Mono<User> userMono = cake.findByEmail(parsedEmailTokenDTO.getEmail());
 
             Mono<EmailVerificationToken> emailVerificationTokenMono = emailVerificationTokenRepository
                     .findByEmail(parsedEmailTokenDTO.getEmail())
@@ -933,7 +937,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                         user.setEmailVerified(TRUE);
                         Mono<Void> redirectionMono = redirectStrategy.sendRedirect(
                                 webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl));
-                        return repository.save(user).then(redirectionMono);
+                        return cake.save(user).then(redirectionMono);
                     });
         });
     }

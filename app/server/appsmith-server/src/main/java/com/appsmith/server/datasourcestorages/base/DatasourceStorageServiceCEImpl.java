@@ -15,6 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.repositories.cakes.DatasourceStorageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -43,6 +44,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     private final AnalyticsService analyticsService;
 
     public DatasourceStorageServiceCEImpl(
+            DatasourceStorageRepository repositoryDirect,
             DatasourceStorageRepositoryCake repository,
             DatasourcePermission datasourcePermission,
             PluginService pluginService,

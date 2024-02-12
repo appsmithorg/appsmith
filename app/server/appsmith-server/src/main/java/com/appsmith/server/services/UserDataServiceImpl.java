@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -19,6 +20,7 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            UserDataRepository repositoryDirect,
             UserDataRepositoryCake repository,
             AnalyticsService analyticsService,
             UserRepositoryCake userRepository,
@@ -34,6 +36,7 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 userRepository,

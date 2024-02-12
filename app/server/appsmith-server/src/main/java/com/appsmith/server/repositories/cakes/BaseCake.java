@@ -6,10 +6,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.types.Predicate;
@@ -38,7 +36,7 @@ import java.util.Set;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @RequiredArgsConstructor
-public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T, String> & AppsmithRepository<T>> {
+public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T, String>> {
     private final R repository;
 
     @Autowired
@@ -46,10 +44,6 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
 
     @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
-
-    public QueryAllParams<T> queryBuilder() {
-        return repository.queryBuilder();
-    }
 
     // ---------------------------------------------------
     // Wrappers for methods from BaseRepository

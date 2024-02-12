@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -21,6 +22,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            PermissionGroupRepository repositoryDirect,
             PermissionGroupRepositoryCake repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
@@ -35,6 +37,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 sessionUserService,

@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.CollectionRepository;
 import com.appsmith.server.repositories.cakes.CollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -21,7 +22,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 @Slf4j
-public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCake, Collection, String>
+public class CollectionServiceCEImpl
+        extends BaseService<CollectionRepository, CollectionRepositoryCake, Collection, String>
         implements CollectionServiceCE {
 
     public CollectionServiceCEImpl(
@@ -29,20 +31,28 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCak
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            CollectionRepository repositoryDirect,
             CollectionRepositoryCake repository,
             AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repositoryDirect,
+                repository,
+                analyticsService);
     }
 
     @Override
     public Mono<Collection> findById(String id) {
-        return repository.findById(id);
+        return cake.findById(id);
     }
 
     @Override
     public Mono<Collection> addActionsToCollection(Collection collection, List<NewAction> actions) {
         collection.setActions(actions);
-        return repository.save(collection);
+        return cake.save(collection);
     }
 
     @Override
@@ -54,8 +64,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCak
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION));
         }
 
-        return repository
-                .findById(collectionId)
+        return cake.findById(collectionId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .flatMap(collection1 -> {
@@ -73,7 +82,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCak
                     toSave.setId(action.getId());
                     actions.add(toSave);
                     collection1.setActions(actions);
-                    return repository.save(collection1);
+                    return cake.save(collection1);
                 })
                 .map(collection -> {
                     log.debug("Action {} added to Collection {}", action.getId(), collection.getId());
@@ -87,8 +96,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCak
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository
-                .findById(collectionId)
+        return cake.findById(collectionId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .zipWith(actionMono)
@@ -114,7 +122,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepositoryCak
                         }
                     }
                     log.debug("Action {} removed from Collection {}", action.getId(), collection.getId());
-                    return repository.save(collection);
+                    return cake.save(collection);
                 })
                 .then(actionMono); // */
     }

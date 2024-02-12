@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
@@ -26,6 +27,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
+            WorkspaceRepository repositoryDirect,
             WorkspaceRepositoryCake repository,
             AnalyticsService analyticsService,
             PluginRepositoryCake pluginRepository,
@@ -45,6 +47,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 pluginRepository,

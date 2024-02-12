@@ -6,6 +6,7 @@ import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ public class NewActionImportableServiceImpl extends NewActionImportableServiceCE
         implements ImportableService<NewAction> {
     public NewActionImportableServiceImpl(
             NewActionService newActionService,
+            NewActionRepository repositoryDirect,
             NewActionRepositoryCake repository,
             ActionCollectionService actionCollectionService,
             DefaultResourcesService<NewAction> defaultResourcesService,
