@@ -434,6 +434,9 @@ function ApiResponseView(props: Props) {
               ))}
             </HelpSection>
           )}
+          {isRunning && (
+            <ActionExecutionInProgressView actionType="API" theme={theme} />
+          )}
           {hasFailed && !isRunning ? (
             <ResponseTabErrorContainer>
               <ResponseTabErrorContent>
@@ -589,9 +592,6 @@ function ApiResponseView(props: Props) {
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}
       />
-      {isRunning && (
-        <ActionExecutionInProgressView actionType="API" theme={theme} />
-      )}
       <TabbedViewWrapper>
         {actionResponse.statusCode && (
           <ResponseMetaWrapper>

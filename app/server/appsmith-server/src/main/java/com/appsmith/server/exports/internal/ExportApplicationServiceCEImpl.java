@@ -1,6 +1,7 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
@@ -11,7 +12,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
@@ -42,7 +43,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -127,9 +127,9 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
         return applicationMono
                 .flatMap(application -> {
                     // Refactor application to remove the ids
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = application.getGitApplicationMetadata();
                     Instant applicationLastCommittedAt =
-                            gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
+                            gitArtifactMetadata != null ? gitArtifactMetadata.getLastCommittedAt() : null;
                     boolean isClientSchemaMigrated =
                             !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
                     boolean isServerSchemaMigrated =
@@ -138,13 +138,13 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                     exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
                     exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
                     applicationJson.setExportedApplication(application);
-                    applicationJson.setUpdatedResources(new ConcurrentHashMap<>());
+                    applicationJson.setModifiedResources(new ModifiedResources());
 
                     List<String> unpublishedPages = application.getPages().stream()
                             .map(ApplicationPage::getId)
                             .collect(Collectors.toList());
 
-                    exportingMetaDTO.setUnpublishedModulesOrPages(unpublishedPages);
+                    exportingMetaDTO.setUnpublishedContextIds(unpublishedPages);
 
                     return getExportableEntities(exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
                             .then(Mono.defer(() -> sanitizeEntities(

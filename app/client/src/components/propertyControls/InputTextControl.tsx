@@ -4,6 +4,7 @@ import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import type { InputType } from "components/constants";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -32,8 +33,10 @@ export function InputText(props: {
   hideEvaluatedValue?: boolean;
   enableAI?: boolean;
   isEditorHidden?: boolean;
+  blockCompletions?: FieldEntityInformation["blockCompletions"];
 }) {
   const {
+    blockCompletions,
     dataTreePath,
     enableAI = true,
     evaluatedValue,
@@ -53,6 +56,7 @@ export function InputText(props: {
       <LazyCodeEditor
         AIAssisted={enableAI}
         additionalDynamicData={props.additionalAutocomplete}
+        blockCompletions={blockCompletions}
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}
         evaluatedPopUpLabel={label}

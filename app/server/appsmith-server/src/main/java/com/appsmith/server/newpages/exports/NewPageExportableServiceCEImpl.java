@@ -3,10 +3,11 @@ package com.appsmith.server.newpages.exports;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
-import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -42,12 +43,14 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         Optional<AclPermission> optionalPermission = Optional.ofNullable(pagePermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
-        List<String> unpublishedPages = exportingMetaDTO.getUnpublishedModulesOrPages();
+        List<String> unpublishedPages = exportingMetaDTO.getUnpublishedContextIds();
 
         return newPageService
                 .findNewPagesByApplicationId(exportingMetaDTO.getArtifactId(), optionalPermission)
@@ -59,7 +62,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                     Set<String> updatedPageSet = new HashSet<String>();
 
                     // check the application object for the page reference in the page list
-                    // Exclude the deleted pages that are present in view mode  because the app is not
+                    // Exclude the deleted pages that are present in view mode because the app is not
                     // published yet
                     newPageList.removeIf(newPage -> !unpublishedPages.contains(newPage.getId()));
                     newPageList.forEach(newPage -> {
@@ -108,7 +111,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                         newPage.sanitiseToExportDBObject();
                     });
                     applicationJson.setPageList(newPageList);
-                    applicationJson.getUpdatedResources().put(FieldName.PAGE_LIST, updatedPageSet);
+                    applicationJson.getModifiedResources().putResource(FieldName.PAGE_LIST, updatedPageSet);
 
                     return newPageList;
                 })
@@ -119,8 +122,10 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
     public void sanitizeEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            ApplicationJson applicationJson,
+            ArtifactExchangeJson artifactExchangeJson,
             SerialiseArtifactObjective serialiseFor) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         // Update ids for layoutOnLoadAction
         for (NewPage newPage : applicationJson.getPageList()) {
             updateIdsForLayoutOnLoadAction(

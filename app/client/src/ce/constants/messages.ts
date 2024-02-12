@@ -757,8 +757,8 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_NOT_FOUND = () => "Table not found.";
-export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
-  "Search for table";
+export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
+  `Search for tables in ${name}`;
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -1937,6 +1937,7 @@ export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 // Datasource/New query
 export const NEW_QUERY_BUTTON_TEXT = () => "New query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
+export const NEW_AI_BUTTON_TEXT = () => "New AI Query";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "Generate new page";
 export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
@@ -2223,6 +2224,7 @@ export const COMMUNITY_TEMPLATES = {
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
+export const NO_COLUMNS_MESSAGE_TEXT = () => "There are no columns to show";
 export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
 export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";

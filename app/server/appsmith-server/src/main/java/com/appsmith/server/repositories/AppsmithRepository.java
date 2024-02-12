@@ -21,11 +21,9 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> findById(String id, Optional<AclPermission> permission);
 
-    Mono<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
-
     Mono<T> updateById(String id, T resource, AclPermission permission);
 
-    QueryAllParams<T> queryAll();
+    QueryAllParams<T> queryBuilder();
 
     Flux<T> queryAllWithStrictPermissionGroups(
             List<Criteria> criterias,

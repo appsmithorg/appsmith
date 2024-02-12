@@ -7,11 +7,9 @@ import styled from "styled-components";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { Text, TextType } from "design-system-old";
-import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   DEBUGGER_ERRORS,
@@ -20,6 +18,7 @@ import {
 } from "@appsmith/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
+import Schema from "components/editorComponents/Debugger/Schema";
 import type { ActionResponse } from "api/ActionAPI";
 import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
@@ -63,6 +62,7 @@ interface QueryDebuggerTabsProps {
   runErrorMessage?: string;
   actionResponse?: ActionResponse;
   onRunClick: () => void;
+  showSchema?: boolean;
 }
 
 function QueryDebuggerTabs({
@@ -73,6 +73,7 @@ function QueryDebuggerTabs({
   isRunning,
   onRunClick,
   runErrorMessage,
+  showSchema,
 }: QueryDebuggerTabsProps) {
   let output: Record<string, any>[] | null = null;
 
@@ -146,6 +147,20 @@ function QueryDebuggerTabs({
     });
   }
 
+  if (showSchema && currentActionConfig) {
+    responseTabs.unshift({
+      key: "schema",
+      title: "Schema",
+      panelComponent: (
+        <Schema
+          currentActionId={currentActionConfig.id}
+          datasourceId={currentActionConfig.datasource.id || ""}
+          datasourceName={currentActionConfig.datasource.name || ""}
+        />
+      ),
+    });
+  }
+
   return (
     <TabbedViewContainer
       className="t--query-bottom-pane-container"
@@ -160,12 +175,6 @@ function QueryDebuggerTabs({
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}
       />
-      {isRunning && (
-        <ActionExecutionInProgressView
-          actionType="query"
-          theme={EditorTheme.LIGHT}
-        />
-      )}
 
       {output && !!output.length && (
         <ResultsCount>
