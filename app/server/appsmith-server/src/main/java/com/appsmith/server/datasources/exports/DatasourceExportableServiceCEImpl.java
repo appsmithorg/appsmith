@@ -12,15 +12,15 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ExportableArtifact;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableServiceCE;
+import com.appsmith.server.exports.exportable.artifactbased.ArtifactBasedExportableService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
 
+@RequiredArgsConstructor
 public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Datasource> {
 
     private final DatasourceService datasourceService;
@@ -41,15 +42,11 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
     private final WorkspaceService workspaceService;
     private final DatasourceStorageService datasourceStorageService;
 
-    public DatasourceExportableServiceCEImpl(
-            DatasourceService datasourceService,
-            DatasourcePermission datasourcePermission,
-            WorkspaceService workspaceService,
-            DatasourceStorageService datasourceStorageService) {
-        this.datasourceService = datasourceService;
-        this.datasourcePermission = datasourcePermission;
-        this.workspaceService = workspaceService;
-        this.datasourceStorageService = datasourceStorageService;
+    @Override
+    public ArtifactBasedExportableService<Datasource, ?> getArtifactBasedExportableService(
+            ExportingMetaDTO exportingMetaDTO) {
+        // This resource is not artifact dependent
+        return null;
     }
 
     // Updates datasourceId to name map in exportable resources. Also directly updates required datasources information
@@ -61,17 +58,16 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
-        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
-
         Mono<String> defaultEnvironmentIdMono = exportableArtifactMono
                 .map(ExportableArtifact::getWorkspaceId)
                 .flatMap(workspaceId -> workspaceService.getDefaultEnvironmentId(workspaceId, null));
 
-        Optional<AclPermission> optionalPermission = Optional.ofNullable(datasourcePermission.getExportPermission(
-                exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
+        AclPermission exportPermission = datasourcePermission.getExportPermission(
+                exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration());
 
-        Flux<Datasource> datasourceFlux = exportableArtifactMono.flatMapMany(application -> {
-            return datasourceService.getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), optionalPermission);
+        Flux<Datasource> datasourceFlux = exportableArtifactMono.flatMapMany(exportableArtifact -> {
+            return datasourceService.getAllByWorkspaceIdWithStorages(
+                    exportableArtifact.getWorkspaceId(), Optional.ofNullable(exportPermission));
         });
 
         return datasourceFlux
@@ -80,7 +76,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
                 .map(tuple2 -> {
                     List<Datasource> datasourceList = tuple2.getT1();
                     String environmentId = tuple2.getT2();
-                    mapNameToIdForExportableEntities(mappedExportableResourcesDTO, datasourceList);
+                    mapNameToIdForExportableEntities(exportingMetaDTO, mappedExportableResourcesDTO, datasourceList);
 
                     List<DatasourceStorage> storageList = datasourceList.stream()
                             .map(datasource -> {
@@ -99,7 +95,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
                                 return storage;
                             })
                             .collect(Collectors.toList());
-                    applicationJson.setDatasourceList(storageList);
+                    artifactExchangeJson.setDatasourceList(storageList);
 
                     return datasourceList;
                 })
@@ -114,10 +110,8 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return exportableArtifactMono.flatMap(exportableArtifact -> {
-            Mono<Application> applicationMono = Mono.just((Application) exportableArtifact);
-            ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
             return getExportableEntities(
-                    exportingMetaDTO, mappedExportableResourcesDTO, applicationMono, applicationJson);
+                    exportingMetaDTO, mappedExportableResourcesDTO, exportableArtifactMono, artifactExchangeJson);
         });
     }
 
@@ -132,7 +126,9 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
 
     @Override
     public Set<String> mapNameToIdForExportableEntities(
-            MappedExportableResourcesDTO mappedExportableResourcesDTO, List<Datasource> datasourceList) {
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            List<Datasource> datasourceList) {
         datasourceList.forEach(datasource -> {
             mappedExportableResourcesDTO.getDatasourceIdToNameMap().put(datasource.getId(), datasource.getName());
             mappedExportableResourcesDTO
@@ -149,8 +145,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             ArtifactExchangeJson artifactExchangeJson,
             SerialiseArtifactObjective serialiseFor,
             Boolean isContextAgnostic) {
-        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
-        sanitizeEntities(exportingMetaDTO, mappedExportableResourcesDTO, applicationJson, serialiseFor);
+        sanitizeEntities(exportingMetaDTO, mappedExportableResourcesDTO, artifactExchangeJson, serialiseFor);
     }
 
     @Override
@@ -159,21 +154,19 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ArtifactExchangeJson artifactExchangeJson,
             SerialiseArtifactObjective serialiseFor) {
-
-        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         // Save decrypted fields for datasources for internally used sample apps and templates
         // only when serialising for file sharing
         if (TRUE.equals(exportingMetaDTO.getExportWithConfiguration())
                 && SerialiseArtifactObjective.SHARE.equals(serialiseFor)) {
             // Save decrypted fields for datasources
             Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
-            applicationJson.getDatasourceList().forEach(datasourceStorage -> {
+            artifactExchangeJson.getDatasourceList().forEach(datasourceStorage -> {
                 decryptedFields.put(datasourceStorage.getName(), getDecryptedFields(datasourceStorage));
                 datasourceStorage.sanitiseToExportResource(mappedExportableResourcesDTO.getPluginMap());
             });
-            applicationJson.setDecryptedFields(decryptedFields);
+            artifactExchangeJson.setDecryptedFields(decryptedFields);
         } else {
-            applicationJson.getDatasourceList().forEach(datasourceStorage -> {
+            artifactExchangeJson.getDatasourceList().forEach(datasourceStorage -> {
                 // For git sync, Set the entire datasourceConfiguration object to null as we don't want to
                 // set it in the git repo
                 if (Boolean.TRUE.equals(exportingMetaDTO.getIsGitSync())) {
