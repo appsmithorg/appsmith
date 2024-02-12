@@ -28,7 +28,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import EntityDeps from "./Debugger/EntityDependecies";
 import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
-import { Button, Callout, SegmentedControl } from "design-system";
+import { Button, Callout, Flex, SegmentedControl } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -134,7 +134,7 @@ const TabbedViewWrapper = styled.div`
   }
 `;
 
-const Flex = styled.div`
+const FlexContainer = styled.div`
   display: flex;
   align-items: center;
   margin-left: 20px;
@@ -504,8 +504,8 @@ function ApiResponseView(props: Props) {
                   ) : responseTabs &&
                     responseTabs.length > 0 &&
                     selectedTabIndex !== -1 ? (
-                    <Flex>
-                      <SegmentedControlContainer>
+                    <SegmentedControlContainer>
+                      <Flex justifyContent="space-between">
                         <SegmentedControl
                           data-testid="t--response-tab-segmented-control"
                           defaultValue={segmentedControlOptions[0]?.value}
@@ -517,18 +517,18 @@ function ApiResponseView(props: Props) {
                           options={segmentedControlOptions}
                           value={selectedControl}
                         />
-                        {responseTabComponent(
-                          selectedControl || segmentedControlOptions[0]?.value,
-                          actionResponse?.body,
-                          responsePaneHeight,
-                        )}
-                      </SegmentedControlContainer>
-                      <BindDataButton
-                        actionName={currentActionConfig?.name || ""}
-                        hasResponse={!!actionResponse}
-                        suggestedWidgets={actionResponse.suggestedWidgets}
-                      />
-                    </Flex>
+                        <BindDataButton
+                          actionName={currentActionConfig?.name || ""}
+                          hasResponse={!!actionResponse}
+                          suggestedWidgets={actionResponse.suggestedWidgets}
+                        />
+                      </Flex>
+                      {responseTabComponent(
+                        selectedControl || segmentedControlOptions[0]?.value,
+                        actionResponse?.body,
+                        responsePaneHeight,
+                      )}
+                    </SegmentedControlContainer>
                   ) : null}
                 </ResponseBodyContainer>
               )}
@@ -616,7 +616,7 @@ function ApiResponseView(props: Props) {
         {actionResponse.statusCode && (
           <ResponseMetaWrapper>
             {actionResponse.statusCode && (
-              <Flex>
+              <FlexContainer>
                 <Text type={TextType.P3}>Status: </Text>
                 <StatusCodeText
                   accent="secondary"
@@ -625,33 +625,33 @@ function ApiResponseView(props: Props) {
                 >
                   {actionResponse.statusCode}
                 </StatusCodeText>
-              </Flex>
+              </FlexContainer>
             )}
             <ResponseMetaInfo>
               {actionResponse.duration && (
-                <Flex>
+                <FlexContainer>
                   <Text type={TextType.P3}>Time: </Text>
                   <Text type={TextType.H5}>{actionResponse.duration} ms</Text>
-                </Flex>
+                </FlexContainer>
               )}
               {actionResponse.size && (
-                <Flex>
+                <FlexContainer>
                   <Text type={TextType.P3}>Size: </Text>
                   <Text type={TextType.H5}>
                     {formatBytes(parseInt(actionResponse.size))}
                   </Text>
-                </Flex>
+                </FlexContainer>
               )}
               {!isEmpty(actionResponse?.body) &&
                 Array.isArray(actionResponse?.body) && (
-                  <Flex>
+                  <FlexContainer>
                     <Text type={TextType.P3}>Result: </Text>
                     <Text type={TextType.H5}>
                       {`${actionResponse?.body.length} Record${
                         actionResponse?.body.length > 1 ? "s" : ""
                       }`}
                     </Text>
-                  </Flex>
+                  </FlexContainer>
                 )}
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
