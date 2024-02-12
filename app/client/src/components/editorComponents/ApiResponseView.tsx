@@ -47,8 +47,8 @@ import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/Editor
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
-import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
-import { getApiPaneDebuggerState } from "../../selectors/apiPaneSelectors";
+import { setApiPaneDebuggerState } from "actions/apiPaneActions";
+import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
 
 interface TextStyleProps {
   accent: "primary" | "secondary" | "error";

@@ -43,8 +43,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity, Log } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
-import { getJsPaneDebuggerState } from "../../selectors/jsPaneSelectors";
-import { setJsPaneDebuggerState } from "../../actions/jsPaneActions";
+import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
+import { setJsPaneDebuggerState } from "actions/jsPaneActions";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
