@@ -570,8 +570,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                         modifiedQueries++;
                     }
                 }
-            } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + CommonConstants.DELIMITER_PATH)
-                    && !x.endsWith(CommonConstants.JSON_EXTENSION)) {
+            } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
                 String queryName = x.substring(x.lastIndexOf(CommonConstants.DELIMITER_PATH) + 1);
                 String pageName = x.split(CommonConstants.DELIMITER_PATH)[1];
                 if (!jsObjectsModified.contains(pageName + queryName)) {

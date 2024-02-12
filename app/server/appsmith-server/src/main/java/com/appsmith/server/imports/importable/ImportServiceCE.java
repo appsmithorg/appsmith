@@ -1,5 +1,6 @@
 package com.appsmith.server.imports.importable;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -86,11 +87,14 @@ public interface ImportServiceCE {
             List<String> entitiesToImport);
 
     Mono<? extends ImportableArtifact> restoreSnapshot(
-            String workspaceId, ArtifactExchangeJson artifactExchangeJson, String artifactId, String branchName);
+            String workspaceId, String artifactId, String branchName, ArtifactExchangeJson artifactExchangeJson);
 
     Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
             String workspaceId,
             String artifactId,
             ImportableArtifact importableArtifact,
-            ArtifactExchangeJson artifactExchangeJson);
+            ArtifactJsonType artifactJsonType);
+
+    Mono<List<Datasource>> findDatasourceByArtifactId(
+            String workspaceId, String defaultArtifactId, ArtifactJsonType artifactJsonType);
 }

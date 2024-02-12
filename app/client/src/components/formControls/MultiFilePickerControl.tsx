@@ -12,9 +12,12 @@ import type { Datasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
 import { connect } from "react-redux";
 import PluginsApi from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import { get, isArray } from "lodash";
 import { formatFileSize } from "./utils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const HiddenFileInput = styled.input`
   visibility: hidden;
@@ -24,6 +27,7 @@ interface ConnectProps {
   pluginId?: string;
   currentFiles: FileMetadata[];
   workpaceId: string;
+  plugin?: Plugin;
 }
 
 export type MultipleFilePickerControlProps = ControlProps & {
@@ -122,6 +126,15 @@ function FilePicker(props: FilePickerProps) {
           kind: "error",
         },
       );
+
+      AnalyticsUtil.logEvent("MULTI_FILE_PICKER_EXCEEDS_LIMIT", {
+        uploadedSize: totalSize,
+        allowedSize: maxFileSizeInBytes,
+        pluginName: props.plugin?.name,
+        pluginId: props.pluginId,
+        packageName: props.plugin?.packageName,
+      });
+
       clearInput();
       return false;
     }
@@ -297,10 +310,11 @@ const mapStateToProps = (
   )(state);
 
   const currentFiles = get(formValues, ownProps.configProperty, []);
-  const pluginId = formValues.pluginId;
+  const pluginId = formValues.pluginId || "";
   const workpaceId = getCurrentWorkspaceId(state);
+  const plugin = getPlugin(state, pluginId);
 
-  return { pluginId, currentFiles, workpaceId };
+  return { plugin, pluginId, currentFiles, workpaceId };
 };
 
 export default connect(mapStateToProps)(MultipleFilePickerControl);

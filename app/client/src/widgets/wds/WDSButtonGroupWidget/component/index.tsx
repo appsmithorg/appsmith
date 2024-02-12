@@ -71,6 +71,7 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
             icon={button.iconName}
             iconPosition={button.iconAlign}
             isLoading={loadingButtonIds.includes(button.id)}
+            isSeparator={button.itemType === "SEPARATOR"}
             key={button.id}
           >
             {button.label}

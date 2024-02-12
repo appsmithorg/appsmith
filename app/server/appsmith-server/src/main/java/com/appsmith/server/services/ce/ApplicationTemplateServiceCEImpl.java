@@ -4,16 +4,22 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.*;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ApplicationTemplate;
+import com.appsmith.server.dtos.TemplateDTO;
+import com.appsmith.server.dtos.TemplateUploadDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -50,8 +56,8 @@ import java.util.Map;
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
     private final CloudServicesConfig cloudServicesConfig;
     private final ReleaseNotesService releaseNotesService;
-    private final ImportApplicationService importApplicationService;
-    private final ExportApplicationService exportApplicationService;
+    private final ImportService importService;
+    private final ExportService exportService;
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
     private final ApplicationService applicationService;
@@ -63,8 +69,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
             ReleaseNotesService releaseNotesService,
-            ImportApplicationService importApplicationService,
-            ExportApplicationService exportApplicationService,
+            ImportService importService,
+            ExportService exportService,
             AnalyticsService analyticsService,
             UserDataService userDataService,
             ApplicationService applicationService,
@@ -74,8 +80,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             SessionUserService sessionUserService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
-        this.importApplicationService = importApplicationService;
-        this.exportApplicationService = exportApplicationService;
+        this.importService = importService;
+        this.exportService = exportService;
         this.analyticsService = analyticsService;
         this.userDataService = userDataService;
         this.applicationService = applicationService;
@@ -195,17 +201,18 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId) {
         return getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> Mono.zip(
-                        importApplicationService.importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson),
+                        importService.importNewArtifactInWorkspaceFromJson(workspaceId, applicationJson),
                         Mono.just(applicationJson.getExportedApplication().getName())))
                 .flatMap(tuple -> {
-                    Application application = tuple.getT1();
+                    Application application = (Application) tuple.getT1();
                     String templateTitle = tuple.getT2();
                     application.setForkedFromTemplateTitle(templateTitle);
                     return applicationService.save(application).thenReturn(application);
                 })
-                .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                        application.getId(), application.getWorkspaceId(), application))
-                .flatMap(applicationImportDTO -> {
+                .flatMap(application -> importService.getArtifactImportDTO(
+                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                .flatMap(importableArtifactDTO -> {
+                    ApplicationImportDTO applicationImportDTO = (ApplicationImportDTO) importableArtifactDTO;
                     Application application = applicationImportDTO.getApplication();
                     ApplicationTemplate applicationTemplate = new ApplicationTemplate();
                     applicationTemplate.setId(templateId);
@@ -277,19 +284,23 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         return applicationService
                                 .findByBranchNameAndDefaultApplicationId(
                                         branchName, applicationId, applicationPermission.getEditPermission())
-                                .flatMap(application -> importApplicationService.mergeApplicationJsonWithApplication(
+                                .flatMap(application -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                         organizationId,
                                         application.getId(),
                                         branchName,
                                         applicationJson,
-                                        pagesToImport));
+                                        pagesToImport))
+                                .map(importableArtifact -> (Application) importableArtifact);
                     }
-                    return importApplicationService.mergeApplicationJsonWithApplication(
-                            organizationId, applicationId, branchName, applicationJson, pagesToImport);
+                    return importService
+                            .mergeArtifactExchangeJsonWithImportableArtifact(
+                                    organizationId, applicationId, branchName, applicationJson, pagesToImport)
+                            .map(importableArtifact -> (Application) importableArtifact);
                 })
-                .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                        application.getId(), application.getWorkspaceId(), application))
-                .flatMap(applicationImportDTO -> {
+                .flatMap(application -> importService.getArtifactImportDTO(
+                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                .flatMap(importableArtifactDTO -> {
+                    ApplicationImportDTO applicationImportDTO = (ApplicationImportDTO) importableArtifactDTO;
                     responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication());
                     Application application = applicationImportDTO.getApplication();
                     ApplicationTemplate applicationTemplate = new ApplicationTemplate();
@@ -396,8 +407,10 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @NotNull private Mono<Application> exportAppAndUpload(TemplateDTO resource, boolean isCommunityTemplate) {
-        return exportApplicationService
-                .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
+        return exportService
+                .exportByArtifactIdAndBranchName(
+                        resource.getApplicationId(), resource.getBranchName(), ArtifactJsonType.APPLICATION)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(appJson -> {
                     TemplateUploadDTO communityTemplate =
                             createTemplateUploadDTO(resource.getApplicationId(), appJson, resource);

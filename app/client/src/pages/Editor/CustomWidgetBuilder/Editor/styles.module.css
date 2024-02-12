@@ -1,12 +1,3 @@
-.contentRight {
-  display: flex;
-  width: 50%;
-  flex-direction: column;
-  border-width: 1px;
-  border-top: none;
-  border-right: none;
-}
-
 .contentRightBody {
   display: flex;
   flex-grow: 1;

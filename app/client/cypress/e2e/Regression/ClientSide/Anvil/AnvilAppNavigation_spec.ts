@@ -26,41 +26,20 @@ describe(
       agHelper.PressDelete();
     });
     it("1. Change App navigation settings and valdiate the layout settings", () => {
-      const mainCanvasId = `#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`;
-      const paddingBetweenZoneAndMainCanvas = 35;
-      agHelper.AssertElementExist(mainCanvasId).then((mainCanvas) => {
-        const x = mainCanvas.position().left;
-        const y = mainCanvas.position().top;
-        anvilLayout.DragDropAnvilWidgetNVerify(
-          WIDGET.WDSINPUT,
-          x + 10,
-          y + paddingBetweenZoneAndMainCanvas,
-          {
-            skipWidgetSearch: true,
-          },
-        );
-        anvilLayout.DragDropAnvilWidgetNVerify(
-          WIDGET.WDSINPUT,
-          x + 10,
-          y + paddingBetweenZoneAndMainCanvas,
-          {
-            skipWidgetSearch: true,
-            dropTargetDetails: {
-              name: "Section1",
-            },
-          },
-        );
-        anvilLayout.DragDropAnvilWidgetNVerify(
-          WIDGET.WDSBUTTON,
-          x + 10,
-          y + paddingBetweenZoneAndMainCanvas,
-          {
-            skipWidgetSearch: true,
-            dropTargetDetails: {
-              name: "Section1",
-            },
-          },
-        );
+      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
+        skipWidgetSearch: true,
+      });
+      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
+        skipWidgetSearch: true,
+        dropTargetDetails: {
+          name: "Zone1",
+        },
+      });
+      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSBUTTON, 5, 20, {
+        skipWidgetSearch: true,
+        dropTargetDetails: {
+          name: "Zone1",
+        },
       });
       propPane.NavigateToPage("Page1", "onClick");
       appSettings.OpenAppSettings();
@@ -70,8 +49,13 @@ describe(
       );
       agHelper.AssertElementExist(appSettings.locators._sideNavbar);
       agHelper.GetNClick(locators._canvas);
-      agHelper.AssertElementExist(locators._widgetInCanvas(WIDGET.WDSINPUT));
-      agHelper.AssertElementExist(locators._widgetInCanvas(WIDGET.WDSINPUT), 1);
+      agHelper.AssertElementExist(
+        locators._anvilWidgetInCanvas(WIDGET.WDSINPUT),
+      );
+      agHelper.AssertElementExist(
+        locators._anvilWidgetInCanvas(WIDGET.WDSINPUT),
+        1,
+      );
     });
   },
 );

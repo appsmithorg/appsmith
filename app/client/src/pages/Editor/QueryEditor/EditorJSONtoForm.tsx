@@ -253,8 +253,8 @@ export function EditorJSONtoForm(props: Props) {
     useShowSchema(currentActionConfig?.pluginId || "") &&
     pluginRequireDatasource;
 
-  const isSideBySideEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_side_by_side_ide_enabled,
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
   const showRightPane =
@@ -285,6 +285,13 @@ export function EditorJSONtoForm(props: Props) {
       setShowResponseOnFirstLoad(true);
     }
   }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
+
+  useEffect(() => {
+    if (showSchema) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.SCHEMA_TAB));
+    }
+  }, [showSchema]);
 
   // When multiple page load queries exist, we want to response tab by default for all of them
   // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
@@ -331,7 +338,7 @@ export function EditorJSONtoForm(props: Props) {
     return null;
   }
 
-  if (isSideBySideEnabled && plugin) {
+  if (isActionRedesignEnabled && plugin) {
     const responseTabs = [];
     if (currentActionConfig) {
       responseTabs.push({
@@ -473,6 +480,7 @@ export function EditorJSONtoForm(props: Props) {
                     isRunning={isRunning}
                     onRunClick={onRunClick}
                     runErrorMessage={runErrorMessage}
+                    showSchema={showSchema}
                   />
                 )}
             </SecondaryWrapper>

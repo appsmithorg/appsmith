@@ -72,7 +72,6 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         return queryBuilder()
                 .criteria(nameCriteria, workspaceIdCriteria)
-                .fields((List<String>) null)
                 .permission(aclPermission.orElse(null))
                 .one();
     }

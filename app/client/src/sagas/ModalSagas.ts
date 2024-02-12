@@ -206,6 +206,7 @@ export function* closeModalSaga(
       // If modalName is not provided, find all open modals
       // Get all meta prop records
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+      const modalWidgetType: string = yield select(getModalWidgetType);
 
       // Get widgetIds of all widgets of type MODAL_WIDGET
       // Note: Not updating this code path for WDS_MODAL_WIDGET, as the functionality
@@ -213,7 +214,7 @@ export function* closeModalSaga(
       // In this, the flow of switching back and forth between multiple modals is to be tested.
       const modalWidgetIds: string[] = yield select(
         getWidgetIdsByType,
-        WidgetTypes.MODAL_WIDGET,
+        modalWidgetType,
       );
 
       // Loop through all modal widgetIds

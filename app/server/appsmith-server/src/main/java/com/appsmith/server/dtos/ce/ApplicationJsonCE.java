@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
@@ -14,7 +15,6 @@ import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +30,7 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class ApplicationJsonCE implements ArtifactExchangeJson {
+public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
 
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
@@ -86,7 +86,7 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
      * are updated in the database.
      */
     @JsonView(Views.Internal.class)
-    Map<String, Set<String>> updatedResources;
+    ModifiedResources modifiedResources;
 
     // TODO remove the plain text fields during the export once we have a way to address sample apps DB authentication
     @JsonView(Views.Public.class)
@@ -132,7 +132,8 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
     }
 
     @Override
-    public List<CustomJSLib> getCustomJsLibFromArtifact() {
-        return this.getCustomJSLibList();
+    public void setThemes(Theme unpublishedTheme, Theme publishedTheme) {
+        this.setEditModeTheme(unpublishedTheme);
+        this.setPublishedTheme(publishedTheme);
     }
 }

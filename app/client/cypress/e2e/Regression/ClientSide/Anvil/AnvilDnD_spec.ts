@@ -64,7 +64,7 @@ describe(
           },
         );
         agHelper.AssertElementLength(
-          locators._widgetInCanvas(WIDGET.WDSBUTTON),
+          locators._anvilWidgetInCanvas(WIDGET.WDSBUTTON),
           3,
         );
       });
