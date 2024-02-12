@@ -95,16 +95,18 @@ function WorkspaceAction({
         >
           {createMessage(NEW_APP)}
         </MenuItem>
-        <Divider className="!block mb-[2px]" />
         {isCreateAppFromTemplatesEnabled && (
-          <MenuItem
-            data-testid="t--workspace-action-start-from-template"
-            disabled={!hasCreateNewApplicationPermission}
-            onSelect={() => onStartFromTemplate(workspaceId)}
-            startIcon="layout-2-line"
-          >
-            {createMessage(NEW_APP_FROM_TEMPLATE)}
-          </MenuItem>
+          <>
+            <Divider className="!block mb-[2px]" />
+            <MenuItem
+              data-testid="t--workspace-action-start-from-template"
+              disabled={!hasCreateNewApplicationPermission}
+              onSelect={() => onStartFromTemplate(workspaceId)}
+              startIcon="layout-2-line"
+            >
+              {createMessage(NEW_APP_FROM_TEMPLATE)}
+            </MenuItem>
+          </>
         )}
         <Divider className="!block mb-[2px]" />
         {enableImportExport && hasCreateNewApplicationPermission && (
