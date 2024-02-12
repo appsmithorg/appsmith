@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.services.FeatureFlagService;
@@ -97,7 +97,7 @@ public class GitPrivateRepoCEImplTest {
                 .verifyComplete();
     }
 
-    boolean isBranchProtected(GitApplicationMetadata metaData, String branchName) {
+    boolean isBranchProtected(GitArtifactMetadata metaData, String branchName) {
         return Boolean.TRUE.equals(
                 gitPrivateRepoHelper.isBranchProtected(metaData, branchName).block());
     }
@@ -105,7 +105,7 @@ public class GitPrivateRepoCEImplTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void isBranchProtected() {
-        GitApplicationMetadata metaData = new GitApplicationMetadata();
+        GitArtifactMetadata metaData = new GitArtifactMetadata();
 
         assertFalse(isBranchProtected(null, "master"));
         assertFalse(isBranchProtected(metaData, "master"));

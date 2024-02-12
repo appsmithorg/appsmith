@@ -7,12 +7,12 @@ import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.ApplicationSnapshot;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exports.exportable.ExportService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ApplicationSnapshotService;
@@ -243,7 +243,7 @@ public class ApplicationSnapshotServiceUnitTest {
         application.setId("branched-app-id");
         application.setName("Snapshot test");
         application.setWorkspaceId("workspace-id");
-        application.setGitApplicationMetadata(new GitApplicationMetadata());
+        application.setGitApplicationMetadata(new GitArtifactMetadata());
         application.getGitApplicationMetadata().setDefaultApplicationId("default-app-id");
         application.getGitApplicationMetadata().setBranchName("development");
 

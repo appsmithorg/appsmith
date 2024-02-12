@@ -7,14 +7,14 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exports.exportable.ExportService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -189,7 +189,7 @@ public class RefactoringServiceTest {
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
         newApp.setGitApplicationMetadata(gitData);
         gitConnectedApp = applicationPageService

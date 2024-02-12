@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Import({FileUtilsImpl.class})
 public class GitFileUtils extends GitFileUtilsCE {
+
     public GitFileUtils(
             FileInterface fileUtils,
             AnalyticsService analyticsService,
