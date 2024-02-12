@@ -1325,6 +1325,7 @@ Cypress.Commands.add("createSuperUser", () => {
     AppSidebar.assertVisible();
   }
   cy.LogOut();
+  cy.wait(2000);
 });
 
 Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
@@ -1343,6 +1344,7 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
     },
   }).then((response) => {
     expect(response.status).equal(302);
+    cy.log(response.body);
   });
 });
 
