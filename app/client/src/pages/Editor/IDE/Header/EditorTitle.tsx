@@ -24,7 +24,9 @@ const EditorTitle = ({ title }: { title: string }) => {
       </Text>
       <Flex
         alignItems={"center"}
-        className={"hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer"}
+        className={
+          "hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer t--pages-switcher"
+        }
         gap={"spaces-1"}
         height={"100%"}
         justifyContent={"center"}
@@ -34,7 +36,10 @@ const EditorTitle = ({ title }: { title: string }) => {
         <Text isBold kind={"body-m"}>
           {title}
         </Text>
-        <Icon name={"arrow-down-s-line"} size={"md"} />
+        <Icon
+          name={active ? "arrow-up-s-line" : "arrow-down-s-line"}
+          size={"md"}
+        />
       </Flex>
     </Flex>
   );

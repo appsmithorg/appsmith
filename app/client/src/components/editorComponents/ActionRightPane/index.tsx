@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { getTypographyByKey } from "design-system-old";
 import { Divider } from "design-system";
 import SuggestedWidgets from "./SuggestedWidgets";
-import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
@@ -21,13 +20,9 @@ import type {
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
 import { getPagePermissions } from "selectors/editorSelectors";
-import DatasourceStructureHeader from "pages/Editor/DatasourceInfo/DatasourceStructureHeader";
-import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
-  getIsFetchingDatasourceStructure,
   getPluginDatasourceComponentFromId,
-  getPluginNameFromId,
 } from "@appsmith/selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
@@ -46,7 +41,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { DatasourceStructureContext } from "entities/Datasource";
-import Collapsible, {
+import {
   CollapsibleGroup,
   CollapsibleGroupContainer,
   DisabledCollapsible,
@@ -113,13 +108,6 @@ const Placeholder = styled.div`
   text-align: center;
 `;
 
-const DataStructureListWrapper = styled.div`
-  overflow-y: hidden;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
 export const CollapsibleSection = styled.div<{
   height: string;
   marginTop?: number;
@@ -165,7 +153,6 @@ function ActionSidebar({
   actionName,
   actionRightPaneBackLink,
   additionalSections,
-  context,
   datasourceId,
   hasConnections,
   hasResponse,
@@ -190,24 +177,10 @@ function ActionSidebar({
   const widgets = useSelector(getWidgets);
   const user = useSelector(getCurrentUser);
   const { pushFeature } = useContext(WalkthroughContext) || {};
-  const schemaRef = useRef<HTMLDivElement | null>(null);
   const bindingRef = useRef<HTMLDivElement | null>(null);
-  const params = useParams<{
-    pageId: string;
-    apiId?: string;
-    queryId?: string;
-  }>();
-
-  const pluginName = useSelector((state) =>
-    getPluginNameFromId(state, pluginId || ""),
-  );
 
   const pluginDatasourceForm = useSelector((state) =>
     getPluginDatasourceComponentFromId(state, pluginId || ""),
-  );
-
-  const isLoadingSchema = useSelector((state: AppState) =>
-    getIsFetchingDatasourceStructure(state, datasourceId),
   );
 
   const datasourceStructure = useSelector((state) =>
@@ -271,18 +244,6 @@ function ActionSidebar({
       });
   };
 
-  const handleCustomCollapse = (openStatus: boolean) => {
-    if (schemaRef.current && bindingRef.current) {
-      if (openStatus) {
-        schemaRef.current.style.height = "";
-        bindingRef.current.style.height = "";
-      } else {
-        schemaRef.current.style.height = "auto";
-        bindingRef.current.style.height = "calc(90% - 40px)";
-      }
-    }
-  };
-
   useEffect(() => {
     if (showSchema) {
       checkAndShowWalkthrough();
@@ -326,44 +287,7 @@ function ActionSidebar({
           </CollapsibleGroup>
         )}
         <CollapsibleGroup height={additionalSections ? "50%" : "100%"}>
-          {showSchema && (
-            <>
-              {additionalSections && <StyledDivider />}
-              <CollapsibleSection
-                data-testId="datasource-schema-container"
-                height={
-                  datasourceStructure?.tables?.length && !isLoadingSchema
-                    ? showSuggestedWidgets
-                      ? "50%"
-                      : "100%"
-                    : "auto"
-                }
-                id={SCHEMA_SECTION_ID}
-                ref={schemaRef}
-              >
-                <Collapsible
-                  CustomLabelComponent={DatasourceStructureHeader}
-                  datasource={{ id: datasourceId }}
-                  expand={!suggestedWidgetsEnabled}
-                  handleCustomCollapse={handleCustomCollapse}
-                  label="Schema"
-                >
-                  <DataStructureListWrapper>
-                    <DataStructureList
-                      context={context}
-                      currentActionId={params?.queryId || ""}
-                      datasourceId={datasourceId || ""}
-                      datasourceStructure={datasourceStructure}
-                      pluginName={pluginName}
-                      step={0}
-                    />
-                  </DataStructureListWrapper>
-                </Collapsible>
-              </CollapsibleSection>
-            </>
-          )}
-
-          {showSuggestedWidgets && showSchema && <StyledDivider />}
+          {showSuggestedWidgets && additionalSections && <StyledDivider />}
           {showSuggestedWidgets && suggestedWidgetsEnabled && (
             <CollapsibleSection height={"40%"} paddingTop={12} ref={bindingRef}>
               <SuggestedWidgets

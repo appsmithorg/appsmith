@@ -29,7 +29,7 @@ export enum ActionType {
   DOCUMENTATION = "documentation",
 }
 
-/* 
+/*
   Types of messages that can be shown in the toast of the datasource configuration page
   EMPTY_TOAST_MESSAGE: No message to be shown
   TEST_DATASOURCE_SUCCESS: Test datasource success message
@@ -193,7 +193,6 @@ export const DEFAULT_DATASOURCE = (
 });
 
 export enum DatasourceStructureContext {
-  EXPLORER = "entity-explorer",
   QUERY_EDITOR = "query-editor",
   DATASOURCE_VIEW_MODE = "datasource-view-mode",
   // this does not exist yet, but in case it does in the future.
