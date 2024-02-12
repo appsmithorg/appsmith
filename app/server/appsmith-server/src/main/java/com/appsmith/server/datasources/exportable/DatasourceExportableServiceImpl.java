@@ -1,4 +1,4 @@
-package com.appsmith.server.datasources.exports;
+package com.appsmith.server.datasources.exportable;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.datasources.base.DatasourceService;
