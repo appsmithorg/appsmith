@@ -1,99 +1,119 @@
 package com.external.plugins.utils;
 
 import org.postgresql.ssl.WrappedFactory;
-import org.postgresql.util.GT;
 
-import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
 import java.security.KeyStore;
-import java.security.cert.CertificateException;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.UUID;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
+import java.util.Properties;
 
 public class StringCertValidatingFactory extends WrappedFactory {
 
-    private static final String FILE_PREFIX = "cert:";
+    public StringCertValidatingFactory(Properties info) throws Exception {
+        // Convert String certificates and keys to objects
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
-    public StringCertValidatingFactory(String sslFactoryArg) throws GeneralSecurityException {
-        if (sslFactoryArg != null && !sslFactoryArg.isEmpty()) {
-            String val;
-            if (sslFactoryArg.startsWith("cert:")) {
-                val = sslFactoryArg.substring("cert:".length());
-                if (val.isEmpty()) {
-                    throw new IllegalArgumentException(GT.tr(
-                            "Certificate value is empty, please make sure that the certificate is added correctly"));
-                }
+        // Client certificate
+        ByteArrayInputStream clientCertIS =
+                new ByteArrayInputStream(Base64.getDecoder().decode(info.getProperty("clientCertString")));
+        X509Certificate clientCertificate = (X509Certificate) cf.generateCertificate(clientCertIS);
 
-                try {
-                    SSLContext ctx = SSLContext.getInstance("TLS");
-                    ctx.init(
-                            (KeyManager[]) null,
-                            new TrustManager[] {new StringCertValidatingFactory.SingleCertTrustManager(val)},
-                            null);
-                    this.factory = ctx.getSocketFactory();
-                } catch (RuntimeException var14) {
-                    throw var14;
-                } catch (Exception var15) {
-                    if (var15 instanceof GeneralSecurityException) {
-                        throw (GeneralSecurityException) var15;
-                    }
+        // Client key
+        KeyFactory kf = KeyFactory.getInstance("RSA"); // Assuming RSA key
+        PrivateKey privateKey = readPkcs1PrivateKey(Base64.getDecoder().decode(info.getProperty("clientKeyString")));
 
-                    throw new GeneralSecurityException(
-                            GT.tr("An error occurred reading the certificate", new Object[0]), var15);
-                }
+        // CA certificate for verifying the server
+        ByteArrayInputStream caCertIS =
+                new ByteArrayInputStream(Base64.getDecoder().decode(info.getProperty("serverCACertString")));
+        X509Certificate caCertificate = (X509Certificate) cf.generateCertificate(caCertIS);
 
-            } else {
-                throw new GeneralSecurityException(
-                        GT.tr("The sslfactoryarg property may not be empty.", new Object[0]));
-            }
+        // Client keystore
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(null, null);
+        keyStore.setCertificateEntry("client-cert", clientCertificate);
+        keyStore.setKeyEntry("client-key", privateKey, "password".toCharArray(), new java.security.cert.Certificate[] {
+            clientCertificate
+        });
+
+        // Truststore
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        trustStore.load(null, null);
+        trustStore.setCertificateEntry("ca-cert", caCertificate);
+
+        // Initialize SSLContext
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(trustStore);
+
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        kmf.init(keyStore, "password".toCharArray());
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
+
+        this.factory = sslContext.getSocketFactory();
+    }
+
+    private static PrivateKey readPkcs8PrivateKey(byte[] pkcs8Bytes) throws GeneralSecurityException {
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA", "SunRsaSign");
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(pkcs8Bytes);
+        try {
+            return keyFactory.generatePrivate(keySpec);
+        } catch (InvalidKeySpecException e) {
+            throw new IllegalArgumentException("Unexpected key format!", e);
         }
     }
 
-    public static class SingleCertTrustManager implements X509TrustManager {
-        X509Certificate cert;
-        X509TrustManager trustManager;
+    private static PrivateKey readPkcs1PrivateKey(byte[] pkcs1Bytes) throws GeneralSecurityException {
+        // We can't use Java internal APIs to parse ASN.1 structures, so we build a PKCS#8 key Java can understand
+        int pkcs1Length = pkcs1Bytes.length;
+        int totalLength = pkcs1Length + 22;
+        byte[] pkcs8Header = new byte[] {
+            0x30,
+            (byte) 0x82,
+            (byte) ((totalLength >> 8) & 0xff),
+            (byte) (totalLength & 0xff), // Sequence + total length
+            0x2,
+            0x1,
+            0x0, // Integer (0)
+            0x30,
+            0xD,
+            0x6,
+            0x9,
+            0x2A,
+            (byte) 0x86,
+            0x48,
+            (byte) 0x86,
+            (byte) 0xF7,
+            0xD,
+            0x1,
+            0x1,
+            0x1,
+            0x5,
+            0x0, // Sequence: 1.2.840.113549.1.1.1, NULL
+            0x4,
+            (byte) 0x82,
+            (byte) ((pkcs1Length >> 8) & 0xff),
+            (byte) (pkcs1Length & 0xff) // Octet string + length
+        };
+        byte[] pkcs8bytes = join(pkcs8Header, pkcs1Bytes);
+        return readPkcs8PrivateKey(pkcs8bytes);
+    }
 
-        public SingleCertTrustManager(String certToTrust) throws IOException, GeneralSecurityException {
-            InputStream in = new ByteArrayInputStream(certToTrust.getBytes());
-            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-            ks.load((KeyStore.LoadStoreParameter) null);
-            CertificateFactory cf = CertificateFactory.getInstance("X509");
-            this.cert = (X509Certificate) cf.generateCertificate(in);
-            ks.setCertificateEntry(UUID.randomUUID().toString(), this.cert);
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(ks);
-            TrustManager[] var5 = tmf.getTrustManagers();
-            int var6 = var5.length;
-
-            for (int var7 = 0; var7 < var6; ++var7) {
-                TrustManager tm = var5[var7];
-                if (tm instanceof X509TrustManager) {
-                    this.trustManager = (X509TrustManager) tm;
-                    break;
-                }
-            }
-
-            if (this.trustManager == null) {
-                throw new GeneralSecurityException(GT.tr("No X509TrustManager found", new Object[0]));
-            }
-        }
-
-        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
-
-        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            this.trustManager.checkServerTrusted(chain, authType);
-        }
-
-        public X509Certificate[] getAcceptedIssuers() {
-            return new X509Certificate[] {this.cert};
-        }
+    private static byte[] join(byte[] byteArray1, byte[] byteArray2) {
+        byte[] bytes = new byte[byteArray1.length + byteArray2.length];
+        System.arraycopy(byteArray1, 0, bytes, 0, byteArray1.length);
+        System.arraycopy(byteArray2, 0, bytes, byteArray1.length, byteArray2.length);
+        return bytes;
     }
 }
