@@ -1335,10 +1335,12 @@ Cypress.Commands.add("createSuperUser", () => {
   }
 
   cy.wait(2000);
+
   if (CURRENT_REPO === REPO.CE) {
     cy.get("#loading").should("not.exist");
     AppSidebar.assertVisible();
   }
+  
   cy.LogOut();
   cy.wait(2000);
 });
