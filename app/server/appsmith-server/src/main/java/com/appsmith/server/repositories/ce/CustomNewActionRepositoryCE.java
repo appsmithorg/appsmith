@@ -4,7 +4,6 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.repositories.AppsmithRepository;
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 
@@ -70,7 +69,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 
-    Optional<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
+    Optional<Void> publishActions(String applicationId, AclPermission permission);
 
     Optional<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
 

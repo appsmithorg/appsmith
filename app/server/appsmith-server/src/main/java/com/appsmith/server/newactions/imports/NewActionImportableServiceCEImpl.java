@@ -407,10 +407,11 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                 mappedImportableResourcesDTO.setActionResultDTO(importActionResultDTO);
 
                                 // Save all the new actions in bulk
-                                return newActionService
-                                        .bulkValidateAndInsertActionInRepository(newNewActionList)
-                                        .zipWith(newActionService.bulkValidateAndUpdateActionInRepository(
-                                                existingNewActionList))
+                                return Mono.when(
+                                                newActionService.bulkValidateAndInsertActionInRepository(
+                                                        newNewActionList),
+                                                newActionService.bulkValidateAndUpdateActionInRepository(
+                                                        existingNewActionList))
                                         .thenReturn(importActionResultDTO);
                             });
                 })

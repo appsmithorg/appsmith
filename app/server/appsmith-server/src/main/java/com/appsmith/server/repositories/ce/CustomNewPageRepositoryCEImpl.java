@@ -8,7 +8,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.bulk.BulkWriteResult;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Modifying;
@@ -269,13 +268,13 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     @Modifying
     @Transactional
-    public Optional<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
+    public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
         int count = queryBuilder()
                 .permission(permission)
                 .spec(Bridge.conditioner().in(fieldName(QNewPage.newPage.id), pageIds))
                 .update(Bridge.update().set(QNewPage.newPage.publishedPage, QNewPage.newPage.unpublishedPage)); // */
 
-        return Optional.of(List.of(BulkWriteResult.unacknowledged()));
+        return Optional.empty();
     }
 
     @Override

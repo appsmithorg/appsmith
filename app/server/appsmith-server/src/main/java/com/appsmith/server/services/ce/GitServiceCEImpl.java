@@ -40,7 +40,7 @@ import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.exportable.ExportService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -1572,6 +1572,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     /**
      * This method is deprecated and will be removed in next release. Please use the following method:
      * getApplicationById(String applicationId, AclPermission aclPermission)
+     *
      * @param applicationId ID of the application
      * @return Mono of Application
      */
@@ -3379,7 +3380,8 @@ public class GitServiceCEImpl implements GitServiceCE {
      * For example, if user has "main" and "develop" branches as protected and wants to include "staging" branch as
      * protected as well, then oldProtectedBranches will be ["main", "develop"] and newProtectedBranches will be
      * ["main", "develop", "staging"]
-     * @param application Application object of the root application
+     *
+     * @param application          Application object of the root application
      * @param oldProtectedBranches List of branches that were protected before this action.
      * @param newProtectedBranches List of branches that are going to be protected.
      * @return An empty Mono

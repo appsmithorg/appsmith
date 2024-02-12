@@ -9,7 +9,6 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -548,7 +547,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     @Modifying
     @Transactional
-    public Optional<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
+    public Optional<Void> publishActions(String applicationId, AclPermission permission) {
         /*
         var em = getEntityManager();
         var cb = em.getCriteriaBuilder();
@@ -568,7 +567,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .update(Bridge.update()
                         .set(QNewAction.newAction.publishedAction, QNewAction.newAction.unpublishedAction)); // */
 
-        return Optional.of(List.of(BulkWriteResult.unacknowledged())); // */
+        return Optional.empty(); // */
 
         /*
         Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);

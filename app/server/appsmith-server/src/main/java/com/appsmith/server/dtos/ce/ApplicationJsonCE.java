@@ -130,4 +130,9 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
     public ExportableArtifact getExportableArtifact() {
         return this.getExportedApplication();
     }
+
+    @Override
+    public List<CustomJSLib> getCustomJsLibFromArtifact() {
+        return this.getCustomJSLibList();
+    }
 }

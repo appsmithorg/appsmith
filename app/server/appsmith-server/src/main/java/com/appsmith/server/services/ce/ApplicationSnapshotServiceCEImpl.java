@@ -9,7 +9,7 @@ import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.exportable.ExportService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;

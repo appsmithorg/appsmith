@@ -18,8 +18,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -314,42 +312,21 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             List<String> projectionFieldNames,
             Set<String> permissionGroups,
             AclPermission aclPermission) {
-        Query query = new Query();
-        criterias.stream().forEach(criteria -> query.addCriteria(criteria));
-        if (aclPermission == null) {
-            query.addCriteria(new Criteria().andOperator(notDeleted()));
-        } else {
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, aclPermission)));
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
+        criteriaList.add(notDeleted());
+
+        final Criteria permissionCriteria = userAcl(permissionGroups, aclPermission);
+        if (permissionCriteria != null) {
+            criteriaList.add(permissionCriteria);
         }
 
+        final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+
         if (!isEmpty(projectionFieldNames)) {
-            projectionFieldNames.stream().forEach(fieldName -> query.fields().include(fieldName));
+            query.fields().include(projectionFieldNames.toArray(new String[0]));
         }
 
         return query;
-    }
-
-    public List<T> queryAllWithStrictPermissionGroups(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> permission,
-            Sort sort,
-            int limit,
-            int skip) {
-        return Collections.emptyList(); /*
-        Mono<Set<String>> permissionGroupsMono = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> getStrictPermissionGroupsForUser((User) principal));
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryBuilder()
-                .criteria(criterias)
-                .fields(includeFields.orElse(null))
-                .permission(permission.orElse(null))
-                .permissionGroups(permissionGroups)
-                .sort(sort)
-                .limit(limit)
-                .skip(skip)
-                .all()); //*/
     }
 
     public QueryAllParams<T> queryBuilder() {
@@ -732,9 +709,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                      });//*/
     }
 
-    public Optional<List<InsertManyResult>> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {
+    public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {
         if (CollectionUtils.isEmpty(entities)) {
-            return Optional.of(Collections.emptyList());
+            return Optional.empty();
         }
 
         // Ensure there's no duplicated ID. Only doing this because MongoDB version of this method had this protection.
@@ -748,12 +725,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         }
 
         baseRepository.saveAll(entities);
-        return Optional.of(List.of(InsertManyResult.unacknowledged()));
+        return Optional.empty();
     }
 
-    public Optional<List<BulkWriteResult>> bulkUpdate(BaseRepository<T, String> baseRepository, List<T> domainObjects) {
+    public Optional<Void> bulkUpdate(BaseRepository<T, String> baseRepository, List<T> domainObjects) {
         if (CollectionUtils.isEmpty(domainObjects)) {
-            return Optional.of(Collections.emptyList());
+            return Optional.empty();
         }
 
         final Map<String, T> updatesById = new HashMap<>();
@@ -769,6 +746,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         }
 
         baseRepository.saveAll(entitiesToSave);
-        return Optional.of(List.of(BulkWriteResult.unacknowledged()));
+        return Optional.empty();
     }
 }
