@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import history from "utils/history";
-import { LIST_PATH } from "@appsmith/constants/routes/appRoutes";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useSelector } from "react-redux";
@@ -24,13 +23,6 @@ export const useQueryAdd = () => {
   }, [currentEntityInfo.id]);
 
   return addButtonClickHandler;
-};
-
-export const useQueryList = () => {
-  const listButtonClickHandler = useCallback(() => {
-    history.push(`${location.pathname}${LIST_PATH}`);
-  }, []);
-  return listButtonClickHandler;
 };
 
 export type GroupedAddOperations = Array<{

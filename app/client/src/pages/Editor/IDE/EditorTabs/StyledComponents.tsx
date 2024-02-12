@@ -57,3 +57,27 @@ export const TabTextContainer = styled.span`
   white-space: nowrap;
   overflow: hidden;
 `;
+
+export const TabIconContainer = styled.div`
+  height: 12px;
+  width: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  img {
+    width: 12px;
+  }
+`;
+
+export const ListIconContainer = styled.div`
+  height: 18px;
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  img {
+    width: 18px;
+  }
+`;
