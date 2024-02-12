@@ -24,9 +24,9 @@ import java.util.Set;
 
 import static com.appsmith.external.constants.GitConstants.MODULE_INSTANCE_LIST;
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
-import static com.appsmith.git.constants.GitDirectories.MODULES_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.MODULE_INSTANCES_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
+import static com.appsmith.git.constants.GitDirectories.SOURCE_MODULES_DIRECTORY;
 
 @Slf4j
 @Getter
@@ -93,24 +93,25 @@ public class FileUtilsImpl extends FileUtilsCEImpl implements FileInterface {
 
         // Save modules ref, if they exist
         Set<String> validModuleFileNames = new HashSet<>();
-        if (applicationGitReference.getModules() != null
-                && !applicationGitReference.getModules().isEmpty()) {
+        if (applicationGitReference.getSourceModules() != null
+                && !applicationGitReference.getSourceModules().isEmpty()) {
             for (Map.Entry<String, Object> resource :
-                    applicationGitReference.getModules().entrySet()) {
+                    applicationGitReference.getSourceModules().entrySet()) {
                 String[] names = resource.getKey().split(NAME_SEPARATOR);
                 if (names.length > 1 && StringUtils.hasLength(names[1])) {
                     final String moduleName = names[0];
 
                     saveResource(
                             resource.getValue(),
-                            baseRepo.resolve(MODULES_DIRECTORY).resolve(moduleName + CommonConstants.JSON_EXTENSION),
+                            baseRepo.resolve(SOURCE_MODULES_DIRECTORY)
+                                    .resolve(moduleName + CommonConstants.JSON_EXTENSION),
                             gson);
                     validModuleFileNames.add(moduleName + CommonConstants.JSON_EXTENSION);
                 }
             }
         }
         // Scan modules directory and delete any unwanted files if present
-        scanAndDeleteFileForDeletedResources(validModuleFileNames, baseRepo.resolve(MODULES_DIRECTORY));
+        scanAndDeleteFileForDeletedResources(validModuleFileNames, baseRepo.resolve(SOURCE_MODULES_DIRECTORY));
 
         return validPages;
     }
@@ -142,7 +143,7 @@ public class FileUtilsImpl extends FileUtilsCEImpl implements FileInterface {
         applicationGitReference.setModuleInstances(moduleInstanceMap);
 
         // Extract modules
-        applicationGitReference.setModules(
-                readFiles(baseRepoPath.resolve(MODULES_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
+        applicationGitReference.setSourceModules(
+                readFiles(baseRepoPath.resolve(SOURCE_MODULES_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
     }
 }

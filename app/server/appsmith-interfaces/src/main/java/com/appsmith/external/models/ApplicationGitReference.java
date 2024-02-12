@@ -17,5 +17,5 @@ import java.util.Map;
 public class ApplicationGitReference extends ApplicationGitReferenceCE {
 
     Map<String, Object> moduleInstances;
-    Map<String, Object> modules;
+    Map<String, Object> sourceModules;
 }

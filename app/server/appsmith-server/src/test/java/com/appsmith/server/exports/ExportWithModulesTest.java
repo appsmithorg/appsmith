@@ -1,6 +1,7 @@
 package com.appsmith.server.exports;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.ModuleInstance;
@@ -9,7 +10,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
@@ -64,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class ExportWithModulesTest {
 
     @Autowired
-    private ExportApplicationService exportApplicationService;
+    private ExportService exportService;
 
     @Autowired
     private ApplicationPageService applicationPageService;
@@ -212,12 +213,14 @@ class ExportWithModulesTest {
 
                     return updateLayoutService
                             .updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)
-                            .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
+                            .then(exportService.exportByArtifactIdAndBranchName(
+                                    testApp.getId(), "", ArtifactJsonType.APPLICATION))
+                            .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
-                    assertThat(applicationJson.getModuleList()).isNull();
+                    assertThat(applicationJson.getSourceModuleList()).isNull();
                     assertThat(applicationJson.getModuleInstanceList()).isNull();
                 })
                 .verifyComplete();
@@ -252,11 +255,12 @@ class ExportWithModulesTest {
 
         final Mono<ApplicationJson> resultMono = updateLayoutService
                 .updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)
-                .then(exportApplicationService.exportApplicationById(applicationId, ""));
+                .then(exportService.exportByArtifactIdAndBranchName(applicationId, "", ArtifactJsonType.APPLICATION))
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
-                    assertThat(applicationJson.getModuleList()).hasSize(1);
+                    assertThat(applicationJson.getSourceModuleList()).hasSize(1);
                     assertThat(applicationJson.getModuleInstanceList()).hasSize(1);
 
                     ModuleInstance moduleInstance =

@@ -89,4 +89,20 @@ public class Package extends BranchAwareDomain implements ImportableArtifact, Ex
     public String getName() {
         return this.getUnpublishedPackage().getName();
     }
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        this.setWorkspaceId(null);
+        this.setModifiedBy(null);
+        this.setCreatedBy(null);
+        this.setLastPublishedAt(null);
+        this.setLastEditedAt(null);
+        this.setGitArtifactMetadata(null);
+        this.setClientSchemaVersion(null);
+        this.setServerSchemaVersion(null);
+        this.setExportWithConfiguration(null);
+        this.setPublishedPackage(null);
+        this.getUnpublishedPackage().sanitiseToExportDBObject();
+        super.sanitiseToExportDBObject();
+    }
 }

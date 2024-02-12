@@ -10,7 +10,6 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -19,7 +18,7 @@ import com.appsmith.server.dtos.PackageJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
-import com.appsmith.server.exports.internal.ContextBasedExportService;
+import com.appsmith.server.exports.internal.artifactbased.ArtifactBasedExportService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.permissions.ModulePermission;
@@ -36,16 +35,16 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class PackageExportServiceImpl implements ContextBasedExportService<Package, PackageJson> {
+public class PackageExportServiceImpl implements ArtifactBasedExportService<Package, PackageJson> {
 
     private final CrudPackageService crudPackageService;
     private final PackagePermission packagePermission;
     private final CrudModuleService crudModuleService;
     private final ModulePermission modulePermission;
-    private final ExportableService<NewPage> newPageExportableService;
-    protected final ExportableService<NewAction> newActionExportableService;
-    protected final ExportableService<ActionCollection> actionCollectionExportableService;
-    protected final ExportableService<ModuleInstance> moduleInstanceExportableService;
+    private final ExportableService<Module> moduleExportableService;
+    private final ExportableService<NewAction> newActionExportableService;
+    private final ExportableService<ActionCollection> actionCollectionExportableService;
+    private final ExportableService<ModuleInstance> moduleInstanceExportableService;
     private final Map<String, String> packageConstantsMap = new HashMap<>();
 
     public PackageExportServiceImpl(
@@ -53,7 +52,7 @@ public class PackageExportServiceImpl implements ContextBasedExportService<Packa
             PackagePermission packagePermission,
             CrudModuleService crudModuleService,
             ModulePermission modulePermission,
-            ExportableService<NewPage> newPageExportableService,
+            ExportableService<Module> moduleExportableService,
             ExportableService<NewAction> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
             ExportableService<ModuleInstance> moduleInstanceExportableService) {
@@ -61,7 +60,7 @@ public class PackageExportServiceImpl implements ContextBasedExportService<Packa
         this.packagePermission = packagePermission;
         this.crudModuleService = crudModuleService;
         this.modulePermission = modulePermission;
-        this.newPageExportableService = newPageExportableService;
+        this.moduleExportableService = moduleExportableService;
         this.newActionExportableService = newActionExportableService;
         this.actionCollectionExportableService = actionCollectionExportableService;
         this.moduleInstanceExportableService = moduleInstanceExportableService;
@@ -148,11 +147,7 @@ public class PackageExportServiceImpl implements ContextBasedExportService<Packa
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ArtifactExchangeJson artifactExchangeJson,
-            SerialiseArtifactObjective serialiseArtifactObjective) {
-        PackageJson packageJson = (PackageJson) artifactExchangeJson;
-        newPageExportableService.sanitizeEntities(
-                exportingMetaDTO, mappedExportableResourcesDTO, packageJson, serialiseArtifactObjective);
-    }
+            SerialiseArtifactObjective serialiseArtifactObjective) {}
 
     @Override
     public Flux<Void> generateArtifactSpecificExportables(
@@ -166,7 +161,7 @@ public class PackageExportServiceImpl implements ContextBasedExportService<Packa
 
             // Updates moduleId to name map in exportable resources.
             // Also, directly updates required modules information in package json
-            Mono<Void> moduleExportablesMono = newPageExportableService.getExportableEntities(
+            Mono<Void> moduleExportablesMono = moduleExportableService.getExportableEntities(
                     exportingMetaDTO, mappedResourcesDTO, packageMono, packageJson);
 
             return moduleExportablesMono.flux();

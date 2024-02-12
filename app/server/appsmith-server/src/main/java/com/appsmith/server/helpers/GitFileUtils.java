@@ -78,14 +78,14 @@ public class GitFileUtils extends GitFileUtilsCE {
             ApplicationJson applicationJson, ApplicationGitReference applicationReference) {
         Map<String, Object> resourceMap = new HashMap<>();
         // Send modules
-        if (applicationJson.getModuleList() != null) {
-            applicationJson.getModuleList().forEach(exportableModule -> {
+        if (applicationJson.getSourceModuleList() != null) {
+            applicationJson.getSourceModuleList().forEach(exportableModule -> {
                 resourceMap.put(
                         exportableModule.getModuleName() + NAME_SEPARATOR + exportableModule.getModuleUUID(),
                         exportableModule);
             });
         }
-        applicationReference.setModules(resourceMap);
+        applicationReference.setSourceModules(resourceMap);
     }
 
     private void setModuleInstancesInApplicationReference(
@@ -128,8 +128,8 @@ public class GitFileUtils extends GitFileUtilsCE {
     private void setModulesInApplicationJson(
             ApplicationGitReference applicationReference, ApplicationJson applicationJson) {
         // Extract modules
-        applicationJson.setModuleList(
-                getApplicationResource(applicationReference.getModules(), ExportableModule.class));
+        applicationJson.setSourceModuleList(
+                getApplicationResource(applicationReference.getSourceModules(), ExportableModule.class));
     }
 
     private void setModuleInstancesInApplicationJson(
