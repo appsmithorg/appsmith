@@ -1,3 +1,6 @@
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import type { DataTreeEntityConfig } from "../DataTree/types";
+
 export const ENTITY_TYPE = {
   ACTION: "ACTION",
   DATASOURCE: "DATASOURCE",
@@ -14,3 +17,14 @@ export const PLATFORM_ERROR = {
 };
 
 export type PlatformErrorTypeValue = ValueOf<typeof ENTITY_TYPE>;
+
+export const getModuleInstanceInvalidErrors = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  entity: DataTreeEntity,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  entityConfig: DataTreeEntityConfig,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  propertyPath: string,
+) => {
+  return [];
+};
