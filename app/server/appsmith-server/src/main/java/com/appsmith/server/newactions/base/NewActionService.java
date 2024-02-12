@@ -8,7 +8,6 @@ import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
-import com.mongodb.bulk.BulkWriteResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -40,7 +39,7 @@ public interface NewActionService extends NewActionServiceCE {
 
     Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission);
 
-    Mono<List<BulkWriteResult>> publishActionsForWorkflows(String workflowId, AclPermission aclPermission);
+    Mono<Void> publishActionsForWorkflows(String workflowId, AclPermission aclPermission);
 
     Flux<NewAction> findPublicActionsByModuleInstanceId(String moduleInstanceId, Optional<AclPermission> permission);
 
@@ -48,8 +47,7 @@ public interface NewActionService extends NewActionServiceCE {
 
     Mono<Boolean> archiveAllByIdsWithoutPermission(Collection<String> actionIds);
 
-    Mono<List<BulkWriteResult>> publishActionsForActionCollection(
-            String actionCollectionId, AclPermission aclPermission);
+    Mono<Void> publishActionsForActionCollection(String actionCollectionId, AclPermission aclPermission);
 
     Flux<ActionViewDTO> getAllModuleInstanceActionInContext(
             String contextId,

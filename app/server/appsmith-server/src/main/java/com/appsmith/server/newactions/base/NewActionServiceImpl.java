@@ -45,7 +45,6 @@ import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.validations.EntityValidationService;
 import com.appsmith.server.workflows.helpers.WorkflowUtils;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
@@ -478,11 +477,10 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
+    public Mono<Void> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
         Mono<UpdateResult> archiveDeletedUnpublishedActions =
                 repository.archiveDeletedUnpublishedActionsForWorkflows(workflowId, aclPermission);
-        Mono<List<BulkWriteResult>> publishActionsForWorkflows =
-                repository.publishActionsForWorkflows(workflowId, aclPermission);
+        Mono<Void> publishActionsForWorkflows = repository.publishActionsForWorkflows(workflowId, aclPermission);
         return archiveDeletedUnpublishedActions.then(publishActionsForWorkflows);
     }
 
@@ -612,12 +610,10 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> publishActionsForActionCollection(
-            String actionCollectionId, AclPermission aclPermission) {
+    public Mono<Void> publishActionsForActionCollection(String actionCollectionId, AclPermission aclPermission) {
         Mono<UpdateResult> archiveDeletedUnpublishedActions =
                 repository.archiveDeletedUnpublishedActionsForCollection(actionCollectionId, aclPermission);
-        Mono<List<BulkWriteResult>> publishActions =
-                repository.publishActionsForCollection(actionCollectionId, aclPermission);
+        Mono<Void> publishActions = repository.publishActionsForCollection(actionCollectionId, aclPermission);
         return archiveDeletedUnpublishedActions.then(publishActions);
     }
 

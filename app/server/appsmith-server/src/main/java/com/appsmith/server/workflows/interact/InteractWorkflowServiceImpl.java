@@ -34,7 +34,6 @@ import com.appsmith.server.workflows.helpers.WorkflowHelper;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mongodb.bulk.BulkWriteResult;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -272,15 +271,14 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
         return findById(workflowId, workflowPermission.getPublishPermission())
                 .flatMap(workflow -> {
                     workflow.setLastDeployedAt(Instant.now());
-                    Mono<List<BulkWriteResult>> publishActionsForWorkflows =
-                            newActionService.publishActionsForWorkflows(
-                                    workflowId, actionPermission.getEditPermission());
+                    Mono<Void> publishActionsForWorkflows = newActionService.publishActionsForWorkflows(
+                            workflowId, actionPermission.getEditPermission());
                     Mono<List<ActionCollection>> publishActionCollectionsForWorkflows =
                             actionCollectionService.publishActionCollectionsForWorkflow(
                                     workflowId, actionPermission.getEditPermission());
                     Mono<Workflow> updateDeployedAtForWorkflowMono =
                             repository.save(workflow).cache();
-                    return Mono.zip(
+                    return Mono.when(
                                     updateDeployedAtForWorkflowMono,
                                     publishActionsForWorkflows,
                                     publishActionCollectionsForWorkflows)

@@ -8,7 +8,6 @@ import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCEImpl;
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -237,7 +236,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
+    public Mono<Void> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
         Criteria workflowIdCriteria =
                 where(fieldName(QNewAction.newAction.workflowId)).is(workflowId);
 
@@ -475,15 +474,14 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> publishActionsForCollection(
-            String actionCollectionId, AclPermission aclPermission) {
+    public Mono<Void> publishActionsForCollection(String actionCollectionId, AclPermission aclPermission) {
         Criteria collectionIdCriteria = where(completeFieldName(QNewAction.newAction.unpublishedAction.collectionId))
                 .is(actionCollectionId);
 
         return copyUnpublishedActionToPublishedActionForActions(aclPermission, collectionIdCriteria);
     }
 
-    private Mono<List<BulkWriteResult>> copyUnpublishedActionToPublishedActionForActions(
+    private Mono<Void> copyUnpublishedActionToPublishedActionForActions(
             AclPermission aclPermission, Criteria collectionIdCriteria) {
         Mono<Set<String>> permissionGroupsMono =
                 getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(aclPermission));
