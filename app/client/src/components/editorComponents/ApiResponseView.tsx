@@ -6,17 +6,17 @@ import styled from "styled-components";
 import type { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import type { SourceEntity } from "entities/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
+  DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
-  DEBUGGER_ERRORS,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -27,6 +27,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
 import { Button, Callout, SegmentedControl } from "design-system";
+import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -49,6 +50,9 @@ import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
 import { setApiPaneDebuggerState } from "actions/apiPaneActions";
 import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
+import { useCombinedDebuggerState } from "./Debugger/hooks/useCombinedDebuggerState";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 interface TextStyleProps {
   accent: "primary" | "secondary" | "error";
@@ -302,9 +306,12 @@ function ApiResponseView(props: Props) {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const errorCount = useSelector(getErrorCount);
-  const { responseTabHeight, selectedTab } = useSelector(
+  const { open, responseTabHeight, selectedTab } = useCombinedDebuggerState(
     getApiPaneDebuggerState,
+    setApiPaneDebuggerState,
   );
+
+  const ideViewMode = useSelector(getIDEViewMode);
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -419,7 +426,7 @@ function ApiResponseView(props: Props) {
     name: currentActionConfig ? currentActionConfig.name : "API",
     id: currentActionConfig?.id || "",
   };
-  const tabs = [
+  const tabs: BottomTab[] = [
     {
       key: "response",
       title: "Response",
@@ -564,22 +571,29 @@ function ApiResponseView(props: Props) {
         </ResponseTabWrapper>
       ),
     },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
-    },
   ];
+
+  if (ideViewMode === EditorViewMode.FullScreen) {
+    tabs.push(
+      {
+        key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+        title: createMessage(DEBUGGER_ERRORS),
+        count: errorCount,
+        panelComponent: <ErrorLogs />,
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+        title: createMessage(DEBUGGER_LOGS),
+        panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
+      },
+    );
+  }
 
   // close the debugger
   //TODO: move this to a common place
   const onClose = () => dispatch(setApiPaneDebuggerState({ open: false }));
+
+  if (!open) return null;
 
   return (
     <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>

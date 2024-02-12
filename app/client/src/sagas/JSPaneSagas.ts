@@ -95,7 +95,7 @@ import {
   getJSActionNameToDisplay,
   getJSActionPathNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
-import { getJsPaneDebuggerState } from "../selectors/jsPaneSelectors";
+import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;

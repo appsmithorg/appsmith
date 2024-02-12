@@ -50,10 +50,7 @@ import {
   StyledFormRow,
   TabbedViewContainer,
 } from "./styledComponents";
-import {
-  getJSPaneConfigSelectedTab,
-  getJsPaneDebuggerState,
-} from "selectors/jsPaneSelectors";
+import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import {
   setCodeEditorCursorAction,
@@ -305,9 +302,6 @@ function JSEditorForm({
 
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTab);
 
-  // Debugger render flag
-  const { open: showDebugger } = useSelector(getJsPaneDebuggerState);
-
   const setSelectedConfigTab = useCallback((selectedTab: JSEditorTab) => {
     dispatch(setJsPaneConfigSelectedTab(selectedTab));
   }, []);
@@ -420,23 +414,21 @@ function JSEditorForm({
                     )}
                   </Tabs>
                 </TabbedViewContainer>
-                {showDebugger ? (
-                  <JSResponseView
-                    currentFunction={activeResponse}
-                    disabled={disableRunFunctionality || !isExecutePermitted}
-                    errors={parseErrors}
-                    isLoading={isExecutingCurrentJSAction}
-                    jsCollectionData={jsCollectionData}
-                    onButtonClick={(
-                      event:
-                        | React.MouseEvent<HTMLElement, MouseEvent>
-                        | KeyboardEvent,
-                    ) => {
-                      handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
-                    }}
-                    theme={theme}
-                  />
-                ) : null}
+                <JSResponseView
+                  currentFunction={activeResponse}
+                  disabled={disableRunFunctionality || !isExecutePermitted}
+                  errors={parseErrors}
+                  isLoading={isExecutingCurrentJSAction}
+                  jsCollectionData={jsCollectionData}
+                  onButtonClick={(
+                    event:
+                      | React.MouseEvent<HTMLElement, MouseEvent>
+                      | KeyboardEvent,
+                  ) => {
+                    handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
+                  }}
+                  theme={theme}
+                />
               </SecondaryWrapper>
             </div>
           </Wrapper>

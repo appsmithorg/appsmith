@@ -1,7 +1,7 @@
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -26,6 +26,10 @@ import type { Action } from "entities/Action";
 import QueryResponseTab from "./QueryResponseTab";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
+import { actionResponseDisplayDataFormats } from "../utils";
+import { useCombinedDebuggerState } from "components/editorComponents/Debugger/hooks/useCombinedDebuggerState";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 const ResultsCount = styled.div`
   position: absolute;
@@ -80,11 +84,58 @@ function QueryDebuggerTabs({
   const panelRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
 
-  const { responseTabHeight, selectedTab } = useSelector(
+  const { open, responseTabHeight, selectedTab } = useCombinedDebuggerState(
     getQueryPaneDebuggerState,
+    setQueryPaneDebuggerState,
   );
 
+  const { responseDisplayFormat } =
+    actionResponseDisplayDataFormats(actionResponse);
+
+  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
+    useState<boolean>(false);
+
   const errorCount = useSelector(getErrorCount);
+
+  // These useEffects are used to open the response tab by default for page load queries
+  // as for page load queries, query response is available and can be shown in response tab
+  useEffect(() => {
+    // actionResponse and responseDisplayFormat is present only when query has response available
+    if (
+      responseDisplayFormat &&
+      !!responseDisplayFormat?.title &&
+      actionResponse &&
+      actionResponse.isExecutionSuccess &&
+      !showResponseOnFirstLoad
+    ) {
+      dispatch(
+        setQueryPaneDebuggerState({
+          open: true,
+          selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        }),
+      );
+      setShowResponseOnFirstLoad(true);
+    }
+  }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
+
+  useEffect(() => {
+    if (showSchema && !selectedTab) {
+      dispatch(
+        setQueryPaneDebuggerState({
+          open: true,
+          selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+        }),
+      );
+    }
+  }, [showSchema, currentActionConfig?.id, selectedTab]);
+
+  // When multiple page load queries exist, we want to response tab by default for all of them
+  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
+  useEffect(() => {
+    if (!!currentActionConfig?.id) {
+      setShowResponseOnFirstLoad(false);
+    }
+  }, [currentActionConfig?.id]);
 
   // Query is executed even once during the session, show the response data.
   if (actionResponse) {
@@ -117,19 +168,25 @@ function QueryDebuggerTabs({
     dispatch(setQueryPaneDebuggerState({ selectedTab: tabKey }));
   }, []);
 
-  const responseTabs: BottomTab[] = [
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={actionName} />,
-    },
-  ];
+  const ideViewMode = useSelector(getIDEViewMode);
+
+  const responseTabs: BottomTab[] = [];
+
+  if (ideViewMode === EditorViewMode.FullScreen) {
+    responseTabs.push(
+      {
+        key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+        title: createMessage(DEBUGGER_ERRORS),
+        count: errorCount,
+        panelComponent: <ErrorLogs />,
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+        title: createMessage(DEBUGGER_LOGS),
+        panelComponent: <DebuggerLogs searchQuery={actionName} />,
+      },
+    );
+  }
 
   if (currentActionConfig) {
     responseTabs.unshift({
@@ -160,6 +217,8 @@ function QueryDebuggerTabs({
       ),
     });
   }
+
+  if (!open) return null;
 
   return (
     <TabbedViewContainer

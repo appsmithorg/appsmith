@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import React, { useCallback } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { noop } from "lodash";
@@ -16,7 +16,6 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
-import { ResizerCSS } from "components/editorComponents/Debugger/Resizer";
 import {
   createMessage,
   DOCUMENTATION,
@@ -31,18 +30,10 @@ import ActionRightPane, {
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
-import {
-  getQueryPaneConfigSelectedTabIndex,
-  getQueryPaneDebuggerState,
-} from "selectors/queryPaneSelectors";
-import {
-  setQueryPaneConfigSelectedTabIndex,
-  setQueryPaneDebuggerState,
-} from "actions/queryPaneActions";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
+import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
@@ -79,16 +70,6 @@ const QueryFormContainer = styled.form`
     justify-content: flex-end;
     margin-top: 10px;
   }
-`;
-
-export const TabbedViewContainer = styled.div`
-  ${ResizerCSS};
-  height: ${ActionExecutionResizerHeight}px;
-  // Minimum height of bottom tabs as it can be resized
-  min-height: 36px;
-  width: 100%;
-  background-color: var(--ads-v2-color-bg);
-  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 const SettingsWrapper = styled.div`
@@ -223,7 +204,6 @@ export function EditorJSONtoForm(props: Props) {
     onCreateDatasourceClick,
     onRunClick,
     plugin,
-    responseDisplayFormat,
     runErrorMessage,
     settingConfig,
     uiComponent,
@@ -245,8 +225,6 @@ export function EditorJSONtoForm(props: Props) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
-    useState<boolean>(false);
 
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
 
@@ -269,49 +247,6 @@ export function EditorJSONtoForm(props: Props) {
   );
 
   const dispatch = useDispatch();
-  // Debugger state
-  const { open: renderDebugger, selectedTab: selectedResponseTab } =
-    useSelector(getQueryPaneDebuggerState);
-
-  // These useEffects are used to open the response tab by default for page load queries
-  // as for page load queries, query response is available and can be shown in response tab
-  useEffect(() => {
-    // actionResponse and responseDisplayFormat is present only when query has response available
-    if (
-      responseDisplayFormat &&
-      !!responseDisplayFormat?.title &&
-      actionResponse &&
-      actionResponse.isExecutionSuccess &&
-      !showResponseOnFirstLoad
-    ) {
-      dispatch(
-        setQueryPaneDebuggerState({
-          open: true,
-          selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-        }),
-      );
-      setShowResponseOnFirstLoad(true);
-    }
-  }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
-
-  useEffect(() => {
-    if (showSchema && !selectedResponseTab) {
-      dispatch(
-        setQueryPaneDebuggerState({
-          open: true,
-          selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
-        }),
-      );
-    }
-  }, [showSchema, currentActionConfig?.id, selectedResponseTab]);
-
-  // When multiple page load queries exist, we want to response tab by default for all of them
-  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
-  useEffect(() => {
-    if (!!currentActionConfig?.id) {
-      setShowResponseOnFirstLoad(false);
-    }
-  }, [currentActionConfig?.id]);
 
   const handleDocumentationClick = () => {
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
@@ -477,19 +412,16 @@ export function EditorJSONtoForm(props: Props) {
                   </Tooltip>
                 )}
               </TabContainerView>
-              {renderDebugger &&
-                selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
-                  <QueryDebuggerTabs
-                    actionName={actionName}
-                    actionResponse={actionResponse}
-                    actionSource={actionSource}
-                    currentActionConfig={currentActionConfig}
-                    isRunning={isRunning}
-                    onRunClick={onRunClick}
-                    runErrorMessage={runErrorMessage}
-                    showSchema={showSchema}
-                  />
-                )}
+              <QueryDebuggerTabs
+                actionName={actionName}
+                actionResponse={actionResponse}
+                actionSource={actionSource}
+                currentActionConfig={currentActionConfig}
+                isRunning={isRunning}
+                onRunClick={onRunClick}
+                runErrorMessage={runErrorMessage}
+                showSchema={showSchema}
+              />
             </SecondaryWrapper>
           </div>
           {showRightPane && (
