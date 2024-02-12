@@ -15,7 +15,6 @@ import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +30,7 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class ApplicationJsonCE implements ArtifactExchangeJson {
+public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
 
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
@@ -130,5 +129,11 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
     @Override
     public ExportableArtifact getExportableArtifact() {
         return this.getExportedApplication();
+    }
+
+    @Override
+    public void setThemes(Theme unpublishedTheme, Theme publishedTheme) {
+        this.setEditModeTheme(unpublishedTheme);
+        this.setPublishedTheme(publishedTheme);
     }
 }
