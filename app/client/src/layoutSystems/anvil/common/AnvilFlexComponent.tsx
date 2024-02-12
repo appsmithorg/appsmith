@@ -73,6 +73,7 @@ export const AnvilFlexComponent = forwardRef(
         flexBasis: isFillWidget ? "0%" : "auto",
         padding: "spacing-1",
         alignItems: "center",
+        width: "max-content",
       };
       if (widgetSize) {
         const { maxHeight, maxWidth, minHeight, minWidth } = widgetSize;
