@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { ResizerCSS } from "components/editorComponents/Debugger/Resizer";
 import Resizable from "components/editorComponents/Debugger/Resizer";
-import { useSelector } from "react-redux";
-import { getResponsePaneHeight } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
@@ -23,11 +21,11 @@ interface Props {
   onResizeComplete: (height: number) => void;
   isRunning: boolean;
   tabs: BottomTab[];
+  height: number;
 }
 
 const ActionDrawer = (props: Props) => {
   const panelRef = useRef<HTMLDivElement>(null);
-  const responsePaneHeight = useSelector(getResponsePaneHeight);
   const [selectedTab, setSelectedTab] = useState<string>("");
   useEffect(() => {
     if (props.tabs.length) {
@@ -38,7 +36,7 @@ const ActionDrawer = (props: Props) => {
   return (
     <Container ref={panelRef}>
       <Resizable
-        initialHeight={responsePaneHeight}
+        initialHeight={props.height}
         onResizeComplete={props.onResizeComplete}
         openResizer={props.isRunning}
         panelRef={panelRef}

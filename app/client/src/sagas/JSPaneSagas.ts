@@ -90,12 +90,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import {
   getJSActionNameToDisplay,
   getJSActionPathNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
+import { getJsPaneDebuggerState } from "../selectors/jsPaneSelectors";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -433,8 +433,9 @@ export function* handleExecuteJSFunctionSaga(data: {
     if (doesURLPathContainCollectionId || openDebugger) {
       yield put(setJsPaneDebuggerState({ open: true }));
 
-      const debuggerSelectedTab: ReturnType<typeof getDebuggerSelectedTab> =
-        yield select(getDebuggerSelectedTab);
+      const { selectedTab: debuggerSelectedTab } = yield select(
+        getJsPaneDebuggerState,
+      );
 
       yield put(
         setJsPaneDebuggerState({
