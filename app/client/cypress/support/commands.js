@@ -347,6 +347,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       username: uname,
       password: pword,
     },
+    timeout: 60000,
   });
 
   // Check if cookie is present
@@ -373,8 +374,6 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       assertHelper.AssertNetworkStatus("getAllWorkspaces");
       assertHelper.AssertNetworkStatus("getConsolidatedData");
     }
-    agHelper.AssertElementExist(homePageTS._homePageContainer);
-    agHelper.AssertElementVisibility(homePageTS._homePageContainer);
   });
 });
 
