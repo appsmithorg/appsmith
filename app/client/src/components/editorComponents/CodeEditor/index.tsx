@@ -1478,7 +1478,7 @@ class CodeEditor extends Component<Props, State> {
 
     const pathEvaluatedValue = _.get(
       this.props.dynamicData,
-      getEvalValuePath(dataTreePath),
+      dataTreePath,
     );
 
     return {
