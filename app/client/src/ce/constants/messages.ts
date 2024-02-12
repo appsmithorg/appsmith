@@ -2351,9 +2351,10 @@ export const CUSTOM_WIDGET_FEATURE = {
       "Connection lost because the custom widget was deselected. Please reselect this widget to continue editing.",
     editor: {
       css: {
-        contextTooltip: () => "You can use following css variables",
+        contextTooltipScss: () => "Supports SCSS syntax.",
+        contextTooltipVariables: () => "You can use following css variables.",
         placeholder: () =>
-          "/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/",
+          "/* you can access string and number properties of your model using `var(--appsmith-model-<property-name>)`*/",
       },
       html: {
         placeholder: () =>

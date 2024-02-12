@@ -1,7 +1,7 @@
 import type { BabelError } from "./utility";
-import { compileSrcDoc, getBabelError } from "./utility";
+import { compileSrcDoc, getError } from "./utility";
 
-describe("getBabelError", () => {
+describe("getError", () => {
   it("should return DebuggerLogItem with line, column, and message", () => {
     const babelError = {
       loc: {
@@ -11,7 +11,7 @@ describe("getBabelError", () => {
       toString: () => "Something went wrong",
     };
 
-    const result = getBabelError(babelError as BabelError);
+    const result = getError(babelError as BabelError);
 
     expect(result).toEqual({
       line: 5,
@@ -25,7 +25,7 @@ describe("getBabelError", () => {
       toString: () => "Something went wrong",
     };
 
-    const result = getBabelError(babelError as BabelError);
+    const result = getError(babelError as BabelError);
 
     expect(result).toEqual({
       line: undefined,
@@ -35,7 +35,7 @@ describe("getBabelError", () => {
   });
 
   it("should handle undefined Babel error", () => {
-    const result = getBabelError(undefined as unknown as BabelError);
+    const result = getError(undefined as unknown as BabelError);
 
     expect(result).toEqual({
       line: undefined,

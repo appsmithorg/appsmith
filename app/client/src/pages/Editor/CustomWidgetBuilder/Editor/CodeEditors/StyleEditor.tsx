@@ -15,6 +15,15 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import styled from "styled-components";
+
+const StyledWrapper = styled.div`
+  position: relative;
+
+  span.cm-error {
+    color: #2d2006;
+  }
+`;
 
 export function TitleControls() {
   const { isReferenceOpen, model } = useContext(CustomWidgetBuilderContext);
@@ -42,19 +51,28 @@ export function TitleControls() {
   return (
     <Tooltip
       content={
-        <>
-          <div>
+        <ol>
+          <li className="mb-1">
+            -{" "}
             {createMessage(
-              CUSTOM_WIDGET_FEATURE.builder.editor.css.contextTooltip,
+              CUSTOM_WIDGET_FEATURE.builder.editor.css.contextTooltipScss,
             )}
-          </div>
-          <div>&nbsp;</div>
-          <ol>
-            {variableList.map((value, index) => (
-              <li key={index}>{value}</li>
-            ))}
-          </ol>
-        </>
+          </li>
+          <li>
+            <div>
+              -{" "}
+              {createMessage(
+                CUSTOM_WIDGET_FEATURE.builder.editor.css
+                  .contextTooltipVariables,
+              )}
+            </div>
+            <ol className="ml-3">
+              {variableList.map((value, index) => (
+                <li key={index}>{value}</li>
+              ))}
+            </ol>
+          </li>
+        </ol>
       }
       placement={isReferenceOpen ? "bottom" : "left"}
     >
@@ -73,7 +91,7 @@ export default function CSSEditor(props: ContentProps) {
   const { height } = props;
 
   return (
-    <div className={styles.wrapper}>
+    <StyledWrapper>
       <LazyCodeEditor
         border={CodeEditorBorder.NONE}
         borderLess
@@ -108,6 +126,6 @@ export default function CSSEditor(props: ContentProps) {
           <Spinner size="lg" />
         </div>
       )}
-    </div>
+    </StyledWrapper>
   );
 }
