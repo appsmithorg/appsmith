@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { get, minBy } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
@@ -31,8 +31,12 @@ const StyledSelectionBox = styled.div`
   position: absolute;
   cursor: grab;
 `;
-
-const StyledActions = styled.div`
+const RefDiv = forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>(
+  (props, ref) => {
+    return <div ref={ref} {...props} />;
+  },
+);
+const StyledActions = styled(RefDiv)`
   margin-top: 5px;
   margin-left: 5px;
   visibility: hidden;
@@ -154,31 +158,18 @@ const groupHelpText = (
 /**
  * Component creates a portal to render the context menu container outside of the main component hierarchy.
  */
-const StyledActionsContainer = React.memo(
-  (props: {
+const StyledActionsContainer = React.forwardRef<
+  HTMLDivElement,
+  {
     children: React.ReactNode;
-    height?: number;
-    left?: number;
-    top?: number;
-    visibility: boolean;
-  }) => {
-    const { children, height, left, top } = props;
-
-    return createPortal(
-      <StyledActions
-        style={{
-          left: Number(left),
-          top: Number(top),
-          visibility: !props.visibility ? "hidden" : "visible",
-          flexDirection: height && height < 160 ? "row" : "column",
-        }}
-      >
-        {children}
-      </StyledActions>,
-      document.body,
-    );
-  },
-);
+  }
+>((props, ref) => {
+  const { children } = props;
+  return createPortal(
+    <StyledActions ref={ref}>{children}</StyledActions>,
+    document.body,
+  );
+});
 
 function WidgetsMultiSelectBox(props: {
   widgetId: string;
@@ -197,15 +188,32 @@ function WidgetsMultiSelectBox(props: {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const [boundTop, setBoundTop] = useState<number | null>(null);
-  const [boundLeft, setBoundLeft] = useState<number | null>(null);
-  const [menuVisible, setMenuVisible] = React.useState<boolean>(false);
   const updateBoundingClientRect = () => {
     const node = draggableRef.current;
     if (node) {
-      const rect = node.getBoundingClientRect();
-      setBoundLeft(rect.left);
-      setBoundTop(rect.top);
+      const visibilityObserver = new IntersectionObserver(
+        ([node]) => {
+          if (menuRef.current) {
+            requestAnimationFrame(() => {
+              if (menuRef.current) {
+                menuRef.current.style.top = `${node.intersectionRect.top}px`;
+                menuRef.current.style.left = `${node.intersectionRect.left}px`;
+                menuRef.current.style.visibility = node.isIntersecting
+                  ? "visible"
+                  : "hidden";
+                menuRef.current.style.flexDirection =
+                  node.intersectionRect.height < 160 ? "row" : "column";
+              }
+            });
+          }
+        },
+        {
+          root: null,
+          threshold: [0, 0.125, 0.25, 0.5, 0.625, 0.75, 0.875, 1],
+        },
+      );
+      visibilityObserver.disconnect();
+      visibilityObserver.observe(node);
     }
   };
   /**
@@ -233,6 +241,7 @@ function WidgetsMultiSelectBox(props: {
     );
   }, [selectedWidgets, isDragging]);
   const draggableRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { setDraggingState } = useWidgetDragResize();
 
   const onDragStart = (e: any) => {
@@ -292,39 +301,48 @@ function WidgetsMultiSelectBox(props: {
    * Update the component positions whenever the component re-renders
    */
   useEffect(() => {
-    if (shouldRender && menuVisible) updateBoundingClientRect();
+    if (shouldRender) updateBoundingClientRect();
     // Update the bounding rectangle to handle scroll, resize events
-    const intervalId =
-      shouldRender && menuVisible
-        ? setInterval(() => {
-            updateBoundingClientRect();
-          }, 100)
-        : null;
+    const intervalId = shouldRender
+      ? setInterval(() => {
+          updateBoundingClientRect();
+        }, 100)
+      : null;
 
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [shouldRender, menuVisible]);
+  }, [shouldRender]);
   /**
    * Check if the multi-select box is shown within the viewport
    */
-  useEffect(() => {
-    const visibilityObserver = new IntersectionObserver(
-      ([node]) => {
-        setMenuVisible(node.isIntersecting);
-      },
-      {
-        root: null,
-        threshold: 0.5,
-      },
-    );
-    if (draggableRef.current && shouldRender)
-      visibilityObserver.observe(draggableRef.current);
-    return () => {
-      if (draggableRef.current)
-        visibilityObserver.unobserve(draggableRef.current);
-    };
-  }, [shouldRender]);
+  // useEffect(() => {
+  //   const visibilityObserver = new IntersectionObserver(
+  //     ([node]) => {
+  //       console.log(
+  //         node.intersectionRatio,
+  //         "RHITO intersection rato",
+  //         node.boundingClientRect,
+  //         node.intersectionRect,
+  //       );
+  //       setMenuVisible(node.isIntersecting);
+  //       if (menuRef.current) {
+  //         menuRef.current.style.top = `${node.intersectionRect.top}px`;
+  //         menuRef.current.style.left = `${node.intersectionRect.left}px`;
+  //       }
+  //     },
+  //     {
+  //       root: null,
+  //       threshold: [0, 0.125, 0.25, 0.5, 0.625, 0.75, 0.875, 1],
+  //     },
+  //   );
+  //   if (draggableRef.current && shouldRender)
+  //     visibilityObserver.observe(draggableRef.current);
+  //   return () => {
+  //     if (draggableRef.current)
+  //       visibilityObserver.unobserve(draggableRef.current);
+  //   };
+  // }, [shouldRender]);
   /**
    * copies the selected widgets
    *
@@ -406,10 +424,11 @@ function WidgetsMultiSelectBox(props: {
       <StyledSelectBoxHandleRight />
       <StyledSelectBoxHandleBottom />
       <StyledActionsContainer
-        height={height}
-        left={boundLeft ?? undefined}
-        top={boundTop ?? undefined}
-        visibility={menuVisible}
+        // height={height}
+        // left={boundLeft ?? undefined}
+        ref={menuRef}
+        // top={boundTop ?? undefined}
+        // visibility={menuVisible}
       >
         {/* copy widgets */}
         <Tooltip
