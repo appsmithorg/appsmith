@@ -57,7 +57,13 @@ describe(
       dataSources.CreateQueryAfterDSSaved("", "S3Query");
     });
 
-    it("4. Rest API action : should take me to action page directly", function () {
+    it("4. Airtable : should take me to datasource page", function () {
+      assertHelper.AssertNetworkStatus("@getPlugins");
+      dataSources.CreateDataSource("Airtable", false);
+      dataSources.CreateQueryAfterDSSaved("", "AirtableQuery");
+    });
+
+    it("5. Rest API action : should take me to action page directly", function () {
       assertHelper.AssertNetworkStatus("@getPlugins");
       agHelper.GetNClick(apiPage._createapi, 0);
       assertHelper.AssertNetworkStatus("@createNewApi", 201);
