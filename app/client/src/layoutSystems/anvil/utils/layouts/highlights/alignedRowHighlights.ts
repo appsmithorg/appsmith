@@ -189,7 +189,7 @@ export function getHighlightsForWidgets(
   }
 
   /**
-   * Check if layout has widgets that are not being dragged.
+   * Check if the layout has widgets that are not being dragged.
    */
   const nonDraggedWidgets: WidgetLayoutProps[] = getNonDraggedWidgets(
     layout,
@@ -210,11 +210,14 @@ export function getHighlightsForWidgets(
 
   let highlights: AnvilHighlightInfo[] = [];
   let childCount = 0;
+
+  // Iterate through each alignment in the layout
   Object.keys(alignmentInfo).forEach((alignment: string) => {
     const { dimension, meta, widgets } = alignmentInfo[alignment];
 
     /**
-     * If the alignment doesn't render any widgets, then derive initial highlights for the alignment.
+     * If the alignment doesn't render any widgets,
+     * then derive initial highlights for the alignment.
      */
     if (!widgets.length) {
       /**
@@ -229,22 +232,6 @@ export function getHighlightsForWidgets(
           (layoutDimension.width * 2) / 3
       )
         return;
-
-      // if (
-      //   alignment === FlexLayerAlignment.Start &&
-      //   alignmentInfo[FlexLayerAlignment.Center].dimension.width +
-      //     alignmentInfo[FlexLayerAlignment.End].dimension.width >
-      //     layoutDimension.width * 0.85
-      // )
-      //   return;
-
-      // if (
-      //   alignment === FlexLayerAlignment.End &&
-      //   alignmentInfo[FlexLayerAlignment.Center].dimension.width +
-      //     alignmentInfo[FlexLayerAlignment.Start].dimension.width >
-      //     layoutDimension.width * 0.85
-      // )
-      //   return;
 
       highlights = updateHighlights(
         highlights,
@@ -261,12 +248,16 @@ export function getHighlightsForWidgets(
     } else {
       const { metaData, tallestWidgets } = meta;
       let rIndex = 0;
+
+      // Iterate through each row within the alignment
       while (rIndex < metaData.length) {
         const row: RowMetaData[] = metaData[rIndex];
         const tallestWidget = tallestWidgets[rIndex];
 
         let temp: AnvilHighlightInfo[] = [];
         const draggedWidgetIndices: number[] = [];
+
+        // Iterate through each widget within the row
         row.forEach((each: RowMetaData, index: number) => {
           const isDraggedWidget: boolean = draggedWidgets.some(
             (widget: DraggedWidget) => widget.widgetId === each.widgetId,
@@ -282,6 +273,7 @@ export function getHighlightsForWidgets(
           const skipHighlightBeforeWidget = draggedWidgetIndices.includes(
             index - 1,
           );
+
           if (!skipHighlightBeforeWidget) {
             /**
              * Add a highlight before the widget
@@ -301,6 +293,7 @@ export function getHighlightsForWidgets(
               false,
             );
           }
+
           if (!isDraggedWidget) {
             childCount += 1;
           } else {
