@@ -4,7 +4,6 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import ApiEditor from "../locators/ApiEditor";
-const pages = require("../locators/Pages.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 import { ObjectsRegistry } from "./Objects/Registry";
@@ -393,8 +392,3 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
 //     .contains(apiname)
 //     .click({ force: true });
 // });
-
-Cypress.Commands.add("checkIfApiPaneIsVisible", () => {
-  cy.get(ApiEditor.datasourcesRightPane).should("exist");
-  cy.get(ApiEditor.datasourcesRightPane).should("be.visible");
-});

@@ -342,7 +342,7 @@ function BindDataButton(props: BindDataButtonProps) {
     <Menu onOpenChange={handleOnInteraction} open={isWidgetSelectionOpen}>
       <MenuTrigger>
         <Button
-          className="t--bind-data"
+          data-testid="t--bind-data"
           id={"bind-data-button"}
           kind={"secondary"}
           onClick={() => handleOnInteraction(true)}
@@ -359,7 +359,7 @@ function BindDataButton(props: BindDataButtonProps) {
         side={"top"}
       >
         {isTableWidgetPresentOnCanvas() && (
-          <>
+          <div data-testid="t--suggested-widget-existing">
             {renderHeading(connectExistingWidgetLabel)}
             {Object.keys(canvasWidgets).map((widgetKey) => {
               const widget: FlattenedWidgetProps | undefined =
@@ -373,7 +373,8 @@ function BindDataButton(props: BindDataButtonProps) {
               }
               return (
                 <MenuItem
-                  className={`widget t--suggested-widget-${widget.type}`}
+                  className="widget"
+                  data-testid={`t--suggested-widget-${widget.type}`}
                   key={widget.type + widget.widgetId}
                   onClick={async () => handleBindData(widgetKey, widget.type)}
                 >
@@ -382,24 +383,27 @@ function BindDataButton(props: BindDataButtonProps) {
               );
             })}
             <MenuSeparator />
-          </>
+          </div>
         )}
 
-        {renderHeading(addNewWidgetLabel)}
-        {(filteredSuggestedWidgets || []).map((suggestedWidget) => {
-          const widgetInfo = WIDGET_DATA_FIELD_MAP[suggestedWidget.type];
+        <div data-testid="t--suggested-widget-add-new">
+          {renderHeading(addNewWidgetLabel)}
+          {(filteredSuggestedWidgets || []).map((suggestedWidget) => {
+            const widgetInfo = WIDGET_DATA_FIELD_MAP[suggestedWidget.type];
 
-          if (!widgetInfo) return null;
-          return (
-            <MenuItem
-              className={`widget t--suggested-widget-${suggestedWidget.type}`}
-              key={suggestedWidget.type}
-              onClick={async () => addWidget(suggestedWidget, widgetInfo)}
-            >
-              {renderWidgetItem(widgetInfo.icon, widgetInfo.widgetName)}
-            </MenuItem>
-          );
-        })}
+            if (!widgetInfo) return null;
+            return (
+              <MenuItem
+                className="widget"
+                data-testid={`t--suggested-widget-${suggestedWidget.type}`}
+                key={suggestedWidget.type}
+                onClick={async () => addWidget(suggestedWidget, widgetInfo)}
+              >
+                {renderWidgetItem(widgetInfo.icon, widgetInfo.widgetName)}
+              </MenuItem>
+            );
+          })}
+        </div>
       </MenuContent>
     </Menu>
   );
