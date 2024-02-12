@@ -1291,7 +1291,8 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
 });
 
 Cypress.Commands.add("createSuperUser", () => {
-  agHelper.AssertElementVisibility(welcomePage.firstName);
+  cy.wait(1000);
+  cy.get(welcomePage.firstName).should("be.visible");
   cy.get(welcomePage.lastName).should("be.visible");
   cy.get(welcomePage.email).should("be.visible");
   cy.get(welcomePage.password).should("be.visible");
@@ -1333,6 +1334,7 @@ Cypress.Commands.add("createSuperUser", () => {
     });
   }
 
+  cy.wait(2000);
   if (CURRENT_REPO === REPO.CE) {
     cy.get("#loading").should("not.exist");
     AppSidebar.assertVisible();
