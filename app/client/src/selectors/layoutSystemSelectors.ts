@@ -4,15 +4,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 /**
  * selector to fetch the application's layout type
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getLayoutSystemType = (state: AppState) => {
-  if (
-    state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
-      ?.type
-  ) {
-    return LayoutSystemTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type
-    ];
-  }
-  return LayoutSystemTypes.FIXED;
+  return LayoutSystemTypes.ANVIL;
 };
