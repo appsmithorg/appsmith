@@ -43,7 +43,7 @@
       "gitSyncId": "jsmi_git_1"
     }
   ],
-  "moduleList": [
+  "sourceModuleList": [
     {
       "packageUUID": "pUUID",
       "packageName": "Untitled Package 1",

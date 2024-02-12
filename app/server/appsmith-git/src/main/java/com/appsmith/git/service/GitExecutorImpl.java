@@ -45,7 +45,7 @@ public class GitExecutorImpl extends GitExecutorCEImpl implements GitExecutor {
                         modifiedModuleInstances++;
                     }
                 }
-            } else if (x.contains(GitDirectories.MODULES_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
+            } else if (x.contains(GitDirectories.SOURCE_MODULES_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
                 modifiedModules++;
             }
         }
@@ -56,7 +56,7 @@ public class GitExecutorImpl extends GitExecutorCEImpl implements GitExecutor {
     @Override
     protected boolean isAModifiedPage(String x) {
         return super.isAModifiedPage(x)
-                && !x.contains(GitDirectories.MODULES_DIRECTORY)
+                && !x.contains(GitDirectories.SOURCE_MODULES_DIRECTORY)
                 && !x.contains(GitDirectories.MODULE_INSTANCES_DIRECTORY);
     }
 }

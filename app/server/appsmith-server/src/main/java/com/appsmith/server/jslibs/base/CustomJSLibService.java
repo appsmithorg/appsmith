@@ -5,7 +5,6 @@ import com.appsmith.server.domains.CustomJSLib;
 import jakarta.validation.constraints.NotNull;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Set;
 
 public interface CustomJSLibService extends CustomJSLibServiceCE {

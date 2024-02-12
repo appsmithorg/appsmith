@@ -9,6 +9,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Module;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -51,6 +52,12 @@ public class PackageJson implements ArtifactExchangeJson {
 
     @JsonView(Views.Public.class)
     List<ActionCollection> actionCollectionList;
+
+    @JsonView(Views.Public.class)
+    List<ModuleInstance> moduleInstanceList;
+
+    @JsonView(Views.Public.class)
+    List<ExportableModule> sourceModuleList;
 
     /**
      * This field will be used to store map of files to be updated in local file system by comparing the recent

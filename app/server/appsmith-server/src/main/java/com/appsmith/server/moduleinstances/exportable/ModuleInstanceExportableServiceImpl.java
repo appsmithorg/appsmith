@@ -1,24 +1,25 @@
-package com.appsmith.server.moduleinstances.exports;
+package com.appsmith.server.moduleinstances.exportable;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.Package;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportableModule;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
 import com.appsmith.server.exports.exportable.ExportableService;
+import com.appsmith.server.exports.exportable.artifactbased.ArtifactBasedExportableService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ImportExportUtils;
-import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.packages.crud.CrudPackageService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,32 +34,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
+import static com.appsmith.server.constants.FieldName.PACKAGE;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
+import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION;
 
+@RequiredArgsConstructor
 @Service
 public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportableServiceCECompatibleImpl
         implements ExportableService<ModuleInstance> {
 
-    private final CrudModuleInstanceService crudModuleInstanceService;
     private final ModuleInstancePermission moduleInstancePermission;
     private final CrudModuleService crudModuleService;
     private final CrudPackageService crudPackageService;
+    protected final ArtifactBasedExportableService<ModuleInstance, Application> applicationExportableService;
+    protected final ArtifactBasedExportableService<ModuleInstance, Package> packageExportableService;
 
-    public ModuleInstanceExportableServiceImpl(
-            CrudModuleInstanceService crudModuleInstanceService,
-            ModuleInstancePermission moduleInstancePermission,
-            CrudModuleService crudModuleService,
-            CrudPackageService crudPackageService) {
-        this.crudModuleInstanceService = crudModuleInstanceService;
-        this.moduleInstancePermission = moduleInstancePermission;
-        this.crudModuleService = crudModuleService;
-        this.crudPackageService = crudPackageService;
+    @Override
+    public ArtifactBasedExportableService<ModuleInstance, ?> getArtifactBasedExportableService(
+            ExportingMetaDTO exportingMetaDTO) {
+        return switch (exportingMetaDTO.getArtifactType()) {
+            case APPLICATION -> applicationExportableService;
+            case PACKAGE -> packageExportableService;
+            default -> null;
+        };
     }
 
-    // Requires pageIdToNameMap
+    // Requires contextIdToNameMap
     // Updates moduleInstanceId to name map and moduleIdToUUIDMap in exportable resources. Also directly updates
-    // required module instance information in application json
+    // required module instance information in artifact json
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<Void> getExportableEntities(
@@ -67,13 +71,14 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
             Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
-        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+        ArtifactBasedExportableService<ModuleInstance, ?> artifactBasedExportableService =
+                getArtifactBasedExportableService(exportingMetaDTO);
 
-        Optional<AclPermission> optionalPermission = Optional.ofNullable(moduleInstancePermission.getExportPermission(
-                exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
+        AclPermission exportPermission = moduleInstancePermission.getExportPermission(
+                exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration());
 
-        Flux<ModuleInstance> moduleInstanceFlux = crudModuleInstanceService
-                .findByPageIds(exportingMetaDTO.getUnpublishedContextIds(), optionalPermission)
+        Flux<ModuleInstance> moduleInstanceFlux = artifactBasedExportableService
+                .findByContextIdsForExport(exportingMetaDTO.getUnpublishedContextIds(), exportPermission)
                 .filter(moduleInstance ->
                         moduleInstance.getUnpublishedModuleInstance().getDeletedAt() == null);
 
@@ -95,7 +100,7 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
                     .collectList()
                     .doOnNext(modules -> {
                         if (!modules.isEmpty()) {
-                            applicationJson.setModuleList(modules);
+                            artifactExchangeJson.setSourceModuleList(modules);
                         }
                     })
                     .then();
@@ -105,7 +110,8 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
                 .doOnNext(moduleInstance -> sourceModuleIdsSet.add(moduleInstance.getSourceModuleId()))
                 .collectList()
                 .map(moduleInstanceList -> {
-                    mapNameToIdForExportableEntities(mappedExportableResourcesDTO, moduleInstanceList);
+                    mapNameToIdForExportableEntities(
+                            exportingMetaDTO, mappedExportableResourcesDTO, moduleInstanceList);
                     return moduleInstanceList;
                 })
                 .map(moduleInstanceList -> {
@@ -115,13 +121,15 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
                         ModuleInstanceDTO publishedModuleInstance = moduleInstance.getPublishedModuleInstance();
                         ModuleInstanceDTO moduleInstanceDTO =
                                 unpublishedModuleInstance != null ? unpublishedModuleInstance : publishedModuleInstance;
+                        String contextNameAtIdReference =
+                                artifactBasedExportableService.getContextNameAtIdReference(moduleInstanceDTO);
                         String moduleInstanceName = moduleInstanceDTO != null
-                                ? moduleInstanceDTO.getName() + NAME_SEPARATOR + moduleInstanceDTO.getPageId()
+                                ? moduleInstanceDTO.getName() + NAME_SEPARATOR + contextNameAtIdReference
                                 : null;
-                        // TODO: check whether resource updated after last commit - move to a function
-                        String pageName = moduleInstanceDTO.getPageId();
 
-                        boolean isPageUpdated = ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
+                        String contextListPath = artifactBasedExportableService.getContextListPath();
+                        boolean isPageUpdated = ImportExportUtils.isContextNameInUpdatedList(
+                                artifactExchangeJson, contextNameAtIdReference, contextListPath);
                         Instant moduleInstanceUpdatedAt = moduleInstance.getUpdatedAt();
                         boolean isModuleInstanceUpdated = exportingMetaDTO.isClientSchemaMigrated()
                                 || exportingMetaDTO.isServerSchemaMigrated()
@@ -137,11 +145,11 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
 
                     if (!moduleInstanceList.isEmpty()) {
                         if (!updatedModuleInstancesSet.isEmpty()) {
-                            applicationJson
+                            artifactExchangeJson
                                     .getModifiedResources()
                                     .putResource(FieldName.MODULE_INSTANCE_LIST, updatedModuleInstancesSet);
                         }
-                        applicationJson.setModuleInstanceList(moduleInstanceList);
+                        artifactExchangeJson.setModuleInstanceList(moduleInstanceList);
                     }
 
                     return moduleInstanceList;
@@ -151,42 +159,25 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
 
     @Override
     public Set<String> mapNameToIdForExportableEntities(
-            MappedExportableResourcesDTO mappedExportableResourcesDTO, List<ModuleInstance> moduleInstanceList) {
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            List<ModuleInstance> moduleInstanceList) {
+
+        ArtifactBasedExportableService<ModuleInstance, ?> artifactBasedExportableService =
+                this.getArtifactBasedExportableService(exportingMetaDTO);
+
         moduleInstanceList.forEach(moduleInstance -> {
             moduleInstance.setPolicies(null);
-            moduleInstance.setApplicationId(null);
             moduleInstance.setWorkspaceId(null);
 
             // Set unique id for module instance
             if (moduleInstance.getUnpublishedModuleInstance() != null) {
-                ModuleInstanceDTO moduleInstanceDTO = moduleInstance.getUnpublishedModuleInstance();
-                moduleInstanceDTO.setPageId(mappedExportableResourcesDTO
-                        .getPageOrModuleIdToNameMap()
-                        .get(moduleInstanceDTO.getPageId() + EDIT));
-
-                final String updatedModuleInstanceId =
-                        moduleInstanceDTO.getPageId() + "_" + moduleInstanceDTO.getName();
-                mappedExportableResourcesDTO
-                        .getModuleInstanceIdToNameMap()
-                        .put(moduleInstance.getId(), updatedModuleInstanceId);
-                moduleInstance.setId(updatedModuleInstanceId);
+                artifactBasedExportableService.mapExportableReferences(
+                        mappedExportableResourcesDTO, moduleInstance, EDIT);
             }
             if (moduleInstance.getPublishedModuleInstance() != null) {
-                ModuleInstanceDTO moduleInstanceDTO = moduleInstance.getPublishedModuleInstance();
-                moduleInstanceDTO.setPageId(mappedExportableResourcesDTO
-                        .getPageOrModuleIdToNameMap()
-                        .get(moduleInstanceDTO.getPageId() + VIEW));
-
-                if (!mappedExportableResourcesDTO
-                        .getModuleInstanceIdToNameMap()
-                        .containsValue(moduleInstance.getId())) {
-                    final String updatedModuleInstanceId =
-                            moduleInstanceDTO.getPageId() + "_" + moduleInstanceDTO.getName();
-                    mappedExportableResourcesDTO
-                            .getModuleInstanceIdToNameMap()
-                            .put(moduleInstance.getId(), updatedModuleInstanceId);
-                    moduleInstance.setId(updatedModuleInstanceId);
-                }
+                artifactBasedExportableService.mapExportableReferences(
+                        mappedExportableResourcesDTO, moduleInstance, VIEW);
             }
         });
         return Set.of();

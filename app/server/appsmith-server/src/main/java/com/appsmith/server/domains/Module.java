@@ -60,4 +60,17 @@ public class Module extends BranchAwareDomain {
         }
         return (lastEditedAt != null) ? ISO_FORMATTER.format(lastEditedAt) : null;
     }
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        this.setId(null);
+        this.setPackageId(null);
+        this.setPackageUUID(null);
+        this.setLastEditedAt(null);
+        if (this.getUnpublishedModule() != null) {
+            this.getUnpublishedModule().sanitiseToExportDBObject();
+        }
+        this.setPublishedModule(null);
+        super.sanitiseToExportDBObject();
+    }
 }

@@ -749,6 +749,19 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Flux<ModuleInstance> getByContextTypeAndContextIds(
+            CreatorContextType contextType, List<String> contextIds, AclPermission permission) {
+        if (CreatorContextType.MODULE.equals(contextType)) {
+            return repository.findAllByModuleIds(contextIds, permission);
+        } else if (CreatorContextType.PAGE.equals(contextType)) {
+            return repository.findByPageIds(contextIds, Optional.ofNullable(permission));
+        } else {
+            return Flux.empty();
+        }
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
             Module sourceModule, Optional<AclPermission> permission) {
         return repository.findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, permission);

@@ -38,12 +38,12 @@ public class PackageDTO implements Identifiable {
     @JsonView(Views.Internal.class)
     Boolean latest;
 
-    @JsonView(Views.Public.class)
-    String name;
-
     @Transient
     @JsonView(Views.Public.class)
     String workspaceId;
+
+    @JsonView(Views.Public.class)
+    String name;
 
     @JsonView(Views.Public.class)
     String icon;
@@ -76,4 +76,25 @@ public class PackageDTO implements Identifiable {
     @Transient
     @JsonView(Views.Public.class)
     String lastPublishedAt;
+
+    public void sanitiseToExportDBObject() {
+        this.setCustomJSLibs(null);
+        this.setHiddenJSLibs(null);
+
+        this.resetTransientFields();
+    }
+
+    private void resetTransientFields() {
+        this.setId(null);
+        this.setPackageUUID(null);
+        this.setOriginPackageId(null);
+        this.setVersion(null);
+        this.setLatest(null);
+        this.setWorkspaceId(null);
+        this.setUserPermissions(null);
+        this.setPolicies(null);
+        this.setModifiedBy(null);
+        this.setModifiedAt(null);
+        this.setLastPublishedAt(null);
+    }
 }

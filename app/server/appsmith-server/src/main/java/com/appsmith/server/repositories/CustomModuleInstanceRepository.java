@@ -34,6 +34,8 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
 
     Flux<ModuleInstance> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
+    Flux<ModuleInstance> findAllByModuleIds(List<String> contextIds, AclPermission permission);
+
     Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
             Module sourceModule, Optional<AclPermission> permission);
 

@@ -49,6 +49,16 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
+    public Flux<NewAction> findAllByModuleIds(List<String> moduleIds, Optional<AclPermission> permission) {
+        Criteria moduleIdCriteria = Criteria.where(completeFieldName(QNewAction.newAction.unpublishedAction.moduleId))
+                .in(moduleIds);
+        return queryBuilder()
+                .criteria(moduleIdCriteria)
+                .permission(permission.orElse(null))
+                .all();
+    }
+
+    @Override
     public Flux<NewAction> findAllUncomposedNonJSActionsByApplicationIds(
             List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria =

@@ -35,15 +35,15 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        List<ExportableModule> moduleList = CollectionUtils.isEmpty(applicationJson.getModuleList())
+        List<ExportableModule> sourceModuleList = CollectionUtils.isEmpty(applicationJson.getSourceModuleList())
                 ? new ArrayList<>()
-                : applicationJson.getModuleList();
+                : applicationJson.getSourceModuleList();
 
         Map<String, Module> moduleUUIDToModuleMap = mappedImportableResourcesDTO.getModuleUUIDToModuleMap();
         Map<String, ExportableModule> moduleUUIDToExportableModuleMap =
                 mappedImportableResourcesDTO.getModuleUUIDToExportableModuleMap();
 
-        moduleList.stream().forEach(exportableModule -> {
+        sourceModuleList.stream().forEach(exportableModule -> {
             moduleUUIDToExportableModuleMap.put(exportableModule.getModuleUUID(), exportableModule);
         });
 
@@ -55,7 +55,7 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
 
         // No actual import is performed for packages here
         return crudPackageService
-                .getAllPublishedPackagesByUniqueRef(importingMetaDTO.getWorkspaceId(), moduleList)
+                .getAllPublishedPackagesByUniqueRef(importingMetaDTO.getWorkspaceId(), sourceModuleList)
                 .flatMap(aPackage -> {
                     // TODO: What happens if this instance has also created a package from this unique ref,
                     //  and has reached this version, but with a separate interface/definition ?

@@ -72,6 +72,12 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
     }
 
     @Override
+    public Flux<ModuleInstance> getByContextTypeAndContextIds(
+            CreatorContextType creatorContextType, List<String> contextIds, AclPermission permission) {
+        return Flux.empty();
+    }
+
+    @Override
     public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
             Module sourceModule, Optional<AclPermission> permission) {
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));

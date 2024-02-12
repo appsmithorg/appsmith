@@ -35,9 +35,6 @@ public class ModuleDTO implements Identifiable {
     @JsonView(Views.Public.class)
     private String originModuleId;
 
-    @JsonView(Views.Public.class)
-    @NotNull String name;
-
     @Transient
     @JsonView(Views.Public.class)
     @NotNull ModuleType type;
@@ -53,6 +50,9 @@ public class ModuleDTO implements Identifiable {
     @Transient
     @JsonView(Views.Export.class)
     String packageUUID;
+
+    @JsonView(Views.Public.class)
+    @NotNull String name;
 
     @JsonView(Views.Public.class)
     List<ModuleInputForm> inputsForm;
@@ -74,4 +74,24 @@ public class ModuleDTO implements Identifiable {
     @Transient
     @JsonView(Views.Public.class)
     Object settingsForm;
+
+    public void sanitiseToExportDBObject() {
+        this.resetTransientFields();
+        if (this.getLayouts() != null) {
+            this.getLayouts().forEach(Layout::sanitiseToExportDBObject);
+        }
+    }
+
+    private void resetTransientFields() {
+        this.setId(null);
+        this.setModuleUUID(null);
+        this.setOriginModuleId(null);
+        this.setType(null);
+        this.setPackageId(null);
+        this.setVersion(null);
+        this.setPackageUUID(null);
+        this.setEntity(null);
+        this.setUserPermissions(null);
+        this.setSettingsForm(null);
+    }
 }

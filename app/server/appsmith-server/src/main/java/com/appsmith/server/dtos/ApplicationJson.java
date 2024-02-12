@@ -22,5 +22,5 @@ public class ApplicationJson extends ApplicationJsonCE implements ArtifactExchan
     List<ModuleInstance> moduleInstanceList;
 
     @JsonView(Views.Public.class)
-    List<ExportableModule> moduleList;
+    List<ExportableModule> sourceModuleList;
 }

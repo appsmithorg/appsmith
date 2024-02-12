@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
+    Flux<NewAction> findAllByModuleIds(List<String> moduleIds, Optional<AclPermission> permission);
 
     Flux<NewAction> findAllUncomposedNonJSActionsByApplicationIds(
             List<String> applicationIds, List<String> includeFields);

@@ -60,6 +60,9 @@ public interface CrudModuleInstanceServiceCECompatible extends BaseModuleInstanc
 
     Flux<ModuleInstance> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
 
+    Flux<ModuleInstance> getByContextTypeAndContextIds(
+            CreatorContextType creatorContextType, List<String> contextIds, AclPermission permission);
+
     Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
             Module sourceModule, Optional<AclPermission> permission);
 

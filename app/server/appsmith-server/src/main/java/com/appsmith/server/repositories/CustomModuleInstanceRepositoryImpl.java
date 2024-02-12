@@ -172,6 +172,15 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
+    public Flux<ModuleInstance> findAllByModuleIds(List<String> contextIds, AclPermission permission) {
+        Criteria pageIdCriteria = where(
+                        completeFieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.moduleId))
+                .in(contextIds);
+
+        return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
+    }
+
+    @Override
     public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
             Module sourceModule, Optional<AclPermission> permission) {
         List<Criteria> criteria = new ArrayList<>();
