@@ -73,7 +73,8 @@ import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 
 import type { LogObject } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { EntityTypeValue } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { FormEvalActionPayload } from "./FormEvaluationSaga";
@@ -681,7 +682,7 @@ export function* updateReplayEntitySaga(
   actionPayload: ReduxAction<{
     entityId: string;
     entity: Replayable;
-    entityType: ENTITY_TYPE;
+    entityType: EntityTypeValue;
   }>,
 ) {
   //Delay updates to replay object to not persist every keystroke

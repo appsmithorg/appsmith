@@ -3,18 +3,10 @@ import type LOG_TYPE from "./logtype";
 import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import type { PluginType } from "entities/Action";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
-
-export enum ENTITY_TYPE {
-  ACTION = "ACTION",
-  DATASOURCE = "DATASOURCE",
-  WIDGET = "WIDGET",
-  JSACTION = "JSACTION",
-}
-
-export enum PLATFORM_ERROR {
-  PLUGIN_EXECUTION = "PLUGIN_EXECUTION",
-  JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION",
-}
+import type {
+  EntityTypeValue,
+  PlatformErrorTypeValue,
+} from "@appsmith/entities/AppsmithConsole/utils";
 
 export type Methods =
   | "log"
@@ -38,7 +30,7 @@ export interface LogObject {
   source: SourceEntity;
 }
 
-export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
+export type ErrorType = PropertyEvaluationErrorType | PlatformErrorTypeValue;
 
 export enum Severity {
   // Everything, irrespective of what the user should see or not
@@ -64,7 +56,7 @@ export interface UserAction {
 }
 
 export interface SourceEntity {
-  type: ENTITY_TYPE;
+  type: EntityTypeValue;
   // Widget or action name
   name: string;
   // Id of the widget or action
