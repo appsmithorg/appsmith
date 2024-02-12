@@ -148,9 +148,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         }
 
         for (final Layout layout : layoutList) {
-            // if (StringUtils.isEmpty(layout.getId())) {
-            //     layout.setId(new ObjectId().toString());
-            // }
+            if (StringUtils.isEmpty(layout.getId())) {
+                layout.setId(new ObjectId().toString());
+            }
         }
 
         Mono<Application> applicationMono = applicationService
@@ -629,7 +629,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         .map(layout -> {
                             Layout newLayout = new Layout();
                             String id = new ObjectId().toString();
-                            // newLayout.setId(id);
+                            newLayout.setId(id);
                             newLayout.setMongoEscapedWidgetNames(layout.getMongoEscapedWidgetNames());
                             newLayout.setDsl(layout.getDsl());
                             return newLayout;

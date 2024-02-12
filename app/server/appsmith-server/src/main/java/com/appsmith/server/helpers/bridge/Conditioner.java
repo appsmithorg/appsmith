@@ -3,6 +3,7 @@ package com.appsmith.server.helpers.bridge;
 import com.appsmith.external.models.BaseDomain;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.NonNull;
@@ -20,6 +21,7 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         EQUAL,
         NOT_EQUAL,
         EQ_IGNORE_CASE,
+        IS_NULL,
         IS_TRUE,
         IN,
         JSON_IN,
@@ -36,7 +38,7 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
             Predicate predicate;
 
             if (Objects.requireNonNull(check.op) == Op.EQUAL) {
-                predicate = cb.equal(root.get(check.key), cb.literal(check.value));
+                predicate = cb.equal(keyToExpression(root, cb, check.key), cb.literal(check.value));
 
             } else if (Objects.requireNonNull(check.op) == Op.NOT_EQUAL) {
                 predicate = cb.notEqual(root.get(check.key), cb.literal(check.value));
@@ -46,6 +48,9 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
 
             } else if (check.op == Op.IS_TRUE) {
                 predicate = cb.isTrue(root.get(check.key));
+
+            } else if (check.op == Op.IS_NULL) {
+                predicate = cb.isNull(keyToExpression(root, cb, check.key));
 
             } else if (check.op == Op.IN) {
                 CriteriaBuilder.In<Object> inCluse = cb.in(root.get(check.key));
@@ -71,18 +76,23 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         return cb.and(predicates.toArray(new Predicate[0]));
     }
 
-    public Conditioner<T> equal(String key, String value) {
+    public Conditioner<T> equal(@NonNull String key, @NonNull String value) {
         checks.add(new Check(Op.EQUAL, key, value));
         return this;
     }
 
-    public Conditioner<T> notEqual(String key, String value) {
+    public Conditioner<T> notEqual(@NonNull String key, @NonNull String value) {
         checks.add(new Check(Op.NOT_EQUAL, key, value));
         return this;
     }
 
     public Conditioner<T> eqIgnoreCase(String key, String value) {
         checks.add(new Check(Op.EQ_IGNORE_CASE, key, value));
+        return this;
+    }
+
+    public Conditioner<T> isNull(String field) {
+        checks.add(new Check(Op.IS_NULL, field, null));
         return this;
     }
 
@@ -94,6 +104,18 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
     public Conditioner<T> in(String needle, Collection<String> haystack) {
         checks.add(new Check(Op.IN, needle, haystack));
         return this;
+    }
+
+    private static <X> Expression<String> keyToExpression(
+            @NonNull Root<X> root, @NonNull CriteriaBuilder cb, @NonNull String key) {
+        if (key.contains(".")) {
+            final String[] parts = key.split("\\.");
+            // TODO: Handle more than one level of nesting
+            // TODO: Handle non-String values
+            return cb.function("jsonb_extract_path_text", String.class, root.get(parts[0]), cb.literal(parts[1]));
+        }
+
+        return root.get(key);
     }
 
     /**

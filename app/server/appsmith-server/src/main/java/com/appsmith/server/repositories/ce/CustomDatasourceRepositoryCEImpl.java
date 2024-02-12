@@ -27,21 +27,19 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
-    // @Override
+    @Override
     @Deprecated
     public List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
-        Criteria workspaceIdCriteria =
-                where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         Sort sort = Sort.by(fieldName(QDatasource.datasource.name));
         return queryBuilder()
-                .criteria(workspaceIdCriteria)
+                .spec(Bridge.conditioner().equal(fieldName(QDatasource.datasource.workspaceId), workspaceId))
                 .permission(permission)
                 .sort(sort)
                 .all();
     }
 
-    // @Override
-    public List<Datasource> findAllByWorkspaceId(Long workspaceId, Optional<AclPermission> permission) {
+    @Override
+    public List<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         return queryBuilder()

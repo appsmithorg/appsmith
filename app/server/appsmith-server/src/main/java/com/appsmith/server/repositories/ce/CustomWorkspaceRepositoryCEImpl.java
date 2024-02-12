@@ -12,15 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Workspace>
@@ -39,15 +35,16 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
-        Criteria nameCriteria = where("name").is(name);
-
-        return queryBuilder().criteria(nameCriteria).permission(aclPermission).one();
+        return queryBuilder()
+                .spec(Bridge.conditioner().equal(fieldName(QWorkspace.workspace.name), name))
+                .permission(aclPermission)
+                .one();
     }
 
     @Override
     public List<Workspace> findByIdsIn(
             Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("an emptyList"); /*
         Criteria workspaceIdCriteria = where("id").in(workspaceIds);
         Criteria tenantIdCriteria =
                 where("tenantId").is(tenantId);
@@ -57,12 +54,6 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .permission(aclPermission)
                 .sort(sort)
                 .all(); //*/
-    }
-
-    @Override
-    public List<Workspace> findAllWorkspaces() {
-        return Collections.emptyList(); /*
-        return mongoOperations.find(new Query(), Workspace.class); //*/
     }
 
     @Override

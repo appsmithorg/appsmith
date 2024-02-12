@@ -298,7 +298,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return Mono.just(createdAction);
                 })
                 .flatMap(repository::setUserPermissionsInObject)
-                .flatMap(this::setTransientFieldsInUnpublishedAction);
+                .flatMap(newAction1 -> setTransientFieldsInUnpublishedAction(newAction1));
     }
 
     @Override
@@ -1002,7 +1002,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return getUnpublishedActionsFromRepo(params, includeJsActions)
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
-                .flatMap(this::setTransientFieldsInUnpublishedAction)
+                .flatMap(newAction -> setTransientFieldsInUnpublishedAction(newAction))
                 // this generates four different tags, (ApplicationId, FieldId) *(True, False)
                 .tag(
                         "includeJsAction",
@@ -1101,7 +1101,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .findByPageIdAndViewMode(pageId, false, permission)
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
-                .flatMap(this::setTransientFieldsInUnpublishedAction);
+                .flatMap(newAction -> setTransientFieldsInUnpublishedAction(newAction));
     }
 
     @Override

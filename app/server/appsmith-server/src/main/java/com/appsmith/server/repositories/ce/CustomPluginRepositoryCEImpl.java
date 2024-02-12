@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +24,7 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
 
     @Override
     public List<Plugin> findDefaultPluginIcons() {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("an emptyList"); /*
         Criteria criteria =
                 Criteria.where("defaultInstall").is(Boolean.TRUE);
         List<String> projections = List.of(

@@ -419,6 +419,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
                     cq.where(predicate);
 
+                    // TODO: Projections
+
+                    // TODO: Limits
+
+                    // TODO: Sorting
+                    // cq.orderBy(cb.desc(root.get(FieldName.CREATED_AT)));
+
                     // All public access is via a single permission group. Fetch the same and set the cache with it.
                     return Mono.fromSupplier(entityManager.createQuery(cq)::getResultList)
                             .onErrorResume(NoResultException.class, e -> Mono.empty())

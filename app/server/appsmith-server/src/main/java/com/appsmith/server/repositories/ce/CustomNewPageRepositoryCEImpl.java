@@ -19,7 +19,6 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -146,7 +145,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("an emptyList"); /*
         ArrayList<String> includedFields = new ArrayList<>(List.of(
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
@@ -219,7 +218,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("an emptyList"); /*
         Criteria applicationIdCriteria =
                 where("applicationId").in(applicationIds);
         String unpublishedSlugFieldPath = String.format(

@@ -20,12 +20,22 @@ public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>
     Optional<Long> countByDeletedAtNull();
 
     @Query(
-            value =
-                    """
+            """
         SELECT new com.appsmith.server.dtos.PluginTypeAndCountDTO(a.pluginType, count(a)) as count
             FROM NewAction a
             WHERE a.applicationId = :applicationId AND a.deletedAt IS NULL
             GROUP BY a.pluginType
         """)
     List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
+
+    @Query(
+            """
+        SELECT count(a)
+            FROM NewAction a
+            WHERE a.deletedAt IS NULL AND (
+                :datasourceId = jsonb_extract_path_text(a.unpublishedAction, 'datasource', 'id')
+                OR :datasourceId = jsonb_extract_path_text(a.publishedAction, 'datasource', 'id')
+            )
+        """)
+    Optional<Long> countByDatasourceId(String datasourceId);
 }

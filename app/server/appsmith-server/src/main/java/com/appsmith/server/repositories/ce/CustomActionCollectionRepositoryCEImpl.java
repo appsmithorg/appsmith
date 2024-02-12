@@ -1,11 +1,13 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.helpers.bridge.Bridge;
+import com.appsmith.server.helpers.bridge.Conditioner;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -282,26 +284,21 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
-        List<Criteria> criteria = new ArrayList<>();
-
-        Criteria pageCriterion;
+        Conditioner<? extends BaseDomain> spec;
 
         // Fetch published action collections
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriterion = where("publishedCollection.pageId").is(pageId);
-            criteria.add(pageCriterion);
+            spec = Bridge.conditioner().equal("publishedCollection.pageId", pageId);
         }
         // Fetch unpublished action collections
         else {
-            pageCriterion = where("unpublishedCollection.pageId").is(pageId);
-            criteria.add(pageCriterion);
-
-            // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
-            // ActionCollection object
-            // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where("unpublishedCollection.deletedAt").is(null);
-            criteria.add(deletedCriteria);
+            spec = Bridge.conditioner()
+                    .equal("unpublishedCollection.pageId", pageId)
+                    // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
+                    // ActionCollection object
+                    // would exist. To handle this, only fetch non-deleted actions
+                    .isNull("unpublishedCollection.deletedAt");
         }
-        return queryBuilder().criteria(criteria).permission(permission).all();
+        return queryBuilder().spec(spec).permission(permission).all();
     }
 }

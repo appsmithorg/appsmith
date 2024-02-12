@@ -29,7 +29,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -193,7 +192,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
-        return Collections.emptyList(); /*
+        throw new ex.Marker("an emptyList"); /*
         Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
                 .in(userIds);
         return queryBuilder()

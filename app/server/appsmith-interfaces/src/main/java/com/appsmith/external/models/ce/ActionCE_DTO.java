@@ -156,7 +156,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     // This field will be used to store the default/root actionId and applicationId for actions generated for git
     // connected applications and will be used to connect actions across the branches
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Public.class)
     DefaultResources defaultResources;
 
     // This field will be used to store analytics data related to this specific domain object. It's been introduced in
