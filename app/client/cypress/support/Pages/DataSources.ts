@@ -90,8 +90,8 @@ export class DataSources {
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
   _bindDataButton = "[data-testid=t--bind-data]";
-  _addSuggestedExisting = "[data-testid=t--suggested-widget-existing]";
-  _addSuggestedAddNew = "[data-testid=t--suggested-widget-add-new]";
+  _addSuggestedExisting = "t--suggested-widget-existing";
+  _addSuggestedAddNew = "t--suggested-widget-add-new";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
   _createQuery = ".t--create-query";
