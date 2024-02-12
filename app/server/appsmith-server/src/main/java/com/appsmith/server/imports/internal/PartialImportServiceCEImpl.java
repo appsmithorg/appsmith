@@ -5,6 +5,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -21,6 +22,7 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -48,7 +50,7 @@ import java.util.Optional;
 @Slf4j
 public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
-    private final ImportApplicationService importApplicationService;
+    private final ImportService importService;
     private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final AnalyticsService analyticsService;
@@ -81,11 +83,11 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
 
         // Extract file and get App Json
-        Mono<Application> partiallyImportedAppMono = importApplicationService
-                .extractApplicationJson(file)
+        Mono<Application> partiallyImportedAppMono = importService
+                .extractArtifactExchangeJson(file, ArtifactJsonType.APPLICATION)
                 .zipWith(getImportApplicationPermissions())
                 .flatMap(tuple -> {
-                    ApplicationJson applicationJson = tuple.getT1();
+                    ApplicationJson applicationJson = (ApplicationJson) tuple.getT1();
                     ImportArtifactPermissionProvider permissionProvider = tuple.getT2();
                     // Set Application in App JSON, remove the pages other than the one to be imported in
                     // Set the current page in the JSON to be imported

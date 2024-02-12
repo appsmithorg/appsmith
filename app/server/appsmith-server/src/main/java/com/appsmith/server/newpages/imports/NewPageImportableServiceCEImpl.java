@@ -31,6 +31,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -217,14 +218,20 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
-        // The access source has been changes because the order of execution has changed.
+        /**
+         * After generalisation of export and import flow,
+         * this method gets executed later than it was previously getting executed.
+         * Hence, there was a need to create another source to capture the pages.
+         */
         List<ApplicationPage> editModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
                 .getResourceStoreFromArtifactExchangeJson()
                 .get(FieldName.UNPUBLISHED);
 
         // this conditional is being placed just for compatibility of the PR #29691
         if (CollectionUtils.isEmpty(editModeApplicationPages)) {
-            editModeApplicationPages = importedApplication.getPages();
+            editModeApplicationPages = CollectionUtils.isEmpty(importedApplication.getPages())
+                    ? new ArrayList<>()
+                    : importedApplication.getPages();
         }
 
         List<ApplicationPage> publishedModeApplicationPages = (List<ApplicationPage>) mappedImportableResourcesDTO
@@ -233,7 +240,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
 
         // this conditional is being placed just for compatibility of the PR #29691
         if (CollectionUtils.isEmpty(publishedModeApplicationPages)) {
-            publishedModeApplicationPages = importedApplication.getPublishedPages();
+            publishedModeApplicationPages = CollectionUtils.isEmpty(importedApplication.getPublishedPages())
+                    ? new ArrayList<>()
+                    : importedApplication.getPublishedPages();
         }
 
         Mono<List<ApplicationPage>> unpublishedPagesMono =

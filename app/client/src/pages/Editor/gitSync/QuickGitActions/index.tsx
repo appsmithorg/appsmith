@@ -30,6 +30,7 @@ import {
 import { GitSyncModalTab } from "entities/GitSync";
 import {
   getCountOfChangesToCommit,
+  getGitMetadataSelector,
   getGitStatus,
   getIsDiscardInProgress,
   getIsFetchingGitStatus,
@@ -303,14 +304,12 @@ export default function QuickGitActions() {
   const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);
 
-  const isGitConnectV2Enabled = useFeatureFlag(
-    FEATURE_FLAG.release_git_connect_v2_enabled,
-  );
-
   const isAutocommitFeatureEnabled = useFeatureFlag(
     FEATURE_FLAG.release_git_autocommit_feature_enabled,
   );
+  const gitMetadata = useSelector(getGitMetadataSelector);
   const isPollingAutocommit = useSelector(getIsPollingAutocommit);
+  const isAutocommitEnabled = gitMetadata?.autoCommitConfig?.enabled;
 
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
@@ -325,22 +324,12 @@ export default function QuickGitActions() {
       });
     },
     settings: () => {
-      if (isGitConnectV2Enabled) {
-        dispatch(
-          setGitSettingsModalOpenAction({
-            open: true,
-            tab: GitSettingsTab.GENERAL,
-          }),
-        );
-      } else {
-        dispatch(
-          setIsGitSyncModalOpen({
-            isOpen: true,
-            tab: GitSyncModalTab.GIT_CONNECTION,
-            isDeploying: true,
-          }),
-        );
-      }
+      dispatch(
+        setGitSettingsModalOpenAction({
+          open: true,
+          tab: GitSettingsTab.GENERAL,
+        }),
+      );
       AnalyticsUtil.logEvent("GS_SETTING_CLICK", {
         source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
       });
@@ -382,7 +371,9 @@ export default function QuickGitActions() {
   return isGitConnected ? (
     <Container>
       <BranchButton />
-      {isAutocommitFeatureEnabled && isPollingAutocommit ? (
+      {isAutocommitFeatureEnabled &&
+      isAutocommitEnabled &&
+      isPollingAutocommit ? (
         <AutocommitStatusbar completed={!isPollingAutocommit} />
       ) : (
         quickActionButtons.map((button) => (
