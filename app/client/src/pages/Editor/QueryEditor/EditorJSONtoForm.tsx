@@ -269,6 +269,9 @@ export function EditorJSONtoForm(props: Props) {
   );
 
   const dispatch = useDispatch();
+  // Debugger state
+  const { open: renderDebugger, selectedTab: selectedResponseTab } =
+    useSelector(getQueryPaneDebuggerState);
 
   // These useEffects are used to open the response tab by default for page load queries
   // as for page load queries, query response is available and can be shown in response tab
@@ -292,13 +295,15 @@ export function EditorJSONtoForm(props: Props) {
   }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
 
   useEffect(() => {
-    if (showSchema) {
-      setQueryPaneDebuggerState({
-        open: true,
-        selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
-      });
+    if (showSchema && !selectedResponseTab) {
+      dispatch(
+        setQueryPaneDebuggerState({
+          open: true,
+          selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+        }),
+      );
     }
-  }, [showSchema]);
+  }, [showSchema, currentActionConfig?.id, selectedResponseTab]);
 
   // When multiple page load queries exist, we want to response tab by default for all of them
   // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
@@ -322,10 +327,6 @@ export function EditorJSONtoForm(props: Props) {
   const { hasDependencies } = useEntityDependencies(props.actionName);
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
-
-  // Debugger state
-  const { open: renderDebugger, selectedTab: selectedResponseTab } =
-    useSelector(getQueryPaneDebuggerState);
 
   const setSelectedConfigTab = useCallback((selectedIndex: string) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));

@@ -50,7 +50,10 @@ import {
   StyledFormRow,
   TabbedViewContainer,
 } from "./styledComponents";
-import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
+import {
+  getJSPaneConfigSelectedTab,
+  getJsPaneDebuggerState,
+} from "selectors/jsPaneSelectors";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import {
   setCodeEditorCursorAction,
@@ -60,7 +63,6 @@ import history from "utils/history";
 import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -304,7 +306,7 @@ function JSEditorForm({
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTab);
 
   // Debugger render flag
-  const showDebugger = useSelector(showDebuggerFlag);
+  const { open: showDebugger } = useSelector(getJsPaneDebuggerState);
 
   const setSelectedConfigTab = useCallback((selectedTab: JSEditorTab) => {
     dispatch(setJsPaneConfigSelectedTab(selectedTab));

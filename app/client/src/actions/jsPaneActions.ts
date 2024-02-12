@@ -6,7 +6,10 @@ import type {
   SetFunctionPropertyPayload,
 } from "@appsmith/api/JSActionAPI";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import type { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
+import type {
+  JSEditorTab,
+  JSPaneDebuggerState,
+} from "reducers/uiReducers/jsPaneReducer";
 
 export const createNewJSCollection = (
   pageId: string,
@@ -110,4 +113,11 @@ export const setJsPaneConfigSelectedTab: (
 ) => ReduxAction<{ selectedTab: JSEditorTab }> = (payload: JSEditorTab) => ({
   type: ReduxActionTypes.SET_JS_PANE_CONFIG_SELECTED_TAB,
   payload: { selectedTab: payload },
+});
+
+export const setJsPaneDebuggerState = (
+  payload: Partial<JSPaneDebuggerState>,
+) => ({
+  type: ReduxActionTypes.SET_JS_PANE_DEBUGGER_STATE,
+  payload,
 });

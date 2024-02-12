@@ -35,7 +35,10 @@ import {
 
 import { setDatasourceViewMode } from "actions/datasourceActions";
 import { updateExplorerWidthAction } from "actions/explorerActions";
-import { setJsPaneConfigSelectedTab } from "actions/jsPaneActions";
+import {
+  setJsPaneConfigSelectedTab,
+  setJsPaneDebuggerState,
+} from "actions/jsPaneActions";
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
@@ -58,6 +61,7 @@ import { getExplorerWidth } from "selectors/explorerSelector";
 import {
   getFirstJSObject,
   getJSPaneConfigSelectedTab,
+  getJsPaneDebuggerState,
 } from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
@@ -125,6 +129,17 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       setter: setJsPaneConfigSelectedTab,
       defaultValue: JSEditorTab.CODE,
     },
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.JSDebugger,
+      selector: getJsPaneDebuggerState,
+      setter: setJsPaneDebuggerState,
+      defaultValue: {
+        open: false,
+        responseTabHeight: ActionExecutionResizerHeight,
+        selectedTab: undefined,
+      },
+    },
   ],
   [FocusEntity.QUERY]: [
     {
@@ -172,6 +187,7 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       defaultValue: {
         open: false,
         responseTabHeight: ActionExecutionResizerHeight,
+        selectedTab: undefined,
       },
     },
     {
@@ -182,6 +198,7 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       defaultValue: {
         open: false,
         responseTabHeight: ActionExecutionResizerHeight,
+        selectedTab: undefined,
       },
     },
   ],

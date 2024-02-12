@@ -31,17 +31,8 @@ import { TAB_MIN_HEIGHT } from "design-system-old";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
-import {
-  getDebuggerSelectedTab,
-  getFilteredErrors,
-  getResponsePaneHeight,
-} from "selectors/debuggerSelectors";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import {
-  setDebuggerSelectedTab,
-  setResponsePaneHeight,
-  showDebugger,
-} from "actions/debuggerActions";
 import {
   NoResponse,
   ResponseTabErrorContainer,
@@ -52,6 +43,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity, Log } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
+import { getJsPaneDebuggerState } from "../../selectors/jsPaneSelectors";
+import { setJsPaneDebuggerState } from "../../actions/jsPaneActions";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
@@ -293,23 +286,23 @@ function JSResponseView(props: Props) {
   ];
 
   // get the selected tab from the store.
-  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
+  const jsPaneDebuggerState = useSelector(getJsPaneDebuggerState);
+  const { open, responseTabHeight, selectedTab } = jsPaneDebuggerState;
+
   // set the selected tab in the store.
   const setSelectedResponseTab = useCallback((selectedTab: string) => {
-    dispatch(setDebuggerSelectedTab(selectedTab));
+    dispatch(setJsPaneDebuggerState({ selectedTab }));
   }, []);
-  // get the height of the response pane.
-  const responseTabHeight = useSelector(getResponsePaneHeight);
   // set the height of the response pane on resize.
   const setResponseHeight = useCallback((height: number) => {
-    dispatch(setResponsePaneHeight(height));
+    dispatch(setJsPaneDebuggerState({ responseTabHeight: height }));
   }, []);
 
   // close the debugger
-  const onClose = () => dispatch(showDebugger(false));
+  const onClose = () => dispatch(setJsPaneDebuggerState({ open: false }));
 
   // Do not render if header tab is selected in the bottom bar.
-  return !(selectedResponseTab === DEBUGGER_TAB_KEYS.HEADER_TAB) ? (
+  return open && selectedTab ? (
     <ResponseContainer
       className="t--js-editor-bottom-pane-container"
       ref={panelRef}
@@ -323,7 +316,7 @@ function JSResponseView(props: Props) {
         <EntityBottomTabs
           expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={setSelectedResponseTab}
-          selectedTabKey={selectedResponseTab}
+          selectedTabKey={selectedTab}
           tabs={tabs}
         />
 
