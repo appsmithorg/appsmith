@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
-import static com.appsmith.server.constants.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_EDIT;
-import static com.appsmith.server.constants.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_VIEW;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_EDIT;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_VIEW;
 
 @Slf4j
 @RestController

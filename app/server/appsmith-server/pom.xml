@@ -46,11 +46,6 @@
             <version>2.0.0-alpha</version>
         </dependency>
         <dependency>
-            <groupId>com.newrelic.telemetry</groupId>
-            <artifactId>micrometer-registry-new-relic</artifactId>
-            <version>0.10.0</version>
-        </dependency>
-        <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-sdk</artifactId>
             <version>1.34.1</version>

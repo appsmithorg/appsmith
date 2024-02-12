@@ -1,4 +1,4 @@
-package com.appsmith.server.constants;
+package com.appsmith.external.constants.spans;
 
 import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
 
