@@ -40,7 +40,7 @@ public class ServerApplication {
 
     private final ProjectProperties projectProperties;
 
-    @Value("${spring.application.name}")
+    @Value("${appsmith.newrelic.micrometer.metrics.application.name}")
     private String newRelicApplicationName;
 
     @Value("${appsmith.newrelic.licensekey}")
