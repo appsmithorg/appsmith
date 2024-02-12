@@ -186,7 +186,7 @@ jobs:
               content="$(
                 echo "## Failed server tests"
                 echo
-                sed 's/^/- /' 'failed-server-tests.txt'
+                sed 's/^/- /' 'failed-server-tests.txt' | sort -u
               )"
               echo "$content" >> "$GITHUB_STEP_SUMMARY"
               # Add a comment to the PR with the list of failed tests.

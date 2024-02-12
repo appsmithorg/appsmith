@@ -27,9 +27,6 @@ export function SignupSuccess() {
   );
   const validLicense = useSelector(isValidLicense);
   const user = useSelector(getCurrentUser);
-  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
-    FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
-  );
   const isEnabledForCreateNew = useFeatureFlag(
     FEATURE_FLAG.ab_create_new_apps_enabled,
   );
@@ -48,7 +45,6 @@ export function SignupSuccess() {
         shouldEnableFirstTimeUserOnboarding,
         validLicense,
         dispatch,
-        showStarterTemplatesInsteadofBlankCanvas,
         isNonInvitedUser && isEnabledForCreateNew,
       ),
     [],

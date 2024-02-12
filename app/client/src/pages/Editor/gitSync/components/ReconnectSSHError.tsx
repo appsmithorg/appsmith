@@ -1,4 +1,3 @@
-import { fetchGitRemoteStatusInit } from "actions/gitSyncActions";
 import { Callout, Text, toast } from "design-system";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -14,6 +13,7 @@ import {
   NO_COPIED_SSH_KEY,
   createMessage,
 } from "@appsmith/constants/messages";
+import { fetchGitStatusInit } from "actions/gitSyncActions";
 
 const NumberedList = styled.ol`
   list-style-type: decimal;
@@ -32,7 +32,7 @@ function ReconnectSSHError() {
 
   useEffect(() => {
     dispatch(
-      fetchGitRemoteStatusInit({
+      fetchGitStatusInit({
         onErrorCallback: (error, response) => {
           setErrorData({ error, response });
         },
