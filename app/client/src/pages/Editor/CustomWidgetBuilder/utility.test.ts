@@ -50,7 +50,9 @@ describe("compileSrcDoc", () => {
     const validSrcDoc = {
       html: "<div>Hello World</div>",
       js: "const a = 5;",
-      css: "div { color: red; }",
+      css: `div {
+  color: red;
+}`,
     };
 
     const result = compileSrcDoc(validSrcDoc);
@@ -64,7 +66,9 @@ describe("compileSrcDoc", () => {
     const srcDocWithErrors = {
       html: "<div>Hello World</div>",
       js: "appsmith.onReady(() => {const a = 5 )})",
-      css: "div { color: red; }",
+      css: `div {
+  color: red;
+}`,
     };
 
     const result = compileSrcDoc(srcDocWithErrors);
@@ -75,5 +79,31 @@ describe("compileSrcDoc", () => {
     expect(result.errors[0]).toHaveProperty("line");
     expect(result.errors[0]).toHaveProperty("column");
     expect(result.errors[0]).toHaveProperty("message");
+  });
+
+  it("should compile scss to css string", () => {
+    const srcDocWithErrors = {
+      html: "<div>Hello World</div>",
+      js: "",
+      css: `div {
+  color: red;
+
+  p {
+    color: blue;
+  }
+}`,
+    };
+
+    const result = compileSrcDoc(srcDocWithErrors);
+
+    expect(result.code).toEqual({
+      ...srcDocWithErrors,
+      css: `div {
+  color: red;
+}
+div p {
+  color: blue;
+}`,
+    });
   });
 });
