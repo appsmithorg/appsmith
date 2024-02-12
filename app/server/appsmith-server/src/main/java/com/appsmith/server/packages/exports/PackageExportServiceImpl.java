@@ -19,7 +19,7 @@ import com.appsmith.server.dtos.PackageJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
-import com.appsmith.server.exports.internal.ContextBasedExportService;
+import com.appsmith.server.exports.internal.artifactbased.ArtifactBasedExportService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.permissions.ModulePermission;
@@ -36,7 +36,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class PackageExportServiceImpl implements ContextBasedExportService<Package, PackageJson> {
+public class PackageExportServiceImpl implements ArtifactBasedExportService<Package, PackageJson> {
 
     private final CrudPackageService crudPackageService;
     private final PackagePermission packagePermission;

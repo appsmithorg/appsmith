@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableService;
+import com.appsmith.server.exports.internal.artifactbased.ArtifactBasedExportService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,8 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
-public class ApplicationExportServiceImpl extends ApplicationExportServiceCEImpl implements ApplicationExportService {
+public class ApplicationExportServiceImpl extends ApplicationExportServiceCEImpl
+        implements ArtifactBasedExportService<Application, ApplicationJson> {
 
     private final ExportableService<ModuleInstance> moduleInstanceExportableService;
 

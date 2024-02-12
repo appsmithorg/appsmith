@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ApplicationJson extends ApplicationJsonCE {
+public class ApplicationJson extends ApplicationJsonCE implements ArtifactExchangeJson {
 
     @JsonView(Views.Public.class)
     List<ModuleInstance> moduleInstanceList;
