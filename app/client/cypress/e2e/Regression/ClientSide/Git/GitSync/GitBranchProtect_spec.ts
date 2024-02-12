@@ -17,9 +17,6 @@ describe("Git Branch Protection", { tags: ["@tag.Git"] }, function () {
       const appName = "GitBranchProtect-2" + uid;
       _.homePage.CreateNewWorkspace(wsName, true);
       _.homePage.CreateAppInWorkspace(wsName, appName);
-      featureFlagIntercept({
-        release_git_connect_v2_enabled: true,
-      });
       cy.wait(1000);
 
       cy.intercept({
@@ -27,7 +24,7 @@ describe("Git Branch Protection", { tags: ["@tag.Git"] }, function () {
         url: /\/api\/v1\/git\/branch\/app\/.*\/protected/,
       }).as("gitProtectApi");
 
-      _.gitSync.CreateNConnectToGitV2();
+      _.gitSync.CreateNConnectToGit("repoprotect", true, true, false);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
         cy.wait("@gitProtectApi").then((res1) => {

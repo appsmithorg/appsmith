@@ -148,7 +148,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
   }
 
   // Merge the initial values and action.
-  const formInitialValues = merge(configInitialValues, action);
+  const formInitialValues = merge({}, configInitialValues, action);
 
   // Set the initialValues in the state for redux-form lib
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));

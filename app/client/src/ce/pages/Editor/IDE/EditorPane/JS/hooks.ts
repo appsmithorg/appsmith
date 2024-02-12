@@ -2,9 +2,6 @@ import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import history from "utils/history";
-import { LIST_PATH } from "@appsmith/constants/routes/appRoutes";
-import { useLocation } from "react-router";
 import type { GroupedAddOperations } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
@@ -16,14 +13,6 @@ export const useJSAdd = () => {
   return useCallback(() => {
     dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
   }, [dispatch]);
-};
-
-export const useJSList = () => {
-  const location = useLocation();
-  const onListClickHandler = useCallback(() => {
-    history.push(`${location.pathname}${LIST_PATH}`);
-  }, []);
-  return onListClickHandler;
 };
 
 export const useGroupedAddJsOperations = (): GroupedAddOperations => {
