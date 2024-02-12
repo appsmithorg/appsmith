@@ -214,14 +214,18 @@ function getWidgetProps(
 }
 
 function renderHeading(heading: string) {
-  return <Text kind="heading-xs">{heading}</Text>;
+  return (
+    <Flex paddingLeft="spaces-3" paddingTop="spaces-3">
+      <Text kind="heading-xs">{heading}</Text>
+    </Flex>
+  );
 }
 
 function renderWidgetItem(icon: string | undefined, name: string | undefined) {
   return (
-    <Flex alignItems="center" gap="spaces-2">
-      {icon && <WidgetIcon alt="widget-icon" height="15px" src={icon} />}
-      <Text className="widget-name" kind="action-m">
+    <Flex alignItems="center" gap="spaces-3">
+      {icon && <WidgetIcon alt="widget-icon" height="16px" src={icon} />}
+      <Text className="widget-name" kind="body-m">
         {name}
       </Text>
     </Flex>
@@ -357,6 +361,7 @@ function BindDataButton(props: BindDataButtonProps) {
         data-testId={"t--widget-selection"}
         height={pages.length <= 4 ? "fit-content" : "186px"}
         side={"top"}
+        width="235px"
       >
         {isTableWidgetPresentOnCanvas() && (
           <div data-testid="t--suggested-widget-existing">
