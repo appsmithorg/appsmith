@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -40,7 +39,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QWorkspace.workspace.name)).is(name);
 
-        return queryOne(List.of(nameCriteria), aclPermission);
+        return queryBuilder().criteria(nameCriteria).permission(aclPermission).one();
     }
 
     @Override
@@ -50,11 +49,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria tenantIdCriteria =
                 where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId);
 
-        return queryAll()
+        return queryBuilder()
                 .criteria(workspaceIdCriteria, tenantIdCriteria)
                 .permission(aclPermission)
                 .sort(sort)
-                .submit();
+                .all();
     }
 
     @Override
@@ -77,7 +76,10 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
             Criteria tenantIdCriteria =
                     where(fieldName(QWorkspace.workspace.tenantId)).is(user.getTenantId());
-            return queryAll().criteria(tenantIdCriteria).permission(permission).submit();
+            return queryBuilder()
+                    .criteria(tenantIdCriteria)
+                    .permission(permission)
+                    .all();
         });
     }
 }

@@ -2,6 +2,7 @@ package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.restApiUtils.helpers.OAuth2Utils;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -142,16 +143,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     if (issuedAtResponse != null) {
                         issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
                     }
-
-                    // We expect at least one of the following to be present
-                    Object expiresAtResponse = mappedResponse.get(Authentication.EXPIRES_AT);
-                    Object expiresInResponse = mappedResponse.get(Authentication.EXPIRES_IN);
-                    Instant expiresAt = null;
-                    if (expiresAtResponse != null) {
-                        expiresAt = Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
-                    } else if (expiresInResponse != null) {
-                        expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
-                    }
+                    Instant expiresAt = OAuth2Utils.getAuthenticationExpiresAt(oAuth2, mappedResponse, issuedAt);
                     authenticationResponse.setExpiresAt(expiresAt);
                     authenticationResponse.setIssuedAt(issuedAt);
                     if (mappedResponse.containsKey(Authentication.REFRESH_TOKEN)) {

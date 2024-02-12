@@ -55,8 +55,6 @@ export class AnvilLayout {
           // to activate ANVIL canvas
           .trigger("mousemove", left + xPos, top + yPos, {
             eventConstructor: "MouseEvent",
-            clientX: left + xPos,
-            clientY: top + yPos,
             force: true,
           });
         this.agHelper.Sleep(200);
@@ -114,7 +112,9 @@ export class AnvilLayout {
   ) {
     this.DragNDropAnvilWidget(widgetType, x, y, options);
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
-    this.agHelper.AssertElementExist(this.locator._widgetInCanvas(widgetType));
+    this.agHelper.AssertElementExist(
+      this.locator._anvilWidgetInCanvas(widgetType),
+    );
     this.agHelper.Sleep(200); //waiting a bit for widget properties to open
   }
 }

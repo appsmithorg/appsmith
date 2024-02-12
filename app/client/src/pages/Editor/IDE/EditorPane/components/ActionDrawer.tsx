@@ -5,8 +5,6 @@ import Resizable from "components/editorComponents/Debugger/Resizer";
 import { useSelector } from "react-redux";
 import { getResponsePaneHeight } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 
@@ -46,12 +44,6 @@ const ActionDrawer = (props: Props) => {
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}
       />
-      {props.isRunning && (
-        <ActionExecutionInProgressView
-          actionType="query"
-          theme={EditorTheme.LIGHT}
-        />
-      )}
       <EntityBottomTabs
         onSelect={setSelectedTab}
         selectedTabKey={selectedTab}

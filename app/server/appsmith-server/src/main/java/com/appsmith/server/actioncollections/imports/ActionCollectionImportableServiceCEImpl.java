@@ -248,16 +248,21 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                     branchedActionCollection.getUnpublishedCollection(),
                                                     importingMetaDTO.getBranchName());
                                         } else {
-                                            defaultResourcesService.initialize(
-                                                    actionCollection, importingMetaDTO.getBranchName(), false);
-                                            actionCollection
-                                                    .getDefaultResources()
-                                                    .setApplicationId(defaultApplicationId);
-                                            dtoDefaultResourcesService.initialize(
-                                                    actionCollection.getUnpublishedCollection(),
-                                                    importingMetaDTO.getBranchName(),
-                                                    false);
+                                            // This is the first action collection  we are saving with given gitSyncId
+                                            // in this instance
+                                            DefaultResources defaultResources = new DefaultResources();
+                                            defaultResources.setApplicationId(importedApplication
+                                                    .getGitApplicationMetadata()
+                                                    .getDefaultApplicationId());
+                                            defaultResources.setCollectionId(actionCollection.getId());
+                                            defaultResources.setBranchName(importingMetaDTO.getBranchName());
+                                            actionCollection.setDefaultResources(defaultResources);
                                         }
+                                    } else {
+                                        DefaultResources defaultResources = new DefaultResources();
+                                        defaultResources.setApplicationId(importedApplication.getId());
+                                        defaultResources.setCollectionId(actionCollection.getId());
+                                        actionCollection.setDefaultResources(defaultResources);
                                     }
 
                                     // Check if the action has gitSyncId and if it's already in DB
