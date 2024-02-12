@@ -21,6 +21,9 @@ describe("Select Widget", { tags: ["@tag.Widget", "@tag.Multiselect"] }, () => {
     featureFlagIntercept({
       license_widget_rtl_support_enabled: true,
     });
+    agHelper.RefreshPage();
+
+    agHelper.Sleep(2000);
 
     agHelper.AssertElementExist(".t--property-control-enablertl");
 
