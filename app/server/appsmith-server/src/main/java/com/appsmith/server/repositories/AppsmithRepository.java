@@ -25,14 +25,6 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     QueryAllParams<T> queryBuilder();
 
-    Flux<T> queryAllWithStrictPermissionGroups(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> permission,
-            Sort sort,
-            int limit,
-            int skip);
-
     /**
      * DO NOT USE THIS FUNCTION UNLESS YOU KNOW WHAT YOU ARE DOING
      * This is an unsafe function that fetches data without persmissions. This should only be used very sparingly
