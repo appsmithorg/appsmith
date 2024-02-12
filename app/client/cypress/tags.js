@@ -66,5 +66,6 @@ module.exports = {
     "@tag.Provisioning",
     "@tag.Templates",
     "@tag.MainContainer",
+    "@tag.Visual",
   ],
 };
