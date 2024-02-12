@@ -62,7 +62,7 @@ export const StartWithTemplatesHeader = ({
   return (
     <Flex
       flexDirection="column"
-      mb={isModalLayout ? "" : "spaces-14"}
+      mb={isModalLayout ? "spaces-5" : "spaces-14"}
       mt={isModalLayout ? "" : "spaces-7"}
     >
       <Text kind="heading-xl">{title}</Text>
