@@ -38,6 +38,8 @@ import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
 import validateColor from "validate-color";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import ModalWidget from "widgets/ModalWidget/widget";
+import { WDSModalWidget } from "widgets/wds/WDSModalWidget";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -229,15 +231,20 @@ export const flashElementsById = (
  */
 export const quickScrollToWidget = (
   widgetId: string,
+  widgetIdSelector: string,
   canvasWidgets: CanvasWidgetsReduxState,
 ) => {
   if (!widgetId || widgetId === "") return;
   window.requestIdleCallback(() => {
-    const el = document.getElementById(widgetId);
+    const el = document.getElementById(widgetIdSelector);
     const canvas = document.getElementById(CANVAS_VIEWPORT);
 
     if (el && canvas && !isElementVisibleInContainer(el, canvas, 5)) {
-      const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);
+      const scrollElement = getWidgetElementToScroll(
+        widgetId,
+        widgetIdSelector,
+        canvasWidgets,
+      );
       if (scrollElement) {
         scrollIntoView(scrollElement, {
           block: "center",
@@ -304,6 +311,7 @@ function isElementVisibleInContainer(
  */
 function getWidgetElementToScroll(
   widgetId: string,
+  widgetIdSelector: string,
   canvasWidgets: CanvasWidgetsReduxState,
 ): HTMLElement | null {
   const widget = canvasWidgets[widgetId];
@@ -311,7 +319,7 @@ function getWidgetElementToScroll(
   // If the widget doesn't have a parent, scroll to the widget itself
   // This is the case for the main container widget, however,
   // this scenario is not likely to occur in a normal use case.
-  if (parentId == undefined) return document.getElementById(widgetId);
+  if (parentId == undefined) return document.getElementById(widgetIdSelector);
 
   // Get the containing container like widget for the widget
   // Note: The parentId is usually pointing to a CANVAS_WIDGET
@@ -321,14 +329,14 @@ function getWidgetElementToScroll(
 
   // If we failed to get the container, try to scroll to the widget itself
   if (containerId === undefined) {
-    return document.getElementById(widgetId);
+    return document.getElementById(widgetIdSelector);
   } else {
     // If the widget is not within a modal widget,
     // but is the child of the main container widget,
     // scroll to the widget itself
     if (containerId === MAIN_CONTAINER_WIDGET_ID) {
-      if (widget.type !== "MODAL_WIDGET") {
-        return document.getElementById(widgetId);
+      if ([ModalWidget.type, WDSModalWidget.type].includes(widget.type)) {
+        return document.getElementById(widgetIdSelector);
       }
     }
 
@@ -337,7 +345,7 @@ function getWidgetElementToScroll(
 
     // If the widget is within a container, check if the container is scrollable
     if (checkContainerScrollable(containerWidget)) {
-      return document.getElementById(widgetId);
+      return document.getElementById(widgetIdSelector);
     } else {
       // If the container is not scrollable, scroll to the container itself
       return document.getElementById(containerId);
