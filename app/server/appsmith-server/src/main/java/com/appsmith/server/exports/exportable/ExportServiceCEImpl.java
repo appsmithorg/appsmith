@@ -131,6 +131,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 .map(transactionArtifact -> {
                     // Since we have moved the setting of artifactId from the repository, the MetaDTO needs to assigned
                     // from here
+                    exportingMetaDTO.setArtifactType(transactionArtifact.getClass());
                     exportingMetaDTO.setArtifactId(transactionArtifact.getId());
                     exportingMetaDTO.setBranchName(null);
                     exportingMetaDTO.setIsGitSync(isGitSync);
@@ -149,10 +150,13 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 .flatMap(exportableArtifact -> {
                     // Refactor exportableArtifact to remove the ids
                     // TODO rename the method
-                    contextBasedExportService.getArtifactReadyForExport(
-                            exportableArtifact, artifactExchangeJson, exportingMetaDTO);
-                    return getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, exportableArtifactMono, artifactExchangeJson)
+                    return contextBasedExportService
+                            .getArtifactReadyForExport(exportableArtifact, artifactExchangeJson, exportingMetaDTO)
+                            .then(Mono.defer(() -> getExportableEntities(
+                                    exportingMetaDTO,
+                                    mappedResourcesDTO,
+                                    exportableArtifactMono,
+                                    artifactExchangeJson)))
                             .then(Mono.defer(() -> sanitizeEntities(
                                     serialiseArtifactObjective,
                                     artifactExchangeJson,

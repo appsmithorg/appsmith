@@ -1,6 +1,5 @@
 import { fetchMockDatasources } from "actions/datasourceActions";
 import {
-  fetchGitRemoteStatusInit,
   fetchGitProtectedBranchesInit,
   fetchGitStatusInit,
   remoteUrlInputValue,
@@ -32,10 +31,7 @@ import {
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
-import {
-  getCurrentGitBranch,
-  getIsGitStatusLiteEnabled,
-} from "selectors/gitSyncSelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import PerformanceTracker, {
@@ -296,21 +292,12 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   private *loadGitInBackground() {
-    const isGitStatusLiteEnabled: boolean = yield select(
-      getIsGitStatusLiteEnabled,
-    );
-
     yield put(fetchBranchesInit());
     yield put(fetchGitProtectedBranchesInit());
     yield put(fetchGitProtectedBranchesInit());
     yield put(getGitMetadataInitAction());
 
-    if (isGitStatusLiteEnabled) {
-      yield put(fetchGitRemoteStatusInit());
-      yield put(fetchGitStatusInit({ compareRemote: false }));
-    } else {
-      yield put(fetchGitStatusInit({ compareRemote: true }));
-    }
+    yield put(fetchGitStatusInit({ compareRemote: true }));
 
     yield put(startAutocommitProgressPolling());
     yield put(resetPullMergeStatus());
