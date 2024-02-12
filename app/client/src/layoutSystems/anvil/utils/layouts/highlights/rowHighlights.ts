@@ -197,26 +197,27 @@ export function getHighlightsForRow(
 ): AnvilHighlightInfo[] {
   let highlights: AnvilHighlightInfo[] = [];
   let index = 0;
-  let draggedWidgetCount = 0;
-  let skipNextWidgetHighlight = false;
+  const draggedWidgetIndices: number[] = [];
   const tallestDimension = getDimensions(tallestWidget.widgetId);
 
   const layoutDimensions: LayoutElementPosition = getDimensions(
     layoutProps.layoutId,
   );
 
+  // Iterate through each widget in the row
   while (index < row.length) {
     const { widgetId } = row[index];
     const isDraggedWidget: boolean = draggedWidgets.some(
       (widget: DraggedWidget) => widget.widgetId === widgetId,
     );
 
+    // Get dimensions of the previous widget
     const prevWidgetDimensions: LayoutElementPosition | undefined =
       index === 0 ? undefined : row[index - 1];
+    const skipWidgetHighlight = draggedWidgetIndices.includes(index - 1);
 
-    // Don't add highlights for widget if it is being dragged.
-    if (!skipNextWidgetHighlight) {
-      // Add a highlight before every widget in the row
+    // Update highlights based on the widget's position and properties
+    if (!skipWidgetHighlight) {
       highlights = updateHighlights(
         highlights,
         isDraggedWidget
@@ -226,18 +227,19 @@ export function getHighlightsForRow(
         row[index],
         prevWidgetDimensions,
         tallestDimension,
-        index + startingIndex - draggedWidgetCount,
+        index + startingIndex - draggedWidgetIndices.length,
         false,
       );
-      skipNextWidgetHighlight = false;
     }
+
+    // Track indices of dragged widgets
     if (isDraggedWidget) {
-      draggedWidgetCount += 1;
-      skipNextWidgetHighlight = true;
+      draggedWidgetIndices.push(index);
     }
+
     index += 1;
 
-    // Add a highlight after the last widget in the row.
+    // Handle the last widget in the row that is not dragged
     if (index === row.length && !isDraggedWidget) {
       highlights = updateHighlights(
         highlights,
@@ -246,12 +248,14 @@ export function getHighlightsForRow(
         row[index - 1],
         prevWidgetDimensions,
         tallestDimension,
-        index + startingIndex - draggedWidgetCount,
+        index + startingIndex - draggedWidgetIndices.length,
         true,
       );
       break;
     }
   }
+
+  // Return the generated highlights for the row
   return highlights;
 }
 
