@@ -338,7 +338,7 @@ public class ExportServiceTests {
                         && throwable
                                 .getMessage()
                                 .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                        FieldName.APPLICATION, "invalidAppId")))
+                                        FieldName.APPLICATION_ID, "invalidAppId")))
                 .verify();
     }
 
