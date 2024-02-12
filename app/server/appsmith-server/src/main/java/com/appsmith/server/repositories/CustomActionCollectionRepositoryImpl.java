@@ -223,15 +223,15 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
                 default -> contextIdPath =
                         completeFieldName(QActionCollection.actionCollection.unpublishedCollection.pageId);
             }
+            // Add non-deleted criterion in for edit mode
+            Criteria deletedCriterion = where(
+                            completeFieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
+                    .is(null);
+            criteria.add(deletedCriterion);
         }
         Criteria contextIdAndContextTypeCriterion =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         criteria.add(contextIdAndContextTypeCriterion);
-
-        Criteria deletedCriterion = where(
-                        completeFieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
-                .is(null);
-        criteria.add(deletedCriterion);
 
         return queryBuilder()
                 .criteria(criteria)

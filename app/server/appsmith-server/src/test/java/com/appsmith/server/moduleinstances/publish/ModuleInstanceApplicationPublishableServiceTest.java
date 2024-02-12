@@ -8,6 +8,7 @@ import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ModuleInstanceDTO;
+import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
@@ -45,7 +46,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -212,10 +216,14 @@ public class ModuleInstanceApplicationPublishableServiceTest {
     @WithUserDetails(value = "api_user")
     @Test
     public void testApplicationRePublish_withModuleInstancesDeletedInEditMode_shouldDeleteTheEntireModuleInstance() {
-        // Create a module instance and publish the application
+        // Create a query module instance
         CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
                 moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
         ModuleInstanceDTO moduleInstanceDTO = createModuleInstanceResponseDTO.getModuleInstance();
+        // Create a JS module instance
+        CreateModuleInstanceResponseDTO createJSModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createJSModuleInstance(moduleInstanceTestHelperDTO, "MyJSModule1");
+        // Publish the application
         applicationPageService
                 .publish(moduleInstanceTestHelperDTO.getPageDTO().getApplicationId(), true)
                 .block();
@@ -269,8 +277,16 @@ public class ModuleInstanceApplicationPublishableServiceTest {
         crudModuleInstanceService
                 .deleteUnpublishedModuleInstance(moduleInstanceDTO.getId(), null)
                 .block();
-        ModuleInstance deletedInEditModeModuleInstance =
+        crudModuleInstanceService
+                .deleteUnpublishedModuleInstance(
+                        createJSModuleInstanceResponseDTO.getModuleInstance().getId(), null)
+                .block();
+
+        ModuleInstance deletedQueryModuleInstanceInEditModeModuleInstance =
                 moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
+        ModuleInstance deletedJSModuleInstanceInEditModeModuleInstance = moduleInstanceRepository
+                .findById(createJSModuleInstanceResponseDTO.getModuleInstance().getId())
+                .block();
 
         // Ensure that the module instance exists in view mode but not in edit mode
         List<ModuleInstanceDTO> moduleInstancesInViewMode = layoutModuleInstanceService
@@ -288,15 +304,50 @@ public class ModuleInstanceApplicationPublishableServiceTest {
                         null)
                 .block();
 
-        assertThat(moduleInstancesInViewMode).hasSize(1);
+        ModuleInstanceEntitiesDTO viewModeEntities = crudModuleInstanceService
+                .getAllEntities(moduleInstanceTestHelperDTO.getPageDTO().getId(), CreatorContextType.PAGE, null, true)
+                .block();
+
+        assertThat(moduleInstancesInViewMode).hasSize(2);
         assertThat(moduleInstancesInEditMode).hasSize(0);
+        assertThat(viewModeEntities.getActions()).hasSize(1);
+        assertThat(viewModeEntities.getJsCollections()).hasSize(2);
+
+        // Verify that entities are returned in view mode depite being deleted in edit mode
+        Set<String> moduleInsatnceIdSet =
+                moduleInstancesInViewMode.stream().map(mi -> mi.getId()).collect(Collectors.toSet());
+        Set<String> queryModuleInstanceIdSet = viewModeEntities.getActions().stream()
+                .map(actionViewDTO -> actionViewDTO.getModuleInstanceId())
+                .collect(Collectors.toSet());
+        Set<String> jsModuleInstanceIdSet1 = viewModeEntities.getJsCollections().stream()
+                .map(js -> js.getModuleInstanceId())
+                .collect(Collectors.toSet());
+        Set<String> jsModuleInstanceIdSet2 = viewModeEntities.getJsCollections().stream()
+                .flatMap(js -> js.getActions().stream())
+                .map(actionDTO -> actionDTO.getModuleInstanceId())
+                .collect(Collectors.toSet());
+        HashSet<String> combinedModuleInstanceIdSet = new HashSet<>(queryModuleInstanceIdSet);
+        combinedModuleInstanceIdSet.addAll(jsModuleInstanceIdSet1);
+        combinedModuleInstanceIdSet.addAll(jsModuleInstanceIdSet2);
+        assertThat(moduleInsatnceIdSet).isEqualTo(combinedModuleInstanceIdSet);
 
         // Assertions for deletion in edit mode
-        assertThat(deletedInEditModeModuleInstance
+        assertThat(deletedQueryModuleInstanceInEditModeModuleInstance
                         .getUnpublishedModuleInstance()
                         .getDeletedAt())
                 .isNotNull();
-        assertThat(deletedInEditModeModuleInstance.getPublishedModuleInstance().getDeletedAt())
+        assertThat(deletedQueryModuleInstanceInEditModeModuleInstance
+                        .getPublishedModuleInstance()
+                        .getDeletedAt())
+                .isNull();
+
+        assertThat(deletedJSModuleInstanceInEditModeModuleInstance
+                        .getUnpublishedModuleInstance()
+                        .getDeletedAt())
+                .isNotNull();
+        assertThat(deletedJSModuleInstanceInEditModeModuleInstance
+                        .getPublishedModuleInstance()
+                        .getDeletedAt())
                 .isNull();
 
         // Publish the application again to see if the module instance deleted in edit mode gets completely deleted
