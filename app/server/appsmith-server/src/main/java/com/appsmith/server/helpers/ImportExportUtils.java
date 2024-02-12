@@ -1,20 +1,20 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.transaction.TransactionException;
-import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
@@ -157,15 +157,20 @@ public class ImportExportUtils {
     }
 
     public static boolean isPageNameInUpdatedList(ApplicationJson applicationJson, String pageName) {
-        Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
-        if (updatedResources == null) {
+        ModifiedResources modifiedResources = applicationJson.getModifiedResources();
+        if (modifiedResources == null) {
             return false;
         }
-        Set<String> updatedPageNames = updatedResources.get(FieldName.PAGE_LIST);
-        if (CollectionUtils.isEmpty(updatedPageNames)) {
+        return pageName != null && modifiedResources.isResourceUpdated(FieldName.PAGE_LIST, pageName);
+    }
+
+    public static boolean isContextNameInUpdatedList(
+            ArtifactExchangeJson artifactExchangeJson, String contextName, String contextPath) {
+        ModifiedResources modifiedResources = artifactExchangeJson.getModifiedResources();
+        if (modifiedResources == null) {
             return false;
         }
-        return pageName != null && updatedPageNames.contains(pageName);
+        return contextName != null && modifiedResources.isResourceUpdated(contextPath, contextName);
     }
 
     public static boolean isDatasourceUpdatedSinceLastCommit(

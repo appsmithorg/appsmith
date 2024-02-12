@@ -106,7 +106,7 @@ public class CustomJSLibServiceCEImpl
 
                     return Mono.just(foundJSLib);
                 })
-                .map(CustomJSLibContextDTO::getDTOFromCustomJSLib); // */
+                .map(CustomJSLibContextDTO::getDTOFromCustomJSLib);
     }
 
     @Override
@@ -146,5 +146,14 @@ public class CustomJSLibServiceCEImpl
                     jsLibList.sort(Comparator.comparing(CustomJSLib::getUidString));
                     return jsLibList;
                 });
+    }
+
+    @Override
+    public Flux<CustomJSLib> getAllVisibleJSLibsInContext(
+            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
+        ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
+        return contextBasedService
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .flatMapMany(cake::findCustomJsLibsInContext);
     }
 }
