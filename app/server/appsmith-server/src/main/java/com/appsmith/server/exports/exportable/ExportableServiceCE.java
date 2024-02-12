@@ -6,6 +6,7 @@ import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
+import com.appsmith.server.exports.exportable.artifactbased.ArtifactBasedExportableService;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
@@ -14,11 +15,15 @@ import java.util.Set;
 
 public interface ExportableServiceCE<T extends BaseDomain> {
 
-    Mono<Void> getExportableEntities(
+    ArtifactBasedExportableService<T, ?> getArtifactBasedExportableService(ExportingMetaDTO exportingMetaDTO);
+
+    default Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<? extends ExportableArtifact> exportableArtifactMono,
-            ArtifactExchangeJson artifactExchangeJson);
+            ArtifactExchangeJson artifactExchangeJson) {
+        return Mono.empty().then();
+    }
 
     default Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
@@ -43,7 +48,9 @@ public interface ExportableServiceCE<T extends BaseDomain> {
             Boolean isContextAgnostic) {}
 
     default Set<String> mapNameToIdForExportableEntities(
-            MappedExportableResourcesDTO mappedExportableResourcesDTO, List<T> entityList) {
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedExportableResourcesDTO,
+            List<T> entityList) {
         return new HashSet<>();
     }
 }

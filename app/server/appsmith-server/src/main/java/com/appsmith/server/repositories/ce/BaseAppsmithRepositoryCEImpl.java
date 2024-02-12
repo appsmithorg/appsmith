@@ -12,10 +12,8 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
-import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.validation.constraints.NotNull;
@@ -38,7 +36,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -313,41 +310,21 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             List<String> projectionFieldNames,
             Set<String> permissionGroups,
             AclPermission aclPermission) {
-        Query query = new Query();
-        criterias.stream().forEach(criteria -> query.addCriteria(criteria));
-        if (aclPermission == null) {
-            query.addCriteria(new Criteria().andOperator(notDeleted()));
-        } else {
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, aclPermission)));
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
+        criteriaList.add(notDeleted());
+
+        final Criteria permissionCriteria = userAcl(permissionGroups, aclPermission);
+        if (permissionCriteria != null) {
+            criteriaList.add(permissionCriteria);
         }
 
+        final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+
         if (!isEmpty(projectionFieldNames)) {
-            projectionFieldNames.stream().forEach(fieldName -> query.fields().include(fieldName));
+            query.fields().include(projectionFieldNames.toArray(new String[0]));
         }
 
         return query;
-    }
-
-    public Flux<T> queryAllWithStrictPermissionGroups(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> permission,
-            Sort sort,
-            int limit,
-            int skip) {
-        Mono<Set<String>> permissionGroupsMono = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> getStrictPermissionGroupsForUser((User) principal));
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryBuilder()
-                .criteria(criterias)
-                .fields(includeFields.orElse(null))
-                .permission(permission.orElse(null))
-                .permissionGroups(permissionGroups)
-                .sort(sort)
-                .limit(limit)
-                .skip(skip)
-                .all());
     }
 
     public QueryAllParams<T> queryBuilder() {
@@ -356,19 +333,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public Flux<T> queryAllExecute(QueryAllParams<T> params) {
         return tryGetPermissionGroups(params).flatMapMany(permissionGroups -> {
-            final ArrayList<Criteria> criteriaList = new ArrayList<>(params.getCriteria());
-            criteriaList.add(notDeleted());
-
-            final Criteria permissionCriteria = userAcl(permissionGroups, params.getPermission());
-            if (permissionCriteria != null) {
-                criteriaList.add(permissionCriteria);
-            }
-
-            final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
-
-            if (!CollectionUtils.isEmpty(params.getFields())) {
-                query.fields().include(params.getFields().toArray(new String[0]));
-            }
+            final Query query = createQueryWithPermission(
+                    params.getCriteria(), params.getFields(), permissionGroups, params.getPermission());
 
             if (params.getSkip() > NO_SKIP) {
                 query.skip(params.getSkip());
@@ -566,9 +532,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         });
     }
 
-    public Mono<List<InsertManyResult>> bulkInsert(List<T> domainList) {
+    public Mono<Void> bulkInsert(List<T> domainList) {
         if (CollectionUtils.isEmpty(domainList)) {
-            return Mono.just(Collections.emptyList());
+            return Mono.empty();
         }
 
         // convert the list of domains to a list of DBObjects
@@ -583,12 +549,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(genericDomain))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
-                .collectList();
+                .collectList()
+                .then();
     }
 
-    public Mono<List<BulkWriteResult>> bulkUpdate(List<T> domainObjects) {
+    public Mono<Void> bulkUpdate(List<T> domainObjects) {
         if (CollectionUtils.isEmpty(domainObjects)) {
-            return Mono.just(Collections.emptyList());
+            return Mono.empty();
         }
 
         // convert the list of new actions to a list of DBObjects
@@ -607,6 +574,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(genericDomain))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();
+                .collectList()
+                .then();
     }
 }
