@@ -64,6 +64,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPROVAL_REQUESTS;
 import static com.appsmith.server.acl.AclPermission.RESOLVE_APPROVAL_REQUESTS;
 import static com.appsmith.server.constants.ApprovalRequestStatus.PENDING;
 import static com.appsmith.server.constants.FieldName.APPROVAL_REQUEST_ROLE_PREFIX;
+import static com.appsmith.server.constants.FieldName.REQUEST_NAME;
 import static com.appsmith.server.constants.FieldName.WORKFLOW;
 import static com.appsmith.server.constants.QueryParams.RESOLUTION;
 import static com.appsmith.server.constants.QueryParams.RESOLVED_BY;
@@ -563,70 +564,70 @@ class CrudApprovalRequestServiceTest {
         String approvalRequestRunId = "Run ID: " + testName;
 
         ApprovalRequestResponseDTO approvalRequestUser1Resolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 1,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 createdUser1,
                 null);
         ApprovalRequestResponseDTO approvalRequestUser1Unresolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 1,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 createdUser1,
                 null);
         ApprovalRequestResponseDTO approvalRequestUser2Resolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 2,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 createdUser2,
                 null);
         ApprovalRequestResponseDTO approvalRequestUser2Unresolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 2,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 createdUser2,
                 null);
         ApprovalRequestResponseDTO approvalRequestGroup1Resolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 3,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO1);
         ApprovalRequestResponseDTO approvalRequestGroup1Unresolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 3,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO1);
         ApprovalRequestResponseDTO approvalRequestGroup2Resolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 4,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO2);
         ApprovalRequestResponseDTO approvalRequestGroup2Unresolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 4,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO2);
         ApprovalRequestResponseDTO approvalRequestGroup3Resolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 5,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
                 null,
                 createdUserGroupDTO3);
         ApprovalRequestResponseDTO approvalRequestGroup3Unresolved = createTestApprovalRequest(
-                approvalRequestTitle,
+                approvalRequestTitle + 5,
                 approvalRequestMessage,
                 allowedResolutions,
                 approvalRequestRunId,
@@ -853,6 +854,28 @@ class CrudApprovalRequestServiceTest {
                 .isEqualTo(1);
         assertThat(approvalRequestPageCreatedUser2_resolvedByCreatedUser1Filter.getContent())
                 .hasSize(1);
+
+        MultiValueMap<String, String> approvalRequestTitle123Filter = new LinkedMultiValueMap<>();
+        approvalRequestTitle123Filter.add(REQUEST_NAME, approvalRequestTitle + 1);
+        approvalRequestTitle123Filter.add(REQUEST_NAME, approvalRequestTitle + 2);
+        approvalRequestTitle123Filter.add(REQUEST_NAME, approvalRequestTitle + 3);
+
+        PagedDomain<ApprovalRequestResponseDTO> approvalRequestPageCreatedUser1_approvalRequestTitle1Filter = runAs(
+                        crudApprovalRequestService.getPaginatedApprovalRequests(approvalRequestTitle123Filter),
+                        createdUser1,
+                        testName)
+                .block();
+
+        // Validations for User1
+        assertThat(approvalRequestPageCreatedUser1_approvalRequestTitle1Filter).isNotNull();
+        assertThat(approvalRequestPageCreatedUser1_approvalRequestTitle1Filter.getStartIndex())
+                .isEqualTo(0);
+        assertThat(approvalRequestPageCreatedUser1_approvalRequestTitle1Filter.getCount())
+                .isEqualTo(4);
+        assertThat(approvalRequestPageCreatedUser1_approvalRequestTitle1Filter.getTotal())
+                .isEqualTo(4);
+        assertThat(approvalRequestPageCreatedUser1_approvalRequestTitle1Filter.getContent())
+                .hasSize(4);
     }
 
     private ApprovalRequestResponseDTO createTestApprovalRequest(
