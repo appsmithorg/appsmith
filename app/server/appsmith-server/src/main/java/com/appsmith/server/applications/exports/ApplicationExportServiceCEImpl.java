@@ -20,6 +20,7 @@ import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
+import com.appsmith.server.exports.internal.artifactbased.ArtifactBasedExportServiceCE;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class ApplicationExportServiceCEImpl implements ApplicationExportServiceCE {
+public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServiceCE<Application, ApplicationJson> {
 
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
@@ -88,7 +89,7 @@ public class ApplicationExportServiceCEImpl implements ApplicationExportServiceC
                 .switchIfEmpty(
                         Mono.defer(() -> applicationService.findByIdAndExportWithConfiguration(artifactId, TRUE)))
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, artifactId)));
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, artifactId)));
     }
 
     @Override
