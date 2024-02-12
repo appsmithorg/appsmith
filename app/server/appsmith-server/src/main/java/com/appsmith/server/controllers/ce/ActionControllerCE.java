@@ -11,13 +11,12 @@ import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.opentelemetry.api.trace.Span;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,7 @@ public class ActionControllerCE {
     private final NewActionService newActionService;
     private final RefactoringService refactoringService;
     private final ActionExecutionSolution actionExecutionSolution;
-    private final OtlpTelemetry otlpTelemetry;
+    private final ObservationRegistry observationRegistry;
 
     @Autowired
     public ActionControllerCE(
@@ -57,12 +56,12 @@ public class ActionControllerCE {
             NewActionService newActionService,
             RefactoringService refactoringService,
             ActionExecutionSolution actionExecutionSolution,
-            OtlpTelemetry otlpTelemetry) {
+            ObservationRegistry observationRegistry) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
         this.refactoringService = refactoringService;
         this.actionExecutionSolution = actionExecutionSolution;
-        this.otlpTelemetry = otlpTelemetry;
+        this.observationRegistry = observationRegistry;
     }
 
     @JsonView(Views.Public.class)
@@ -97,9 +96,7 @@ public class ActionControllerCE {
             @RequestBody Flux<Part> partFlux,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
-            @RequestHeader(value = OtlpTelemetry.OTLP_HEADER_KEY, required = false) String traceparent,
             ServerWebExchange serverWebExchange) {
-        Span span = this.otlpTelemetry.startOtlpSpanFromTraceparent("action service execute", traceparent);
 
         return actionExecutionSolution
                 .executeAction(
@@ -107,8 +104,7 @@ public class ActionControllerCE {
                         branchName,
                         environmentId,
                         serverWebExchange.getRequest().getHeaders())
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null))
-                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(span));
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
     @JsonView(Views.Public.class)
