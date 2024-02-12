@@ -9,9 +9,10 @@ export const propertyPaneContentConfig = [
         propertyName: "buttonsList",
         controlType: "GROUP_BUTTONS",
         label: "Buttons",
+        allowSeparators: true,
+        dependencies: ["childStylesheet", "orientation"],
         isBindProperty: false,
         isTriggerProperty: false,
-        dependencies: ["childStylesheet"],
         panelConfig: {
           editableTitle: true,
           titlePropertyName: "label",
