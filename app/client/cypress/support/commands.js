@@ -1340,7 +1340,7 @@ Cypress.Commands.add("createSuperUser", () => {
     cy.get("#loading").should("not.exist");
     AppSidebar.assertVisible();
   }
-  
+
   cy.LogOut();
   cy.wait(2000);
 });
