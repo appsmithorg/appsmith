@@ -313,41 +313,21 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             List<String> projectionFieldNames,
             Set<String> permissionGroups,
             AclPermission aclPermission) {
-        Query query = new Query();
-        criterias.stream().forEach(criteria -> query.addCriteria(criteria));
-        if (aclPermission == null) {
-            query.addCriteria(new Criteria().andOperator(notDeleted()));
-        } else {
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, aclPermission)));
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
+        criteriaList.add(notDeleted());
+
+        final Criteria permissionCriteria = userAcl(permissionGroups, aclPermission);
+        if (permissionCriteria != null) {
+            criteriaList.add(permissionCriteria);
         }
 
+        final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+
         if (!isEmpty(projectionFieldNames)) {
-            projectionFieldNames.stream().forEach(fieldName -> query.fields().include(fieldName));
+            query.fields().include(projectionFieldNames.toArray(new String[0]));
         }
 
         return query;
-    }
-
-    public Flux<T> queryAllWithStrictPermissionGroups(
-            List<Criteria> criterias,
-            Optional<List<String>> includeFields,
-            Optional<AclPermission> permission,
-            Sort sort,
-            int limit,
-            int skip) {
-        Mono<Set<String>> permissionGroupsMono = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> getStrictPermissionGroupsForUser((User) principal));
-        return permissionGroupsMono.flatMapMany(permissionGroups -> queryBuilder()
-                .criteria(criterias)
-                .fields(includeFields.orElse(null))
-                .permission(permission.orElse(null))
-                .permissionGroups(permissionGroups)
-                .sort(sort)
-                .limit(limit)
-                .skip(skip)
-                .all());
     }
 
     public QueryAllParams<T> queryBuilder() {
@@ -356,19 +336,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public Flux<T> queryAllExecute(QueryAllParams<T> params) {
         return tryGetPermissionGroups(params).flatMapMany(permissionGroups -> {
-            final ArrayList<Criteria> criteriaList = new ArrayList<>(params.getCriteria());
-            criteriaList.add(notDeleted());
-
-            final Criteria permissionCriteria = userAcl(permissionGroups, params.getPermission());
-            if (permissionCriteria != null) {
-                criteriaList.add(permissionCriteria);
-            }
-
-            final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
-
-            if (!CollectionUtils.isEmpty(params.getFields())) {
-                query.fields().include(params.getFields().toArray(new String[0]));
-            }
+            final Query query = createQueryWithPermission(
+                    params.getCriteria(), params.getFields(), permissionGroups, params.getPermission());
 
             if (params.getSkip() > NO_SKIP) {
                 query.skip(params.getSkip());
