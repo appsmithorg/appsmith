@@ -29,4 +29,5 @@ export interface ButtonGroupItemComponentProps {
   iconName?: IconProps["name"];
   iconAlign?: ButtonProps["iconPosition"];
   onClick?: string;
+  itemType: "SEPARATOR" | "BUTTON";
 }

@@ -11,6 +11,7 @@ export const selectFeatureFlagCheck = (
   flagName: FeatureFlag,
 ): boolean => {
   const flagValues = selectFeatureFlags(state);
+
   if (flagName in flagValues) {
     return flagValues[flagName];
   }
