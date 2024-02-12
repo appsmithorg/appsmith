@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
+  GO_BACK,
   START_WITH_TEMPLATE_CONNECT_HEADING,
   START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
@@ -12,7 +13,13 @@ import {
   importTemplateToWorkspace,
   setActiveLoadingTemplateId,
 } from "actions/templateActions";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import {
+  Link,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "design-system";
 import { isEmpty } from "lodash";
 import { TemplateView } from "pages/Templates/TemplateView";
 import TemplatesListLayoutSwitcher from "pages/Templates/TemplatesModal/TemplatesListLayoutSwitcher";
@@ -108,15 +115,23 @@ function CreateNewAppFromTemplatesModal({
   return (
     <Modal onOpenChange={(open) => onClose(open)} open={isOpen}>
       <ModalContentWrapper data-testid="t--create-app-from-templates-dialog-component">
-        {!showTemplateDetails && (
-          <ModalHeader>
+        <ModalHeader>
+          {!showTemplateDetails ? (
             <StartWithTemplatesHeader
               isModalLayout
               subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
               title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
             />
-          </ModalHeader>
-        )}
+          ) : (
+            <Link
+              data-testid="t--template-view-goback"
+              onClick={() => setShowTemplateDetails("")}
+              startIcon="arrow-left-line"
+            >
+              {createMessage(GO_BACK)}
+            </Link>
+          )}
+        </ModalHeader>
         <ModalBodyWrapper
           isDetailedView={!!showTemplateDetails}
           ref={modadBodyRef}
@@ -127,6 +142,7 @@ function CreateNewAppFromTemplatesModal({
               handleSimilarTemplateClick={onTemplateClick}
               isModalLayout
               onClickUseTemplate={onClickUseTemplate}
+              showBack={false}
               showSimilarTemplate
               similarTemplatesClassName="!p-0"
               templateId={showTemplateDetails}
