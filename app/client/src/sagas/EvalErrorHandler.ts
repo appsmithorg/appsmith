@@ -81,6 +81,7 @@ function logLatestEvalPropertyErrors(
     const moduleInstanceErrors = getModuleInstanceInvalidErrors(
       entity,
       entityConfig,
+      propertyPath,
     );
 
     if (moduleInstanceErrors.length) {
