@@ -347,13 +347,12 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       username: uname,
       password: pword,
     },
-    timeout: 60000,
   });
 
   // Check if cookie is present
   cy.getCookie("SESSION").then((cookie) => {
     expect(cookie).to.not.be.null;
-    cy.log("cookie.value is: " + cookie.value);
+    //cy.log("cookie.value is: " + cookie.value);
 
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
@@ -368,9 +367,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       expect(loc.href).to.eq(loc.origin + "/applications");
     });
 
-    if (CURRENT_REPO === REPO.EE) {
-      cy.wait(2000);
-    } else {
+    if (CURRENT_REPO === REPO.CE) {
       assertHelper.AssertNetworkStatus("getAllWorkspaces");
       assertHelper.AssertNetworkStatus("getConsolidatedData");
     }
