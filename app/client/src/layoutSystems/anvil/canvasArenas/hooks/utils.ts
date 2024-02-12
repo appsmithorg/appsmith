@@ -239,10 +239,14 @@ export function getViableDropPositions(
 
   // Filter highlights that span the current mouse position vertically
   const verticalSelection = highlights.filter(
-    (highlight: AnvilHighlightInfo) =>
-      highlight.isVertical &&
-      position.y >= highlight.posY &&
-      position.y <= highlight.posY + highlight.height,
+    (highlight: AnvilHighlightInfo) => {
+      return (
+        highlight.isVertical &&
+        position.y >= highlight.posY + PaddingForHorizontalDropZone &&
+        position.y <=
+          highlight.posY + highlight.height - PaddingForHorizontalDropZone
+      );
+    },
   );
 
   // Filter highlights that span the current mouse position horizontally
