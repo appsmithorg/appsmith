@@ -13,6 +13,7 @@ import {
   importTemplateToWorkspace,
   setActiveLoadingTemplateId,
 } from "actions/templateActions";
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
   Link,
   Modal,
@@ -32,6 +33,7 @@ import {
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { StartWithTemplatesHeader } from "../StartWithTemplatesWrapper";
 
 interface CreateNewAppFromTemplatesModalProps {
@@ -100,13 +102,26 @@ function CreateNewAppFromTemplatesModal({
     return template;
   };
 
-  const onTemplateClick = (id: string) => {
-    !loadingTemplateId && setShowTemplateDetails(id);
+  const onTemplateClick = (template: TemplateInterface | string) => {
+    if (typeof template === "string") {
+      template = getTemplateById(template) as TemplateInterface;
+    }
+    if (!template) return;
+
+    AnalyticsUtil.logEvent("TEMPLATE_SELECT_NEW_APP_FLOW", {
+      templateId: template.id,
+      templateName: template.title,
+    });
+    !loadingTemplateId && setShowTemplateDetails(template.id);
   };
 
   const onClickUseTemplate = (templateId: string) => {
     const template = getTemplateById(templateId);
     if (template) {
+      AnalyticsUtil.logEvent("FORK_TEMPLATE_NEW_APP_FLOW", {
+        templateId: template.id,
+        templateName: template.title,
+      });
       dispatch(setActiveLoadingTemplateId(templateId));
       dispatch(importTemplateToWorkspace(templateId, currentWorkSpaceId));
     }

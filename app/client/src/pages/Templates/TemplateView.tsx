@@ -126,7 +126,7 @@ interface TemplateViewProps {
   showSimilarTemplate?: boolean;
   templateId: string;
   handleBackPress?: () => void;
-  handleSimilarTemplateClick?: (templateId: string) => void;
+  handleSimilarTemplateClick?: (templateId: TemplateInterface) => void;
   similarTemplatesClassName?: string;
 }
 
@@ -176,7 +176,7 @@ export function TemplateView({
       },
     });
     handleSimilarTemplateClick
-      ? handleSimilarTemplateClick(template.id)
+      ? handleSimilarTemplateClick(template)
       : history.push(templateIdUrl({ id: template.id }));
   };
 
