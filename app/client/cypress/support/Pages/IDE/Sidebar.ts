@@ -1,4 +1,3 @@
-import { ObjectsRegistry } from "../../Objects/Registry";
 export class Sidebar {
   buttons: string[];
   locators = {
@@ -23,9 +22,7 @@ export class Sidebar {
     );
   }
 
-  assertVisible() {
-    ObjectsRegistry.AggregateHelper.AssertElementVisibility(
-      this.locators.sidebar,
-    );
+  assertVisible(timeout?: number) {
+    cy.get(this.locators.sidebar, { timeout }).should("be.visible");
   }
 }

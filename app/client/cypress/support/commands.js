@@ -1334,7 +1334,7 @@ Cypress.Commands.add("createSuperUser", () => {
   }
 
   if (CURRENT_REPO === REPO.CE) {
-    agHelper.AssertElementAbsence("#loading", Cypress.config().pageLoadTimeout);
+    cy.get("#loading").should("not.exist");
     AppSidebar.assertVisible();
   }
   cy.LogOut();
