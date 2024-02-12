@@ -98,6 +98,7 @@ function TemplatesModal() {
             />
           ) : (
             <TemplatesListLayoutSwitcher
+              analyticsEventNameForTemplateCardClick="TEMPLATE_ADD_PAGE_FROM_TEMPLATE_FLOW"
               isStartWithTemplateFlow={templatesModalInfo.isOpenFromCanvas}
               onTemplateClick={onTemplateClick}
             />

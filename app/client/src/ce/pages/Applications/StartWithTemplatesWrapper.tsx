@@ -5,7 +5,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { Template } from "api/TemplatesApi";
 import { Flex, Text } from "design-system";
-import StartWithTemplates from "pages/Templates/StartWithTemplates";
+import TemplatesLayoutWithFilters from "pages/Templates/TemplatesLayoutWithFilters";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getForkableWorkspaces } from "selectors/templatesSelectors";
@@ -30,7 +30,8 @@ const StartWithTemplatesWrapper = ({
         title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
       />
       <TemplateWrapper>
-        <StartWithTemplates
+        <TemplatesLayoutWithFilters
+          analyticsEventNameForTemplateCardClick="CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING"
           isForkingEnabled={!!workspaceList.length}
           onForkTemplateClick={onForkTemplateClick}
           setSelectedTemplate={setSelectedTemplate}

@@ -1,11 +1,13 @@
+import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import { CANVAS_STARTER_TEMPLATES_SEE_MORE_BUILDING_BLOCKS_PRE_FILTER } from "constants/TemplatesConstants";
 import { Flex } from "design-system";
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import StartWithTemplates from "../StartWithTemplates";
+import TemplatesLayoutWithFilters from "../TemplatesLayoutWithFilters";
 
 interface Props {
+  analyticsEventNameForTemplateCardClick: EventName;
   isForkingEnabled?: boolean;
   isStartWithTemplateFlow?: boolean;
   onTemplateClick: (id: string) => void;
@@ -13,6 +15,7 @@ interface Props {
 }
 
 const TemplatesListLayoutSwitcher = ({
+  analyticsEventNameForTemplateCardClick,
   isForkingEnabled = false,
   isStartWithTemplateFlow,
   onForkTemplateClick,
@@ -33,7 +36,10 @@ const TemplatesListLayoutSwitcher = ({
   return (
     <Flex flexDirection="column">
       <TemplateWrapper>
-        <StartWithTemplates
+        <TemplatesLayoutWithFilters
+          analyticsEventNameForTemplateCardClick={
+            analyticsEventNameForTemplateCardClick
+          }
           initialFilters={initFilters}
           isForkingEnabled={isForkingEnabled}
           isModalLayout

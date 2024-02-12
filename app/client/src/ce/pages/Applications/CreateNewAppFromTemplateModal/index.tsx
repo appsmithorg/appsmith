@@ -102,7 +102,7 @@ function CreateNewAppFromTemplatesModal({
     return template;
   };
 
-  const onTemplateClick = (template: TemplateInterface | string) => {
+  const handleSimilarTemplateClick = (template: TemplateInterface) => {
     if (typeof template === "string") {
       template = getTemplateById(template) as TemplateInterface;
     }
@@ -112,7 +112,12 @@ function CreateNewAppFromTemplatesModal({
       templateId: template.id,
       templateName: template.title,
     });
-    !loadingTemplateId && setShowTemplateDetails(template.id);
+    onTemplateClick(template);
+  };
+
+  const onTemplateClick = (template: TemplateInterface | string) => {
+    const templateId = typeof template === "string" ? template : template.id;
+    !loadingTemplateId && setShowTemplateDetails(templateId);
   };
 
   const onClickUseTemplate = (templateId: string) => {
@@ -154,7 +159,7 @@ function CreateNewAppFromTemplatesModal({
           {!!showTemplateDetails ? (
             <TemplateView
               handleBackPress={() => setShowTemplateDetails("")}
-              handleSimilarTemplateClick={onTemplateClick}
+              handleSimilarTemplateClick={handleSimilarTemplateClick}
               isModalLayout
               onClickUseTemplate={onClickUseTemplate}
               showBack={false}
@@ -164,6 +169,7 @@ function CreateNewAppFromTemplatesModal({
             />
           ) : (
             <TemplatesListLayoutSwitcher
+              analyticsEventNameForTemplateCardClick="TEMPLATE_SELECT_NEW_APP_FLOW"
               isForkingEnabled
               onForkTemplateClick={onClickUseTemplate}
               onTemplateClick={onTemplateClick}
