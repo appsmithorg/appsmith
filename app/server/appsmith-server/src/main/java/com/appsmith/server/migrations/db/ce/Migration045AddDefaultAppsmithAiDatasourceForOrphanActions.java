@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -67,7 +66,6 @@ public class Migration045AddDefaultAppsmithAiDatasourceForOrphanActions {
                 if (workspaceToDatasourceMap.containsKey(workspaceId)) {
                     newAction.getUnpublishedAction().setDatasource(workspaceToDatasourceMap.get(workspaceId));
                     newAction.getPublishedAction().setDatasource(workspaceToDatasourceMap.get(workspaceId));
-                    newAction.setUpdatedAt(Instant.now());
                     mongoTemplate.save(newAction);
                 } else {
                     Query datasourceQuery = new Query();
@@ -79,14 +77,11 @@ public class Migration045AddDefaultAppsmithAiDatasourceForOrphanActions {
                         datasource.setName(DEFAULT_APPSMITH_AI_DATASOURCE);
                         datasource.setPluginId(pluginId);
                         datasource.setWorkspaceId(workspaceId);
-                        datasource.setCreatedAt(Instant.now());
-                        datasource.setUpdatedAt(Instant.now());
                         datasource = mongoTemplate.insert(datasource);
                     }
                     workspaceToDatasourceMap.put(workspaceId, datasource);
                     newAction.getUnpublishedAction().setDatasource(datasource);
                     newAction.getPublishedAction().setDatasource(datasource);
-                    newAction.setUpdatedAt(Instant.now());
                     mongoTemplate.save(newAction);
                 }
             });
