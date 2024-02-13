@@ -21,7 +21,7 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
         props.widgetType,
       )} t--widget-${props.widgetName.toLowerCase()} drop-target-${
         props.layoutId
-      } row-index-${props.rowIndex} anvil-widget-wrapper`,
+      } row-index-${props.rowIndex}`,
     [
       props.parentId,
       props.widgetId,
