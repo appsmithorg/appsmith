@@ -5,7 +5,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
@@ -35,6 +34,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -110,28 +110,28 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(workspaceId);
-                    return getDefaultContextId(contextType, contextId, branchName)
-                            .map(defaultContextId ->
-                                    associateContextIdToActionDTO(action1, contextType, defaultContextId));
+                    return getBranchedContextId(contextType, contextId, branchName)
+                            .flatMap(branchedContextId ->
+                                    associateContextIdToActionDTO(action1, contextType, branchedContextId));
                 })
                 .flatMap(action2 -> layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
-    protected Mono<String> getDefaultContextId(CreatorContextType contextType, String contextId, String branchName) {
+    protected Mono<String> getBranchedContextId(CreatorContextType contextType, String contextId, String branchName) {
         return newPageService
                 .findByBranchNameAndDefaultPageId(branchName, contextId, pagePermission.getActionCreatePermission())
                 .map(NewPage::getId);
     }
 
-    protected ActionDTO associateContextIdToActionDTO(
+    protected Mono<ActionDTO> associateContextIdToActionDTO(
             ActionDTO actionDTO, CreatorContextType contextType, String contextId) {
         actionDTO.setPageId(contextId);
-        // Set git related resource IDs
-        DefaultResources defaultResources = new DefaultResources();
-        defaultResources.setPageId(contextId);
-        actionDTO.setDefaultResources(defaultResources);
-        return actionDTO;
+        return newPageService.findById(contextId, Optional.empty()).map(newPage -> {
+            // Set git related resource IDs
+            actionDTO.setDefaultResources(newPage.getDefaultResources());
+            return actionDTO;
+        });
     }
 
     public ActionDTO curlToAction(String command, String name) throws AppsmithException {
