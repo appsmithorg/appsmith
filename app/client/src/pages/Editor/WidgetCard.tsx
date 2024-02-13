@@ -25,6 +25,7 @@ export const Wrapper = styled.div`
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
+
   img {
     cursor: grab;
   }
@@ -60,7 +61,8 @@ export const BetaLabel = styled.div`
 `;
 
 const ICON_SIZE = 24;
-const THUMBNAIL_SIZE = 64;
+const THUMBNAIL_HEIGHT = 76;
+const THUMBNAIL_WIDTH = 72;
 
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
@@ -97,8 +99,8 @@ function WidgetCard(props: CardProps) {
     >
       <div className="gap-2 mt-2">
         <IconWrapper
-          height={props.details.thumbnail ? THUMBNAIL_SIZE : ICON_SIZE}
-          width={props.details.thumbnail ? THUMBNAIL_SIZE : ICON_SIZE}
+          height={props.details.thumbnail ? THUMBNAIL_HEIGHT : ICON_SIZE}
+          width={props.details.thumbnail ? THUMBNAIL_WIDTH : ICON_SIZE}
         >
           <img src={props.details.thumbnail ?? props.details.icon} />
         </IconWrapper>
