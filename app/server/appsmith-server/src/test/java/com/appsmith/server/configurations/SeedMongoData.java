@@ -26,10 +26,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
@@ -135,7 +133,7 @@ public class SeedMongoData {
                 .map(Tenant::getId)
                 .cache();
 
-        Flux<User> userFlux = Flux.just(userData)
+        Mono<Void> userFlux = Flux.just(userData)
                 .zipWith(defaultTenantId.repeat())
                 .flatMap(tuple -> {
                     Object[] array = tuple.getT1();
@@ -164,42 +162,26 @@ public class SeedMongoData {
                         return userRepository.save(updatedWithPolicies);
                     });
                 })
+                .map(User::getId)
                 .collectList()
-                .zipWith(defaultTenantId)
-                .flatMapMany(tuple -> {
-                    List<User> users = tuple.getT1();
-                    String tenantId = tuple.getT2();
-
-                    Mono<PermissionGroup> bulkAssignDefaultPermissionGroupMono = configRepository
-                            .findByName(DEFAULT_USER_PERMISSION_GROUP)
-                            .flatMap(defaultRoleConfig -> {
-                                JSONObject config = defaultRoleConfig.getConfig();
-                                String defaultPermissionGroup =
-                                        (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
-                                /*
-                                   We use retrieveById instead of findById because findById tries to get the logged in user's
-                                   principal object before querying the DB. Since we are running this code in SeedMongo, there
-                                   is no logged in user. Hence, we use retrieveById which simply queries the DB to fetch
-                                   non-deleted object with the given ID parameter.
-                                */
-                                return permissionGroupRepository.findById(defaultPermissionGroup);
-                            })
-                            .flatMap(defaultPermissionGroup -> {
-                                Set<String> userIds =
-                                        users.stream().map(User::getId).collect(Collectors.toSet());
-                                defaultPermissionGroup.getAssignedToUserIds().addAll(userIds);
-                                return permissionGroupRepository.save(defaultPermissionGroup);
-                            });
-
-                    Flux<User> updatedUsersWithTenantId = Flux.fromIterable(users)
-                            .map(user -> {
-                                user.setTenantId(tenantId);
-                                log.debug("Creating user: {}", user);
-                                return user;
-                            });
-
-                    return bulkAssignDefaultPermissionGroupMono.thenMany(updatedUsersWithTenantId);
-                });
+                .flatMapMany(userIds -> configRepository
+                        .findByName(DEFAULT_USER_PERMISSION_GROUP)
+                        .flatMap(defaultRoleConfig -> {
+                            JSONObject config = defaultRoleConfig.getConfig();
+                            String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
+                            /*
+                               We use retrieveById instead of findById because findById tries to get the logged in user's
+                               principal object before querying the DB. Since we are running this code in SeedMongo, there
+                               is no logged in user. Hence, we use retrieveById which simply queries the DB to fetch
+                               non-deleted object with the given ID parameter.
+                            */
+                            return permissionGroupRepository.findById(defaultPermissionGroup);
+                        })
+                        .flatMap(defaultPermissionGroup -> {
+                            defaultPermissionGroup.getAssignedToUserIds().addAll(userIds);
+                            return permissionGroupRepository.save(defaultPermissionGroup);
+                        }))
+                .then();
 
         return args -> {
             Mono.when(workspaceRepository.deleteAll(), pluginFlux, userFlux).block();
