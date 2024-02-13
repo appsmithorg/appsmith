@@ -217,21 +217,18 @@ export function getHighlightsForRow(
     const skipWidgetHighlight = draggedWidgetIndices.includes(index - 1);
 
     // Update highlights based on the widget's position and properties
-    if (!skipWidgetHighlight) {
-      highlights = updateHighlights(
-        highlights,
-        isDraggedWidget
-          ? { ...baseHighlight, existingPositionHighlight: true }
-          : baseHighlight,
-        layoutDimensions,
-        row[index],
-        prevWidgetDimensions,
-        tallestDimension,
-        index + startingIndex - draggedWidgetIndices.length,
-        false,
-      );
-    }
-
+    highlights = updateHighlights(
+      highlights,
+      isDraggedWidget || skipWidgetHighlight
+        ? { ...baseHighlight, existingPositionHighlight: true }
+        : baseHighlight,
+      layoutDimensions,
+      row[index],
+      prevWidgetDimensions,
+      tallestDimension,
+      index + startingIndex - draggedWidgetIndices.length,
+      false,
+    );
     // Track indices of dragged widgets
     if (isDraggedWidget) {
       draggedWidgetIndices.push(index);

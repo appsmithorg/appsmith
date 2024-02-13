@@ -273,26 +273,23 @@ export function getHighlightsForWidgets(
           const skipHighlightBeforeWidget = draggedWidgetIndices.includes(
             index - 1,
           );
-
-          if (!skipHighlightBeforeWidget) {
-            /**
-             * Add a highlight before the widget
-             */
-            temp = updateHighlights(
-              temp,
-              isDraggedWidget
-                ? { ...baseHighlight, existingPositionHighlight: true }
-                : baseHighlight,
-              childCount,
-              alignment as FlexLayerAlignment,
-              layoutProps.layoutId,
-              dimension,
-              currentDimension,
-              tallestDimension,
-              prevDimension,
-              false,
-            );
-          }
+          /**
+           * Add a highlight before the widget
+           */
+          temp = updateHighlights(
+            temp,
+            isDraggedWidget || skipHighlightBeforeWidget
+              ? { ...baseHighlight, existingPositionHighlight: true }
+              : baseHighlight,
+            childCount,
+            alignment as FlexLayerAlignment,
+            layoutProps.layoutId,
+            dimension,
+            currentDimension,
+            tallestDimension,
+            prevDimension,
+            false,
+          );
 
           if (!isDraggedWidget) {
             childCount += 1;
