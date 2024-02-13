@@ -217,15 +217,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
                 .flatMap(this::executePreSaveActions)
-                .flatMap(unsavedDatasourceStorage -> {
-                    return repository.save(unsavedDatasourceStorage).map(datasourceStorage1 -> {
-                        // datasourceStorage.pluginName is a transient field. It was set by validateDatasource method
-                        // object from db will have pluginName=null so set it manually from the unsaved
-                        // datasourceStorage obj
-                        datasourceStorage1.setPluginName(unsavedDatasourceStorage.getPluginName());
-                        return datasourceStorage1;
-                    });
-                });
+                .flatMap(unsavedDatasourceStorage ->
+                        repository.save(unsavedDatasourceStorage).thenReturn(unsavedDatasourceStorage));
     }
 
     @Override

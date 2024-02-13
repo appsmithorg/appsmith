@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 public class ExportingMetaDTO {
-    Class<?> artifactType;
+    String artifactType;
     String artifactId;
     String branchName;
     Boolean isGitSync;

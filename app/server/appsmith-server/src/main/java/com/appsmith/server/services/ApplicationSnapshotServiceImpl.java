@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.exports.exportable.ExportService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;

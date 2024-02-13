@@ -268,6 +268,17 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
         }
     }
 
+    @JsonView(Views.Internal.class)
+    @Override
+    public GitArtifactMetadata getGitArtifactMetadata() {
+        return this.gitApplicationMetadata;
+    }
+
+    @Override
+    public String getUnpublishedThemeId() {
+        return this.getEditModeThemeId();
+    }
+
     @Override
     public void sanitiseToExportDBObject() {
         this.setWorkspaceId(null);
