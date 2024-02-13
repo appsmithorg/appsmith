@@ -8,15 +8,10 @@ import { useLocation } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isElementVisible } from "./utils";
 import { hideIndicator } from "components/utils/Indicator";
-import store from "store";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-
-const state = store.getState();
-const isTurnOffWalkthroughFlagSet = selectFeatureFlagCheck(
-  state,
-  FEATURE_FLAG.rollout_remove_feature_walkthrough_enabled,
-);
+import { useSelector } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
 
 const WalkthroughRenderer = lazy(async () => {
   return retryPromise(
@@ -35,8 +30,15 @@ export default function Walkthrough({ children }: any) {
   const [feature, setFeature] = useState<FeatureParams[]>([]);
   const location = useLocation();
 
+  const isWalkthroughDisabled = useSelector((state: AppState) =>
+    selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.rollout_remove_feature_walkthrough_enabled,
+    ),
+  );
+
   const pushFeature = (value: FeatureParams, prioritize = false) => {
-    if (isTurnOffWalkthroughFlagSet) {
+    if (!isWalkthroughDisabled || !!value?.forceExecution) {
       const alreadyExists = feature.some((f) => f.targetId === value.targetId);
       if (!alreadyExists) {
         const _value = Array.isArray(value) ? [...value] : [value];
