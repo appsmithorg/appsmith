@@ -92,7 +92,6 @@ class UserLog {
       triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "";
     const propertyPath = triggerMeta?.triggerPropertyName || "";
     const id = triggerMeta?.source?.id || "";
-    //@ts-expect-error : we are not using the source entity in the console
     return { type, name, id, propertyPath };
   };
 
