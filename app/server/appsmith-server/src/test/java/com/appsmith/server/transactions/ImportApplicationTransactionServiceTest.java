@@ -11,8 +11,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.importable.ImportableService;
-import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -57,7 +57,7 @@ import static org.mockito.ArgumentMatchers.any;
 public class ImportApplicationTransactionServiceTest {
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -142,8 +142,9 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
-                createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importService
+                .importNewArtifactInWorkspaceFromJson(createdWorkspace.getId(), applicationJson)
+                .map(importableArtifact -> (Application) importableArtifact);
 
         // Check  if expected exception is thrown
         StepVerifier.create(resultMono)
@@ -174,8 +175,9 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
-                createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importService
+                .importNewArtifactInWorkspaceFromJson(createdWorkspace.getId(), applicationJson)
+                .map(importableArtifact -> (Application) importableArtifact);
 
         // Check  if expected exception is thrown
         StepVerifier.create(resultMono)
