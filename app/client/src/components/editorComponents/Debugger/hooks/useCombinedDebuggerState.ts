@@ -56,7 +56,7 @@ export const useCombinedDebuggerState = (
     }
   }, [ideViewMode, localState]);
 
-  // When is full screen mode, look for changes in debugger state;
+  // When in full screen mode, look for changes in debugger state;
   useEffect(() => {
     if (ideViewMode === EditorViewMode.FullScreen) {
       dispatch(

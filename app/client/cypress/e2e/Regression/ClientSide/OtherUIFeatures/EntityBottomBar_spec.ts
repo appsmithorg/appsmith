@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
 import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
-describe("Entity bottom bar", () => {
+describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
   it("1. Debugger should be closable", () => {
     //Verify if bottom bar is closed.
     _.debuggerHelper.AssertClosed();
