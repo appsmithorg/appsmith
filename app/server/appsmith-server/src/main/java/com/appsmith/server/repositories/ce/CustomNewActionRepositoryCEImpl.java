@@ -46,9 +46,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
         return queryBuilder()
-                .criteria(applicationIdCriteria)
+                .spec(Bridge.conditioner().equal(fieldName(QNewAction.newAction.applicationId), applicationId))
                 .permission(aclPermission)
                 .all();
     }

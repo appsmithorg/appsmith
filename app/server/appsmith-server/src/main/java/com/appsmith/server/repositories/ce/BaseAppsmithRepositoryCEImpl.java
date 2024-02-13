@@ -340,7 +340,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @SneakyThrows
     public List<T> queryAllExecute(QueryAllParams<T> params, BaseRepository<T, String> actualRepo) {
         if (!params.getCriteria().isEmpty()) {
-            throw new RuntimeException("Querying with criteria, instead of specifications!");
+            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
+            e.printStackTrace(); // We're eating up the exception in some places, so let's print it out for
+            // debugging ourselvse.
+            throw e;
         }
 
         if (!params.getQuerydslExpressions().isEmpty()) {

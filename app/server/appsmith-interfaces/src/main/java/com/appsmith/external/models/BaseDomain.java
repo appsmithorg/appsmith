@@ -39,7 +39,6 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
-    @Column(unique = true, nullable = false)
     protected String id;
 
     @JsonView(Views.Internal.class)
@@ -64,7 +63,7 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
-    protected Set<Policy> policies;
+    protected Set<Policy> policies = new HashSet<>();
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
@@ -76,6 +75,7 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
     public void preSave() {
         setPolicyMap(PolicyMap.fromPolicies(policies));
         if (id == null) {
+            // TODO: Use custom generation strategy instead of this.
             setId(UUID.randomUUID().toString());
         }
     }
@@ -127,7 +127,7 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
      */
     public void updateForBulkWriteOperation() {
         if (this.getId() == null) {
-            // this.setId(new ObjectId().toString());
+            this.setId(UUID.randomUUID().toString());
         }
         if (this.getCreatedAt() == null) {
             this.setCreatedAt(Instant.now());
