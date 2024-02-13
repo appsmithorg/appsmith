@@ -9,7 +9,11 @@ import { theme } from "constants/DefaultTheme";
 import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
-import { getCanvasWidth, getCurrentPageName } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getCurrentPageName,
+  getIsAutoLayout,
+} from "selectors/editorSelectors";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import {
@@ -20,13 +24,14 @@ import { builderURL } from "@appsmith/RouteBuilder";
 import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
 import equal from "fast-deep-equal/es6";
 
-const Section = styled.section`
+const Section = styled.section<{ $contain: string }>`
   height: 100%;
   width: 100%;
   margin: 0 auto;
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
+  contain: ${({ $contain }) => $contain};
 `;
 
 type AppViewerPageContainerProps = RouteComponentProps<AppViewerRouteParams>;
@@ -37,6 +42,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   const canvasWidth = useSelector(getCanvasWidth);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentApplication = useSelector(getCurrentApplication);
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const { match } = props;
 
   // get appsmith editr link
@@ -91,7 +97,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
     return pageNotFound;
 
   return (
-    <Section>
+    <Section $contain={isAutoLayout ? "content" : "strict"}>
       <AppPage
         appName={currentApplication?.name}
         canvasWidth={canvasWidth}
