@@ -16,7 +16,7 @@ export const PLATFORM_ERROR = {
   JS_FUNCTION_EXECUTION: "JS_FUNCTION_EXECUTION",
 };
 
-export type PlatformErrorTypeValue = ValueOf<typeof ENTITY_TYPE>;
+export type PlatformErrorTypeValue = ValueOf<typeof PLATFORM_ERROR>;
 
 export const getModuleInstanceInvalidErrors = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
