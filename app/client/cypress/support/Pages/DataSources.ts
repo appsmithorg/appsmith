@@ -89,6 +89,7 @@ export class DataSources {
   _activeDS = "[data-selected='true']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
+  _bindDataButton = "[data-testid=t--bind-data]";
   _addSuggestedExisting = "t--suggested-widget-existing";
   _addSuggestedAddNew = "t--suggested-widget-add-new";
   _templateMenuOption = (action: string) =>
@@ -204,9 +205,9 @@ export class DataSources {
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
 
   private _suggestedWidget = (widgetType: string, parentClass: string) =>
-    "//div[contains(@class, '" +
+    "//div[contains(@data-testid, '" +
     parentClass +
-    "')]//div[contains(@class, 't--suggested-widget-" +
+    "')]//div[contains(@data-testid, 't--suggested-widget-" +
     widgetType +
     "')]";
 
@@ -1634,12 +1635,17 @@ export class DataSources {
     );
   }
 
+  public AssertBindDataVisible() {
+    cy.get(this._bindDataButton).should("be.visible");
+  }
+
   public AddSuggestedWidget(
     widget: Widgets,
     parentClass = this._addSuggestedAddNew,
     force = false,
     index = 0,
   ) {
+    cy.get(this._bindDataButton).should("be.visible").click({ force: true });
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(
