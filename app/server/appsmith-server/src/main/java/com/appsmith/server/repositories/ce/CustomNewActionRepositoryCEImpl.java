@@ -625,7 +625,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
         return queryBuilder()
-                .criteria(List.of(applicationIdCriteria, deletedFromUnpublishedCriteria))
+                .criteria(applicationIdCriteria, deletedFromUnpublishedCriteria)
                 .permission(permission)
                 .update(update);
     }
@@ -675,10 +675,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
-        return queryBuilder()
-                .criteria(criteriaList)
-                .permission(Optional.ofNullable(permission).orElse(null))
-                .all();
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 
     @Override
@@ -703,9 +700,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
-        return queryBuilder()
-                .criteria(criteriaList)
-                .permission(Optional.ofNullable(permission).orElse(null))
-                .all();
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 }

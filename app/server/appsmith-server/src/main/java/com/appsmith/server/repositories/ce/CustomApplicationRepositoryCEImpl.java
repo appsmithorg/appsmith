@@ -380,7 +380,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Update unsetProtected = new Update().set(isProtectedFieldPath, false);
 
         return queryBuilder()
-                .criteria(List.of(defaultApplicationIdCriteria))
+                .criteria(defaultApplicationIdCriteria)
                 .permission(permission)
                 .update(unsetProtected);
     }
@@ -408,7 +408,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Update setProtected = new Update().set(isProtectedFieldPath, true);
 
         return queryBuilder()
-                .criteria(List.of(defaultApplicationIdCriteria, branchMatchCriteria))
+                .criteria(defaultApplicationIdCriteria, branchMatchCriteria)
                 .permission(permission)
                 .update(setProtected);
     }
