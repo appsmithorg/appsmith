@@ -2,6 +2,7 @@ import {
   agHelper,
   apiPage,
   assertHelper,
+  dataManager,
   deployMode,
   entityExplorer,
   entityItems,
@@ -49,7 +50,7 @@ describe(
       //apiPage.RunAPI();
 
       apiPage.CreateAndFillApi(
-        "https://randomuser.me/api/",
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
         "RandomUser",
         30000,
       );
@@ -192,13 +193,20 @@ describe(
         "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
         "Genderize",
         30000,
+        "GET",
+        false,
+        false,
       );
       apiPage.ValidateQueryParams({
         key: "name",
         value: "{{RandomUser.data.results[0].name.first}}",
       }); // verifies Bug 10055
 
-      deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
+      deployMode.DeployApp(
+        locators._widgetInDeployed("textwidget"),
+        false,
+        false,
+      );
       assertHelper.AssertNetworkStatus("@getConsolidatedData");
 
       cy.get("@getConsolidatedData").then(($response: any) => {

@@ -138,4 +138,13 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     return jsLibList;
                 });
     }
+
+    @Override
+    public Flux<CustomJSLib> getAllVisibleJSLibsInContext(
+            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
+        ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
+        return contextBasedService
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .flatMapMany(repository::findCustomJsLibsInContext);
+    }
 }
