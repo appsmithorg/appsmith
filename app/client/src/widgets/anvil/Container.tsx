@@ -22,7 +22,7 @@ const StyledContainerComponent = styled.div<
 
   ${(props) =>
     props.elevatedBackground
-      ? `background: var(--color-bg-elevation-${props.elevation}); box-shadow: var(--box-shadow-${props.elevation});`
+      ? `background: var(--color-bg-elevation-${props.elevation}); `
       : ""}
 
   border-radius: var(--border-radius-1);

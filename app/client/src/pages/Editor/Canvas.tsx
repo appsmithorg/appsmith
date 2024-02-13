@@ -37,6 +37,7 @@ const Wrapper = styled.section<{
   $enableMainCanvasResizer: boolean;
 }>`
   flex: 1;
+  contain: content;
   background: ${({ background }) => background};
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};

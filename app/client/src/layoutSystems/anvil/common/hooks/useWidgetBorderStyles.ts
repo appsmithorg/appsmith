@@ -38,12 +38,8 @@ export function useWidgetBorderStyles(widgetId: string) {
   const canShowBorder = !shouldHideBorder && (isFocused || isSelected);
 
   return {
-    border: `1px solid ${canShowBorder ? Colors.GREY_1 : "transparent"}`,
-    outline: `1px solid ${canShowBorder ? Colors.GREY_1 : "transparent"}`,
-    outlineOffset: "1px",
-    borderRadius: "4px 0px 4px 4px",
-    boxShadow: `0px 0px 0px 1px ${
-      canShowBorder ? boxShadowColor : "transparent"
-    }`,
+    border: `2px solid ${canShowBorder ? boxShadowColor : "transparent"}`,
+    borderRadius:
+      "var(--border-radius-1) 0px var(--border-radius-1) var(--border-radius-1)",
   };
 }
