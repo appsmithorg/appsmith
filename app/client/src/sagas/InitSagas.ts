@@ -224,7 +224,6 @@ export function* getInitResponses({
     {
       applicationId,
       defaultPageId: pageId,
-      mode,
     },
     identity,
   );
@@ -270,7 +269,7 @@ export function* getInitResponses({
       );
 
       Sentry.captureMessage(
-        `consolidated api failure for ${JSON.stringify(
+        `consolidated api failure for mode=${mode} ${JSON.stringify(
           params,
         )} errored message response ${e}`,
       );
