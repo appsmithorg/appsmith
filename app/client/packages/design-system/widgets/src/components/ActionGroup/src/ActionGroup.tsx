@@ -60,6 +60,9 @@ const _ActionGroup = <T extends object>(
           {...others}
         >
           {children.map((item) => {
+            if (Boolean(item.props.isSeparator))
+              return <div data-separator="" />;
+
             return (
               <ActionGroupItem
                 color={color}
@@ -83,7 +86,9 @@ const _ActionGroup = <T extends object>(
               <IconButton color={color} icon="dots" variant={variant} />
               <MenuList>
                 {menuChildren.map((item) => (
-                  <Item key={item.key}>{item.rendered}</Item>
+                  <Item isSeparator={item.props.isSeparator} key={item.key}>
+                    {item.rendered}
+                  </Item>
                 ))}
               </MenuList>
             </Menu>
