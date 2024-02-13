@@ -9,9 +9,9 @@ import { lightTheme } from "selectors/themeSelectors";
 import store from "store";
 import { MainContainerWidthToggles } from "./MainContainerWidthToggles";
 
-function navigateWithArrowKeys(key: string, noOfPresses: number) {
+async function navigateWithArrowKeys(key: string, noOfPresses: number) {
   for (let i = 0; i < noOfPresses; i++) {
-    userEvent.keyboard(key);
+    await userEvent.keyboard(key);
   }
 }
 
@@ -24,9 +24,9 @@ describe("<MainContainerWidthToggles />", () => {
     </ThemeProvider>
   );
 
-  it("Pressing tab should focus on the first component", () => {
+  it("Pressing tab should focus on the first component", async () => {
     const { container } = render(getTestComponent());
-    userEvent.tab();
+    await userEvent.tab();
 
     // Should focus on the first component
     const tab = container.getElementsByClassName(
@@ -35,21 +35,21 @@ describe("<MainContainerWidthToggles />", () => {
     expect(tab).toHaveFocus();
   });
 
-  it("{ArrowRight} should focus the next item", () => {
+  it("{ArrowRight} should focus the next item", async () => {
     const { container } = render(getTestComponent());
     const tabs = container.getElementsByClassName(
       "ads-v2-segmented-control__segments-container",
     );
-    userEvent.tab();
+    await userEvent.tab();
 
-    navigateWithArrowKeys("{ArrowRight}", 1);
+    await navigateWithArrowKeys("{ArrowRight}", 1);
     expect(tabs[1]).toHaveFocus();
 
     // Focus back on the first element
-    userEvent.keyboard("{ArrowLeft}");
+    await userEvent.keyboard("{ArrowLeft}");
 
     // Arrow Right after the last item should focus the first item again
-    navigateWithArrowKeys("{ArrowRight}", tabs.length);
+    await navigateWithArrowKeys("{ArrowRight}", tabs.length);
     expect(tabs[0]).toHaveFocus();
   });
 
@@ -59,13 +59,13 @@ describe("<MainContainerWidthToggles />", () => {
       "ads-v2-segmented-control__segments-container",
     );
 
-    userEvent.tab();
+    await userEvent.tab();
 
     // Arrow Left on the First item should focus on the last item
-    navigateWithArrowKeys("{ArrowLeft}", 1);
+    await navigateWithArrowKeys("{ArrowLeft}", 1);
     expect(tabs[tabs.length - 1]).toHaveFocus();
 
-    navigateWithArrowKeys("{ArrowLeft}", tabs.length - 1);
+    await navigateWithArrowKeys("{ArrowLeft}", tabs.length - 1);
 
     expect(tabs[0]).toHaveFocus();
   });

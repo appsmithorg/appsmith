@@ -96,8 +96,13 @@ export function useActionGroup<T>(
           if (calculatedSize <= containerSize) {
             newVisibleItems++;
           } else {
+            const isSeparator = item.hasAttribute("data-separator");
+
             // check whether the truncated button will fit container
-            if (calculatedSize - itemWidth + minInlineSize <= containerSize) {
+            if (
+              !isSeparator &&
+              calculatedSize - itemWidth + minInlineSize <= containerSize
+            ) {
               newVisibleItems++;
             }
             break;
