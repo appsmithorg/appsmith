@@ -26,20 +26,19 @@ export function useWidgetBorderStyles(widgetId: string) {
     return {};
   }
 
-  let boxShadowColor = "transparent";
+  let borderColor = "transparent";
   if (isFocused) {
-    boxShadowColor = Colors.WATUSI;
+    borderColor = Colors.WATUSI;
   }
   if (isSelected) {
-    boxShadowColor = "#F86A2B";
+    borderColor = "#F86A2B";
   }
   const shouldHideBorder =
     isDragging || isCanvasResizing || isDistributingSpace;
   const canShowBorder = !shouldHideBorder && (isFocused || isSelected);
 
   return {
-    border: `2px solid ${canShowBorder ? boxShadowColor : "transparent"}`,
-    borderRadius:
-      "var(--border-radius-1) 0px var(--border-radius-1) var(--border-radius-1)",
+    border: `2px solid ${canShowBorder ? borderColor : "transparent"}`,
+    borderRadius: "4px 0 4px 4px",
   };
 }
