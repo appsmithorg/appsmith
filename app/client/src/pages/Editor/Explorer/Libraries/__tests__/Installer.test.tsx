@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import { Provider } from "react-redux";
 import store from "store";
@@ -48,7 +48,6 @@ describe("Contains all UI tests for JS libraries", () => {
     type: ReduxActionTypes.TOGGLE_INSTALLER,
     payload: true,
   });
-  afterEach(cleanup);
 
   it("Headers should exist", () => {
     render(
@@ -80,7 +79,7 @@ describe("Contains all UI tests for JS libraries", () => {
     expect(screen.getByTestId("install-library-btn")).toBeEnabled();
     expect(screen.queryByText("Please enter a valid URL")).toBeNull();
     fireEvent.change(input, { target: { value: "23" } });
-    expect(screen.queryByText("Please enter a valid URL")).toBeDefined();
+    expect(screen.getByText("Please enter a valid URL")).toBeDefined();
     expect(screen.getByTestId("install-library-btn")).toBeDisabled();
   });
 
@@ -113,6 +112,7 @@ describe("Contains all UI tests for JS libraries", () => {
     fireEvent.click(installButton);
 
     expect(
+      // eslint-disable-next-line testing-library/prefer-presence-queries
       screen.queryByText(
         `Installing library for ${fetchApplicationMockResponse.data.application.name}`,
       ),
@@ -136,6 +136,7 @@ describe("Contains all UI tests for JS libraries", () => {
     });
 
     expect(
+      // eslint-disable-next-line testing-library/prefer-presence-queries
       screen.queryByText(
         `Installing library for ${fetchApplicationMockResponse.data.application.name}`,
       ),
