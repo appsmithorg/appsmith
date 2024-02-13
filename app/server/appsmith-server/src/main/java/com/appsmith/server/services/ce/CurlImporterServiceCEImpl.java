@@ -110,20 +110,21 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(workspaceId);
-                    return getContextId(contextType, contextId, branchName)
-                            .map(contextId1 -> associateContextToActionDTO(action1, contextType, contextId1));
+                    return getDefaultContextId(contextType, contextId, branchName)
+                            .map(defaultContextId ->
+                                    associateContextIdToActionDTO(action1, contextType, defaultContextId));
                 })
                 .flatMap(action2 -> layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
-    protected Mono<String> getContextId(CreatorContextType contextType, String contextId, String branchName) {
+    protected Mono<String> getDefaultContextId(CreatorContextType contextType, String contextId, String branchName) {
         return newPageService
                 .findByBranchNameAndDefaultPageId(branchName, contextId, pagePermission.getActionCreatePermission())
                 .map(NewPage::getId);
     }
 
-    protected ActionDTO associateContextToActionDTO(
+    protected ActionDTO associateContextIdToActionDTO(
             ActionDTO actionDTO, CreatorContextType contextType, String contextId) {
         actionDTO.setPageId(contextId);
         // Set git related resource IDs
