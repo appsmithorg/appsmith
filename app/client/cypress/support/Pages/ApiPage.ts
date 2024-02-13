@@ -15,7 +15,7 @@ export class ApiPage {
 
   // private datasources = ObjectsRegistry.DataSources;
 
-  private _createapi = ".t--createBlankApiCard";
+  _createapi = ".t--createBlankApiCard";
   _resourceUrl = ".t--dataSourceField";
   private _headerKey = (index: number) =>
     ".t--actionConfiguration\\.headers\\[" +
