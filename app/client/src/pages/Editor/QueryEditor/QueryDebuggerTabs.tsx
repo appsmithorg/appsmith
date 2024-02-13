@@ -34,7 +34,6 @@ import { DatasourceStructureContext } from "entities/Datasource";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
 import { actionResponseDisplayDataFormats } from "../utils";
-import { useCombinedDebuggerState } from "components/editorComponents/Debugger/hooks/useCombinedDebuggerState";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
@@ -81,9 +80,8 @@ function QueryDebuggerTabs({
   const panelRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
 
-  const { open, responseTabHeight, selectedTab } = useCombinedDebuggerState(
+  const { open, responseTabHeight, selectedTab } = useSelector(
     getQueryPaneDebuggerState,
-    setQueryPaneDebuggerState,
   );
 
   const { responseDisplayFormat } =

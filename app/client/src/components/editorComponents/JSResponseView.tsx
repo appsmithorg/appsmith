@@ -45,7 +45,6 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
-import { useCombinedDebuggerState } from "./Debugger/hooks/useCombinedDebuggerState";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import ErrorLogs from "./Debugger/Errors";
@@ -296,9 +295,8 @@ function JSResponseView(props: Props) {
   }
 
   // get the selected tab from the store.
-  const { open, responseTabHeight, selectedTab } = useCombinedDebuggerState(
+  const { open, responseTabHeight, selectedTab } = useSelector(
     getJsPaneDebuggerState,
-    setJsPaneDebuggerState,
   );
 
   // set the selected tab in the store.

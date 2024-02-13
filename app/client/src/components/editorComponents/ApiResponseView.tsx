@@ -51,7 +51,6 @@ import { EMPTY_RESPONSE } from "./emptyResponse";
 import BindDataButton from "../../pages/Editor/QueryEditor/BindDataButton";
 import { setApiPaneDebuggerState } from "actions/apiPaneActions";
 import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
-import { useCombinedDebuggerState } from "./Debugger/hooks/useCombinedDebuggerState";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
@@ -307,9 +306,8 @@ function ApiResponseView(props: Props) {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const errorCount = useSelector(getErrorCount);
-  const { open, responseTabHeight, selectedTab } = useCombinedDebuggerState(
+  const { open, responseTabHeight, selectedTab } = useSelector(
     getApiPaneDebuggerState,
-    setApiPaneDebuggerState,
   );
 
   const ideViewMode = useSelector(getIDEViewMode);
