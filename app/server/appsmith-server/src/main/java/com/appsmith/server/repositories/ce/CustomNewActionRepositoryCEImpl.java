@@ -624,7 +624,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Update update = new Update();
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
-        return updateByCriteria(List.of(applicationIdCriteria, deletedFromUnpublishedCriteria), update, permission);
+        return queryBuilder()
+                .criteria(List.of(applicationIdCriteria, deletedFromUnpublishedCriteria))
+                .permission(permission)
+                .update(update);
     }
 
     @Override

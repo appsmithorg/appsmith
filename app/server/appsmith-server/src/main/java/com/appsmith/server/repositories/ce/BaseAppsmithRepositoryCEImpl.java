@@ -17,6 +17,7 @@ import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -236,46 +238,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 });
     }
 
-    public Mono<UpdateResult> updateById(String id, Update updateObj, AclPermission permission) {
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-        if (updateObj == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-        return updateById(id, updateObj, Optional.ofNullable(permission));
-    }
-
-    public Mono<UpdateResult> updateById(String id, Update updateObj, Optional<AclPermission> permission) {
-        Query query = new Query(Criteria.where("id").is(id));
-
-        if (permission.isEmpty()) {
-            return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
-        }
-
-        return getCurrentUserPermissionGroupsIfRequired(permission, true).flatMap(permissionGroups -> {
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission.get())));
-            return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
-        });
-    }
-
-    public Mono<UpdateResult> updateByCriteria(
-            List<Criteria> criteriaList, UpdateDefinition updateObj, AclPermission permission) {
-        if (criteriaList == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "criteriaList"));
-        }
-        if (updateObj == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "updateObj"));
-        }
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission), true);
-
-        return permissionGroupsMono.flatMap(permissionGroups -> {
-            Query queryWithPermission = createQueryWithPermission(criteriaList, permissionGroups, permission);
-            return mongoOperations.updateMulti(queryWithPermission, updateObj, this.genericDomain);
-        });
-    }
-
     protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
         return getCurrentUserPermissionGroupsIfRequired(permission, true);
     }
@@ -380,6 +342,21 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .flatMap(permissionGroups -> mongoOperations.count(
                         createQueryWithPermission(params.getCriteria(), permissionGroups, params.getPermission()),
                         this.genericDomain));
+    }
+
+    public Mono<UpdateResult> updateExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
+        Objects.requireNonNull(params.getCriteria());
+
+        if (!isEmpty(params.getFields())) {
+            // Specifying fields to update doesn't make any sense, so explicitly disallow it.
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "fields"));
+        }
+
+        return tryGetPermissionGroups(params).flatMap(permissionGroups -> {
+            Query query =
+                    createQueryWithPermission(params.getCriteria(), null, permissionGroups, params.getPermission());
+            return mongoOperations.updateMulti(query, update, genericDomain);
+        });
     }
 
     private Mono<Set<String>> tryGetPermissionGroups(QueryAllParams<T> params) {
