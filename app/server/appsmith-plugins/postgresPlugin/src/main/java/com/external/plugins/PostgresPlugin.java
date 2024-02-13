@@ -1187,22 +1187,35 @@ public class PostgresPlugin extends BasePlugin {
                 break;
 
             case VERIFY_CA:
-                config.addDataSourceProperty("ssl", "true");
-                config.addDataSourceProperty("sslmode", "verify-ca");
-                config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
-                config.addDataSourceProperty("clientCertString", "base64encodedcert");
-                config.addDataSourceProperty("clientKeyString", "privateKey");
-                config.addDataSourceProperty("serverCACertString", "base64encodedcert");
-
-                break;
-
             case VERIFY_FULL:
                 config.addDataSourceProperty("ssl", "true");
-                config.addDataSourceProperty("sslmode", "verify-full");
+                if (sslAuthType == SSLDetails.AuthType.VERIFY_FULL) {
+                    config.addDataSourceProperty("sslmode", "verify-full");
+                } else {
+                    config.addDataSourceProperty("sslmode", "verify-ca");
+                }
                 config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
-                config.addDataSourceProperty("clientCertString", "base64encodedcert");
-                config.addDataSourceProperty("clientKeyString", "privateKey");
-                config.addDataSourceProperty("serverCACertString", "base64encodedcert");
+                config.addDataSourceProperty(
+                        "clientCertString",
+                        datasourceConfiguration
+                                .getConnection()
+                                .getSsl()
+                                .getClientCertificateFile()
+                                .getBase64Content());
+                config.addDataSourceProperty(
+                        "clientKeyString",
+                        datasourceConfiguration
+                                .getConnection()
+                                .getSsl()
+                                .getClientKeyFile()
+                                .getBase64Content());
+                config.addDataSourceProperty(
+                        "serverCACertString",
+                        datasourceConfiguration
+                                .getConnection()
+                                .getSsl()
+                                .getRootCertificateFile()
+                                .getBase64Content());
 
                 break;
 

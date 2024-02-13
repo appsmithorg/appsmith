@@ -67,6 +67,7 @@ public class SSLDetails implements AppsmithDomain {
 
     UploadedFile caCertificateFile;
 
+    // For Mutual TLS of datasource integration
     UploadedFile clientCertificateFile;
 
     UploadedFile clientKeyFile;
