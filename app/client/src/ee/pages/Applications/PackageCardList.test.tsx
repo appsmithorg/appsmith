@@ -109,7 +109,7 @@ describe("PackageCardList", () => {
       </ThemeProvider>,
     );
 
-    expect(await screen.queryByText("Packages")).not.toBeInTheDocument();
+    expect(screen.queryByText("Packages")).not.toBeInTheDocument();
   });
 
   it("should not render anything if isFetchingPackages is true", async () => {
@@ -131,7 +131,7 @@ describe("PackageCardList", () => {
       </ThemeProvider>,
     );
 
-    expect(await screen.queryByText("Packages")).not.toBeInTheDocument();
+    expect(screen.queryByText("Packages")).not.toBeInTheDocument();
   });
 
   it("should not render anything manage package permission is missing", async () => {
@@ -156,7 +156,7 @@ describe("PackageCardList", () => {
       </ThemeProvider>,
     );
 
-    expect(await screen.queryByText("Packages")).not.toBeInTheDocument();
+    expect(screen.queryByText("Packages")).not.toBeInTheDocument();
   });
 
   it("should render packages when flag is enabled, fetching and creating package is false and manage permission is true", async () => {
@@ -178,6 +178,6 @@ describe("PackageCardList", () => {
       </ThemeProvider>,
     );
 
-    expect(await screen.queryByText("Packages")).toBeInTheDocument();
+    expect(screen.getByText("Packages")).toBeInTheDocument();
   });
 });

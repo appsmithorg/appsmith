@@ -75,8 +75,8 @@ describe("<UserListing />", () => {
   });
   it("should navigate to user edit page on click of username", async () => {
     renderComponent();
-    const userEditLink = await screen.queryAllByTestId("user-listing-userCell");
-    await fireEvent.click(userEditLink[0]);
+    const userEditLink = screen.queryAllByTestId("user-listing-userCell");
+    fireEvent.click(userEditLink[0]);
     expect(window.location.pathname).toBe(`/settings/users/${allUsers[0].id}`);
   });
   it("should expand on show more and collapse on show less", () => {
@@ -101,7 +101,7 @@ describe("<UserListing />", () => {
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const options = listMenuItems.map((menuItem: any) => menuItem.text);
     const menuElements = options
       .map((option: string) => getAllByText(option))
@@ -113,9 +113,9 @@ describe("<UserListing />", () => {
   it("should navigate to edit page when Edit menu option is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const editOption = getAllByTestId("t--edit-menu-item");
-    await fireEvent.click(editOption[0]);
+    fireEvent.click(editOption[0]);
     expect(window.location.pathname).toEqual(
       `/settings/users/${allUsers[0].id}`,
     );
@@ -147,7 +147,7 @@ describe("<UserListing />", () => {
     const groups = screen.queryAllByText("techak@appsmith.com");
     expect(groups).toHaveLength(1);
 
-    await fireEvent.change(searchInput[0], { target: { value: "sangy123" } });
+    fireEvent.change(searchInput[0], { target: { value: "sangy123" } });
     expect(searchInput[0]).toHaveValue("sangy123");
     expect(spy).toBeCalled();
     expect(spy).toHaveBeenLastCalledWith({ searchTerm: "SANGY123" });
@@ -157,16 +157,19 @@ describe("<UserListing />", () => {
     let user = queryByText(allUsers[0].username);
     expect(user).toBeInTheDocument();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
-    await fireEvent.click(deleteOption[0]);
-    waitFor(async () => {
+    fireEvent.click(deleteOption[0]);
+    // eslint-disable-next-line testing-library/await-async-utils
+    waitFor(() => {
       const confirmText = getAllByTestId("t--delete-menu-item");
       expect(confirmText[0]).toHaveTextContent("Are you sure?");
-      await fireEvent.dblClick(deleteOption[0]);
+      // eslint-disable-next-line testing-library/no-wait-for-side-effects
+      fireEvent.dblClick(deleteOption[0]);
       user = queryByText(allUsers[0].username);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(user).not.toBeInTheDocument();
     });
   });
@@ -184,7 +187,7 @@ describe("<UserListing />", () => {
     expect(user).toBeInTheDocument();
     const moreMenu = queryAllByTestId("actions-cell-menu-icon");
     expect(moreMenu).toHaveLength(3);
-    await fireEvent.click(moreMenu[1]);
+    fireEvent.click(moreMenu[1]);
     const deleteOption = queryAllByTestId("t--delete-menu-item");
     const editOption = queryAllByTestId("t--edit-menu-item");
 

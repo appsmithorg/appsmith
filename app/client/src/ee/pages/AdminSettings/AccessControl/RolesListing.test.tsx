@@ -55,7 +55,7 @@ function renderComponent() {
 const toggleDefaultRoles = async () => {
   const toggleWrapper = screen.getByTestId("t--toggle-wrapper");
   const toggleInput = toggleWrapper.getElementsByTagName("input")[0];
-  await fireEvent.click(toggleInput);
+  fireEvent.click(toggleInput);
 };
 
 describe("<RoleListing />", () => {
@@ -94,7 +94,7 @@ describe("<RoleListing />", () => {
   it("should navigate to role edit page on click of role name", async () => {
     renderComponent();
     const roleEditLink = screen.getAllByTestId("t--roles-cell");
-    await fireEvent.click(roleEditLink[0]);
+    fireEvent.click(roleEditLink[0]);
     expect(window.location.pathname).toBe(
       `/settings/roles/${rolesTableData[0].id}`,
     );
@@ -123,7 +123,7 @@ describe("<RoleListing />", () => {
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const options = listMenuItems.map((menuItem: any) => menuItem.text);
     const menuElements = options
       .map((option: string) => getAllByText(option))
@@ -135,9 +135,9 @@ describe("<RoleListing />", () => {
   it("should navigate to role edit page when Edit list menu option is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const editOption = getAllByTestId("t--edit-menu-item");
-    await fireEvent.click(editOption[0]);
+    fireEvent.click(editOption[0]);
     expect(window.location.pathname).toEqual(
       `/settings/roles/${rolesTableData[0].id}`,
     );
@@ -150,7 +150,7 @@ describe("<RoleListing />", () => {
     const groups = screen.queryAllByText("HR_Appsmith");
     expect(groups).toHaveLength(1);
 
-    await fireEvent.change(searchInput[0], { target: { value: "devops" } });
+    fireEvent.change(searchInput[0], { target: { value: "devops" } });
     expect(searchInput[0]).toHaveValue("devops");
 
     const searched = screen.queryAllByText("devops_design");
@@ -171,11 +171,13 @@ describe("<RoleListing />", () => {
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
+    // eslint-disable-next-line testing-library/await-async-utils
     waitFor(async () => {
       const confirmText = getAllByTestId("t--delete-menu-item");
       expect(confirmText[0]).toHaveTextContent("Are you sure?");
       await userEvent.dblClick(deleteOption[0]);
       role = queryByText(rolesTableData[0].name);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(role).not.toBeInTheDocument();
     });
   });
@@ -216,7 +218,7 @@ describe("<RoleListing />", () => {
     expect(role).toBeInTheDocument();
     const moreMenu = queryAllByTestId("actions-cell-menu-icon");
     expect(moreMenu).toHaveLength(6);
-    await fireEvent.click(moreMenu[2]);
+    fireEvent.click(moreMenu[2]);
     const deleteOption = queryAllByTestId("t--delete-menu-item");
     const editOption = queryAllByTestId("t--edit-menu-item");
 

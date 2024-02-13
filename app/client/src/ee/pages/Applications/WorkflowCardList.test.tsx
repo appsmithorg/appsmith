@@ -105,7 +105,7 @@ describe("WorkflowCardList", () => {
         </Provider>
       </ThemeProvider>,
     );
-    expect(await screen.queryByText("Workflows")).not.toBeInTheDocument();
+    expect(screen.queryByText("Workflows")).not.toBeInTheDocument();
   });
 
   it("should not render anything if isFetchingWorkflows is true", async () => {
@@ -126,7 +126,7 @@ describe("WorkflowCardList", () => {
         </Provider>
       </ThemeProvider>,
     );
-    expect(await screen.queryByText("Workflows")).not.toBeInTheDocument();
+    expect(screen.queryByText("Workflows")).not.toBeInTheDocument();
   });
 
   it("should render workflow list", () => {

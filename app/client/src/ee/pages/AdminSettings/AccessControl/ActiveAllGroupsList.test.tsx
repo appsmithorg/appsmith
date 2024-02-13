@@ -119,13 +119,14 @@ describe("<ActiveAllGroupsList />", () => {
     const searchInput = getAllByTestId("t--acl-search-input");
     const tabs = getAllByRole("tab");
     const rolesTab = tabs[1];
-    userEvent.click(rolesTab);
-    await fireEvent.change(searchInput[0], { target: { value: "devops" } });
+    await userEvent.click(rolesTab);
+    fireEvent.change(searchInput[0], { target: { value: "devops" } });
 
     await waitFor(() => {
       const activeGroups = getAllByTestId("t--active-group-row");
       expect(activeGroups).toHaveLength(1);
       const searchedActive = getAllByTestId("t--highlighted-text");
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(searchedActive[0]).toHaveTextContent("devops");
       activeGroups.forEach((group: HTMLElement) => {
         expect(group).not.toHaveTextContent("marketing_nov");
@@ -137,6 +138,7 @@ describe("<ActiveAllGroupsList />", () => {
       const allGroups = getAllByTestId("t--all-group-row");
       expect(allGroups).toHaveLength(1);
       const searchedActive = getAllByTestId("t--highlighted-text");
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(searchedActive[0]).toHaveTextContent("devops");
       allGroups.forEach((group: HTMLElement) => {
         expect(group).not.toHaveTextContent("Administrator");

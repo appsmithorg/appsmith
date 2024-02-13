@@ -112,6 +112,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
@@ -119,7 +120,7 @@ describe("WorkspaceAction", () => {
         </Provider>
       </ThemeProvider>,
     );
-    expect(screen.queryByText("Create new")).toBeInTheDocument();
+    expect(screen.getByText("Create new")).toBeInTheDocument();
   });
 
   it("should render the EE action button when only the showQueryModule is enabled", () => {
@@ -136,6 +137,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
@@ -145,7 +147,7 @@ describe("WorkspaceAction", () => {
     );
 
     expect(screen.queryByText("New")).not.toBeInTheDocument();
-    expect(screen.queryByText("Create new")).toBeInTheDocument();
+    expect(screen.getByText("Create new")).toBeInTheDocument();
   });
 
   it("should render the EE action button when only workflows are enabled", () => {
@@ -161,6 +163,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
@@ -170,7 +173,7 @@ describe("WorkspaceAction", () => {
     );
 
     expect(screen.queryByText("New")).not.toBeInTheDocument();
-    expect(screen.queryByText("Create new")).toBeInTheDocument();
+    expect(screen.getByText("Create new")).toBeInTheDocument();
   });
 
   it("it should be in a loading state when package is creating", () => {
@@ -186,6 +189,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
@@ -214,6 +218,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
@@ -241,6 +246,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
@@ -269,6 +275,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
@@ -311,6 +318,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={onCreateNewAppMock}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
@@ -350,6 +358,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
@@ -393,6 +402,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={workspaces[0]}
             workspaceId={workspaces[0].id}
@@ -436,6 +446,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={workspaces[0]}
             workspaceId={workspaces[0].id}
@@ -479,6 +490,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={workspaces[0]}
             workspaceId={workspaces[0].id}
@@ -519,6 +531,7 @@ describe("WorkspaceAction", () => {
             enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            onStartFromTemplate={jest.fn()}
             setSelectedWorkspaceIdForImportApplication={jest.fn()}
             workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}

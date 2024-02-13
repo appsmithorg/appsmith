@@ -68,7 +68,7 @@ describe("<RoleAddEdit />", () => {
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const options = listMenuItems.map((menuItem: any) => menuItem.text);
     const menuElements = options
       .map((option: string) => getAllByText(option))
@@ -81,7 +81,7 @@ describe("<RoleAddEdit />", () => {
     renderComponent();
     let titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
-    await fireEvent.click(titleEl[0]);
+    fireEvent.click(titleEl[0]);
     titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
     expect(titleEl[0]).not.toHaveTextContent("New Role name");
@@ -96,12 +96,12 @@ describe("<RoleAddEdit />", () => {
   it("should show input box on role name on clicking rename menu item and save new name", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
 
     let titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
     const renameOption = getAllByTestId("t--rename-menu-item");
-    await fireEvent.click(renameOption[0]);
+    fireEvent.click(renameOption[0]);
     titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
     expect(titleEl[0]).not.toHaveTextContent("New Role name");
@@ -121,19 +121,21 @@ describe("<RoleAddEdit />", () => {
     expect(titleEl).toHaveLength(0);
     const renameOption = getAllByTestId("t--rename-desc-menu-item");
     await userEvent.click(renameOption[0]);
+    // eslint-disable-next-line testing-library/await-async-utils
     waitFor(async () => {
       titleEl = document.getElementsByClassName("t--editable-description");
       expect(titleEl).toHaveLength(1);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(titleEl[0]).not.toHaveTextContent(
         "This is dummy description for this role.",
       );
 
       const inputEl = titleEl[0].getElementsByTagName("textarea")[0];
       await userEvent.type(inputEl, "This is dummy description for this role.");
-      // await userEvent.keyboard("{Shift>}{enter}");
       titleEl = document.getElementsByClassName("t--editable-description");
-      // expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(titleEl[0]).toHaveTextContent(
         "This is dummy description for this role.",
       );
@@ -170,15 +172,17 @@ describe("<RoleAddEdit />", () => {
     );
     expect(tabCount).toHaveLength(0);
 
-    await fireEvent.change(searchInput[0], { target: { value: "chart" } });
+    fireEvent.change(searchInput[0], { target: { value: "chart" } });
     expect(searchInput[0]).toHaveValue("chart");
 
+    // eslint-disable-next-line testing-library/await-async-utils
     waitFor(async () => {
-      const highlighted = await screen.getAllByTestId("t--highlighted-text");
+      const highlighted = screen.getAllByTestId("t--highlighted-text");
       expect(highlighted).toHaveLength(3);
       const tabCount = document.getElementsByClassName(
         "ads-v2-tabs__list-tab-count",
       );
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(tabCount).toHaveLength(1);
     });
   });
@@ -187,7 +191,7 @@ describe("<RoleAddEdit />", () => {
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(Object.keys(response1.tabs).length);
     if (tabs.length > 0) {
-      userEvent.click(tabs[0]);
+      await userEvent.click(tabs[0]);
       const selectedTab = document.querySelectorAll("[data-state='active']");
       expect(tabs[0]).toEqual(selectedTab[0]);
     }
@@ -196,7 +200,7 @@ describe("<RoleAddEdit />", () => {
     renderComponent();
     const rightArrows = screen.getAllByTestId("right-arrow-2");
     const rows = screen.getAllByRole("row");
-    userEvent.click(rightArrows[0]);
+    await userEvent.click(rightArrows[0]);
     const updatedRows = screen.getAllByRole("row");
     expect(updatedRows.length).toEqual(rows.length + 4);
   });
@@ -206,7 +210,7 @@ describe("<RoleAddEdit />", () => {
     const hoverCheckboxEl =
       getAllByTestId(elId)?.[0].getElementsByTagName("div");
     const rightArrows = screen.getAllByTestId("right-arrow-2");
-    userEvent.click(rightArrows[0]);
+    await userEvent.click(rightArrows[0]);
     const hoverEls: HTMLElement[] = [];
     const tabData: any = Object.values(response1.tabs)[0];
     tabData.hoverMap[elId].forEach((item: { id: string; p: string }) => {
@@ -295,7 +299,7 @@ describe("<RoleAddEdit />", () => {
     const { queryAllByTestId } = renderComponent();
     const moreMenu = queryAllByTestId("t--page-header-actions");
     expect(moreMenu).toHaveLength(1);
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const deleteOption = queryAllByTestId("t--delete-menu-item");
     const renameOption = queryAllByTestId("t--rename-menu-item");
     const editDescOption = queryAllByTestId("t--rename-desc-menu-item");
@@ -334,16 +338,20 @@ describe("<RoleAddEdit />", () => {
   it("should delete the group when Delete menu item is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
-    await fireEvent.click(deleteOption[0]);
+    fireEvent.click(deleteOption[0]);
+    // eslint-disable-next-line testing-library/await-async-utils
     waitFor(async () => {
       const confirmationText = getAllByTestId("t--delete-menu-item");
       expect(confirmationText[0]).toHaveTextContent("Are you sure?");
-      await fireEvent.dblClick(deleteOption[0]);
+      // eslint-disable-next-line testing-library/no-wait-for-side-effects
+      fireEvent.dblClick(deleteOption[0]);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(props.onDelete).toHaveBeenCalledWith(props.selected.id);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(window.location.pathname).toEqual("/settings/roles");
     });
   });
@@ -366,7 +374,7 @@ describe("<RoleAddEdit />", () => {
 
     const moreMenu = queryAllByTestId("t--page-header-actions");
     expect(moreMenu).toHaveLength(1);
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const deleteOption = queryAllByTestId("t--delete-menu-item");
     const renameOption = queryAllByTestId("t--rename-menu-item");
     const editDescOption = queryAllByTestId("t--rename-desc-menu-item");

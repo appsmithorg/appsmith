@@ -114,7 +114,7 @@ describe("ScimProvisioning", () => {
       name: createMessage(DISABLE_SCIM),
     });
     expect(disableButton).toBeInTheDocument();
-    await fireEvent.click(disableButton);
+    fireEvent.click(disableButton);
     const modal = screen.queryByRole("dialog");
     expect(modal).toBeTruthy();
   });
@@ -146,7 +146,7 @@ describe("ScimProvisioning", () => {
       name: createMessage(DISABLE_SCIM),
     });
     expect(disableButton).toBeInTheDocument();
-    await fireEvent.click(disableButton);
+    fireEvent.click(disableButton);
     const modal = screen.queryByRole("dialog");
     expect(modal).toBeTruthy();
   });
@@ -185,11 +185,11 @@ describe("ScimProvisioning", () => {
     const generateApiKeyButton = screen.getByRole("button", {
       name: createMessage(GENERATE_API_KEY),
     });
-    let apiKeyField = await screen.queryByTestId("scim-api-key");
+    let apiKeyField = screen.queryByTestId("scim-api-key");
     expect(generateApiKeyButton).toBeInTheDocument();
     expect(apiKeyField).not.toBeInTheDocument();
-    await fireEvent.click(generateApiKeyButton);
-    apiKeyField = await screen.queryByTestId("scim-api-key");
+    fireEvent.click(generateApiKeyButton);
+    apiKeyField = screen.queryByTestId("scim-api-key");
     expect(apiKeyField).toBeInTheDocument();
     expect(apiKeyField?.getElementsByTagName("input")?.[0]).toHaveValue(
       "dummyApiKey",
@@ -206,15 +206,15 @@ describe("ScimProvisioning", () => {
     const reconfigureApiKeyButton = screen.getByRole("button", {
       name: createMessage(RECONFIGURE_API_KEY),
     });
-    let apiKeyField = await screen.queryByTestId("scim-api-key");
+    let apiKeyField = screen.queryByTestId("scim-api-key");
     expect(reconfigureApiKeyButton).toBeInTheDocument();
     expect(apiKeyField).not.toBeInTheDocument();
-    await fireEvent.click(reconfigureApiKeyButton);
+    fireEvent.click(reconfigureApiKeyButton);
     const modal = screen.queryByRole("dialog");
     expect(modal).toBeTruthy();
     const confirmButton = screen.getByTestId("t--confirm-reconfigure-api-key");
-    await fireEvent.click(confirmButton);
-    apiKeyField = await screen.queryByTestId("scim-api-key");
+    fireEvent.click(confirmButton);
+    apiKeyField = screen.queryByTestId("scim-api-key");
     expect(apiKeyField).toBeInTheDocument();
     expect(apiKeyField?.getElementsByTagName("input")?.[0]).toHaveValue(
       "dummyApiKey",
@@ -225,7 +225,7 @@ describe("ScimProvisioning", () => {
     renderComponent();
 
     // Click the Regenerate API Key button
-    await fireEvent.click(
+    fireEvent.click(
       screen.getByRole("button", { name: createMessage(RECONFIGURE_API_KEY) }),
     );
 

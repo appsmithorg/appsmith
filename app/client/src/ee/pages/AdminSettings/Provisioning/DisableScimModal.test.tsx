@@ -80,13 +80,13 @@ describe("DisableScimModal", () => {
     expect(disableButton).toBeDisabled();
 
     // Select 'Keep Provisioned Resources' radio option
-    await fireEvent.click(
+    fireEvent.click(
       screen.getByLabelText(createMessage(KEEP_PROVISIONED_RESOURCES)),
     );
 
     expect(disableButton).not.toBeDisabled();
     // Click the Next button
-    await fireEvent.click(disableButton);
+    fireEvent.click(disableButton);
 
     // Assert that the next screen with the callout is displayed
     expect(screen.getByTestId("keep-resources-callout")).toBeInTheDocument();
@@ -106,12 +106,12 @@ describe("DisableScimModal", () => {
     expect(disableButton).toBeDisabled();
 
     // Select 'Remove Provisioned Resources' radio option
-    await fireEvent.click(
+    fireEvent.click(
       screen.getByLabelText(createMessage(REMOVE_PROVISIONED_RESOURCES)),
     );
 
     // Click the Next button
-    await fireEvent.click(disableButton);
+    fireEvent.click(disableButton);
 
     // Assert that the next screen with the callout is displayed
     expect(screen.getByTestId("remove-resources-callout")).toBeInTheDocument();
@@ -132,21 +132,21 @@ describe("DisableScimModal", () => {
     expect(disableButton).toBeDisabled();
 
     // Select 'Remove Provisioned Resources' radio option
-    await fireEvent.click(
+    fireEvent.click(
       screen.getByLabelText(createMessage(REMOVE_PROVISIONED_RESOURCES)),
     );
 
     // Click the Next button
-    await fireEvent.click(disableButton);
+    fireEvent.click(disableButton);
 
     // Select the confirmation checkbox
-    await fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("checkbox"));
 
     // Assert that the 'Disable SCIM' button is enabled
     expect(disableButton).toBeEnabled();
 
     // Click the 'Disable SCIM' button
-    await fireEvent.click(disableButton);
+    fireEvent.click(disableButton);
 
     // Assert that the disconnect function was called with the correct argument
     expect(props.disconnect).toHaveBeenCalledWith({
@@ -166,21 +166,21 @@ describe("DisableScimModal", () => {
     expect(disableButton).toBeDisabled();
 
     // Select 'Remove Provisioned Resources' radio option
-    await fireEvent.click(
+    fireEvent.click(
       screen.getByLabelText(createMessage(KEEP_PROVISIONED_RESOURCES)),
     );
 
     // Click the Next button
-    await fireEvent.click(disableButton);
+    fireEvent.click(disableButton);
 
     // Select the confirmation checkbox
-    await fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("checkbox"));
 
     // Assert that the 'Disable SCIM' button is enabled
     expect(disableButton).toBeEnabled();
 
     // Click the 'Disable SCIM' button
-    await fireEvent.click(disableButton);
+    fireEvent.click(disableButton);
 
     // Assert that the disconnect function was called with the correct argument
     expect(props.disconnect).toHaveBeenCalledWith({

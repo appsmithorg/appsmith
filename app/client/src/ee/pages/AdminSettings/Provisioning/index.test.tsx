@@ -84,7 +84,7 @@ describe("Provisioning", () => {
     ).toBeInTheDocument();
 
     // Test configure/edit button
-    const button = await screen.getByText(createMessage(EDIT));
+    const button = screen.getByText(createMessage(EDIT));
     expect(button).toBeInTheDocument();
   });
 
@@ -104,7 +104,7 @@ describe("Provisioning", () => {
     ).toBeInTheDocument();
 
     // Test configure/edit button
-    const button = await screen.getByText(createMessage(CONFIGURE));
+    const button = screen.getByText(createMessage(CONFIGURE));
     expect(button).toBeInTheDocument();
   });
 

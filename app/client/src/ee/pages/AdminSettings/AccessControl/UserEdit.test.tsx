@@ -29,7 +29,7 @@ function renderComponent() {
 const toggleDefaultRoles = async () => {
   const toggleWrapper = screen.getByTestId("t--toggle-wrapper");
   const toggleInput = toggleWrapper.getElementsByTagName("input")[0];
-  await fireEvent.click(toggleInput);
+  fireEvent.click(toggleInput);
 };
 
 describe("<UserEdit />", () => {
@@ -75,11 +75,11 @@ describe("<UserEdit />", () => {
       }
     });
   });
-  it("should display active and all roles properly with icons for default roles", () => {
+  it("should display active and all roles properly with icons for default roles", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
     const activeRolesData = allUsers[0].roles;
     const allRolesData = allUsers[0].allRoles;
     const customRolesData = allUsers[0].allRoles.filter(
@@ -136,16 +136,18 @@ describe("<UserEdit />", () => {
   it("should show confirmation message when the delete user option is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const menu = getAllByTestId("t--delete-menu-item");
     expect(menu[0]).toHaveTextContent("Delete");
     expect(menu[0]).not.toHaveTextContent("Are you sure?");
-    await fireEvent.click(menu[0]);
-    await waitFor(() => {
+    fireEvent.click(menu[0]);
+    await waitFor(async () => {
       const confirmationText = getAllByTestId("t--delete-menu-item");
       expect(confirmationText[0]).toHaveTextContent("Are you sure?");
-      userEvent.click(confirmationText[0]);
+      await userEvent.click(confirmationText[0]);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(props.onDelete).toHaveBeenCalledWith(selectedUser.id);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(window.location.pathname).toEqual("/settings/users");
     });
   });
@@ -164,7 +166,7 @@ describe("<UserEdit />", () => {
     const groups = screen.queryAllByText("Administrator");
     expect(groups).toHaveLength(1);
 
-    await fireEvent.change(searchInput[0], { target: { value: "test" } });
+    fireEvent.change(searchInput[0], { target: { value: "test" } });
     expect(searchInput[0]).toHaveValue("test");
 
     const searched = screen.queryAllByText("Test_Admin");
@@ -182,12 +184,12 @@ describe("<UserEdit />", () => {
 
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
 
     const groups = screen.queryAllByText("Administrator-PG");
     expect(groups).toHaveLength(1);
 
-    await fireEvent.change(searchInput[0], { target: { value: "test" } });
+    fireEvent.change(searchInput[0], { target: { value: "test" } });
     expect(searchInput[0]).toHaveValue("test");
 
     const searched = screen.queryAllByText("Test_Admin-PG");
@@ -239,10 +241,10 @@ describe("<UserEdit />", () => {
     const tabs = screen.getAllByRole("tab");
     tabs[0].click();
     const activeGroups = screen.getAllByTestId("t--active-group-row");
-    await fireEvent.click(activeGroups[0]);
+    fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
     const allGroups = screen.getAllByTestId("t--all-group-row");
-    await fireEvent.click(allGroups[0]);
+    fireEvent.click(allGroups[0]);
     expect(allGroups[0]).toHaveClass("added");
     saveButton = screen.queryAllByTestId("t--admin-settings-save-button")?.[0];
     expect(saveButton).toBeInTheDocument();
@@ -293,11 +295,11 @@ describe("<UserEdit />", () => {
     const moreMenu = queryAllByTestId("t--page-header-actions");
     expect(moreMenu).toHaveLength(0);
   });
-  it("should show lock icon and disable click for active roles which do not have unassign permission", () => {
+  it("should show lock icon and disable click for active roles which do not have unassign permission", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
     const activeRolesData = allUsers[0].roles;
     const roleWithNoUnassignPermission = activeRolesData.findIndex(
       (role: BaseGroupRoleProps) =>
@@ -317,11 +319,11 @@ describe("<UserEdit />", () => {
       "removed",
     );
   });
-  it("should show lock icon and disable click for active groups which do not have remove user permission", () => {
+  it("should show lock icon and disable click for active groups which do not have remove user permission", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    userEvent.click(tabs[0]);
+    await userEvent.click(tabs[0]);
     const activeGroupsData = allUsers[0].groups;
     const groupWithNoRemoveUserPermission = activeGroupsData.findIndex(
       (group: BaseGroupRoleProps) =>

@@ -65,6 +65,7 @@ describe("<PageHeader />", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    // eslint-disable-next-line testing-library/no-render-in-lifecycle
     renderComponent();
   });
   it("is rendered", () => {
@@ -73,7 +74,7 @@ describe("<PageHeader />", () => {
   });
   it("should search and filter results for the given search query", async () => {
     const searchInput = screen.queryAllByTestId("t--acl-search-input");
-    await fireEvent.change(searchInput[0], { target: { value: "test value" } });
+    fireEvent.change(searchInput[0], { target: { value: "test value" } });
     expect(searchInput[0]).toHaveValue("test value");
   });
   it("should have a button with text Add", () => {
@@ -88,7 +89,7 @@ describe("<PageHeader />", () => {
     const users = screen.queryAllByText("sangy123@appsmith.com");
     expect(users).toHaveLength(1);
 
-    await fireEvent.change(searchInput[0], { target: { value: "techak" } });
+    fireEvent.change(searchInput[0], { target: { value: "techak" } });
     expect(searchInput[0]).toHaveValue("techak");
 
     const searched = screen.queryAllByText("techak@appsmith.com");
@@ -102,12 +103,12 @@ describe("<PageHeader />", () => {
     let menuOptions = screen.queryAllByText(/Documentation/i);
     expect(menuOptions).toHaveLength(0);
 
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
 
     menuOptions = screen.queryAllByText(/Documentation/i);
     expect(menuOptions).toHaveLength(1);
 
-    await fireEvent.click(menuOptions[0]);
+    fireEvent.click(menuOptions[0]);
     expect(pageMenuItems[0].onSelect).toHaveBeenCalled();
   });
 });

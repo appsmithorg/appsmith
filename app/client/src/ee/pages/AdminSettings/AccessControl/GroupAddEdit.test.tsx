@@ -46,7 +46,7 @@ function renderComponent() {
 const toggleDefaultRoles = async () => {
   const toggleWrapper = screen.getByTestId("t--toggle-wrapper");
   const toggleInput = toggleWrapper.getElementsByTagName("input")[0];
-  await fireEvent.click(toggleInput);
+  fireEvent.click(toggleInput);
 };
 
 describe("<GroupAddEdit />", () => {
@@ -95,7 +95,7 @@ describe("<GroupAddEdit />", () => {
     expect(searchInput).toHaveLength(1);
 
     const tabs = screen.getAllByRole("tab");
-    userEvent.click(tabs[0]);
+    await userEvent.click(tabs[0]);
 
     const tabCount = Array.from(
       document.getElementsByClassName("ads-v2-tabs__list-tab-count"),
@@ -107,7 +107,7 @@ describe("<GroupAddEdit />", () => {
     ];
     expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
 
-    await fireEvent.change(searchInput[0], { target: { value: "k" } });
+    fireEvent.change(searchInput[0], { target: { value: "k" } });
     expect(searchInput[0]).toHaveValue("k");
 
     const searched = screen.queryAllByText("techak@appsmith.com");
@@ -121,7 +121,9 @@ describe("<GroupAddEdit />", () => {
       );
       const filtered = screen.queryAllByText("hello123@appsmith.com");
       expect(filtered).toHaveLength(0);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(tabCount).toHaveLength(tabs.length);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(tabCount.map((tab) => tab.textContent)).toEqual(
         mockedSearchResults,
       );
@@ -158,11 +160,11 @@ describe("<GroupAddEdit />", () => {
       }
     });
   });
-  it("should display active and all roles properly with icons for default roles", () => {
+  it("should display active and all roles properly with icons for default roles", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
     const activeRolesData = userGroupTableData[0].roles;
     const allRolesData = userGroupTableData[0].allRoles;
     const customRolesData = userGroupTableData[0].allRoles.filter(
@@ -222,7 +224,7 @@ describe("<GroupAddEdit />", () => {
     expect(searchInput).toHaveLength(1);
 
     const tabs = screen.getAllByRole("tab");
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
 
     const tabCount = Array.from(
       document.getElementsByClassName("ads-v2-tabs__list-tab-count"),
@@ -234,7 +236,7 @@ describe("<GroupAddEdit />", () => {
     ];
     expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
 
-    await fireEvent.change(searchInput[0], { target: { value: "k" } });
+    fireEvent.change(searchInput[0], { target: { value: "k" } });
     expect(searchInput[0]).toHaveValue("k");
 
     const searched = screen.queryAllByText("marketing_nov");
@@ -253,7 +255,9 @@ describe("<GroupAddEdit />", () => {
       );
       const filtered = screen.queryAllByText("devops_eng_nov");
       expect(filtered).toHaveLength(0);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(tabCount).toHaveLength(tabs.length);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(tabCount.map((tab) => tab.textContent)).toEqual(
         mockedSearchResults,
       );
@@ -262,7 +266,7 @@ describe("<GroupAddEdit />", () => {
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const options = listMenuItems.map((menuItem) => menuItem.text);
     const menuElements = options.map((option) => getAllByText(option)).flat();
     options.forEach((option, index) => {
@@ -273,7 +277,7 @@ describe("<GroupAddEdit />", () => {
     renderComponent();
     let titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
-    await fireEvent.click(titleEl[0]);
+    fireEvent.click(titleEl[0]);
     titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
     expect(titleEl[0]).not.toHaveTextContent("New Group name");
@@ -288,11 +292,11 @@ describe("<GroupAddEdit />", () => {
   it("should show input box on group name on clicking rename menu item", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     let titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
     const renameOption = getAllByTestId("t--rename-menu-item");
-    await fireEvent.click(renameOption[0]);
+    fireEvent.click(renameOption[0]);
     titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
     expect(titleEl[0]).not.toHaveTextContent("New Group name");
@@ -312,10 +316,13 @@ describe("<GroupAddEdit />", () => {
     expect(titleEl).toHaveLength(0);
     const renameOption = getAllByTestId("t--rename-desc-menu-item");
     await userEvent.click(renameOption[0]);
+    // eslint-disable-next-line testing-library/await-async-utils
     waitFor(async () => {
       titleEl = document.getElementsByClassName("t--editable-description");
       expect(titleEl).toHaveLength(1);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(titleEl[0]).not.toHaveTextContent(
         "This is dummy description for this group.",
       );
@@ -327,7 +334,7 @@ describe("<GroupAddEdit />", () => {
       );
       // await userEvent.keyboard("{Shift>}{enter}");
       titleEl = document.getElementsByClassName("t--editable-description");
-      // expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(titleEl[0]).toHaveTextContent(
         "This is dummy description for this group.",
       );
@@ -336,16 +343,20 @@ describe("<GroupAddEdit />", () => {
   it("should delete the group when Delete menu item is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
-    await fireEvent.click(deleteOption[0]);
+    fireEvent.click(deleteOption[0]);
+    // eslint-disable-next-line testing-library/await-async-utils
     waitFor(async () => {
       const confirmationText = getAllByTestId("t--delete-menu-item");
       expect(confirmationText[0]).toHaveTextContent("Are you sure?");
-      await fireEvent.dblClick(deleteOption[0]);
+      // eslint-disable-next-line testing-library/no-wait-for-side-effects
+      fireEvent.dblClick(deleteOption[0]);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(props.onDelete).toHaveBeenCalledWith(props.selected.id);
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
       expect(window.location.pathname).toEqual("/settings/groups");
     });
   });
@@ -356,18 +367,18 @@ describe("<GroupAddEdit />", () => {
     expect(tabs[0]).toHaveTextContent("Users");
     expect(tabs[1]).toHaveTextContent("Roles");
   });
-  it("should mark group to be removed", () => {
+  it("should mark group to be removed", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
     const activeGroups = screen.getAllByTestId("t--active-group-row");
     fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
   });
-  it("should mark group to be added", () => {
+  it("should mark group to be added", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
     const allGroups = screen.getAllByTestId("t--all-group-row");
     fireEvent.click(allGroups[0]);
     expect(allGroups[0]).toHaveClass("added");
@@ -379,12 +390,12 @@ describe("<GroupAddEdit />", () => {
     )?.[0];
     expect(saveButton).toBeUndefined();
     const tabs = screen.getAllByRole("tab");
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
     const activeGroups = screen.getAllByTestId("t--active-group-row");
-    await fireEvent.click(activeGroups[0]);
+    fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
     const allGroups = screen.getAllByTestId("t--all-group-row");
-    await fireEvent.click(allGroups[0]);
+    fireEvent.click(allGroups[0]);
     expect(allGroups[0]).toHaveClass("added");
     saveButton = screen.queryAllByTestId("t--admin-settings-save-button")?.[0];
     expect(saveButton).toBeInTheDocument();
@@ -395,7 +406,7 @@ describe("<GroupAddEdit />", () => {
   it("should hide save bottom bar on clicking clear", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
     const activeGroups = screen.getAllByTestId("t--active-group-row");
     fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
@@ -433,7 +444,7 @@ describe("<GroupAddEdit />", () => {
     const { queryAllByTestId } = renderComponent();
     const moreMenu = queryAllByTestId("t--page-header-actions");
     expect(moreMenu).toHaveLength(1);
-    await fireEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     const deleteOption = queryAllByTestId("t--delete-menu-item");
     const editOption = queryAllByTestId("t--rename-menu-item");
     const editDescOption = queryAllByTestId("t--rename-desc-menu-item");
@@ -469,11 +480,11 @@ describe("<GroupAddEdit />", () => {
     const editableDesc = queryAllByTestId("t--editable-description");
     expect(editableDesc).toHaveLength(0);
   });
-  it("should show lock icon and disable click for active roles which do not have unassign permission", () => {
+  it("should show lock icon and disable click for active roles which do not have unassign permission", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
     const activeRolesData = userGroupTableData[0].roles;
     const roleWithNoUnassignPermission = activeRolesData.findIndex(
       (role: BaseGroupRoleProps) =>
