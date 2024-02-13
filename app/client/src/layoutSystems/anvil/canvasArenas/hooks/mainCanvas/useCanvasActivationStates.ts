@@ -22,8 +22,6 @@ export interface AnvilCanvasActivationStates {
   selectedWidgets: string[];
 }
 
-const AnvilOverlayWidgetTypes = ["MODAL_WIDGET"];
-
 export const useCanvasActivationStates = (): AnvilCanvasActivationStates => {
   const mainCanvasLayoutId: string = useSelector((state) =>
     getDropTargetLayoutId(state, MAIN_CONTAINER_WIDGET_ID),
@@ -63,8 +61,7 @@ export const useCanvasActivationStates = (): AnvilCanvasActivationStates => {
   /**
    * boolean that indicates if the widget being dragged in an overlay widget like the Modal widget.
    */
-  const activateOverlayWidgetDrop =
-    isNewWidget && AnvilOverlayWidgetTypes.includes(newWidget.type);
+  const activateOverlayWidgetDrop = isNewWidget && !!newWidget.detachFromLayout;
   const draggedWidgetTypes = useMemo(
     () => getDraggedWidgetTypes(draggedBlocks),
     [draggedBlocks],
