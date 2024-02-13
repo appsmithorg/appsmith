@@ -1159,39 +1159,62 @@ function* getGitMetadataSaga() {
 function* pollAutocommitProgressSaga(): any {
   const applicationId: string = yield select(getCurrentApplicationId);
   try {
-    while (true) {
-      const response: ApiResponse<any> = yield call(
-        GitSyncAPI.getAutocommitProgress,
-        applicationId,
-      );
-      const isValidResponse: boolean = yield validateResponse(
-        response,
-        false,
-        getLogToSentryFromResponse(response),
-      );
-      if (isValidResponse) {
-        yield put({
-          type: ReduxActionTypes.GIT_SET_AUTOCOMMIT_PROGRESS,
-          payload: response.data,
-        });
-        if (!response?.data?.isRunning) {
+    const response: ApiResponse<any> = yield call(
+      GitSyncAPI.getAutocommitProgress,
+      applicationId,
+    );
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse && response?.data?.isRunning) {
+      yield put({
+        type: ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING,
+      });
+      while (true) {
+        const response: ApiResponse<any> = yield call(
+          GitSyncAPI.getAutocommitProgress,
+          applicationId,
+        );
+        const isValidResponse: boolean = yield validateResponse(
+          response,
+          false,
+          getLogToSentryFromResponse(response),
+        );
+        if (isValidResponse) {
           yield put({
-            type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+            type: ReduxActionTypes.GIT_SET_AUTOCOMMIT_PROGRESS,
             payload: response.data,
           });
+          if (!response?.data?.isRunning) {
+            yield put({
+              type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+            });
+          }
+        } else {
+          yield put({
+            type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+          });
+          yield put({
+            type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
+            payload: {
+              error: response?.responseMeta?.error?.message,
+              show: true,
+            },
+          });
         }
-      } else {
-        yield put({
-          type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
-          payload: {
-            error: response?.responseMeta?.error?.message,
-            show: true,
-          },
-        });
+        yield delay(1000);
       }
-      yield delay(1000);
+    } else {
+      yield put({
+        type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+      });
     }
   } catch (error) {
+    yield put({
+      type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
+    });
     yield put({
       type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
       payload: { error },
@@ -1274,7 +1297,7 @@ function* watchGitNonBlockingRequests() {
 
 function* watchGitAutocommitPolling() {
   while (true) {
-    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING);
+    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_INITIATE_PROGRESS_POLLING);
     /* @ts-expect-error: not sure how to do typings of this */
     const pollTask = yield fork(pollAutocommitProgressSaga);
     yield take(ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING);

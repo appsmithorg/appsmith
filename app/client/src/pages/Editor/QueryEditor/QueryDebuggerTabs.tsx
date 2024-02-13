@@ -24,6 +24,13 @@ import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import QueryResponseTab from "./QueryResponseTab";
+import {
+  getDatasourceStructureById,
+  getPluginDatasourceComponentFromId,
+} from "@appsmith/selectors/entitiesSelector";
+import { DatasourceComponentTypes } from "api/PluginApi";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { DatasourceStructureContext } from "entities/Datasource";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
 import { actionResponseDisplayDataFormats } from "../utils";
@@ -46,16 +53,6 @@ export const TabbedViewContainer = styled.div`
   width: 100%;
   background-color: var(--ads-v2-color-bg);
   border-top: 1px solid var(--ads-v2-color-border);
-`;
-
-export const SegmentedControlContainer = styled.div`
-  padding: 0 var(--ads-v2-spaces-7);
-  padding-top: var(--ads-v2-spaces-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ads-v2-spaces-4);
-  overflow-y: clip;
-  overflow-x: scroll;
 `;
 
 interface QueryDebuggerTabsProps {
@@ -96,6 +93,33 @@ function QueryDebuggerTabs({
     useState<boolean>(false);
 
   const errorCount = useSelector(getErrorCount);
+
+  const pluginDatasourceForm = useSelector((state) =>
+    getPluginDatasourceComponentFromId(
+      state,
+      currentActionConfig?.pluginId || "",
+    ),
+  );
+
+  const datasourceStructure = useSelector((state) =>
+    getDatasourceStructureById(state, currentActionConfig?.datasource.id || ""),
+  );
+
+  useEffect(() => {
+    if (
+      currentActionConfig?.datasource.id &&
+      datasourceStructure === undefined &&
+      pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      dispatch(
+        fetchDatasourceStructure(
+          currentActionConfig?.datasource.id,
+          true,
+          DatasourceStructureContext.QUERY_EDITOR,
+        ),
+      );
+    }
+  }, []);
 
   // These useEffects are used to open the response tab by default for page load queries
   // as for page load queries, query response is available and can be shown in response tab

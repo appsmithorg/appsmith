@@ -78,7 +78,7 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
 import {
   getEvalErrorPath,
   getEvalValuePath,
@@ -254,6 +254,8 @@ export type EditorProps = EditorStyleProps &
     lineCommentString?: string;
     evaluatedPopUpLabel?: string;
     removeHoverAndFocusStyle?: boolean;
+
+    customErrors?: LintError[];
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -644,7 +646,10 @@ class CodeEditor extends Component<Props, State> {
           this.props.entitiesForNavigation,
         );
       }
-      if (prevProps.lintErrors !== this.props.lintErrors) {
+      if (
+        prevProps.lintErrors !== this.props.lintErrors ||
+        prevProps.customErrors !== this.props.customErrors
+      ) {
         this.lintCode(this.editor);
       }
       if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
@@ -1409,6 +1414,10 @@ class CodeEditor extends Component<Props, State> {
       return;
     }
     const lintErrors = this.props.lintErrors;
+
+    if (this.props.customErrors?.length) {
+      lintErrors.push(...this.props.customErrors);
+    }
 
     const annotations = getLintAnnotations(editor.getValue(), lintErrors, {
       isJSObject,
