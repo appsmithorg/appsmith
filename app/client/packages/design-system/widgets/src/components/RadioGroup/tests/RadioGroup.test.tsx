@@ -7,7 +7,7 @@ import { RadioGroup } from "../";
 import { Radio } from "../../Radio";
 
 describe("@design-system/widgets/RadioGroup", () => {
-  it("should render the Radio group", () => {
+  it("should render the Radio group", async () => {
     const { container } = render(
       <RadioGroup label="Radio Group">
         <Radio value="value-1">Value 1</Radio>
@@ -18,6 +18,7 @@ describe("@design-system/widgets/RadioGroup", () => {
     expect(screen.getByText("Value 1")).toBeInTheDocument();
     expect(screen.getByText("Value 2")).toBeInTheDocument();
 
+    // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const label = container.querySelector("label") as HTMLElement;
     expect(label).toHaveTextContent("Radio Group");
 
@@ -32,24 +33,24 @@ describe("@design-system/widgets/RadioGroup", () => {
     expect(options[0]).not.toBeChecked();
     expect(options[1]).not.toBeChecked();
 
-    userEvent.click(options[0]);
+    await userEvent.click(options[0]);
     expect(options[0]).toBeChecked();
 
-    userEvent.click(options[1]);
+    await userEvent.click(options[1]);
     expect(options[0]).not.toBeChecked();
     expect(options[1]).toBeChecked();
   });
 
   it("should support custom props", () => {
     render(
-      <RadioGroup data-testid="radio-group" label="Radio Group Label">
+      <RadioGroup data-testid="t--radio-group" label="Radio Group Label">
         <Radio value="value-1">Value 1</Radio>
         <Radio value="value-2">Value 2</Radio>
         <Radio value="value-3">Value 3</Radio>
       </RadioGroup>,
     );
 
-    const radioGroup = screen.getByTestId("radio-group");
+    const radioGroup = screen.getByTestId("t--radio-group");
     expect(radioGroup).toBeInTheDocument();
   });
 
@@ -66,7 +67,7 @@ describe("@design-system/widgets/RadioGroup", () => {
     expect(options[1]).not.toBeChecked();
   });
 
-  it("should be able to fire onChange event", () => {
+  it("should be able to fire onChange event", async () => {
     const onChangeSpy = jest.fn();
 
     render(
@@ -77,7 +78,7 @@ describe("@design-system/widgets/RadioGroup", () => {
     );
 
     const options = screen.getAllByRole("radio");
-    userEvent.click(options[0]);
+    await userEvent.click(options[0]);
     expect(onChangeSpy).toHaveBeenCalled();
   });
 

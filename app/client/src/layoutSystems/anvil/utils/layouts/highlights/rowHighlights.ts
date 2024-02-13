@@ -197,41 +197,47 @@ export function getHighlightsForRow(
 ): AnvilHighlightInfo[] {
   let highlights: AnvilHighlightInfo[] = [];
   let index = 0;
-  let draggedWidgetCount = 0;
+  const draggedWidgetIndices: number[] = [];
   const tallestDimension = getDimensions(tallestWidget.widgetId);
 
   const layoutDimensions: LayoutElementPosition = getDimensions(
     layoutProps.layoutId,
   );
 
+  // Iterate through each widget in the row
   while (index < row.length) {
     const { widgetId } = row[index];
     const isDraggedWidget: boolean = draggedWidgets.some(
       (widget: DraggedWidget) => widget.widgetId === widgetId,
     );
 
+    // Get dimensions of the previous widget
     const prevWidgetDimensions: LayoutElementPosition | undefined =
       index === 0 ? undefined : row[index - 1];
+    const skipWidgetHighlight = draggedWidgetIndices.includes(index - 1);
 
-    // Don't add highlights for widget if it is being dragged.
-    if (!isDraggedWidget) {
-      // Add a highlight before every widget in the row
-      highlights = updateHighlights(
-        highlights,
-        baseHighlight,
-        layoutDimensions,
-        row[index],
-        prevWidgetDimensions,
-        tallestDimension,
-        index + startingIndex - draggedWidgetCount,
-        false,
-      );
-    } else draggedWidgetCount += 1;
+    // Update highlights based on the widget's position and properties
+    highlights = updateHighlights(
+      highlights,
+      isDraggedWidget || skipWidgetHighlight
+        ? { ...baseHighlight, existingPositionHighlight: true }
+        : baseHighlight,
+      layoutDimensions,
+      row[index],
+      prevWidgetDimensions,
+      tallestDimension,
+      index + startingIndex - draggedWidgetIndices.length,
+      false,
+    );
+    // Track indices of dragged widgets
+    if (isDraggedWidget) {
+      draggedWidgetIndices.push(index);
+    }
 
     index += 1;
 
-    // Add a highlight after the last widget in the row.
-    if (index === row.length) {
+    // Handle the last widget in the row that is not dragged
+    if (index === row.length && !isDraggedWidget) {
       highlights = updateHighlights(
         highlights,
         baseHighlight,
@@ -239,12 +245,14 @@ export function getHighlightsForRow(
         row[index - 1],
         prevWidgetDimensions,
         tallestDimension,
-        index + startingIndex - draggedWidgetCount,
+        index + startingIndex - draggedWidgetIndices.length,
         true,
       );
       break;
     }
   }
+
+  // Return the generated highlights for the row
   return highlights;
 }
 
@@ -345,6 +353,7 @@ export function getHighlightsForLayoutRow(
 
   let index = 0;
   let discardedLayouts: number = 0;
+  let skipNextNewCellHighlights = false;
   // Loop over each child layout
   while (index < layout.length) {
     // Extract information on current child layout.
@@ -371,14 +380,7 @@ export function getHighlightsForLayoutRow(
         parentDropTargetId,
       )(positions, draggedWidgets);
 
-    if (skipEntity) {
-      /**
-       * Layout is discarded from child count only if skipEntity is true.
-       * skipEntity === true => dragged widget or empty layout after discarding dragged widgets.
-       * skipEntity === false => dragged widgets include blacklisted widgets or maxChildLimit is reached.
-       */
-      discardedLayouts += 1;
-    } else {
+    if (!skipNextNewCellHighlights) {
       /**
        * Add a highlight for the drop zone above the child layout.
        * This is done only if the child layout has highlights.
@@ -392,22 +394,32 @@ export function getHighlightsForLayoutRow(
         currentDimension,
         prevLayoutDimensions,
         undefined,
-        index - discardedLayouts,
+        index,
         false,
       );
-
+    } else {
+      skipNextNewCellHighlights = false;
+    }
+    /**
+     * Add highlights of the child layout if it is not a drop target.
+     * because if it is, then it can handle its own drag behavior.
+     */
+    if (!isDropTarget && layoutHighlights.length) {
+      highlights.push(...layoutHighlights);
+    }
+    if (skipEntity) {
       /**
-       * Add highlights of the child layout if it is not a drop target.
-       * because if it is, then it can handle its own drag behavior.
+       * Layout is discarded from child count only if skipEntity is true.
+       * skipEntity === true => dragged widget or empty layout after discarding dragged widgets.
+       * skipEntity === false => dragged widgets include blacklisted widgets or maxChildLimit is reached.
        */
-      if (!isDropTarget && layoutHighlights.length) {
-        highlights.push(...layoutHighlights);
-      }
+      skipNextNewCellHighlights = true;
+      discardedLayouts += 1;
     }
 
     index += 1;
 
-    if (index === layout.length) {
+    if (index === layout.length && !skipEntity) {
       // Add a highlight for the drop zone below the child layout.
       highlights = updateHighlights(
         highlights,

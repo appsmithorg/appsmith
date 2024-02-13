@@ -67,6 +67,9 @@ export interface FeatureParams {
   dismissOnOverlayClick?: boolean;
   // execute function just before showing walkthrough highlight
   runBeforeWalkthrough?: () => void;
+  // If we want to force the display of walkthrough, set this prop to true
+  // If set to true, will override the feature flag as well
+  forceExecution?: boolean;
 }
 
 interface WalkthroughContextType {

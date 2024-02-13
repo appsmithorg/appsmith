@@ -210,7 +210,7 @@ function* fetchDynamicValueSaga(
         // then we get the value of the current parameter from the evaluatedValues in the action object stored in the dataTree.
         // TODOD: Find a better way to pass the workspaceId
         const evaluatedValue = get(
-          { ...evalAction?.__evaluation__?.evaluatedValues, workspaceId },
+          { ...evalAction, workspaceId },
           dataTreeActionConfigPath,
         );
         // if it exists, we store it in the substituted params object.
