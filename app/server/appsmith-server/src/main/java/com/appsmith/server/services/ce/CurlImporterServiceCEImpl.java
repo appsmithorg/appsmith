@@ -2,10 +2,10 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
@@ -110,25 +110,26 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(workspaceId);
-                    return getContext(contextType, contextId, branchName)
-                            .map(context -> associateContextToActionDTO(action1, contextType, context));
+                    return getContextId(contextType, contextId, branchName)
+                            .map(contextId1 -> associateContextToActionDTO(action1, contextType, contextId1));
                 })
                 .flatMap(action2 -> layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
-    protected Mono<? extends BaseDomain> getContext(
-            CreatorContextType contextType, String contextId, String branchName) {
-        return newPageService.findByBranchNameAndDefaultPageId(
-                branchName, contextId, pagePermission.getActionCreatePermission());
+    protected Mono<String> getContextId(CreatorContextType contextType, String contextId, String branchName) {
+        return newPageService
+                .findByBranchNameAndDefaultPageId(branchName, contextId, pagePermission.getActionCreatePermission())
+                .map(NewPage::getId);
     }
 
     protected ActionDTO associateContextToActionDTO(
-            ActionDTO actionDTO, CreatorContextType contextType, BaseDomain context) {
-        NewPage newPage = (NewPage) context;
-        actionDTO.setPageId(newPage.getId());
+            ActionDTO actionDTO, CreatorContextType contextType, String contextId) {
+        actionDTO.setPageId(contextId);
         // Set git related resource IDs
-        actionDTO.setDefaultResources(newPage.getDefaultResources());
+        DefaultResources defaultResources = new DefaultResources();
+        defaultResources.setPageId(contextId);
+        actionDTO.setDefaultResources(defaultResources);
         return actionDTO;
     }
 
