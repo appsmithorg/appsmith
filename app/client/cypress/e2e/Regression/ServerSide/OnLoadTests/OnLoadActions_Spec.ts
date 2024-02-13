@@ -2,6 +2,7 @@ import {
   agHelper,
   apiPage,
   assertHelper,
+  dataManager,
   deployMode,
   entityExplorer,
   entityItems,
@@ -49,7 +50,7 @@ describe(
       //apiPage.RunAPI();
 
       apiPage.CreateAndFillApi(
-        "https://randomuser.me/api/",
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
         "RandomUser",
         30000,
       );

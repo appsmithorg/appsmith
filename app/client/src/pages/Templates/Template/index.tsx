@@ -172,7 +172,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               <Button
                 className="t--fork-template fork-button"
                 data-testid="t--fork-template-button"
-                isDisabled={isImportingTemplateToApp ? true : false}
+                isDisabled={isImportingTemplateToApp || !!loadingTemplateId}
                 isIconButton
                 isLoading={
                   props.onForkTemplateClick && loadingTemplateId === id

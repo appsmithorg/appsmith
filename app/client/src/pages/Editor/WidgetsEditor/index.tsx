@@ -7,6 +7,7 @@ import {
   getCanvasWidth,
   getCurrentPageId,
   getCurrentPageName,
+  getIsAutoLayout,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -67,6 +68,7 @@ function WidgetsEditor() {
   const isProtectedMode = useSelector(protectedModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
@@ -205,6 +207,7 @@ function WidgetsEditor() {
             onDragStart={onDragStart}
             style={{
               fontFamily: fontFamily,
+              contain: isAutoLayout ? "content" : "strict",
             }}
           >
             {showNavigation()}
