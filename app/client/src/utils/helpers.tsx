@@ -38,8 +38,6 @@ import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
 import validateColor from "validate-color";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import ModalWidget from "widgets/ModalWidget/widget";
-import { WDSModalWidget } from "widgets/wds/WDSModalWidget";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -335,7 +333,7 @@ function getWidgetElementToScroll(
     // but is the child of the main container widget,
     // scroll to the widget itself
     if (containerId === MAIN_CONTAINER_WIDGET_ID) {
-      if ([ModalWidget.type, WDSModalWidget.type].includes(widget.type)) {
+      if (widget.detachFromLayout) {
         return document.getElementById(widgetIdSelector);
       }
     }
