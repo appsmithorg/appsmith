@@ -12,6 +12,7 @@ export const selectFeatureFlagCheck = (
 ): boolean => {
   if (flagName.includes("wds")) return true;
   const flagValues = selectFeatureFlags(state);
+
   if (flagName in flagValues) {
     return flagValues[flagName];
   }

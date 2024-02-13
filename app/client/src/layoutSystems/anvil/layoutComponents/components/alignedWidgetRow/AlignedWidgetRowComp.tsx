@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import {
   LayoutComponentTypes,
   type LayoutComponentProps,
-  WidgetLayoutProps,
+  type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import {
   AlignmentIndexMap,
@@ -42,20 +42,12 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
   const shouldOverrideStyle: boolean = useSelector(
     shouldOverrideAlignmentStyle(layoutId),
   );
+
   // check if layout renders a Fill widget.
   const hasFillWidget: boolean = isFillWidgetPresentInList(
     layout as WidgetLayoutProps[],
   );
 
-  // If a Fill widget exists, then render the child widgets together.
-  if (hasFillWidget) {
-    return <>{renderWidgets(props)}</>;
-  }
-
-  /**
-   * else render the child widgets separately
-   * in their respective alignments.
-   */
   const commonProps: Omit<
     FlexLayoutProps,
     "children" | "layoutId" | "layoutIndex"
@@ -79,6 +71,15 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
     };
   }, [shouldOverrideStyle]);
 
+  // If a Fill widget exists, then render the child widgets together.
+  if (hasFillWidget) {
+    return <>{renderWidgets(props)}</>;
+  }
+
+  /**
+   * else render the child widgets separately
+   * in their respective alignments.
+   */
   const startChildren: WidgetLayoutProps[] = (
     layout as WidgetLayoutProps[]
   ).filter(

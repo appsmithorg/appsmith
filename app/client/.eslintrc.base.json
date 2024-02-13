@@ -16,12 +16,14 @@
     "react-hooks",
     "sort-destructure-keys",
     "cypress",
+    "testing-library",
     "jest"
   ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
     "plugin:cypress/recommended",
+    "plugin:testing-library/react",
     // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
     // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
     "plugin:prettier/recommended"
@@ -35,6 +37,13 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "testing-library/consistent-data-testid": [
+      "warn",
+      {
+        "testIdPattern": "^t--[a-zA-Z0-9_.-]*$",
+        "testIdAttribute": ["data-testid"]
+      }
+    ],
     "@typescript-eslint/consistent-type-definitions": "error",
     "@typescript-eslint/prefer-nullish-coalescing": "error",
     "@typescript-eslint/promise-function-async": "error",
