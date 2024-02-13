@@ -59,7 +59,7 @@ describe(
 
     it("4. Airtable : should take me to datasource page", function () {
       assertHelper.AssertNetworkStatus("@getPlugins");
-      dataSources.CreateDataSource("Airtable", false);
+      dataSources.CreateDataSource("Airtable", false, false);
       dataSources.CreateQueryAfterDSSaved("", "AirtableQuery");
     });
 
