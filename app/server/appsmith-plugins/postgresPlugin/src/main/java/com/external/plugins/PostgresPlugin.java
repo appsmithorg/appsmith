@@ -88,6 +88,7 @@ import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.Sizeof.sizeof;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static com.appsmith.external.models.SSLDetails.AuthType.VERIFY_CA;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.BOOL;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DATE;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DECIMAL;
@@ -1167,8 +1168,34 @@ public class PostgresPlugin extends BasePlugin {
         /*
          * - By default, the driver configures SSL in the preferred mode.
          */
-        SSLDetails.AuthType sslAuthType =
-                datasourceConfiguration.getConnection().getSsl().getAuthType();
+        String key = "-----BEGIN RSA PRIVATE KEY-----\n"
+                + "MIIEowIBAAKCAQEAj0fwIg5DnLYGmM82Odr45ORyu9J2QHE4efyXM7g8AjdkXVpX\n"
+                + "vYYe0FBPM1D2hwfwNE9T2FjFv+EKdZ7XrC4Fj0J/B04oc/Vg07T5EnliopNp9uZc\n"
+                + "UffYUNQx8fScV8j0JDIxEsr4PtGjlkHRVFrYsz+xdG3TX6r5OZMYZounIpbOlFwk\n"
+                + "F+3/NQGhcbhy4lj62t7mHN54xV//n24eVeqQJ7WzTN9XGqocyW3PV9XDbmhwEpoj\n"
+                + "HqnVYk1MulM6xzUOXMmE5DuXkFIhYL9yTdXanNUO6SoXxpKr/041kUWC9naYYD4a\n"
+                + "JGNBHyt6qXuYaoXgdrttZqBoVNiBKuwL+/wlHQIDAQABAoIBAFaxqmSQyOw7X0Z6\n"
+                + "qk7bZZnpeFqY/6ACYa+93CcZJIYaygmKLmiojGBzF1jvdhtB/F9KWGshW5W8Lr34\n"
+                + "fHrb5dVG4OGksulm4U13xPUeqUXBeG5B+D5IfoR5wDasUST0nHSCQhsi4I3x/s9d\n"
+                + "x7EIvvHGajMOeMT8CIyDqlHx0hEk0ledEKZToXtF0e6liEw/asycobMuByq49UaA\n"
+                + "BKO6AzW12TLxdIsvtHavHHl1gLESUG3zotKx8HQ9kTy2uiZBeHIhGJkwo+u0HDsK\n"
+                + "jNCjVE2+VG2EVaRYmG/gvzA8gt14FBRgU3sYPBk43ghiZW29TOuTr4N+bCUaNc1j\n"
+                + "apfZ02kCgYEAzKEpw0pSwNL9vbZyLswu676zcnjp9/PxExPDkHhiJ/L3FWd9uRdj\n"
+                + "OgkZvqLm2ORZ7hQIuQO4nzgbv5HazMstGtKaHU221PP0xdDQeKi6AqtvhU51MFXN\n"
+                + "0tLxqixCdj9HXgknP/I6t+wB0CRoALdDBjbDq+aV0N0NlJ8eYGgiZfMCgYEAs0Ad\n"
+                + "k2HUrRTzKUIJhfaiw3xxZG6D79dBcvWwSuGVOOmNkoQF4g2hZiALotm4A8PXx0OO\n"
+                + "A4HAyQwIHwUD4hfLK+bhkXwKqP3mPCC1Cpcf3as3r+AkClYeIKmIXCGnUWSYYjIU\n"
+                + "7e3BCoOOvltlFFX7f5DAlxCTQFR9ZXrD2DR+vK8CgYBJQBfXFK/y3pR+aOUO44CY\n"
+                + "WzeZbrcyT1yo25ZSDQX2Dv9r5hQXQcv/ZmqU13OTiIq4sus8b5yTQl6MgQW18bU/\n"
+                + "uMv6WWttZ7bjaRB3YM7VTdEqAx/oIY8APQrNQ/K2qYg+nUAzn95tIEq125JvTyrq\n"
+                + "+oeo7W4LylWmMh+Jmz1VCQKBgDQewHrKR3zMSqgEe6BoRotw88ewGszyWiWDKu+b\n"
+                + "CDi0MGYZ3VwNepCnYLrJc6gkmelmyzRZ1iSfSv06CBcFtB3f1FbpKnBY40k4eWvK\n"
+                + "5Yke7+JD2jbnM3tr0Cp53pzcEzL6PPux1h+ogSj4ijuPhMFi5Z0HRMm/x3Zqa+fB\n"
+                + "29ghAoGBAKL7LlgNo0+IhVaMIYhHl1oG+JMD+z+0zcoZXUdA/Y9WQf6iJAuL9b9Z\n"
+                + "6uTsr5Qnuy6N3nhRbZqQhDXGp901L0aBXP3t84376x87a0S333Rv2M7Nlx05wx1P\n"
+                + "Bu7+Pwi1VyoeE/l3Gw9nENbsGQ7sgLJDDK84NCnTiIwHucqdCboa\n"
+                + "-----END RSA PRIVATE KEY-----\n";
+        SSLDetails.AuthType sslAuthType = VERIFY_CA;
         switch (sslAuthType) {
             case ALLOW:
             case PREFER:
@@ -1197,25 +1224,11 @@ public class PostgresPlugin extends BasePlugin {
                 config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
                 config.addDataSourceProperty(
                         "clientCertString",
-                        datasourceConfiguration
-                                .getConnection()
-                                .getSsl()
-                                .getClientCertificateFile()
-                                .getBase64Content());
-                config.addDataSourceProperty(
-                        "clientKeyString",
-                        datasourceConfiguration
-                                .getConnection()
-                                .getSsl()
-                                .getClientKeyFile()
-                                .getBase64Content());
+                        "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURZVENDQWttZ0F3SUJBZ0lFSzBOUk1UQU5CZ2txaGtpRzl3MEJBUXNGQURDQmdERXRNQ3NHQTFVRUxoTWsKWVRsaE5XSmtOVFV0TkRJd055MDBZbVE1TFdFNE9XWXRaR1psWW1WbU5qRmlOR1E0TVN3d0tnWURWUVFERXlOSApiMjluYkdVZ1EyeHZkV1FnVTFGTUlFTnNhV1Z1ZENCRFFTQnpjMnd0ZEdWemRERVVNQklHQTFVRUNoTUxSMjl2CloyeGxMQ0JKYm1NeEN6QUpCZ05WQkFZVEFsVlRNQjRYRFRJME1ESXhNakEyTXpRek5sb1hEVE0wTURJd09UQTIKTXpVek5sb3dOakVSTUE4R0ExVUVBeE1JYzNOc0xYUmxjM1F4RkRBU0JnTlZCQW9UQzBkdmIyZHNaU3dnU1c1agpNUXN3Q1FZRFZRUUdFd0pWVXpDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBSTlICjhDSU9RNXkyQnBqUE5qbmErT1RrY3J2U2RrQnhPSG44bHpPNFBBSTNaRjFhVjcyR0h0QlFUek5ROW9jSDhEUlAKVTloWXhiL2hDbldlMTZ3dUJZOUNmd2RPS0hQMVlOTzArUko1WXFLVGFmYm1YRkgzMkZEVU1mSDBuRmZJOUNReQpNUkxLK0Q3Um81WkIwVlJhMkxNL3NYUnQwMStxK1RtVEdHYUxweUtXenBSY0pCZnQvelVCb1hHNGN1SlkrdHJlCjVoemVlTVZmLzU5dUhsWHFrQ2UxczB6ZlZ4cXFITWx0ejFmVncyNW9jQkthSXg2cDFXSk5UTHBUT3NjMURsekoKaE9RN2w1QlNJV0MvY2szVjJwelZEdWtxRjhhU3EvOU9OWkZGZ3ZaMm1HQStHaVJqUVI4cmVxbDdtR3FGNEhhNwpiV2FnYUZUWWdTcnNDL3Y4SlIwQ0F3RUFBYU1zTUNvd0NRWURWUjBUQkFJd0FEQWRCZ05WSFJFRUZqQVVnUkpoCmJtRm5hRUJoY0hCemJXbDBhQzVqYjIwd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFIQ0lyditMWFh6bWFQSmEKM2gyeFNyUzdFOG5wTzh1M2NpRWZJbFE2MVlCR3N4eUZOQ29RL2h2bWIrcXg0aklPUGFtTlQ1SFpsbzhxU1VNcAo4RUh0eTdpZjF3NUU3Zi9EenRVTy81TzViOXdaa3pKb1VlUmt5dkVnUmVQRm9JYVVUZExwcHNxZHdBRkdGaWM4CmkrNzEvc2ZXUFp5TWo3WnZ6ZmU1eWx0S0lQN2xweU56cVlEVktyLzBBRUxSbzNHL0NNNkFoVnNNcHFkVUJ1bEgKa3FET0JGNUR2TnNjeU5FWTcyMkxhNnN4UHdia3NrVmJVUUJ0dkJUSnlXVk9UYXlpeDBKWGZ3RmV2L1BSU2drRworNEhoV0p2bC9scU95TzhCREYxWFJ2UFEzZmFmUElCMXozRS9zcUdWSHU1R2lJbzRPZ3UxSEg4eVplRVJRUGdwClNESjhJYkE9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0=");
+                config.addDataSourceProperty("clientKeyString", key);
                 config.addDataSourceProperty(
                         "serverCACertString",
-                        datasourceConfiguration
-                                .getConnection()
-                                .getSsl()
-                                .getRootCertificateFile()
-                                .getBase64Content());
+                        "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURmekNDQW1lZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREIzTVMwd0t3WURWUVF1RXlRNFkyUTIKTlRGbU5TMDNZVEptTFRRMVpEZ3RZV1prWWkxbE0yRTFZemc0TmpSbU1EUXhJekFoQmdOVkJBTVRHa2R2YjJkcwpaU0JEYkc5MVpDQlRVVXdnVTJWeWRtVnlJRU5CTVJRd0VnWURWUVFLRXd0SGIyOW5iR1VzSUVsdVl6RUxNQWtHCkExVUVCaE1DVlZNd0hoY05NalF3TWpFeU1EWXlNalF5V2hjTk16UXdNakE1TURZeU16UXlXakIzTVMwd0t3WUQKVlFRdUV5UTRZMlEyTlRGbU5TMDNZVEptTFRRMVpEZ3RZV1prWWkxbE0yRTFZemc0TmpSbU1EUXhJekFoQmdOVgpCQU1UR2tkdmIyZHNaU0JEYkc5MVpDQlRVVXdnVTJWeWRtVnlJRU5CTVJRd0VnWURWUVFLRXd0SGIyOW5iR1VzCklFbHVZekVMTUFrR0ExVUVCaE1DVlZNd2dnRWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUIKQVFEU2I5ZEM5Y2JjOUk5N0R4bW5rZENWUkZjZ0JoT0lXcTZ1UXRGT1NyQThMdkV4RWhuNFBSdlFucTlOSldibQpFN0taMXRheXBGSzJjUXVHMnF1MDFYYXV4blNPdzhiMUZSY3pXVFRvbDY5bG5EWnc2ZDN0T2pYVWFOdlJEVHFrCkVZSUJDU0NISjVJbkhCUjlZQXJHUldKaU5PVy9uSUNLZjR0aE8wWmY5VU0yaXoyTnVGY3JwcXFkQkZ1Qm9OSncKdERhWXRtSUNJaWFHNUhTemQzekhvQkw3RzRpTkhTZmhMWktsRmtYSEd1Y2pVVnZuakJnMGNmbXk4RFVrckdZRQpoTEdVTTVnUHkvWms3SFZsU2x6UTVtZTNrdXQvc05weGN0MitGeU5jTW9ybWk3KzZ2a3RiL3ZYVnUvRjNFdmZyCjJBbDhQazhNWXNxVG9YSHpQaE9rL0NRYkFnTUJBQUdqRmpBVU1CSUdBMVVkRXdFQi93UUlNQVlCQWY4Q0FRQXcKRFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUxJS1FJQWxrbTdPQ09kemp2emxBK29DWUt3M2FHZ0kvZkFqYkJaNgo2TnJ3QkNIOVJFampDY3JmbEFCK2o3N0piL3dEZ2JOY1d2NHFhU3B1eWpJalJsc21aTkttMkg3UFAvaXMwWkc1CmNKeGxFV29pQzlYNUgvNDd5WjlsQ1llaUQ5T1pqYU5Qb0xxWEF2ZFl2S0J1R0RMVUY1YmxRbjJyelBieXBjWWQKRkZYN1dNQmY5V0NTLzBBWnR0Y2hGSU9qZEoxbEovZHFaLy9HYkkrdEJ5SDFMZjA4M1VDMU42Wkszb1BrQUlTRgpyTUlKYnNuSDh0TFlMaGpJUWxjL1JsMFRvNjNMQks2MEtuTkI3VzJNWTRsS2pkQ3R0dFNZTzU2WEpIOUo1Q21TCkcvNnBlVDlocFJLd2RTRUZLWktnUWN6dUowRFlmdjg4aUZhQ2pqNkRFT3QyZXhvPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0t");
 
                 break;
 
