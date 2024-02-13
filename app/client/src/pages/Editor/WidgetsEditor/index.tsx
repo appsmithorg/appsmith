@@ -54,6 +54,7 @@ import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { EditorState } from "@appsmith/entities/IDE/constants";
+import useMissingModuleNotification from "@appsmith/pages/Editor/IDE/MainPane/useMissingModuleNotification";
 
 const BannerWrapper = styled.div`
   z-index: calc(var(--on-canvas-ui-z-index) + 1);
@@ -94,6 +95,7 @@ function WidgetsEditor() {
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
+  const missingModuleNotification = useMissingModuleNotification();
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
 
@@ -197,6 +199,7 @@ function WidgetsEditor() {
           {!isAppSettingsPaneWithNavigationTabOpen && (
             <EmptyCanvasPrompts isPreview={isPreviewMode || isProtectedMode} />
           )}
+          {missingModuleNotification}
           <AnonymousDataPopup />
           <div
             className="relative flex flex-row h-full w-full overflow-hidden"
