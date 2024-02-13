@@ -64,11 +64,11 @@ const renderComponent = (store: MockStoreEnhanced<unknown, any>) => {
 describe("Git Settings Modal", () => {
   it("is rendered properly", () => {
     const store = mockStore(createInitialState());
-    const { queryByTestId } = renderComponent(store);
-    expect(queryByTestId("t--git-settings-modal")).toBeTruthy();
-    expect(queryByTestId(`t--tab-${GitSettingsTab.GENERAL}`)).toBeTruthy();
-    expect(queryByTestId(`t--tab-${GitSettingsTab.BRANCH}`)).toBeTruthy();
-    expect(queryByTestId(`t--tab-${GitSettingsTab.CD}`)).toBeTruthy();
+    const { getByTestId } = renderComponent(store);
+    expect(getByTestId("t--git-settings-modal")).toBeTruthy();
+    expect(getByTestId(`t--tab-${GitSettingsTab.GENERAL}`)).toBeTruthy();
+    expect(getByTestId(`t--tab-${GitSettingsTab.BRANCH}`)).toBeTruthy();
+    expect(getByTestId(`t--tab-${GitSettingsTab.CD}`)).toBeTruthy();
   });
 
   it("is not rendering branch tab when neither of the features are enabled", () => {
@@ -81,11 +81,11 @@ describe("Git Settings Modal", () => {
       return newState;
     });
     const store = mockStore(initialState);
-    const { queryByTestId } = renderComponent(store);
-    expect(queryByTestId("t--git-settings-modal")).toBeTruthy();
-    expect(queryByTestId(`t--tab-${GitSettingsTab.GENERAL}`)).toBeTruthy();
+    const { getByTestId, queryByTestId } = renderComponent(store);
+    expect(getByTestId("t--git-settings-modal")).toBeTruthy();
+    expect(getByTestId(`t--tab-${GitSettingsTab.GENERAL}`)).toBeTruthy();
     expect(queryByTestId(`t--tab-${GitSettingsTab.BRANCH}`)).not.toBeTruthy();
-    expect(queryByTestId(`t--tab-${GitSettingsTab.CD}`)).toBeTruthy();
+    expect(getByTestId(`t--tab-${GitSettingsTab.CD}`)).toBeTruthy();
   });
 
   it("is not rendering CD when feature flag is not enabled", () => {
@@ -98,10 +98,10 @@ describe("Git Settings Modal", () => {
       return newState;
     });
     const store = mockStore(initialState);
-    const { queryByTestId } = renderComponent(store);
-    expect(queryByTestId("t--git-settings-modal")).toBeTruthy();
-    expect(queryByTestId(`t--tab-${GitSettingsTab.GENERAL}`)).toBeTruthy();
-    expect(queryByTestId(`t--tab-${GitSettingsTab.BRANCH}`)).toBeTruthy();
+    const { getByTestId, queryByTestId } = renderComponent(store);
+    expect(getByTestId("t--git-settings-modal")).toBeTruthy();
+    expect(getByTestId(`t--tab-${GitSettingsTab.GENERAL}`)).toBeTruthy();
+    expect(getByTestId(`t--tab-${GitSettingsTab.BRANCH}`)).toBeTruthy();
     expect(queryByTestId(`t--tab-${GitSettingsTab.CD}`)).not.toBeTruthy();
   });
 });
