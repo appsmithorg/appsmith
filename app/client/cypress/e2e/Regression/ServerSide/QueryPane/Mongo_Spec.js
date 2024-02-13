@@ -14,6 +14,7 @@ import {
   entityItems,
   assertHelper,
   locators,
+  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
@@ -434,6 +435,7 @@ describe(
       dataSources.AssertTableInVirtuosoList(datasourceName, "NonAsciiTest");
 
       //Verifying Suggested Widgets functionality
+      apiPage.SelectPaneTab("Response");
       dataSources.AddSuggestedWidget(Widgets.Table);
       cy.wait("@updateLayout").then(({ response }) => {
         cy.log("1st Response is :" + JSON.stringify(response.body));
