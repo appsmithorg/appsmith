@@ -134,8 +134,9 @@ export const getDifferenceInJSCollection = (
       jsAction.actions.splice(deleteArchived, 1);
     }
   }
-  //change in variables
-  const varList = jsAction.variables;
+  //change in variables. In cases the variable list is not present, jsAction.variables will be undefined
+  // we are setting to empty array to avoid undefined errors further in the code (especially in case of workflows main file)
+  const varList = jsAction.variables || [];
   let changedVariables: Array<Variable> = [];
   if (parsedBody.variables.length) {
     for (let i = 0; i < parsedBody.variables.length; i++) {
@@ -156,7 +157,7 @@ export const getDifferenceInJSCollection = (
       }
     }
   } else {
-    changedVariables = jsAction.variables;
+    changedVariables = varList;
   }
   //delete variable
   if (varList && varList.length > 0 && parsedBody.variables) {
