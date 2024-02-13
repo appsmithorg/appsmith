@@ -354,7 +354,6 @@ export class HomePage {
     }).then((response) => {
       expect(response.status).equal(200); //Verifying logout is success
     });
-    this.agHelper.CypressReload();
   }
 
   public Signout(toNavigateToHome = true) {
