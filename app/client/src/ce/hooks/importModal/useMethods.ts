@@ -27,10 +27,6 @@ function useMethods({ editorId, workspaceId }: UseMethodsProps) {
   const fileUploader = useCallback(
     async (file: File, setProgress: SetProgress) => {
       if (!!file) {
-        setAppFileToBeUploaded({
-          file,
-          setProgress,
-        });
         dispatch(
           importApplication({
             appId: editorId,
@@ -38,6 +34,10 @@ function useMethods({ editorId, workspaceId }: UseMethodsProps) {
             applicationFile: file,
           }),
         );
+        setAppFileToBeUploaded({
+          file,
+          setProgress,
+        });
       } else {
         setAppFileToBeUploaded(null);
       }

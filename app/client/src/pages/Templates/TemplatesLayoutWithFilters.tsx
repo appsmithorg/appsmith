@@ -1,4 +1,5 @@
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -9,8 +10,8 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import TemplateFilters from "./TemplateFilters";
 import { TemplateContent } from "./TemplateContent";
+import TemplateFilters from "./TemplateFilters";
 
 const FiltersWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
@@ -32,21 +33,23 @@ const TemplateContentWrapper = styled.div`
   padding-bottom: 24px;
 `;
 
-interface StartWithTemplatesProps {
+interface TemplatesLayoutWithFilterProps {
   initialFilters?: Record<string, string[]>;
   isForkingEnabled?: boolean;
   isModalLayout?: boolean;
   setSelectedTemplate: (id: string) => void;
   onForkTemplateClick: (template: TemplateInterface) => void;
+  analyticsEventNameForTemplateCardClick: EventName;
 }
 
-const StartWithTemplates = ({
+const TemplatesLayoutWithFilters = ({
+  analyticsEventNameForTemplateCardClick,
   initialFilters,
   isForkingEnabled = false,
   isModalLayout,
   onForkTemplateClick,
   setSelectedTemplate,
-}: StartWithTemplatesProps) => {
+}: TemplatesLayoutWithFilterProps) => {
   const allTemplates = useSelector(getTemplatesSelector);
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
@@ -60,7 +63,7 @@ const StartWithTemplates = ({
   const onTemplateClick = (id: string) => {
     const template = getTemplateById(id);
     if (template) {
-      AnalyticsUtil.logEvent("CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING", {
+      AnalyticsUtil.logEvent(analyticsEventNameForTemplateCardClick, {
         id,
         title: template.title,
       });
@@ -90,4 +93,4 @@ const StartWithTemplates = ({
   );
 };
 
-export default StartWithTemplates;
+export default TemplatesLayoutWithFilters;
