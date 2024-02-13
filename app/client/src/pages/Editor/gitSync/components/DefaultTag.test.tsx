@@ -6,7 +6,7 @@ import "jest-styled-components";
 describe("DefaultTag", () => {
   it("renders properly", async () => {
     render(<DefaultTag />);
-    const actual = await screen.queryByTestId("t--default-tag");
+    const actual = screen.queryByTestId("t--default-tag");
 
     // renders
     expect(actual).not.toBeNull();
