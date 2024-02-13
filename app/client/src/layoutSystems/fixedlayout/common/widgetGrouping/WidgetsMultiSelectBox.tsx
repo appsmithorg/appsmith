@@ -188,32 +188,42 @@ function WidgetsMultiSelectBox(props: {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  /**
+   * Observer to track the position of the multi-selection bounding box
+   * and update the position of the context menu accordingly
+   */
+  const positionObserver = React.useRef<IntersectionObserver>(
+    new IntersectionObserver(
+      ([node]) => {
+        if (menuRef.current) {
+          requestAnimationFrame(() => {
+            if (menuRef.current) {
+              menuRef.current.style.top = `${node.intersectionRect.top}px`;
+              menuRef.current.style.left = `${node.intersectionRect.left}px`;
+              menuRef.current.style.visibility = node.isIntersecting
+                ? "visible"
+                : "hidden";
+              menuRef.current.style.flexDirection =
+                node.intersectionRect.height < 160 ? "row" : "column";
+            }
+          });
+        }
+      },
+      {
+        root: null,
+        threshold: [0, 0.125, 0.25, 0.5, 0.625, 0.75, 0.875, 1],
+      },
+    ),
+  );
+  /**
+   * Update the bounding rectangle to handle scroll, resize events
+   */
   const updateBoundingClientRect = () => {
     const node = draggableRef.current;
-    if (node) {
-      const visibilityObserver = new IntersectionObserver(
-        ([node]) => {
-          if (menuRef.current) {
-            requestAnimationFrame(() => {
-              if (menuRef.current) {
-                menuRef.current.style.top = `${node.intersectionRect.top}px`;
-                menuRef.current.style.left = `${node.intersectionRect.left}px`;
-                menuRef.current.style.visibility = node.isIntersecting
-                  ? "visible"
-                  : "hidden";
-                menuRef.current.style.flexDirection =
-                  node.intersectionRect.height < 160 ? "row" : "column";
-              }
-            });
-          }
-        },
-        {
-          root: null,
-          threshold: [0, 0.125, 0.25, 0.5, 0.625, 0.75, 0.875, 1],
-        },
-      );
-      visibilityObserver.disconnect();
-      visibilityObserver.observe(node);
+    const observer = positionObserver.current;
+    if (observer) {
+      observer.disconnect();
+      if (node) observer.observe(node);
     }
   };
   /**
@@ -298,7 +308,7 @@ function WidgetsMultiSelectBox(props: {
   ]);
 
   /**
-   * Update the component positions whenever the component re-renders
+   * Update the component positions whenever the component re-renders and check for updates at regular intervals
    */
   useEffect(() => {
     if (shouldRender) updateBoundingClientRect();
@@ -306,43 +316,13 @@ function WidgetsMultiSelectBox(props: {
     const intervalId = shouldRender
       ? setInterval(() => {
           updateBoundingClientRect();
-        }, 100)
+        })
       : null;
 
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
   }, [shouldRender]);
-  /**
-   * Check if the multi-select box is shown within the viewport
-   */
-  // useEffect(() => {
-  //   const visibilityObserver = new IntersectionObserver(
-  //     ([node]) => {
-  //       console.log(
-  //         node.intersectionRatio,
-  //         "RHITO intersection rato",
-  //         node.boundingClientRect,
-  //         node.intersectionRect,
-  //       );
-  //       setMenuVisible(node.isIntersecting);
-  //       if (menuRef.current) {
-  //         menuRef.current.style.top = `${node.intersectionRect.top}px`;
-  //         menuRef.current.style.left = `${node.intersectionRect.left}px`;
-  //       }
-  //     },
-  //     {
-  //       root: null,
-  //       threshold: [0, 0.125, 0.25, 0.5, 0.625, 0.75, 0.875, 1],
-  //     },
-  //   );
-  //   if (draggableRef.current && shouldRender)
-  //     visibilityObserver.observe(draggableRef.current);
-  //   return () => {
-  //     if (draggableRef.current)
-  //       visibilityObserver.unobserve(draggableRef.current);
-  //   };
-  // }, [shouldRender]);
   /**
    * copies the selected widgets
    *
