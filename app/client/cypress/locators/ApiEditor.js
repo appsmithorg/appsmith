@@ -32,8 +32,6 @@ export default {
   jsonResponseTab: "[data-value='JSON']",
   tableResponseTab: "[data-value='TABLE']",
   rawResponseTab: "[data-value='RAW']",
-  datasourcesRightPane: "button[role='tab'] span:contains('Datasources')",
-  connectionsRightPane: "button[role='tab'] span:contains('Connections')",
   httpDropDownOptions: ".rc-select-item",
   codeEditorWrapper: ".t--code-editor-wrapper",
   apiSearchHint: ".datasource-hint",
