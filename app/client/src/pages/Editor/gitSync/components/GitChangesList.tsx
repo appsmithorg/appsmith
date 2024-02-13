@@ -3,11 +3,8 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
-  getGitRemoteStatus,
   getGitStatus,
   getIsFetchingGitStatus,
-  getIsFetchingGitRemoteStatus,
-  getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import {
@@ -222,24 +219,15 @@ export function gitRemoteChangeListData(
 
 export default function GitChangesList() {
   const status = useSelector(getGitStatus);
-  const remoteStatus = useSelector(getGitRemoteStatus);
-  const isGitStatusLiteEnabled = useSelector(getIsGitStatusLiteEnabled);
 
   const derivedStatus: Partial<GitStatusData> = {
     ...status,
-    aheadCount: isGitStatusLiteEnabled
-      ? remoteStatus?.aheadCount
-      : status?.aheadCount,
-    behindCount: isGitStatusLiteEnabled
-      ? remoteStatus?.behindCount
-      : status?.behindCount,
-    remoteBranch: isGitStatusLiteEnabled
-      ? remoteStatus?.remoteTrackingBranch
-      : status?.remoteBranch,
+    aheadCount: status?.aheadCount,
+    behindCount: status?.behindCount,
+    remoteBranch: status?.remoteBranch,
   };
 
   const statusLoading = useSelector(getIsFetchingGitStatus);
-  const remoteStatusLoading = useSelector(getIsFetchingGitRemoteStatus);
 
   const statusChanges = gitChangeListData(derivedStatus);
   const remoteStatusChanges = gitRemoteChangeListData(derivedStatus);
@@ -256,22 +244,7 @@ export default function GitChangesList() {
       />,
     );
   }
-  return isGitStatusLiteEnabled ? (
-    <>
-      <Changes data-testid={"t--git-change-statuses"}>
-        {!statusLoading ? statusChanges : null}
-        {!remoteStatusLoading ? remoteStatusChanges : null}
-        {status?.migrationMessage ? (
-          <CalloutContainer>
-            <Callout kind="info">{status.migrationMessage}</Callout>
-          </CalloutContainer>
-        ) : null}
-      </Changes>
-      {statusLoading || remoteStatusLoading ? (
-        <DummyChange data-testid={"t--git-change-loading-dummy"} />
-      ) : null}
-    </>
-  ) : (
+  return (
     // disabling for better redability
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>

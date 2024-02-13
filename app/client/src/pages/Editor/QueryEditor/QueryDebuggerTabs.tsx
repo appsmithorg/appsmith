@@ -6,7 +6,7 @@ import {
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -16,11 +16,9 @@ import {
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { Text, TextType } from "design-system-old";
-import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   DEBUGGER_ERRORS,
@@ -31,11 +29,19 @@ import {
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
+import Schema from "components/editorComponents/Debugger/Schema";
 import type { ActionResponse } from "api/ActionAPI";
 import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import QueryResponseTab from "./QueryResponseTab";
+import {
+  getDatasourceStructureById,
+  getPluginDatasourceComponentFromId,
+} from "@appsmith/selectors/entitiesSelector";
+import { DatasourceComponentTypes } from "api/PluginApi";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { DatasourceStructureContext } from "entities/Datasource";
 
 const ResultsCount = styled.div`
   position: absolute;
@@ -54,16 +60,6 @@ export const TabbedViewContainer = styled.div`
   border-top: 1px solid var(--ads-v2-color-border);
 `;
 
-export const SegmentedControlContainer = styled.div`
-  padding: 0 var(--ads-v2-spaces-7);
-  padding-top: var(--ads-v2-spaces-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ads-v2-spaces-4);
-  overflow-y: clip;
-  overflow-x: scroll;
-`;
-
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
   currentActionConfig?: Action;
@@ -72,6 +68,7 @@ interface QueryDebuggerTabsProps {
   runErrorMessage?: string;
   actionResponse?: ActionResponse;
   onRunClick: () => void;
+  showSchema?: boolean;
 }
 
 function QueryDebuggerTabs({
@@ -82,6 +79,7 @@ function QueryDebuggerTabs({
   isRunning,
   onRunClick,
   runErrorMessage,
+  showSchema,
 }: QueryDebuggerTabsProps) {
   let output: Record<string, any>[] | null = null;
 
@@ -91,6 +89,33 @@ function QueryDebuggerTabs({
   const selectedResponseTab = useSelector(getDebuggerSelectedTab);
   const responsePaneHeight = useSelector(getResponsePaneHeight);
   const errorCount = useSelector(getErrorCount);
+
+  const pluginDatasourceForm = useSelector((state) =>
+    getPluginDatasourceComponentFromId(
+      state,
+      currentActionConfig?.pluginId || "",
+    ),
+  );
+
+  const datasourceStructure = useSelector((state) =>
+    getDatasourceStructureById(state, currentActionConfig?.datasource.id || ""),
+  );
+
+  useEffect(() => {
+    if (
+      currentActionConfig?.datasource.id &&
+      datasourceStructure === undefined &&
+      pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      dispatch(
+        fetchDatasourceStructure(
+          currentActionConfig?.datasource.id,
+          true,
+          DatasourceStructureContext.QUERY_EDITOR,
+        ),
+      );
+    }
+  }, []);
 
   // Query is executed even once during the session, show the response data.
   if (actionResponse) {
@@ -155,6 +180,20 @@ function QueryDebuggerTabs({
     });
   }
 
+  if (showSchema && currentActionConfig) {
+    responseTabs.unshift({
+      key: "schema",
+      title: "Schema",
+      panelComponent: (
+        <Schema
+          currentActionId={currentActionConfig.id}
+          datasourceId={currentActionConfig.datasource.id || ""}
+          datasourceName={currentActionConfig.datasource.name || ""}
+        />
+      ),
+    });
+  }
+
   return (
     <TabbedViewContainer
       className="t--query-bottom-pane-container"
@@ -169,12 +208,6 @@ function QueryDebuggerTabs({
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}
       />
-      {isRunning && (
-        <ActionExecutionInProgressView
-          actionType="query"
-          theme={EditorTheme.LIGHT}
-        />
-      )}
 
       {output && !!output.length && (
         <ResultsCount>

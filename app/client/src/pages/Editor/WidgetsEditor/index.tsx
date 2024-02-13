@@ -7,6 +7,7 @@ import {
   getCanvasWidth,
   getCurrentPageId,
   getCurrentPageName,
+  getIsAutoLayout,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -51,6 +52,8 @@ import {
 } from "layoutSystems/common/useLayoutSystemFeatures";
 import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { EditorState } from "@appsmith/entities/IDE/constants";
 
 const BannerWrapper = styled.div`
   z-index: calc(var(--on-canvas-ui-z-index) + 1);
@@ -65,6 +68,7 @@ function WidgetsEditor() {
   const isProtectedMode = useSelector(protectedModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
@@ -72,9 +76,12 @@ function WidgetsEditor() {
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
   const navigationPreviewRef = useRef(null);
   const [navigationHeight, setNavigationHeight] = useState(0);
-  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+  const isNavigationSelectedInSettings = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
+  const appState = useCurrentAppState();
+  const isAppSettingsPaneWithNavigationTabOpen =
+    appState === EditorState.SETTINGS && isNavigationSelectedInSettings;
   const canvasWidth = useSelector(getCanvasWidth);
 
   const appMode = useSelector(getAppMode);
@@ -172,14 +179,7 @@ function WidgetsEditor() {
 
   const showNavigation = () => {
     if (isPreviewingNavigation) {
-      return (
-        <NavigationPreview
-          isAppSettingsPaneWithNavigationTabOpen={
-            isAppSettingsPaneWithNavigationTabOpen
-          }
-          ref={navigationPreviewRef}
-        />
-      );
+      return <NavigationPreview ref={navigationPreviewRef} />;
     }
   };
 
@@ -207,6 +207,7 @@ function WidgetsEditor() {
             onDragStart={onDragStart}
             style={{
               fontFamily: fontFamily,
+              contain: isAutoLayout ? "content" : "strict",
             }}
           >
             {showNavigation()}

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -23,13 +23,13 @@ import { updatePage } from "actions/pageActions";
 import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import { setIdeEditorPagesActiveStatus } from "actions/ideActions";
 import history, { NavigationMethod } from "utils/history";
 
 const PageElement = ({ page }: { page: Page }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigateToUrl = useGetPageFocusUrl(page.pageId);
+  const ref = useRef<null | HTMLDivElement>(null);
 
   const currentPageId = useSelector(getCurrentPageId);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -51,6 +51,15 @@ const PageElement = ({ page }: { page: Page }) => {
     PERMISSION_TYPE.EXPORT_APPLICATION,
   );
 
+  useEffect(() => {
+    if (ref.current && isCurrentPage) {
+      ref.current.scrollIntoView({
+        inline: "nearest",
+        block: "nearest",
+      });
+    }
+  }, [ref, isCurrentPage]);
+
   const switchPage = useCallback(
     (page: Page) => {
       AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
@@ -60,7 +69,6 @@ const PageElement = ({ page }: { page: Page }) => {
         toUrl: navigateToUrl,
       });
       dispatch(toggleInOnboardingWidgetSelection(true));
-      dispatch(setIdeEditorPagesActiveStatus(false));
       history.push(navigateToUrl, {
         invokedBy: NavigationMethod.EntityExplorer,
       });
@@ -96,6 +104,7 @@ const PageElement = ({ page }: { page: Page }) => {
       key={page.pageId}
       name={page.pageName}
       onNameEdit={resolveAsSpaceChar}
+      ref={ref}
       searchKeyword={""}
       step={1}
       updateEntityName={(id, name) =>

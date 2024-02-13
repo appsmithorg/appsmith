@@ -281,7 +281,7 @@ public class FeatureFlagServiceCETest {
 
         // Assert that the cached feature flags are empty before the remote fetch
         CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedTenantFeatureFlags();
-        assertThat(cachedFeaturesBeforeRemoteCall.getFeatures().size()).isEqualTo(1);
+        assertThat(cachedFeaturesBeforeRemoteCall.getFeatures()).hasSize(1);
         assertTrue(cachedFeaturesBeforeRemoteCall.getFeatures().get(TENANT_TEST_FEATURE.name()));
 
         Map<String, Boolean> tenantFeatures = new HashMap<>();
