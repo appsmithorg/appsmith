@@ -18,9 +18,9 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Properties;
 
-public class StringCertValidatingFactory extends WrappedFactory {
+public class MutualTLSCertValidatingFactory extends WrappedFactory {
 
-    public StringCertValidatingFactory(Properties info) throws Exception {
+    public MutualTLSCertValidatingFactory(Properties info) throws Exception {
         // Convert String certificates and keys to objects
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
 

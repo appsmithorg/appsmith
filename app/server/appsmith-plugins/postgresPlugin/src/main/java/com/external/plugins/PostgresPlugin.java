@@ -30,8 +30,8 @@ import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.datatypes.PostgresSpecificDataTypes;
 import com.external.plugins.exceptions.PostgresErrorMessages;
 import com.external.plugins.exceptions.PostgresPluginError;
+import com.external.plugins.utils.MutualTLSCertValidatingFactory;
 import com.external.plugins.utils.PostgresDatasourceUtils;
-import com.external.plugins.utils.StringCertValidatingFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
@@ -1189,7 +1189,7 @@ public class PostgresPlugin extends BasePlugin {
             case VERIFY_CA:
                 config.addDataSourceProperty("ssl", "true");
                 config.addDataSourceProperty("sslmode", "verify-ca");
-                config.addDataSourceProperty("sslfactory", StringCertValidatingFactory.class.getName());
+                config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
                 config.addDataSourceProperty("clientCertString", "base64encodedcert");
                 config.addDataSourceProperty("clientKeyString", "privateKey");
                 config.addDataSourceProperty("serverCACertString", "base64encodedcert");
@@ -1199,7 +1199,7 @@ public class PostgresPlugin extends BasePlugin {
             case VERIFY_FULL:
                 config.addDataSourceProperty("ssl", "true");
                 config.addDataSourceProperty("sslmode", "verify-full");
-                config.addDataSourceProperty("sslfactory", StringCertValidatingFactory.class.getName());
+                config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
                 config.addDataSourceProperty("clientCertString", "base64encodedcert");
                 config.addDataSourceProperty("clientKeyString", "privateKey");
                 config.addDataSourceProperty("serverCACertString", "base64encodedcert");
