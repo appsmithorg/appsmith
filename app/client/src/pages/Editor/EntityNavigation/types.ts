@@ -1,9 +1,9 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import type { EntityTypeValue } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 
 export interface EntityInfo {
-  entityType: EntityTypeValue;
+  entityType: ENTITY_TYPE;
   id: string;
   // The propertyPath to a control field
   propertyPath?: string;

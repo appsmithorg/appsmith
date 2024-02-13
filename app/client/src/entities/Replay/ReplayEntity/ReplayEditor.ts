@@ -4,7 +4,7 @@ import ReplayEntity from "..";
 import { pathArrayToString } from "../replayUtils";
 import type { JSActionConfig } from "entities/JSCollection";
 import type { Datasource } from "entities/Datasource";
-import type { EntityTypeValue } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import isEmpty from "lodash/isEmpty";
 import type { Canvas } from "./ReplayCanvas";
 
@@ -28,7 +28,7 @@ export interface ReplayEditorUpdate {
   isUndo?: boolean;
 }
 export default class ReplayEditor extends ReplayEntity<Replayable> {
-  constructor(entity: Replayable, entityType: EntityTypeValue) {
+  constructor(entity: Replayable, entityType: ENTITY_TYPE) {
     super(entity, entityType);
   }
 

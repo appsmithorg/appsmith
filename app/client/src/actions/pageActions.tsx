@@ -26,7 +26,7 @@ import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import type { APP_MODE } from "entities/App";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { GenerateTemplatePageRequest } from "api/PageApi";
-import type { EntityTypeValue } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import * as Sentry from "@sentry/react";
 
@@ -464,7 +464,7 @@ export const generateTemplateToUpdatePage = ({
 export function updateReplayEntity(
   entityId: string,
   entity: Replayable,
-  entityType: EntityTypeValue,
+  entityType: ENTITY_TYPE,
 ) {
   return {
     type: ReduxActionTypes.UPDATE_REPLAY_ENTITY,

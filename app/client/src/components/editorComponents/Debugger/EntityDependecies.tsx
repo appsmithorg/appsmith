@@ -17,7 +17,6 @@ import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { thinScrollbar } from "constants/DefaultTheme";
-import type { EntityTypeValue } from "@appsmith/entities/AppsmithConsole/utils";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 import { Button, Icon, Tooltip } from "design-system";
@@ -138,7 +137,7 @@ interface ConnectionProps {
   onClick: (entityName: string, entityType: string) => void;
 }
 
-const getEntityDescription = (entityType?: EntityTypeValue) => {
+const getEntityDescription = (entityType?: ENTITY_TYPE) => {
   if (entityType === ENTITY_TYPE.WIDGET) {
     return "widget";
   } else if (entityType === ENTITY_TYPE.ACTION) {

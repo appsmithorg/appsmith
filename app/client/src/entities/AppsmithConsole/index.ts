@@ -4,8 +4,8 @@ import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import type { PluginType } from "entities/Action";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 import type {
-  EntityTypeValue,
-  PlatformErrorTypeValue,
+  ENTITY_TYPE,
+  PLATFORM_ERROR,
 } from "@appsmith/entities/AppsmithConsole/utils";
 
 export type Methods =
@@ -30,7 +30,7 @@ export interface LogObject {
   source: SourceEntity;
 }
 
-export type ErrorType = PropertyEvaluationErrorType | PlatformErrorTypeValue;
+export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
 
 export enum Severity {
   // Everything, irrespective of what the user should see or not
@@ -56,7 +56,7 @@ export interface UserAction {
 }
 
 export interface SourceEntity {
-  type: EntityTypeValue;
+  type: ENTITY_TYPE;
   // Widget or action name
   name: string;
   // Id of the widget or action

@@ -1,7 +1,7 @@
 import type { Log } from "entities/AppsmithConsole";
 import {
   getModuleInstanceInvalidErrors,
-  type EntityTypeValue,
+  type ENTITY_TYPE,
 } from "@appsmith/entities/AppsmithConsole/utils";
 import { Severity } from "entities/AppsmithConsole";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
@@ -151,7 +151,7 @@ function logLatestEvalPropertyErrors(
               source: {
                 id: payloadInfo.id,
                 name: entityNameToDisplay,
-                type: entityType as EntityTypeValue,
+                type: entityType as ENTITY_TYPE,
                 propertyPath: logPropertyPath,
                 pluginType: payloadInfo.pluginType,
                 httpMethod,
