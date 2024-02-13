@@ -109,6 +109,36 @@ export function getHighlightsForWidgets(
   return { highlights, skipEntity: false };
 }
 
+const markDraggedHugWidgetHighlights = (
+  highlights: AnvilHighlightInfo[],
+  layoutId: string,
+  currentLayout: LayoutProps,
+  draggedWidgets: DraggedWidget[],
+) => {
+  // If the layout is empty and does not have any fill widgets that are dragged,
+  // make sure the highlights of dragged widgets have existingPositionHighlight set to true.
+  const draggedWidgetsAlignment = draggedWidgets.map((widget) => {
+    const layoutProps = (currentLayout.layout as WidgetLayoutProps[]).find(
+      (layout) => layout.widgetId === widget.widgetId,
+    );
+    return layoutProps?.alignment;
+  });
+  const checkIfAllDraggedWidgetsAlignmentAreSame =
+    draggedWidgetsAlignment.every(
+      (alignment) => alignment === draggedWidgetsAlignment[0],
+    );
+  if (checkIfAllDraggedWidgetsAlignmentAreSame) {
+    highlights.forEach((highlight) => {
+      if (
+        highlight.layoutId === layoutId &&
+        draggedWidgetsAlignment.includes(highlight.alignment)
+      ) {
+        highlight.existingPositionHighlight = true;
+      }
+    });
+  }
+};
+
 /**
  * @param layoutProps | LayoutProps : properties of parent layout.
  * @param widgetPositions | WidgetPositions : positions and dimensions of widgets and layouts.
@@ -163,13 +193,13 @@ export function getHighlightsForLayouts(
     // Get the deriveHighlights function for the child layout.
     const deriveHighlightsFn: DeriveHighlightsFn =
       LayoutFactory.getDeriveHighlightsFn(layoutType);
-
+    const currentLayout = layouts[index];
     // Calculate highlights for the layout component.
     const { highlights: layoutHighlights, skipEntity }: HighlightPayload =
       deriveHighlightsFn(
-        layouts[index],
+        currentLayout,
         canvasId,
-        [...layoutOrder, layouts[index].layoutId],
+        [...layoutOrder, currentLayout.layoutId],
         parentDropTargetId,
       )(widgetPositions, draggedWidgets);
     const isPreviousLayoutDiscarded = discardedLayoutIndices.includes(
@@ -182,7 +212,7 @@ export function getHighlightsForLayouts(
        * If it doesn't, that means that the layout is empty after excluding the dragged widgets
        * and can be avoided.
        */
-      highlights = updateHighlights(
+      const updatedHighlights = updateHighlights(
         highlights,
         skipEntity
           ? {
@@ -201,6 +231,15 @@ export function getHighlightsForLayouts(
         hasFillWidget,
         skipEntity,
       );
+      if (skipEntity && !hasFillWidget) {
+        markDraggedHugWidgetHighlights(
+          updatedHighlights,
+          layoutId,
+          currentLayout,
+          draggedWidgets,
+        );
+      }
+      highlights = updatedHighlights;
     }
 
     if (skipEntity) {
