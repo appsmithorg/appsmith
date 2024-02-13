@@ -10,6 +10,10 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useCanvasActivationStates } from "./useCanvasActivationStates";
 import { canActivateCanvasForDraggedWidget } from "../utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { useSelector } from "react-redux";
+import { getWidgets } from "sagas/selectors";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 
 // Z-Index values for activated and deactivated states
 export const AnvilCanvasZIndex = {
@@ -54,6 +58,7 @@ export const useCanvasActivation = () => {
     mainCanvasLayoutId,
     selectedWidgets,
   } = useCanvasActivationStates();
+  const allWidgets: CanvasWidgetsReduxState = useSelector(getWidgets);
   // Getting the main canvas DOM node
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
 
@@ -108,11 +113,13 @@ export const useCanvasActivation = () => {
       .filter((each) => {
         const layoutInfo = allLayouts[each];
         const currentPositions = layoutElementPositions[layoutInfo.layoutId];
+        const widget: FlattenedWidgetProps = allWidgets[layoutInfo.canvasId];
         const canActivate = canActivateCanvasForDraggedWidget(
           draggedWidgetTypes,
           mainCanvasLayoutId,
           layoutInfo.layoutType,
           layoutInfo.layoutId,
+          widget?.type,
         );
         return canActivate && currentPositions && !!layoutInfo.isDropTarget;
       })

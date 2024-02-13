@@ -23,6 +23,7 @@ export const canActivateCanvasForDraggedWidget = (
   mainCanvasLayoutId: string,
   layoutType: LayoutComponentTypes,
   layoutId: string,
+  widgetType: string,
 ) => {
   // Checking if sections or zones are being dragged
   const areSectionsDragged =
@@ -40,7 +41,11 @@ export const canActivateCanvasForDraggedWidget = (
 
   // If zones are being dragged, allow activation for sections or the main canvas
   if (areZonesDragged) {
-    return layoutType === LayoutComponentTypes.SECTION || isMainCanvas;
+    return (
+      layoutType === LayoutComponentTypes.SECTION ||
+      isMainCanvas ||
+      widgetType === "WDS_MODAL_WIDGET"
+    );
   }
 
   // Allow activation for other widget types
