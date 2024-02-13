@@ -65,7 +65,6 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
-import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
 import {
   CREATE_A_NEW_WORKSPACE,
   createMessage,
@@ -124,6 +123,7 @@ import {
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
+import ImportModal from "pages/common/ImportModal";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -491,6 +491,8 @@ export const WorkspaceSelectorWrapper = styled.div`
 export function ApplicationsSection(props: any) {
   const { activeWorkspaceId, applications, packages, workflows, workspaces } =
     props;
+  const urlParams = new URLSearchParams(location.search);
+  const openImportModal = urlParams.get("openImportModal");
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
@@ -539,6 +541,20 @@ export function ApplicationsSection(props: any) {
     selectedWorkspaceIdForImportApplication,
     setSelectedWorkspaceIdForImportApplication,
   ] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (openImportModal && activeWorkspaceId) {
+      const shouldOpenImportModal = openImportModal.toLowerCase() === "true";
+
+      if (shouldOpenImportModal) {
+        setSelectedWorkspaceIdForImportApplication(activeWorkspaceId);
+      }
+    }
+  }, [
+    openImportModal,
+    activeWorkspaceId,
+    setSelectedWorkspaceIdForImportApplication,
+  ]);
 
   const leaveWS = (workspaceId: string) => {
     setWarnLeavingWorkspace(false);
@@ -717,7 +733,7 @@ export function ApplicationsSection(props: any) {
                 workspaceSlug: activeWorkspace.id,
               })}
             {selectedWorkspaceIdForImportApplication && (
-              <ImportApplicationModal
+              <ImportModal
                 isModalOpen={
                   selectedWorkspaceIdForImportApplication === activeWorkspace.id
                 }
