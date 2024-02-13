@@ -734,14 +734,14 @@ export const NO_CONNECTIONS = () => "No connections to show here";
 export const BACK_TO_CANVAS = () => "Back to canvas";
 export const SUGGESTED_WIDGET_DESCRIPTION = () =>
   "This will add a new widget to the canvas.";
-export const ADD_NEW_WIDGET = () => "Add new widget";
+export const ADD_NEW_WIDGET = () => "Add a widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 export const BINDING_SECTION_LABEL = () => "Bindings";
 export const ADD_NEW_WIDGET_SUB_HEADING = () =>
   "Select how you want to display data.";
-export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
+export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a widget";
 export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
   "Replace the data of an existing widget";
 export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
