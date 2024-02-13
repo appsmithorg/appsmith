@@ -428,7 +428,10 @@ export function generateHighlights(
       ? {
           isVertical: true,
           height: isInitialHighlight
-            ? DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT
+            ? Math.min(
+                DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT,
+                layoutDimension.height,
+              )
             : currentDimension.height,
           width: HIGHLIGHT_SIZE,
           posX: ((layoutDimension.width - HIGHLIGHT_SIZE) * index) / 2,
