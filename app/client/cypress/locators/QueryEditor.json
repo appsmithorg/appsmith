@@ -22,8 +22,6 @@
   "searchFilefield": "//input[@placeholder='Search File Prefix']",
   "copyURLicon": "//button/span[@icon='link']",
   "snipeableTable": "//input[@type='search']",
-  "suggestedWidgetDropdown": "//div[contains(@class, 't--suggested-widget-SELECT_WIDGET')]",
-  "suggestedWidgetText": "//div[contains(@class, 't--suggested-widget-TEXT_WIDGET')]",
   "suggestedWidgetChart": ".t--suggested-widget-CHART_WIDGET",
   "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
   "querySettingsTab": "//span[contains(text(), 'Settings')]/parent::button"

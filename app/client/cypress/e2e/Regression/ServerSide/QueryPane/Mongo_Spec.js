@@ -445,7 +445,7 @@ describe(
       cy.get("@entity").then((entityN) =>
         EditorNavigation.SelectEntityByName(entityN, EntityType.Query),
       );
-      cy.get(queryLocators.suggestedWidgetChart).click().wait(1000);
+      dataSources.AddSuggestedWidget(Widgets.Chart);
       cy.wait("@updateLayout").then(({ response }) => {
         cy.log("2nd Response is :" + JSON.stringify(response.body));
         //expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
