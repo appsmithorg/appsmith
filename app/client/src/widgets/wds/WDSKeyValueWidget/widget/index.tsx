@@ -1,3 +1,4 @@
+import ThumbnailSVG from "../thumbnail.svg";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
 
 class WDSKeyValueWidget extends WDSInputWidget {
@@ -7,6 +8,7 @@ class WDSKeyValueWidget extends WDSInputWidget {
     return {
       ...super.getConfig(),
       name: "KeyValue",
+      thumbnailSVG: ThumbnailSVG,
     };
   }
 
