@@ -59,6 +59,9 @@ export const BetaLabel = styled.div`
   right: -2%;
 `;
 
+const ICON_SIZE = 24;
+const THUMBNAIL_SIZE = 64;
+
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
@@ -93,8 +96,11 @@ function WidgetCard(props: CardProps) {
       onDragStart={onDragStart}
     >
       <div className="gap-2 mt-2">
-        <IconWrapper>
-          <img className="w-6 h-6" src={props.details.icon} />
+        <IconWrapper
+          height={props.details.thumbnail ? THUMBNAIL_SIZE : ICON_SIZE}
+          width={props.details.thumbnail ? THUMBNAIL_SIZE : ICON_SIZE}
+        >
+          <img src={props.details.thumbnail ?? props.details.icon} />
         </IconWrapper>
         <Text kind="body-s">{props.details.displayName}</Text>
         {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
