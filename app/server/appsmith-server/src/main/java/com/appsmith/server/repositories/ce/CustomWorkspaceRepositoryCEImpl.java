@@ -75,7 +75,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                                 "jsonb_path_exists",
                                 Boolean.class,
                                 root.get(fieldName(QWorkspace.workspace.plugins)),
-                                cb.literal("$[*] ? (@.id == \"" + pluginId + "\")")))))
+                                cb.literal("$[*] ? (@.pluginId == \"" + pluginId + "\")")))))
                 .one();
     }
 }
