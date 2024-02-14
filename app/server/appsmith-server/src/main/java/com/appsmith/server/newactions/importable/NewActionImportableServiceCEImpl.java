@@ -381,6 +381,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     .getActionResultDTO()
                     .getActionIdMap()
                     .put(unpublishedAction.getValidName() + parentContext.getId(), unpublishedAction.getId());
+
             sanitizeDatasourceInActionDTO(
                     unpublishedAction,
                     mappedImportableResourcesDTO.getDatasourceNameToIdMap(),
@@ -394,10 +395,12 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             Context publishedActionContext = artifactBasedExportableService.updateContextInResource(
                     publishedAction, mappedImportableResourcesDTO.getContextMap(), fallbackDefaultContextId);
 
-            mappedImportableResourcesDTO
-                    .getActionResultDTO()
-                    .getActionIdMap()
-                    .put(publishedAction.getValidName() + publishedActionContext.getId(), unpublishedAction.getId());
+            if (publishedActionContext != null) {
+                mappedImportableResourcesDTO
+                        .getActionResultDTO()
+                        .getActionIdMap()
+                        .put(publishedAction.getValidName() + publishedActionContext.getId(), publishedAction.getId());
+            }
 
             parentContext = parentContext == null ? publishedActionContext : parentContext;
             sanitizeDatasourceInActionDTO(
