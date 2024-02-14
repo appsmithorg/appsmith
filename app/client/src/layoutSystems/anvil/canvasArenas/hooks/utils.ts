@@ -74,7 +74,9 @@ export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
  * @param draggedWidgets : DraggedWidget[]
  * @returns : number - Highest hierarchy of the dragged widgets
  */
-export function getDraggedWidgetHierarchy(draggedWidgets: DraggedWidget[]): number {
+export function getDraggedWidgetHierarchy(
+  draggedWidgets: DraggedWidget[],
+): number {
   return draggedWidgets.reduce((acc: number, each: DraggedWidget) => {
     const order: number = getWidgetHierarchy(each.type, each.widgetId);
     return order < acc ? order : acc;
