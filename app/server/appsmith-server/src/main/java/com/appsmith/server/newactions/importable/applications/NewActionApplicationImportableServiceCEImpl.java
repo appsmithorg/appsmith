@@ -50,7 +50,7 @@ public class NewActionApplicationImportableServiceCEImpl
             List<NewAction> newActionList, String oldContextName, String newContextName) {
         for (NewAction newAction : newActionList) {
             if (newAction.getUnpublishedAction().getPageId().equals(oldContextName)) {
-                newAction.getPublishedAction().setPageId(newContextName);
+                newAction.getUnpublishedAction().setPageId(newContextName);
             }
         }
     }
