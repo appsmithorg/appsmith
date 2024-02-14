@@ -7,6 +7,7 @@ import {
   WORKFLOW_GENERAL_SETTINGS_PATH,
   WORKFLOW_TRIGGER_SETTINGS_PATH,
   ADD_PATH,
+  CURL_IMPORT_PAGE_PATH,
 } from "@appsmith/constants/routes/appRoutes";
 import { useSelector } from "react-redux";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
@@ -23,6 +24,7 @@ import {
 import WorkflowApiEditor from "../../WorkflowEditor/WorkflowApiEditor";
 import TriggerWorkflowSettings from "../../WorkflowEditor/WorkflowSettingsPane/WorkflowSettings/TriggerWorkflowSettings";
 import GeneralWorkflowSettings from "../../WorkflowEditor/WorkflowSettingsPane/WorkflowSettings/GeneralWorkflowSettings";
+import WorkflowCurlImportEditor from "../../WorkflowEditor/WorkflowCurlImportEditor";
 
 function useRoutes(path: string) {
   const ceRoutes = useCE_Routes(path);
@@ -82,6 +84,15 @@ function useRoutes(path: string) {
         component: GeneralWorkflowSettings,
         path: WORKFLOW_GENERAL_SETTINGS_PATH(path),
         exact: true,
+      },
+      {
+        key: "WorkflowCurlImportEditor",
+        component: WorkflowCurlImportEditor,
+        exact: true,
+        path: [
+          `${WORKFLOW_EDITOR_URL}${CURL_IMPORT_PAGE_PATH}`,
+          `${WORKFLOW_EDITOR_URL}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
+        ],
       },
     ];
   }
