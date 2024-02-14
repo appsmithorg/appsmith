@@ -30,7 +30,7 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
     return () => {
       canvasRef.current?.removeEventListener("click", handleOnClickCapture);
     };
-  }, [canvasRef]);
+  }, []);
   /* End of click event listener */
 
   useCanvasActivation();
