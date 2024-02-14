@@ -155,7 +155,7 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
                 mongoTemplate.findOne(new Query(Criteria.where(FieldNameCE.ID).is(workspaceId)), Workspace.class);
         if (workspace == null) {
             log.error("Workspace not found for id {}", workspaceId);
-            return null;
+            return new HashSet<>();
         }
         Query permissionGroupQuery = new Query();
         permissionGroupQuery.addCriteria(Criteria.where(FieldNameCE.ID).in(workspace.getDefaultPermissionGroups()));
