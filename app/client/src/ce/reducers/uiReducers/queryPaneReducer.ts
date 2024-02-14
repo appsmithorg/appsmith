@@ -8,6 +8,7 @@ import { omit } from "lodash";
 import type { Action } from "entities/Action";
 import type { ActionResponse } from "api/ActionAPI";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
 
 export const initialState: QueryPaneReduxState = {
   isRunning: {},
@@ -134,6 +135,7 @@ export const handlers = {
       },
       debugger: {
         ...state.debugger,
+        selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
         open: true,
       },
     };

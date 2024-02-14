@@ -14,6 +14,7 @@ import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   setActiveJSAction,
   setJsPaneConfigSelectedTab,
+  setJsPaneDebuggerState,
   startExecutingJSFunction,
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
@@ -69,6 +70,7 @@ import {
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -201,6 +203,12 @@ function JSEditorForm({
 
   // Executes JS action
   const executeJSAction = (jsAction: JSAction, from: EventLocation) => {
+    dispatch(
+      setJsPaneDebuggerState({
+        open: true,
+        selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+      }),
+    );
     setActiveResponse(jsAction);
     if (jsAction.id !== selectedJSActionOption.data?.id)
       setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
