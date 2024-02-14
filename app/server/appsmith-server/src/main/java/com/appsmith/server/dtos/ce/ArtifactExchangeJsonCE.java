@@ -57,4 +57,12 @@ public interface ArtifactExchangeJsonCE {
     ModifiedResources getModifiedResources();
 
     void setModifiedResources(ModifiedResources modifiedResources);
+
+    default Theme getUnpublishedTheme() {
+        return null;
+    }
+
+    default Theme getPublishedTheme() {
+        return null;
+    }
 }

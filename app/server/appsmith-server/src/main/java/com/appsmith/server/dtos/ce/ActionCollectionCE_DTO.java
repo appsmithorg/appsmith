@@ -168,4 +168,8 @@ public class ActionCollectionCE_DTO {
         this.setActions(List.of());
         this.setArchivedActions(List.of());
     }
+
+    public String calculateContextId() {
+        return this.getPageId();
+    }
 }

@@ -2,7 +2,6 @@ package com.appsmith.server.applications.base;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
-import com.appsmith.server.applications.imports.ApplicationImportServiceCE;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -23,6 +22,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportServiceCE;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -55,7 +55,8 @@ import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExist
 import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicationProperties;
 
 @Slf4j
-public class ApplicationImportServiceCEImpl implements ApplicationImportServiceCE {
+public class ApplicationImportServiceCEImpl
+        implements ArtifactBasedImportServiceCE<Application, ApplicationImportDTO, ApplicationJson> {
 
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
@@ -148,7 +149,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                         datasourcePermission,
                         workspacePermission)
                 .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                .requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
                 .allPermissionsRequired()
                 .currentUserPermissionGroups(userPermissions)
                 .build();
@@ -171,7 +172,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                         actionPermission,
                         datasourcePermission,
                         workspacePermission)
-                .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                .requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
                 .currentUserPermissionGroups(userPermissions)
                 .build();
     }
@@ -186,7 +187,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                         datasourcePermission,
                         workspacePermission)
                 .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                .requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
                 .currentUserPermissionGroups(userPermissions)
                 .build();
     }
@@ -201,7 +202,7 @@ public class ApplicationImportServiceCEImpl implements ApplicationImportServiceC
                         datasourcePermission,
                         workspacePermission)
                 .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                .requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
                 .allPermissionsRequired()
                 .currentUserPermissionGroups(userPermissions)
                 .build();

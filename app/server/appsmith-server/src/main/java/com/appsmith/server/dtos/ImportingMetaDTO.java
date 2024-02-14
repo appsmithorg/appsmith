@@ -14,6 +14,7 @@ import java.util.Set;
 @Builder(toBuilder = true)
 public class ImportingMetaDTO {
     String workspaceId;
+    String artifactType;
     /**
      * this represents any parent entity's id which could be imported.
      * e.g. application, packages, workflows

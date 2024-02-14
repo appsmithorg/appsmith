@@ -1,12 +1,15 @@
 package com.appsmith.server.applications.base;
 
-import com.appsmith.server.applications.imports.ApplicationImportService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -19,7 +22,8 @@ import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl implements ApplicationImportService {
+public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
+        implements ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson> {
 
     public ApplicationImportServiceImpl(
             ApplicationService applicationService,
