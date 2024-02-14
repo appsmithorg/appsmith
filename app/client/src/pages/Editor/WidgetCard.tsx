@@ -116,7 +116,7 @@ function WidgetCard(props: CardProps) {
       isThumbnail={Boolean(props.details.thumbnail)}
       onDragStart={onDragStart}
     >
-      <div className="">
+      <div className={!Boolean(props.details.thumbnail) ? "gap-2 mt-2" : ""}>
         <IconWrapper
           height={props.details.thumbnail ? THUMBNAIL_HEIGHT : ICON_SIZE}
           width={props.details.thumbnail ? THUMBNAIL_WIDTH : ICON_SIZE}
