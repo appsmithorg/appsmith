@@ -15,10 +15,6 @@ import {
 } from "selectors/debuggerSelectors";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Button, Tooltip } from "design-system";
-import { useLocation } from "react-router";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorState, EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 function Debugger() {
   // Debugger render flag
@@ -32,19 +28,6 @@ export function DebuggerTrigger() {
   const showDebugger = useSelector(showDebuggerFlag);
   const selectedTab = useSelector(getDebuggerSelectedTab);
   const messageCounters = useSelector(getMessageCount);
-  const ideViewMode = useSelector(getIDEViewMode);
-  const location = useLocation();
-
-  const currentEntity = identifyEntityFromPath(location.pathname);
-
-  const visible =
-    ideViewMode === EditorViewMode.SplitScreen ||
-    [
-      FocusEntity.CANVAS,
-      FocusEntity.WIDGET_LIST,
-      FocusEntity.PROPERTY_PANE,
-    ].includes(currentEntity.entity) ||
-    currentEntity.appState === EditorState.DATA;
 
   useEffect(() => {
     dispatch(setErrorCount(messageCounters.errors));
@@ -77,8 +60,6 @@ export function DebuggerTrigger() {
           messageCounters.errors > 1 ? "errors" : "error"
         }`
       : `No errors`;
-
-  if (!visible) return null;
 
   return (
     <Tooltip content={tooltipContent}>
