@@ -56,7 +56,6 @@ import {
   TextType,
 } from "design-system-old";
 import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
-import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
 import PageWrapper from "pages/common/PageWrapper";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import React, {
@@ -129,6 +128,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import ImportModal from "pages/common/ImportModal";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -513,6 +513,8 @@ export function ApplicationsSection(props: any) {
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
+  const urlParams = new URLSearchParams(location.search);
+  const openImportModal = urlParams.get("openImportModal");
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -550,6 +552,20 @@ export function ApplicationsSection(props: any) {
     selectedWorkspaceIdForImportApplication,
     setSelectedWorkspaceIdForImportApplication,
   ] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (openImportModal && activeWorkspaceId) {
+      const shouldOpenImportModal = openImportModal.toLowerCase() === "true";
+
+      if (shouldOpenImportModal) {
+        setSelectedWorkspaceIdForImportApplication(activeWorkspaceId);
+      }
+    }
+  }, [
+    openImportModal,
+    activeWorkspaceId,
+    setSelectedWorkspaceIdForImportApplication,
+  ]);
 
   const leaveWS = (workspaceId: string) => {
     setWarnLeavingWorkspace(false);
@@ -734,7 +750,7 @@ export function ApplicationsSection(props: any) {
                 workspaceSlug: activeWorkspace.id,
               })}
             {selectedWorkspaceIdForImportApplication && (
-              <ImportApplicationModal
+              <ImportModal
                 isModalOpen={
                   selectedWorkspaceIdForImportApplication === activeWorkspace.id
                 }

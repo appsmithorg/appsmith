@@ -310,6 +310,7 @@ export class DataSources {
   _dsStructurePreviewMode = ".datasourceStructure-datasource-view-mode";
   private _dsSchemaEntityItem = ".t--entity-item";
   private _entityTriggerElement = ".t--template-menu-trigger";
+  _dsSchemaTableResponse = ".t--table-response";
 
   public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
