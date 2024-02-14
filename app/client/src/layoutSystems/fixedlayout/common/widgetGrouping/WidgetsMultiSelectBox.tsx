@@ -403,13 +403,7 @@ function WidgetsMultiSelectBox(props: {
       <StyledSelectBoxHandleLeft />
       <StyledSelectBoxHandleRight />
       <StyledSelectBoxHandleBottom />
-      <StyledActionsContainer
-        // height={height}
-        // left={boundLeft ?? undefined}
-        ref={menuRef}
-        // top={boundTop ?? undefined}
-        // visibility={menuVisible}
-      >
+      <StyledActionsContainer ref={menuRef}>
         {/* copy widgets */}
         <Tooltip
           boundary="viewport"
