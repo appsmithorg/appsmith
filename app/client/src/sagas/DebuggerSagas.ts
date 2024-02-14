@@ -12,7 +12,8 @@ import type {
   LogActionPayload,
   LogObject,
 } from "entities/AppsmithConsole";
-import { ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import {
   all,
   call,
@@ -377,6 +378,10 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
         break;
       case LOG_TYPE.ENTITY_DELETED:
         yield fork(onEntityDeleteSaga, payload);
+        break;
+      case LOG_TYPE.MISSING_MODULE:
+        yield put(addErrorLogs(payload));
+        yield put(debuggerLog(payload));
         break;
       default:
         otherLogs = otherLogs.concat(payload);
