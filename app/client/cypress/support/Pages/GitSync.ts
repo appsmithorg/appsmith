@@ -76,7 +76,7 @@ export class GitSync {
     this.agHelper.AssertElementAbsence(this._gitSyncModal);
   }
 
-  OpenGitSettingsModal(tabName?: "GENERAL" | "BRANCH" | "CD") {
+  OpenGitSettingsModal(tabName: "GENERAL" | "BRANCH" | "CD" = "GENERAL") {
     this.agHelper.GetNClick(this._bottomSettingsBtn);
     this.agHelper.AssertElementVisibility(this._gitSettingsModal);
     if (tabName !== "GENERAL") {
