@@ -37,6 +37,7 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
       color: var(--ads-v2-color-fg);
       font-weight: 600;
       height: 32px;
+      line-height: 1.2;
     }`}
 
   img {
