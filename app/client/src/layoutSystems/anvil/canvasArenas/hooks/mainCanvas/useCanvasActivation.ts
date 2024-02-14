@@ -52,7 +52,6 @@ export const useCanvasActivation = () => {
     activateOverlayWidgetDrop,
     dragDetails,
     draggedWidgetHierarchy,
-    draggedWidgetTypes,
     isDragging,
     isNewWidget,
     layoutElementPositions,
