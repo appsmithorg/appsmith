@@ -152,7 +152,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
                 className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${tag
                   .toLowerCase()
                   .replace(/ /g, "-")}`}
-                isOpenq
+                isOpen
                 key={tag}
               >
                 <CollapsibleHeader arrowPosition="start">
