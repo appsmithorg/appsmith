@@ -1521,15 +1521,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                             // So we just rehydrate from the file system to the existing resource on the db
                             .onErrorResume(throwable -> {
                                 if (throwable instanceof DuplicateKeyException) {
-                                    return fileUtils
-                                            .reconstructApplicationJsonFromGitRepoWithAnalytics(
-                                                    srcApplication.getWorkspaceId(),
-                                                    defaultApplicationId,
-                                                    srcApplication
-                                                            .getGitApplicationMetadata()
-                                                            .getRepoName(),
-                                                    branchName)
-                                            .zipWith(Mono.just(tuple.getT2()));
+                                    throw new ex.Marker("DuplicateKeyException");
+                                    // return fileUtils
+                                    //         .reconstructApplicationJsonFromGitRepoWithAnalytics(
+                                    //                 srcApplication.getWorkspaceId(),
+                                    //                 defaultApplicationId,
+                                    //                 srcApplication
+                                    //                         .getGitApplicationMetadata()
+                                    //                         .getRepoName(),
+                                    //                 branchName)
+                                    //         .zipWith(Mono.just(tuple.getT2()));
                                 }
                                 log.error(" Git checkout remote branch failed {}", throwable.getMessage());
                                 return Mono.error(new AppsmithException(

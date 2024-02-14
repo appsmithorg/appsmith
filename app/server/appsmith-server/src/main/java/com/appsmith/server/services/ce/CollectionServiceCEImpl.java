@@ -64,7 +64,8 @@ public class CollectionServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION));
         }
 
-        return repository.findById(collectionId)
+        return repository
+                .findById(collectionId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .flatMap(collection1 -> {
@@ -96,7 +97,8 @@ public class CollectionServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository.findById(collectionId)
+        return repository
+                .findById(collectionId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .zipWith(actionMono)

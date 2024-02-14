@@ -247,7 +247,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
         final String token = UUID.randomUUID().toString();
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
-        return repository.findByEmail(email)
+        return repository
+                .findByEmail(email)
                 .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
@@ -376,7 +377,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                         return emailTokenDTO.getEmail();
                     }
                 })
-                .flatMap(emailAddress -> repository.findByEmail(emailAddress)
+                .flatMap(emailAddress -> repository
+                        .findByEmail(emailAddress)
                         .switchIfEmpty(Mono.error(
                                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
                         .flatMap(userFromDb -> {
@@ -460,7 +462,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                     return Mono.just(crudUser);
                 })
                 .then(Mono.zip(
-                        repository.findByEmail(user.getUsername()), userDataService.getForUserEmail(user.getUsername())))
+                        repository.findByEmail(user.getUsername()),
+                        userDataService.getForUserEmail(user.getUsername())))
                 .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
@@ -480,7 +483,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
-        return repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
+        return repository
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -587,7 +591,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
     @Override
     public Mono<User> update(String id, User userUpdate) {
-        Mono<User> userFromRepository = repository.findById(id, MANAGE_USERS)
+        Mono<User> userFromRepository = repository
+                .findById(id, MANAGE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, userUpdate));
@@ -602,7 +607,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
      */
     @Override
     public Mono<User> updateWithoutPermission(String id, User update) {
-        Mono<User> userFromRepository = repository.findById(id)
+        Mono<User> userFromRepository = repository
+                .findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));

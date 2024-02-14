@@ -51,6 +51,7 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -162,7 +163,8 @@ public class ApplicationServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository.findById(id, applicationPermission.getReadPermission())
+        return repository
+                .findById(id, applicationPermission.getReadPermission())
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
@@ -310,10 +312,10 @@ public class ApplicationServiceCEImpl
         if (!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
-        return super.create(application).onErrorResume(DuplicateKeyException.class, error -> {
+        return super.create(application).onErrorResume(DataIntegrityViolationException.class, error -> {
             if (error.getMessage() != null
-                    // Catch only if error message contains workspace_app_deleted_gitApplicationMetadata mongo error
-                    && error.getMessage().contains("workspace_app_deleted_gitApplicationMetadata")) {
+                    // Catch only if error message contains workspace_app_deleted_git_application_metadata mongo error
+                    && error.getMessage().contains("workspace_app_deleted_git_application_metadata")) {
                 if (suffix > MAX_RETRIES) {
                     return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
                 } else {
@@ -373,8 +375,8 @@ public class ApplicationServiceCEImpl
             } else {
                 applicationIdMono = Mono.just(id);
             }
-            return applicationIdMono.flatMap(appId -> repository.updateById(
-                            appId, application, applicationPermission.getEditPermission())
+            return applicationIdMono.flatMap(appId -> repository
+                    .updateById(appId, application, applicationPermission.getEditPermission())
                     .onErrorResume(error -> {
                         log.error("failed to update application {}", appId, error);
                         if (error instanceof DuplicateKeyException) {
@@ -495,7 +497,8 @@ public class ApplicationServiceCEImpl
         Mono<String> publicPermissionGroupIdMono =
                 permissionGroupService.getPublicPermissionGroupId().cache();
 
-        Mono<Application> updateApplicationMono = repository.findById(id, applicationPermission.getMakePublicPermission())
+        Mono<Application> updateApplicationMono = repository
+                .findById(id, applicationPermission.getMakePublicPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .zipWith(publicPermissionGroupIdMono)
@@ -534,7 +537,8 @@ public class ApplicationServiceCEImpl
                 .switchIfEmpty(this.findByBranchNameAndDefaultApplicationId(
                         branchName, defaultApplicationId, applicationPermission.getMakePublicPermission()))
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
-                .then(repository.findById(defaultApplicationId, applicationPermission.getMakePublicPermission())
+                .then(repository
+                        .findById(defaultApplicationId, applicationPermission.getMakePublicPermission())
                         .flatMap(this::setTransientFields)
                         .map(responseUtils::updateApplicationWithDefaultResources));
     }
@@ -555,7 +559,8 @@ public class ApplicationServiceCEImpl
 
     @Override
     public Mono<Application> getApplicationInViewMode(String applicationId) {
-        return repository.findById(applicationId, applicationPermission.getReadPermission())
+        return repository
+                .findById(applicationId, applicationPermission.getReadPermission())
                 .map(application -> {
                     application.setViewMode(true);
                     return application;
@@ -568,11 +573,11 @@ public class ApplicationServiceCEImpl
         Map<String, Policy> applicationPolicyMap =
                 policySolution.generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
 
-        Flux<String> otherApplicationsForThisRoleFlux =
-                repository.getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
-                                application.getWorkspaceId(), READ_APPLICATIONS, permissionGroupId)
-                        .filter(applicationId -> !application.getId().equals(applicationId))
-                        .cache();
+        Flux<String> otherApplicationsForThisRoleFlux = repository
+                .getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+                        application.getWorkspaceId(), READ_APPLICATIONS, permissionGroupId)
+                .filter(applicationId -> !application.getId().equals(applicationId))
+                .cache();
 
         List<Mono<Void>> updateInheritedDomainsList =
                 updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
@@ -751,7 +756,8 @@ public class ApplicationServiceCEImpl
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
-        return repository.findById(applicationId, applicationPermission.getEditPermission())
+        return repository
+                .findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)))
                 .flatMap(application -> {
@@ -783,7 +789,8 @@ public class ApplicationServiceCEImpl
                     }
                     gitAuth.setRegeneratedKey(true);
 
-                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                    return repository
+                            .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .flatMap(defaultApplication -> {
                                 GitArtifactMetadata gitArtifactMetadata =
                                         defaultApplication.getGitApplicationMetadata();
@@ -825,7 +832,8 @@ public class ApplicationServiceCEImpl
      */
     @Override
     public Mono<GitAuthDTO> getSshKey(String applicationId) {
-        return repository.findById(applicationId, applicationPermission.getEditPermission())
+        return repository
+                .findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
                 .flatMap(application -> {
@@ -852,7 +860,8 @@ public class ApplicationServiceCEImpl
                                 "Can't find root application. Please configure the application with git");
                     }
 
-                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                    return repository
+                            .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .map(rootApplication -> {
                                 GitAuthDTO gitAuthDTO = new GitAuthDTO();
                                 GitAuth gitAuth = rootApplication
@@ -880,11 +889,13 @@ public class ApplicationServiceCEImpl
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
-            return repository.findById(defaultApplicationId, projectionFieldNames, aclPermission)
+            return repository
+                    .findById(defaultApplicationId, projectionFieldNames, aclPermission)
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
         }
-        return repository.getApplicationByGitBranchAndDefaultApplicationId(
+        return repository
+                .getApplicationByGitBranchAndDefaultApplicationId(
                         defaultApplicationId, projectionFieldNames, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
@@ -896,12 +907,14 @@ public class ApplicationServiceCEImpl
     public Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(
             String branchName, String defaultApplicationId, String fieldName, AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
-            return repository.findById(defaultApplicationId, aclPermission)
+            return repository
+                    .findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
         }
 
-        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
+        return repository
+                .getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
@@ -927,7 +940,8 @@ public class ApplicationServiceCEImpl
              We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
              by the updateById method of the BaseAppsmithRepositoryImpl
             */
-            return repository.updateById(
+            return repository
+                    .updateById(
                             applicationId,
                             application,
                             applicationPermission.getEditPermission()) // it'll do a set operation
@@ -944,7 +958,8 @@ public class ApplicationServiceCEImpl
             }
             return Mono.just(defaultApplicationId);
         }
-        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
+        return repository
+                .getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
@@ -961,7 +976,8 @@ public class ApplicationServiceCEImpl
             }
             return Mono.just(defaultApplicationId);
         }
-        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName.get(), permission)
+        return repository
+                .getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName.get(), permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
@@ -1060,7 +1076,8 @@ public class ApplicationServiceCEImpl
 
     @Override
     public Mono<Boolean> isApplicationNameTaken(String applicationName, String workspaceId, AclPermission permission) {
-        return repository.countByNameAndWorkspaceId(applicationName, workspaceId, permission)
+        return repository
+                .countByNameAndWorkspaceId(applicationName, workspaceId, permission)
                 .map(count -> count > 0);
     }
 
@@ -1105,7 +1122,8 @@ public class ApplicationServiceCEImpl
 
     @Override
     public Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches) {
-        return repository.unprotectAllBranches(applicationId, applicationPermission.getEditPermission())
+        return repository
+                .unprotectAllBranches(applicationId, applicationPermission.getEditPermission())
                 .then(Mono.defer(() -> {
                     // Mono.defer is used to ensure the following code is executed only after the previous Mono
                     // completes

@@ -243,7 +243,8 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                     && datasourceStorageDTO.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
                 ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication())
                         .setPassword(finalPassword);
-                return createSuffixedDatasource(datasource, name, environmentId, 1 + suffix);
+                throw new ex.Marker("DuplicateKeyException");
+                // return createSuffixedDatasource(datasource, name, environmentId, 1 + suffix);
             }
             throw error;
         });

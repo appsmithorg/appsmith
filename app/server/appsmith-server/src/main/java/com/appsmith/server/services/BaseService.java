@@ -81,7 +81,8 @@ public abstract class BaseService<
             resource.setPolicies(null);
         }
 
-        return repository.findOne((root, query, builder) -> builder.equal(root.get(key), id))
+        return repository
+                .findOne((root, query, builder) -> builder.equal(root.get(key), id))
                 .flatMap(dbResource -> {
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, dbResource);
                     dbResource.setUpdatedAt(Instant.now());
@@ -127,7 +128,8 @@ public abstract class BaseService<
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository.findById((String) id)
+        return repository
+                .findById((String) id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 

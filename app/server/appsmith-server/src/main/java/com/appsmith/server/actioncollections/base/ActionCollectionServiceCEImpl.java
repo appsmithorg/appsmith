@@ -105,7 +105,8 @@ public class ActionCollectionServiceCEImpl
     @Override
     public Flux<ActionCollection> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
-        return repository.findByApplicationId(applicationId, permission, sort)
+        return repository
+                .findByApplicationId(applicationId, permission, sort)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(collection -> {
                     if (Boolean.TRUE.equals(viewMode)) {
@@ -230,7 +231,8 @@ public class ActionCollectionServiceCEImpl
 
         return applicationService
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getReadPermission())
-                .flatMapMany(branchedApplicationId -> repository.findByApplicationIdAndViewMode(
+                .flatMapMany(branchedApplicationId -> repository
+                        .findByApplicationIdAndViewMode(
                                 branchedApplicationId, true, actionPermission.getExecutePermission())
                         .flatMap(this::generateActionCollectionViewDTO));
     }
@@ -331,7 +333,8 @@ public class ActionCollectionServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<ActionCollection> actionCollectionMono = repository.findById(id, actionPermission.getEditPermission())
+        Mono<ActionCollection> actionCollectionMono = repository
+                .findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
@@ -366,7 +369,8 @@ public class ActionCollectionServiceCEImpl
 
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionEx(
             String id, Optional<AclPermission> permission) {
-        Mono<ActionCollection> actionCollectionMono = repository.findById(id, permission.orElse(null))
+        Mono<ActionCollection> actionCollectionMono = repository
+                .findById(id, permission.orElse(null))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
         return actionCollectionMono
@@ -461,7 +465,8 @@ public class ActionCollectionServiceCEImpl
     @Override
     public Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(
             String applicationId, AclPermission permission) {
-        return repository.findByApplicationId(applicationId, permission, null)
+        return repository
+                .findByApplicationId(applicationId, permission, null)
                 .flatMap(actionCollection -> {
                     Set<String> actionIds = new HashSet<>();
                     actionIds.addAll(actionCollection
@@ -495,7 +500,8 @@ public class ActionCollectionServiceCEImpl
     @Override
     public Flux<ActionCollectionDTO> getCollectionsByPageIdAndViewMode(
             String pageId, boolean viewMode, AclPermission permission) {
-        return repository.findByPageIdAndViewMode(pageId, viewMode, permission)
+        return repository
+                .findByPageIdAndViewMode(pageId, viewMode, permission)
                 .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
     }
 
@@ -518,7 +524,8 @@ public class ActionCollectionServiceCEImpl
 
     @Override
     public Mono<ActionCollection> archiveById(String id) {
-        Mono<ActionCollection> actionCollectionMono = repository.findById(id)
+        Mono<ActionCollection> actionCollectionMono = repository
+                .findById(id)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
@@ -557,7 +564,8 @@ public class ActionCollectionServiceCEImpl
                         }))
                 .collectList()
                 .flatMap(actionList -> actionCollectionMono)
-                .flatMap(actionCollection -> repository.archive(actionCollection).thenReturn(actionCollection))
+                .flatMap(
+                        actionCollection -> repository.archive(actionCollection).thenReturn(actionCollection))
                 .flatMap(deletedActionCollection -> analyticsService.sendDeleteEvent(
                         deletedActionCollection, getAnalyticsProperties(deletedActionCollection))); // */
     }
@@ -586,7 +594,8 @@ public class ActionCollectionServiceCEImpl
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, defaultCollectionId)));
         }
-        return repository.findByBranchNameAndDefaultCollectionId(branchName, defaultCollectionId, permission)
+        return repository
+                .findByBranchNameAndDefaultCollectionId(branchName, defaultCollectionId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, defaultCollectionId)));
     }
@@ -647,9 +656,11 @@ public class ActionCollectionServiceCEImpl
     public Flux<ActionCollection> findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode) {
         if (viewMode) {
-            return repository.findAllPublishedActionCollectionsByContextIdAndContextType(contextId, contextType, permission);
+            return repository.findAllPublishedActionCollectionsByContextIdAndContextType(
+                    contextId, contextType, permission);
         }
-        return repository.findAllUnpublishedActionCollectionsByContextIdAndContextType(contextId, contextType, permission);
+        return repository.findAllUnpublishedActionCollectionsByContextIdAndContextType(
+                contextId, contextType, permission);
     }
 
     protected Mono<ActionDTO> createJsAction(ActionCollection actionCollection, ActionDTO action) {

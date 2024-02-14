@@ -334,6 +334,13 @@ public class SeedData {
         .createNativeQuery(
                 "CREATE OR REPLACE FUNCTION jsonb_question_pipe(l jsonb, r text[]) RETURNS jsonb RETURN l ?| r")
         .executeUpdate(); //*/
+
+        entityManager
+                .createNativeQuery("CREATE UNIQUE INDEX workspace_app_deleted_git_application_metadata"
+                        + " ON application (name, workspace_id, deleted_at, (git_application_metadata->>'remoteUrl'), (git_application_metadata->>'branchName'))"
+                        + " NULLS NOT DISTINCT")
+                .executeUpdate();
+
         return true;
     }
 }

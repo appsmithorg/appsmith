@@ -128,7 +128,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<Map<String, String>> getProfilePhotoAssetIdsForUserIds(Collection<String> userIds) {
-        return repository.findByUserIdIn(userIds)
+        return repository
+                .findByUserIdIn(userIds)
                 .collectMap(
                         UserDataProfilePhotoProjection::getUserId,
                         UserDataProfilePhotoProjection::getProfilePhotoAssetId);

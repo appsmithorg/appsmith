@@ -89,7 +89,8 @@ public class CustomJSLibServiceCEImpl
     @Override
     public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
-        return repository.findUniqueCustomJsLib(jsLib)
+        return repository
+                .findUniqueCustomJsLib(jsLib)
                 // Read more why Mono.defer is used here.
                 // https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
                 .switchIfEmpty(Mono.defer(() -> repository.save(jsLib)))

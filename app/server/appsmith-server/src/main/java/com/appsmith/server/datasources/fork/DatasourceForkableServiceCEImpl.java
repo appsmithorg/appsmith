@@ -161,7 +161,8 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
             if (error.getMessage() != null
                     && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
                 // The duplicate key error is because of the `name` field.
-                return createSuffixedDatasource(datasource, name, 1 + suffix);
+                throw new ex.Marker("DuplicateKeyException");
+                // return createSuffixedDatasource(datasource, name, 1 + suffix);
             }
             throw error;
         });

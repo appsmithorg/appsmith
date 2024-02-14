@@ -86,7 +86,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return repository.findById(tenantId, MANAGE_TENANT)
+        return repository
+                .findById(tenantId, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.TENANT, tenantId)))
                 .flatMap(tenant -> {
@@ -118,7 +119,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
 
     @Override
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
-        return repository.findById(tenantId, permission)
+        return repository
+                .findById(tenantId, permission)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
     }
@@ -163,7 +165,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
     public Mono<Tenant> getDefaultTenant() {
         // Get the default tenant object from the DB and then populate the relevant user permissions in that
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
-        return repository.findBySlug(FieldName.DEFAULT)
+        return repository
+                .findBySlug(FieldName.DEFAULT)
                 .map(tenant -> {
                     if (tenant.getTenantConfiguration() == null) {
                         tenant.setTenantConfiguration(new TenantConfiguration());

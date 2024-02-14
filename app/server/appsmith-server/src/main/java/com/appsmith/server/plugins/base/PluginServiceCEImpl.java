@@ -259,7 +259,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
         return pluginInWorkspaceMono.switchIfEmpty(Mono.defer(() -> {
             log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
             // If the plugin is not found in the workspace, its not installed already. Install now.
-            return repository.findById(pluginDTO.getPluginId())
+            return repository
+                    .findById(pluginDTO.getPluginId())
                     .map(plugin -> {
                         log.debug("Before publishing to the redis queue");
                         // Publish the event to the pub/sub queue
@@ -321,8 +322,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
 
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
-        Mono<Plugin> pluginMono =
-                repository.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
+        Mono<Plugin> pluginMono = repository.findById(
+                installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
         return pluginMono
                 .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
                 .switchIfEmpty(Mono.defer(() -> {

@@ -91,7 +91,8 @@ public class PermissionGroupServiceCEImpl
 
     @Override
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
-        return repository.save(permissionGroup)
+        return repository
+                .save(permissionGroup)
                 .map(pg -> {
                     Set<Permission> permissions = new HashSet<>(
                             Optional.ofNullable(pg.getPermissions()).orElse(Set.of()));
@@ -177,8 +178,8 @@ public class PermissionGroupServiceCEImpl
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().addAll(userIds);
         pg.setAssignedToUserIds(new HashSet<>(pg.getAssignedToUserIds()));
-        Mono<PermissionGroup> permissionGroupUpdateMono = repository.updateById(
-                        pg.getId(), pg, permissionGroupPermission.getAssignPermission())
+        Mono<PermissionGroup> permissionGroupUpdateMono = repository
+                .updateById(pg.getId(), pg, permissionGroupPermission.getAssignPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
 
         Mono<Boolean> clearCacheForUsersMono =
@@ -191,14 +192,16 @@ public class PermissionGroupServiceCEImpl
 
     @Override
     public Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users) {
-        return repository.findById(permissionGroupId, permissionGroupPermission.getAssignPermission())
+        return repository
+                .findById(permissionGroupId, permissionGroupPermission.getAssignPermission())
                 .flatMap(permissionGroup -> bulkAssignToUsers(permissionGroup, users));
     }
 
     @Override
     public Flux<PermissionGroup> getAllByAssignedToUserAndDefaultWorkspace(
             User user, Workspace defaultWorkspace, AclPermission permission) {
-        return repository.findAllByAssignedToUserIdAndDefaultWorkspaceId(user.getId(), defaultWorkspace.getId(), permission);
+        return repository.findAllByAssignedToUserIdAndDefaultWorkspaceId(
+                user.getId(), defaultWorkspace.getId(), permission);
     }
 
     @Override
@@ -224,7 +227,8 @@ public class PermissionGroupServiceCEImpl
 
     @Override
     public Mono<PermissionGroup> bulkUnassignFromUsers(String permissionGroupId, List<User> users) {
-        return repository.findById(permissionGroupId, permissionGroupPermission.getUnAssignPermission())
+        return repository
+                .findById(permissionGroupId, permissionGroupPermission.getUnAssignPermission())
                 .flatMap(permissionGroup -> bulkUnassignFromUsers(permissionGroup, users));
     }
 
@@ -244,7 +248,8 @@ public class PermissionGroupServiceCEImpl
     public Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(
             Set<String> userIds, Set<String> permissionGroupIds) {
         // TODO: This isn't bulk, it's updating each entry in turn.
-        return repository.findAllById(permissionGroupIds)
+        return repository
+                .findAllById(permissionGroupIds)
                 .flatMap(pg -> {
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
                     assignedToUserIds.removeAll(userIds);
@@ -287,7 +292,8 @@ public class PermissionGroupServiceCEImpl
                     Map<String, String> userMap = tuple.getT2();
                     return Flux.fromIterable(userIds).flatMap(userId -> {
                         String email = userMap.get(userId);
-                        return repository.evictAllPermissionGroupCachesForUser(email, defaultTenantId)
+                        return repository
+                                .evictAllPermissionGroupCachesForUser(email, defaultTenantId)
                                 .thenReturn(TRUE);
                     });
                 })
@@ -418,7 +424,8 @@ public class PermissionGroupServiceCEImpl
 
                     updateObj.set(QPermissionGroup.permissionGroup.assignedToUserIds, assignedToUserIds);
 
-                    return repository.updateById(permissionGroupId, updateObj)
+                    return repository
+                            .updateById(permissionGroupId, updateObj)
                             .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
                 })
                 .map(tuple -> TRUE);

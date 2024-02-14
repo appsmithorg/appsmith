@@ -462,8 +462,9 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                                     .save(application)
                                     .onErrorResume(DuplicateKeyException.class, error -> {
                                         if (error.getMessage() != null) {
-                                            return applicationPageService.createOrUpdateSuffixedApplication(
-                                                    application, application.getName(), 0);
+                                            throw new ex.Marker("DuplicateKeyException");
+                                            // return applicationPageService.createOrUpdateSuffixedApplication(
+                                            //         application, application.getName(), 0);
                                         }
                                         throw error;
                                     });

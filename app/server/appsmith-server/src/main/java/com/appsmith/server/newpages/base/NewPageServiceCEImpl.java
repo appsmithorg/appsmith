@@ -204,7 +204,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Mono<PageDTO> findByIdAndLayoutsId(
             String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
-        return repository.findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
+        return repository
+                .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
@@ -472,7 +473,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view) {
-        return repository.findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
+        return repository
+                .findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
@@ -518,7 +520,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> updatePage(String pageId, PageDTO page) {
-        return repository.findById(pageId, pagePermission.getEditPermission())
+        return repository
+                .findById(pageId, pagePermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(dbPage -> {
@@ -535,7 +538,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
-        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+        return repository
+                .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(newPage -> updatePage(newPage.getId(), page))
                 .map(responseUtils::updatePageDTOWithDefaultResources); // */
     }
@@ -602,7 +606,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId)));
         }
-        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+        return repository
+                .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId + ", " + branchName)));
     }
@@ -615,7 +620,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             }
             return Mono.just(defaultPageId);
         }
-        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+        return repository
+                .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName)))
                 .map(NewPage::getId); // */

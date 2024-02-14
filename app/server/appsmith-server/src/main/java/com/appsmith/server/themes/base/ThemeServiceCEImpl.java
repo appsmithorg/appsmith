@@ -102,7 +102,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
                         themeId = application.getPublishedModeThemeId();
                     }
                     if (StringUtils.hasLength(themeId)) {
-                        return repository.findById(themeId, READ_THEMES)
+                        return repository
+                                .findById(themeId, READ_THEMES)
                                 .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
                     } else { // theme id is not present, return default theme
                         return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
@@ -144,7 +145,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
                         branchName, applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .flatMap(application -> repository.findById(application.getEditModeThemeId(), READ_THEMES)
+                .flatMap(application -> repository
+                        .findById(application.getEditModeThemeId(), READ_THEMES)
                         .defaultIfEmpty(new Theme())
                         .zipWith(repository.findById(newThemeId, READ_THEMES))
                         .flatMap(themeTuple2 -> {
@@ -170,7 +172,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
                                                 && !StringUtils.hasLength(currentTheme.getApplicationId())) {
                                             // current theme is neither a system theme nor app theme, delete the user
                                             // customizations
-                                            return repository.delete(currentTheme)
+                                            return repository
+                                                    .delete(currentTheme)
                                                     .then(applicationRepository.setAppTheme(
                                                             application.getId(),
                                                             savedTheme.getId(),
@@ -279,7 +282,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
             Theme targetThemeResource,
             Application application,
             ApplicationMode applicationMode) {
-        return repository.findById(currentThemeId, READ_THEMES)
+        return repository
+                .findById(currentThemeId, READ_THEMES)
                 .flatMap(currentTheme -> {
                     // update the attributes of entity as per the request DTO
                     currentTheme.setConfig(targetThemeResource.getConfig());
@@ -403,7 +407,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
 
     @Override
     public Mono<Theme> archiveById(String themeId) {
-        return repository.findById(themeId, MANAGE_THEMES)
+        return repository
+                .findById(themeId, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.THEME)))
                 .flatMap(theme -> {
@@ -434,7 +439,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
 
     @Override
     public Mono<Theme> updateName(String id, Theme themeDto) {
-        return repository.findById(id, MANAGE_THEMES)
+        return repository
+                .findById(id, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.THEME, id)))
                 .flatMap(theme -> {
                     if (StringUtils.hasLength(themeDto.getName())) {
@@ -453,7 +459,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
         if (theme == null) { // this application was exported without theme, assign the legacy theme to it
             return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
         } else if (theme.isSystemTheme()) {
-            return repository.getSystemThemeByName(theme.getName())
+            return repository
+                    .getSystemThemeByName(theme.getName())
                     .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
         } else {
             // create a new theme
@@ -479,7 +486,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
      */
     @Override
     public Mono<Application> archiveApplicationThemes(Application application) {
-        return repository.archiveByApplicationId(application.getId())
+        return repository
+                .archiveByApplicationId(application.getId())
                 .then(repository.archiveDraftThemesById(
                         application.getEditModeThemeId(), application.getPublishedModeThemeId()))
                 .thenReturn(application);

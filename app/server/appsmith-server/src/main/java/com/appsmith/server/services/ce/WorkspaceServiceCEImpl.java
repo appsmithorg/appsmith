@@ -424,7 +424,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         // Ensure the resource has the same ID as from the parameter.
         resource.setId(id);
 
-        Mono<Workspace> findWorkspaceMono = repository.findById(id, workspacePermission.getEditPermission())
+        Mono<Workspace> findWorkspaceMono = repository
+                .findById(id, workspacePermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)))
                 .cache();
@@ -552,7 +553,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
         }
 
-        final Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, workspacePermission.getEditPermission())
+        final Mono<Workspace> findWorkspaceMono = repository
+                .findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
@@ -580,7 +582,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> deleteLogo(String workspaceId) {
-        return repository.findById(workspaceId, workspacePermission.getEditPermission())
+        return repository
+                .findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .flatMap(workspace -> {
@@ -612,7 +615,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .flatMap(appCount -> {
                     if (appCount == 0) { // no application found under this workspace
                         // fetching the workspace first to make sure user has permission to archive
-                        return repository.findById(workspaceId, workspacePermission.getDeletePermission())
+                        return repository
+                                .findById(workspaceId, workspacePermission.getDeletePermission())
                                 .switchIfEmpty(Mono.error(new AppsmithException(
                                         AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                                 .flatMap(workspace -> {

@@ -257,10 +257,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             String defaultApplicationId, AclPermission permission) {
         String gitApplicationMetadata = "gitApplicationMetadata";
 
-        Criteria applicationIdCriteria =
-                where(gitApplicationMetadata + "." + "defaultApplicationId").is(defaultApplicationId);
         return queryBuilder()
-                .criteria(applicationIdCriteria)
+                .spec(Bridge.conditioner()
+                        .equal(gitApplicationMetadata + "." + "defaultApplicationId", defaultApplicationId))
                 .permission(permission)
                 .all();
     }
