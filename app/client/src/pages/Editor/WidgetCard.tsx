@@ -13,7 +13,7 @@ interface CardProps {
   details: WidgetCardProps;
 }
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
   border-radius: var(--ads-v2-border-radius);
   border: none;
   position: relative;
@@ -25,6 +25,18 @@ export const Wrapper = styled.div`
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
+
+  ${(props) =>
+    props.isThumbnail &&
+    `background-color: var(--ads-v2-color-gray-50);
+    padding: var(--ads-v2-spaces-3);
+    
+    &  span {
+      padding-left: var(--ads-v2-spaces-3);
+      padding-right: var(--ads-v2-spaces-3);
+      color: var(--ads-v2-color-fg);
+      font-weight: 600;
+    }`}
 
   img {
     cursor: grab;
@@ -95,9 +107,10 @@ function WidgetCard(props: CardProps) {
       data-guided-tour-id={`widget-card-${type}`}
       draggable
       id={`widget-card-draggable-${type}`}
+      isThumbnail={Boolean(props.details.thumbnail)}
       onDragStart={onDragStart}
     >
-      <div className="gap-2 mt-2">
+      <div className="">
         <IconWrapper
           height={props.details.thumbnail ? THUMBNAIL_HEIGHT : ICON_SIZE}
           width={props.details.thumbnail ? THUMBNAIL_WIDTH : ICON_SIZE}
