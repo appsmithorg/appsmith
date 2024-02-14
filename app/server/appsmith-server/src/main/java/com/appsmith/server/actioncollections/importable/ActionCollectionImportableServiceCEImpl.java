@@ -35,7 +35,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
     protected final ArtifactBasedImportableService<ActionCollection, Application> applicationImportableService;
 
     @Override
-    public ArtifactBasedImportableService<ActionCollection, ?> getArtifactBasedExportableService(
+    public ArtifactBasedImportableService<ActionCollection, ?> getArtifactBasedImportableService(
             ImportingMetaDTO importingMetaDTO) {
         return applicationImportableService;
     }
@@ -70,7 +70,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         ArtifactBasedImportableService<ActionCollection, ?> artifactBasedExportableService =
-                getArtifactBasedExportableService(importingMetaDTO);
+                getArtifactBasedImportableService(importingMetaDTO);
 
         Mono<List<ActionCollection>> importedActionCollectionMono = Mono.just(importedActionCollectionList);
 
@@ -120,7 +120,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         ArtifactBasedImportableService<ActionCollection, ?> artifactBasedExportableService =
-                getArtifactBasedExportableService(importingMetaDTO);
+                getArtifactBasedImportableService(importingMetaDTO);
 
         /* Mono.just(importableArtifact) is created to avoid the eagerly fetching of existing actionCollections
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
@@ -256,7 +256,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             ActionCollection actionCollection) {
 
         ArtifactBasedImportableService<ActionCollection, ?> artifactBasedExportableService =
-                this.getArtifactBasedExportableService(importingMetaDTO);
+                this.getArtifactBasedImportableService(importingMetaDTO);
 
         String idFromJsonFile = actionCollection.getId();
         String workspaceId = importingMetaDTO.getWorkspaceId();

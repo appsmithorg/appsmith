@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 public interface ImportableServiceCE<T extends BaseDomain> {
 
-    ArtifactBasedImportableService<T, ?> getArtifactBasedExportableService(ImportingMetaDTO importingMetaDTO);
+    ArtifactBasedImportableService<T, ?> getArtifactBasedImportableService(ImportingMetaDTO importingMetaDTO);
 
     Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,

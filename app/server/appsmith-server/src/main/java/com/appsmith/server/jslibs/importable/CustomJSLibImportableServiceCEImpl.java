@@ -25,7 +25,7 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
     }
 
     @Override
-    public ArtifactBasedImportableService<CustomJSLib, ?> getArtifactBasedExportableService(
+    public ArtifactBasedImportableService<CustomJSLib, ?> getArtifactBasedImportableService(
             ImportingMetaDTO importingMetaDTO) {
         // Nothing here is artifact dependent
         return null;

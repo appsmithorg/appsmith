@@ -37,7 +37,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
     }
 
     @Override
-    public ArtifactBasedImportableService<Theme, ?> getArtifactBasedExportableService(
+    public ArtifactBasedImportableService<Theme, ?> getArtifactBasedImportableService(
             ImportingMetaDTO importingMetaDTO) {
         // We do not support themes in packages
         return null;

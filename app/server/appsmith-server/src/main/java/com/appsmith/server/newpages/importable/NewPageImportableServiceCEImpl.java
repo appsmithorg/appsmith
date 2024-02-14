@@ -58,7 +58,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
     private final NewActionService newActionService;
 
     @Override
-    public ArtifactBasedImportableService<NewPage, ?> getArtifactBasedExportableService(
+    public ArtifactBasedImportableService<NewPage, ?> getArtifactBasedImportableService(
             ImportingMetaDTO importingMetaDTO) {
         // This service is already artifact specific
         return null;

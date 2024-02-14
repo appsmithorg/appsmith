@@ -50,7 +50,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     protected final ArtifactBasedImportableService<NewAction, Application> applicationImportableService;
 
     @Override
-    public ArtifactBasedImportableService<NewAction, ?> getArtifactBasedExportableService(
+    public ArtifactBasedImportableService<NewAction, ?> getArtifactBasedImportableService(
             ImportingMetaDTO importingMetaDTO) {
         return applicationImportableService;
     }
@@ -195,7 +195,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         ArtifactBasedImportableService<NewAction, ?> artifactBasedExportableService =
-                getArtifactBasedExportableService(importingMetaDTO);
+                getArtifactBasedImportableService(importingMetaDTO);
 
         Mono<List<NewAction>> importedNewActionMono = Mono.justOrEmpty(importedNewActions);
 
@@ -241,7 +241,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         ArtifactBasedImportableService<NewAction, ?> artifactBasedExportableService =
-                getArtifactBasedExportableService(importingMetaDTO);
+                getArtifactBasedImportableService(importingMetaDTO);
 
         /* Mono.just(importableArtifact) is created to avoid the eagerly fetching of existing actions
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
@@ -363,7 +363,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             NewAction branchedNewAction,
             NewAction newAction) {
         ArtifactBasedImportableService<NewAction, ?> artifactBasedExportableService =
-                this.getArtifactBasedExportableService(importingMetaDTO);
+                this.getArtifactBasedImportableService(importingMetaDTO);
 
         String workspaceId = importingMetaDTO.getWorkspaceId();
         ActionDTO unpublishedAction = newAction.getUnpublishedAction();

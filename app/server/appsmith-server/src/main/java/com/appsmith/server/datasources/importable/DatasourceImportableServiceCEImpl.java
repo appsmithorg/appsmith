@@ -69,7 +69,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
     }
 
     @Override
-    public ArtifactBasedImportableService<Datasource, ?> getArtifactBasedExportableService(
+    public ArtifactBasedImportableService<Datasource, ?> getArtifactBasedImportableService(
             ImportingMetaDTO importingMetaDTO) {
         // this resource is not artifact dependent
         return null;

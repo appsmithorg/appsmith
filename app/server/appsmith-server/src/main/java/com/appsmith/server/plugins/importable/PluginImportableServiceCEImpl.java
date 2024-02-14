@@ -28,7 +28,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
     }
 
     @Override
-    public ArtifactBasedImportableService<Plugin, ?> getArtifactBasedExportableService(
+    public ArtifactBasedImportableService<Plugin, ?> getArtifactBasedImportableService(
             ImportingMetaDTO importingMetaDTO) {
         // this resource is not artifact dependent
         return null;
