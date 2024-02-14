@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Flex, Text } from "design-system";
+import { Flex } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { animated, useSpring } from "react-spring";
@@ -20,6 +20,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSele
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
 import { getPagesActiveStatus } from "selectors/ideSelectors";
+import PaneHeader from "../LeftPane/PaneHeader";
 
 const AnimatedFlex = animated(Flex);
 const defaultAnimationState = { height: "0%" };
@@ -100,28 +101,20 @@ const PagesSection = () => {
       overflow={"hidden"}
       style={springs}
     >
-      <Flex
-        alignItems={"center"}
-        background={"var(--ads-v2-color-bg-subtle)"}
-        borderBottom={"1px solid var(--ads-v2-color-border)"}
-        flexDirection={"row"}
-        justifyContent={"space-between"}
-        p="spaces-2"
-        pl="spaces-3"
-        width={"100%"}
-      >
-        <Text isBold kind={"body-m"}>
-          All Pages ({pages.length})
-        </Text>
-        {canCreatePages ? (
-          <AddPageContextMenu
-            className={`${EntityClassNames.ADD_BUTTON} group pages`}
-            createPageCallback={createPageCallback}
-            onMenuClose={onMenuClose}
-            openMenu={isMenuOpen}
-          />
-        ) : null}
-      </Flex>
+      <PaneHeader
+        rightIcon={
+          canCreatePages ? (
+            <AddPageContextMenu
+              buttonSize="sm"
+              className={`${EntityClassNames.ADD_BUTTON} group pages`}
+              createPageCallback={createPageCallback}
+              onMenuClose={onMenuClose}
+              openMenu={isMenuOpen}
+            />
+          ) : null
+        }
+        title={`All Pages (${pages.length})`}
+      />
       <Flex
         alignItems={"center"}
         flex={"1"}

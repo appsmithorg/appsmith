@@ -17,6 +17,7 @@ import {
   GENERATE_PAGE_ACTION_TITLE,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { ButtonSizes } from "design-system";
 import {
   Menu,
   MenuContent,
@@ -45,9 +46,11 @@ interface SubMenuProps {
   openMenu: boolean;
   onMenuClose: () => void;
   createPageCallback: () => void;
+  buttonSize?: ButtonSizes;
 }
 
 function AddPageContextMenu({
+  buttonSize,
   className,
   createPageCallback,
   onMenuClose,
@@ -124,6 +127,7 @@ function AddPageContextMenu({
         >
           <AddButtonWrapper>
             <EntityAddButton
+              buttonSize={buttonSize}
               className={`${className} ${show ? "selected" : ""}`}
               onClick={() => handleOpenChange(true)}
             />
