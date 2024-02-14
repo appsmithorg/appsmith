@@ -18,7 +18,6 @@
     flex-grow: 1;
     color: var(--color-fg);
     text-overflow: ellipsis;
-    flex-grow: 1;
     padding: 0;
 
     &:autofill,
