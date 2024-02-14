@@ -28,8 +28,7 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
 
   ${(props) =>
     props.isThumbnail &&
-    `background-color: var(--ads-v2-color-gray-50);
-    padding-bottom: var(--ads-v2-spaces-3);
+    `padding-bottom: var(--ads-v2-spaces-3);
     
     &  span {
       padding-left: var(--ads-v2-spaces-3);
