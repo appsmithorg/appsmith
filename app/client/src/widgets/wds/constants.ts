@@ -1,3 +1,5 @@
+import { anvilWidgets } from "widgets/anvil/constants";
+
 export const WDS_V2_WIDGET_MAP = {
   BUTTON_WIDGET: "WDS_BUTTON_WIDGET",
   INPUT_WIDGET_V2: "WDS_INPUT_WIDGET",
@@ -18,6 +20,9 @@ export const WDS_V2_WIDGET_MAP = {
   MODAL_WIDGET: "WDS_MODAL_WIDGET",
   STATBOX_WIDGET: "WDS_STATBOX_WIDGET",
   KEY_VALUE_WIDGET: "WDS_KEY_VALUE_WIDGET",
+
+  // Anvil layout widgets
+  ZONE_WIDGET: anvilWidgets.ZONE_WIDGET,
 };
 
 export const WDS_MODAL_WIDGET_CLASSNAME = "appsmith-modal-body";
