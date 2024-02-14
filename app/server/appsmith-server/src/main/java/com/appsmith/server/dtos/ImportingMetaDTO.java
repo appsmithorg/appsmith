@@ -1,6 +1,6 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
+import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

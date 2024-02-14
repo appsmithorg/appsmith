@@ -10,14 +10,12 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ArtifactPermission;
+import com.appsmith.server.solutions.ContextPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 import java.util.Set;
 
@@ -40,12 +38,12 @@ import java.util.Set;
  */
 @AllArgsConstructor
 @Getter
-public class ImportArtifactPermissionProvider {
+public class ImportArtifactPermissionProviderCE {
     @Getter(AccessLevel.NONE)
     private final ArtifactPermission artifactPermission;
 
     @Getter(AccessLevel.NONE)
-    private final PagePermission pagePermission;
+    protected final ContextPermission contextPermission;
 
     @Getter(AccessLevel.NONE)
     private final ActionPermission actionPermission;
@@ -61,8 +59,10 @@ public class ImportArtifactPermissionProvider {
 
     // minimum required permission on the application being updated in the import flow
     private final AclPermission requiredPermissionOnTargetApplication;
+
     // all the permission groups of the current user
     private final Set<String> currentUserPermissionGroups;
+
     /*
     Following fields are flags to indicate whether permission check is required on the corresponding operation.
      */
@@ -71,23 +71,13 @@ public class ImportArtifactPermissionProvider {
     // flag to indicate whether permission check is required on the create page operation
     private boolean permissionRequiredToCreatePage;
     // flag to indicate whether permission check is required on the edit page operation
-    private boolean permissionRequiredToEditPage;
+    protected boolean permissionRequiredToEditContext;
     // flag to indicate whether permission check is required on the create action operation
-    private boolean permissionRequiredToCreateAction;
+    protected boolean permissionRequiredToCreateAction;
     // flag to indicate whether permission check is required on the edit action operation
     private boolean permissionRequiredToEditAction;
     // flag to indicate whether permission check is required during the edit datasource operation
     private boolean permissionRequiredToEditDatasource;
-
-    public static Builder builder(
-            ApplicationPermission applicationPermission,
-            PagePermission pagePermission,
-            ActionPermission actionPermission,
-            DatasourcePermission datasourcePermission,
-            WorkspacePermission workspacePermission) {
-        return new Builder(
-                applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
-    }
 
     /**
      * Helper method to check whether the provided permission is present in the provided baseDomain's policies.
@@ -97,7 +87,7 @@ public class ImportArtifactPermissionProvider {
      * @param baseDomain BaseDomain where the permission is being checked
      * @return True if there is a match, false otherwise
      */
-    private boolean hasPermission(AclPermission permission, BaseDomain baseDomain) {
+    protected boolean hasPermission(AclPermission permission, BaseDomain baseDomain) {
         if (permission == null) {
             return true;
         }
@@ -106,10 +96,10 @@ public class ImportArtifactPermissionProvider {
     }
 
     public boolean hasEditPermission(NewPage page) {
-        if (!permissionRequiredToEditPage) {
+        if (!permissionRequiredToEditContext) {
             return true;
         }
-        return hasPermission(pagePermission.getEditPermission(), page);
+        return hasPermission(contextPermission.getEditPermission(), page);
     }
 
     public boolean hasEditPermission(NewAction action) {
@@ -137,7 +127,7 @@ public class ImportArtifactPermissionProvider {
         if (!permissionRequiredToCreateAction) {
             return true;
         }
-        return hasPermission(pagePermission.getActionCreatePermission(), page);
+        return hasPermission(contextPermission.getActionCreatePermission(), page);
     }
 
     public boolean canCreateDatasource(Workspace workspace) {
@@ -145,80 +135,5 @@ public class ImportArtifactPermissionProvider {
             return true;
         }
         return hasPermission(workspacePermission.getDatasourceCreatePermission(), workspace);
-    }
-
-    public static Builder builder(
-            ArtifactPermission artifactPermission,
-            PagePermission pagePermission,
-            ActionPermission actionPermission,
-            DatasourcePermission datasourcePermission,
-            WorkspacePermission workspacePermission) {
-        return new Builder(
-                artifactPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
-    }
-
-    @Setter
-    @Accessors(chain = true, fluent = true)
-    public static class Builder {
-        private final ArtifactPermission artifactPermission;
-        private final PagePermission pagePermission;
-        private final ActionPermission actionPermission;
-        private final DatasourcePermission datasourcePermission;
-        private final WorkspacePermission workspacePermission;
-
-        private AclPermission requiredPermissionOnTargetWorkspace;
-        private AclPermission requiredPermissionOnTargetApplication;
-
-        private Set<String> currentUserPermissionGroups;
-
-        private boolean permissionRequiredToCreateDatasource;
-        private boolean permissionRequiredToCreatePage;
-        private boolean permissionRequiredToEditPage;
-        private boolean permissionRequiredToCreateAction;
-        private boolean permissionRequiredToEditAction;
-        private boolean permissionRequiredToEditDatasource;
-
-        private Builder(
-                ArtifactPermission artifactPermission,
-                PagePermission pagePermission,
-                ActionPermission actionPermission,
-                DatasourcePermission datasourcePermission,
-                WorkspacePermission workspacePermission) {
-            this.artifactPermission = artifactPermission;
-            this.pagePermission = pagePermission;
-            this.actionPermission = actionPermission;
-            this.datasourcePermission = datasourcePermission;
-            this.workspacePermission = workspacePermission;
-        }
-
-        public Builder allPermissionsRequired() {
-            this.permissionRequiredToCreateDatasource = true;
-            this.permissionRequiredToCreatePage = true;
-            this.permissionRequiredToEditPage = true;
-            this.permissionRequiredToCreateAction = true;
-            this.permissionRequiredToEditAction = true;
-            this.permissionRequiredToEditDatasource = true;
-            return this;
-        }
-
-        public ImportArtifactPermissionProvider build() {
-            // IMPORTANT: make sure that we've added unit tests for all the properties.
-            // Otherwise, we may end up passing value of one attribute of same type to another.
-            return new ImportArtifactPermissionProvider(
-                    artifactPermission,
-                    pagePermission,
-                    actionPermission,
-                    datasourcePermission,
-                    workspacePermission,
-                    requiredPermissionOnTargetWorkspace,
-                    requiredPermissionOnTargetApplication,
-                    currentUserPermissionGroups,
-                    permissionRequiredToCreateDatasource,
-                    permissionRequiredToCreatePage,
-                    permissionRequiredToEditPage,
-                    permissionRequiredToCreateAction,
-                    permissionRequiredToEditAction,
-                    permissionRequiredToEditDatasource);
-        }
     }
 }
