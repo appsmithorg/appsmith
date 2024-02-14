@@ -60,9 +60,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         Mono<ImportActionCollectionResultDTO> importActionCollectionMono = createImportActionCollectionMono(
                 importedActionCollectionList, importableArtifactMono, importingMetaDTO, mappedImportableResourcesDTO);
 
-        return importActionCollectionMono
-                .doOnNext(mappedImportableResourcesDTO::setActionCollectionResultDTO)
-                .then();
+        return importActionCollectionMono.then();
     }
 
     private Mono<ImportActionCollectionResultDTO> createImportActionCollectionMono(
@@ -130,6 +128,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         return Mono.just(importableArtifact)
                 .flatMap(artifact -> {
                     ImportActionCollectionResultDTO resultDTO = new ImportActionCollectionResultDTO();
+                    mappedImportableResourcesDTO.setActionCollectionResultDTO(resultDTO);
 
                     // Map of gitSyncId to actionCollection of the existing records in DB
                     Mono<Map<String, ActionCollection>> actionCollectionsInCurrentArtifactMono =

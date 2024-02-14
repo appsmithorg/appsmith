@@ -248,6 +248,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
          */
         return Mono.just(importableArtifact).flatMap(artifact -> {
             ImportActionResultDTO importActionResultDTO = new ImportActionResultDTO();
+            mappedImportableResourcesDTO.setActionResultDTO(importActionResultDTO);
 
             Mono<Map<String, NewAction>> actionsInCurrentArtifactMono = artifactBasedExportableService
                     .getExistingResourcesInCurrentArtifactFlux(artifact)
@@ -344,8 +345,6 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                 "Saving actions in bulk. New: {}, Updated: {}",
                                 newNewActionList.size(),
                                 existingNewActionList.size());
-
-                        mappedImportableResourcesDTO.setActionResultDTO(importActionResultDTO);
 
                         // Save all the new actions in bulk
                         return newActionService
