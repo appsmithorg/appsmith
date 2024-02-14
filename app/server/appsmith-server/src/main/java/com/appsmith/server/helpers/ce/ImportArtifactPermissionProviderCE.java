@@ -60,6 +60,9 @@ public class ImportArtifactPermissionProviderCE {
     // minimum required permission on the application being updated in the import flow
     private final AclPermission requiredPermissionOnTargetApplication;
 
+    // all the permission groups of the current user
+    private final Set<String> currentUserPermissionGroups;
+
     /*
     Following fields are flags to indicate whether permission check is required on the corresponding operation.
      */
@@ -77,9 +80,6 @@ public class ImportArtifactPermissionProviderCE {
 
     // flag to indicate whether permission check is required during the edit datasource operation
     private boolean permissionRequiredToEditDatasource;
-
-    // all the permission groups of the current user
-    private final Set<String> currentUserPermissionGroups;
 
     /**
      * Helper method to check whether the provided permission is present in the provided baseDomain's policies.
