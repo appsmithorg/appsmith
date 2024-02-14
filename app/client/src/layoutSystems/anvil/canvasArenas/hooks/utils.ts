@@ -3,15 +3,9 @@ import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import {
-  type AnvilDraggedWidgetTypes,
-  AnvilDraggedWidgetTypesEnum,
-} from "../types";
+import { AnvilDraggedWidgetTypesEnum } from "../types";
 import { anvilWidgets } from "widgets/anvil/constants";
-import {
-  HIGHLIGHT_SIZE,
-  widgetHierarchy,
-} from "layoutSystems/anvil/utils/constants";
+import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 
 /**
