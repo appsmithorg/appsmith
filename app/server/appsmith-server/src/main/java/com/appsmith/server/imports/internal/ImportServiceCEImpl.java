@@ -159,7 +159,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .flatMap(tuple2 -> {
                     ImportableArtifact context = tuple2.getT2();
-                    ArtifactExchangeJson artifactExchangeJson = tuple2.getT1();
                     return getArtifactImportDTO(context.getWorkspaceId(), context.getId(), context, artifactJsonType);
                 });
 

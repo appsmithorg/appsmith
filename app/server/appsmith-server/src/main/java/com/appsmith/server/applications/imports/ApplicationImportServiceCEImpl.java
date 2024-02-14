@@ -606,7 +606,7 @@ public class ApplicationImportServiceCEImpl
                 .findAllByApplicationIdAndViewMode(defaultApplicationId, false, Optional.empty(), Optional.empty())
                 .filter(newAction -> StringUtils.hasText(
                         newAction.getUnpublishedAction().getDatasource().getId()))
-                .map(newAction ->
+                .mapNotNull(newAction ->
                         newAction.getUnpublishedAction().getDatasource().getId())
                 .collect(Collectors.toSet());
     }

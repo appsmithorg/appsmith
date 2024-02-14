@@ -101,7 +101,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                     mappedImportableResourcesDTO);
 
             return datasourceMapMono
-                    .doOnNext(mappedImportableResourcesDTO::setDatasourceNameToIdMap)
+                    .doOnNext(datasourceMap -> mappedImportableResourcesDTO.setDatasourceNameToIdMap(datasourceMap))
                     .then();
         });
     }
@@ -166,7 +166,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                 if (datasourceStorage.getGitSyncId() != null
                                         && savedDatasourcesGitIdToDatasourceMap.containsKey(
                                                 datasourceStorage.getGitSyncId())) {
-                                    Datasource dsWithSameGitsyncId = savedDatasourcesGitIdToDatasourceMap.get(
+                                    Datasource dsWithSameGitSyncId = savedDatasourcesGitIdToDatasourceMap.get(
                                             datasourceStorage.getGitSyncId()); // found a match
                                     // we'll be renaming the matchingDatasource with targetDatasourceName
                                     String targetDatasourceName = datasourceStorage.getName();
@@ -176,12 +176,12 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                         // found with same name, check if it's matchingDatasource or not
                                         Datasource dsWithSameName =
                                                 savedDatasourcesNameDatasourceMap.get(targetDatasourceName);
-                                        if (dsWithSameName.getId().equals(dsWithSameGitsyncId.getId())) {
+                                        if (dsWithSameName.getId().equals(dsWithSameGitSyncId.getId())) {
                                             // same DS, we can rename safely
-                                            existingDatasource = dsWithSameGitsyncId;
+                                            existingDatasource = dsWithSameGitSyncId;
                                         } // otherwise existingDatasource will be null
                                     } else { // no DS found with the targetDatasourceName, we can rename safely
-                                        existingDatasource = dsWithSameGitsyncId;
+                                        existingDatasource = dsWithSameGitSyncId;
                                     }
                                 }
                                 // Check if the datasource has gitSyncId and if it's already in DB
