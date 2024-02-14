@@ -95,7 +95,7 @@ import {
   getConfigInitialValues,
 } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   createNewApiAction,
