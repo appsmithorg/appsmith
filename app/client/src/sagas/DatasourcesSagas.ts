@@ -117,7 +117,7 @@ import {
   OAUTH_AUTHORIZATION_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";

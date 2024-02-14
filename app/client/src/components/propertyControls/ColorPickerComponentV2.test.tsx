@@ -82,67 +82,67 @@ describe("<ColorPicker />", () => {
 });
 
 describe("<ColorPicker /> - Keyboard Navigation", () => {
-  it("Pressing tab should focus the component", () => {
+  it("Pressing tab should focus the component", async () => {
     render(getTestComponent());
-    userEvent.tab();
+    await userEvent.tab();
     expect(screen.getByRole("textbox")).toHaveFocus();
   });
 
-  it("Pressing {Enter} should open the colorpicker", () => {
+  it("Pressing {Enter} should open the colorpicker", async () => {
     render(getTestComponent());
-    userEvent.tab();
+    await userEvent.tab();
     expect(screen.queryByTestId("color-picker")).toBeNull();
-    userEvent.keyboard("{Enter}");
-    expect(screen.queryByTestId("color-picker")).toBeInTheDocument();
+    await userEvent.keyboard("{Enter}");
+    expect(screen.getByTestId("color-picker")).toBeInTheDocument();
   });
 
   it("Pressing {Escape} should close the colorpicker", async () => {
     render(getTestComponent());
-    userEvent.tab();
+    await userEvent.tab();
     expect(screen.queryByTestId("color-picker")).toBeNull();
-    userEvent.keyboard("{Enter}");
-    expect(screen.queryByTestId("color-picker")).toBeInTheDocument();
-    userEvent.keyboard("{Escape}");
+    await userEvent.keyboard("{Enter}");
+    expect(screen.getByTestId("color-picker")).toBeInTheDocument();
+    await userEvent.keyboard("{Escape}");
     await waitForElementToBeRemoved(screen.queryByTestId("color-picker"));
   });
 
-  it("Pressing {Tab} should shift sections in the colorpicker", () => {
+  it("Pressing {Tab} should shift sections in the colorpicker", async () => {
     render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[0],
     ).toHaveFocus();
 
-    userEvent.tab();
+    await userEvent.tab();
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
     ).toHaveFocus();
 
     // Back to first color
-    userEvent.tab();
+    await userEvent.tab();
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[0],
     ).toHaveFocus();
   });
 
-  it("Pressing {ArrowRight} should shift focus to color to the right", () => {
+  it("Pressing {ArrowRight} should shift focus to color to the right", async () => {
     render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    userEvent.tab();
-    userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
 
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
     ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowRight}");
+    await userEvent.keyboard("{ArrowRight}");
 
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
@@ -150,76 +150,76 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     ).toHaveFocus();
   });
 
-  it("Pressing {ArrowLeft} should shift focus to color to the left", () => {
+  it("Pressing {ArrowLeft} should shift focus to color to the left", async () => {
     render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    userEvent.tab();
-    userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
 
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
     ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowRight}");
-    userEvent.keyboard("{ArrowRight}");
+    await userEvent.keyboard("{ArrowRight}");
+    await userEvent.keyboard("{ArrowRight}");
 
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
         .parentElement?.childNodes[2],
     ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowLeft}");
+    await userEvent.keyboard("{ArrowLeft}");
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
         .parentElement?.childNodes[1],
     ).toHaveFocus();
   });
 
-  it("Pressing {ArrowDown} should shift focus to color to the bottom", () => {
+  it("Pressing {ArrowDown} should shift focus to color to the bottom", async () => {
     render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    userEvent.tab();
-    userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
 
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
     ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
         .parentElement?.childNodes[10],
     ).toHaveFocus();
   });
 
-  it("Pressing {ArrowUp} should shift focus to color to the top", () => {
+  it("Pressing {ArrowUp} should shift focus to color to the top", async () => {
     render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    userEvent.tab();
-    userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
 
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
     ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowRight}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowRight}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
         .parentElement?.childNodes[21],
     ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowUp}");
+    await userEvent.keyboard("{ArrowUp}");
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
         .parentElement?.childNodes[11],
@@ -229,12 +229,12 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
   it("Pressing {Enter} should select the color in focus", async () => {
     const onColorChange = jest.fn();
     render(getTestComponent(onColorChange));
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
-    userEvent.tab();
-    userEvent.tab();
-    userEvent.keyboard("{ArrowRight}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowRight}");
+    await userEvent.keyboard("{Enter}");
     expect(onColorChange).toBeCalled();
     await waitForElementToBeRemoved(screen.queryByTestId("color-picker"));
   });

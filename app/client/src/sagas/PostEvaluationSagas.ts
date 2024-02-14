@@ -1,4 +1,7 @@
-import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  PLATFORM_ERROR,
+} from "@appsmith/entities/AppsmithConsole/utils";
 import type {
   WidgetEntity,
   WidgetEntityConfig,

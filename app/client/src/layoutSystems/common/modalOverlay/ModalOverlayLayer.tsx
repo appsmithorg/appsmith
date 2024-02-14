@@ -31,16 +31,10 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: ${(props) =>
-        `calc(${props.headerHeight}px + ${
-          props.isEditMode ? props.smallHeaderHeight : "0px"
-        })`};
+      top: 0;
       right: 0;
       bottom: 0;
-      height: ${(props) =>
-        `calc(100vh - (${props.headerHeight}px + ${
-          props.isEditMode ? props.smallHeaderHeight : "0px"
-        }))`};
+      height: 100%;
       z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
