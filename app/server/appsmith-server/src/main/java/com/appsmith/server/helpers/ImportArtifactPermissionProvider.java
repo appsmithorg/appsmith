@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.helpers.ce.ImportArtifactPermissionProviderCE;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ArtifactPermission;
@@ -44,6 +45,21 @@ public class ImportArtifactPermissionProvider extends ImportArtifactPermissionPr
                 permissionRequiredToCreateAction,
                 permissionRequiredToEditAction,
                 permissionRequiredToEditDatasource);
+    }
+
+    public boolean hasEditPermission(Module module) {
+        if (!permissionRequiredToEditContext) {
+            return true;
+        }
+
+        return hasPermission(contextPermission.getEditPermission(), module);
+    }
+
+    public boolean canCreateAction(Module module) {
+        if (!permissionRequiredToCreateAction) {
+            return true;
+        }
+        return hasPermission(contextPermission.getActionCreatePermission(), module);
     }
 
     public static Builder builder(
