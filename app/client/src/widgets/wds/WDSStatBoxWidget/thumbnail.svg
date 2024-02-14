@@ -1,12 +1,9 @@
 <svg width="72" height="76" viewBox="0 0 72 76" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="8" y="16" width="56" height="44" rx="3" fill="white"/>
-<rect x="16" y="24" width="32" height="6" rx="1" fill="#E3E8EF"/>
-<path d="M21 50.5H16V47.8541C16 47.0363 16.4979 46.3008 17.2572 45.9971L19.7428 45.0029C20.5021 44.6992 21 43.9637 21 43.1459V42.5C21 41.3954 20.1046 40.5 19 40.5H16" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M24 40.5H27C28.1046 40.5 29 41.3954 29 42.5V43.5C29 44.6046 28.1046 45.5 27 45.5H25.2854" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M24 50.5H27C28.1046 50.5 29 49.6046 29 48.5V47.5C29 46.3954 28.1046 45.5 27 45.5H25" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M32 50.5H34.5M37 50.5H34.5M32 42.5L34.5 40.5V50.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="43.5" y="39.5" width="12" height="12" rx="1.5" fill="#FFEEE5"/>
-<rect x="43.5" y="39.5" width="12" height="12" rx="1.5" stroke="#CC3D00"/>
-<path d="M47 48L52 43" stroke="#CC3D00" stroke-linecap="round"/>
-<path d="M49 43H52V46" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="14.5" y="19.5" width="44" height="39" rx="2.5" fill="white"/>
+<rect x="14.5" y="19.5" width="44" height="39" rx="2.5" stroke="#CDD5DF"/>
+<rect x="22" y="27" width="16" height="6" rx="1" fill="#CDD5DF"/>
+<path d="M22 50.5H24.5M27 50.5H24.5M22 42.5L24.5 40.5V50.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M35 50.5H30V47.8541C30 47.0363 30.4979 46.3008 31.2572 45.9971L33.7428 45.0029C34.5021 44.6992 35 43.9637 35 43.1459V42.5C35 41.3954 34.1046 40.5 33 40.5H30" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M38 40.5H41C42.1046 40.5 43 41.3954 43 42.5V43.5C43 44.6046 42.1046 45.5 41 45.5H39.2854" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M38 50.5H41C42.1046 50.5 43 49.6046 43 48.5V47.5C43 46.3954 42.1046 45.5 41 45.5H39" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

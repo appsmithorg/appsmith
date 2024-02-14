@@ -36,6 +36,7 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
       padding-right: var(--ads-v2-spaces-3);
       color: var(--ads-v2-color-fg);
       font-weight: 600;
+      height: 32px;
     }`}
 
   img {
