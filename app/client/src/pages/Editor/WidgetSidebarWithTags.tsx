@@ -104,7 +104,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
         isActive ? "" : "hidden"
       }`}
     >
-      <div className="sticky top-0 px-1 mt-0.5">
+      <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
@@ -115,8 +115,8 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
         />
       </div>
       <div
-        className="flex-grow px-1 mt-2 overflow-y-scroll"
-        data-testid="t--widget-sidebar-scrollable-wrapper"
+        className="flex-grow px-3 mt-2 overflow-y-scroll"
+        data-testid="widget-sidebar-scrollable-wrapper"
       >
         {isEmpty && (
           <Text
@@ -152,7 +152,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
                 className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${tag
                   .toLowerCase()
                   .replace(/ /g, "-")}`}
-                isOpen
+                isOpenq
                 key={tag}
               >
                 <CollapsibleHeader arrowPosition="start">
