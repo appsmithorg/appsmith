@@ -26,19 +26,6 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
   user-select: none;
   -webkit-user-select: none;
 
-  ${(props) =>
-    props.isThumbnail &&
-    `padding-bottom: var(--ads-v2-spaces-3);
-    
-    &  span {
-      padding-left: var(--ads-v2-spaces-3);
-      padding-right: var(--ads-v2-spaces-3);
-      color: var(--ads-v2-color-fg);
-      font-weight: 600;
-      height: 32px;
-      line-height: 1.2;
-    }`}
-
   img {
     cursor: grab;
   }
@@ -60,6 +47,24 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
     font-family: ${(props) => props.theme.fonts.text};
     font-size: ${(props) => props.theme.fontSizes[7]}px;
   }
+
+  ${(props) =>
+    props.isThumbnail &&
+    `padding-bottom: var(--ads-v2-spaces-3);
+    
+    &  span {
+      padding-left: var(--ads-v2-spaces-3);
+      padding-right: var(--ads-v2-spaces-3);
+      color: var(--ads-v2-color-fg);
+      font-weight: 600;
+      height: 32px;
+      line-height: 1.2;
+    }
+    
+    & > div {
+      margin-bottom: 0px;
+    }
+    `}
 `;
 
 export const BetaLabel = styled.div`
