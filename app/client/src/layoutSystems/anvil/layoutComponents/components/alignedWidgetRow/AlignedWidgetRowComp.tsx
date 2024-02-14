@@ -13,6 +13,12 @@ import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { FlexLayout, type FlexLayoutProps } from "../FlexLayout";
 import { isFillWidgetPresentInList } from "layoutSystems/anvil/utils/layouts/widgetUtils";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import {
+  ALIGNMENT_WIDTH_THRESHOLD,
+  shouldOverrideAlignmentStyle,
+} from "layoutSystems/anvil/integrations/layoutSelectors";
+import { useSelector } from "react-redux";
+import { RenderModes } from "constants/WidgetConstants";
 
 /**
  * If AlignedRow hasFillWidget:
@@ -37,7 +43,11 @@ import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPos
  *    thanks to flex wrap in the parent layout.
  */
 const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
-  const { canvasId, layout, layoutId } = props;
+  const { canvasId, layout, layoutId, renderMode } = props;
+  // Whether default alignment styles should be overridden, when renderMode = Canvas.
+  const shouldOverrideStyle: boolean = useSelector(
+    shouldOverrideAlignmentStyle(layoutId),
+  );
 
   // check if layout renders a Fill widget.
   const hasFillWidget: boolean = isFillWidgetPresentInList(
@@ -48,7 +58,9 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
     useState(false);
 
   useEffect(() => {
-    if (hasFillWidget) return;
+    // getBoundingClientRect is an expensive operation and should only be used when renderMode = Page,
+    // because layout positions are not available in that case.
+    if (hasFillWidget || renderMode !== RenderModes.PAGE) return;
     const parentLayoutId = getAnvilLayoutDOMId(canvasId, layoutId);
     const parentLayout = document.getElementById(parentLayoutId);
     if (parentLayout) {
@@ -66,12 +78,19 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
           if (!alignment) return false;
           const alignmentWidth = alignment.getBoundingClientRect().width;
           // return true if width of any alignment exceeds the limit.
-          return alignmentWidth >= parentLayoutWidth * 0.95;
+          return (
+            alignmentWidth >= parentLayoutWidth * ALIGNMENT_WIDTH_THRESHOLD
+          );
         });
         setIsAnyAlignmentOverflowing(isOverflowing);
       });
     }
-  }, [layout.length]);
+  }, [hasFillWidget, layout.length, renderMode]);
+
+  useEffect(() => {
+    if (hasFillWidget || renderMode === RenderModes.PAGE) return;
+    setIsAnyAlignmentOverflowing(shouldOverrideStyle);
+  }, [hasFillWidget, renderMode, shouldOverrideStyle]);
 
   const commonProps: Omit<
     FlexLayoutProps,
