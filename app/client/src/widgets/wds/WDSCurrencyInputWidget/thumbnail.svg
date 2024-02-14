@@ -7,4 +7,5 @@
 <path d="M14.5 41.5C14.5 42.6046 15.3954 43.5 16.5 43.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M19.5 31.5V45.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M17 33.5H21.5M17 38.5H22M16.5 43.5H22" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M51.5 43.5001H53.5M55.5 43.5001H53.5M53.5 43.5001V55.4999M51.5 55.4999H55.5" stroke="#6A7585" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

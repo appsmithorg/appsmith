@@ -116,7 +116,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
       </div>
       <div
         className="flex-grow px-3 mt-2 overflow-y-scroll"
-        data-testid="widget-sidebar-scrollable-wrapper"
+        data-testid="t--widget-sidebar-scrollable-wrapper"
       >
         {isEmpty && (
           <Text
