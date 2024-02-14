@@ -42,6 +42,7 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
     private final DatasourceStorageMigrationSolution datasourceStorageMigrationSolution =
             new DatasourceStorageMigrationSolution();
     Map<String, Set<PermissionGroup>> workspaceIdToDefaultPermissionGroups = new HashMap<>();
+    Map<String, String> workspaceIdToEnvironmentId = null;
 
     public Migration046AddMissingFieldsInDefaultAppsmithAiDatasource(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -105,9 +106,11 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
      * Create a datasource storage for the datasource
      */
     private void createDatasourceStorage(Datasource datasource) {
+        if (workspaceIdToEnvironmentId == null) {
+            workspaceIdToEnvironmentId = datasourceStorageMigrationSolution.getDefaultEnvironmentsMap(mongoTemplate);
+        }
         String envId = datasourceStorageMigrationSolution.getEnvironmentIdForDatasource(
-                datasourceStorageMigrationSolution.getDefaultEnvironmentsMap(mongoTemplate),
-                datasource.getWorkspaceId());
+                workspaceIdToEnvironmentId, datasource.getWorkspaceId());
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setDatasourceId(datasource.getId());
@@ -128,22 +131,27 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
      * Create policies for the datasource based on the default permission groups of the workspace
      */
     private Set<Policy> createPolicies(Set<PermissionGroup> permissionGroups) {
-        String appViewerPGId = "", devPGId = "", adminPGId = "";
+        Set<String> devAdminPGIds = new HashSet<>();
+        Set<String> allPGIds = new HashSet<>();
+
         for (PermissionGroup permissionGroup : permissionGroups) {
+            String permissionGroupId = permissionGroup.getId();
             if (permissionGroup.getName().contains(VIEWER)) {
-                appViewerPGId = permissionGroup.getId();
+                allPGIds.add(permissionGroupId);
             } else if (permissionGroup.getName().contains(DEVELOPER)) {
-                devPGId = permissionGroup.getId();
+                devAdminPGIds.add(permissionGroupId);
+                allPGIds.add(permissionGroupId);
             } else if (permissionGroup.getName().contains(ADMINISTRATOR)) {
-                adminPGId = permissionGroup.getId();
+                devAdminPGIds.add(permissionGroupId);
+                allPGIds.add(permissionGroupId);
             }
         }
 
         return Set.of(
-                new Policy(AclPermission.READ_DATASOURCES.getValue(), Set.of(devPGId, adminPGId)),
-                new Policy(AclPermission.EXECUTE_DATASOURCES.getValue(), Set.of(appViewerPGId, devPGId, adminPGId)),
-                new Policy(AclPermission.DELETE_DATASOURCES.getValue(), Set.of(devPGId, adminPGId)),
-                new Policy(AclPermission.MANAGE_DATASOURCES.getValue(), Set.of(devPGId, adminPGId)));
+                new Policy(AclPermission.READ_DATASOURCES.getValue(), devAdminPGIds),
+                new Policy(AclPermission.EXECUTE_DATASOURCES.getValue(), allPGIds),
+                new Policy(AclPermission.DELETE_DATASOURCES.getValue(), devAdminPGIds),
+                new Policy(AclPermission.MANAGE_DATASOURCES.getValue(), devAdminPGIds));
     }
 
     private Set<PermissionGroup> getDefaultPermissionGroups(String workspaceId) {
@@ -151,13 +159,19 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
     }
 
     private Set<PermissionGroup> fetchDefaultPermissionGroups(String workspaceId) {
-        Workspace workspace =
-                mongoTemplate.findOne(new Query(Criteria.where(FieldNameCE.ID).is(workspaceId)), Workspace.class);
-        if (workspace == null) {
-            log.error("Workspace not found for id {}", workspaceId);
+        Query workspaceQuery = new Query(Criteria.where(FieldNameCE.ID).is(workspaceId));
+        workspaceQuery.fields().include(FieldNameCE.DEFAULT_PERMISSION_GROUPS);
+
+        Workspace workspace = mongoTemplate.findOne(workspaceQuery, Workspace.class);
+        if (workspace == null
+                || workspace.getDefaultPermissionGroups() == null
+                || workspace.getDefaultPermissionGroups().isEmpty()) {
+            log.error("Workspace not found for id {} or no default permission groups", workspaceId);
             return new HashSet<>();
         }
+
         Query permissionGroupQuery = new Query();
+        permissionGroupQuery.fields().include(FieldNameCE.ID, FieldNameCE.NAME);
         permissionGroupQuery.addCriteria(Criteria.where(FieldNameCE.ID).in(workspace.getDefaultPermissionGroups()));
         return new HashSet<>(mongoTemplate.find(permissionGroupQuery, PermissionGroup.class));
     }
