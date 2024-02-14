@@ -355,22 +355,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return tryGetPermissionGroups(params).flatMap(permissionGroups -> {
             final Query query =
                     createQueryWithPermission(params.getCriteria(), null, permissionGroups, params.getPermission());
-            return mongoOperations.updateMulti(query, update, genericDomain);
-        });
-    }
-
-    public Mono<UpdateResult> updateFirstExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
-        Objects.requireNonNull(params.getCriteria());
-
-        if (!isEmpty(params.getFields())) {
-            // Specifying fields to update doesn't make any sense, so explicitly disallow it.
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "fields"));
-        }
-
-        return tryGetPermissionGroups(params).flatMap(permissionGroups -> {
-            final Query query =
-                    createQueryWithPermission(params.getCriteria(), null, permissionGroups, params.getPermission());
-            return mongoOperations.updateFirst(query, update, genericDomain);
+            if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
+                return mongoOperations.updateMulti(query, update, genericDomain);
+            } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
+                return mongoOperations.updateFirst(query, update, genericDomain);
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
+            }
         });
     }
 

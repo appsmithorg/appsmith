@@ -39,6 +39,8 @@ public class QueryAllParams<T extends BaseDomain> {
      */
     private boolean includeAnonymousUserPermissions = true;
 
+    private Scope scope;
+
     public QueryAllParams(BaseAppsmithRepositoryCEImpl<T> repo) {
         this.repo = repo;
     }
@@ -60,11 +62,13 @@ public class QueryAllParams<T extends BaseDomain> {
     }
 
     public Mono<UpdateResult> updateAll(@NonNull UpdateDefinition update) {
+        scope = Scope.ALL;
         return repo.updateAllExecute(this, update);
     }
 
     public Mono<UpdateResult> updateFirst(@NonNull UpdateDefinition update) {
-        return repo.updateFirstExecute(this, update);
+        scope = Scope.FIRST;
+        return repo.updateAllExecute(this, update);
     }
 
     public QueryAllParams<T> criteria(Criteria... criteria) {
@@ -127,5 +131,11 @@ public class QueryAllParams<T extends BaseDomain> {
     public QueryAllParams<T> includeAnonymousUserPermissions(boolean value) {
         includeAnonymousUserPermissions = value;
         return this;
+    }
+
+    public enum Scope {
+        ALL,
+        FIRST,
+        ONE,
     }
 }
