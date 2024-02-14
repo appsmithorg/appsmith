@@ -74,7 +74,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
                     Update update = new Update();
                     update.set(fieldName(QTheme.theme.deletedAt), Instant.now());
-                    return queryBuilder().criteria(criteria, permissionCriteria).update(update);
+                    return queryBuilder().criteria(criteria, permissionCriteria).updateAll(update);
                 })
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }

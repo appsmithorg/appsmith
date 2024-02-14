@@ -59,8 +59,12 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.countExecute(this);
     }
 
-    public Mono<UpdateResult> update(@NonNull UpdateDefinition update) {
-        return repo.updateExecute(this, update);
+    public Mono<UpdateResult> updateAll(@NonNull UpdateDefinition update) {
+        return repo.updateAllExecute(this, update);
+    }
+
+    public Mono<UpdateResult> updateFirst(@NonNull UpdateDefinition update) {
+        return repo.updateFirstExecute(this, update);
     }
 
     public QueryAllParams<T> criteria(Criteria... criteria) {

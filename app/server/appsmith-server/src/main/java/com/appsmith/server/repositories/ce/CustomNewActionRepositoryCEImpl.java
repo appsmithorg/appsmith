@@ -627,7 +627,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return queryBuilder()
                 .criteria(applicationIdCriteria, deletedFromUnpublishedCriteria)
                 .permission(permission)
-                .update(update);
+                .updateAll(update);
     }
 
     @Override
