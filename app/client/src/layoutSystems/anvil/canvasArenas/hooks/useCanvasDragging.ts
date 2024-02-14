@@ -226,7 +226,9 @@ export const useCanvasDragging = (
           if (
             isDragging &&
             canvasIsDragging.current &&
-            (currentRectanglesToDraw || activateOverlayWidgetDrop) &&
+            ((currentRectanglesToDraw &&
+              !currentRectanglesToDraw.existingPositionHighlight) ||
+              activateOverlayWidgetDrop) &&
             allowToDrop
           ) {
             // Invoke onDrop callback with the appropriate highlight info

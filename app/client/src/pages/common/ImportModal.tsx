@@ -1,32 +1,26 @@
 import type { ReactNode } from "react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import styled, { useTheme, css } from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  importApplication,
-  setWorkspaceIdForImport,
-} from "@appsmith/actions/applicationActions";
+import { useDispatch } from "react-redux";
+import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
 import {
   createMessage,
   IMPORT_APP_FROM_FILE_MESSAGE,
   IMPORT_APP_FROM_FILE_TITLE,
   IMPORT_APP_FROM_GIT_MESSAGE,
   IMPORT_APP_FROM_GIT_TITLE,
-  IMPORT_APPLICATION_MODAL_LABEL,
-  IMPORT_APPLICATION_MODAL_TITLE,
-  UPLOADING_APPLICATION,
   UPLOADING_JSON,
 } from "@appsmith/constants/messages";
-import type { SetProgress } from "design-system-old";
 import { FilePickerV2, FileType } from "design-system-old";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { getIsImportingApplication } from "@appsmith/selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
+import useMessages from "@appsmith/hooks/importModal/useMessages";
+import useMethods from "@appsmith/hooks/importModal/useMethods";
 
 const TextWrapper = styled.div`
   padding: 0;
@@ -183,28 +177,39 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
   );
 }
 
-interface ImportApplicationModalProps {
+interface ImportModalProps {
   workspaceId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
-  appId?: string;
-  toApp?: boolean;
+  editorId?: string;
+  toEditor?: boolean;
 }
 
-function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const { appId, isModalOpen, onClose, toApp = false, workspaceId } = props;
-  const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
-    file: File;
-    setProgress: SetProgress;
-  } | null>(null);
-
+function ImportModal(props: ImportModalProps) {
+  const {
+    editorId,
+    isModalOpen,
+    onClose,
+    toEditor = false,
+    workspaceId,
+  } = props;
+  const { mainDescription, title } = useMessages();
+  const {
+    appFileToBeUploaded,
+    fileUploader,
+    isImporting,
+    resetAppFileToBeUploaded,
+    uploadingText,
+  } = useMethods({ editorId, workspaceId });
   const dispatch = useDispatch();
   const onGitImport = useCallback(() => {
     onClose && onClose();
     dispatch({
       type: ReduxActionTypes.GIT_INFO_INIT,
     });
-    dispatch(setWorkspaceIdForImport({ editorId: appId || "", workspaceId }));
+    dispatch(
+      setWorkspaceIdForImport({ editorId: editorId || "", workspaceId }),
+    );
 
     dispatch(
       setIsGitSyncModalOpen({
@@ -216,39 +221,19 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     // dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
   }, []);
 
-  const importingApplication = useSelector(getIsImportingApplication);
-
-  const FileUploader = useCallback(
-    async (file: File, setProgress: SetProgress) => {
-      if (!!file) {
-        setAppFileToBeUploaded({
-          file,
-          setProgress,
-        });
-        dispatch(
-          importApplication({
-            appId: appId as string,
-            workspaceId: workspaceId as string,
-            applicationFile: file,
-          }),
-        );
-      } else {
-        setAppFileToBeUploaded(null);
-      }
-    },
-    [],
-  );
-
   useEffect(() => {
     // finished of importing application
-    if (appFileToBeUploaded && !importingApplication) {
-      setAppFileToBeUploaded(null);
+    if (appFileToBeUploaded && !isImporting) {
+      resetAppFileToBeUploaded();
       onClose && onClose();
       // should open "Add credential" modal
     }
-  }, [appFileToBeUploaded, importingApplication]);
+  }, [appFileToBeUploaded, isImporting, resetAppFileToBeUploaded]);
 
-  const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
+  const onRemoveFile = useCallback(
+    () => resetAppFileToBeUploaded(),
+    [resetAppFileToBeUploaded],
+  );
 
   const handleModalClose = (open: boolean) => {
     if (!open) {
@@ -261,45 +246,41 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       <ModalContent
         className={"t--import-application-modal"}
         style={{
-          width: importingApplication ? "40vw" : "fit-content",
+          width: isImporting ? "40vw" : "fit-content",
           minWidth: "30vw",
         }}
       >
-        <ModalHeader>
-          {createMessage(IMPORT_APPLICATION_MODAL_TITLE)}
-        </ModalHeader>
+        <ModalHeader>{title}</ModalHeader>
         <TextWrapper>
           <Text kind="body-m">
-            {toApp
+            {toEditor
               ? null
-              : createMessage(
-                  importingApplication
-                    ? UPLOADING_JSON
-                    : IMPORT_APPLICATION_MODAL_LABEL,
-                )}
+              : isImporting
+              ? createMessage(UPLOADING_JSON)
+              : mainDescription}
           </Text>
         </TextWrapper>
-        {!importingApplication && (
+        {!isImporting && (
           <Row>
             <FileImportCard
               className="t--import-json-card"
-              fillCardWidth={toApp}
+              fillCardWidth={toEditor}
             >
               <FilePickerV2
                 containerClickable
                 description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
                 fileType={FileType.JSON}
-                fileUploader={FileUploader}
+                fileUploader={fileUploader}
                 iconFillColor={"var(--ads-v2-color-fg)"}
                 onFileRemoved={onRemoveFile}
                 title={createMessage(IMPORT_APP_FROM_FILE_TITLE)}
                 uploadIcon="file-line"
               />
             </FileImportCard>
-            {!toApp && <GitImportCard handler={onGitImport} />}
+            {!toEditor && <GitImportCard handler={onGitImport} />}
           </Row>
         )}
-        {importingApplication && (
+        {isImporting && (
           <Row className="t-import-app-progress-wrapper">
             <StatusbarWrapper className="t--importing-app-statusbar">
               <Icon name="file-line" size="md" />
@@ -307,8 +288,8 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
                 {appFileToBeUploaded?.file?.name || "filename.json"}
               </Text>
               <Statusbar
-                completed={!importingApplication}
-                message={createMessage(UPLOADING_APPLICATION)}
+                completed={!isImporting}
+                message={uploadingText}
                 period={4}
               />
             </StatusbarWrapper>
@@ -319,4 +300,4 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
   );
 }
 
-export default ImportApplicationModal;
+export default ImportModal;
