@@ -10,6 +10,7 @@ import EditorNavigation, {
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
+import { apiPage } from "../Objects/ObjectsCore";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -290,7 +291,7 @@ export class DataSources {
   _entityExplorerID = (dsName: string) =>
     "[data-testid='t--entity-item-" + dsName + "']";
   _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
-  _graphQlDsFromRightPane = (dsName: string) =>
+  _graphQlDsHintOption = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
   _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
@@ -743,8 +744,10 @@ export class DataSources {
         this.apiPage.EnterURL(
           this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
         );
-      else if (enterOrSelectUrl == "select")
-        this.agHelper.GetNClick(this._graphQlDsFromRightPane(dsNameToSelect));
+      else if (enterOrSelectUrl == "select") {
+        cy.get(apiPage._editorDS).click();
+        this.agHelper.GetNClick(this._graphQlDsHintOption(dsNameToSelect));
+      }
 
       this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
       cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
