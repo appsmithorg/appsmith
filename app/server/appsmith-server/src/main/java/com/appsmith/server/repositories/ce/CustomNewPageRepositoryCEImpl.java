@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
@@ -8,8 +9,12 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -20,6 +25,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -49,9 +55,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
-        Criteria applicationIdCriteria = where("applicationId").is(applicationId);
         return queryBuilder()
-                .criteria(applicationIdCriteria)
+                .spec(Bridge.conditioner().equal("applicationId", applicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -75,30 +80,33 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Optional<NewPage> findByIdAndLayoutsIdAndViewMode(
             String id, String layoutId, AclPermission aclPermission, Boolean viewMode) {
-        String layoutsIdKey;
-        String layoutsKey;
+        final boolean isViewMode = Boolean.TRUE.equals(viewMode);
 
-        List<Criteria> criteria = new ArrayList<>();
-        Criteria idCriterion = getIdCriteria(id);
-        criteria.add(idCriterion);
+        final Specification<BaseDomain> specFn = (root, cq, cb) -> {
+            final List<Predicate> predicates = new ArrayList<>();
 
-        if (Boolean.TRUE.equals(viewMode)) {
-            layoutsKey = "publishedPage" + "." + "layouts";
-        } else {
-            layoutsKey = "unpublishedPage" + "." + "layouts";
+            try {
+                predicates.add(cb.isTrue(cb.function(
+                        "jsonb_path_exists",
+                        Boolean.class,
+                        root.get((isViewMode ? "publishedPage" : "unpublishedPage")),
+                        cb.literal("$.layouts[*] ? (@.id == $id)"),
+                        cb.literal(new ObjectMapper().writeValueAsString(Map.of("id", layoutId))))));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
 
-            // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
-            // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriterion =
-                    where("unpublishedPage" + "." + "deletedAt").is(null);
-            criteria.add(deletedCriterion);
-        }
-        layoutsIdKey = layoutsKey + "." + FieldName.ID;
+            if (!isViewMode) {
+                // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
+                // exist. To handle this, only fetch non-deleted pages
+                predicates.add(cb.isNull(cb.function(
+                        "jsonb_extract_path", String.class, root.get("unpublishedPage"), cb.literal("deletedAt"))));
+            }
 
-        Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
-        criteria.add(layoutCriterion);
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
 
-        return queryBuilder().criteria(criteria).permission(aclPermission).one();
+        return queryBuilder().byId(id).spec(specFn).permission(aclPermission).one();
     }
 
     @Override

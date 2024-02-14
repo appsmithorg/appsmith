@@ -226,19 +226,14 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             List<String> projectionFieldNames,
             String branchName,
             AclPermission aclPermission) {
-        throw new ex.Marker("getApplicationByGitBranchAndDefaultApplicationId"); /*
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
-        Bridge<Application> defaultAppCriteria = Bridge.<Application>where(
-                        gitApplicationMetadata + "." + "defaultApplicationId")
-                .is(defaultApplicationId);
-        Bridge<Application> branchNameCriteria = Bridge.<Application>where(gitApplicationMetadata + "." + "branchName")
-                .is(branchName);
         return queryBuilder()
-                .criteria(defaultAppCriteria, branchNameCriteria)
+                .spec(Bridge.conditioner()
+                        .equal(gitApplicationMetadata + "." + "defaultApplicationId", defaultApplicationId)
+                        .equal(gitApplicationMetadata + "." + "branchName", branchName))
                 .fields(projectionFieldNames)
                 .permission(aclPermission)
-                .one()
-                .blockOptional(); //*/
+                .one();
     }
 
     @Override

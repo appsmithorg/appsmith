@@ -54,22 +54,57 @@ public class QueryAllParams<T extends BaseDomain> {
     }
 
     public List<T> all() {
+        if (!criteria.isEmpty()) {
+            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
+            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
+            e.printStackTrace();
+            throw e;
+        }
+
         return repo.queryAllExecute(this, actualRepo);
     }
 
     public Optional<T> one() {
+        if (!criteria.isEmpty()) {
+            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
+            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
+            e.printStackTrace();
+            throw e;
+        }
+
         return repo.queryOneExecute(this);
     }
 
     public Optional<T> first() {
+        if (!criteria.isEmpty()) {
+            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
+            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
+            e.printStackTrace();
+            throw e;
+        }
+
         return repo.queryFirstExecute(this).blockOptional();
     }
 
     public Mono<Long> count() {
+        if (!criteria.isEmpty()) {
+            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
+            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
+            e.printStackTrace();
+            throw e;
+        }
+
         return repo.countExecute(this);
     }
 
     public Integer update(Update update) {
+        if (!criteria.isEmpty()) {
+            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
+            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
+            e.printStackTrace();
+            throw e;
+        }
+
         return repo.updateExecute2(this, update);
     }
 

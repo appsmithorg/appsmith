@@ -880,11 +880,9 @@ public class ApplicationServiceCEImpl
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
-            throw new ex.Marker("this findById signature seems to be missing"); /*
-            return repository
-                    .findById(defaultApplicationId, projectionFieldNames, aclPermission)
+            return cake.findById(defaultApplicationId, projectionFieldNames, aclPermission)
                     .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));//*/
+                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
         }
         return cake.getApplicationByGitBranchAndDefaultApplicationId(
                         defaultApplicationId, projectionFieldNames, branchName, aclPermission)

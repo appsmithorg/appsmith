@@ -288,32 +288,13 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
             String pageId, AclPermission permission) {
-        throw new ex.Marker("findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue"); /*
-        List<Criteria> criteriaList = new ArrayList<>();
+        Conditioner<?> spec = Bridge.conditioner()
+                .equal("unpublishedAction.pageId", pageId)
+                .isTrue("unpublishedAction.executeOnLoad")
+                .isTrue("unpublishedAction.userSetOnLoad")
+                .isNull("unpublishedAction.deletedAt");
 
-        Criteria executeOnLoadCriteria = where("unpublishedAction" + "."
-                        + "executeOnLoad")
-                .is(Boolean.TRUE);
-        criteriaList.add(executeOnLoadCriteria);
-
-        Criteria setByUserCriteria = where("unpublishedAction" + "."
-                        + "userSetOnLoad")
-                .is(Boolean.TRUE);
-        criteriaList.add(setByUserCriteria);
-
-        Criteria pageCriteria = where("unpublishedAction" + "."
-                        + "pageId")
-                .is(pageId);
-        criteriaList.add(pageCriteria);
-
-        // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
-        // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where("unpublishedAction" + "."
-                        + "deletedAt")
-                .is(null);
-        criteriaList.add(deletedCriteria);
-
-        return queryBuilder().criteria(criteriaList).permission(permission).all(); //*/
+        return queryBuilder().spec(spec).permission(permission).all();
     }
 
     @Override
@@ -397,22 +378,16 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
-
-        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + "pageId")
-                .in(pageIds);
-
-        return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
+        return queryBuilder()
+                .spec(Bridge.conditioner()
+                        .in(fieldName(QNewAction.newAction.unpublishedAction) + "." + "pageId", pageIds))
+                .permission(permission)
+                .all();
     }
 
     @Override
     public List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + "pageId")
-                .in(pageIds);
-
-        return queryBuilder()
-                .criteria(pageIdCriteria)
-                .permission(permission.orElse(null))
-                .all();
+        return findByPageIds(pageIds, permission.orElse(null));
     }
 
     @Override
@@ -507,10 +482,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = "defaultResources";
-        Criteria defaultAppIdCriteria =
-                where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         return queryBuilder()
-                .criteria(defaultAppIdCriteria)
+                .spec(Bridge.conditioner()
+                        .equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
                 .all();
     }

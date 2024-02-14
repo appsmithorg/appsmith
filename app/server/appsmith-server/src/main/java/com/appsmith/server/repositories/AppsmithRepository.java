@@ -13,7 +13,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     Optional<T> findById(String id, AclPermission permission);
 
-    // Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
+    Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
 
     Optional<T> updateById(String id, T resource, AclPermission permission);
 

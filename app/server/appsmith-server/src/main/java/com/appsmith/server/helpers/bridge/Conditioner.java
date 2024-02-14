@@ -38,7 +38,7 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
             Predicate predicate;
 
             if (Objects.requireNonNull(check.op) == Op.EQUAL) {
-                predicate = cb.equal(keyToExpression(root, cb, check.key), cb.literal(check.value));
+                predicate = cb.equal(keyToExpression(String.class, root, cb, check.key), cb.literal(check.value));
 
             } else if (Objects.requireNonNull(check.op) == Op.NOT_EQUAL) {
                 predicate = cb.notEqual(root.get(check.key), cb.literal(check.value));
@@ -47,14 +47,20 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
                 predicate = cb.equal(cb.lower(root.get(check.key)), cb.literal(((String) check.value).toLowerCase()));
 
             } else if (check.op == Op.IS_TRUE) {
-                predicate = cb.isTrue(root.get(check.key));
+                if (check.key.contains(".")) {
+                    predicate = cb.equal(
+                            keyToExpression(Object.class, root, cb, check.key),
+                            cb.function("jsonb", Object.class, cb.literal("true")));
+                } else {
+                    predicate = cb.isTrue(keyToExpression(Boolean.class, root, cb, check.key));
+                }
 
             } else if (check.op == Op.IS_NULL) {
-                predicate = cb.isNull(keyToExpression(root, cb, check.key));
+                predicate = cb.isNull(keyToExpression(String.class, root, cb, check.key));
 
             } else if (check.op == Op.IN) {
-                CriteriaBuilder.In<Object> inCluse = cb.in(root.get(check.key));
-                for (String value : (Collection<String>) check.value) {
+                final CriteriaBuilder.In<Object> inCluse = cb.in(keyToExpression(String.class, root, cb, check.key));
+                for (Object value : (Collection<?>) check.value) {
                     inCluse.value(value);
                 }
                 predicate = inCluse;
@@ -106,13 +112,22 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
-    private static <X> Expression<String> keyToExpression(
-            @NonNull Root<X> root, @NonNull CriteriaBuilder cb, @NonNull String key) {
+    private static <R> Expression<R> keyToExpression(
+            @NonNull Class<R> type, @NonNull Root<?> root, @NonNull CriteriaBuilder cb, @NonNull String key) {
         if (key.contains(".")) {
-            final String[] parts = key.split("\\.");
-            // TODO: Handle more than one level of nesting
-            // TODO: Handle non-String values
-            return cb.function("jsonb_extract_path_text", String.class, root.get(parts[0]), cb.literal(parts[1]));
+            final List<String> parts = List.of(key.split("\\."));
+
+            final List<Expression<?>> fnArgs = new ArrayList<>();
+            fnArgs.add(root.get(parts.get(0)));
+
+            for (final String nestedKey : parts.subList(1, parts.size())) {
+                fnArgs.add(cb.literal(nestedKey));
+            }
+
+            return cb.function(
+                    String.class.equals(type) ? "jsonb_extract_path_text" : "jsonb_extract_path",
+                    type,
+                    fnArgs.toArray(new Expression<?>[0]));
         }
 
         return root.get(key);

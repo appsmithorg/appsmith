@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
+import com.appsmith.server.helpers.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -39,8 +40,8 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
                 .map(CustomJSLibContextDTO::getUidString)
                 .collect(Collectors.toSet());
 
-        Criteria criteria = Criteria.where("uidString").in(uidStrings);
-
-        return queryBuilder().criteria(criteria).all();
+        return queryBuilder()
+                .spec(Bridge.conditioner().in("uidString", uidStrings))
+                .all();
     }
 }

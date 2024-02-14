@@ -220,31 +220,27 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public List<ActionCollection> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
-        Criteria defaultAppIdCriteria =
-                where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         return queryBuilder()
-                .criteria(defaultAppIdCriteria)
+                .spec(Bridge.conditioner()
+                        .equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
 
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
-        Criteria pageIdCriteria = where(
-                        fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "pageId")
-                .in(pageIds);
-        return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
+        return queryBuilder()
+                .spec(Bridge.conditioner()
+                        .in(
+                                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "pageId",
+                                pageIds))
+                .permission(permission)
+                .all();
     }
 
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where(
-                        fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "pageId")
-                .in(pageIds);
-        return queryBuilder()
-                .criteria(pageIdCriteria)
-                .permission(permission.orElse(null))
-                .all();
+        return findByPageIds(pageIds, permission.orElse(null));
     }
 
     @Override

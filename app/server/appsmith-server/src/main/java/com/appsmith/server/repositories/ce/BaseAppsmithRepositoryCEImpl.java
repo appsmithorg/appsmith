@@ -166,6 +166,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().byId(id).permission(permission).one();
     }
 
+    public Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission) {
+        return queryBuilder()
+                .byId(id)
+                .fields(projectionFieldNames)
+                .permission(permission)
+                .one();
+    }
+
     /**
      * @deprecated using `Optional` for function arguments is an anti-pattern.
      */
@@ -339,13 +347,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     @SneakyThrows
     public List<T> queryAllExecute(QueryAllParams<T> params, BaseRepository<T, String> actualRepo) {
-        if (!params.getCriteria().isEmpty()) {
-            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
-            e.printStackTrace(); // We're eating up the exception in some places, so let's print it out for
-            // debugging ourselvse.
-            throw e;
-        }
-
         if (!params.getQuerydslExpressions().isEmpty()) {
             // perform query with querydsl repository.
             List<String> pg;
@@ -440,10 +441,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public Optional<T> queryOneExecute(QueryAllParams<T> params) {
-        if (!params.getCriteria().isEmpty()) {
-            throw new RuntimeException("Querying with criteria, instead of specifications!");
-        }
-
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.defer(() -> Mono.just(
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))

@@ -3,6 +3,7 @@ package com.appsmith.server.domains.ce;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.util.Set;
 @Setter
 @ToString
 @NoArgsConstructor
+@MappedSuperclass
 public class CustomJSLibCE extends BranchAwareDomain {
     /* Library name */
     String name;
