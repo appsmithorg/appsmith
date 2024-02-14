@@ -41,10 +41,21 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
 
   // Use custom hooks to manage styles, click, drag, and hover behavior exclusive for Edit mode
   useAnvilWidgetStyles(props.widgetId, props.widgetName, props.isVisible, ref);
-  useAnvilWidgetClick(props.widgetId, ref);
   useAnvilWidgetDrag(props.widgetId, props.layoutId, ref);
   useAnvilWidgetHover(props.widgetId, ref);
+  const { onClickCaptureFn, onClickFn } = useAnvilWidgetClick(
+    props.widgetId,
+    ref,
+  );
 
   // Render the AnvilFlexComponent
-  return <AnvilFlexComponent {...props} className={className} ref={ref} />;
+  return (
+    <AnvilFlexComponent
+      {...props}
+      className={className}
+      onClick={onClickFn}
+      onClickCapture={onClickCaptureFn}
+      ref={ref}
+    />
+  );
 };
