@@ -110,7 +110,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         // collection is treated to be sparse. That is, missing objects in the database are the same as empty objects.
         return StringUtils.isEmpty(userId)
                 ? Mono.empty()
-                : cake.findByUserId(userId).defaultIfEmpty(new UserData(userId));
+                : repository.findByUserId(userId).defaultIfEmpty(new UserData(userId));
     }
 
     @Override
@@ -128,7 +128,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<Map<String, String>> getProfilePhotoAssetIdsForUserIds(Collection<String> userIds) {
-        return cake.findByUserIdIn(userIds)
+        return repository.findByUserIdIn(userIds)
                 .collectMap(
                         UserDataProfilePhotoProjection::getUserId,
                         UserDataProfilePhotoProjection::getProfilePhotoAssetId);
@@ -179,11 +179,11 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                         .getDefaultTenantId()
                         .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId())))
-                .flatMap(cake::findByUserId)
+                .flatMap(repository::findByUserId)
                 .defaultIfEmpty(new UserData(user.getId()))
                 .flatMap(userData -> {
                     userData.setReleaseNotesViewedVersion(version);
-                    return cake.save(userData);
+                    return repository.save(userData);
                 })
                 .thenReturn(user);
     }
@@ -225,7 +225,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .flatMap(userData -> {
                     String profilePhotoAssetId = userData.getProfilePhotoAssetId();
                     userData.setProfilePhotoAssetId(null);
-                    return cake.save(userData).thenReturn(profilePhotoAssetId);
+                    return repository.save(userData).thenReturn(profilePhotoAssetId);
                 })
                 .flatMap(assetService::remove);
     }
@@ -284,7 +284,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                     userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
                     return Mono.zip(
                             analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
-                            cake.save(userData));
+                            repository.save(userData));
                 })
                 .map(Tuple2::getT2);
     }
@@ -355,7 +355,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .findIdsByWorkspaceId(workspaceId)
                 .map(IdOnly::id)
                 .collectList()
-                .flatMap(appIdsList -> cake.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
+                .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
     }
 
     /**

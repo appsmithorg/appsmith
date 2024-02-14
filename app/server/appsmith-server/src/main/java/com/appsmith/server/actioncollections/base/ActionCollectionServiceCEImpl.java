@@ -105,7 +105,7 @@ public class ActionCollectionServiceCEImpl
     @Override
     public Flux<ActionCollection> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
-        return cake.findByApplicationId(applicationId, permission, sort)
+        return repository.findByApplicationId(applicationId, permission, sort)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(collection -> {
                     if (Boolean.TRUE.equals(viewMode)) {
@@ -132,7 +132,7 @@ public class ActionCollectionServiceCEImpl
     @Override
     public Mono<ActionCollection> save(ActionCollection collection) {
         setGitSyncIdInActionCollection(collection);
-        return cake.save(collection);
+        return repository.save(collection);
     }
 
     protected void setGitSyncIdInActionCollection(ActionCollection collection) {
@@ -146,7 +146,7 @@ public class ActionCollectionServiceCEImpl
         collections.forEach(collection -> {
             setGitSyncIdInActionCollection(collection);
         });
-        return cake.saveAll(collections);
+        return repository.saveAll(collections);
     }
 
     @Override
@@ -230,7 +230,7 @@ public class ActionCollectionServiceCEImpl
 
         return applicationService
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getReadPermission())
-                .flatMapMany(branchedApplicationId -> cake.findByApplicationIdAndViewMode(
+                .flatMapMany(branchedApplicationId -> repository.findByApplicationIdAndViewMode(
                                 branchedApplicationId, true, actionPermission.getExecutePermission())
                         .flatMap(this::generateActionCollectionViewDTO));
     }
@@ -299,7 +299,7 @@ public class ActionCollectionServiceCEImpl
                             params.getFirst(FieldName.BRANCH_NAME),
                             params.getFirst(FieldName.APPLICATION_ID),
                             applicationPermission.getReadPermission())
-                    .flatMapMany(childApplicationId -> cake.findByApplicationIdAndViewMode(
+                    .flatMapMany(childApplicationId -> repository.findByApplicationIdAndViewMode(
                             childApplicationId, viewMode, actionPermission.getReadPermission()));
         }
 
@@ -321,7 +321,7 @@ public class ActionCollectionServiceCEImpl
         if (params.getFirst(FieldName.PAGE_ID) != null) {
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
-        return cake.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+        return repository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                 name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort);
     }
 
@@ -331,7 +331,7 @@ public class ActionCollectionServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<ActionCollection> actionCollectionMono = cake.findById(id, actionPermission.getEditPermission())
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
@@ -348,7 +348,7 @@ public class ActionCollectionServiceCEImpl
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> this.update(id, actionCollection))
-                .flatMap(cake::setUserPermissionsInObject)
+                .flatMap(repository::setUserPermissionsInObject)
                 .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(), false))); // */
@@ -366,7 +366,7 @@ public class ActionCollectionServiceCEImpl
 
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionEx(
             String id, Optional<AclPermission> permission) {
-        Mono<ActionCollection> actionCollectionMono = cake.findById(id, permission.orElse(null))
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, permission.orElse(null))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
         return actionCollectionMono
@@ -392,7 +392,7 @@ public class ActionCollectionServiceCEImpl
                                             return Mono.empty();
                                         }))
                                 .collectList()
-                                .then(cake.save(toDelete))
+                                .then(repository.save(toDelete))
                                 .flatMap(modifiedActionCollection -> {
                                     return analyticsService.sendArchiveEvent(
                                             modifiedActionCollection, getAnalyticsProperties(modifiedActionCollection));
@@ -448,7 +448,7 @@ public class ActionCollectionServiceCEImpl
 
     @Override
     public Mono<ActionCollection> findById(String id, AclPermission aclPermission) {
-        return cake.findById(id, aclPermission);
+        return repository.findById(id, aclPermission);
     }
 
     @Override
@@ -461,7 +461,7 @@ public class ActionCollectionServiceCEImpl
     @Override
     public Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(
             String applicationId, AclPermission permission) {
-        return cake.findByApplicationId(applicationId, permission, null)
+        return repository.findByApplicationId(applicationId, permission, null)
                 .flatMap(actionCollection -> {
                     Set<String> actionIds = new HashSet<>();
                     actionIds.addAll(actionCollection
@@ -482,31 +482,31 @@ public class ActionCollectionServiceCEImpl
                                 log.error(throwable.getMessage());
                                 return Mono.empty();
                             })
-                            .then(cake.archive(actionCollection));
+                            .then(repository.archive(actionCollection));
                 })
                 .collectList();
     }
 
     @Override
     public Flux<ActionCollection> findByPageId(String pageId) {
-        return cake.findByPageId(pageId);
+        return repository.findByPageId(pageId);
     }
 
     @Override
     public Flux<ActionCollectionDTO> getCollectionsByPageIdAndViewMode(
             String pageId, boolean viewMode, AclPermission permission) {
-        return cake.findByPageIdAndViewMode(pageId, viewMode, permission)
+        return repository.findByPageIdAndViewMode(pageId, viewMode, permission)
                 .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
     }
 
     @Override
     public Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        return cake.findByPageIds(pageIds, permission);
+        return repository.findByPageIds(pageIds, permission);
     }
 
     @Override
     public Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, Optional<AclPermission> permission) {
-        return cake.findByPageIds(pageIds, permission).doOnNext(actionCollection -> {
+        return repository.findByPageIds(pageIds, permission).doOnNext(actionCollection -> {
             actionCollection.getUnpublishedCollection().populateTransientFields(actionCollection);
             if (actionCollection.getPublishedCollection() != null
                     && StringUtils.hasText(
@@ -518,7 +518,7 @@ public class ActionCollectionServiceCEImpl
 
     @Override
     public Mono<ActionCollection> archiveById(String id) {
-        Mono<ActionCollection> actionCollectionMono = cake.findById(id)
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
@@ -557,7 +557,7 @@ public class ActionCollectionServiceCEImpl
                         }))
                 .collectList()
                 .flatMap(actionList -> actionCollectionMono)
-                .flatMap(actionCollection -> cake.archive(actionCollection).thenReturn(actionCollection))
+                .flatMap(actionCollection -> repository.archive(actionCollection).thenReturn(actionCollection))
                 .flatMap(deletedActionCollection -> analyticsService.sendDeleteEvent(
                         deletedActionCollection, getAnalyticsProperties(deletedActionCollection))); // */
     }
@@ -586,7 +586,7 @@ public class ActionCollectionServiceCEImpl
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, defaultCollectionId)));
         }
-        return cake.findByBranchNameAndDefaultCollectionId(branchName, defaultCollectionId, permission)
+        return repository.findByBranchNameAndDefaultCollectionId(branchName, defaultCollectionId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, defaultCollectionId)));
     }
@@ -647,9 +647,9 @@ public class ActionCollectionServiceCEImpl
     public Flux<ActionCollection> findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode) {
         if (viewMode) {
-            return cake.findAllPublishedActionCollectionsByContextIdAndContextType(contextId, contextType, permission);
+            return repository.findAllPublishedActionCollectionsByContextIdAndContextType(contextId, contextType, permission);
         }
-        return cake.findAllUnpublishedActionCollectionsByContextIdAndContextType(contextId, contextType, permission);
+        return repository.findAllUnpublishedActionCollectionsByContextIdAndContextType(contextId, contextType, permission);
     }
 
     protected Mono<ActionDTO> createJsAction(ActionCollection actionCollection, ActionDTO action) {
@@ -747,7 +747,7 @@ public class ActionCollectionServiceCEImpl
                                 }
                                 return Mono.just(savedActionCollection);
                             })
-                            .flatMap(cake::setUserPermissionsInObject)
+                            .flatMap(repository::setUserPermissionsInObject)
                             .cache();
 
                     return actionCollectionMono

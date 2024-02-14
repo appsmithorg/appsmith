@@ -57,9 +57,9 @@ public abstract class BaseService<
 
     protected final ReactiveMongoTemplate mongoTemplate;
 
-    protected final R repository;
+    protected final R repositoryDirect;
 
-    protected final C cake;
+    protected final C repository;
 
     protected final AnalyticsService analyticsService;
 
@@ -81,11 +81,11 @@ public abstract class BaseService<
             resource.setPolicies(null);
         }
 
-        return cake.findOne((root, query, builder) -> builder.equal(root.get(key), id))
+        return repository.findOne((root, query, builder) -> builder.equal(root.get(key), id))
                 .flatMap(dbResource -> {
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, dbResource);
                     dbResource.setUpdatedAt(Instant.now());
-                    return cake.save(dbResource);
+                    return repository.save(dbResource);
                 });
     }
 
@@ -104,7 +104,7 @@ public abstract class BaseService<
             criterias = new ArrayList<>();
         }
 
-        return Mono.fromSupplier(() -> repository
+        return Mono.fromSupplier(() -> repositoryDirect
                         .queryBuilder()
                         .criteria(criterias)
                         .permission(aclPermission)
@@ -118,7 +118,7 @@ public abstract class BaseService<
         // In the base service we aren't handling the query parameters. In order to filter records using the query
         // params,
         // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
-        return cake.findAll();
+        return repository.findAll();
     }
 
     @Override
@@ -127,14 +127,14 @@ public abstract class BaseService<
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return cake.findById((String) id)
+        return repository.findById((String) id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
     @Override
     public Mono<T> create(T object) {
         return validateObject(object)
-                .flatMap(cake::save)
+                .flatMap(repository::save)
                 .flatMap(savedResource ->
                         analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
@@ -202,7 +202,7 @@ public abstract class BaseService<
                 .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
-        Flux<T> result = Mono.fromSupplier(() -> repository
+        Flux<T> result = Mono.fromSupplier(() -> repositoryDirect
                         .queryBuilder()
                         .criteria(criteria)
                         .permission(permission)
@@ -240,7 +240,7 @@ public abstract class BaseService<
                 .toList();
         Criteria criteria = new Criteria().orOperator(criteriaList);
 
-        Flux<T> result = Mono.fromSupplier(() -> repository
+        Flux<T> result = Mono.fromSupplier(() -> repositoryDirect
                         .queryBuilder()
                         .criteria(criteria)
                         .permission(permission)

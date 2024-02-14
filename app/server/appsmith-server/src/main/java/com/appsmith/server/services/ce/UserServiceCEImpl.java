@@ -176,7 +176,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
     @Override
     public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
-        return cake.findByEmailAndTenantId(email, tenantId);
+        return repository.findByEmailAndTenantId(email, tenantId);
     }
 
     /**
@@ -193,7 +193,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
         }
         return sessionUserService
                 .getCurrentUser()
-                .flatMap(user -> cake.findByEmail(user.getUsername()))
+                .flatMap(user -> repository.findByEmail(user.getUsername()))
                 .flatMap(user -> {
                     log.debug("Going to set workspaceId: {} for user: {}", workspaceId, user.getId());
 
@@ -213,7 +213,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
                     if (maybeWorkspaceId.isPresent()) {
                         user.setCurrentWorkspaceId(maybeWorkspaceId.get());
-                        return cake.save(user);
+                        return repository.save(user);
                     }
 
                     // Throw an exception if the workspaceId is not part of the user's workspaces
@@ -247,8 +247,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
         final String token = UUID.randomUUID().toString();
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
-        return cake.findByEmail(email)
-                .switchIfEmpty(cake.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
+        return repository.findByEmail(email)
+                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
@@ -376,7 +376,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                         return emailTokenDTO.getEmail();
                     }
                 })
-                .flatMap(emailAddress -> cake.findByEmail(emailAddress)
+                .flatMap(emailAddress -> repository.findByEmail(emailAddress)
                         .switchIfEmpty(Mono.error(
                                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
                         .flatMap(userFromDb -> {
@@ -404,7 +404,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                                             FieldName.TOKEN,
                                             emailTokenDTO.getToken())))
                                     .flatMap(passwordResetTokenRepository::delete)
-                                    .then(cake.save(userFromDb))
+                                    .then(repository.save(userFromDb))
                                     .doOnSuccess(result -> {
                                         // In a separate thread, we delete all other sessions of this user.
                                         sessionUserService
@@ -451,7 +451,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
         // Save the new user
         return userWithTenantMono
                 .flatMap(this::validateObject)
-                .flatMap(cake::save)
+                .flatMap(repository::save)
                 .flatMap(this::addUserPoliciesAndSaveToRepo)
                 .flatMap(crudUser -> {
                     if (isAdminUser) {
@@ -460,13 +460,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                     return Mono.just(crudUser);
                 })
                 .then(Mono.zip(
-                        cake.findByEmail(user.getUsername()), userDataService.getForUserEmail(user.getUsername())))
+                        repository.findByEmail(user.getUsername()), userDataService.getForUserEmail(user.getUsername())))
                 .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
     private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
         // TODO: Add policies to the user
-        return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(cake::save);
+        return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(repository::save);
     }
 
     @Override
@@ -480,7 +480,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
-        return cake.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
+        return repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -488,7 +488,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                         savedUser.setSource(user.getSource());
                         // In case of form login, store the encrypted password.
                         savedUser.setPassword(user.getPassword());
-                        return cake.save(savedUser).map(updatedUser -> {
+                        return repository.save(savedUser).map(updatedUser -> {
                             UserSignupDTO userSignupDTO = new UserSignupDTO();
                             userSignupDTO.setUser(updatedUser);
                             return userSignupDTO;
@@ -587,7 +587,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
     @Override
     public Mono<User> update(String id, User userUpdate) {
-        Mono<User> userFromRepository = cake.findById(id, MANAGE_USERS)
+        Mono<User> userFromRepository = repository.findById(id, MANAGE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, userUpdate));
@@ -602,7 +602,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
      */
     @Override
     public Mono<User> updateWithoutPermission(String id, User update) {
-        Mono<User> userFromRepository = cake.findById(id)
+        Mono<User> userFromRepository = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));
@@ -615,7 +615,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
         }
 
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
-        return cake.save(existingUser);
+        return repository.save(existingUser);
     }
 
     @Override
@@ -649,7 +649,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                     .getCurrentUser()
                     .flatMap(user -> {
                         user.setName(inputName);
-                        return cake.save(user).flatMap(savedUser -> {
+                        return repository.save(user).flatMap(savedUser -> {
                             if (exchange != null) {
                                 // Can we do this in a separate thread, async?
                                 return sessionUserService
@@ -696,7 +696,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
     @Override
     public Mono<Boolean> isUsersEmpty() {
-        return cake.isUsersEmpty();
+        return repository.isUsersEmpty();
     }
 
     @Override
@@ -752,7 +752,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
     @Override
     public Flux<User> getAllByEmails(Set<String> emails, AclPermission permission) {
-        return cake.findAllByEmailIn(emails);
+        return repository.findAllByEmailIn(emails);
     }
 
     @Override
@@ -775,8 +775,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
         final String token = UUID.randomUUID().toString();
 
         // Check if the user exists in our DB. If not, we will not send the email verification link to the user
-        Mono<User> userMono = cake.findByEmail(email).cache();
-        return userMono.switchIfEmpty(cake.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
+        Mono<User> userMono = repository.findByEmail(email).cache();
+        return userMono.switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
@@ -887,7 +887,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
             Mono<WebSession> sessionMono = exchange.getSession();
             Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
-            Mono<User> userMono = cake.findByEmail(parsedEmailTokenDTO.getEmail());
+            Mono<User> userMono = repository.findByEmail(parsedEmailTokenDTO.getEmail());
 
             Mono<EmailVerificationToken> emailVerificationTokenMono = emailVerificationTokenRepository
                     .findByEmail(parsedEmailTokenDTO.getEmail())
@@ -937,7 +937,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                         user.setEmailVerified(TRUE);
                         Mono<Void> redirectionMono = redirectStrategy.sendRedirect(
                                 webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl));
-                        return cake.save(user).then(redirectionMono);
+                        return repository.save(user).then(redirectionMono);
                     });
         });
     }

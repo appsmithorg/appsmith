@@ -83,7 +83,7 @@ public class MigrationHelperMethods {
         }
         for (String pageName : pageOrderList) {
             ApplicationPage unpublishedAppPage = new ApplicationPage();
-            // unpublishedAppPage.setId(pageName);
+            unpublishedAppPage.setId(pageName);
             unpublishedAppPage.setIsDefault(
                     StringUtils.equals(pageName, applicationJson.getUnpublishedDefaultPageName()));
             applicationPages.get(EDIT).add(unpublishedAppPage);
@@ -102,7 +102,7 @@ public class MigrationHelperMethods {
         }
         for (String pageName : pageOrderList) {
             ApplicationPage publishedAppPage = new ApplicationPage();
-            // publishedAppPage.setId(pageName);
+            publishedAppPage.setId(pageName);
             publishedAppPage.setIsDefault(StringUtils.equals(pageName, applicationJson.getPublishedDefaultPageName()));
             applicationPages.get(VIEW).add(publishedAppPage);
         }

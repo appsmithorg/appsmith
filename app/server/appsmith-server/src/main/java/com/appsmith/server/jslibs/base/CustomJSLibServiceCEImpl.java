@@ -89,10 +89,10 @@ public class CustomJSLibServiceCEImpl
     @Override
     public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
-        return cake.findUniqueCustomJsLib(jsLib)
+        return repository.findUniqueCustomJsLib(jsLib)
                 // Read more why Mono.defer is used here.
                 // https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
-                .switchIfEmpty(Mono.defer(() -> cake.save(jsLib)))
+                .switchIfEmpty(Mono.defer(() -> repository.save(jsLib)))
                 .flatMap(foundJSLib -> {
                     /*
                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
@@ -101,7 +101,7 @@ public class CustomJSLibServiceCEImpl
                     */
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
-                        return cake.save(jsLib);
+                        return repository.save(jsLib);
                     }
 
                     return Mono.just(foundJSLib);
@@ -140,7 +140,7 @@ public class CustomJSLibServiceCEImpl
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
                 .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
-                .flatMapMany(cake::findCustomJsLibsInContext)
+                .flatMapMany(repository::findCustomJsLibsInContext)
                 .collectList()
                 .map(jsLibList -> {
                     jsLibList.sort(Comparator.comparing(CustomJSLib::getUidString));
@@ -154,6 +154,6 @@ public class CustomJSLibServiceCEImpl
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
                 .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
-                .flatMapMany(cake::findCustomJsLibsInContext);
+                .flatMapMany(repository::findCustomJsLibsInContext);
     }
 }

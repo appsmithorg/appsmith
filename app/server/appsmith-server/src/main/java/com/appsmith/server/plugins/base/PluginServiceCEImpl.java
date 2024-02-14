@@ -176,12 +176,12 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
 
     @Override
     public Flux<Plugin> getDefaultPlugins() {
-        return cake.findByDefaultInstall(true);
+        return repository.findByDefaultInstall(true);
     }
 
     @Override
     public Flux<Plugin> getDefaultPluginIcons() {
-        return cake.findDefaultPluginIcons();
+        return repository.findDefaultPluginIcons();
     }
 
     @Override
@@ -259,7 +259,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
         return pluginInWorkspaceMono.switchIfEmpty(Mono.defer(() -> {
             log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
             // If the plugin is not found in the workspace, its not installed already. Install now.
-            return cake.findById(pluginDTO.getPluginId())
+            return repository.findById(pluginDTO.getPluginId())
                     .map(plugin -> {
                         log.debug("Before publishing to the redis queue");
                         // Publish the event to the pub/sub queue
@@ -301,16 +301,16 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
     }
 
     public Mono<Plugin> findByName(String name) {
-        return cake.findByName(name);
+        return repository.findByName(name);
     }
 
     public Mono<Plugin> findByPackageName(String packageName) {
-        return cake.findByPackageName(packageName);
+        return repository.findByPackageName(packageName);
     }
 
     @Override
     public Mono<Plugin> findById(String id) {
-        return cake.findById(id);
+        return repository.findById(id);
     }
 
     @Override
@@ -322,7 +322,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
         Mono<Plugin> pluginMono =
-                cake.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
+                repository.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
         return pluginMono
                 .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
                 .switchIfEmpty(Mono.defer(() -> {
@@ -632,17 +632,17 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
 
     @Override
     public Flux<Plugin> saveAll(Iterable<Plugin> plugins) {
-        return cake.saveAll(plugins);
+        return repository.saveAll(plugins);
     }
 
     @Override
     public Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
-        return cake.findAllByIdsWithoutPermission(ids, includeFields);
+        return repository.findAllByIdsWithoutPermission(ids, includeFields);
     }
 
     @Override
     public Flux<Plugin> getAllRemotePlugins() {
-        return cake.findByType(PluginType.REMOTE);
+        return repository.findByType(PluginType.REMOTE);
     }
 
     private Map loadPluginResourceGivenPluginAsMap(Plugin plugin, String resourcePath) {

@@ -131,7 +131,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findById(String pageId, AclPermission aclPermission) {
-        return cake.findById(pageId, aclPermission);
+        return repository.findById(pageId, aclPermission);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
-        return cake.findById(pageId, aclPermission.orElse(null));
+        return repository.findById(pageId, aclPermission.orElse(null));
     }
 
     @Override
@@ -164,7 +164,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     if (newPage.getGitSyncId() == null) {
                         newPage.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
                     }
-                    return cake.save(newPage);
+                    return repository.save(newPage);
                 })
                 .flatMap(savedPage -> getPageByViewMode(savedPage, false));
     }
@@ -197,27 +197,27 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return Mono.just(savedPage);
                 })
-                .flatMap(cake::setUserPermissionsInObject)
+                .flatMap(repository::setUserPermissionsInObject)
                 .flatMap(page -> getPageByViewMode(page, false));
     }
 
     @Override
     public Mono<PageDTO> findByIdAndLayoutsId(
             String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
-        return cake.findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
+        return repository.findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Mono<PageDTO> findByNameAndViewMode(String name, AclPermission permission, Boolean view) {
-        return cake.findByNameAndViewMode(name, permission, view).flatMap(page -> getPageByViewMode(page, view));
+        return repository.findByNameAndViewMode(name, permission, view).flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Layout createDefaultLayout() {
         Layout layout = new Layout();
         String id = new ObjectId().toString();
-        // layout.setId(id);
+        layout.setId(id);
         try {
             layout.setDsl((JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT));
             layout.setWidgetNames(Set.of(FieldName.DEFAULT_WIDGET_NAME));
@@ -229,7 +229,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<Void> deleteAll() {
-        return cake.deleteAll(); // */
+        return repository.deleteAll(); // */
     }
 
     @Override
@@ -306,7 +306,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return pages.stream().map(page -> page.getId()).collect(Collectors.toList());
                 })
-                .flatMapMany(pageIds -> cake.findAllPageDTOsByIds(pageIds, pagePermission.getReadPermission()))
+                .flatMapMany(pageIds -> repository.findAllPageDTOsByIds(pageIds, pagePermission.getReadPermission()))
                 .collectList()
                 .flatMap(pagesFromDb -> Mono.zip(Mono.just(pagesFromDb), defaultPageIdMono, applicationMono))
                 .flatMap(tuple -> {
@@ -472,24 +472,24 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view) {
-        return cake.findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
+        return repository.findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission) {
-        return cake.findByApplicationId(applicationId, permission);
+        return repository.findByApplicationId(applicationId, permission);
     }
 
     @Override
     public Flux<NewPage> findNewPagesByApplicationId(String applicationId, Optional<AclPermission> permission) {
-        return cake.findByApplicationId(applicationId, permission);
+        return repository.findByApplicationId(applicationId, permission);
     }
 
     @Override
     public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
         return findNewPagesByApplicationId(applicationId, permission)
-                .flatMap((NewPage entity) -> cake.archive(entity))
+                .flatMap((NewPage entity) -> repository.archive(entity))
                 .collectList();
     }
 
@@ -518,7 +518,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> updatePage(String pageId, PageDTO page) {
-        return cake.findById(pageId, pagePermission.getEditPermission())
+        return repository.findById(pageId, pagePermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(dbPage -> {
@@ -535,7 +535,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
-        return cake.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(newPage -> updatePage(newPage.getId(), page))
                 .map(responseUtils::updatePageDTOWithDefaultResources); // */
     }
@@ -546,12 +546,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         if (page.getGitSyncId() == null) {
             page.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
         }
-        return cake.save(page); // */
+        return repository.save(page); // */
     }
 
     @Override
     public Mono<NewPage> archive(NewPage page) {
-        return cake.archive(page);
+        return repository.archive(page);
     }
 
     @Override
@@ -566,7 +566,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<Boolean> archiveByIds(Collection<String> idList) {
-        return cake.archiveAllById(idList);
+        return repository.archiveAllById(idList);
     }
 
     public Mono<NewPage> archiveByIdEx(String id, Optional<AclPermission> permission) {
@@ -575,7 +575,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .cache();
 
-        return pageMono.flatMap(newPage -> cake.archiveById(id)).then(pageMono);
+        return pageMono.flatMap(newPage -> repository.archiveById(id)).then(pageMono);
     }
 
     @Override
@@ -583,12 +583,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         pages.stream()
                 .filter(newPage -> newPage.getGitSyncId() == null)
                 .forEach(newPage -> newPage.setGitSyncId(newPage.getId() + "_" + new ObjectId()));
-        return cake.saveAll(pages); // */
+        return repository.saveAll(pages); // */
     }
 
     @Override
     public Mono<String> getNameByPageId(String pageId, boolean isPublishedName) {
-        return cake.getNameByPageId(pageId, isPublishedName);
+        return repository.getNameByPageId(pageId, isPublishedName);
     }
 
     @Override
@@ -602,7 +602,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId)));
         }
-        return cake.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId + ", " + branchName)));
     }
@@ -615,7 +615,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             }
             return Mono.just(defaultPageId);
         }
-        return cake.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName)))
                 .map(NewPage::getId); // */
@@ -636,7 +636,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     .permission(pagePermission.getReadPermission())
                     .one();//*/
         } else {
-            getPageMono = cake.findPageByBranchNameAndDefaultPageId(
+            getPageMono = repository.findPageByBranchNameAndDefaultPageId(
                     branchName, defaultPageId, pagePermission.getReadPermission());
         }
         return getPageMono
@@ -656,18 +656,18 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return cake.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
+        return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
     }
 
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        return cake.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
+        return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
     }
 
     @Override
     public Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
-        return cake.findSlugsByApplicationIds(applicationIds, aclPermission);
+        return repository.findSlugsByApplicationIds(applicationIds, aclPermission);
     }
 
     /**
@@ -700,6 +700,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
-        return cake.publishPages(pageIds, permission);
+        return repository.publishPages(pageIds, permission);
     }
 }

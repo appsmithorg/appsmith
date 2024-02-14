@@ -46,13 +46,13 @@ public class CollectionServiceCEImpl
 
     @Override
     public Mono<Collection> findById(String id) {
-        return cake.findById(id);
+        return repository.findById(id);
     }
 
     @Override
     public Mono<Collection> addActionsToCollection(Collection collection, List<NewAction> actions) {
         collection.setActions(actions);
-        return cake.save(collection);
+        return repository.save(collection);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class CollectionServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION));
         }
 
-        return cake.findById(collectionId)
+        return repository.findById(collectionId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .flatMap(collection1 -> {
@@ -82,7 +82,7 @@ public class CollectionServiceCEImpl
                     toSave.setId(action.getId());
                     actions.add(toSave);
                     collection1.setActions(actions);
-                    return cake.save(collection1);
+                    return repository.save(collection1);
                 })
                 .map(collection -> {
                     log.debug("Action {} added to Collection {}", action.getId(), collection.getId());
@@ -96,7 +96,7 @@ public class CollectionServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return cake.findById(collectionId)
+        return repository.findById(collectionId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .zipWith(actionMono)
@@ -122,7 +122,7 @@ public class CollectionServiceCEImpl
                         }
                     }
                     log.debug("Action {} removed from Collection {}", action.getId(), collection.getId());
-                    return cake.save(collection);
+                    return repository.save(collection);
                 })
                 .then(actionMono); // */
     }

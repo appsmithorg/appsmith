@@ -138,7 +138,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 log.error("No workspace set for user: {}. Returning empty list of workspaces", user.getEmail());
                 return Flux.empty();
             }
-            return cake.findAllById(workspaceIds);
+            return repository.findAllById(workspaceIds);
         });
     }
 
@@ -205,7 +205,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                             return org;
                         }))
                 // Save the workspace in the db
-                .flatMap(cake::save)
+                .flatMap(repository::save)
                 .zipWhen(createdWorkspace -> generateDefaultPermissionGroups(createdWorkspace, user))
                 .flatMap(tuple -> {
                     Workspace createdWorkspace = tuple.getT1();
@@ -242,7 +242,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     permissionGroup, createdWorkspace.getId());
             createdWorkspace = policySolution.addPoliciesToExistingObject(policyMap, createdWorkspace);
         }
-        return cake.save(createdWorkspace);
+        return repository.save(createdWorkspace);
     }
 
     @Override
@@ -424,7 +424,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         // Ensure the resource has the same ID as from the parameter.
         resource.setId(id);
 
-        Mono<Workspace> findWorkspaceMono = cake.findById(id, workspacePermission.getEditPermission())
+        Mono<Workspace> findWorkspaceMono = repository.findById(id, workspacePermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)))
                 .cache();
@@ -464,7 +464,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     return workspaceFromDb;
                 })
                 .flatMap(this::validateObject)
-                .then(Mono.defer(() -> cake.updateById(id, resource, workspacePermission.getEditPermission())))
+                .then(Mono.defer(() -> repository.updateById(id, resource, workspacePermission.getEditPermission())))
                 .flatMap(analyticsService::sendUpdateEvent);
     }
 
@@ -475,7 +475,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> findById(String id, AclPermission permission) {
-        return cake.findById(id, permission);
+        return repository.findById(id, permission);
     }
 
     @Override
@@ -488,19 +488,19 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         if (StringUtils.hasLength(workspace.getName())) {
             workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
         }
-        return cake.save(workspace);
+        return repository.save(workspace);
     }
 
     @Override
     public Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId) {
-        return cake.findByIdAndPluginsPluginId(workspaceId, pluginId);
+        return repository.findByIdAndPluginsPluginId(workspaceId, pluginId);
     }
 
     @Override
     public Flux<Workspace> findByIdsIn(Set<String> ids, String tenantId, AclPermission permission) {
         Sort sort = Sort.by(FieldName.NAME);
 
-        return cake.findByIdsIn(ids, tenantId, permission, sort);
+        return repository.findByIdsIn(ids, tenantId, permission, sort);
     }
 
     @Override
@@ -510,7 +510,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         }
 
         // Read the workspace
-        Mono<Workspace> workspaceMono = cake.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceMono = repository.findById(workspaceId, workspacePermission.getReadPermission());
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux =
@@ -552,7 +552,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
         }
 
-        final Mono<Workspace> findWorkspaceMono = cake.findById(workspaceId, workspacePermission.getEditPermission())
+        final Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
@@ -568,7 +568,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     final String prevAssetId = workspace.getLogoAssetId();
 
                     workspace.setLogoAssetId(uploadedAsset.getId());
-                    return cake.save(workspace).flatMap(savedWorkspace -> {
+                    return repository.save(workspace).flatMap(savedWorkspace -> {
                         if (StringUtils.isEmpty(prevAssetId)) {
                             return Mono.just(savedWorkspace);
                         } else {
@@ -580,7 +580,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> deleteLogo(String workspaceId) {
-        return cake.findById(workspaceId, workspacePermission.getEditPermission())
+        return repository.findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .flatMap(workspace -> {
@@ -596,13 +596,13 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                     AppsmithError.NO_RESOURCE_FOUND, FieldName.ASSET, prevAssetId)))
                             .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
                             .flatMap(analyticsService::sendDeleteEvent)
-                            .then(cake.save(workspace));
+                            .then(repository.save(workspace));
                 });
     }
 
     @Override
     public Flux<Workspace> getAll() {
-        return cake.findAllWorkspaces();
+        return repository.findAllWorkspaces();
     }
 
     @Override
@@ -612,7 +612,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .flatMap(appCount -> {
                     if (appCount == 0) { // no application found under this workspace
                         // fetching the workspace first to make sure user has permission to archive
-                        return cake.findById(workspaceId, workspacePermission.getDeletePermission())
+                        return repository.findById(workspaceId, workspacePermission.getDeletePermission())
                                 .switchIfEmpty(Mono.error(new AppsmithException(
                                         AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                                 .flatMap(workspace -> {
@@ -634,7 +634,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                             .then(Mono.just(workspace));
                                 })
                                 .flatMap(this::archiveWorkspaceDependents)
-                                .flatMap(cake::archive)
+                                .flatMap(repository::archive)
                                 .flatMap(analyticsService::sendDeleteEvent);
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
@@ -659,6 +659,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Flux<Workspace> getAll(AclPermission permission) {
-        return cake.findAll(permission);
+        return repository.findAll(permission);
     }
 }

@@ -77,7 +77,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
             return Mono.just(tenantId);
         }
 
-        return cake.findIdBySlug(FieldName.DEFAULT).map(IdOnly::id).map(tenantId -> {
+        return repository.findIdBySlug(FieldName.DEFAULT).map(IdOnly::id).map(tenantId -> {
             // Set the cache value before returning.
             this.tenantId = tenantId;
             return tenantId;
@@ -86,7 +86,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return cake.findById(tenantId, MANAGE_TENANT)
+        return repository.findById(tenantId, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.TENANT, tenantId)))
                 .flatMap(tenant -> {
@@ -112,13 +112,13 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
                     TenantConfiguration oldConfig = tuple2.getT1();
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
                     tenant.setTenantConfiguration(oldConfig);
-                    return cake.updateById(tenantId, tenant, MANAGE_TENANT);
+                    return repository.updateById(tenantId, tenant, MANAGE_TENANT);
                 }); // */
     }
 
     @Override
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
-        return cake.findById(tenantId, permission)
+        return repository.findById(tenantId, permission)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
     }
@@ -163,14 +163,14 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
     public Mono<Tenant> getDefaultTenant() {
         // Get the default tenant object from the DB and then populate the relevant user permissions in that
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
-        return cake.findBySlug(FieldName.DEFAULT)
+        return repository.findBySlug(FieldName.DEFAULT)
                 .map(tenant -> {
                     if (tenant.getTenantConfiguration() == null) {
                         tenant.setTenantConfiguration(new TenantConfiguration());
                     }
                     return tenant;
                 })
-                .flatMap(tenant -> cake.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
     }
 
     @Override
@@ -203,7 +203,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
 
     @Override
     public Mono<Tenant> save(Tenant tenant) {
-        return cake.save(tenant);
+        return repository.save(tenant);
     }
 
     /**
@@ -235,7 +235,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
                                 // Fetch the tenant again from DB to make sure the downstream chain is consuming the
                                 // latest
                                 // DB object and not the modified one because of the client pertinent changes
-                                .then(cake.findById(tenant.getId()))
+                                .then(repository.findById(tenant.getId()))
                                 .flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
                     }
                     return Mono.error(
@@ -248,7 +248,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
         if (!StringUtils.hasLength(id)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        return cake.findById(id);
+        return repository.findById(id);
     }
 
     /**
