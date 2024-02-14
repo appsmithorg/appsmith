@@ -68,6 +68,8 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
                 .and(FieldNameCE.CREATED_AT)
                 .exists(false));
         try (Stream<Datasource> datasourceStream = mongoTemplate.stream(datasourceQuery, Datasource.class)) {
+            // for each datasource, create policies based on default workspace permission groups, create a datasource
+            // storage and set createdAt and updatedAt across
             datasourceStream.forEach(datasource -> {
                 String workspaceId = datasource.getWorkspaceId();
                 String uniqueGitSyncId = workspaceId + "_" + new ObjectId();
@@ -99,6 +101,9 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
         return datasourceConfiguration;
     }
 
+    /**
+     * Create a datasource storage for the datasource
+     */
     private void createDatasourceStorage(Datasource datasource) {
         String envId = datasourceStorageMigrationSolution.getEnvironmentIdForDatasource(
                 datasourceStorageMigrationSolution.getDefaultEnvironmentsMap(mongoTemplate),
@@ -119,6 +124,9 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
         mongoTemplate.insert(datasourceStorage);
     }
 
+    /**
+     * Create policies for the datasource based on the default permission groups of the workspace
+     */
     private Set<Policy> createPolicies(Set<PermissionGroup> permissionGroups) {
         String appViewerPGId = "", devPGId = "", adminPGId = "";
         for (PermissionGroup permissionGroup : permissionGroups) {
