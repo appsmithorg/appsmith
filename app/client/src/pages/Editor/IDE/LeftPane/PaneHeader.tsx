@@ -14,6 +14,7 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 40px;
   span {
     line-height: 20px;
   }
