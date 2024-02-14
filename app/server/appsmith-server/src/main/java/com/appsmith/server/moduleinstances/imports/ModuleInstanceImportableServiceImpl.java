@@ -550,7 +550,9 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                         moduleInstanceDTO.getDefaultResources().getPageId())) {
             NewPage defaultPage =
                     pageNameMap.get(moduleInstanceDTO.getDefaultResources().getPageId());
-            moduleInstanceDTO.getDefaultResources().setPageId(defaultPage.getId());
+            moduleInstanceDTO
+                    .getDefaultResources()
+                    .setPageId(defaultPage.getDefaultResources().getPageId());
         }
         if (parentPage == null) {
             return null;
