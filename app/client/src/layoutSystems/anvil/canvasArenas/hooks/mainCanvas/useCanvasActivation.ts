@@ -51,6 +51,7 @@ export const useCanvasActivation = () => {
   const {
     activateOverlayWidgetDrop,
     dragDetails,
+    draggedWidgetHierarchy,
     draggedWidgetTypes,
     isDragging,
     isNewWidget,
@@ -115,10 +116,8 @@ export const useCanvasActivation = () => {
         const currentPositions = layoutElementPositions[layoutInfo.layoutId];
         const widget: FlattenedWidgetProps = allWidgets[layoutInfo.canvasId];
         const canActivate = canActivateCanvasForDraggedWidget(
-          draggedWidgetTypes,
-          mainCanvasLayoutId,
-          layoutInfo.layoutType,
-          layoutInfo.layoutId,
+          draggedWidgetHierarchy,
+          widget?.widgetId,
           widget?.type,
         );
         return canActivate && currentPositions && !!layoutInfo.isDropTarget;
