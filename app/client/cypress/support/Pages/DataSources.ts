@@ -10,7 +10,6 @@ import EditorNavigation, {
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
-import { apiPage } from "../Objects/ObjectsCore";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -745,7 +744,7 @@ export class DataSources {
           this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
         );
       else if (enterOrSelectUrl == "select") {
-        cy.get(apiPage._editorDS).click();
+        this.agHelper.GetNClick(this.apiPage._resourceUrl);
         this.agHelper.GetNClick(this._graphQlDsHintOption(dsNameToSelect));
       }
 
