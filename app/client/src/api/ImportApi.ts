@@ -1,13 +1,15 @@
 import type { AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface CurlImportRequest {
   type: string;
-  pageId: string;
+  contextId: string;
   name: string;
   curl: string;
   workspaceId: string;
+  contextType: ActionParentEntityTypeInterface;
 }
 
 class CurlImportApi extends Api {
@@ -16,12 +18,13 @@ class CurlImportApi extends Api {
   static async curlImport(
     request: CurlImportRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const { curl, name, pageId, workspaceId } = request;
+    const { contextId, contextType, curl, name, workspaceId } = request;
     return Api.post(CurlImportApi.curlImportURL, curl, {
       type: "CURL",
-      pageId,
+      contextId,
       name,
       workspaceId,
+      contextType,
     });
   }
 }

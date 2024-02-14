@@ -13,7 +13,7 @@ import type { AppState } from "@appsmith/reducers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
-const StyledHelpBar = styled.button<{ maxWidth?: string }>`
+const StyledHelpBar = styled.button<{ isSideBySideFlagEnabled?: boolean }>`
   padding: 0 var(--ads-v2-spaces-3);
   margin: var(--ads-v2-spaces-2);
   .placeholder-text {
@@ -24,7 +24,7 @@ const StyledHelpBar = styled.button<{ maxWidth?: string }>`
   align-items: center;
   height: 28px;
   flex: 1;
-  max-width: ${({ maxWidth }) => (maxWidth ? maxWidth : "210px")};
+  max-width: 210px;
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
   background-color: var(--ads-v2-color-bg);
@@ -39,6 +39,13 @@ const StyledHelpBar = styled.button<{ maxWidth?: string }>`
   &[disabled] {
     cursor: not-allowed;
   }
+  ${({ isSideBySideFlagEnabled }) =>
+    isSideBySideFlagEnabled &&
+    `
+      flex-grow: 0;
+      gap: 8px;
+      min-width: fit-content;
+  `}
 `;
 
 interface Props {
@@ -56,7 +63,7 @@ function HelpBar({ isProtectedMode, toggleShowModal }: Props) {
       className="t--global-search-modal-trigger"
       data-testid="global-search-modal-trigger"
       disabled={isProtectedMode}
-      maxWidth={isSideBySideFlagEnabled ? "70px" : "210px"}
+      isSideBySideFlagEnabled={isSideBySideFlagEnabled}
       onClick={toggleShowModal}
     >
       {!isSideBySideFlagEnabled && (

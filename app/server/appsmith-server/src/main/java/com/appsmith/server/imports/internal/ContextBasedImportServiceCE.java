@@ -8,7 +8,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
+import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
