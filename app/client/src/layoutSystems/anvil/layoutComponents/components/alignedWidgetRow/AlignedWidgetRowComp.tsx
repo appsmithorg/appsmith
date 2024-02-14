@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   LayoutComponentTypes,
   type LayoutComponentProps,
@@ -12,8 +12,7 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { FlexLayout, type FlexLayoutProps } from "../FlexLayout";
 import { isFillWidgetPresentInList } from "layoutSystems/anvil/utils/layouts/widgetUtils";
-import { useSelector } from "react-redux";
-import { shouldOverrideAlignmentStyle } from "layoutSystems/anvil/integrations/layoutSelectors";
+import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 /**
  * If AlignedRow hasFillWidget:
@@ -39,14 +38,40 @@ import { shouldOverrideAlignmentStyle } from "layoutSystems/anvil/integrations/l
  */
 const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
   const { canvasId, layout, layoutId } = props;
-  const shouldOverrideStyle: boolean = useSelector(
-    shouldOverrideAlignmentStyle(layoutId),
-  );
 
   // check if layout renders a Fill widget.
   const hasFillWidget: boolean = isFillWidgetPresentInList(
     layout as WidgetLayoutProps[],
   );
+
+  const [isAnyAlignmentOverflowing, setIsAnyAlignmentOverflowing] =
+    useState(false);
+
+  useEffect(() => {
+    if (hasFillWidget) return;
+    const parentLayoutId = getAnvilLayoutDOMId(canvasId, layoutId);
+    const parentLayout = document.getElementById(parentLayoutId);
+    if (parentLayout) {
+      const parentLayoutWidth = parentLayout.getBoundingClientRect().width;
+
+      // Use requestAnimationFrame to ensure calculation is done after rendering
+      requestAnimationFrame(() => {
+        const isOverflowing = [
+          FlexLayerAlignment.Start,
+          FlexLayerAlignment.Center,
+          FlexLayerAlignment.End,
+        ].some((each: FlexLayerAlignment) => {
+          const alignmentId = `${parentLayoutId}-${AlignmentIndexMap[each]}`;
+          const alignment = document.getElementById(alignmentId);
+          if (!alignment) return false;
+          const alignmentWidth = alignment.getBoundingClientRect().width;
+          // return true if width of any alignment exceeds the limit.
+          return alignmentWidth >= parentLayoutWidth * 0.95;
+        });
+        setIsAnyAlignmentOverflowing(isOverflowing);
+      });
+    }
+  }, [layout.length]);
 
   const commonProps: Omit<
     FlexLayoutProps,
@@ -56,7 +81,7 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
       alignSelf: "stretch",
       canvasId,
       direction: "row",
-      flexBasis: shouldOverrideStyle
+      flexBasis: isAnyAlignmentOverflowing
         ? { base: "auto" }
         : { base: "auto", [`${MOBILE_BREAKPOINT}px`]: "0%" },
       flexGrow: 1,
@@ -64,12 +89,12 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
       layoutType: LayoutComponentTypes.WIDGET_ROW,
       parentDropTarget: props.parentDropTarget,
       renderMode: props.renderMode,
-      wrap: shouldOverrideStyle
+      wrap: isAnyAlignmentOverflowing
         ? { base: "wrap" }
         : { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
       className: props.className,
     };
-  }, [shouldOverrideStyle]);
+  }, [isAnyAlignmentOverflowing]);
 
   // If a Fill widget exists, then render the child widgets together.
   if (hasFillWidget) {
