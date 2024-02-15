@@ -145,22 +145,15 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_PUBLISH_WORKFLOWS, PUBLISH_WORKFLOWS);
         hierarchyGraph.addEdge(WORKSPACE_EXPORT_WORKFLOWS, EXPORT_WORKFLOWS);
 
-        lateralGraph.addEdge(MANAGE_WORKFLOWS, READ_HISTORY_WORKFLOWS);
-        lateralGraph.addEdge(MANAGE_WORKFLOWS, EXECUTE_WORKFLOWS);
         lateralGraph.addEdge(WORKFLOW_CREATE_ACTIONS, MANAGE_WORKFLOWS);
         lateralGraph.addEdge(WORKFLOW_CREATE_ACTIONS, DELETE_WORKFLOWS);
-        lateralGraph.addEdge(WORKFLOW_CREATE_ACTIONS, READ_HISTORY_WORKFLOWS);
 
         lateralGraph.addEdge(MANAGE_WORKFLOWS, READ_HISTORY_WORKFLOWS);
+        lateralGraph.addEdge(MANAGE_WORKFLOWS, EXECUTE_WORKFLOWS);
+        lateralGraph.addEdge(MANAGE_WORKFLOWS, PUBLISH_WORKFLOWS);
+        lateralGraph.addEdge(MANAGE_WORKFLOWS, EXPORT_WORKFLOWS);
+
         lateralGraph.addEdge(DELETE_WORKFLOWS, READ_HISTORY_WORKFLOWS);
-
-        lateralGraph.addEdge(PUBLISH_WORKFLOWS, READ_HISTORY_WORKFLOWS);
-        lateralGraph.addEdge(PUBLISH_WORKFLOWS, MANAGE_WORKFLOWS);
-        lateralGraph.addEdge(PUBLISH_WORKFLOWS, EXECUTE_WORKFLOWS);
-
-        lateralGraph.addEdge(EXPORT_WORKFLOWS, READ_HISTORY_WORKFLOWS);
-        lateralGraph.addEdge(EXPORT_WORKFLOWS, MANAGE_WORKFLOWS);
-        lateralGraph.addEdge(EXPORT_WORKFLOWS, EXECUTE_WORKFLOWS);
     }
 
     protected void createEnvironmentPolicyGraph() {
@@ -273,14 +266,10 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(WORKSPACE_CREATE_WORKFLOW, WORKSPACE_DELETE_WORKFLOWS);
 
         lateralGraph.addEdge(WORKSPACE_MANAGE_WORKFLOWS, WORKSPACE_READ_HISTORY_WORKFLOW);
+        lateralGraph.addEdge(WORKSPACE_MANAGE_WORKFLOWS, WORKSPACE_PUBLISH_WORKFLOWS);
+        lateralGraph.addEdge(WORKSPACE_MANAGE_WORKFLOWS, WORKSPACE_EXPORT_WORKFLOWS);
 
         lateralGraph.addEdge(WORKSPACE_DELETE_WORKFLOWS, WORKSPACE_READ_HISTORY_WORKFLOW);
-
-        lateralGraph.addEdge(WORKSPACE_PUBLISH_WORKFLOWS, WORKSPACE_MANAGE_WORKFLOWS);
-        lateralGraph.addEdge(WORKSPACE_PUBLISH_WORKFLOWS, WORKSPACE_READ_HISTORY_WORKFLOW);
-
-        lateralGraph.addEdge(WORKSPACE_EXPORT_WORKFLOWS, WORKSPACE_MANAGE_WORKFLOWS);
-        lateralGraph.addEdge(WORKSPACE_EXPORT_WORKFLOWS, WORKSPACE_READ_HISTORY_WORKFLOW);
 
         lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_WORKFLOWS);
 

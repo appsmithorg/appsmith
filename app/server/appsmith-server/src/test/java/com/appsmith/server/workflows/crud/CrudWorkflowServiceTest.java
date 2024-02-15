@@ -12,6 +12,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
@@ -24,6 +25,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
@@ -62,6 +64,9 @@ import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
+import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
+import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -98,9 +103,6 @@ public class CrudWorkflowServiceTest {
     private NewActionRepository newActionRepository;
 
     @Autowired
-    private CrudWorkflowEntityService crudWorkflowEntityService;
-
-    @Autowired
     private ActionCollectionRepository actionCollectionRepository;
 
     @Autowired
@@ -109,8 +111,20 @@ public class CrudWorkflowServiceTest {
     @Autowired
     private LayoutActionService layoutActionService;
 
+    @Autowired
+    private PermissionGroupRepository permissionGroupRepository;
+
     Workspace workspace;
     String defaultEnvironmentId;
+
+    PermissionGroup w1AdminRole = null, w1DevRole = null, w1ViewRole = null;
+
+    private PermissionGroup getWorkspaceRole(List<PermissionGroup> workspaceRoles, String type) {
+        return workspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(type))
+                .findFirst()
+                .get();
+    }
 
     @BeforeEach
     public void setup() {
@@ -136,6 +150,14 @@ public class CrudWorkflowServiceTest {
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
+
+        List<PermissionGroup> workspaceRoles = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+        w1AdminRole = getWorkspaceRole(workspaceRoles, ADMINISTRATOR);
+        w1DevRole = getWorkspaceRole(workspaceRoles, DEVELOPER);
+        w1ViewRole = getWorkspaceRole(workspaceRoles, VIEWER);
     }
 
     @Test
@@ -172,6 +194,11 @@ public class CrudWorkflowServiceTest {
 
                     assertThat(userPermissions).containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
                     assertThat(workflow.getMainJsObjectId()).isNotEmpty();
+
+                    workflow.getPolicies().forEach(policy -> {
+                        assertThat(policy.getPermissionGroups())
+                                .containsExactlyInAnyOrder(w1AdminRole.getId(), w1DevRole.getId());
+                    });
                 })
                 .verifyComplete();
 
