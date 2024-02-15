@@ -50,14 +50,22 @@ RUN set -o xtrace \
   && curl --location "https://github.com/caddyserver/caddy/releases/download/v$version/caddy_${version}_linux_$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/').tar.gz" \
   | tar -xz -C /opt/caddy
 
-# Install Temporal
-RUN curl  --silent --show-error https://temporal.download/cli.sh | sh
-
 # Untar & install keycloak - Service Layer
 RUN mkdir -p /opt/keycloak/data \
   && curl --location https://github.com/keycloak/keycloak/releases/download/23.0.4/keycloak-23.0.4.tar.gz \
   | tar -xz -C /opt/keycloak --strip-components 1 \
   && curl --location --output "/opt/h2-2.1.214.jar" 'https://search.maven.org/remotecontent?filepath=com/h2database/h2/2.1.214/h2-2.1.214.jar'
+
+# Install Temporal client 0.11.0
+RUN mkdir -p /opt/temporal/cli \
+    && curl  --silent --show-error https://temporal.download/cli.sh | sh -s -- --dir /opt/temporal/cli --version 0.11.0
+
+# Install temporal server 1.22.4  (prebuilt binaries and postgres schema files)
+RUN mkdir -p /opt/temporal \
+    && curl --location "https://github.com/temporalio/temporal/releases/download/v1.22.4/temporal_1.22.4_linux_amd64.tar.gz" \
+    | tar -xz -C /opt/temporal temporal-server temporal-sql-tool \
+    && curl --location "https://github.com/temporalio/temporal/archive/refs/tags/v1.22.4.tar.gz" \
+    | tar -xz -C /opt/temporal temporal-1.22.4/schema/postgresql
 
 # Clean up
 RUN rm -rf \
