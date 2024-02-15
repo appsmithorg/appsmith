@@ -6,7 +6,6 @@ export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
 ) => {
-  getConsolidatedDataApi(flags, reload);
   const response = {
     responseMeta: {
       status: 200,
@@ -22,7 +21,13 @@ export const featureFlagIntercept = (
   };
   cy.intercept("GET", "/api/v1/users/features", response);
 
-  if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
+  getConsolidatedDataApi(flags, reload);
+
+  if (reload) {
+    // ObjectsRegistry.AggregateHelper.CypressReload();
+    cy.reload();
+    cy.wait(2000);
+  }
 };
 
 export const getConsolidatedDataApi = (
