@@ -1,4 +1,4 @@
-package com.appsmith.server.moduleinstances.imports;
+package com.appsmith.server.moduleinstances.importable;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
@@ -15,6 +16,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ExportableModule;
 import com.appsmith.server.dtos.ImportModuleInstanceResultDTO;
@@ -25,6 +27,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -45,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,12 +76,20 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
     private final DefaultResourcesService<ActionCollectionDTO> collectionDTODefaultResourcesService;
 
     @Override
+    public ArtifactBasedImportableService<ModuleInstance, ?> getArtifactBasedImportableService(
+            ImportingMetaDTO importingMetaDTO) {
+        return null;
+    }
+
+    @Override
     public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            Mono<? extends ImportableArtifact> importableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
         List<ModuleInstance> moduleInstanceList = applicationJson.getModuleInstanceList();
 
@@ -88,12 +100,12 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
         Mono<List<ModuleInstance>> importedModuleInstancesMono = Mono.justOrEmpty(moduleInstanceList);
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             importedModuleInstancesMono = importedModuleInstancesMono.map(moduleInstanceList1 -> {
-                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageOrModuleMap().values().stream()
+                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getContextMap().values().stream()
                         .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                         .distinct()
                         .toList();
 
-                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getPageOrModuleNewNameToOldName();
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getContextNewNameToOldName();
 
                 for (NewPage newPage : importedNewPages) {
                     String newPageName = newPage.getUnpublishedPage().getName();
@@ -108,10 +120,10 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
         }
 
         // At this point, we are either importing into a fresh app or a git synced app
-        return Mono.zip(importedModuleInstancesMono, applicationMono)
+        return Mono.zip(importedModuleInstancesMono, importableArtifactMono)
                 .flatMap(tuple2 -> {
                     List<ModuleInstance> moduleInstances = tuple2.getT1();
-                    Application importedApplication = tuple2.getT2();
+                    Application importedApplication = (Application) tuple2.getT2();
                     return importModuleInstances(
                             moduleInstances, importedApplication, importingMetaDTO, mappedImportableResourcesDTO);
                 })
@@ -185,6 +197,8 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                     importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
             moduleInstancesInBranchesMono = repository
                     .findByDefaultApplicationId(defaultApplicationId, Optional.empty())
+                    .filter(moduleInstance ->
+                            !Objects.equals(moduleInstance.getApplicationId(), importedApplication.getId()))
                     .filter(moduleInstance -> moduleInstance.getGitSyncId() != null)
                     .collectMap(ModuleInstance::getGitSyncId);
         } else {
@@ -249,7 +263,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                             unpublishedModuleInstance.setSourceModuleId(moduleInstance.getSourceModuleId());
                             unpublishedModuleInstance.setModuleUUID(moduleInstance.getModuleUUID());
                             parentPage = updatePageInModuleInstance(unpublishedModuleInstance, (Map<String, NewPage>)
-                                    mappedImportableResourcesDTO.getPageOrModuleMap());
+                                    mappedImportableResourcesDTO.getContextMap());
                             unpublishedModuleInstance.setVersion(unpublishedModuleInstance.getVersion());
                             unpublishedModuleInstance.setContextId(unpublishedModuleInstance.getPageId());
                         }
@@ -261,7 +275,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                             }
                             NewPage publishedModuleInstancePage =
                                     updatePageInModuleInstance(publishedModuleInstance, (Map<String, NewPage>)
-                                            mappedImportableResourcesDTO.getPageOrModuleMap());
+                                            mappedImportableResourcesDTO.getContextMap());
                             parentPage = parentPage == null ? publishedModuleInstancePage : parentPage;
                         }
 

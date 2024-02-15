@@ -49,7 +49,7 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.packages.crud.CrudPackageService;

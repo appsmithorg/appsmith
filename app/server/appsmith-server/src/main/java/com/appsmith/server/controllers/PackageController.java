@@ -9,7 +9,7 @@ import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exports.internal.ExportService;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.publish.packages.internal.PublishPackageService;
 import com.fasterxml.jackson.annotation.JsonView;

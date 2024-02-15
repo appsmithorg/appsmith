@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApiKeyService;

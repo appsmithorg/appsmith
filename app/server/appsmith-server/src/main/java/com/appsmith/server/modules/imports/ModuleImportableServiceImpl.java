@@ -1,13 +1,15 @@
 package com.appsmith.server.modules.imports;
 
-import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportableModule;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.packages.crud.CrudPackageService;
@@ -33,8 +35,10 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            Mono<? extends ImportableArtifact> importableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         List<ExportableModule> sourceModuleList = CollectionUtils.isEmpty(applicationJson.getSourceModuleList())
                 ? new ArrayList<>()
                 : applicationJson.getSourceModuleList();
@@ -67,5 +71,11 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
                             .collectList();
                 })
                 .then();
+    }
+
+    @Override
+    public ArtifactBasedImportableService<Module, ?> getArtifactBasedImportableService(
+            ImportingMetaDTO importingMetaDTO) {
+        return null;
     }
 }
