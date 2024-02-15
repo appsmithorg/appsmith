@@ -90,7 +90,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
 
     // Only set the editor state if switching between pages or app states
     if (
-      currentEntityInfo.appState === EditorState.EDITOR &&
+      currentEntityInfo.entity === FocusEntity.CANVAS &&
       (prevEntityInfo.params.pageId !== currentEntityInfo.params.pageId ||
         prevEntityInfo.appState !== currentEntityInfo.appState)
     ) {
