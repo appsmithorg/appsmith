@@ -82,6 +82,8 @@ export class DataManager {
       randomTrumpApi:
         "http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
+      flowerImageUrl:
+        "http://host.docker.internal:8001/photo-1503469432756-4aae2e18d881.jpeg",
       AirtableBaseForME: "appubHrVbovcudwN6",
       AirtableTableForME: "tblsFCQSskVFf7xNd",
       ApiUrlME: "http://host.docker.internal:5001/v1/production",
