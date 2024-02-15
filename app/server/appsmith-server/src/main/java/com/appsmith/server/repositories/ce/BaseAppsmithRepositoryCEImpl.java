@@ -22,7 +22,6 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -450,31 +449,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     Db query methods
      */
 
-    public Flux<T> queryAllWithoutPermissions(
-            List<Criteria> criterias, List<String> includeFields, Sort sort, int limit) {
-        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
-        Query query = new Query();
-        if (!CollectionUtils.isEmpty(includeFields)) {
-            for (String includeField : includeFields) {
-                query.fields().include(includeField);
-            }
-        }
-
-        if (limit != NO_RECORD_LIMIT) {
-            query.limit(limit);
-        }
-        Criteria andCriteria = new Criteria();
-
-        criteriaList.add(notDeleted());
-
-        andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
-
-        query.addCriteria(andCriteria);
-        if (sort != null) {
-            query.with(sort);
-        }
-
-        return mongoOperations.query(this.genericDomain).matching(query).all().map(obj -> obj);
+    public Flux<T> queryAllWithoutPermissions(List<Criteria> criterias, List<String> includeFields) {
+        return queryBuilder().criteria(criterias).fields(includeFields).all();
     }
 
     /**

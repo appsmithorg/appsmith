@@ -334,7 +334,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         ArrayList<Criteria> criteria =
                 new ArrayList<>(List.of(workspaceIdCriteria, permissionGroupCriteria, notDeleted()));
-        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)), null, -1)
+        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)))
                 .map(application -> application.getId());
     }
 
