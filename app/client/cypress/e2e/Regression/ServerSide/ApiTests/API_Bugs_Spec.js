@@ -33,8 +33,8 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
 
     //Api 1
     apiPage.CreateAndFillApi(
-      "https://api.thecatapi.com/v1/images/search",
-      "CatImage",
+      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl,
+      "FlowerImage",
     );
     agHelper.PressEscape();
 
@@ -142,7 +142,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     PageList.AddNewPage();
     //Api 1
     apiPage.CreateAndFillApi(
-      "https://api.thecatapi.com/v1/images/search",
+      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl,
       "InternalServerErrorApi",
     );
     apiPage.RunAPI(false);
