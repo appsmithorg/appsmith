@@ -12,6 +12,20 @@ import type { ActionOperation } from "components/editorComponents/GlobalSearch/u
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { getQueryAddUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import {
+  ADD_PATH,
+  API_EDITOR_ID_PATH,
+  BUILDER_CUSTOM_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+} from "@appsmith/constants/routes/appRoutes";
+import ApiEditor from "pages/Editor/APIEditor";
+import type { UseRoutes } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import QueryEditor from "pages/Editor/QueryEditor";
+import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
+import ListQuery from "pages/Editor/IDE/EditorPane/Query/List";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -69,4 +83,52 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
   });
 
   return groups;
+};
+
+export const useQuerySegmentRoutes = (path: string): UseRoutes => {
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
+  if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
+    return [
+      {
+        key: "ApiEditor",
+        component: ApiEditor,
+        exact: true,
+        path: [
+          BUILDER_PATH + API_EDITOR_ID_PATH,
+          BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
+          BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
+        ],
+      },
+      {
+        key: "QueryEditor",
+        component: QueryEditor,
+        exact: true,
+        path: [
+          path + "/api/:apiId", // SAAS path
+          path + "/:queryId",
+        ],
+      },
+      {
+        key: "AddQuery",
+        exact: true,
+        component: AddQuery,
+        path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
+      },
+    ];
+  }
+  return [
+    {
+      key: "AddQuery",
+      exact: true,
+      component: AddQuery,
+      path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
+    },
+    {
+      key: "ListQuery",
+      exact: false,
+      component: ListQuery,
+      path: [path],
+    },
+  ];
 };

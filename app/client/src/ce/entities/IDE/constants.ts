@@ -20,7 +20,7 @@ import {
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
 import type { PluginType } from "entities/Action";
-import type { ReactNode } from "react";
+import type { ReactNode, ComponentType } from "react";
 
 export enum EditorState {
   DATA = "DATA",
@@ -130,3 +130,10 @@ export interface EntityItem {
   icon?: ReactNode;
   group?: string;
 }
+
+export type UseRoutes = Array<{
+  key: string;
+  component: ComponentType<any>;
+  path: string[];
+  exact: boolean;
+}>;
