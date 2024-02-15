@@ -25,6 +25,8 @@ import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { Icon } from "design-system";
 
+const POPUP_HEIGHT = 122;
+const POPUP_WIDTH = 38;
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
   position: absolute;
@@ -249,12 +251,15 @@ function WidgetsMultiSelectBox(props: {
     new IntersectionObserver(
       ([node]) => {
         if (menuRef.current) {
+          const menuHeight = POPUP_HEIGHT;
+          const menuWidth = POPUP_WIDTH;
           const isVisible =
             node.isIntersecting &&
-            (node.intersectionRect.height < 160
-              ? node.intersectionRect.height >= 38 &&
-                node.intersectionRect.width >= 160
-              : node.intersectionRect.width >= 38);
+            ((node.intersectionRect.height < menuHeight &&
+              node.intersectionRect.height >= menuWidth &&
+              node.intersectionRect.width >= menuHeight) ||
+              (node.intersectionRect.height >= menuHeight &&
+                node.intersectionRect.width >= menuWidth));
           requestAnimationFrame(() => {
             if (menuRef.current) {
               if (isVisible) {
@@ -265,7 +270,7 @@ function WidgetsMultiSelectBox(props: {
                   node.intersectionRect.left - node.boundingClientRect.left
                 }px`;
                 menuRef.current.style.flexDirection =
-                  node.intersectionRect.height < 160 ? "row" : "column";
+                  node.intersectionRect.height < menuHeight ? "row" : "column";
               }
               menuRef.current.style.visibility = isVisible
                 ? "visible"
