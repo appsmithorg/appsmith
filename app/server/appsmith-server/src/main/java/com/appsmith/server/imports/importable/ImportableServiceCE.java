@@ -1,27 +1,28 @@
 package com.appsmith.server.imports.importable;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ImportableServiceCE<T extends BaseDomain> {
 
+    ArtifactBasedImportableService<T, ?> getArtifactBasedImportableService(ImportingMetaDTO importingMetaDTO);
+
     Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<Application> applicationMono,
-            ApplicationJson applicationJson);
+            Mono<? extends ImportableArtifact> importableArtifactMono,
+            ArtifactExchangeJson artifactExchangeJson);
 
     default Mono<Void> updateImportedEntities(
-            Application application,
+            ImportableArtifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return null;
@@ -32,7 +33,7 @@ public interface ImportableServiceCE<T extends BaseDomain> {
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<? extends ImportableArtifact> importContextMono,
-            ArtifactExchangeJson importableContextJson,
+            ArtifactExchangeJson artifactExchangeJson,
             boolean isContextAgnostic) {
         return null;
     }

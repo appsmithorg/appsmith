@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -100,5 +101,12 @@ public class GitArtifactMetadata implements AppsmithDomain {
             autoCommitConfig = new AutoCommitConfig();
         }
         return autoCommitConfig;
+    }
+
+    @JsonView(Views.Public.class)
+    public String getDefaultArtifactId() {
+        if (StringUtils.hasText(defaultApplicationId)) {
+            return defaultApplicationId;
+        } else return defaultArtifactId;
     }
 }
