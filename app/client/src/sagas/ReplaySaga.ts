@@ -62,7 +62,7 @@ import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import type { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { Datasource } from "entities/Datasource";
 import { initialize } from "redux-form";
 import {

@@ -16,17 +16,18 @@ import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { apiEditorIdURL } from "@appsmith/RouteBuilder";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
-  const { name, pageId, type } = action.payload;
+  const { contextId, contextType, name, type } = action.payload;
   let { curl } = action.payload;
   try {
     curl = transformCurlImport(curl);
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const request: CurlImportRequest = {
       type,
-      pageId,
+      contextId,
       name,
       curl,
       workspaceId,
+      contextType,
     };
 
     const response: ApiResponse = yield CurlImportApi.curlImport(request);
@@ -42,8 +43,10 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         payload: response.data,
       });
 
-      // @ts-expect-error: response.data is of type unknown
-      history.push(apiEditorIdURL({ pageId, apiId: response.data.id }));
+      history.push(
+        // @ts-expect-error: response.data is of type unknown
+        apiEditorIdURL({ parentEntityId: contextId, apiId: response.data.id }),
+      );
     }
   } catch (error) {
     yield put({

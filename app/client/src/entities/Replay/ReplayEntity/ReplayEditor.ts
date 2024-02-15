@@ -4,7 +4,7 @@ import ReplayEntity from "..";
 import { pathArrayToString } from "../replayUtils";
 import type { JSActionConfig } from "entities/JSCollection";
 import type { Datasource } from "entities/Datasource";
-import type { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import isEmpty from "lodash/isEmpty";
 import type { Canvas } from "./ReplayCanvas";
 
