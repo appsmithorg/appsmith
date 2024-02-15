@@ -27,6 +27,7 @@ import {
   getAllTemplates,
   getTemplateFilters,
   importTemplateIntoApplicationViaOnboardingFlow,
+  setActiveLoadingTemplateId,
 } from "actions/templateActions";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { Flex, Link, Text } from "design-system";
@@ -57,6 +58,7 @@ import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction"
 import StartWithTemplatesWrapper from "./StartWithTemplatesWrapper";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { Template } from "api/TemplatesApi";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -475,6 +477,24 @@ const CreateNewAppsOption = ({
     isEnabledForStartWithDataDefault &&
     (!createNewAppPluginId || !selectedDatasource);
 
+  const onForkTemplateClick = (template: Template) => {
+    const title = template.title;
+    AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { title });
+    // When fork template is clicked to add a new app using the template
+    if (!isImportingTemplate && application) {
+      dispatch(setActiveLoadingTemplateId(template.id));
+      dispatch(
+        importTemplateIntoApplicationViaOnboardingFlow(
+          template.id,
+          template.title,
+          template.pages.map((p) => p.name),
+          application.id,
+          application.workspaceId,
+        ),
+      );
+    }
+  };
+
   return (
     <SectionWrapper>
       <BackWrapper hidden={!useType}>
@@ -509,9 +529,7 @@ const CreateNewAppsOption = ({
           />
         ) : (
           <StartWithTemplatesWrapper
-            currentApplicationIdForCreateNewApp={
-              currentApplicationIdForCreateNewApp
-            }
+            onForkTemplateClick={onForkTemplateClick}
             setSelectedTemplate={setSelectedTemplate}
           />
         )

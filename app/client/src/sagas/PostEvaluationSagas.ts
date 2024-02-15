@@ -1,4 +1,7 @@
-import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  PLATFORM_ERROR,
+} from "@appsmith/entities/AppsmithConsole/utils";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
@@ -46,6 +49,7 @@ import type {
   JSVarMutatedEvents,
 } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { getCollectionNameToDisplay } from "@appsmith/utils/actionExecutionUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -247,15 +251,20 @@ export function* handleJSFunctionExecutionErrorLog(
 ) {
   const { id: collectionId, name: collectionName } = collection;
 
+  const collectionNameToDisplay = getCollectionNameToDisplay(
+    action,
+    collectionName,
+  );
+
   errors.length
     ? AppsmithConsole.addErrors([
         {
           payload: {
             id: `${collectionId}-${action.id}`,
             logType: LOG_TYPE.EVAL_ERROR,
-            text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
-              action.name
-            }`,
+            text: `${createMessage(
+              JS_EXECUTION_FAILURE,
+            )}: ${collectionNameToDisplay}.${action.name}`,
             messages: errors.map((error) => {
               // TODO: Remove this check once we address uncaught promise errors
               let errorMessage = error.errorMessage;
@@ -279,7 +288,7 @@ export function* handleJSFunctionExecutionErrorLog(
             }),
             source: {
               id: action.collectionId ? action.collectionId : action.id,
-              name: collectionName,
+              name: collectionNameToDisplay,
               type: ENTITY_TYPE.JSACTION,
               propertyPath: `${action.name}`,
             },

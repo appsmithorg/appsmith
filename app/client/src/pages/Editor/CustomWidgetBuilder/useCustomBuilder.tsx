@@ -75,7 +75,7 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
 
     setContextValue((prev) => ({
       ...prev,
-      debuggerLogs: [...prev.debuggerLogs, ...compileLogs],
+      debuggerLogs: [...compileLogs],
     }));
   }, [contextValue.uncompiledSrcDoc, contextValue.lastSaved]);
 

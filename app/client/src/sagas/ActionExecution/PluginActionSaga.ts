@@ -63,7 +63,10 @@ import {
   unset,
 } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  PLATFORM_ERROR,
+} from "@appsmith/entities/AppsmithConsole/utils";
 import {
   extractClientDefinedErrorMetadata,
   validateResponse,
@@ -622,12 +625,12 @@ export default function* executePluginActionTriggerSaga(
     });
     if (onError) {
       throw new PluginTriggerFailureError(
-        createMessage(ERROR_ACTION_EXECUTE_FAIL, action.name),
+        createMessage(ERROR_ACTION_EXECUTE_FAIL, pluginActionNameToDisplay),
         [payload.body, params],
       );
     } else {
       throw new PluginTriggerFailureError(
-        createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
+        createMessage(ERROR_PLUGIN_ACTION_EXECUTE, pluginActionNameToDisplay),
         [],
       );
     }

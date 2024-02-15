@@ -95,7 +95,7 @@ import {
   getConfigInitialValues,
 } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   createNewApiAction,
@@ -134,8 +134,7 @@ import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
 
@@ -612,12 +611,11 @@ export function* deleteActionSaga(
       });
     }
     const currentUrl = window.location.pathname;
-    const isPagePaneSegmentsEnabled: boolean = yield select(
-      selectFeatureFlagCheck,
-      FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+    const isEditorPaneSegmentsEnabled: boolean = yield select(
+      getIsEditorPaneSegmentsEnabled,
     );
 
-    if (isPagePaneSegmentsEnabled) {
+    if (isEditorPaneSegmentsEnabled) {
       yield call(handleQueryEntityRedirect, action.id);
     } else {
       if (!!actionPayload.payload.onSuccess) {

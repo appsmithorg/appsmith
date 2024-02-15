@@ -7,8 +7,12 @@ import {
   getCanvasWidth,
   getCurrentPageId,
   getCurrentPageName,
+  getIsAutoLayout,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import styled from "styled-components";
+import { LayoutSystemTypes } from "../../../layoutSystems/types";
+import { getLayoutSystemType } from "../../../selectors/layoutSystemSelectors";
 import NavigationPreview from "./NavigationPreview";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import PerformanceTracker, {
@@ -48,6 +52,13 @@ import {
 } from "layoutSystems/common/useLayoutSystemFeatures";
 import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { EditorState } from "@appsmith/entities/IDE/constants";
+import useMissingModuleNotification from "@appsmith/pages/Editor/IDE/MainPane/useMissingModuleNotification";
+
+const BannerWrapper = styled.div`
+  z-index: calc(var(--on-canvas-ui-z-index) + 1);
+`;
 
 function WidgetsEditor() {
   const dispatch = useDispatch();
@@ -58,6 +69,7 @@ function WidgetsEditor() {
   const isProtectedMode = useSelector(protectedModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
@@ -65,9 +77,12 @@ function WidgetsEditor() {
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
   const navigationPreviewRef = useRef(null);
   const [navigationHeight, setNavigationHeight] = useState(0);
-  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+  const isNavigationSelectedInSettings = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
+  const appState = useCurrentAppState();
+  const isAppSettingsPaneWithNavigationTabOpen =
+    appState === EditorState.SETTINGS && isNavigationSelectedInSettings;
   const canvasWidth = useSelector(getCanvasWidth);
 
   const appMode = useSelector(getAppMode);
@@ -80,12 +95,16 @@ function WidgetsEditor() {
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
+  const missingModuleNotification = useMissingModuleNotification();
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
 
   const [enableOverlayCanvas] = checkLayoutSystemFeatures([
     LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI,
   ]);
+
+  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
+  const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -162,21 +181,14 @@ function WidgetsEditor() {
 
   const showNavigation = () => {
     if (isPreviewingNavigation) {
-      return (
-        <NavigationPreview
-          isAppSettingsPaneWithNavigationTabOpen={
-            isAppSettingsPaneWithNavigationTabOpen
-          }
-          ref={navigationPreviewRef}
-        />
-      );
+      return <NavigationPreview ref={navigationPreviewRef} />;
     }
   };
 
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider renderMode="CANVAS">
-      <div className="relative flex flex-row w-full overflow-hidden">
+      <div className="relative flex flex-row h-full w-full overflow-hidden">
         <div
           className={classNames({
             "relative flex flex-col w-full overflow-hidden": true,
@@ -187,9 +199,10 @@ function WidgetsEditor() {
           {!isAppSettingsPaneWithNavigationTabOpen && (
             <EmptyCanvasPrompts isPreview={isPreviewMode || isProtectedMode} />
           )}
+          {missingModuleNotification}
           <AnonymousDataPopup />
           <div
-            className="relative flex flex-row w-full overflow-hidden"
+            className="relative flex flex-row h-full w-full overflow-hidden"
             data-testid="widgets-editor"
             draggable
             id="widgets-editor"
@@ -197,6 +210,7 @@ function WidgetsEditor() {
             onDragStart={onDragStart}
             style={{
               fontFamily: fontFamily,
+              contain: isAutoLayout ? "content" : "strict",
             }}
           >
             {showNavigation()}
@@ -218,11 +232,19 @@ function WidgetsEditor() {
               isPreview={isPreviewMode || isProtectedMode}
               isPublished={isPublished}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
+              style={
+                isAnvilLayout
+                  ? {
+                      //This is necessary in order to place WDS modal with position: fixed; relatively to the canvas.
+                      transform: "scale(1)",
+                    }
+                  : {}
+              }
             >
               {shouldShowSnapShotBanner && (
-                <div className="absolute top-0 z-1 w-full">
+                <BannerWrapper className="absolute top-0 w-full">
                   <SnapShotBannerCTA />
-                </div>
+                </BannerWrapper>
               )}
               <MainContainerWrapper
                 canvasWidth={canvasWidth}

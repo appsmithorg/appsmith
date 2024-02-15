@@ -21,7 +21,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
+import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.WorkspaceService;
@@ -384,5 +384,10 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                     });
         }
         return Mono.just("");
+    }
+
+    @Override
+    public Flux<Datasource> getEntitiesPresentInWorkspace(String workspaceId) {
+        return datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty());
     }
 }

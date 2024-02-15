@@ -9,10 +9,10 @@ import { useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import type { BuilderRouteParams } from "constants/routes";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 import { DEFAULT_PREFIX } from "sagas/ActionSagas";
+import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 type CurlImportEditorProps = RouteComponentProps<BuilderRouteParams>;
 
@@ -30,18 +30,17 @@ function CurlImportEditor(props: CurlImportEditorProps) {
   const isImportingCurl = useSelector(getIsImportingCurl);
 
   const initialFormValues = {
-    pageId,
+    contextId: pageId,
+    contextType: ActionParentEntityType.PAGE,
     name: actionName,
   };
-  const isPagesPaneEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
+  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
   return (
     <CurlImportForm
-      closeEditorLink={isPagesPaneEnabled ? null : closeEditorLink}
+      closeEditorLink={isEditorPaneEnabled ? null : closeEditorLink}
       curlImportSubmitHandler={curlImportSubmitHandler}
       initialValues={initialFormValues}
       isImportingCurl={isImportingCurl}

@@ -74,7 +74,7 @@ class FeatureFlagMigrationHelperTest {
         StepVerifier.create(getUpdatedFlagsWithPendingMigration)
                 .assertNext(featureFlagEnumFeatureMigrationTypeMap -> {
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).isNotEmpty();
-                    assertThat(featureFlagEnumFeatureMigrationTypeMap.size()).isEqualTo(1);
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap).hasSize(1);
                     assertThat(featureFlagEnumFeatureMigrationTypeMap.get(TENANT_TEST_FEATURE))
                             .isEqualTo(DISABLE);
                 })
@@ -112,7 +112,7 @@ class FeatureFlagMigrationHelperTest {
         StepVerifier.create(getUpdatedFlagsWithPendingMigration)
                 .assertNext(featureFlagEnumFeatureMigrationTypeMap -> {
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).isNotEmpty();
-                    assertThat(featureFlagEnumFeatureMigrationTypeMap.size()).isEqualTo(1);
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap).hasSize(1);
                     assertThat(featureFlagEnumFeatureMigrationTypeMap.get(TENANT_TEST_FEATURE))
                             .isEqualTo(ENABLE);
                 })
@@ -144,7 +144,7 @@ class FeatureFlagMigrationHelperTest {
                 .assertNext(featureFlagEnumFeatureMigrationTypeMap -> {
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).isNotNull();
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).isEmpty();
-                    assertThat(featureFlagEnumFeatureMigrationTypeMap.size()).isEqualTo(0);
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap).hasSize(0);
                 })
                 .verifyComplete();
     }
@@ -182,7 +182,7 @@ class FeatureFlagMigrationHelperTest {
                 .assertNext(featureFlagEnumFeatureMigrationTypeMap -> {
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).isNotNull();
                     assertThat(featureFlagEnumFeatureMigrationTypeMap).isEmpty();
-                    assertThat(featureFlagEnumFeatureMigrationTypeMap.size()).isEqualTo(0);
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap).hasSize(0);
                 })
                 .verifyComplete();
     }
@@ -218,10 +218,8 @@ class FeatureFlagMigrationHelperTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertThat(result).isTrue();
-                    assertThat(tenantConfiguration
-                                    .getFeaturesWithPendingMigration()
-                                    .size())
-                            .isEqualTo(1);
+                    assertThat(tenantConfiguration.getFeaturesWithPendingMigration())
+                            .hasSize(1);
                     assertThat(tenantConfiguration.getMigrationStatus()).isEqualTo(PENDING);
                 })
                 .verifyComplete();

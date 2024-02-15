@@ -5,7 +5,10 @@ import {
   type WidgetLayoutProps,
   type DraggedWidget,
 } from "../../anvilTypes";
-import { HIGHLIGHT_SIZE } from "../../constants";
+import {
+  DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT,
+  HIGHLIGHT_SIZE,
+} from "../../constants";
 import { registerLayoutComponents } from "../layoutUtils";
 import {
   FlexLayerAlignment,
@@ -13,7 +16,6 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { deriveColumnHighlights } from "./columnHighlights";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
-import { getStartPosition } from "./highlightUtils";
 
 describe("columnHighlights", () => {
   const draggedWidgets: DraggedWidget[] = [
@@ -166,9 +168,9 @@ describe("columnHighlights", () => {
         layout.layoutId,
       )(positions, draggedWidgets);
 
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
+      expect(res[0].height).toEqual(DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res[0].posY).toEqual(HIGHLIGHT_SIZE / 2);
+      expect(res[0].posY).toEqual(0);
     });
     it("should return a highlight with the correct dimensions for a center aligned empty drop target column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -196,13 +198,8 @@ describe("columnHighlights", () => {
         layout.layoutId,
       )(positions, draggedWidgets);
       expect(res).toBeDefined();
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
-      expect(res[0].posY).toEqual(
-        getStartPosition(
-          FlexLayerAlignment.Center,
-          positions[layout.layoutId].height,
-        ),
-      );
+      expect(res[0].height).toEqual(DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT);
+      expect(res[0].posY).toEqual(0);
     });
     it("should return a highlight with the correct dimensions for a end aligned empty drop target column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -230,10 +227,8 @@ describe("columnHighlights", () => {
         layout.layoutId,
       )(positions, draggedWidgets);
 
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
-      expect(res[0].posY).toEqual(
-        positions[layout.layoutId].height - HIGHLIGHT_SIZE,
-      );
+      expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
+      expect(res[0].posY).toEqual(0);
     });
   });
   describe("layout highlights", () => {

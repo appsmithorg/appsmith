@@ -11,7 +11,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -352,7 +352,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             }
 
             Mono<String> applicationIdMono;
-            GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+            GitArtifactMetadata gitData = application.getGitApplicationMetadata();
             if (gitData != null
                     && !StringUtils.isEmpty(gitData.getBranchName())
                     && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
@@ -750,7 +750,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)))
                 .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     // Check if the current application is the root application
 
                     if (gitData != null
@@ -762,10 +762,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         return save(application);
                     } else if (gitData == null) {
                         // This is a root application with generate SSH key request
-                        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                        gitApplicationMetadata.setDefaultApplicationId(applicationId);
-                        gitApplicationMetadata.setGitAuth(gitAuth);
-                        application.setGitApplicationMetadata(gitApplicationMetadata);
+                        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+                        gitArtifactMetadata.setDefaultApplicationId(applicationId);
+                        gitArtifactMetadata.setGitAuth(gitAuth);
+                        application.setGitApplicationMetadata(gitArtifactMetadata);
                         return save(application);
                     }
                     // Children application with update SSH key request for root application
@@ -781,11 +781,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return repository
                             .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .flatMap(defaultApplication -> {
-                                GitApplicationMetadata gitApplicationMetadata =
+                                GitArtifactMetadata gitArtifactMetadata =
                                         defaultApplication.getGitApplicationMetadata();
-                                gitApplicationMetadata.setDefaultApplicationId(defaultApplication.getId());
-                                gitApplicationMetadata.setGitAuth(gitAuth);
-                                defaultApplication.setGitApplicationMetadata(gitApplicationMetadata);
+                                gitArtifactMetadata.setDefaultApplicationId(defaultApplication.getId());
+                                gitArtifactMetadata.setGitAuth(gitAuth);
+                                defaultApplication.setGitApplicationMetadata(gitArtifactMetadata);
                                 return save(defaultApplication);
                             });
                 })
@@ -826,7 +826,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
                 .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     List<GitDeployKeyDTO> gitDeployKeyDTOList = GitDeployKeyGenerator.getSupportedProtocols();
                     if (gitData == null) {
                         return Mono.error(new AppsmithException(
@@ -879,7 +879,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
             return repository
-                    .findById(defaultApplicationId, projectionFieldNames, aclPermission)
+                    .queryBuilder()
+                    .byId(defaultApplicationId)
+                    .fields(projectionFieldNames)
+                    .permission(aclPermission)
+                    .one()
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
         }

@@ -179,7 +179,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 fieldName(QApplication.application.gitApplicationMetadata.gitAuth));
 
         updateObj.set(path, gitAuth);
-        return this.updateById(applicationId, updateObj, aclPermission);
+        return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(updateObj);
     }
 
     @Override
@@ -224,7 +224,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .is(branchName);
         return queryBuilder()
                 .criteria(defaultAppCriteria, branchNameCriteria)
-                .fields((List<String>) null)
                 .permission(aclPermission.orElse(null))
                 .one();
     }
@@ -247,7 +246,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Mono<Long> countByWorkspaceId(String workspaceId) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        return this.count(List.of(workspaceIdCriteria));
+        return queryBuilder().criteria(workspaceIdCriteria).count();
     }
 
     @Override
@@ -305,7 +304,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
         }
 
-        return this.updateById(applicationId, updateObj, aclPermission);
+        return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(updateObj);
     }
 
     @Override
@@ -327,7 +326,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria applicationNameCriteria =
                 where(fieldName(QApplication.application.name)).is(applicationName);
 
-        return count(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
+        return queryBuilder()
+                .criteria(workspaceIdCriteria, applicationNameCriteria)
+                .permission(permission)
+                .count();
     }
 
     @Override
@@ -377,7 +379,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         Update unsetProtected = new Update().set(isProtectedFieldPath, false);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria), unsetProtected, permission);
+        return queryBuilder()
+                .criteria(defaultApplicationIdCriteria)
+                .permission(permission)
+                .updateAll(unsetProtected);
     }
 
     /**
@@ -402,6 +407,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria branchMatchCriteria = Criteria.where(branchNameFieldPath).in(branchNames);
         Update setProtected = new Update().set(isProtectedFieldPath, true);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria, branchMatchCriteria), setProtected, permission);
+        return queryBuilder()
+                .criteria(defaultApplicationIdCriteria, branchMatchCriteria)
+                .permission(permission)
+                .updateAll(setProtected);
     }
 }
