@@ -20,6 +20,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -80,7 +81,9 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
                 datasource.setInvalids(new HashSet<>());
                 datasource.setCreatedAt(Instant.now());
                 datasource.setUpdatedAt(Instant.now());
-                datasource.setGitSyncId(uniqueGitSyncId);
+                if (!StringUtils.hasText(datasource.getGitSyncId())) {
+                    datasource.setGitSyncId(uniqueGitSyncId);
+                }
                 datasource.setHasDatasourceStorage(true);
 
                 createDatasourceStorage(datasource);
