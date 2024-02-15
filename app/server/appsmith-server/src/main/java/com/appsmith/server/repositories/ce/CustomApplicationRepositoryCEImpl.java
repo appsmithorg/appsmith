@@ -7,7 +7,6 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -33,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -73,7 +73,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
         return queryBuilder()
-                .criteria(Bridge.equal(fieldName(QApplication.application.name), name))
+                .criteria(bridge().equal(fieldName(QApplication.application.name), name))
                 .permission(permission)
                 .one();
     }
