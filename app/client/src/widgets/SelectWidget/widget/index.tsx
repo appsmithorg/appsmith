@@ -54,6 +54,7 @@ import type {
 
 import IconSVG from "../icon.svg";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
@@ -138,6 +139,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       ) {
         let modify;
 
+        const dynamicPropertyPathList: DynamicPath[] = [];
+
         if (queryConfig.select) {
           modify = {
             sourceData: queryConfig.select.data,
@@ -149,10 +152,14 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             serverSideFiltering: true,
             onFilterUpdate: queryConfig.select.run,
           };
+          dynamicPropertyPathList.push({ key: "sourceData" });
         }
 
         return {
           modify,
+          dynamicUpdates: {
+            dynamicPropertyPathList,
+          },
         };
       },
     };

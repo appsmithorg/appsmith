@@ -185,7 +185,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
       value: getBindingValue(widget, query),
       icon: getQueryIcon(query, pluginImages),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
-        addBinding(valueOption?.value, false);
+        addBinding(valueOption?.value, true);
 
         updateConfig({
           datasource: "",

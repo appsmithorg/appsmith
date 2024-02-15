@@ -266,6 +266,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             primaryColumnId: formConfig.primaryColumn,
             isVisibleDownload: false,
           });
+
+          dynamicPropertyPathList.push({ key: "tableData" });
         }
 
         if (queryConfig.create) {
