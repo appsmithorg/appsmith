@@ -28,7 +28,6 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -305,18 +304,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         }
 
         return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(updateObj);
-    }
-
-    @Override
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(
-            String defaultId,
-            String defaultIdPath,
-            Map<String, Object> fieldValueMap,
-            String branchName,
-            String branchNamePath,
-            AclPermission permission) {
-        return super.updateFieldByDefaultIdAndBranchName(
-                defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission);
     }
 
     @Override

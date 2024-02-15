@@ -216,26 +216,18 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             String branchName,
             String branchNamePath,
             AclPermission permission) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
-                .flatMap(permissionGroups -> {
-                    Query query =
-                            new Query(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-                    query.addCriteria(Criteria.where(defaultIdPath).is(defaultId));
+        final QueryAllParams<T> builder = queryBuilder();
 
-                    if (!isBlank(branchName)) {
-                        query.addCriteria(Criteria.where(branchNamePath).is(branchName));
-                    }
+        builder.criteria(Criteria.where(defaultIdPath).is(defaultId));
 
-                    Update update = new Update();
-                    fieldNameValueMap.forEach((fieldName, fieldValue) -> {
-                        update.set(fieldName, fieldValue);
-                    });
+        if (!isBlank(branchName)) {
+            builder.criteria(Criteria.where(branchNamePath).is(branchName));
+        }
 
-                    return mongoOperations.updateFirst(query, update, this.genericDomain);
-                });
+        Update update = new Update();
+        fieldNameValueMap.forEach(update::set);
+
+        return builder.permission(permission).updateFirst(update);
     }
 
     protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
