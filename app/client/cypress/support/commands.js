@@ -957,7 +957,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
 
   cy.intercept("POST", "/api/v1/actions").as("createNewApi");
-  cy.intercept("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as(
+  cy.intercept("POST", "/api/v1/import?type=CURL&contextId=*&name=*").as(
     "curlImport",
   );
   cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
