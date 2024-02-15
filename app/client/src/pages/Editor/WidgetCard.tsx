@@ -45,7 +45,6 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
   ${(props) =>
     props.isThumbnail &&
     `margin-bottom: 0px;
-    padding-bottom: var(--ads-v2-spaces-3);
     
     & span {
       padding-left: var(--ads-v2-spaces-3);
@@ -53,7 +52,7 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
       color: var(--ads-v2-color-fg);
       font-weight: 600;      
       line-height: 1.2;
-      height: 32px;
+      padding-bottom: var(--ads-v2-spaces-3);
     }
     
    

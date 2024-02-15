@@ -166,7 +166,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
                 </CollapsibleHeader>
 
                 <CollapsibleContent>
-                  <div className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch">
+                  <div className="grid items-start grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch">
                     {tag === WIDGET_TAGS.SUGGESTED_WIDGETS
                       ? sortBy(cardsForThisTag, (widget) => {
                           return SUGGESTED_WIDGETS_ORDER[widget.type];
