@@ -261,7 +261,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 final String defaultArtifactId =
                         artifact.getGitArtifactMetadata().getDefaultArtifactId();
                 actionsInOtherBranchesMono = artifactBasedExportableService
-                        .getExistingResourcesInOtherBranchesFlux(defaultArtifactId)
+                        .getExistingResourcesInOtherBranchesFlux(defaultArtifactId, artifact.getId())
                         .filter(newAction -> newAction.getGitSyncId() != null)
                         .collectMap(NewAction::getGitSyncId);
             } else {

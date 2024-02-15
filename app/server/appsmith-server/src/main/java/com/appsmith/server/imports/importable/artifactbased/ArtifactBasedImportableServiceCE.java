@@ -17,7 +17,7 @@ public interface ArtifactBasedImportableServiceCE<T extends BaseDomain, U extend
 
     Flux<T> getExistingResourcesInCurrentArtifactFlux(ImportableArtifact artifact);
 
-    Flux<T> getExistingResourcesInOtherBranchesFlux(String artifactId);
+    Flux<T> getExistingResourcesInOtherBranchesFlux(String defaultArtifactId, String currentArtifactId);
 
     Context updateContextInResource(
             Object dtoObject, Map<String, ? extends Context> contextMap, String fallbackDefaultContextId);

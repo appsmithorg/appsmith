@@ -25,6 +25,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -61,8 +62,11 @@ public class ActionCollectionApplicationImportableServiceCEImpl
     }
 
     @Override
-    public Flux<ActionCollection> getExistingResourcesInOtherBranchesFlux(String artifactId) {
-        return repository.findByDefaultApplicationId(artifactId, Optional.empty());
+    public Flux<ActionCollection> getExistingResourcesInOtherBranchesFlux(
+            String defaultArtifactId, String currentArtifactId) {
+        return repository
+                .findByDefaultApplicationId(defaultArtifactId, Optional.empty())
+                .filter(actionCollection -> !Objects.equals(actionCollection.getApplicationId(), currentArtifactId));
     }
 
     @Override

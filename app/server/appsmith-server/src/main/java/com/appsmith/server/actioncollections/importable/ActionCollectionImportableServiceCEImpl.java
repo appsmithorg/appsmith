@@ -142,7 +142,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                         final String defaultArtifactId =
                                 artifact.getGitArtifactMetadata().getDefaultArtifactId();
                         actionCollectionsInBranchesMono = artifactBasedExportableService
-                                .getExistingResourcesInOtherBranchesFlux(defaultArtifactId)
+                                .getExistingResourcesInOtherBranchesFlux(defaultArtifactId, artifact.getId())
                                 .filter(actionCollection -> actionCollection.getGitSyncId() != null)
                                 .collectMap(ActionCollection::getGitSyncId);
                     } else {
