@@ -153,6 +153,7 @@ public class ActionCollectionCE_DTO {
         this.setDefaultToBranchedArchivedActionIdsMap(null);
         this.setActionIds(null);
         this.setArchivedActionIds(null);
+        this.setUserPermissions(Set.of());
     }
 
     public String getUserExecutableName() {
@@ -166,5 +167,9 @@ public class ActionCollectionCE_DTO {
         this.setErrorReports(null);
         this.setActions(List.of());
         this.setArchivedActions(List.of());
+    }
+
+    public String calculateContextId() {
+        return this.getPageId();
     }
 }

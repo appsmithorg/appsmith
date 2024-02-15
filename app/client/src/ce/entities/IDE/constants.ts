@@ -20,6 +20,7 @@ import {
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
 import type { PluginType } from "entities/Action";
+import type { ReactNode } from "react";
 
 export enum EditorState {
   DATA = "DATA",
@@ -126,5 +127,6 @@ export interface EntityItem {
   title: string;
   type: PluginType;
   key: string;
+  icon?: ReactNode;
   group?: string;
 }

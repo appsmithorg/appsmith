@@ -83,6 +83,6 @@ describe("Accordion", () => {
     expect(document.querySelector("[name='expand-more']")).toBeDefined();
     document.querySelector("hr")?.click();
     expect(document.querySelector("[name='expand-less']")).toBeDefined();
-    expect(screen.queryByTestId("admin-settings-group-wrapper")).toBeDefined();
+    expect(screen.getByTestId("admin-settings-group-wrapper")).toBeDefined();
   });
 });

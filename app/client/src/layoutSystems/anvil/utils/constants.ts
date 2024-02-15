@@ -5,6 +5,7 @@ import { anvilWidgets } from "widgets/anvil/constants";
 export const MOBILE_BREAKPOINT = 480;
 
 export const HIGHLIGHT_SIZE = 4;
+export const DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT = 40;
 export const AlignmentIndexMap: { [key: string]: number } = {
   [FlexLayerAlignment.Start]: 0,
   [FlexLayerAlignment.Center]: 1,

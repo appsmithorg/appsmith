@@ -81,12 +81,13 @@ const SegmentedHeader = () => {
       ) : null}
       {isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen ? (
         <Button
+          id="editor-mode-maximize"
           isIconButton
           kind="tertiary"
           onClick={() =>
             dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen))
           }
-          startIcon="icon-align-right"
+          startIcon="maximize"
         />
       ) : null}
     </Container>
