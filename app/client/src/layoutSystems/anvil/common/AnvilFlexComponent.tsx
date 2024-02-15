@@ -12,6 +12,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { Layers } from "constants/Layers";
+import { noop } from "utils/AppsmithUtils";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
@@ -38,6 +39,8 @@ export const AnvilFlexComponent = forwardRef(
       children,
       className,
       flexGrow,
+      onClick = noop,
+      onClickCapture = noop,
       widgetId,
       widgetSize,
       widgetType,
@@ -87,6 +90,8 @@ export const AnvilFlexComponent = forwardRef(
         {...flexProps}
         className={_className}
         id={getAnvilWidgetDOMId(widgetId)}
+        onClick={onClick}
+        onClickCapture={onClickCapture}
         ref={ref}
         style={anvilWidgetStyleProps}
       >

@@ -353,8 +353,13 @@ public class MustacheHelper {
                 rendered.append(token.getValue());
             }
         }
-
-        return StringEscapeUtils.unescapeHtml4(rendered.toString());
+        /**
+         * ReplaceAll is used to escape the double quotes symbol with \" so that
+         * JSON remains valid.
+         * &quot; and &#34; both are HTML reserved characters for double quotes (")
+         */
+        return StringEscapeUtils.unescapeHtml4(
+                rendered.toString().replaceAll("&quot;", "\\\\&quot;").replaceAll("&#34;", "\\\\&#34;"));
     }
 
     /**

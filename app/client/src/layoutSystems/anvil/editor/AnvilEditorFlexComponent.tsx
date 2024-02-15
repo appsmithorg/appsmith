@@ -41,10 +41,23 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
 
   // Use custom hooks to manage styles, click, drag, and hover behavior exclusive for Edit mode
   useAnvilWidgetStyles(props.widgetId, props.widgetName, props.isVisible, ref);
-  useAnvilWidgetClick(props.widgetId, ref);
   useAnvilWidgetDrag(props.widgetId, props.layoutId, ref);
   useAnvilWidgetHover(props.widgetId, ref);
+  // Note: For some reason native click callback listeners are somehow hindering with events required for toggle-able widgets like checkbox, switch, etc.
+  // Hence supplying click and click capture callbacks to the AnvilFlexComponent
+  const { onClickCaptureFn, onClickFn } = useAnvilWidgetClick(
+    props.widgetId,
+    ref,
+  );
 
   // Render the AnvilFlexComponent
-  return <AnvilFlexComponent {...props} className={className} ref={ref} />;
+  return (
+    <AnvilFlexComponent
+      {...props}
+      className={className}
+      onClick={onClickFn}
+      onClickCapture={onClickCaptureFn}
+      ref={ref}
+    />
+  );
 };
