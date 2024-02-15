@@ -50,6 +50,7 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
     Map<String, Set<PermissionGroup>> workspaceIdToPermissionGroups = new HashMap<>();
     Map<String, String> workspaceIdToEnvironmentId = null;
     String publicPermissionGroupId = null;
+    private static int counter = 1;
 
     public Migration046AddMissingFieldsInDefaultAppsmithAiDatasource(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -125,6 +126,9 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
         AtomicReference<Boolean> isPublic = new AtomicReference<>(false);
         try (Stream<NewAction> newActionStream = mongoTemplate.stream(newActionsQuery, NewAction.class)) {
             newActionStream.forEach(newAction -> {
+                if (!StringUtils.hasText(newAction.getApplicationId())) {
+                    return;
+                }
                 allApplicationIds.add(newAction.getApplicationId());
                 Set<Policy> newActionPolicies = newAction.getPolicies();
                 // check if any policy contains public permission group id
