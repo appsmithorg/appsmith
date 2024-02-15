@@ -264,8 +264,9 @@ export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
-export const WORKSPACE_ACTION_BUTTON = () => "Create New";
-export const NEW_APP = () => "New app";
+export const WORKSPACE_ACTION_BUTTON = () => "Create new";
+export const NEW_APP = () => "Application";
+export const NEW_APP_FROM_TEMPLATE = () => "Templates";
 export const NO_WORKSPACE_HEADING = () => "Oops! No workspace found";
 export const NO_WORKSPACE_DESCRIPTION = () =>
   "You can find workspace list on the left sidebar, try selecting one of them to access a workspace.";
@@ -733,14 +734,14 @@ export const NO_CONNECTIONS = () => "No connections to show here";
 export const BACK_TO_CANVAS = () => "Back to canvas";
 export const SUGGESTED_WIDGET_DESCRIPTION = () =>
   "This will add a new widget to the canvas.";
-export const ADD_NEW_WIDGET = () => "Add new widget";
+export const ADD_NEW_WIDGET = () => "Add a widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 export const BINDING_SECTION_LABEL = () => "Bindings";
 export const ADD_NEW_WIDGET_SUB_HEADING = () =>
   "Select how you want to display data.";
-export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
+export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a widget";
 export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
   "Replace the data of an existing widget";
 export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
@@ -757,8 +758,8 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_NOT_FOUND = () => "Table not found.";
-export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
-  "Search for table";
+export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
+  `Search for tables in ${name}`;
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -1833,7 +1834,7 @@ export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
-  "your app URL to new readable format to change this";
+  "your app URL to the new format to set the page URL.";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP = () =>
   "Show or hide the page in the appsmith navbar in view mode";
@@ -2224,6 +2225,7 @@ export const COMMUNITY_TEMPLATES = {
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
+export const NO_COLUMNS_MESSAGE_TEXT = () => "There are no columns to show";
 export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
 export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
@@ -2351,9 +2353,10 @@ export const CUSTOM_WIDGET_FEATURE = {
       "Connection lost because the custom widget was deselected. Please reselect this widget to continue editing.",
     editor: {
       css: {
-        contextTooltip: () => "You can use following css variables",
+        contextTooltipScss: () => "Supports SCSS syntax.",
+        contextTooltipVariables: () => "You can use following css variables.",
         placeholder: () =>
-          "/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/",
+          "/* you can access string and number properties of your model using `var(--appsmith-model-<property-name>)`*/",
       },
       html: {
         placeholder: () =>

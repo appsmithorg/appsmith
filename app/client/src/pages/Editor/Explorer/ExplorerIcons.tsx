@@ -330,3 +330,7 @@ export function AppsmithAIIcon() {
     </EntityIcon>
   );
 }
+
+export function ActionUrlIcon(url: string) {
+  return <img src={url} />;
+}

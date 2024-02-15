@@ -97,7 +97,7 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
-    GitApplicationMetadata gitApplicationMetadata;
+    GitArtifactMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
@@ -266,6 +266,32 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
             applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
             applicationPage.setDefaultPageId(null);
         }
+    }
+
+    @JsonView(Views.Internal.class)
+    @Override
+    public GitArtifactMetadata getGitArtifactMetadata() {
+        return this.gitApplicationMetadata;
+    }
+
+    @Override
+    public String getUnpublishedThemeId() {
+        return this.getEditModeThemeId();
+    }
+
+    @Override
+    public void setUnpublishedThemeId(String themeId) {
+        this.setEditModeThemeId(themeId);
+    }
+
+    @Override
+    public String getPublishedThemeId() {
+        return this.getPublishedModeThemeId();
+    }
+
+    @Override
+    public void setPublishedThemeId(String themeId) {
+        this.setPublishedModeThemeId(themeId);
     }
 
     @Override

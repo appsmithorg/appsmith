@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @NoArgsConstructor
 @Document
-public class NewPage extends BranchAwareDomain {
+public class NewPage extends BranchAwareDomain implements Context {
     @JsonView(Views.Public.class)
     String applicationId;
 

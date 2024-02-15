@@ -22,6 +22,12 @@ export default function TabLayout(props: Props) {
     tabs[0].title,
   );
 
+  useEffect(() => {
+    if (!tabs.find((d) => d.title === selectedTab)) {
+      setSelectedTab(tabs[0].title);
+    }
+  }, []);
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [height, setHeight] = React.useState(0);
@@ -65,7 +71,7 @@ export default function TabLayout(props: Props) {
           onValueChange={(tab: string) => {
             /*
              * We need this set timeout to let the editor blur event fire before changin the tab
-             *  to avoid the editor from saving the last cursor position
+             *  to let the editor save the last cursor position
              */
             setTimeout(() => {
               setSelectedTab(tab);
