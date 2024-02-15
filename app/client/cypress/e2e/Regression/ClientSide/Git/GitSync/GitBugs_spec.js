@@ -85,7 +85,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       gitSync.CreateNConnectToGit();
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
-        
+
         // create JS Object and validate its data on Page1
         jsEditor.CreateJSObject('return "Success";');
         EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
