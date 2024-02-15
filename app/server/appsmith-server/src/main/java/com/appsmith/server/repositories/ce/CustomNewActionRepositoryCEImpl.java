@@ -573,9 +573,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
-        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
         return queryBuilder()
-                .criteria(applicationCriteria)
+                .spec(Bridge.conditioner().in(fieldName(QNewAction.newAction.applicationId), applicationIds))
                 .fields(includeFields)
                 .all();
     }

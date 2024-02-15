@@ -201,9 +201,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         return Optional.of(findById(id, permission)
                 .map(entityFromDB -> {
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(
-                            resource, entityFromDB, Set.of(FieldName.ID, "policies", "modifiedBy"));
                     entityFromDB.setModifiedBy(user.getUsername());
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(
+                            resource, entityFromDB, Set.of(FieldName.ID, "policies"));
                     entityFromDB.setUpdatedAt(Instant.now());
                     entityManager.persist(entityFromDB);
                     return setUserPermissionsInObject(entityFromDB, permissionGroups);

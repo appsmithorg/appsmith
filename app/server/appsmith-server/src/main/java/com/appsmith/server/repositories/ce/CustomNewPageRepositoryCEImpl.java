@@ -287,9 +287,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
-        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
         return queryBuilder()
-                .criteria(applicationCriteria)
+                .spec(Bridge.conditioner().in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }

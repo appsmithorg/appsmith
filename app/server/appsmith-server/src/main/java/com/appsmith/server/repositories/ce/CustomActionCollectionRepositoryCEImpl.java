@@ -245,9 +245,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
-        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
         return queryBuilder()
-                .criteria(applicationCriteria)
+                .spec(Bridge.conditioner().in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }

@@ -335,9 +335,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             String branchName,
             String branchNamePath,
             AclPermission permission) {
-        throw new ex.Marker("updateFieldByDefaultIdAndBranchName"); /*
         return super.updateFieldByDefaultIdAndBranchName(
-                defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission); //*/
+                defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission);
     }
 
     @Override
