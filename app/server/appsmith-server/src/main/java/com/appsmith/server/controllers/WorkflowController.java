@@ -28,6 +28,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequestMapping(Url.WORKFLOW_URL)
@@ -124,7 +125,7 @@ public class WorkflowController {
 
     @JsonView(Views.Public.class)
     @PostMapping("/trigger/{workflowId}")
-    public Mono<ResponseDTO<JsonNode>> triggerWorkflow(
+    public Mono<ResponseDTO<Map<String, Object>>> triggerWorkflow(
             @PathVariable String workflowId,
             ServerWebExchange serverWebExchange,
             @RequestBody(required = false) JsonNode triggerData) {
@@ -139,21 +140,21 @@ public class WorkflowController {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{workflowId}/runs/{runId}/activities")
-    public Mono<ResponseDTO<JsonNode>> getWorkflowRunActivities(
+    public Mono<ResponseDTO<Map<String, Object>>> getWorkflowRunActivities(
             @PathVariable String workflowId, @PathVariable String runId) {
         log.debug("Getting activities for Workflow {} and Run {}", workflowId, runId);
         return proxyWorkflowService
                 .getWorkflowRunActivities(workflowId, runId)
-                .map(workflowRunActivity -> new ResponseDTO<>(HttpStatus.OK.value(), workflowRunActivity, null));
+                .map(workflowRunActivities -> new ResponseDTO<>(HttpStatus.OK.value(), workflowRunActivities, null));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/{workflowId}/runs")
-    public Mono<ResponseDTO<JsonNode>> getWorkflowRuns(
+    public Mono<ResponseDTO<Map<String, Object>>> getWorkflowRuns(
             @PathVariable String workflowId, @RequestParam MultiValueMap<String, String> queryParams) {
         log.debug("Getting runs for Workflow {}", workflowId);
         return proxyWorkflowService
                 .getWorkflowRuns(workflowId, queryParams)
-                .map(workflowRunActivity -> new ResponseDTO<>(HttpStatus.OK.value(), workflowRunActivity, null));
+                .map(workflowRuns -> new ResponseDTO<>(HttpStatus.OK.value(), workflowRuns, null));
     }
 }

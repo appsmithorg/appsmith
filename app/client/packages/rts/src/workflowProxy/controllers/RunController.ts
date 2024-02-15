@@ -21,7 +21,7 @@ export default class RunController extends BaseController {
       const { actionNameToActionIdMap, triggerData, workflowDef } = req.body;
       const runRequest: RunRequest = {
         reqHeaders,
-        workflowId: workflowDef.workflowId,
+        appsmithWorkflowId: workflowDef.workflowId,
         workflowDef: workflowDef.body,
         actionMap: actionNameToActionIdMap,
         triggerData: triggerData,
@@ -38,7 +38,7 @@ export default class RunController extends BaseController {
       } else {
         return super.sendError(
           res,
-          "Workflow instance run failed: " + runResponse.message,
+          "Workflow run failed: " + runResponse.message,
           runResponse.data,
           StatusCodes.INTERNAL_SERVER_ERROR,
         );
@@ -46,7 +46,7 @@ export default class RunController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        "Workflow instance run failed",
+        "Workflow run failed",
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );

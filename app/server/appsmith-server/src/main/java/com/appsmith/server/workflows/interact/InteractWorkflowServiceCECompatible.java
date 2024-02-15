@@ -7,6 +7,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 public interface InteractWorkflowServiceCECompatible extends BaseWorkflowServiceCECompatible {
     Mono<String> generateBearerTokenForWebhook(String workflowId);
 
@@ -14,6 +16,6 @@ public interface InteractWorkflowServiceCECompatible extends BaseWorkflowService
 
     Mono<Workflow> publishWorkflow(String workflowId);
 
-    Mono<JsonNode> triggerWorkflow(
+    Mono<Map<String, Object>> triggerWorkflow(
             String workflowId, MultiValueMap<String, String> queryParams, HttpHeaders headers, JsonNode triggerData);
 }

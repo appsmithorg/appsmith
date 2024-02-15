@@ -16,6 +16,8 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.Map;
+
 @Service
 public class InteractWorkflowServiceCECompatibleImpl extends BaseWorkflowServiceImpl
         implements InteractWorkflowServiceCECompatible {
@@ -45,7 +47,7 @@ public class InteractWorkflowServiceCECompatibleImpl extends BaseWorkflowService
     }
 
     @Override
-    public Mono<JsonNode> triggerWorkflow(
+    public Mono<Map<String, Object>> triggerWorkflow(
             String workflowId, MultiValueMap<String, String> queryParams, HttpHeaders headers, JsonNode triggerData) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }

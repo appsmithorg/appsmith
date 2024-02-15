@@ -10,7 +10,6 @@ import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -18,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+
+import java.util.Map;
 
 import static com.appsmith.server.constants.FieldName.WORKFLOW;
 
@@ -43,14 +44,14 @@ public class ProxyWorkflowServiceImpl extends ProxyWorkflowServiceCECompatibleIm
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<JsonNode> getWorkflowRunActivities(String workflowId, String runId) {
+    public Mono<Map<String, Object>> getWorkflowRunActivities(String workflowId, String runId) {
         return findById(workflowId, workflowPermission.getReadHistoryPermission())
                 .flatMap(workflow -> workflowProxyHelper.getWorkflowRunActivities(workflowId, runId));
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<JsonNode> getWorkflowRuns(String workflowId, MultiValueMap<String, String> queryParams) {
+    public Mono<Map<String, Object>> getWorkflowRuns(String workflowId, MultiValueMap<String, String> queryParams) {
         return findById(workflowId, workflowPermission.getReadHistoryPermission())
                 .flatMap(workflow -> workflowProxyHelper.getWorkflowRuns(workflowId, queryParams));
     }

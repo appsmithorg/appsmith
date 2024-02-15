@@ -47,9 +47,6 @@ import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import com.appsmith.server.workflows.helpers.WorkflowHelper;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -751,7 +748,7 @@ class InteractWorkflowServiceTest {
     void testTriggerWorkflow_workflowNotPublished() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cookie", "Cookie");
-        Mono<JsonNode> triggerWorkflowMono =
+        Mono<Map<String, Object>> triggerWorkflowMono =
                 interactWorkflowService.triggerWorkflow(workflow.getId(), null, headers, null);
         AppsmithException unsupportedException = assertThrows(AppsmithException.class, triggerWorkflowMono::block);
         assertThat(unsupportedException.getMessage())
@@ -761,7 +758,7 @@ class InteractWorkflowServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     void testTriggerWorkflow() {
-        Mockito.doReturn(Mono.just(emptyJsonNode()))
+        Mockito.doReturn(Mono.just(Map.of()))
                 .when(workflowProxyHelper)
                 .triggerWorkflowOnProxy(Mockito.any(), Mockito.any());
         String testName = "testTriggerWorkflow";
@@ -803,11 +800,11 @@ class InteractWorkflowServiceTest {
                 .block();
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION_HEADER, BEARER_HEADER_PREFIX + " " + apiKey);
-        JsonNode triggered = interactWorkflowService
+        Map<String, Object> triggered = interactWorkflowService
                 .triggerWorkflow(workflow.getId(), null, headers, null)
                 .block();
 
-        assertThat(triggered.toString()).isEqualTo(emptyJsonNode().toString());
+        assertThat(triggered).isEqualTo(Map.of());
 
         List<ActionViewDTO> actionViewDTOList = newActionService
                 .getActionsForViewModeForWorkflow(workflow.getId(), null)
@@ -1190,14 +1187,5 @@ class InteractWorkflowServiceTest {
         List<ActionCollection> actionCollectionsFromDb =
                 actionCollectionRepository.findAll().collectList().block();
         assertThat(actionCollectionsFromDb).hasSize(expectedCollectionsInDbCount);
-    }
-
-    private JsonNode emptyJsonNode() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readTree("{}");
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

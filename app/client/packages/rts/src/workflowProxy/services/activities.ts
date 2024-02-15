@@ -57,18 +57,23 @@ export async function executeActivity(
 /**
  *  Create inbox request in workflowProxy, temporal will call this function
  * @param reqHeaders Headers from the request, to be passed to workflowProxy
- * @param workflowId Workflow id from appsmith editor
- * @param workflowInstanceId Run id of the workflow instance
+ * @param appsmithWorkflowId Workflow id from appsmith editor
+ * @param workflowRunId Run id of the workflow instance
  * @param userParams Params passed in workflow definition to the action
  * @returns Output of the activity
  */
 export async function createWorkflowRequest(
   reqHeaders: Record<string, any>,
-  workflowId: string,
-  workflowInstanceId: string,
+  appsmithWorkflowId: string,
+  workflowRunId: string,
   userParams: Record<string, any>,
 ) {
-  log("executeCreateInboxRequest", userParams, workflowInstanceId, workflowId);
+  log(
+    "executeCreateInboxRequest",
+    userParams,
+    workflowRunId,
+    appsmithWorkflowId,
+  );
   const headers = {
     ...generateHeadersFromIncomingHeaders(reqHeaders),
     "content-type": "application/json",
@@ -76,8 +81,8 @@ export async function createWorkflowRequest(
   };
   // @ts-expect-error: userParams is has the pending approval details
   const body: InboxCreationRequest = {
-    workflowId,
-    runId: workflowInstanceId,
+    workflowId: appsmithWorkflowId,
+    runId: workflowRunId,
     allowedResolutions: !!userParams.allowedResolutions
       ? userParams.allowedResolutions
       : ["Approve", "Reject"],

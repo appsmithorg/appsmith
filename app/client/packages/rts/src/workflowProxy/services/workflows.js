@@ -8,8 +8,16 @@ import {
   proxyActivities,
 } from "@temporalio/workflow";
 
+const retryPolicy = {
+  initialInterval: "10s",
+  backoffCoefficient: 2,
+  maximumInterval: "10m",
+  maximumAttempts: 3,
+};
+
 const { createWorkflowRequest, executeActivity } = proxyActivities({
   startToCloseTimeout: "1 minute",
+  retry: retryPolicy,
 });
 
 // Define a signal that the workflow will use to resume execution
@@ -40,9 +48,14 @@ function resumeHandler(body) {
  * @param {string} workflowInstanceId RunId of the workflow instance
  * @returns
  */
-export async function executeWorkflow(runRequest, workflowInstanceId) {
-  const { actionMap, reqHeaders, triggerData, workflowDef, workflowId } =
-    runRequest;
+export async function executeWorkflow(runRequest, workflowRunId) {
+  const {
+    actionMap,
+    appsmithWorkflowId,
+    reqHeaders,
+    triggerData,
+    workflowDef,
+  } = runRequest;
 
   // Attach the signal handler to the signal
   setHandler(resumeSignal, resumeHandler);
@@ -68,8 +81,8 @@ export async function executeWorkflow(runRequest, workflowInstanceId) {
         // console.log("inside assignRequest", args);
         await createWorkflowRequest(
           reqHeaders,
-          workflowId,
-          workflowInstanceId,
+          appsmithWorkflowId,
+          workflowRunId,
           args[0],
         );
 

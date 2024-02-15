@@ -38,7 +38,7 @@ export class DeployService {
         activities,
       });
 
-      // Step 3: Start accepting tasks on the `hello-world` queue
+      // Step 3: Start accepting tasks on the `appsmith-queue` queue
       //
       // The worker runs until it encounters an unexepected error or the process receives a shutdown signal registered on
       // the SDK Runtime object.

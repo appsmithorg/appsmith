@@ -3,6 +3,7 @@ import { Validator } from "@middlewares/Validator";
 import ExecuteController from "../controllers/ExecuteController";
 import CommonController from "../controllers/CommonController";
 import RunController from "../controllers/RunController";
+import HistoryController from "../controllers/HistoryController";
 import { AuthValidator } from "@workflowProxy/middleware/AuthValidator";
 
 // Controllers
@@ -11,6 +12,7 @@ const authValidator = new AuthValidator();
 const executeController = new ExecuteController();
 const commonController = new CommonController();
 const runController = new RunController();
+const historyController = new HistoryController();
 
 const router = express.Router();
 
@@ -20,6 +22,8 @@ const HEALTH_ENDPOINT = `${WORKFLOW_PROXY_API_BASE_URL}/health-check`;
 export const EXECUTE_ENDPOINT = `${WORKFLOW_PROXY_API_BASE_URL}/execute-activity`;
 export const ASSIGN_REQUEST_ENDPOINT = `${WORKFLOW_PROXY_API_BASE_URL}/approval-inbox`;
 const EXECUTE_RUN = `${WORKFLOW_PROXY_API_BASE_URL}/trigger`;
+const RUN_HISTORY = `${WORKFLOW_PROXY_API_BASE_URL}/workflows/:appsmithWorkflowId/runs`;
+const ACTIVITY_HISTORY = `${WORKFLOW_PROXY_API_BASE_URL}/workflows/:appsmithWorkflowId/runs/:workflowRunId/activities`;
 
 // Health check for the workflow service (temporal)
 router.get(
@@ -57,6 +61,20 @@ router.post(
   validator.validateRequest,
   authValidator.validateRequest,
   runController.runWorkflow,
+);
+
+// Get workflow run history
+router.get(
+  RUN_HISTORY,
+  validator.validateRequest,
+  historyController.listWorkflowRuns,
+);
+
+// Get workflow task history
+router.get(
+  ACTIVITY_HISTORY,
+  validator.validateRequest,
+  historyController.listWorkflowActivities,
 );
 
 export default router;

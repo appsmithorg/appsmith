@@ -16,3 +16,9 @@ export const ERROR_413 = (maxFileSize: number) =>
   `Payload too large. File size cannot exceed ${maxFileSize}MB.`;
 export const ERROR_403 = (entity: string, userEmail: string) =>
   `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
+
+export const WORKFLOW_NAMESPACE = "default";
+export const WORKFLOW_TYPE = "executeWorkflow";
+export const WORKFLOW_TASK_QUEUE = "appsmith-queue";
+export const WORKFLOW_RUN_HISTORY_PAGE_SIZE = 100;
+export const WORKFLOW_ACTIVITY_HISTORY_PAGE_SIZE = 100;

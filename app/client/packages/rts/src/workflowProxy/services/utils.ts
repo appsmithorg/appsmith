@@ -6,6 +6,9 @@ import {
   createMessage,
 } from "@workflowProxy/constants/messages";
 import type { ApiResponse } from "@workflowProxy/constants/types";
+import type { google } from "@temporalio/proto";
+import { Connection } from "@temporalio/client";
+import { customAlphabet } from "nanoid";
 
 export const axiosConnectionAbortedCode = "ECONNABORTED";
 /**
@@ -67,3 +70,40 @@ const getErrorMessage = (code: number) => {
 export const findDatatype = (value: unknown) => {
   return Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
 };
+
+/**
+ * This function converts the google.protobuf.Timestamp to Date
+ * @param timestamp
+ * @returns Date
+ */
+export function timestampToDate(timestamp: google.protobuf.ITimestamp): Date {
+  return new Date(
+    timestamp.seconds.toNumber() * 1000 + timestamp.nanos / 1000000,
+  );
+}
+
+export function generateWorkflowRunId(): string {
+  const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const length = 8;
+  const nanoid = customAlphabet(alphabet, length);
+  return nanoid(); // eg."HV2C5NPU"
+}
+
+// Connections are expensive to construct and should be reused.
+// Make sure to close any unused connections to avoid leaking resources.
+export class ConnectionSingleton {
+  private static instance: Connection;
+
+  private constructor() {}
+
+  public static async getInstance(): Promise<Connection> {
+    if (!ConnectionSingleton.instance) {
+      // Connect to the default Server location
+
+      ConnectionSingleton.instance = await Connection.connect({
+        address: "localhost:7233",
+      });
+    }
+    return ConnectionSingleton.instance;
+  }
+}

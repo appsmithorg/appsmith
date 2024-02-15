@@ -20,9 +20,6 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +58,7 @@ public class ProxyWorkflowServiceTest {
     @SpyBean
     FeatureFlagService featureFlagService;
 
-    @MockBean
+    @Autowired
     WorkflowProxyHelper workflowProxyHelper;
 
     @Autowired
@@ -164,9 +161,7 @@ public class ProxyWorkflowServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     void testInvalidGetWorkflowRunActivities() {
-        Mockito.when(workflowProxyHelper.getWorkflowRunActivities(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(emptyJsonNode()));
-        Mono<JsonNode> workflowRunActivitiesByWorkflowIdMono =
+        Mono<Map<String, Object>> workflowRunActivitiesByWorkflowIdMono =
                 proxyWorkflowService.getWorkflowRunActivities("random-workflow-id", "random-run-id");
 
         StepVerifier.create(workflowRunActivitiesByWorkflowIdMono)
@@ -182,9 +177,7 @@ public class ProxyWorkflowServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     void testInvalidGetWorkflowRuns() {
-        Mockito.when(workflowProxyHelper.getWorkflowRuns(Mockito.anyString(), Mockito.any()))
-                .thenReturn(Mono.just(emptyJsonNode()));
-        Mono<JsonNode> workflowRunsByWorkflowIdMono =
+        Mono<Map<String, Object>> workflowRunsByWorkflowIdMono =
                 proxyWorkflowService.getWorkflowRuns("random-workflow-id", new LinkedMultiValueMap<>());
 
         StepVerifier.create(workflowRunsByWorkflowIdMono)
@@ -195,14 +188,5 @@ public class ProxyWorkflowServiceTest {
                     return true;
                 })
                 .verify();
-    }
-
-    private JsonNode emptyJsonNode() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readTree("{}");
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

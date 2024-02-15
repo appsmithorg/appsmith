@@ -21,6 +21,11 @@ export enum WorkflowActivityExecutionStatus {
   EVENT_TYPE_WORKFLOW_EXECUTION_STARTED = 1,
   EVENT_TYPE_WORKFLOW_EXECUTION_COMPLETED = 2,
   EVENT_TYPE_WORKFLOW_EXECUTION_FAILED = 3,
+  EVENT_TYPE_WORKFLOW_EXECUTION_TERMINATED = 27,
+  EVENT_TYPE_ACTIVITY_TASK_STARTED = 11,
+  EVENT_TYPE_ACTIVITY_TASK_COMPLETED = 12,
+  EVENT_TYPE_ACTIVITY_TASK_TIMED_OUT = 14,
+  EVENT_TYPE_ACTIVITY_TASK_FAILED = 13,
 }
 
 const successStatuses = [
@@ -30,6 +35,16 @@ const successStatuses = [
 
 const inProgressStatuses = [
   WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_RUNNING,
+];
+
+const successActivityStatuses = [
+  WorkflowActivityExecutionStatus.EVENT_TYPE_WORKFLOW_EXECUTION_STARTED,
+  WorkflowActivityExecutionStatus.EVENT_TYPE_WORKFLOW_EXECUTION_COMPLETED,
+  WorkflowActivityExecutionStatus.EVENT_TYPE_ACTIVITY_TASK_COMPLETED,
+];
+
+const inProgressActivityStatuses = [
+  WorkflowActivityExecutionStatus.EVENT_TYPE_ACTIVITY_TASK_STARTED,
 ];
 
 const ERROR_ICON_PROPS = {
@@ -61,15 +76,9 @@ export const getWorkflowRunStatusIconProps = (
 export const getWorkflowActivityStatusIconProps = (
   status: WorkflowActivityExecutionStatus,
 ) => {
-  if (
-    status ===
-    WorkflowActivityExecutionStatus.EVENT_TYPE_WORKFLOW_EXECUTION_COMPLETED
-  ) {
+  if (successActivityStatuses.includes(status)) {
     return SUCCESS_ICON_PROPS;
-  } else if (
-    status ===
-    WorkflowActivityExecutionStatus.EVENT_TYPE_WORKFLOW_EXECUTION_STARTED
-  ) {
+  } else if (inProgressActivityStatuses.includes(status)) {
     return IN_PROGRESS_ICON_PROPS;
   }
   return ERROR_ICON_PROPS;

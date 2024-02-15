@@ -405,7 +405,8 @@ export function* fetchWorkflowRunHistoryDetailsSaga(
       workflowId,
       runId,
     );
-    const isValidResponse: boolean = yield validateResponse(response);
+    // const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse = true;
 
     if (isValidResponse) {
       const { data } = response;

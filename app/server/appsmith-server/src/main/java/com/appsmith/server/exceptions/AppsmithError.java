@@ -1193,7 +1193,7 @@ public enum AppsmithError {
     WORKFLOW_PROXY_REQUEST_FAILED(
             500,
             AppsmithErrorCode.WORKFLOW_PROXY_REQUEST_FAILED.getCode(),
-            "Workflow proxy request {0} failed. Error: {1}.",
+            "Workflow proxy request {0} failed. Status: {1} Error: {2}.",
             AppsmithErrorAction.DEFAULT,
             "Workflow proxy request failed.",
             ErrorType.INTERNAL_ERROR,

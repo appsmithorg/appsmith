@@ -15,9 +15,6 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import com.appsmith.server.workflows.interact.InteractWorkflowService;
 import com.appsmith.server.workflows.proxy.ProxyWorkflowService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +29,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(WorkflowController.class)
@@ -86,7 +85,7 @@ public class WorkflowControllerTest {
     void testTriggerWorkflow_withoutTriggerData() {
         Mockito.when(interactWorkflowService.triggerWorkflow(
                         Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(emptyJsonNode()));
+                .thenReturn(Mono.just(Map.of()));
 
         webTestClient
                 .post()
@@ -101,7 +100,7 @@ public class WorkflowControllerTest {
     void testTriggerWorkflow_withTriggerData() {
         Mockito.when(interactWorkflowService.triggerWorkflow(
                         Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(emptyJsonNode()));
+                .thenReturn(Mono.just(Map.of()));
 
         webTestClient
                 .post()
@@ -111,14 +110,5 @@ public class WorkflowControllerTest {
                 .exchange()
                 .expectStatus()
                 .isEqualTo(200);
-    }
-
-    private JsonNode emptyJsonNode() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readTree("{}");
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

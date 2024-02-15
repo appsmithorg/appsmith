@@ -1,12 +1,16 @@
-import { Connection, Client } from "@temporalio/client";
+import { Client, WorkflowIdReusePolicy } from "@temporalio/client";
 import { executeWorkflow, resumeSignal } from "./workflows";
-import { nanoid } from "nanoid";
 import type { ExecuteInboxResolutionRequest } from "@workflowProxy/constants/types";
 import { error } from "loglevel";
+import { ConnectionSingleton, generateWorkflowRunId } from "./utils";
+import {
+  WORKFLOW_NAMESPACE,
+  WORKFLOW_TASK_QUEUE,
+} from "@workflowProxy/constants/messages";
 
 export interface RunRequest {
   reqHeaders: Record<string, any>; // headers from the request
-  workflowId: string; // workflow id from appsmith editor
+  appsmithWorkflowId: string; // workflow id from appsmith editor
   workflowDef: string; // workflow code from appsmith editor
   actionMap: Record<string, string>; // map for actionName to actionId
   triggerData?: any; // webhook data to be passed to workflow
@@ -15,7 +19,7 @@ export interface RunRequest {
 export interface RunResponse {
   success: boolean;
   message: string;
-  workflowInstanceId?: string;
+  workflowRunId?: string;
   data?: any;
 }
 
@@ -35,30 +39,6 @@ const sanitizeWorkflowDef = (workflowDef: string) => {
   return removeComments(jsObjectToCode(workflowDef));
 };
 
-// Connections are expensive to construct and should be reused.
-// Make sure to close any unused connections to avoid leaking resources.
-class ConnectionSingleton {
-  private static instance: Connection;
-
-  private constructor() {}
-
-  public static async getInstance(): Promise<Connection> {
-    if (!ConnectionSingleton.instance) {
-      // Connect to the default Server location
-
-      ConnectionSingleton.instance = await Connection.connect({
-        address: "localhost:7233",
-      });
-      // In production, pass options to configure TLS and other settings:
-      // {
-      //   address: 'foo.bar.tmprl.cloud',
-      //   tls: {}
-      // }
-    }
-    return ConnectionSingleton.instance;
-  }
-}
-
 export class RunService {
   // Deploys the workflow to temporal
   // 1. Use input file to create a workflow file that can be deployed to temporal
@@ -69,27 +49,31 @@ export class RunService {
 
       const temporalClient = new Client({
         connection: temporalConnection,
-        namespace: "default", // connects to 'default' namespace if not specified
+        namespace: WORKFLOW_NAMESPACE,
       });
 
-      // in practice, use a meaningful business ID, like customerId or transactionId
-      const workflowInstanceId = "workflowInstance-" + nanoid();
-      const { workflowDef } = runRequest;
+      const workflowRunId = generateWorkflowRunId();
+      const { appsmithWorkflowId, workflowDef } = runRequest;
       const formattedWorkflowDef = sanitizeWorkflowDef(workflowDef);
       await temporalClient.workflow.start(executeWorkflow, {
-        taskQueue: "appsmith-queue",
+        taskQueue: WORKFLOW_TASK_QUEUE,
         args: [
           { ...runRequest, workflowDef: formattedWorkflowDef },
-          workflowInstanceId,
+          workflowRunId,
         ],
-        workflowId: workflowInstanceId, // temporal workflowID is NOT same as the workflowId used in the java server and frontend.
+        workflowId: workflowRunId, // temporal workflowID is NOT same as the workflowId used in the java server and frontend.
+        workflowIdReusePolicy:
+          WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_REJECT_DUPLICATE,
+        searchAttributes: {
+          appsmithWorkflowId: [appsmithWorkflowId],
+        },
       });
 
       const runResponse: RunResponse = {
         success: true,
-        message: "Workflow instance started running succesfully",
+        message: "Workflow run started succesfully",
         data: {
-          workflowInstanceId: workflowInstanceId,
+          workflowRunId: workflowRunId,
         },
       };
 
@@ -98,7 +82,7 @@ export class RunService {
       const runResponse: RunResponse = {
         success: false,
         message: "Workflow instance failed to start",
-        data: { error: err.message },
+        data: err.message,
       };
       return runResponse;
     }

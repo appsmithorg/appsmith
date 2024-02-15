@@ -18,7 +18,6 @@ import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -28,6 +27,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.appsmith.server.acl.AclPermission.RESOLVE_APPROVAL_REQUESTS;
@@ -84,7 +84,7 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
 
                     ApprovalRequestResolutionProxyDTO approvalRequestResolutionProxyDTO =
                             this.getApprovalRequestResolutionProxyDTO(approvalRequestResolutionDTO, approvalRequest);
-                    Mono<JsonNode> approvalRequestResolutionOnProxyMono = workflowProxyHelper
+                    Mono<Map<String, Object>> approvalRequestResolutionOnProxyMono = workflowProxyHelper
                             .updateApprovalRequestResolutionOnProxy(approvalRequestResolutionProxyDTO)
                             .cache();
 

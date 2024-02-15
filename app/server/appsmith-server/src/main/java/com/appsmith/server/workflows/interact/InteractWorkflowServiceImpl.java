@@ -391,7 +391,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
      */
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<JsonNode> triggerWorkflow(
+    public Mono<Map<String, Object>> triggerWorkflow(
             String workflowId, MultiValueMap<String, String> queryParams, HttpHeaders headers, JsonNode triggerData) {
         Mono<Workflow> workflowMono = findById(workflowId, workflowPermission.getExecutePermission());
 

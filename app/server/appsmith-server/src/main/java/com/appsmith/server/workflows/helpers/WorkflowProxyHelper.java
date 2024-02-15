@@ -2,18 +2,20 @@ package com.appsmith.server.workflows.helpers;
 
 import com.appsmith.server.dtos.ApprovalRequestResolutionProxyDTO;
 import com.appsmith.server.dtos.WorkflowTriggerProxyDTO;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 public interface WorkflowProxyHelper {
-    Mono<JsonNode> updateApprovalRequestResolutionOnProxy(
+    Mono<Map<String, Object>> updateApprovalRequestResolutionOnProxy(
             ApprovalRequestResolutionProxyDTO approvalRequestResolutionProxyDTO);
 
-    Mono<JsonNode> triggerWorkflowOnProxy(WorkflowTriggerProxyDTO workflowTriggerProxyDTO, HttpHeaders httpHeaders);
+    Mono<Map<String, Object>> triggerWorkflowOnProxy(
+            WorkflowTriggerProxyDTO workflowTriggerProxyDTO, HttpHeaders httpHeaders);
 
-    Mono<JsonNode> getWorkflowRunActivities(String workflowId, String runId);
+    Mono<Map<String, Object>> getWorkflowRunActivities(String workflowId, String runId);
 
-    Mono<JsonNode> getWorkflowRuns(String workflowId, MultiValueMap<String, String> queryParams);
+    Mono<Map<String, Object>> getWorkflowRuns(String workflowId, MultiValueMap<String, String> queryParams);
 }

@@ -33,7 +33,7 @@ app/client/.yalc/
 app/client/yalc.lock
 
 # editor related
-.vscode/*
+**/.vscode/*
 .idea
 .fleet/*
 app/client/.fleet/*
