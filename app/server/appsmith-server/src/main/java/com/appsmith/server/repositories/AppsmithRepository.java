@@ -3,10 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -22,18 +19,6 @@ public interface AppsmithRepository<T extends BaseDomain> {
     Mono<T> updateById(String id, T resource, AclPermission permission);
 
     QueryAllParams<T> queryBuilder();
-
-    /**
-     * DO NOT USE THIS FUNCTION UNLESS YOU KNOW WHAT YOU ARE DOING
-     * This is an unsafe function that fetches data without persmissions. This should only be used very sparingly
-     *
-     * @param criterias
-     * @param includeFields
-     * @param sort
-     * @param limit
-     * @return
-     */
-    Flux<T> queryAllWithoutPermissions(List<Criteria> criterias, List<String> includeFields, Sort sort, int limit);
 
     Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
