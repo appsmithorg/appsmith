@@ -7,6 +7,7 @@ import {
   getCanvasWidth,
   getCurrentPageId,
   getCurrentPageName,
+  getIsAutoLayout,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -53,6 +54,7 @@ import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { EditorState } from "@appsmith/entities/IDE/constants";
+import useMissingModuleNotification from "@appsmith/pages/Editor/IDE/MainPane/useMissingModuleNotification";
 
 const BannerWrapper = styled.div`
   z-index: calc(var(--on-canvas-ui-z-index) + 1);
@@ -67,6 +69,7 @@ function WidgetsEditor() {
   const isProtectedMode = useSelector(protectedModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
@@ -92,6 +95,7 @@ function WidgetsEditor() {
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
+  const missingModuleNotification = useMissingModuleNotification();
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
 
@@ -195,6 +199,7 @@ function WidgetsEditor() {
           {!isAppSettingsPaneWithNavigationTabOpen && (
             <EmptyCanvasPrompts isPreview={isPreviewMode || isProtectedMode} />
           )}
+          {missingModuleNotification}
           <AnonymousDataPopup />
           <div
             className="relative flex flex-row h-full w-full overflow-hidden"
@@ -205,6 +210,7 @@ function WidgetsEditor() {
             onDragStart={onDragStart}
             style={{
               fontFamily: fontFamily,
+              contain: isAutoLayout ? "content" : "strict",
             }}
           >
             {showNavigation()}

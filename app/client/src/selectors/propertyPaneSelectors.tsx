@@ -186,11 +186,7 @@ const populateEvaluatedWidgetProperties = (
       evaluatedProperties.errors,
       path,
     );
-    getAndSetPath(
-      evaluatedWidgetPath?.evaluatedValues,
-      evaluatedProperties.evaluatedValues,
-      path,
-    );
+    getAndSetPath(evaluatedWidget, evaluatedProperties.evaluatedValues, path);
   });
 
   return evaluatedProperties;

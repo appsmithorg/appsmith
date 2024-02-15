@@ -179,7 +179,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 fieldName(QApplication.application.gitApplicationMetadata.gitAuth));
 
         updateObj.set(path, gitAuth);
-        return this.updateById(applicationId, updateObj, aclPermission);
+        return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(updateObj);
     }
 
     @Override
@@ -304,7 +304,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
         }
 
-        return this.updateById(applicationId, updateObj, aclPermission);
+        return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(updateObj);
     }
 
     @Override
@@ -379,7 +379,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         Update unsetProtected = new Update().set(isProtectedFieldPath, false);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria), unsetProtected, permission);
+        return queryBuilder()
+                .criteria(defaultApplicationIdCriteria)
+                .permission(permission)
+                .updateAll(unsetProtected);
     }
 
     /**
@@ -404,6 +407,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria branchMatchCriteria = Criteria.where(branchNameFieldPath).in(branchNames);
         Update setProtected = new Update().set(isProtectedFieldPath, true);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria, branchMatchCriteria), setProtected, permission);
+        return queryBuilder()
+                .criteria(defaultApplicationIdCriteria, branchMatchCriteria)
+                .permission(permission)
+                .updateAll(setProtected);
     }
 }
