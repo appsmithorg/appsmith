@@ -58,7 +58,6 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
                 .criteria(rootModuleInstanceIdCriterion)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
                 .permission(permission.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
                 .all();
     }
 
@@ -122,7 +121,6 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
                 .criteria(workflowCriteria)
                 .fields(includeFields.orElse(null))
                 .permission(aclPermission.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
                 .all();
     }
 
@@ -194,7 +192,10 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         Update update = new Update();
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
-        return updateByCriteria(List.of(workflowIdCriteria, deletedFromUnpublishedCriteria), update, aclPermission);
+        return queryBuilder()
+                .criteria(workflowIdCriteria, deletedFromUnpublishedCriteria)
+                .permission(aclPermission)
+                .updateAll(update);
     }
 
     @Override
@@ -272,9 +273,6 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         return queryBuilder()
                 .criteria(applicationCriteria, notComposedCriteria)
                 .fields(includeFields)
-                .permission(null)
-                .sort(null)
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 }

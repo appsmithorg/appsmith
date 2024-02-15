@@ -7,7 +7,6 @@ import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.ce.CustomPermissionGroupRepositoryCEImpl;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -41,13 +40,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     public Flux<PermissionGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields) {
         Criteria criteria =
                 where(fieldName(QPermissionGroup.permissionGroup.tenantId)).is(tenantId);
-        return queryBuilder()
-                .criteria(criteria)
-                .fields(includeFields)
-                .permission(null)
-                .sort(null)
-                .limit(NO_RECORD_LIMIT)
-                .all();
+        return queryBuilder().criteria(criteria).fields(includeFields).all();
     }
 
     @Override
@@ -73,8 +66,6 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 .criteria(criteria)
                 .fields((List<String>) null)
                 .permission(permission)
-                .sort(null)
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 
@@ -86,8 +77,6 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 .criteria(criteria)
                 .fields((List<String>) null)
                 .permission(permission)
-                .sort(null)
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 
@@ -99,13 +88,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     public Flux<PermissionGroup> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         Criteria criteria =
                 where(fieldName(QPermissionGroup.permissionGroup.id)).in(ids);
-        return queryBuilder()
-                .criteria(criteria)
-                .fields(includeFields)
-                .permission(null)
-                .sort(null)
-                .limit(NO_RECORD_LIMIT)
-                .all();
+        return queryBuilder().criteria(criteria).fields(includeFields).all();
     }
 
     @Override
@@ -179,8 +162,6 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 .criteria(criteria)
                 .fields(listIncludeFields.orElse(null))
                 .permission(aclPermission.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 
@@ -193,8 +174,6 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 .criteria(criteria)
                 .fields(listIncludeFields.orElse(null))
                 .permission(aclPermission.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 }

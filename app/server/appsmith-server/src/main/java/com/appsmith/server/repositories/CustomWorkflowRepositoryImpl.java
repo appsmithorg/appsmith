@@ -26,7 +26,7 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
 
     @Override
     public Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission) {
-        return updateById(id, updateObj, permission);
+        return queryBuilder().byId(id).permission(permission).updateFirst(updateObj);
     }
 
     @Override
@@ -49,7 +49,6 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
                 .criteria(workflowIdCriteria)
                 .fields(includeFields.orElse(null))
                 .permission(permission.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
                 .all();
     }
 
@@ -68,6 +67,9 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
             String workflowId, boolean tokenGenerated, Optional<AclPermission> aclPermission) {
         Update generatedTokenUpdate = new Update();
         generatedTokenUpdate.set(fieldName(QWorkflow.workflow.tokenGenerated), tokenGenerated);
-        return super.updateById(workflowId, generatedTokenUpdate, aclPermission);
+        return queryBuilder()
+                .byId(workflowId)
+                .permission(aclPermission.orElse(null))
+                .updateFirst(generatedTokenUpdate);
     }
 }

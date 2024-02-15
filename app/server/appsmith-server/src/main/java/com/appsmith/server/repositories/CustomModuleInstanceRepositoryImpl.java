@@ -7,7 +7,6 @@ import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.QModuleInstance;
 import com.mongodb.client.result.UpdateResult;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -48,10 +47,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         Criteria moduleIdCriteria =
                 where(fieldName(QModuleInstance.moduleInstance.moduleUUID)).is(moduleUUID);
 
-        return queryBuilder()
-                .criteria(moduleIdCriteria)
-                .permission(Optional.<AclPermission>empty().orElse(null))
-                .count();
+        return queryBuilder().criteria(moduleIdCriteria).count();
     }
 
     @Override
@@ -113,7 +109,6 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 .criteria(rootModuleInstanceIdCriterion)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
                 .permission(permission.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
                 .all();
     }
 
@@ -124,9 +119,6 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         return queryBuilder()
                 .criteria(applicationCriteria)
                 .fields(includedFields)
-                .permission(null)
-                .sort(null)
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 
@@ -156,7 +148,10 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         Update update = new Update();
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
-        return updateByCriteria(List.of(applicationIdCriterion, deletedFromUnpublishedCriteria), update, permission);
+        return queryBuilder()
+                .criteria(applicationIdCriterion, deletedFromUnpublishedCriteria)
+                .permission(permission)
+                .updateAll(update);
     }
 
     @Override
@@ -243,9 +238,6 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         return queryBuilder()
                 .criteria(applicationCriteria, notComposedCriteria)
                 .fields(projectionFields)
-                .permission(null)
-                .sort(null)
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 }

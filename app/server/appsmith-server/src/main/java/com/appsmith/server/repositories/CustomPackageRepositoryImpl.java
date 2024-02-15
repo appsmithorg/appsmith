@@ -6,7 +6,6 @@ import com.appsmith.server.domains.QPackage;
 import com.appsmith.server.dtos.ExportableModule;
 import com.mongodb.client.result.UpdateResult;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -66,7 +65,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
 
     @Override
     public Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission) {
-        return updateById(id, updateObj, permission);
+        return queryBuilder().byId(id).permission(permission).updateFirst(updateObj);
     }
 
     @Override
@@ -99,9 +98,6 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
         return queryBuilder()
                 .criteria(idCriteria)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
-                .permission(Optional.<AclPermission>empty().orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 
@@ -155,8 +151,6 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 .criteria(idCriteria)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
                 .permission(permissionOptional.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 
@@ -169,7 +163,10 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
 
         Update update = new Update();
         update.set(completeFieldName(QPackage.package$.latest), false);
-        return updateByCriteria(List.of(latestPackageCriteria, originPackageIdCriteria), update, permission);
+        return queryBuilder()
+                .criteria(latestPackageCriteria, originPackageIdCriteria)
+                .permission(permission)
+                .updateAll(update);
     }
 
     @Override

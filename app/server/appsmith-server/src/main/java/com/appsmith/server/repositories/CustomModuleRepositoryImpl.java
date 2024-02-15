@@ -6,7 +6,6 @@ import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.QModule;
 import com.mongodb.client.result.UpdateResult;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -46,8 +45,6 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
                 .criteria(packageIdsCriteria)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
                 .permission(permissionOptional.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 
@@ -63,7 +60,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
 
     @Override
     public Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission) {
-        return updateById(id, updateObj, permission);
+        return queryBuilder().byId(id).permission(permission).updateFirst(updateObj);
     }
 
     @Override
@@ -99,8 +96,6 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
                 .criteria(idCriteria)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
                 .permission(permission.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 
@@ -132,8 +127,6 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
                 .criteria(criteria)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
                 .permission(permissionOptional.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
-                .limit(NO_RECORD_LIMIT)
                 .all();
     }
 

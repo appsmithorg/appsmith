@@ -135,7 +135,6 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
                 .criteria(criteriaUserIds, criteriaTenantId)
                 .fields(includeFields)
                 .permission(aclPermission.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
                 .all()
                 .map(User::getEmail);
     }
@@ -156,7 +155,7 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         Update updateUser = new Update();
         updateUser.set(fieldName(QUser.user.isProvisioned), isProvisioned);
         updateUser.set(fieldName(QUser.user.policies), policies);
-        return updateById(id, updateUser, Optional.empty()).thenReturn(Boolean.TRUE);
+        return queryBuilder().byId(id).updateFirst(updateUser).thenReturn(Boolean.TRUE);
     }
 
     @Override
@@ -168,7 +167,6 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
                 .criteria(criteriaIsProvisioned)
                 .fields(includeFields.orElse(null))
                 .permission(aclPermission.orElse(null))
-                .sort(Optional.<Sort>empty().orElse(null))
                 .all();
     }
 
@@ -200,7 +198,10 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         Update update = new Update();
         update.set(fieldName(QUser.user.source), LoginSource.FORM);
         update.set(fieldName(QUser.user.isEnabled), false);
-        return updateByCriteria(criterias, update, null).map(updateResult -> updateResult.getModifiedCount() > 0);
+        return queryBuilder()
+                .criteria(criterias)
+                .updateAll(update)
+                .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
     @Override

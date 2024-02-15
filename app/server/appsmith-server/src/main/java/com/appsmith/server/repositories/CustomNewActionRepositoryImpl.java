@@ -232,7 +232,10 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         Update update = new Update();
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
-        return updateByCriteria(List.of(workflowIdCriteria, deletedFromUnpublishedCriteria), update, aclPermission);
+        return queryBuilder()
+                .criteria(workflowIdCriteria, deletedFromUnpublishedCriteria)
+                .permission(aclPermission)
+                .updateAll(update);
     }
 
     @Override
@@ -470,7 +473,10 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         Update update = new Update();
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
-        return updateByCriteria(List.of(collectionIdCriteria, deletedFromUnpublishedCriteria), update, aclPermission);
+        return queryBuilder()
+                .criteria(collectionIdCriteria, deletedFromUnpublishedCriteria)
+                .permission(aclPermission)
+                .updateAll(update);
     }
 
     @Override

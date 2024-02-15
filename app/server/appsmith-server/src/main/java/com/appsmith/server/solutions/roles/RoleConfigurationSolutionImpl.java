@@ -718,7 +718,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                     .queryBuilder()
                     .byId(id)
                     .fields(projectionFieldNames1)
-                    .permission(null)
                     .one()
                     .flatMap(newPage -> {
                         List<String> projectionFieldNames = List.of(fieldName(QApplication.application.workspaceId));
@@ -726,7 +725,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                                 .queryBuilder()
                                 .byId(newPage.getApplicationId())
                                 .fields(projectionFieldNames)
-                                .permission(null)
                                 .one();
                     })
                     .map(Application::getWorkspaceId)
@@ -905,7 +903,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                 .queryBuilder()
                 .byId(id)
                 .fields(projectionFieldNames)
-                .permission(null)
                 .one()
                 .cache();
         Flux<Module> moduleFlux = moduleInstanceMono
@@ -916,7 +913,6 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                             .queryBuilder()
                             .byId(moduleInstance.getOriginModuleId())
                             .fields(moduleFields)
-                            .permission(null)
                             .one();
                     return moduleRepository
                             .findAllByOriginModuleId(moduleInstance.getOriginModuleId(), moduleFields, Optional.empty())
