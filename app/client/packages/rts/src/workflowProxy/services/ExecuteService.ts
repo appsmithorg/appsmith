@@ -24,10 +24,6 @@ export class ExecuteService {
     headers: Record<string, any>,
   ): Promise<any> {
     try {
-      if (!headers["cookie"] && !headers["Authorization"]) {
-        throw new Error("Cookie or Token not found in request");
-      }
-
       const formData = new FormData();
       const paramProperties = {};
       const parameterMap = {};
@@ -83,17 +79,10 @@ export class ExecuteService {
       }
 
       const reqHeaders = {
+        ...headers,
         "X-Requested-By": "Appsmith",
         "Content-Type": "multipart/form-data",
       };
-
-      if (headers["cookie"]) {
-        reqHeaders["cookie"] = headers["cookie"];
-      }
-
-      if (headers["Authorization"]) {
-        reqHeaders["Authorization"] = headers["Authorization"];
-      }
 
       const response = await axios.post(EXECUTE_ACTION_ENDPOINT, formData, {
         headers: reqHeaders,
@@ -132,23 +121,12 @@ export class ExecuteService {
     headers: Record<string, any>,
   ): Promise<any> {
     try {
-      //check if cookie is present in the request, if not throw error
-      if (!headers["cookie"] && !headers["Authorization"]) {
-        throw new Error("Cookie or Token not found in request");
-      }
-
       // create an axios post request
       const reqHeaders = {
+        ...headers,
         "Content-Type": "application/json",
         "X-Requested-By": "Appsmith",
       };
-      if (headers["cookie"]) {
-        reqHeaders["cookie"] = headers["cookie"];
-      }
-
-      if (headers["Authorization"]) {
-        reqHeaders["Authorization"] = headers["Authorization"];
-      }
 
       //send the request to appsmith api
       const response = await axios.post(CREATE_INBOX_ENDPOINT, request, {

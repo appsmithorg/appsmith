@@ -2,9 +2,23 @@ import { RTS_BASE_API_URL } from "@constants/routes";
 import type { ExecuteInboxCreationRequest as InboxCreationRequest } from "@workflowProxy/constants/types";
 import {
   EXECUTE_ENDPOINT,
-  INBOX_REQUEST_ENDPOINT,
+  ASSIGN_REQUEST_ENDPOINT,
 } from "@workflowProxy/routes";
 import { log } from "loglevel";
+
+const generateHeadersFromIncomingHeaders = (
+  incomingHeaders: Record<string, any>,
+) => {
+  const outputHeaders: Record<string, any> = {};
+  if (!!incomingHeaders["cookie"]) {
+    outputHeaders["cookie"] = incomingHeaders["cookie"];
+  }
+
+  if (!!incomingHeaders["authorization"]) {
+    outputHeaders["authorization"] = incomingHeaders["authorization"];
+  }
+  return outputHeaders;
+};
 
 /**
  *  Function to execute activity in workflowProxy, temporal will call this function
@@ -19,9 +33,16 @@ export async function executeActivity(
   inputParams: Array<Record<string, any>>,
 ) {
   log("executeActivity", actionId, inputParams);
+  const headers = {
+    ...generateHeadersFromIncomingHeaders(reqHeaders),
+    "content-type": "application/json",
+    Accept: "application/json",
+  };
+
   return await fetch(`${RTS_BASE_API_URL}${EXECUTE_ENDPOINT}`, {
     method: "POST",
-    headers: reqHeaders,
+    mode: "cors",
+    headers,
     body: JSON.stringify({ actionId, inputParams }),
   })
     .then(async (response) => await response.json())
@@ -48,6 +69,11 @@ export async function createWorkflowRequest(
   userParams: Record<string, any>,
 ) {
   log("executeCreateInboxRequest", userParams, workflowInstanceId, workflowId);
+  const headers = {
+    ...generateHeadersFromIncomingHeaders(reqHeaders),
+    "content-type": "application/json",
+    Accept: "application/json",
+  };
   // @ts-expect-error: userParams is has the pending approval details
   const body: InboxCreationRequest = {
     workflowId,
@@ -57,9 +83,9 @@ export async function createWorkflowRequest(
       : ["Approve", "Reject"],
     ...userParams,
   };
-  return await fetch(`${RTS_BASE_API_URL}${INBOX_REQUEST_ENDPOINT}`, {
+  return await fetch(`${RTS_BASE_API_URL}${ASSIGN_REQUEST_ENDPOINT}`, {
     method: "POST",
-    headers: reqHeaders,
+    headers,
     body: JSON.stringify(body),
   })
     .then(async (response) => response.json())

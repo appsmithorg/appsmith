@@ -12,22 +12,10 @@ export default class RunController extends BaseController {
 
   async runWorkflow(req: Request, res: Response) {
     try {
-      //check if cookie is present in the request, if not throw error
-      if (!req.headers["cookie"] && !req.headers["Authorization"]) {
-        throw new Error("workflow-proxy Cookie or Token not found in request");
-      }
-
       const reqHeaders = {
-        "Content-type": "application/json",
+        ...req.headers,
+        "content-type": "application/json",
       };
-
-      if (req.headers["cookie"]) {
-        reqHeaders["cookie"] = req.headers["cookie"];
-      }
-
-      if (req.headers["Authorization"]) {
-        reqHeaders["Authorization"] = req.headers["Authorization"];
-      }
 
       // Use deploy service to deploy the workflow
       const { actionNameToActionIdMap, triggerData, workflowDef } = req.body;
