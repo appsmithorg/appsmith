@@ -214,6 +214,7 @@ const Header = () => {
         justifyContent={"left"}
       >
         <AppsmithLink />
+        <Divider orientation="vertical" />
         <TitleComponent />
       </Flex>
       <Flex
