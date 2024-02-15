@@ -280,7 +280,7 @@ function WidgetsMultiSelectBox(props: {
         }
       },
       {
-        root: draggableRef.current ?? null,
+        root: null,
         threshold: Array(1000)
           .fill(0)
           .map((_, i) => i / 1000),
