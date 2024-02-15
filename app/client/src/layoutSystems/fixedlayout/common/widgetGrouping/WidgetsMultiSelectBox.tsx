@@ -198,13 +198,15 @@ function WidgetsMultiSelectBox(props: {
         if (menuRef.current) {
           requestAnimationFrame(() => {
             if (menuRef.current) {
-              menuRef.current.style.top = `${node.intersectionRect.top}px`;
-              menuRef.current.style.left = `${node.intersectionRect.left}px`;
+              if (node.isIntersecting) {
+                menuRef.current.style.top = `${node.intersectionRect.top}px`;
+                menuRef.current.style.left = `${node.intersectionRect.left}px`;
+                menuRef.current.style.flexDirection =
+                  node.intersectionRect.height < 160 ? "row" : "column";
+              }
               menuRef.current.style.visibility = node.isIntersecting
                 ? "visible"
                 : "hidden";
-              menuRef.current.style.flexDirection =
-                node.intersectionRect.height < 160 ? "row" : "column";
             }
           });
         }
