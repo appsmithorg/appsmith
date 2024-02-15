@@ -7,6 +7,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
@@ -85,13 +86,62 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
                     datasource.setGitSyncId(uniqueGitSyncId);
                 }
                 datasource.setHasDatasourceStorage(true);
-
+                addPublicNewActionPoliciesToExecuteDatasource(datasource);
                 createDatasourceStorage(datasource);
                 mongoTemplate.save(datasource);
             });
         } catch (Exception e) {
             log.error("Error during processing migration add-created-at-updated-at-default-appsmith-datasource", e);
         }
+    }
+
+    /**
+     * Add public new action policies to execute datasource.
+     * First fetch all the new actions for the datasource and then add all execute action permission groups to execute datasource permission groups
+     */
+    public void addPublicNewActionPoliciesToExecuteDatasource(Datasource datasource) {
+        String workspaceId = datasource.getWorkspaceId();
+        Query newActionsQuery = new Query();
+        Criteria queryCriteria = new Criteria();
+        queryCriteria.andOperator(
+                Criteria.where(FieldName.WORKSPACE_ID).is(workspaceId),
+                Criteria.where(FieldName.PLUGIN_ID).is(datasource.getPluginId()),
+                Criteria.where("unpublishedAction.datasource._id").is(new ObjectId(datasource.getId())));
+        newActionsQuery.addCriteria(queryCriteria);
+
+        try (Stream<NewAction> newActionStream = mongoTemplate.stream(newActionsQuery, NewAction.class)) {
+            newActionStream.forEach(newAction -> {
+                //                String newActionDatasourceId = getDatasourceId(newAction);
+                //                if (newActionDatasourceId != null && newActionDatasourceId.equals(datasource.getId()))
+                // {
+                Set<Policy> newActionPolicies = newAction.getPolicies();
+                Set<Policy> datasourcePolicies = new HashSet<>(datasource.getPolicies());
+
+                Set<String> executeActionPermissionGroupIds = new HashSet<>();
+                for (Policy policy : newActionPolicies) {
+                    if (AclPermission.EXECUTE_ACTIONS.getValue().equals(policy.getPermission())) {
+                        executeActionPermissionGroupIds = policy.getPermissionGroups();
+                    }
+                }
+                Set<String> executeDatasourcePermissionGroupIds = getExecuteDatasourcePermissionGroupIds(datasource);
+                executeDatasourcePermissionGroupIds.addAll(executeActionPermissionGroupIds);
+                Policy executeDatasourcePolicy =
+                        new Policy(AclPermission.EXECUTE_DATASOURCES.getValue(), executeDatasourcePermissionGroupIds);
+                datasourcePolicies.add(executeDatasourcePolicy);
+                datasource.setPolicies(datasourcePolicies);
+            });
+        }
+    }
+
+    private Set<String> getExecuteDatasourcePermissionGroupIds(Datasource datasource) {
+        if (datasource != null && !CollectionUtils.isNullOrEmpty(datasource.getPolicies())) {
+            for (Policy policy : datasource.getPolicies()) {
+                if (AclPermission.EXECUTE_DATASOURCES.getValue().equals(policy.getPermission())) {
+                    return policy.getPermissionGroups();
+                }
+            }
+        }
+        return new HashSet<>();
     }
 
     /**
