@@ -65,6 +65,8 @@ function processPositionsForLayouts(
  * This saga is used to read(from DOM) and update(in reducers) the widget and layout positions
  * Every time we receive a request to execute this saga, we read the positions of
  * ALL the widgets and layouts currently on the DOM and update the reducer
+ *
+ * Once browsers are able to handle mutationObserver for positions, we may make sure to call this individually
  */
 function* readAndUpdateLayoutElementPositions() {
   // While the user is resizing the canvas
