@@ -10,6 +10,11 @@ export const useAnvilWidgetStyles = (
   isVisible = true,
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {
+  // Selectors to determine whether the widget is selected or dragging
+  const isSelected = useSelector(isWidgetSelected(widgetId));
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
   // Get widget border styles using useWidgetBorderStyles
   const widgetBorderStyles = useWidgetBorderStyles(widgetId);
 
@@ -27,14 +32,9 @@ export const useAnvilWidgetStyles = (
   useEffect(() => {
     if (ref.current) {
       ref.current.setAttribute("data-widgetname-cy", widgetName);
+      ref.current.setAttribute("data-testid", isSelected ? "t--selected" : "");
     }
-  }, [widgetName]);
-
-  // Selectors to determine whether the widget is selected or dragging
-  const isSelected = useSelector(isWidgetSelected(widgetId));
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
+  }, [widgetName, isSelected]);
 
   // Calculate whether the widget should fade based on dragging, selection, and visibility
   const shouldFadeWidget = (isDragging && isSelected) || !isVisible;
