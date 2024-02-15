@@ -6,7 +6,7 @@ export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
 ) => {
-  getConsolidatedDataApi(flags, false);
+  getConsolidatedDataApi(flags, reload);
   const response = {
     responseMeta: {
       status: 200,
