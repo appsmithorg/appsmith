@@ -19,7 +19,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
  * This saga selects widgets in the Anvil Layout system
  * It is triggered by a custom event dispatched by all widgets on click
  * @param action The widgetId and the event object for the click that resulted in the call to this saga
- * @returns
+ * @returns void
  */
 export function* selectAnvilWidget(
   action: ReduxAction<{ widgetId: string; e: PointerEvent }>,
