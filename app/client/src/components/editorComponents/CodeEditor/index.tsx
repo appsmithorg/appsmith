@@ -79,11 +79,7 @@ import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
 import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
-import {
-  getEvalErrorPath,
-  getEvalValuePath,
-  isDynamicValue,
-} from "utils/DynamicBindingUtils";
+import { getEvalErrorPath, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   addEventToHighlightedElement,
   getInputValue,
@@ -1472,11 +1468,12 @@ class CodeEditor extends Component<Props, State> {
 
   getPropertyValidation = (
     dataTreePath?: string,
+    isTriggerPath?: boolean,
   ): {
     evalErrors: EvaluationError[];
     pathEvaluatedValue: unknown;
   } => {
-    if (!dataTreePath) {
+    if (!dataTreePath || !!isTriggerPath) {
       return {
         evalErrors: [],
         pathEvaluatedValue: undefined,
@@ -1485,10 +1482,7 @@ class CodeEditor extends Component<Props, State> {
 
     const evalErrors = this.getErrors(this.props.dynamicData, dataTreePath);
 
-    const pathEvaluatedValue = _.get(
-      this.props.dynamicData,
-      getEvalValuePath(dataTreePath),
-    );
+    const pathEvaluatedValue = _.get(this.props.dynamicData, dataTreePath);
 
     return {
       evalErrors,
@@ -1546,8 +1540,12 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
 
-    const { evalErrors, pathEvaluatedValue } =
-      this.getPropertyValidation(dataTreePath);
+    const entityInformation = this.getEntityInformation();
+
+    const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
+      dataTreePath,
+      entityInformation?.isTriggerPath,
+    );
 
     let errors = evalErrors,
       isInvalid = evalErrors.length > 0,
@@ -1557,7 +1555,6 @@ class CodeEditor extends Component<Props, State> {
       evaluated =
         pathEvaluatedValue !== undefined ? pathEvaluatedValue : evaluated;
     }
-    const entityInformation = this.getEntityInformation();
 
     const showSlashCommandButton =
       showLightningMenu !== false &&
