@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers.bridge;
+package com.appsmith.server.helpers.ce.bridge;
 
 import com.querydsl.core.types.Path;
 import lombok.Getter;

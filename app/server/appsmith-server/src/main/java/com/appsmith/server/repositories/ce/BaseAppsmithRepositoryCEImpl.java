@@ -517,11 +517,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())));
     }
 
-    public Mono<Integer> updateExecute(QueryAllParams<T> params, com.appsmith.server.helpers.bridge.Update update) {
+    public Mono<Integer> updateExecute(QueryAllParams<T> params, com.appsmith.server.helpers.ce.bridge.Update update) {
         return Mono.justOrEmpty(updateExecute2(params, update));
     }
 
-    public Integer updateExecute2(QueryAllParams<T> params, com.appsmith.server.helpers.bridge.Update update) {
+    public Integer updateExecute2(QueryAllParams<T> params, com.appsmith.server.helpers.ce.bridge.Update update) {
         Set<String> permissionGroupsSet = params.getPermissionGroups();
         List<String> permissionGroups;
 
@@ -573,7 +573,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         cu.where(predicate);
 
-        for (com.appsmith.server.helpers.bridge.Update.SetOp op : update.getSetOps()) {
+        for (com.appsmith.server.helpers.ce.bridge.Update.SetOp op : update.getSetOps()) {
             Object value = op.value();
             if (value instanceof Path<?> valuePath) {
                 value = root.get(fieldName(valuePath));
@@ -699,7 +699,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * @see FindAndModifyOptions
      */
     public T updateAndReturn(
-            String id, com.appsmith.server.helpers.bridge.Update updateObj, Optional<AclPermission> permission) {
+        String id, com.appsmith.server.helpers.ce.bridge.Update updateObj, Optional<AclPermission> permission) {
         return null; /*
                                   Query query = new Query(Criteria.where("id").is(id));
 

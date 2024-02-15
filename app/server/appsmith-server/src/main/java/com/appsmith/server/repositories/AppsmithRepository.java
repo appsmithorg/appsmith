@@ -2,7 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.helpers.bridge.Update;
+import com.appsmith.server.helpers.ce.bridge.Update;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 
 import java.util.Collection;

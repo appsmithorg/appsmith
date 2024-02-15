@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers.bridge;
+package com.appsmith.server.helpers.ce.bridge;
 
 import com.appsmith.external.models.BaseDomain;
 import jakarta.persistence.criteria.CriteriaBuilder;

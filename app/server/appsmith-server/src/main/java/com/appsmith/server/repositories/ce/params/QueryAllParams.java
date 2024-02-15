@@ -3,7 +3,7 @@ package com.appsmith.server.repositories.ce.params;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.helpers.bridge.Update;
+import com.appsmith.server.helpers.ce.bridge.Update;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;

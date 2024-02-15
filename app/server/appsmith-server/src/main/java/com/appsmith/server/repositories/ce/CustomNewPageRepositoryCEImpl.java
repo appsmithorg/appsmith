@@ -6,7 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.helpers.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;

@@ -1,11 +1,10 @@
-package com.appsmith.server.helpers.bridge;
+package com.appsmith.server.helpers.ce.bridge;
 
 import com.appsmith.external.models.BaseDomain;
 
 import java.util.Collection;
 
-public class Bridge<T extends BaseDomain> {
-
+public class Bridge {
     private Bridge() {}
 
     public static Update update() {

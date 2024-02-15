@@ -12,7 +12,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.bridge.Update;
+import com.appsmith.server.helpers.ce.bridge.Update;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;

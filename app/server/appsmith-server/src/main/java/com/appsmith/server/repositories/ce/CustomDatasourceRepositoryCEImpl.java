@@ -3,7 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.helpers.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.domain.Sort;

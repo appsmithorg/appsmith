@@ -4,7 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.helpers.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
