@@ -3,7 +3,6 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.domain.Sort;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Datasource>
@@ -32,7 +32,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     public List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
         Sort sort = Sort.by(fieldName(QDatasource.datasource.name));
         return queryBuilder()
-                .spec(Bridge.equal(fieldName(QDatasource.datasource.workspaceId), workspaceId))
+                .spec(bridge().equal(fieldName(QDatasource.datasource.workspaceId), workspaceId))
                 .permission(permission)
                 .sort(sort)
                 .all();
@@ -53,7 +53,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     @Deprecated
     public Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
         return queryBuilder()
-                .spec(Bridge.equal(fieldName(QDatasource.datasource.name), name)
+                .spec(bridge().equal(fieldName(QDatasource.datasource.name), name)
                         .equal(fieldName(QDatasource.datasource.workspaceId), workspaceId))
                 .permission(aclPermission)
                 .one();

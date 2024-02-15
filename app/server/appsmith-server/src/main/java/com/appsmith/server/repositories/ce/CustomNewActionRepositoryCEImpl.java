@@ -8,7 +8,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.Conditioner;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -47,7 +47,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
-                .spec(Bridge.equal(fieldName(QNewAction.newAction.applicationId), applicationId))
+                .spec(bridge().equal(fieldName(QNewAction.newAction.applicationId), applicationId))
                 .permission(aclPermission)
                 .all();
     }
@@ -115,15 +115,15 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission) {
-        Conditioner<? extends BaseDomain> pageCriterion;
+        Bridge<? extends BaseDomain> pageCriterion;
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriterion = Bridge.equal("publishedAction" + "." + "pageId", pageId);
+            pageCriterion = bridge().equal("publishedAction" + "." + "pageId", pageId);
         }
         // Fetch unpublished actions
         else {
-            pageCriterion = Bridge.equal("unpublishedAction" + "." + "pageId", pageId)
+            pageCriterion = bridge().equal("unpublishedAction" + "." + "pageId", pageId)
                     // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction
                     // object
                     // would exist. To handle this, only fetch non-deleted actions
@@ -287,12 +287,13 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
             String pageId, AclPermission permission) {
-        Conditioner<?> spec = Bridge.equal("unpublishedAction.pageId", pageId)
-                .isTrue("unpublishedAction.executeOnLoad")
-                .isTrue("unpublishedAction.userSetOnLoad")
-                .isNull("unpublishedAction.deletedAt");
-
-        return queryBuilder().spec(spec).permission(permission).all();
+        return queryBuilder()
+                .spec(bridge().equal("unpublishedAction.pageId", pageId)
+                        .isTrue("unpublishedAction.executeOnLoad")
+                        .isTrue("unpublishedAction.userSetOnLoad")
+                        .isNull("unpublishedAction.deletedAt"))
+                .permission(permission)
+                .all();
     }
 
     @Override
@@ -377,7 +378,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
-                .spec(Bridge.in(fieldName(QNewAction.newAction.unpublishedAction) + "." + "pageId", pageIds))
+                .spec(bridge().in(fieldName(QNewAction.newAction.unpublishedAction) + "." + "pageId", pageIds))
                 .permission(permission)
                 .all();
     }
@@ -480,7 +481,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = "defaultResources";
         return queryBuilder()
-                .spec(Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
+                .spec(bridge().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -504,7 +505,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         // *
         int count = queryBuilder()
                 .permission(permission)
-                .spec(Bridge.equal(fieldName(QNewAction.newAction.applicationId), applicationId))
+                .spec(bridge().equal(fieldName(QNewAction.newAction.applicationId), applicationId))
                 .update(Bridge.update()
                         .set(QNewAction.newAction.publishedAction, QNewAction.newAction.unpublishedAction)); // */
 
@@ -551,7 +552,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Transactional
     public Optional<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
         int count = queryBuilder()
-                // .spec(Bridge.equal(fieldName(QNewAction.newAction.applicationId),
+                // .spec(bridge().equal(fieldName(QNewAction.newAction.applicationId),
                 // applicationId).notEqual(unpublishedDeletedAtFieldName, null))
                 .spec((root, cq, cb) -> cb.and(
                         cb.equal(root.get(fieldName(QNewAction.newAction.applicationId)), applicationId),
@@ -570,7 +571,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .spec(Bridge.in(fieldName(QNewAction.newAction.applicationId), applicationIds))
+                .spec(bridge().in(fieldName(QNewAction.newAction.applicationId), applicationIds))
                 .fields(includeFields)
                 .all();
     }

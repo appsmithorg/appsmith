@@ -699,7 +699,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * @see FindAndModifyOptions
      */
     public T updateAndReturn(
-        String id, com.appsmith.server.helpers.ce.bridge.Update updateObj, Optional<AclPermission> permission) {
+            String id, com.appsmith.server.helpers.ce.bridge.Update updateObj, Optional<AclPermission> permission) {
         return null; /*
                                   Query query = new Query(Criteria.where("id").is(id));
 

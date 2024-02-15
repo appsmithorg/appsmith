@@ -4,7 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.SessionUserService;
@@ -17,6 +16,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 
 @Slf4j
 public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Workspace>
@@ -36,7 +37,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
         return queryBuilder()
-                .spec(Bridge.equal(fieldName(QWorkspace.workspace.name), name))
+                .spec(bridge().equal(fieldName(QWorkspace.workspace.name), name))
                 .permission(aclPermission)
                 .one();
     }
@@ -61,7 +62,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         final User user =
                 Objects.requireNonNull(sessionUserService.getCurrentUser().block());
         return queryBuilder()
-                .spec(Bridge.equal(fieldName(QWorkspace.workspace.tenantId), user.getTenantId()))
+                .spec(bridge().equal(fieldName(QWorkspace.workspace.tenantId), user.getTenantId()))
                 .permission(permission)
                 .all();
     }

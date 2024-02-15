@@ -7,7 +7,6 @@ import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.Update;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -35,6 +34,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
+
 public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<PermissionGroup>
         implements CustomPermissionGroupRepositoryCE {
 
@@ -52,7 +53,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findByAssignedToUserIdsIn(String userId) {
         return queryBuilder()
-                .spec(Bridge.jsonIn(userId, fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)))
+                .spec(bridge().jsonIn(userId, fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)))
                 .all();
     }
 
@@ -157,7 +158,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
         return queryBuilder()
-                .spec(Bridge.equal(
+                .spec(bridge().equal(
                                 fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
                                 Workspace.class.getSimpleName())
                         .in(fieldName(QPermissionGroup.permissionGroup.defaultDomainId), workspaceIds))

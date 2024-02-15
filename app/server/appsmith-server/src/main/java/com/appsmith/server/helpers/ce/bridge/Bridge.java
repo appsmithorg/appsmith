@@ -1,33 +1,144 @@
 package com.appsmith.server.helpers.ce.bridge;
 
 import com.appsmith.external.models.BaseDomain;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.NonNull;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
-public class Bridge {
+public class Bridge<T extends BaseDomain> implements Specification<T> {
+    private final List<Check> checks = new ArrayList<>();
+
     private Bridge() {}
+
+    public static <X extends BaseDomain> Bridge<X> bridge() {
+        return new Bridge<>();
+    }
 
     public static Update update() {
         return new Update();
     }
 
-    public static Conditioner<? extends BaseDomain> equal(String key, String value) {
-        return new Conditioner<>().equal(key, value);
+    @Override
+    public Predicate toPredicate(
+            @NonNull Root<T> root, @NonNull CriteriaQuery<?> ignored, @NonNull CriteriaBuilder cb) {
+        final List<Predicate> predicates = new ArrayList<>();
+
+        for (Check check : checks) {
+            Predicate predicate;
+            var op = check.op();
+            var key = check.key();
+            var value = check.value();
+
+            if (Objects.requireNonNull(op) == Op.EQUAL) {
+                predicate = cb.equal(keyToExpression(String.class, root, cb, key), cb.literal(value));
+
+            } else if (Objects.requireNonNull(op) == Op.NOT_EQUAL) {
+                predicate = cb.notEqual(root.get(key), cb.literal(value));
+
+            } else if (op == Op.EQ_IGNORE_CASE) {
+                predicate = cb.equal(cb.lower(root.get(key)), cb.literal(((String) value).toLowerCase()));
+
+            } else if (op == Op.IS_TRUE) {
+                if (key.contains(".")) {
+                    predicate = cb.equal(
+                            keyToExpression(Object.class, root, cb, key),
+                            cb.function("jsonb", Object.class, cb.literal("true")));
+                } else {
+                    predicate = cb.isTrue(keyToExpression(Boolean.class, root, cb, key));
+                }
+
+            } else if (op == Op.IS_NULL) {
+                predicate = cb.isNull(keyToExpression(String.class, root, cb, key));
+
+            } else if (op == Op.IN) {
+                final CriteriaBuilder.In<Object> inCluse = cb.in(keyToExpression(String.class, root, cb, key));
+                for (Object item : (Collection<?>) value) {
+                    inCluse.value(item);
+                }
+                predicate = inCluse;
+
+            } else if (op == Op.JSON_IN) {
+                predicate = cb.isTrue(cb.function(
+                        "jsonb_path_exists",
+                        Boolean.class,
+                        root.get(key),
+                        cb.literal("$[*] ? (@ == \"" + value + "\")")));
+
+            } else {
+                throw new IllegalArgumentException();
+            }
+
+            predicates.add(predicate);
+        }
+
+        return cb.and(predicates.toArray(new Predicate[0]));
     }
 
-    public static Conditioner<? extends BaseDomain> eqIgnoreCase(String key, String value) {
-        return new Conditioner<>().eqIgnoreCase(key, value);
+    public Bridge<T> equal(@NonNull String key, @NonNull String value) {
+        checks.add(new Check(Op.EQUAL, key, value));
+        return this;
     }
 
-    public static Conditioner<? extends BaseDomain> in(String key, Collection<String> value) {
-        return new Conditioner<>().in(key, value);
+    public Bridge<T> notEqual(@NonNull String key, @NonNull String value) {
+        checks.add(new Check(Op.NOT_EQUAL, key, value));
+        return this;
     }
 
-    public static Conditioner<? extends BaseDomain> isTrue(String key) {
-        return new Conditioner<>().isTrue(key);
+    public Bridge<T> eqIgnoreCase(String key, String value) {
+        checks.add(new Check(Op.EQ_IGNORE_CASE, key, value));
+        return this;
     }
 
-    public static Conditioner<? extends BaseDomain> jsonIn(String needle, String key) {
-        return new Conditioner<>().jsonIn(needle, key);
+    public Bridge<T> isNull(String field) {
+        checks.add(new Check(Op.IS_NULL, field, null));
+        return this;
+    }
+
+    public Bridge<T> isTrue(String field) {
+        checks.add(new Check(Op.IS_TRUE, field, null));
+        return this;
+    }
+
+    public Bridge<T> in(String needle, Collection<String> haystack) {
+        checks.add(new Check(Op.IN, needle, haystack));
+        return this;
+    }
+
+    /**
+     * Check that the string `needle` is present in the JSON array at `key`.
+     */
+    public Bridge<T> jsonIn(String needle, String key) {
+        checks.add(new Check(Op.JSON_IN, key, needle));
+        return this;
+    }
+
+    private static <R> Expression<R> keyToExpression(
+            @NonNull Class<R> type, @NonNull Root<?> root, @NonNull CriteriaBuilder cb, @NonNull String key) {
+        if (key.contains(".")) {
+            final List<String> parts = List.of(key.split("\\."));
+
+            final List<Expression<?>> fnArgs = new ArrayList<>();
+            fnArgs.add(root.get(parts.get(0)));
+
+            for (final String nestedKey : parts.subList(1, parts.size())) {
+                fnArgs.add(cb.literal(nestedKey));
+            }
+
+            return cb.function(
+                    String.class.equals(type) ? "jsonb_extract_path_text" : "jsonb_extract_path",
+                    type,
+                    fnArgs.toArray(new Expression<?>[0]));
+        }
+
+        return root.get(key);
     }
 }

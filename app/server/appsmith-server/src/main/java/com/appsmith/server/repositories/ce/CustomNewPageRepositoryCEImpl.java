@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -48,7 +49,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
-                .spec(Bridge.equal("applicationId", applicationId))
+                .spec(bridge().equal("applicationId", applicationId))
                 .permission(aclPermission)
                 .all();
     }
@@ -56,7 +57,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         return queryBuilder()
-                .spec(Bridge.equal("applicationId", applicationId))
+                .spec(bridge().equal("applicationId", applicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -278,7 +279,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
         int count = queryBuilder()
                 .permission(permission)
-                .spec(Bridge.in(fieldName(QNewPage.newPage.id), pageIds))
+                .spec(bridge().in(fieldName(QNewPage.newPage.id), pageIds))
                 .update(Bridge.update().set(QNewPage.newPage.publishedPage, QNewPage.newPage.unpublishedPage)); // */
 
         return Optional.empty();
@@ -288,7 +289,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public List<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .spec(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
+                .spec(bridge().in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }

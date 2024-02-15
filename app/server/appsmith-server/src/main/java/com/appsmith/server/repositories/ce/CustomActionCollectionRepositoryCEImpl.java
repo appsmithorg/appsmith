@@ -7,7 +7,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.Conditioner;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
@@ -36,7 +36,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Deprecated
     public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
-                .spec(Bridge.equal(fieldName(QActionCollection.actionCollection.applicationId), applicationId))
+                .spec(bridge().equal(fieldName(QActionCollection.actionCollection.applicationId), applicationId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
@@ -220,7 +220,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
         return queryBuilder()
-                .spec(Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
+                .spec(bridge().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -228,8 +228,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
-                .spec(Bridge.in(
-                        fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "pageId", pageIds))
+                .spec(bridge().in(
+                                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "pageId",
+                                pageIds))
                 .permission(permission)
                 .all();
     }
@@ -242,7 +243,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .spec(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
+                .spec(bridge().in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }
@@ -275,15 +276,15 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
-        Conditioner<? extends BaseDomain> spec;
+        Bridge<? extends BaseDomain> spec;
 
         // Fetch published action collections
         if (Boolean.TRUE.equals(viewMode)) {
-            spec = Bridge.equal("publishedCollection.pageId", pageId);
+            spec = bridge().equal("publishedCollection.pageId", pageId);
         }
         // Fetch unpublished action collections
         else {
-            spec = Bridge.equal("unpublishedCollection.pageId", pageId)
+            spec = bridge().equal("unpublishedCollection.pageId", pageId)
                     // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
                     // ActionCollection object
                     // would exist. To handle this, only fetch non-deleted actions

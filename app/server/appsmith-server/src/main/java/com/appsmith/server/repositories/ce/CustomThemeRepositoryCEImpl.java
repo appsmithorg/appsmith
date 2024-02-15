@@ -4,7 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +19,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
@@ -54,7 +54,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public List<Theme> getSystemThemes() {
         return queryBuilder()
-                .spec(Bridge.isTrue(fieldName(QTheme.theme.isSystemTheme)))
+                .spec(bridge().isTrue(fieldName(QTheme.theme.isSystemTheme)))
                 .permission(AclPermission.READ_THEMES)
                 .all();
     }
@@ -62,7 +62,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public Optional<Theme> getSystemThemeByName(String themeName) {
         return queryBuilder()
-                .spec(Bridge.eqIgnoreCase(fieldName(QTheme.theme.name), themeName)
+                .spec(bridge().eqIgnoreCase(fieldName(QTheme.theme.name), themeName)
                         .isTrue(fieldName(QTheme.theme.isSystemTheme)))
                 .permission(AclPermission.READ_THEMES)
                 .one();
