@@ -18,7 +18,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportArtifactPermissionProvider;
+import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;

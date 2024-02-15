@@ -30,6 +30,7 @@ import { GsheetHelper } from "../Pages/GSheetHelper";
 import { CommunityTemplates } from "../Pages/CommunityTemplates";
 import { AnvilLayout } from "../Pages/AnvilLayout";
 import PartialImportExport from "../Pages/PartialImportExport";
+import { WDSWidgets } from "../Pages/WDSWidgets";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -254,6 +255,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.anvilLayout__ = new AnvilLayout();
     }
     return ObjectsRegistry.anvilLayout__;
+  }
+
+  private static wdsWidgets__: WDSWidgets;
+  static get WDSWidgets(): WDSWidgets {
+    if (ObjectsRegistry.wdsWidgets__ === undefined) {
+      ObjectsRegistry.wdsWidgets__ = new WDSWidgets();
+    }
+    return ObjectsRegistry.wdsWidgets__;
   }
 
   private static dataManager__: DataManager;
