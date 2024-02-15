@@ -18,7 +18,7 @@
     "userDensityRatio": 1.5
   },
   "innerSpacing": {
-    "V": 1.75,
+    "V": 1.5,
     "R": 2.5,
     "N": 2,
     "stepsUp": 8,
