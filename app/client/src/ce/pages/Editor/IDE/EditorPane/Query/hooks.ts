@@ -101,6 +101,12 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
         ],
       },
       {
+        key: "AddQuery",
+        exact: true,
+        component: AddQuery,
+        path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
+      },
+      {
         key: "QueryEditor",
         component: QueryEditor,
         exact: true,
@@ -108,12 +114,6 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
           path + "/api/:apiId", // SAAS path
           path + "/:queryId",
         ],
-      },
-      {
-        key: "AddQuery",
-        exact: true,
-        component: AddQuery,
-        path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
       },
     ];
   }
