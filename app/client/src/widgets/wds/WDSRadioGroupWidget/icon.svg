@@ -1,9 +1,1 @@
-<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M8.5 2.5H14.5" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.5 10.5H14.5" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.5 4.5H12.5" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.5 12.5H12.5" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="3.5" cy="11.5" r="3" transform="rotate(-90 3.5 11.5)" stroke="#364252" stroke-linejoin="round"/>
-<circle cx="3.5" cy="3.5" r="3" transform="rotate(-90 3.5 3.5)" stroke="#364252" stroke-linejoin="round"/>
-<circle cx="3.5" cy="3.5" r="1" transform="rotate(-90 3.5 3.5)" stroke="#364252" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none"><path stroke="#364252" stroke-linecap="round" stroke-linejoin="round" d="M8.5 2.5h6M8.5 10.5h6M8.5 4.5h4M8.5 12.5h4"/><circle cx="3.5" cy="11.5" r="3" stroke="#364252" stroke-linejoin="round" transform="rotate(-90 3.5 11.5)"/><circle cx="3.5" cy="3.5" r="3" stroke="#364252" stroke-linejoin="round" transform="rotate(-90 3.5 3.5)"/><circle cx="3.5" cy="3.5" r="1" stroke="#364252" stroke-linejoin="round" transform="rotate(-90 3.5 3.5)"/></svg>

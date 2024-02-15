@@ -1,8 +1,1 @@
-<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M10.5 8.5H4.5C2.84315 8.5 1.5 9.84315 1.5 11.5C1.5 13.1569 2.84315 14.5 4.5 14.5H10.5C12.1569 14.5 13.5 13.1569 13.5 11.5C13.5 9.84315 12.1569 8.5 10.5 8.5Z" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M10.5 0.5H4.5C2.84315 0.5 1.5 1.84315 1.5 3.5C1.5 5.15685 2.84315 6.5 4.5 6.5H10.5C12.1569 6.5 13.5 5.15685 13.5 3.5C13.5 1.84315 12.1569 0.5 10.5 0.5Z" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M2 2.5H7.5" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M2 4.5H7.5" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="10.5" cy="3.5" r="3" stroke="#364252"/>
-<circle cx="4.5" cy="11.5" r="3" stroke="#364252"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none"><path stroke="#364252" stroke-linecap="round" stroke-linejoin="round" d="M10.5 8.5h-6a3 3 0 0 0 0 6h6a3 3 0 1 0 0-6ZM10.5.5h-6a3 3 0 0 0 0 6h6a3 3 0 1 0 0-6ZM2 2.5h5.5M2 4.5h5.5"/><circle cx="10.5" cy="3.5" r="3" stroke="#364252"/><circle cx="4.5" cy="11.5" r="3" stroke="#364252"/></svg>

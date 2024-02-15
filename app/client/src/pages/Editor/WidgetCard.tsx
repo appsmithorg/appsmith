@@ -20,23 +20,17 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
   color: var(--ads-v2-color-fg);
   min-height: 70px;
   display: flex;
-  align-items: flex-start;
   justify-content: center;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2px;
+  text-align: center;
 
   img {
     cursor: grab;
-  }
-
-  & > div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 2px;
-    text-align: center;
   }
 
   &:hover {
@@ -50,20 +44,18 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
 
   ${(props) =>
     props.isThumbnail &&
-    `padding-bottom: var(--ads-v2-spaces-3);
+    `margin-bottom: 0px;
     
-    &  span {
+    & span {
       padding-left: var(--ads-v2-spaces-3);
       padding-right: var(--ads-v2-spaces-3);
       color: var(--ads-v2-color-fg);
       font-weight: 600;
-      height: 32px;
+      padding-bottom: var(--ads-v2-spaces-3);
       line-height: 1.2;
     }
     
-    & > div {
-      margin-bottom: 0px;
-    }
+   
     `}
 `;
 
@@ -78,6 +70,8 @@ export const BetaLabel = styled.div`
   right: -2%;
 `;
 
+// NOTE: Widget Card can have a thumbnail or an icon. The thumbnail and icon has different sizes.
+// If there is no thumbnail, the icon is used and the size is ICON_SIZE
 const ICON_SIZE = 24;
 const THUMBNAIL_HEIGHT = 76;
 const THUMBNAIL_WIDTH = 72;
@@ -105,7 +99,9 @@ function WidgetCard(props: CardProps) {
   };
 
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
+  const className = `t--widget-card-draggable t--widget-card-draggable-${type} ${
+    !Boolean(props.details.thumbnail) ? "gap-2 mt-2" : ""
+  }`;
 
   return (
     <Wrapper
@@ -113,19 +109,19 @@ function WidgetCard(props: CardProps) {
       data-guided-tour-id={`widget-card-${type}`}
       draggable
       id={`widget-card-draggable-${type}`}
+      // isThumbnail is used to add conditional styles for widget that renders thumbnail on widget card
       isThumbnail={Boolean(props.details.thumbnail)}
       onDragStart={onDragStart}
     >
-      <div className={!Boolean(props.details.thumbnail) ? "gap-2 mt-2" : ""}>
-        <IconWrapper
-          height={props.details.thumbnail ? THUMBNAIL_HEIGHT : ICON_SIZE}
-          width={props.details.thumbnail ? THUMBNAIL_WIDTH : ICON_SIZE}
-        >
-          <img src={props.details.thumbnail ?? props.details.icon} />
-        </IconWrapper>
-        <Text kind="body-s">{props.details.displayName}</Text>
-        {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
-      </div>
+      <IconWrapper
+        // if widget has a thumbnail, use thumbnail dimensions, else use icon dimensions
+        height={props.details.thumbnail ? THUMBNAIL_HEIGHT : ICON_SIZE}
+        width={props.details.thumbnail ? THUMBNAIL_WIDTH : ICON_SIZE}
+      >
+        <img src={props.details.thumbnail ?? props.details.icon} />
+      </IconWrapper>
+      <Text kind="body-s">{props.details.displayName}</Text>
+      {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
     </Wrapper>
   );
 }

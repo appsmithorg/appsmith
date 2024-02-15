@@ -1,9 +1,1 @@
-<svg width="72" height="76" viewBox="0 0 72 76" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="14.5" y="19.5" width="44" height="39" rx="2.5" fill="white"/>
-<rect x="14.5" y="19.5" width="44" height="39" rx="2.5" stroke="#CDD5DF"/>
-<rect x="22" y="27" width="16" height="6" rx="1" fill="#CDD5DF"/>
-<path d="M22 50.5H24.5M27 50.5H24.5M22 42.5L24.5 40.5V50.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M35 50.5H30V47.8541C30 47.0363 30.4979 46.3008 31.2572 45.9971L33.7428 45.0029C34.5021 44.6992 35 43.9637 35 43.1459V42.5C35 41.3954 34.1046 40.5 33 40.5H30" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M38 40.5H41C42.1046 40.5 43 41.3954 43 42.5V43.5C43 44.6046 42.1046 45.5 41 45.5H39.2854" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M38 50.5H41C42.1046 50.5 43 49.6046 43 48.5V47.5C43 46.3954 42.1046 45.5 41 45.5H39" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="76" fill="none"><rect width="44" height="39" x="14.5" y="19.5" fill="#fff" rx="2.5"/><rect width="44" height="39" x="14.5" y="19.5" stroke="#CDD5DF" rx="2.5"/><rect width="16" height="6" x="22" y="27" fill="#CDD5DF" rx="1"/><path stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round" d="M22 50.5h2.5m2.5 0h-2.5m-2.5-8 2.5-2v10M35 50.5h-5v-2.646a2 2 0 0 1 1.257-1.857l2.486-.994A2 2 0 0 0 35 43.146V42.5a2 2 0 0 0-2-2h-3M38 40.5h3a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1.715M38 50.5h3a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2h-2"/></svg>

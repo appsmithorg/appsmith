@@ -1,6 +1,1 @@
-<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 9.5V9.5C7.5 10.6046 8.39543 11.5 9.5 11.5H12.5C13.6046 11.5 14.5 10.6046 14.5 9.5V8.5" stroke="#364252" stroke-linecap="square"/>
-<path d="M7.5 9.5V9.5C7.5 10.6046 6.60457 11.5 5.5 11.5H2.5C1.39543 11.5 0.5 10.6046 0.5 9.5V8.5" stroke="#364252" stroke-linecap="square"/>
-<path d="M12.5 3.5H9.5C8.39543 3.5 7.5 4.39543 7.5 5.5V8.5C7.5 9.60457 8.39543 10.5 9.5 10.5H12.5C13.6046 10.5 14.5 9.60457 14.5 8.5V5.5C14.5 4.39543 13.6046 3.5 12.5 3.5Z" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M2.5 3.5H5.5C6.60457 3.5 7.5 4.39543 7.5 5.5V8.5C7.5 9.60457 6.60457 10.5 5.5 10.5H2.5C1.39543 10.5 0.5 9.60457 0.5 8.5V5.5C0.5 4.39543 1.39543 3.5 2.5 3.5Z" stroke="#364252" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none"><path stroke="#364252" stroke-linecap="square" d="M7.5 9.5v0a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-1M7.5 9.5v0a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-1"/><path stroke="#364252" stroke-linecap="round" stroke-linejoin="round" d="M12.5 3.5h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2ZM2.5 3.5h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z"/></svg>
