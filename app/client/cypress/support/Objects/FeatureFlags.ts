@@ -21,7 +21,7 @@ export const featureFlagIntercept = (
   };
   cy.intercept("GET", "/api/v1/users/features", response);
 
-  getConsolidatedDataApi(flags, reload);
+  getConsolidatedDataApi(flags, false);
 
   if (reload) {
     // ObjectsRegistry.AggregateHelper.CypressReload();
