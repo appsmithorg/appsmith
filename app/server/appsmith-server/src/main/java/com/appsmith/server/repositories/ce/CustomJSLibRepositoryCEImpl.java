@@ -26,7 +26,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
     @Override
     public Optional<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
         return queryBuilder()
-                .spec(Bridge.conditioner().equal("uidString", customJSLib.getUidString()))
+                .spec(Bridge.equal("uidString", customJSLib.getUidString()))
                 .one();
     }
 
@@ -37,8 +37,6 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
                 .map(CustomJSLibContextDTO::getUidString)
                 .collect(Collectors.toSet());
 
-        return queryBuilder()
-                .spec(Bridge.conditioner().in("uidString", uidStrings))
-                .all();
+        return queryBuilder().spec(Bridge.in("uidString", uidStrings)).all();
     }
 }

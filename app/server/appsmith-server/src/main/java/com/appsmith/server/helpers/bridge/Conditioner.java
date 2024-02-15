@@ -112,6 +112,14 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
+    /**
+     * Check that the string `needle` is present in the JSON array at `key`.
+     */
+    public Conditioner<T> jsonIn(String needle, String key) {
+        checks.add(new Check(Op.JSON_IN, key, needle));
+        return this;
+    }
+
     private static <R> Expression<R> keyToExpression(
             @NonNull Class<R> type, @NonNull Root<?> root, @NonNull CriteriaBuilder cb, @NonNull String key) {
         if (key.contains(".")) {
@@ -131,13 +139,5 @@ public class Conditioner<T extends BaseDomain> implements Specification<T> {
         }
 
         return root.get(key);
-    }
-
-    /**
-     * Check that the string `needle` is present in the JSON array at `key`.
-     */
-    public Specification<T> jsonIn(String needle, String key) {
-        checks.add(new Check(Op.JSON_IN, key, needle));
-        return this;
     }
 }

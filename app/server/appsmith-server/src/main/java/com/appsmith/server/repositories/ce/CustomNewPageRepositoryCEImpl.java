@@ -48,7 +48,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
-                .spec(Bridge.conditioner().equal("applicationId", applicationId))
+                .spec(Bridge.equal("applicationId", applicationId))
                 .permission(aclPermission)
                 .all();
     }
@@ -56,7 +56,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         return queryBuilder()
-                .spec(Bridge.conditioner().equal("applicationId", applicationId))
+                .spec(Bridge.equal("applicationId", applicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -278,7 +278,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
         int count = queryBuilder()
                 .permission(permission)
-                .spec(Bridge.conditioner().in(fieldName(QNewPage.newPage.id), pageIds))
+                .spec(Bridge.in(fieldName(QNewPage.newPage.id), pageIds))
                 .update(Bridge.update().set(QNewPage.newPage.publishedPage, QNewPage.newPage.unpublishedPage)); // */
 
         return Optional.empty();
@@ -288,7 +288,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public List<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .spec(Bridge.conditioner().in(FieldName.APPLICATION_ID, applicationIds))
+                .spec(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }
