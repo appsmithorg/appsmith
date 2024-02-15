@@ -12,6 +12,7 @@ import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
+import com.appsmith.server.domains.Theme;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -88,5 +89,15 @@ public class PackageJson implements ArtifactExchangeJson {
     @Override
     public ExportableArtifact getExportableArtifact() {
         return this.getExportedPackage();
+    }
+
+    @Override
+    public Theme getUnpublishedTheme() {
+        return null;
+    }
+
+    @Override
+    public Theme getPublishedTheme() {
+        return null;
     }
 }

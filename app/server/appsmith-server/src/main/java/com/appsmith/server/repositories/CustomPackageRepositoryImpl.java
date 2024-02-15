@@ -35,7 +35,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 .exists(false);
         return queryBuilder()
                 .criteria(onlyUnpublishedPackages)
-                .permission(Optional.ofNullable(permission).orElse(null))
+                .permission(permission)
                 .all();
     }
 

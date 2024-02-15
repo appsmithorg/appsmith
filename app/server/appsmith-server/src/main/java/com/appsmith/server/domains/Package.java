@@ -91,6 +91,22 @@ public class Package extends BranchAwareDomain implements ImportableArtifact, Ex
     }
 
     @Override
+    public String getUnpublishedThemeId() {
+        return null;
+    }
+
+    @Override
+    public String getPublishedThemeId() {
+        return null;
+    }
+
+    @Override
+    public void setUnpublishedThemeId(String themeId) {}
+
+    @Override
+    public void setPublishedThemeId(String themeId) {}
+
+    @Override
     public void sanitiseToExportDBObject() {
         this.setWorkspaceId(null);
         this.setModifiedBy(null);
