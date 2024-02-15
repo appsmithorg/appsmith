@@ -1,6 +1,4 @@
-import React, { lazy, Suspense } from "react";
-
-import Skeleton from "components/utils/Skeleton";
+import React, { Suspense, lazy } from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -9,7 +7,6 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import type { MapType } from "../component";
 import type { MapColorObject } from "../constants";
 import {
   dataSetForAfrica,
@@ -35,6 +32,8 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import Skeleton from "components/utils/Skeleton";
+import type { MapType } from "../component/types";
 
 const MapChartComponent = lazy(async () =>
   retryPromise(
@@ -448,10 +447,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     };
   }
 
-  handleDataPointClick = (evt: any) => {
+  handleDataPointClick = (data: any) => {
     const { onDataPointClick } = this.props;
 
-    this.props.updateWidgetMetaProperty("selectedDataPoint", evt.data, {
+    this.props.updateWidgetMetaProperty("selectedDataPoint", data, {
       triggerPropertyName: "onDataPointClick",
       dynamicString: onDataPointClick,
       event: {
@@ -469,14 +468,16 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
         <MapChartComponent
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
-          caption={mapTitle}
+          caption={mapTitle || ""}
           colorRange={colorRange}
           data={data}
           fontFamily={this.props.fontFamily ?? "Nunito Sans"}
-          isVisible={isVisible}
+          height={this.props.componentHeight}
+          isVisible={isVisible || false}
           onDataPointClick={this.handleDataPointClick}
           showLabels={showLabels}
           type={mapType}
+          width={this.props.componentWidth}
         />
       </Suspense>
     );
