@@ -12,6 +12,7 @@ describe("generateModuleInstance", () => {
       name: "JSModule1",
       contextId: "653f85768d54d6754761e7b7",
       contextType: ModuleInstanceCreatorType.PAGE,
+      isValid: true,
       inputs: {
         email: "{{appsmith.user.email}}",
         userId: "testUser",

@@ -15,6 +15,24 @@ import {
   hasManageModuleInstancePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { saveModuleInstanceName } from "@appsmith/actions/moduleInstanceActions";
+import styled from "styled-components";
+
+interface StyledEntityProps {
+  isInvalid: boolean;
+}
+
+const StyledEntity = styled(Entity)<StyledEntityProps>`
+  & .t--entity-item,
+  .t--entity-item:hover {
+    ${({ isInvalid }) =>
+      isInvalid && "background-color: var(--ads-v2-color-red-100) !important"}
+  }
+
+  & .t--entity-item.active {
+    ${({ isInvalid }) =>
+      isInvalid && "background-color: var(--ads-v2-color-red-300) !important"}
+  }
+`;
 
 interface ExplorerModuleInstanceEntityProps {
   step: number;
@@ -30,6 +48,7 @@ export const ExplorerModuleInstanceEntity = (
   const moduleInstance = useSelector((state: AppState) =>
     getModuleInstanceById(state, props.id),
   );
+  const hasMissingModule = Boolean(moduleInstance?.invalids?.length);
 
   const navigateToModuleInstance = useCallback(() => {
     if (moduleInstance) {
@@ -69,7 +88,7 @@ export const ExplorerModuleInstanceEntity = (
     />
   );
   return (
-    <Entity
+    <StyledEntity
       action={navigateToModuleInstance}
       active={props.isActive}
       canEditEntityName={canManageModuleInstance}
@@ -77,6 +96,7 @@ export const ExplorerModuleInstanceEntity = (
       contextMenu={contextMenu}
       entityId={moduleInstance.id}
       icon={<Icon name="module" />}
+      isInvalid={hasMissingModule}
       key={moduleInstance.id}
       name={moduleInstance.name}
       searchKeyword={props.searchKeyword}

@@ -7,6 +7,13 @@ import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modu
 import type { PackagesReducerState } from "@appsmith/reducers/entityReducers/packagesReducer";
 import type { ModuleId } from "@appsmith/constants/ModuleInstanceConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { toast } from "design-system";
+
+interface ExportPackageAsJSONFileProps {
+  packageId: string;
+  onSuccessCb?: () => void;
+  packageName: string;
+}
 
 export const createNewModuleName = (
   allModules: ModulesReducerState,
@@ -45,4 +52,41 @@ export const getModuleIdPackageNameMap = (
   });
 
   return modulePackageMap;
+};
+
+export const getExportPackageAPIRoute = (
+  packageId: string,
+  branchName?: string,
+) => {
+  let exportUrl = `/api/v1/packages/export/${packageId}`;
+  if (branchName) {
+    exportUrl += `?branchName=${branchName}`;
+  }
+  return exportUrl;
+};
+
+export const exportPackageAsJSONFile = ({
+  onSuccessCb,
+  packageId,
+  packageName,
+}: ExportPackageAsJSONFileProps) => {
+  // export api response comes with content-disposition header.
+  // there is no straightforward way to handle it with axios/fetch
+  const id = `t--export-app-link`;
+  const existingLink = document.getElementById(id);
+  existingLink && existingLink.remove();
+  const link = document.createElement("a");
+
+  link.href = getExportPackageAPIRoute(packageId);
+  link.id = id;
+  document.body.appendChild(link);
+  // @ts-expect-error: Types are not available
+  if (!window.Cypress) {
+    link.click();
+  }
+
+  onSuccessCb?.();
+  toast.show(`Successfully exported ${packageName}`, {
+    kind: "success",
+  });
 };

@@ -34,6 +34,17 @@ export interface FetchConsumablePackagesInWorkspaceResponse {
   modules: Module[];
 }
 
+export interface ImportPackagePayload {
+  workspaceId: string;
+  file?: File;
+  packageId?: string;
+}
+
+export interface ImportPackageResponse {
+  package: Package;
+  isPartialImport: boolean;
+}
+
 const BASE_URL = "v1/packages";
 
 class PackageApi extends Api {
@@ -97,6 +108,30 @@ class PackageApi extends Api {
     const url = `${BASE_URL}/${packageId}/publish`;
 
     return Api.post(url);
+  }
+
+  static async importPackage(
+    payload: ImportPackagePayload,
+  ): Promise<AxiosPromise<ApiResponse<ImportPackageResponse>>> {
+    const formData = new FormData();
+    const { file, packageId, workspaceId } = payload;
+
+    if (file) {
+      formData.append("file", file);
+    }
+
+    const url = `${BASE_URL}/import/${workspaceId}`;
+    const queryParams: Record<string, string> = {};
+
+    if (packageId) {
+      queryParams.packageId = packageId;
+    }
+
+    return Api.post(url, formData, queryParams, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   }
 }
 

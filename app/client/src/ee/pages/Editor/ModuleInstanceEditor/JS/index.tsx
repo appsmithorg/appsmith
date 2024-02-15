@@ -46,6 +46,7 @@ import styled from "styled-components";
 import { Text } from "design-system";
 import { extractFunctionParams } from "./utils";
 import { getPackageById } from "@appsmith/selectors/packageSelectors";
+import MissingModule from "../common/MissingModule";
 
 export interface JSModuleInstanceEditorProps {
   moduleInstanceId: string;
@@ -101,6 +102,7 @@ function JSModuleInstanceEditor({
       activeJSActionId,
     ),
   );
+  const hasMissingModule = Boolean(moduleInstance?.invalids?.length);
   const activeJSAction = publicJSCollection
     ? getActionFromJsCollection(activeJSActionId, publicJSCollection)
     : null;
@@ -133,11 +135,16 @@ function JSModuleInstanceEditor({
     [publicJSCollection],
   );
 
-  if (!moduleInstance || !module || !publicJSCollection) {
+  if (
+    !moduleInstance ||
+    (!hasMissingModule && (!module || !publicJSCollection))
+  ) {
     return <Loader />;
   }
 
   const onUpdateSettings = (props: OnUpdateSettingsProps) => {
+    if (!publicJSCollection) return;
+
     if (
       props.propertyName === "executeOnLoad" &&
       typeof props.value === "boolean"
@@ -163,7 +170,7 @@ function JSModuleInstanceEditor({
   };
 
   const handleJSActionOptionSelection: DropdownOnSelect = (value) => {
-    if (value) {
+    if (value && publicJSCollection) {
       const jsAction = getActionFromJsCollection(value, publicJSCollection);
       if (jsAction) {
         dispatch(
@@ -182,6 +189,7 @@ function JSModuleInstanceEditor({
   ) => {
     event.preventDefault();
     if (
+      publicJSCollection &&
       !disableRunFunctionality &&
       !isExecutingCurrentJSAction &&
       activJSActionOption?.data
@@ -213,37 +221,43 @@ function JSModuleInstanceEditor({
   return (
     <Container>
       <Header
-        moduleId={module.originModuleId}
+        isDisabled={hasMissingModule}
+        moduleId={module?.originModuleId}
         moduleInstance={moduleInstance}
-        packageId={pkg.originPackageId}
+        packageId={pkg?.originPackageId}
       >
-        {/* This is disabled on a temporary basis. Once the UX is finalized; this can be enabled */}
-
-        <StyledJSFunctionRunWrapper>
-          <JSFunctionRun
-            disabled={disableRunFunctionality || !isExecutePermitted}
-            isLoading={isExecutingCurrentJSAction}
-            jsCollection={publicJSCollection}
-            onButtonClick={(
-              event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
-            ) => {
-              handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
-            }}
-            onSelect={handleJSActionOptionSelection}
-            options={convertJSActionsToDropdownOptions(sortedJSactions)}
-            selected={activJSActionOption}
-            showTooltip={!activJSActionOption.data}
-          />
-        </StyledJSFunctionRunWrapper>
+        {!hasMissingModule && publicJSCollection && (
+          <StyledJSFunctionRunWrapper>
+            <JSFunctionRun
+              disabled={disableRunFunctionality || !isExecutePermitted}
+              isLoading={isExecutingCurrentJSAction}
+              jsCollection={publicJSCollection}
+              onButtonClick={(
+                event:
+                  | React.MouseEvent<HTMLElement, MouseEvent>
+                  | KeyboardEvent,
+              ) => {
+                handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
+              }}
+              onSelect={handleJSActionOptionSelection}
+              options={convertJSActionsToDropdownOptions(sortedJSactions)}
+              selected={activJSActionOption}
+              showTooltip={!activJSActionOption.data}
+            />
+          </StyledJSFunctionRunWrapper>
+        )}
       </Header>
       <Body>
-        <JSFunctionSettingsView
-          actions={sortedJSactions}
-          additionalHeadings={additionalHeadings}
-          disabled={!canManageModuleInstance}
-          onUpdateSettings={onUpdateSettings}
-          renderAdditionalColumns={renderParamsColumns}
-        />
+        {hasMissingModule && <MissingModule moduleInstance={moduleInstance} />}
+        {!hasMissingModule && (
+          <JSFunctionSettingsView
+            actions={sortedJSactions}
+            additionalHeadings={additionalHeadings}
+            disabled={!canManageModuleInstance}
+            onUpdateSettings={onUpdateSettings}
+            renderAdditionalColumns={renderParamsColumns}
+          />
+        )}
       </Body>
       {showDebugger ? (
         <JSResponseView

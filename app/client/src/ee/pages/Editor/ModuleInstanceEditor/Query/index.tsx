@@ -23,6 +23,7 @@ import ResponseView from "./ResponseView";
 import { hasExecuteModuleInstancePermission } from "@appsmith/utils/permissionHelpers";
 import useModuleFallbackSettingsForm from "../../ModuleEditor/useModuleFallbackSettingsForm";
 import { getPackageById } from "@appsmith/selectors/packageSelectors";
+import MissingModule from "../common/MissingModule";
 
 export interface QueryModuleInstanceEditorProps {
   moduleInstanceId: string;
@@ -57,6 +58,7 @@ function QueryModuleInstanceEditor({
   const publicAction = useSelector((state) =>
     getModuleInstancePublicAction(state, moduleInstanceId),
   );
+  const hasMissingModule = Boolean(moduleInstance?.invalids?.length);
   const fallbackSettings = useModuleFallbackSettingsForm({
     pluginId: publicAction?.pluginId || "",
     pluginType: (publicAction?.pluginType as PluginType) || "",
@@ -94,56 +96,66 @@ function QueryModuleInstanceEditor({
     dispatch(runQueryModuleInstance({ id: moduleInstance?.id || "" }));
   }, [moduleInstance?.id]);
 
-  if (!moduleInstance || !module || !publicAction) {
+  if (!moduleInstance || (!hasMissingModule && (!module || !publicAction))) {
     return <Loader />;
   }
 
   const moduleSettings =
-    module.settingsForm?.length === 0 ? fallbackSettings : module?.settingsForm;
+    module && Boolean(module?.settingsForm.length)
+      ? module?.settingsForm
+      : fallbackSettings;
 
   return (
     <Container>
       <Header
-        moduleId={module.originModuleId}
+        isDisabled={hasMissingModule}
+        moduleId={module?.originModuleId}
         moduleInstance={moduleInstance}
-        packageId={pkg.originPackageId}
+        packageId={pkg?.originPackageId}
       >
-        <Button
-          className="t--run-module-instance"
-          data-guided-tour-id="run-module-instance"
-          isDisabled={!isExecutePermitted}
-          isLoading={isRunning}
-          onClick={onRunClick}
-          size="md"
-        >
-          Run
-        </Button>
+        {!hasMissingModule && (
+          <Button
+            className="t--run-module-instance"
+            data-guided-tour-id="run-module-instance"
+            isDisabled={!isExecutePermitted}
+            isLoading={isRunning}
+            onClick={onRunClick}
+            size="md"
+          >
+            Run
+          </Button>
+        )}
       </Header>
       <Body>
-        <StyledSettingsWrapper>
-          <StyledInputsFormWrapper>
-            <InputsForm
-              defaultValues={{ inputs: moduleInstance.inputs }}
-              inputsForm={module.inputsForm}
+        {hasMissingModule && <MissingModule moduleInstance={moduleInstance} />}
+        {!hasMissingModule && module && (
+          <StyledSettingsWrapper>
+            <StyledInputsFormWrapper>
+              <InputsForm
+                defaultValues={{ inputs: moduleInstance.inputs }}
+                inputsForm={module.inputsForm}
+                moduleInstanceId={moduleInstanceId}
+                moduleInstanceName={moduleInstance.name}
+              />
+            </StyledInputsFormWrapper>
+            <StyledDivider />
+            <SettingsForm
+              initialValues={publicAction}
               moduleInstanceId={moduleInstanceId}
-              moduleInstanceName={moduleInstance.name}
+              onFormValuesChange={onSettingsFormChange}
+              settings={moduleSettings}
             />
-          </StyledInputsFormWrapper>
-          <StyledDivider />
-          <SettingsForm
-            initialValues={publicAction}
-            moduleInstanceId={moduleInstanceId}
-            onFormValuesChange={onSettingsFormChange}
-            settings={moduleSettings}
-          />
-        </StyledSettingsWrapper>
+          </StyledSettingsWrapper>
+        )}
       </Body>
-      <ResponseView
-        action={publicAction}
-        isExecutePermitted={isExecutePermitted}
-        moduleInstance={moduleInstance}
-        onRunClick={onRunClick}
-      />
+      {!hasMissingModule && publicAction && (
+        <ResponseView
+          action={publicAction}
+          isExecutePermitted={isExecutePermitted}
+          moduleInstance={moduleInstance}
+          onRunClick={onRunClick}
+        />
+      )}
     </Container>
   );
 }

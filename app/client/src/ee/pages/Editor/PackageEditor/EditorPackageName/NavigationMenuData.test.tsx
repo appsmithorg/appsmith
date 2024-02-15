@@ -24,6 +24,10 @@ jest.mock("design-system", () => ({
   },
 }));
 
+jest.mock("@appsmith/utils/Packages/moduleHelpers", () => ({
+  exportPackageAsJSONFile: jest.fn(),
+}));
+
 const allPackagePermissions = [PERMISSION_TYPE.DELETE_PACKAGE];
 
 const mockPackagePermissions = (filter: string[] = []) => {

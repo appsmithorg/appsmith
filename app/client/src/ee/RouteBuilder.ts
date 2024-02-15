@@ -32,3 +32,14 @@ export const currentWorkflowEditorURL = (): string =>
 // URL builder for workflow editor
 export const workflowEditorURL = ({ workflowId }: URLBuilderParams): string =>
   urlBuilder.build({ workflowId });
+
+export const packageSettingsURL = (
+  props: URLBuilderParams & {
+    tab?: string;
+  },
+) => {
+  return urlBuilder.build({
+    ...props,
+    suffix: `settings/${props.tab}`,
+  });
+};

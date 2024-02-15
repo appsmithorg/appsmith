@@ -46,10 +46,12 @@ interface HeaderProps {
   packageId?: string;
   moduleId?: string;
   children: React.ReactNode;
+  isDisabled: boolean;
 }
 
 function Header({
   children,
+  isDisabled,
   moduleId,
   moduleInstance,
   packageId,
@@ -98,11 +100,14 @@ function Header({
       )}
       <StyledSubheader>
         <StyledSubheaderSection>
-          <ModuleInstanceNameEditor moduleInstance={moduleInstance} />
+          <ModuleInstanceNameEditor
+            disabled={isDisabled}
+            moduleInstance={moduleInstance}
+          />
         </StyledSubheaderSection>
         <StyledSubheaderSection>
           <EditorContextMenu
-            isDeletePermitted={isDeletePermitted}
+            isDeletePermitted={isDeletePermitted && !isDisabled}
             onDelete={onDelete}
           />
           {moduleId && packageId && (

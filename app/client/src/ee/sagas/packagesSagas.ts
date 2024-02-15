@@ -10,6 +10,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import {
   CREATE_PACKAGE_ERROR,
   createMessage,
+  ERROR_IMPORT_PACKAGE,
   FETCH_PACKAGE_ERROR,
   FETCH_PACKAGES_ERROR,
 } from "@appsmith/constants/messages";
@@ -30,11 +31,13 @@ import type {
   DeletePackagePayload,
   FetchConsumablePackagesInWorkspacePayload,
   FetchPackagePayload,
+  ImportPackagePayload,
   PublishPackagePayload,
 } from "@appsmith/actions/packageActions";
 import type {
   CreatePackagePayload,
   FetchPackageResponse,
+  ImportPackageResponse,
 } from "@appsmith/api/PackageApi";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type {
@@ -310,6 +313,42 @@ export function* publishPackageSaga(
   }
 }
 
+export function* importPackageSaga(action: ReduxAction<ImportPackagePayload>) {
+  try {
+    const response: ApiResponse<ImportPackageResponse> = yield call(
+      PackageApi.importPackage,
+      action.payload,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const { package: pkg } = response.data;
+
+      if (!action.payload.packageId) {
+        const packageUrl = `${BASE_PACKAGE_EDITOR_PATH}/${pkg.id}`;
+
+        history.push(packageUrl);
+      } else {
+        yield call(fetchPackageSaga, {
+          packageId: pkg.id,
+        });
+      }
+
+      toast.show("Package imported successfully", {
+        kind: "success",
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.IMPORT_PACKAGE_ERROR,
+      payload: {
+        error: createMessage(ERROR_IMPORT_PACKAGE),
+      },
+    });
+  }
+}
+
 export default function* packagesSaga() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_ALL_PACKAGES_INIT, fetchAllPackagesSaga),
@@ -324,5 +363,6 @@ export default function* packagesSaga() {
     takeLatest(ReduxActionTypes.UPDATE_PACKAGE_INIT, updatePackageSaga),
     takeLatest(ReduxActionTypes.DELETE_PACKAGE_INIT, deletePackageSaga),
     takeLatest(ReduxActionTypes.PUBLISH_PACKAGE_INIT, publishPackageSaga),
+    takeLatest(ReduxActionTypes.IMPORT_PACKAGE_INIT, importPackageSaga),
   ]);
 }

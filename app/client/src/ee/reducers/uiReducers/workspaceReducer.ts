@@ -34,6 +34,7 @@ export const initialState: WorkspaceReduxState = {
     isFetchingWorkflowsList: false,
     packageCreationRequestMap: {},
     workflowCreationRequestMap: {},
+    isImportingPackage: false,
   },
   packagesList: [],
   workflowsList: [],
@@ -47,6 +48,7 @@ type ID = string;
 
 type LoadingStates = CE_WorkspaceReduxState["loadingStates"] & {
   isFetchingPackagesList: boolean;
+  isImportingPackage: boolean;
   isFetchingWorkflowsList: boolean;
   packageCreationRequestMap: Record<ID, boolean>;
   workflowCreationRequestMap: Record<ID, boolean>;
@@ -268,6 +270,19 @@ const handlers = {
       isSavingWorkflowName: false,
       isErrorSavingWorkflowName: true,
     };
+  },
+  [ReduxActionTypes.IMPORT_PACKAGE_INIT]: (draftState: WorkspaceReduxState) => {
+    draftState.loadingStates.isImportingPackage = true;
+  },
+  [ReduxActionTypes.IMPORT_PACKAGE_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isImportingPackage = false;
+  },
+  [ReduxActionErrorTypes.IMPORT_PACKAGE_ERROR]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isImportingPackage = false;
   },
 };
 

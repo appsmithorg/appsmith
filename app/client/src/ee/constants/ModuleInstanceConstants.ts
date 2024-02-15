@@ -11,6 +11,9 @@ export interface ModuleInstance extends CE_ModuleInstance {
   contextType: ModuleInstanceCreatorType;
   jsonPathKeys: string[];
   dynamicBindingPathList?: Record<string, true>;
+  invalids?: string[];
+  isValid: boolean;
+  originPackageId?: string;
 }
 export interface QueryModuleInstance extends ModuleInstance {
   type: MODULE_TYPE.QUERY;

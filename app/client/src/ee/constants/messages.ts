@@ -18,6 +18,12 @@ import {
 export const APPSMITH_DISPLAY_VERSION = (edition: string, version: string) =>
   `Appsmith ${version}`;
 
+// Import modal
+export const GENERIC_IMPORT_MODAL_TITLE = () => `Import`;
+export const IMPORT_APP_PKG_MODAL_LABEL = () =>
+  `Where would you like to import your application or package from?`;
+export const UPLOADING_PACKAGE = () => "Uploading package";
+
 // GAC begin
 export const SHOW_LESS_GROUPS = () => `show less`;
 export const SHOW_MORE_GROUPS = (count: number) => `show ${count} more`;
@@ -421,12 +427,28 @@ export const MODULE_INSTANCE_RENAME_ERROR = (name: string) =>
   `Unable to update module instance name to ${name}`;
 export const NEW_REUSABLE_QUERY_BUTTON_TEXT = () => "New reusable query";
 export const NEW_REUSABLE_API_BUTTON_TEXT = () => "New reusable API";
-export const CONVERT_MODULE_CTA_TEXT = () => "Create Module";
+export const CONVERT_MODULE_CTA_TEXT = () => "Create module";
 export const CONVERT_ENTITY_UNPUBLISHED_CHANGES_WARN = () =>
   "The package has unsaved changes. Please publish it first.";
 export const CANNOT_CREATE_MODULE_WARN = () =>
   "You do not have permission to add module into this package";
 export const GO_TO_MODULE = () => "Go to Module";
+export const IMPORT_PACKAGE = () => "Import package";
+export const UPDATE_PACKAGE = () => "Update package";
+export const MISSING_PACKAGE_OR_MODULE = () =>
+  "There are missing packages or modules, preventing the application from behaving normally.";
+export const OPEN_DEBUGGER_CTA = () => "Open Debugger";
+export const PACKAGE_UPDATE_VIA_IMPORT_SETTING = {
+  settingHeader: () => "Update through file import",
+  settingDesc: () => "Update package by importing file",
+  settingLabel: () => "Import",
+  settingContent: () =>
+    "This action will override your existing package. Please exercise caution while selecting the file to import.",
+  settingActionButtonTxt: () => "Import",
+  disabledForGit: () =>
+    "This feature is not supported for packages connected to Git version control. Please use git pull to update and sync your app.",
+};
+export const ERROR_IMPORT_PACKAGE = () => "Error importing package";
 export const START_SWITCH_ENVIRONMENT_FOR_PACKAGE = (environment: string) =>
   `Switching your environment to ${environment.toLowerCase()}`;
 export const UPDATE_MODULE_INPUT_ERROR = () => "Failed to update inputs";

@@ -21,6 +21,12 @@ export interface FetchConsumablePackagesInWorkspacePayload {
   workspaceId: string;
 }
 
+export interface ImportPackagePayload {
+  packageId?: string;
+  workspaceId: string;
+  file?: File;
+}
+
 export const fetchAllPackages = () => {
   return {
     type: ReduxActionTypes.FETCH_ALL_PACKAGES_INIT,
@@ -69,6 +75,13 @@ export const deletePackage = (payload: DeletePackagePayload) => {
 export const publishPackage = (payload: PublishPackagePayload) => {
   return {
     type: ReduxActionTypes.PUBLISH_PACKAGE_INIT,
+    payload,
+  };
+};
+
+export const importPackage = (payload: ImportPackagePayload) => {
+  return {
+    type: ReduxActionTypes.IMPORT_PACKAGE_INIT,
     payload,
   };
 };

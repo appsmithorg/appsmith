@@ -56,6 +56,7 @@ export enum EE_PERMISSION_TYPE {
   /** Package permissions */
   MANAGE_WORKSPACE_PACKAGES = "manage:workspacePackages",
   CREATE_PACKAGE = "create:packages",
+  EXPORT_PACKAGES = "export:packages",
   MANAGE_PACKAGES = "manage:packages",
   DELETE_PACKAGE = "delete:packages",
   /** Module permissions */
@@ -163,6 +164,9 @@ export const hasDeletePackagePermission = (permissions: string[] = []) =>
 
 export const hasManagePackagePermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.MANAGE_PACKAGES);
+
+export const hasExportPackagePermission = (permissions: string[] = []) =>
+  isPermitted(permissions, PERMISSION_TYPE.EXPORT_PACKAGES);
 
 // Package permissions end
 

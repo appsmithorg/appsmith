@@ -4,7 +4,10 @@ import type { noop } from "lodash";
 import { APPLICATIONS_URL } from "constants/routes";
 import type { MenuItemData } from "pages/Editor/EditorName/NavigationMenuItem";
 import { MenuTypes } from "pages/Editor/EditorName/types";
-import { hasDeletePackagePermission } from "@appsmith/utils/permissionHelpers";
+import {
+  hasDeletePackagePermission,
+  hasExportPackagePermission,
+} from "@appsmith/utils/permissionHelpers";
 import { Colors } from "constants/Colors";
 import { toast } from "design-system";
 import type { ThemeProp } from "WidgetProvider/constants";
@@ -15,6 +18,7 @@ import {
   createMessage,
   ERROR_DELETING_PACKAGE,
 } from "@appsmith/constants/messages";
+import { exportPackageAsJSONFile } from "@appsmith/utils/Packages/moduleHelpers";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -31,7 +35,9 @@ export const GetNavigationMenuData = ({
   const history = useHistory();
   const currentPackage = useSelector(getCurrentPackage);
   const packageId = currentPackage?.id;
-
+  const hasExportPermission = hasExportPackagePermission(
+    currentPackage?.userPermissions || [],
+  );
   const isPkgIdPresent = !!(packageId && packageId.length > 0);
 
   const openExternalLink = (link: string) => {
@@ -51,6 +57,15 @@ export const GetNavigationMenuData = ({
     }
   };
 
+  const exportPackage = () => {
+    if (!currentPackage) return;
+
+    exportPackageAsJSONFile({
+      packageId: currentPackage?.id,
+      packageName: currentPackage?.name,
+    });
+  };
+
   return [
     {
       text: "Back to all apps",
@@ -68,6 +83,12 @@ export const GetNavigationMenuData = ({
       onClick: editMode,
       type: MenuTypes.MENU,
       isVisible: true,
+    },
+    {
+      text: "Export package",
+      onClick: exportPackage,
+      type: MenuTypes.MENU,
+      isVisible: hasExportPermission,
     },
     hasDeletePackagePermission(currentPackage?.userPermissions) && {
       text: "Delete package",

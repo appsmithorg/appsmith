@@ -48,6 +48,7 @@ const DEFAULT_STATE: WorkspaceReduxState = {
     isFetchingEntities: false,
     isFetchingWorkflowsList: false,
     isDeletingWorkspace: false,
+    isImportingPackage: false,
     packageCreationRequestMap: {},
     workflowCreationRequestMap: {},
   },

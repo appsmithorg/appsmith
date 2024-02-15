@@ -68,7 +68,7 @@ describe("Header", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <Header moduleInstance={DEFAULT_MODULE_INSTANCE}>
+          <Header isDisabled={false} moduleInstance={DEFAULT_MODULE_INSTANCE}>
             <button>Run</button>
           </Header>
         </ThemeProvider>
@@ -79,7 +79,7 @@ describe("Header", () => {
   it("shows module instance name editor", () => {
     render(
       <Provider store={store}>
-        <Header moduleInstance={DEFAULT_MODULE_INSTANCE}>
+        <Header isDisabled={false} moduleInstance={DEFAULT_MODULE_INSTANCE}>
           <button>Run</button>
         </Header>
       </Provider>,
@@ -91,7 +91,7 @@ describe("Header", () => {
   it("calls history.push when the Back button is clicked", () => {
     const { getByText } = render(
       <Provider store={store}>
-        <Header moduleInstance={DEFAULT_MODULE_INSTANCE}>
+        <Header isDisabled={false} moduleInstance={DEFAULT_MODULE_INSTANCE}>
           <button>Run</button>
         </Header>
       </Provider>,
@@ -111,7 +111,7 @@ describe("Header", () => {
   it("should render children", () => {
     const { getByText } = render(
       <Provider store={store}>
-        <Header moduleInstance={DEFAULT_MODULE_INSTANCE}>
+        <Header isDisabled={false} moduleInstance={DEFAULT_MODULE_INSTANCE}>
           <button>Run</button>
         </Header>
       </Provider>,

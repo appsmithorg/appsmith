@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { noop } from "lodash";
 import type { MenuItemProps } from "design-system";
 import {
@@ -35,6 +29,7 @@ import type { ModifiedMenuItemProps } from "pages/Applications/ApplicationCard";
 import { useDispatch, useSelector } from "react-redux";
 import {
   hasDeletePackagePermission,
+  hasExportPackagePermission,
   hasManagePackagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { deletePackage, updatePackage } from "@appsmith/actions/packageActions";
@@ -44,6 +39,7 @@ import {
 } from "@appsmith/selectors/packageSelectors";
 import { ThemeContext } from "styled-components";
 import { getRandomPaletteColor } from "utils/AppsmithUtils";
+import { exportPackageAsJSONFile } from "@appsmith/utils/Packages/moduleHelpers";
 
 interface PackageCardProps {
   isFetchingPackages: boolean;
@@ -154,20 +150,13 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [moreActionItems, setMoreActionItems] = useState<
-    ModifiedMenuItemProps[]
-  >([]);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const packageId = pkg.id;
   const dispatch = useDispatch();
 
   const hasDeletePermission = hasDeletePackagePermission(pkg.userPermissions);
-
+  const hasExportPermission = hasExportPackagePermission(pkg.userPermissions);
   const hasEditPermission = hasManagePackagePermission(pkg.userPermissions);
-
-  useEffect(() => {
-    addDeleteOption();
-  }, []);
 
   const editedByText = generateEditedByText({
     modifiedAt: pkg.modifiedAt,
@@ -179,14 +168,13 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
       if (!open && !isDeleting) {
         setIsMenuOpen(false);
         setShowOverlay(false);
-        addDeleteOption();
         if (lastUpdatedValue && pkg.name !== lastUpdatedValue) {
           onUpdatePackage(lastUpdatedValue);
         }
       } else {
         setIsMenuOpen(true);
-        setIsDeleting(false);
       }
+      setIsDeleting(false);
     },
     [isDeleting, lastUpdatedValue, pkg.name],
   );
@@ -207,39 +195,55 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
     dispatch(deletePackage({ id: packageId }));
   };
 
-  const askForConfirmation = () => {
-    setIsDeleting(true);
-    const updatedActionItems = [...moreActionItems];
-    updatedActionItems.pop();
-    updatedActionItems.push({
-      onSelect: onDeletePackage,
-      children: "Are you sure?",
-      key: "areyousure",
-      startIcon: "delete-bin-line",
-      "data-testid": "t--delete",
+  const exportPackage = useCallback(() => {
+    exportPackageAsJSONFile({
+      packageId: pkg.id,
+      packageName: pkg.name,
+      onSuccessCb: () => setIsMenuOpen(false),
     });
-    setMoreActionItems(updatedActionItems);
-  };
+  }, [pkg.id, pkg.name, setIsMenuOpen, exportPackageAsJSONFile]);
 
-  const addDeleteOption = () => {
-    if (hasDeletePermission) {
-      const index = moreActionItems.findIndex(
-        (el) => el.startIcon === "delete-bin-line",
-      );
-      const updatedActionItems = [...moreActionItems];
-      if (index >= 0) {
-        updatedActionItems.pop();
-      }
-      updatedActionItems.push({
-        onSelect: askForConfirmation,
-        children: "Delete",
-        key: "delete",
-        startIcon: "delete-bin-line",
-        "data-testid": "t--delete-confirm",
+  const moreActionItems = useMemo(() => {
+    const options: MenuItemProps[] = [];
+
+    if (hasExportPermission) {
+      options.push({
+        onSelect: exportPackage,
+        children: "Export",
+        key: "export",
+        startIcon: "download",
       });
-      setMoreActionItems(updatedActionItems);
     }
-  };
+
+    if (hasDeletePermission) {
+      if (isDeleting) {
+        options.push({
+          onSelect: onDeletePackage,
+          children: "Are you sure?",
+          key: "areyousure",
+          startIcon: "delete-bin-line",
+        });
+      } else {
+        options.push({
+          onSelect: () => {
+            setIsDeleting(true);
+          },
+          children: "Delete",
+          key: "delete",
+          startIcon: "delete-bin-line",
+        });
+      }
+    }
+
+    return options;
+  }, [
+    hasExportPermission,
+    exportPackageAsJSONFile,
+    hasDeletePermission,
+    isDeleting,
+    onDeletePackage,
+    setIsDeleting,
+  ]);
 
   const updateColor = (color: string) => {
     dispatch(
@@ -280,7 +284,7 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
       isContextMenuOpen={false}
       isFetching={isFetchingPackages}
       isMobile={isMobile}
-      moreActionItems={moreActionItems}
+      moreActionItems={moreActionItems as ModifiedMenuItemProps[]}
       primaryAction={noop}
       setShowOverlay={setShowOverlay}
       showGitBadge={false}

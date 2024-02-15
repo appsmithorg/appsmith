@@ -8,3 +8,4 @@ export const MODULE_API_EDITOR_PATH = `/api/:apiId`;
 export const MODULE_CURL_IMPORT_PATH = `/api/curl/curl-import`;
 
 export const MODULE_JS_COLLECTION_EDITOR_PATH = `/jsObjects/:collectionId`;
+export const PACKAGE_SETTINGS_EDITOR_PATH = "/settings/:tab?";

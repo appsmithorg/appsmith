@@ -4,6 +4,7 @@ import { MODULE_MODE } from "@appsmith/entities/package";
 
 import { createSelector } from "reselect";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { Package } from "@appsmith/constants/PackageConstants";
 import {
   ENTITY_EXPLORER_RENDER_ORDER,
   MODULE_TYPE,
@@ -73,5 +74,7 @@ export const getFirstModule = (state: AppState) => {
 export const getModulesMetadata = (state: AppState) =>
   state.ui.explorer.modulesMetadata;
 
-export const getPackageById = (state: AppState, id: string) =>
-  state.entities.packages[id];
+export const getPackageById = (
+  state: AppState,
+  id: string,
+): Package | undefined => state.entities.packages[id];
