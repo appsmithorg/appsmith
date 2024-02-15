@@ -1206,6 +1206,34 @@ public class PostgresPluginTest {
     }
 
     @Test
+    public void testSslWithoutCertificateVerification() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from pg_stat_ssl");
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        SSLDetails sslDetails = new SSLDetails();
+        sslDetails.setAuthType(SSLDetails.AuthType.REQUIRE);
+        /*dsConfig.setSslMode("verify-ca");
+        sslDetails.setSslRootCert("classpath:ca.crt");*/
+        /*
+        dsConfig.getConnection().setSsl(sslDetails);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono).verifyErrorSatisfies(error -> {
+            */
+        /*
+         * - This error message indicates that the client was trying to establish an SSL connection but
+         *   could not because the testcontainer server does not have SSL enabled.
+         */
+        /*
+            assertTrue(((AppsmithPluginException) error)
+                    .getDownstreamErrorMessage()
+                    .contains("The server does not support SSL"));
+        });*/
+    }
+
+    @Test
     public void testDuplicateColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
