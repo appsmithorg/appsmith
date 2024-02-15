@@ -1,11 +1,12 @@
-import BaseLayoutComponent from "../BaseLayoutComponent";
+import React from "react";
+import BaseLayoutComponent from "../../BaseLayoutComponent";
 import {
   type DeriveHighlightsFn,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import type { FlexLayoutProps } from "./FlexLayout";
+import type { FlexLayoutProps } from "../FlexLayout";
 import { deriveAlignedRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedRowHighlights";
-import { renderWidgetsInAlignedRow } from "layoutSystems/anvil/utils/layouts/renderUtils";
+import AlignedWidgetRowComp from "./AlignedWidgetRowComp";
 
 class AlignedWidgetRow extends BaseLayoutComponent {
   static type: LayoutComponentTypes = LayoutComponentTypes.ALIGNED_WIDGET_ROW;
@@ -13,7 +14,7 @@ class AlignedWidgetRow extends BaseLayoutComponent {
   static deriveHighlights: DeriveHighlightsFn = deriveAlignedRowHighlights;
 
   renderChildWidgets(): React.ReactNode {
-    return renderWidgetsInAlignedRow(this.props);
+    return <AlignedWidgetRowComp {...this.props} />;
   }
 
   static rendersWidgets: boolean = true;
