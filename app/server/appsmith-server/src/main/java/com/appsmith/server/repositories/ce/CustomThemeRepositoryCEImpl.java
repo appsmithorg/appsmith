@@ -17,7 +17,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -75,7 +74,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
                     Update update = new Update();
                     update.set(fieldName(QTheme.theme.deletedAt), Instant.now());
-                    return updateByCriteria(List.of(criteria, permissionCriteria), update, null);
+                    return queryBuilder().criteria(criteria, permissionCriteria).updateAll(update);
                 })
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
