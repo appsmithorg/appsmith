@@ -107,7 +107,9 @@ export function* createZoneAndAddWidgets(
   };
 }
 
-function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
+export function splitWidgets(
+  widgets: WidgetLayoutProps[],
+): WidgetLayoutProps[][] {
   const smallWidgets: WidgetLayoutProps[] = [];
   const largeWidgets: WidgetLayoutProps[] = [];
   widgets.forEach((widget: WidgetLayoutProps) => {

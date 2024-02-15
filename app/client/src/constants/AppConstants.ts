@@ -12,6 +12,8 @@ export const CANVAS_BACKGROUND_COLOR = "#FFFFFF";
 export const DEFAULT_ENTITY_EXPLORER_WIDTH = 256;
 export const DEFAULT_PROPERTY_PANE_WIDTH = 288;
 export const APP_SETTINGS_PANE_WIDTH = 525;
+export const DEFAULT_EDITOR_PANE_WIDTH = 255;
+export const DEFAULT_SPLIT_SCREEN_WIDTH = "40.4vw";
 
 const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
 
@@ -97,6 +99,7 @@ export interface ThemeSetting {
   density: number;
   sizing: number;
   fontFamily: string;
+  iconStyle: "FILLED" | "OUTLINED";
 }
 
 export type StringsFromNavigationSetting = Omit<
@@ -131,11 +134,12 @@ export const defaultNavigationSetting = {
 
 export const defaultThemeSetting: ThemeSetting = {
   fontFamily: "System Default",
-  accentColor: "#553DE9",
+  accentColor: "#0080ff",
   colorMode: "LIGHT",
   borderRadius: "6px",
   density: 1,
   sizing: 1,
+  iconStyle: "OUTLINED",
 };
 
 export const SIDEBAR_WIDTH = {

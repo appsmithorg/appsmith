@@ -1,5 +1,6 @@
 module.exports = {
   Tag: [
+    "@tag.Anvil",
     "@tag.excludeForAirgap",
     "@tag.airgap",
     "@tag.Git",
@@ -61,5 +62,6 @@ module.exports = {
     "@tag.Templates",
     "@tag.Authentication",
     "@tag.MainContainer",
+    "@tag.Visual",
   ],
 };

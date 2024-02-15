@@ -1,4 +1,3 @@
-import type { RefObject } from "react";
 import React from "react";
 import type { CollapsibleTabProps } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -20,16 +19,18 @@ const TabsListWrapper = styled(TabsList)`
     var(--ads-v2-spaces-1);
 `;
 
+export interface BottomTab {
+  key: string;
+  title: string;
+  count?: number;
+  panelComponent: React.ReactNode;
+}
+
 interface EntityBottomTabsProps {
   className?: string;
-  tabs: any;
-  onSelect?: (tab: any) => void;
+  tabs: Array<BottomTab>;
+  onSelect?: (tab: string) => void;
   selectedTabKey: string;
-  canCollapse?: boolean;
-  // Reference to container for collapsing or expanding content
-  containerRef?: RefObject<HTMLElement>;
-  // height of container when expanded
-  expandedHeight?: string;
 }
 
 type CollapsibleEntityBottomTabsProps = EntityBottomTabsProps &
@@ -40,14 +41,15 @@ function EntityBottomTabs(
   props: EntityBottomTabsProps | CollapsibleEntityBottomTabsProps,
 ) {
   const onTabSelect = (key: string) => {
-    const tab = props.tabs.find((tab: any) => tab.key === key);
+    const tab = props.tabs.find((tab) => tab.key === key);
+    if (tab) {
+      props.onSelect && props.onSelect(tab.key);
 
-    props.onSelect && props.onSelect(tab.key);
-
-    if (Object.values<string>(DEBUGGER_TAB_KEYS).includes(tab.key)) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: tab.key,
-      });
+      if (Object.values<string>(DEBUGGER_TAB_KEYS).includes(tab.key)) {
+        AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
+          tabName: tab.key,
+        });
+      }
     }
   };
 
@@ -59,10 +61,11 @@ function EntityBottomTabs(
       value={props.selectedTabKey}
     >
       <TabsListWrapper>
-        {props.tabs.map((tab: any) => {
+        {props.tabs.map((tab) => {
           return (
             <Tab
               data-testid={"t--tab-" + tab.key}
+              id={`debugger-tab-${tab.key}`}
               key={tab.key}
               notificationCount={tab.count}
               value={tab.key}
@@ -72,7 +75,7 @@ function EntityBottomTabs(
           );
         })}
       </TabsListWrapper>
-      {props.tabs.map((tab: any) => (
+      {props.tabs.map((tab) => (
         <TabPanelWrapper key={tab.key} value={tab.key}>
           {tab.panelComponent}
         </TabPanelWrapper>

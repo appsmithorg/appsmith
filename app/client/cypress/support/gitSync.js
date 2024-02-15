@@ -12,7 +12,8 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 let gitSync = ObjectsRegistry.GitSync,
   agHelper = ObjectsRegistry.AggregateHelper,
   dataManager = ObjectsRegistry.DataManager,
-  assertHelper = ObjectsRegistry.AssertHelper;
+  assertHelper = ObjectsRegistry.AssertHelper,
+  homePageTS = ObjectsRegistry.HomePage;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -284,13 +285,7 @@ Cypress.Commands.add(
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
-    cy.AppSetupForRename();
-    cy.get(homePage.applicationName).type(appname + "{enter}");
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    homePageTS.RenameApplication(appname);
 
     cy.createTestGithubRepo(appname, true);
     cy.connectToGitRepo(appname, false, assertConnectFailure);
@@ -300,6 +295,11 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   agHelper.AssertElementExist(gitSync._bottomBarPull);
+
+  cy.intercept("GET", "/api/v1/git/status/app/*").as(`gitStatus`);
+
+  cy.intercept("GET", "/api/v1/git/branch/app/*").as(`gitBranches`);
+
   cy.get(gitSyncLocators.bottomBarMergeButton).click({ force: true });
   //cy.wait(6000); // wait for git status call to finish
   /*cy.wait("@gitStatus").should(
@@ -313,21 +313,28 @@ Cypress.Commands.add("merge", (destinationBranch) => {
     0,
     false,
   );
-  cy.wait(6000);
-  cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
-  cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
-  agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
-  assertHelper.WaitForNetworkCall("mergeStatus");
-  cy.get("@mergeStatus").should(
-    "have.nested.property",
-    "response.body.data.isMergeAble",
-    true,
-  );
-  cy.wait(2000);
-  cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
-  cy.get(gitSyncLocators.mergeCTA).click();
-  assertHelper.AssertNetworkStatus("mergeBranch", 200);
-  agHelper.AssertContains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
+  agHelper.WaitUntilEleDisappear(gitSync._mergeLoader);
+  cy.wait(["@gitBranches", "@gitStatus"]).then((interceptions) => {
+    if (
+      interceptions[0]?.response?.statusCode === 200 &&
+      interceptions[1]?.response?.statusCode === 200
+    ) {
+      cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
+      cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
+      agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
+      assertHelper.WaitForNetworkCall("mergeStatus");
+      cy.get("@mergeStatus").should(
+        "have.nested.property",
+        "response.body.data.isMergeAble",
+        true,
+      );
+      cy.wait(2000);
+      cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
+      cy.get(gitSyncLocators.mergeCTA).click();
+      assertHelper.AssertNetworkStatus("mergeBranch", 200);
+      agHelper.AssertContains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
+    }
+  });
 });
 
 Cypress.Commands.add(

@@ -1,4 +1,4 @@
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";

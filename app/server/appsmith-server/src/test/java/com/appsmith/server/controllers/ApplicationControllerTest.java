@@ -6,13 +6,14 @@ import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
-import com.appsmith.server.exports.internal.ExportApplicationService;
-import com.appsmith.server.exports.internal.PartialExportService;
+import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -24,6 +25,7 @@ import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -38,6 +40,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(ApplicationController.class)
@@ -56,10 +60,10 @@ public class ApplicationControllerTest {
     ApplicationForkingService applicationForkingService;
 
     @MockBean
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @MockBean
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @MockBean
     ApplicationSnapshotService applicationSnapshotService;
@@ -118,8 +122,8 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithLongHeader_thenVerifyErrorStatus() throws IOException {
 
-        Mockito.when(importApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(new ApplicationImportDTO()));
+        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any(), any()))
+                .thenAnswer(importableArtifactDTOAnswer(new ApplicationImportDTO()));
 
         final String fileName = getFileName(130 * 1024);
         MultipartBodyBuilder bodyBuilder = createBodyBuilder(fileName);
@@ -149,9 +153,8 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
-        Mockito.when(importApplicationService.extractFileAndSaveApplication(
-                        Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(new ApplicationImportDTO()));
+        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any(), any()))
+                .thenAnswer(importableArtifactDTOAnswer(new ApplicationImportDTO()));
 
         final String fileName = getFileName(2 * 1024);
         MultipartBodyBuilder bodyBuilder = createBodyBuilder(fileName);
@@ -164,5 +167,9 @@ public class ApplicationControllerTest {
                 .exchange()
                 .expectStatus()
                 .isEqualTo(200);
+    }
+
+    private <T extends ImportableArtifactDTO> Answer<Mono<T>> importableArtifactDTOAnswer(T object) {
+        return invocationOnMock -> Mono.just(object);
     }
 }

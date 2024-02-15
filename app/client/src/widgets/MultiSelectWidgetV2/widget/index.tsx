@@ -212,7 +212,6 @@ class MultiSelectWidget extends BaseWidget<
   static getDependencyMap(): Record<string, string[]> {
     return {
       optionValue: ["sourceData"],
-      defaultOptionValue: ["serverSideFiltering", "options"],
     };
   }
 
@@ -358,6 +357,12 @@ class MultiSelectWidget extends BaseWidget<
               },
             },
             dependencies: ["serverSideFiltering", "options"],
+            helperText: (
+              <div className="leading-5" style={{ marginTop: "10px" }}>
+                Make sure the default value(s) are present in the source data to
+                have it selected by default in the UI.
+              </div>
+            ),
           },
         ],
       },

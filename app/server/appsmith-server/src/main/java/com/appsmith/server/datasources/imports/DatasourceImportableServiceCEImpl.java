@@ -13,13 +13,15 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.WorkspaceService;
@@ -54,6 +56,26 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
         this.sequenceService = sequenceService;
     }
 
+    @Override
+    public Mono<Void> importEntities(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<? extends ImportableArtifact> importContextMono,
+            ArtifactExchangeJson importableContextJson,
+            boolean isContextAgnostic) {
+        return importContextMono.flatMap(importableContext -> {
+            Application application = (Application) importableContext;
+            ApplicationJson applicationJson = (ApplicationJson) importableContextJson;
+            return importEntities(
+                    importingMetaDTO,
+                    mappedImportableResourcesDTO,
+                    workspaceMono,
+                    Mono.just(application),
+                    applicationJson);
+        });
+    }
+
     // Requires pluginMap to be present in importable resources.
     // Updates datasourceNameToIdMap in importable resources.
     // Also directly updates required information in DB
@@ -63,15 +85,14 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
         return workspaceMono.flatMap(workspace -> {
             final Flux<Datasource> existingDatasourceFlux = datasourceService
                     .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.empty())
                     .cache();
 
             Mono<List<Datasource>> existingDatasourceMono =
-                    getExistingDatasourceMono(importingMetaDTO.getApplicationId(), existingDatasourceFlux);
+                    getExistingDatasourceMono(importingMetaDTO.getArtifactId(), existingDatasourceFlux);
             Mono<Map<String, String>> datasourceMapMono = importDatasources(
                     applicationJson,
                     existingDatasourceMono,
@@ -247,7 +268,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             DatasourceStorage datasourceStorage,
             Workspace workspace,
             String environmentId,
-            ImportApplicationPermissionProvider permissionProvider) {
+            ImportArtifactPermissionProvider permissionProvider) {
         /*
            1. If same datasource is present return
            2. If unable to find the datasource create a new datasource with unique name and return
@@ -363,5 +384,10 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                     });
         }
         return Mono.just("");
+    }
+
+    @Override
+    public Flux<Datasource> getEntitiesPresentInWorkspace(String workspaceId) {
+        return datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty());
     }
 }

@@ -35,3 +35,6 @@ export const tabs = ObjectsRegistry.Tabs;
 export const gsheetHelper = ObjectsRegistry.GSheetHelper;
 export const widgetLocators = WIDGETSKIT;
 export const communityTemplates = ObjectsRegistry.CommunityTemplates;
+export const anvilLayout = ObjectsRegistry.AnvilLayout;
+export const wdsWidgets = ObjectsRegistry.WDSWidgets;
+export const partialImportExport = ObjectsRegistry.PartialImportExport;

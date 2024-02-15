@@ -5,7 +5,6 @@ import type { Template as TemplateInterface } from "api/TemplatesApi";
 import { Button, Tooltip, Text } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
-import LargeTemplate from "./LargeTemplate";
 import {
   createMessage,
   FORK_THIS_TEMPLATE,
@@ -87,11 +86,7 @@ export interface TemplateProps {
 }
 
 const Template = (props: TemplateProps) => {
-  if (props.size) {
-    return <LargeTemplate {...props} />;
-  } else {
-    return <TemplateLayout {...props} />;
-  }
+  return <TemplateLayout {...props} />;
 };
 
 export interface TemplateLayoutProps extends TemplateProps {
@@ -177,7 +172,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               <Button
                 className="t--fork-template fork-button"
                 data-testid="t--fork-template-button"
-                isDisabled={isImportingTemplateToApp ? true : false}
+                isDisabled={isImportingTemplateToApp || !!loadingTemplateId}
                 isIconButton
                 isLoading={
                   props.onForkTemplateClick && loadingTemplateId === id

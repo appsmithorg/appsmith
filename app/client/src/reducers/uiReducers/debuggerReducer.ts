@@ -5,6 +5,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { omit, isUndefined, isEmpty } from "lodash";
 import equal from "fast-deep-equal";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { klona } from "klona";
 
 export const DefaultDebuggerContext = {
   scrollPosition: 0,
@@ -158,6 +159,10 @@ const debuggerReducer = createImmerReducer(initialState, {
     action: { context: DebuggerContext },
   ) => {
     state.context = action.context;
+  },
+  // Resetting debugger state after env switch
+  [ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS]: () => {
+    return klona(initialState);
   },
 });
 

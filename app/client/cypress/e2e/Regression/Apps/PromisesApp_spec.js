@@ -7,6 +7,8 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../locators/commonlocators.json");
 
@@ -59,8 +61,8 @@ describe(
           shouldCreateNewJSObj: true,
         },
       );
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      cy.wait("@getPage");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      cy.wait("@getConsolidatedData");
       // verify text in the text widget
 
       agHelper.AssertContains(
@@ -113,7 +115,7 @@ describe(
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
       jsEditor.SelectFunctionDropdown("clearStore");
       jsEditor.RunJSObj();
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.xpath("//span[text()='Clear store']").click({ force: true });
       cy.get(".t--draggable-textwidget span")
         .eq(5)

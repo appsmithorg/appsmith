@@ -15,7 +15,7 @@ export class ApiPage {
 
   // private datasources = ObjectsRegistry.DataSources;
 
-  private _createapi = ".t--createBlankApiCard";
+  _createapi = ".t--createBlankApiCard";
   _resourceUrl = ".t--dataSourceField";
   private _headerKey = (index: number) =>
     ".t--actionConfiguration\\.headers\\[" +
@@ -129,29 +129,32 @@ export class ApiPage {
     queryTimeout = 10000,
     apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
     aftDSSaved = false,
+    toVerifySave = true,
   ) {
     this.CreateApi(apiName, apiVerb, aftDSSaved);
-    this.EnterURL(url);
+    this.EnterURL(url, "", toVerifySave);
     this.agHelper.Sleep(); //Is needed for the entered url value to be registered, else failing locally & CI
     this.AssertRunButtonDisability();
-    if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
+    if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout, toVerifySave);
   }
 
   AssertRunButtonDisability(disabled = false) {
     this.agHelper.AssertElementEnabledDisabled(this._apiRunBtn, 0, disabled);
   }
 
-  EnterURL(url: string, evaluatedValue = "") {
-    this.agHelper.EnterValue(url, {
-      propFieldName: this._resourceUrl,
-      directInput: true,
-      inputFieldName: "",
-      apiOrQuery: "api",
-    });
+  EnterURL(url: string, evaluatedValue = "", toVerifySave = true) {
+    this.agHelper.EnterValue(
+      url,
+      {
+        propFieldName: this._resourceUrl,
+        directInput: true,
+        inputFieldName: "",
+        apiOrQuery: "api",
+      },
+      toVerifySave,
+    );
     this.agHelper.Sleep(); //Is needed for the entered url value to be registered, else failing locally & CI
-    if (evaluatedValue) {
-      this.agHelper.VerifyEvaluatedValue(evaluatedValue);
-    }
+    evaluatedValue && this.agHelper.VerifyEvaluatedValue(evaluatedValue);
   }
 
   EnterHeader(hKey: string, hValue: string, index = 0) {
@@ -242,10 +245,10 @@ export class ApiPage {
       );
   }
 
-  SetAPITimeout(timeout: number) {
+  SetAPITimeout(timeout: number, toVerifySave = true) {
     this.SelectPaneTab("Settings");
     cy.xpath(this._queryTimeout).clear().type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
-    this.agHelper.AssertAutoSave();
+    toVerifySave && this.agHelper.AssertAutoSave();
     this.SelectPaneTab("Headers");
   }
 

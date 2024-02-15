@@ -3,17 +3,23 @@ import type {
   PopoverProps,
 } from "@design-system/headless";
 import type { ReactNode } from "react";
+import type { SIZES } from "../../../shared";
 
 export interface ModalProps
   extends Pick<
       PopoverProps,
-      "isOpen" | "setOpen" | "onClose" | "triggerRef" | "initialFocus"
+      | "isOpen"
+      | "setOpen"
+      | "onClose"
+      | "triggerRef"
+      | "initialFocus"
+      | "dismissClickOutside"
     >,
     Pick<PopoverModalContentProps, "overlayClassName"> {
   /** Size of the Modal
    * @default medium
    */
-  size?: "small" | "medium" | "large";
+  size?: keyof typeof SIZES;
   /** The children of the component. */
   children: ReactNode;
 }
@@ -45,4 +51,6 @@ export interface ModalFooterProps {
 
 export interface ModalBodyProps {
   children: ReactNode;
+  style?: React.CSSProperties;
+  className?: string;
 }

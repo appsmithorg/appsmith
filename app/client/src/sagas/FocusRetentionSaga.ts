@@ -29,8 +29,12 @@ export interface FocusPath {
   entityInfo: FocusEntityInfo;
 }
 
+export type FocusElementsConfigList = {
+  [key in FocusEntity]?: FocusElementConfig[];
+};
+
 export interface FocusStrategy {
-  focusElements: Record<FocusEntity, FocusElementConfig[]>;
+  focusElements: FocusElementsConfigList;
   /** based on the route change, what states need to be set in the upcoming route **/
   getEntitiesForSet: (
     previousPath: string,
@@ -134,6 +138,7 @@ class FocusRetention {
   ): Generator<StrictEffect, void, FocusState | undefined> {
     const selectors =
       this.focusStrategy.focusElements[focusPath.entityInfo.entity];
+    if (!selectors) return;
     const state: Record<string, any> = {};
     for (const selectorInfo of selectors) {
       state[selectorInfo.name] = yield call(
@@ -154,6 +159,7 @@ class FocusRetention {
     const focusHistory: FocusState = yield select(getCurrentFocusInfo, key);
 
     const selectors = this.focusStrategy.focusElements[entityInfo.entity];
+    if (!selectors) return;
 
     if (focusHistory) {
       for (const selectorInfo of selectors) {

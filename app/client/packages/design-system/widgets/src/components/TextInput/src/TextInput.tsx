@@ -8,17 +8,22 @@ import { getTypographyClassName } from "@design-system/theming";
 import { TextInput as HeadlessTextInput } from "@design-system/headless";
 
 import { Spinner } from "../../Spinner";
-import { EyeIcon } from "./icons/EyeIcon";
+import type { IconProps } from "../../Icon";
 import { IconButton } from "../../IconButton";
-import { EyeOffIcon } from "./icons/EyeOffIcon";
 import { ContextualHelp } from "./ContextualHelp";
 import { textInputStyles, fieldStyles } from "../../../styles";
+import type { SIZES } from "../../../shared";
 
 export interface TextInputProps extends HeadlessTextInputProps {
   /** position for the laoding icon */
   loaderPosition?: "auto" | "start" | "end";
   /** loading state for the input */
   isLoading?: boolean;
+  /** size of the input
+   *
+   * @default medium
+   */
+  size?: Omit<keyof typeof SIZES, "large">;
 }
 
 const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
@@ -31,6 +36,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     isRequired,
     label,
     loaderPosition = "auto",
+    size = "medium",
     startIcon,
     type,
     ...rest
@@ -45,44 +51,57 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     togglePassword((prev) => !prev);
   };
 
+  // we show loading indicator on left when isLoading is true and if:
+  // 1. loaderPosition is "start"
+  // 2. or loaderPosition is "auto" and endIcon is not present but startIcon is present
+  // 3. or loaderPosition is "auto" and endIcon is present and startIcon is also present
   const renderStartIcon = () => {
     const showLoadingIndicator =
       isLoading &&
       (loaderPosition === "start" ||
-        (Boolean(startIcon) && loaderPosition !== "end"));
+        (Boolean(startIcon) && !Boolean(endIcon) && loaderPosition === "auto"));
 
-    if (!showLoadingIndicator) return startIcon;
+    if (showLoadingIndicator) return <Spinner />;
 
-    return <Spinner />;
+    return startIcon;
   };
 
   const renderEndIcon = () => {
     if (type === "password") {
-      const Icon = showPassword ? EyeOffIcon : EyeIcon;
+      const icon: IconProps["name"] = showPassword ? "eye-off" : "eye";
 
       return (
         <IconButton
           color="neutral"
-          icon={Icon}
+          icon={icon}
           onPress={onPressEyeIcon}
           variant="ghost"
         />
       );
     }
 
+    // we show loading indicator on left when isLoading is true and if:
+    // 1. loaderPosition is "end"
+    // 2. or loaderPosition is "auto" and endIcon is not present and also startIcon is not present
+    // 3. or loaderPosition is "auto" and endIcon is is present and startIcon is not present
+    // 4. or loaderPosition is "auto" and endIcon is present and startIcon is also present
     const showLoadingIndicator =
-      isLoading &&
-      (loaderPosition === "end" ||
-        Boolean(loaderPosition === "auto" && Boolean(startIcon)));
+      (isLoading &&
+        (loaderPosition === "end" ||
+          (Boolean(loaderPosition === "auto" && !Boolean(endIcon)) &&
+            !Boolean(startIcon)))) ||
+      (loaderPosition === "auto" && Boolean(endIcon) && !Boolean(startIcon)) ||
+      (loaderPosition === "auto" && Boolean(endIcon) && Boolean(startIcon));
 
-    if (!showLoadingIndicator) return endIcon;
+    if (showLoadingIndicator) return <Spinner />;
 
-    return <Spinner />;
+    return endIcon;
   };
 
   return (
     <HeadlessTextInput
       contextualHelp={contextualHelp}
+      data-size={Boolean(size) ? size : undefined}
       description={description}
       endIcon={renderEndIcon()}
       errorMessage={errorMessage}

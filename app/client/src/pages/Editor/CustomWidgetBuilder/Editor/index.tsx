@@ -4,7 +4,7 @@ import Layout from "./Layouts";
 import Header from "./Header";
 import { CustomWidgetBuilderContext } from "..";
 import HTMLEditor from "./CodeEditors/HTMLEditor";
-import CSSEditor, { TitleControls } from "./CodeEditors/CSSEditor";
+import StyleEditor, { TitleControls } from "./CodeEditors/StyleEditor";
 import JSEditor from "./CodeEditors/JSEditor";
 import type { ContentProps } from "./CodeEditors/types";
 import References from "./References";
@@ -13,7 +13,7 @@ export default function Editor() {
   const { isReferenceOpen } = useContext(CustomWidgetBuilderContext);
 
   return (
-    <div className={styles.contentRight}>
+    <div>
       <div className={styles.headerControls}>
         <Header />
       </div>
@@ -25,9 +25,9 @@ export default function Editor() {
               children: (props: ContentProps) => <HTMLEditor {...props} />,
             },
             {
-              title: "CSS",
+              title: "Style",
               titleControls: <TitleControls />,
-              children: (props: ContentProps) => <CSSEditor {...props} />,
+              children: (props: ContentProps) => <StyleEditor {...props} />,
             },
             {
               title: "Javascript",

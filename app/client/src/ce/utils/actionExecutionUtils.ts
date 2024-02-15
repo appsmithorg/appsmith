@@ -6,10 +6,25 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import type { Plugin } from "api/PluginApi";
+import { get, isNil } from "lodash";
 
 export function getPluginActionNameToDisplay(action: Action) {
   return action.name;
 }
+
+export const getActionProperties = (
+  action: Action,
+  keyConfig: Record<string, string>,
+) => {
+  const actionProperties: Record<string, unknown> = {};
+  Object.keys(keyConfig).forEach((key) => {
+    const value = get(action, key);
+    if (!isNil(value)) {
+      actionProperties[keyConfig[key]] = get(action, key);
+    }
+  });
+  return actionProperties;
+};
 
 export function getJSActionPathNameToDisplay(
   action: JSAction,
@@ -20,6 +35,13 @@ export function getJSActionPathNameToDisplay(
 
 export function getJSActionNameToDisplay(action: JSAction) {
   return action.name;
+}
+
+export function getCollectionNameToDisplay(
+  _: JSAction,
+  collectionName: string,
+) {
+  return collectionName;
 }
 
 export function getActionExecutionAnalytics(

@@ -11,7 +11,6 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -62,14 +61,21 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
         Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
-        return queryAll(List.of(applicationIdCriteria), aclPermission);
+        return queryBuilder()
+                .criteria(applicationIdCriteria)
+                .permission(aclPermission)
+                .all();
     }
 
     @Override
     public Flux<NewAction> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
         Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
-        return queryAll(List.of(applicationIdCriteria), aclPermission, sort);
+        return queryBuilder()
+                .criteria(applicationIdCriteria)
+                .permission(aclPermission.orElse(null))
+                .sort(sort.orElse(null))
+                .all();
     }
 
     @Override
@@ -86,7 +92,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                         + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                 .is(null);
 
-        return queryOne(List.of(nameCriteria, pageCriteria, deletedCriteria), aclPermission);
+        return queryBuilder()
+                .criteria(nameCriteria, pageCriteria, deletedCriteria)
+                .permission(aclPermission)
+                .one();
     }
 
     @Override
@@ -100,7 +109,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .orOperator(
                         where(unpublishedPage).is(pageId), where(publishedPage).is(pageId));
 
-        return queryAll(List.of(pageCriteria), aclPermission);
+        return queryBuilder().criteria(pageCriteria).permission(aclPermission).all();
     }
 
     @Override
@@ -114,7 +123,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .orOperator(
                         where(unpublishedPage).is(pageId), where(publishedPage).is(pageId));
 
-        return queryAll(List.of(pageCriteria), aclPermission);
+        return queryBuilder()
+                .criteria(pageCriteria)
+                .permission(aclPermission.orElse(null))
+                .all();
     }
 
     @Override
@@ -150,7 +162,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                     .is(null);
             criteria.add(deletedCriteria);
         }
-        return queryAll(criteria, aclPermission);
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     @Override
@@ -180,7 +192,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria httpMethodCriteria = where(httpMethodQueryKey).is(httpMethod);
         List<Criteria> criterias = List.of(namesCriteria, pageCriteria, httpMethodCriteria, userSetOnLoadCriteria);
 
-        return queryAll(criterias, aclPermission);
+        return queryBuilder().criteria(criterias).permission(aclPermission).all();
     }
 
     @Override
@@ -189,7 +201,11 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         List<Criteria> criteriaList =
                 this.getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode);
 
-        return queryAll(criteriaList, aclPermission, sort);
+        return queryBuilder()
+                .criteria(criteriaList)
+                .permission(aclPermission)
+                .sort(sort)
+                .all();
     }
 
     protected List<Criteria> getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(
@@ -272,7 +288,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .is(null);
         criteriaList.add(deletedCriteria);
 
-        return queryAll(criteriaList, permission);
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 
     @Override
@@ -301,7 +317,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .is(null);
         criteriaList.add(deletedCriteria);
 
-        return queryAll(criteriaList, permission);
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 
     @Override
@@ -331,7 +347,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .is(null);
         criteriaList.add(deletedCriteria);
 
-        return queryAll(criteriaList, permission);
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 
     @Override
@@ -339,7 +355,11 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         Criteria applicationCriteria = this.getCriterionForFindByApplicationId(applicationId);
 
-        return queryAll(List.of(applicationCriteria), aclPermission, sort);
+        return queryBuilder()
+                .criteria(applicationCriteria)
+                .permission(aclPermission)
+                .sort(sort)
+                .all();
     }
 
     protected Criteria getCriterionForFindByApplicationId(String applicationId) {
@@ -354,7 +374,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
-        return queryAll(criteria, aclPermission);
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, Boolean viewMode) {
@@ -400,7 +420,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 where(defaultResources + "." + FieldName.ACTION_ID).is(defaultActionId);
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
-        return queryOne(List.of(defaultActionIdCriteria, branchCriteria), permission);
+        return queryBuilder()
+                .criteria(defaultActionIdCriteria, branchCriteria)
+                .permission(permission)
+                .one();
     }
 
     @Override
@@ -416,7 +439,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+        return queryBuilder()
+                .criteria(defaultAppIdCriteria, gitSyncIdCriteria)
+                .permission(permission.orElse(null))
+                .first();
     }
 
     @Override
@@ -426,7 +452,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .in(pageIds);
 
-        return queryAll(List.of(pageIdCriteria), permission);
+        return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
     }
 
     @Override
@@ -435,7 +461,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .in(pageIds);
 
-        return queryAll(List.of(pageIdCriteria), permission);
+        return queryBuilder()
+                .criteria(pageIdCriteria)
+                .permission(permission.orElse(null))
+                .all();
     }
 
     @Override
@@ -444,7 +473,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         List<Criteria> criteria =
                 this.getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode);
 
-        return queryAll(criteria, aclPermission);
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     protected List<Criteria> getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(
@@ -475,7 +504,11 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         List<Criteria> criteriaList =
                 this.getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode);
 
-        return queryAll(criteriaList, aclPermission, sort);
+        return queryBuilder()
+                .criteria(criteriaList)
+                .permission(aclPermission)
+                .sort(sort)
+                .all();
     }
 
     protected List<Criteria> getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(
@@ -536,11 +569,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
-        return queryAll(List.of(defaultAppIdCriteria), permission);
+        return queryBuilder()
+                .criteria(defaultAppIdCriteria)
+                .permission(permission.orElse(null))
+                .all();
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
+    public Mono<Void> publishActions(String applicationId, AclPermission permission) {
         Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
 
         Mono<Set<String>> permissionGroupsMono =
@@ -588,7 +624,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Update update = new Update();
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
-        return updateByCriteria(List.of(applicationIdCriteria, deletedFromUnpublishedCriteria), update, permission);
+        return queryBuilder()
+                .criteria(applicationIdCriteria, deletedFromUnpublishedCriteria)
+                .permission(permission)
+                .updateAll(update);
     }
 
     @Override
@@ -608,7 +647,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Flux<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
-        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+        return queryBuilder()
+                .criteria(applicationCriteria)
+                .fields(includeFields)
+                .all();
     }
 
     @Override
@@ -633,7 +675,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
-        return queryAll(criteriaList, Optional.ofNullable(permission));
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 
     @Override
@@ -658,6 +700,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
-        return queryAll(criteriaList, Optional.ofNullable(permission));
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 }

@@ -18,7 +18,6 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
@@ -41,8 +40,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -76,9 +73,6 @@ public class NewActionServiceUnitTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-
-    @MockBean
-    MarketplaceService marketplaceService;
 
     @MockBean
     PolicyGenerator policyGenerator;
@@ -142,7 +136,6 @@ public class NewActionServiceUnitTest {
                 datasourceService,
                 pluginService,
                 pluginExecutorHelper,
-                marketplaceService,
                 policyGenerator,
                 newPageService,
                 applicationService,
@@ -214,26 +207,6 @@ public class NewActionServiceUnitTest {
                 .assertNext(updatedAction -> {
                     assertEquals("testId", updatedAction.getPluginId());
                     assertEquals(PluginType.JS, updatedAction.getPluginType());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testPublishActionArchivesAndPublishesActions() {
-        String applicationId = "dummy-application-id";
-        List updateResult = Mockito.mock(List.class);
-        Mockito.when(updateResult.size()).thenReturn(10);
-
-        Mockito.when(newActionRepository.archiveDeletedUnpublishedActions(
-                        applicationId, actionPermission.getEditPermission()))
-                .thenReturn(Mono.empty());
-
-        Mockito.when(newActionRepository.publishActions(applicationId, actionPermission.getEditPermission()))
-                .thenReturn(Mono.just(updateResult));
-
-        StepVerifier.create(newActionService.publishActions(applicationId, actionPermission.getEditPermission()))
-                .assertNext(updateResult1 -> {
-                    assertEquals(10, updateResult1.size());
                 })
                 .verifyComplete();
     }

@@ -1,5 +1,8 @@
-import type { IconName } from "@blueprintjs/icons";
-import type { ActionGroupProps, ButtonProps } from "@design-system/widgets";
+import type {
+  ActionGroupProps,
+  ButtonProps,
+  IconProps,
+} from "@design-system/widgets";
 import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -23,7 +26,8 @@ export interface ButtonGroupItemComponentProps {
   widgetId: string;
   id: string;
   index: number;
-  iconName?: IconName;
+  iconName?: IconProps["name"];
   iconAlign?: ButtonProps["iconPosition"];
   onClick?: string;
+  itemType: "SEPARATOR" | "BUTTON";
 }

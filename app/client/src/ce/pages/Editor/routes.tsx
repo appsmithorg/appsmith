@@ -2,11 +2,9 @@ import React, { useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
 import { useLocation, useRouteMatch } from "react-router";
 import ApiEditor from "pages/Editor/APIEditor";
-import IntegrationEditor from "pages/Editor/IntegrationEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
 import JSEditor from "pages/Editor/JSEditor";
 import GeneratePage from "pages/Editor/GeneratePage";
-import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_PATH,
   BUILDER_CHECKLIST_PATH,
@@ -14,7 +12,6 @@ import {
   GENERATE_TEMPLATE_FORM_PATH,
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
-  PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import PerformanceTracker, {
@@ -25,15 +22,13 @@ import { SaaSEditorRoutes } from "pages/Editor/SaaSEditor/routes";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import { DatasourceEditorRoutes } from "pages/routes";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
-import CreateNewDatasourceTab from "../../../pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
-import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
+import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 function EditorRoutes() {
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   useEffect(() => {
     return () => {
@@ -47,9 +42,7 @@ function EditorRoutes() {
   return (
     <Switch key={path}>
       <SentryRoute
-        component={
-          isAppSidebarEnabled ? CreateNewDatasourceTab : IntegrationEditor
-        }
+        component={CreateNewDatasourceTab}
         exact
         path={`${path}${INTEGRATION_EDITOR_PATH}`}
       />
@@ -95,11 +88,6 @@ function EditorRoutes() {
           path={`${path}${childPath}`}
         />
       ))}
-      <SentryRoute
-        component={ProviderTemplates}
-        exact
-        path={`${path}${PROVIDER_TEMPLATE_PATH}`}
-      />
       <SentryRoute
         component={GeneratePage}
         exact

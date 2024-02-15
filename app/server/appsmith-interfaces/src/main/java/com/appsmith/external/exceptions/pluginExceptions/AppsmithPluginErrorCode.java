@@ -24,7 +24,8 @@ public enum AppsmithPluginErrorCode {
     PLUGIN_EXECUTE_ARGUMENT_ERROR("PE-ARG-5000", "Wrong arguments provided"),
     PLUGIN_VALIDATE_DATASOURCE_ERROR("PE-DSE-5005", "Failed to validate datasource"),
     PLUGIN_GET_PREVIEW_DATA_ERROR("PE-DSE-5006", "Failed to get preview data"),
-    PLUGIN_UNSUPPORTED_OPERATION("PE-DSE-5007", "Unsupported Operation");
+    PLUGIN_UNSUPPORTED_OPERATION("PE-DSE-5007", "Unsupported Operation"),
+    PLUGIN_RATE_LIMIT_ERROR("PE-DRL-4000", "Rate limit error");
 
     private final String code;
     private final String description;

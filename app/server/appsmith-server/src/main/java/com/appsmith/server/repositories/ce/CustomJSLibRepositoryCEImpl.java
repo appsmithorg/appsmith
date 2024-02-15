@@ -11,8 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,7 +30,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
     public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
         Criteria criteria = where(fieldName(QCustomJSLib.customJSLib.uidString)).is(customJSLib.getUidString());
 
-        return this.queryOne(List.of(criteria));
+        return queryBuilder().criteria(criteria).one();
     }
 
     @Override
@@ -45,6 +43,6 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
         Criteria criteria =
                 Criteria.where(fieldName(QCustomJSLib.customJSLib.uidString)).in(uidStrings);
 
-        return this.queryAll(List.of(criteria), Optional.empty());
+        return queryBuilder().criteria(criteria).all();
     }
 }

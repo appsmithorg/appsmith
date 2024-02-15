@@ -9,6 +9,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -23,6 +24,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
@@ -76,7 +78,8 @@ public class GitFileUtilsCE {
     private final FileInterface fileUtils;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
-
+    private final NewActionService newActionService;
+    private final ActionCollectionService actionCollectionService;
     private final Gson gson;
 
     // Number of seconds after lock file is stale
@@ -184,7 +187,7 @@ public class GitFileUtilsCE {
      */
     public ApplicationGitReference createApplicationReference(ApplicationJson applicationJson) {
         ApplicationGitReference applicationReference = new ApplicationGitReference();
-        applicationReference.setUpdatedResources(applicationJson.getUpdatedResources());
+        applicationReference.setModifiedResources(applicationJson.getModifiedResources());
 
         setApplicationInApplicationReference(applicationJson, applicationReference);
 
@@ -222,7 +225,7 @@ public class GitFileUtilsCE {
                 .collect(Collectors.toList());
 
         ApplicationJson applicationMetadata = new ApplicationJson();
-        applicationJson.setUpdatedResources(null);
+        applicationJson.setModifiedResources(null);
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
     }
@@ -271,6 +274,8 @@ public class GitFileUtilsCE {
                 // assume if the unpublished version is deleted entity should not be committed to git
                 .filter(collection -> collection.getUnpublishedCollection() != null
                         && collection.getUnpublishedCollection().getDeletedAt() == null)
+                .peek(actionCollection ->
+                        actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
                 .forEach(actionCollection -> {
                     String prefix = actionCollection.getUnpublishedCollection().getUserExecutableName()
                             + NAME_SEPARATOR
@@ -332,6 +337,7 @@ public class GitFileUtilsCE {
                 // assume if the unpublished version is deleted entity should not be committed to git
                 .filter(newAction -> newAction.getUnpublishedAction() != null
                         && newAction.getUnpublishedAction().getDeletedAt() == null)
+                .peek(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .forEach(newAction -> {
                     String prefix;
                     if (newAction.getUnpublishedAction() != null) {

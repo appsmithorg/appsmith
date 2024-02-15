@@ -138,7 +138,10 @@ export const AppIDEFocusStrategy: FocusStrategy = {
 
     // Store editor state if previous url was in editor.
     // Does not matter if still in editor or not
-    if (prevFocusEntityInfo.appState === EditorState.EDITOR) {
+    if (
+      prevFocusEntityInfo.appState === EditorState.EDITOR &&
+      prevFocusEntityInfo.entity !== FocusEntity.NONE
+    ) {
       entities.push({
         entityInfo: {
           entity: FocusEntity.EDITOR,

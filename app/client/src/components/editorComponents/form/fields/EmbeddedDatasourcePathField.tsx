@@ -44,7 +44,7 @@ import {
   getDatasourcesByPluginId,
 } from "@appsmith/selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { Text } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
@@ -619,7 +619,7 @@ const mapStateToProps = (
   }
 
   return {
-    workspaceId: state.ui.workspaces.currentWorkspace.id,
+    workspaceId: state.ui.selectedWorkspace.workspace.id,
     currentEnvironment,
     datasource: datasourceMerged,
     datasourceList: getDatasourcesByPluginId(state, ownProps.pluginId),

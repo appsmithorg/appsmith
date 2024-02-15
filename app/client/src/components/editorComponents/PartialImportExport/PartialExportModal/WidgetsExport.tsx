@@ -114,7 +114,7 @@ function WidgetSelector({
     updateSelectAllChecked(checked);
   };
   return (
-    <CheckboxWrapper>
+    <CheckboxWrapper data-testid="t--partialExportModal-widgetsSection">
       <Checkbox
         className="mb-4"
         data-testid="t--partial-export-modal-widget-select-all"

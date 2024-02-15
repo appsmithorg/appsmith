@@ -1,12 +1,12 @@
-import type { ReactNode, CSSProperties } from "react";
+import type { ReactNode, CSSProperties, MouseEventHandler } from "react";
 import type { SizingDimension, SpacingDimension } from "./dimensions";
 
-export type Responsive<T> =
-  | T
-  | {
-      base?: T;
-      [custom: string]: T | undefined;
-    };
+export interface ResponsiveProp<T> {
+  base?: T;
+  [custom: string]: T | undefined;
+}
+
+export type Responsive<T> = T | ResponsiveProp<T>;
 
 export interface AlignContent {
   /**
@@ -209,6 +209,14 @@ export interface FlexProps
   style?: CSSProperties;
   /** Sets the HTML [id](https://developer.mozilla.org/en-US/docs/Web/API/Element/id) for the element. */
   id?: string;
+  /** used to specify what kind of spacing the component will use ( inner-spacing or outer-spacing) */
+  isInner?: boolean;
+
+  /*
+   * Events props
+   */
+  onClick?: MouseEventHandler | undefined;
+  onClickCapture?: MouseEventHandler | undefined;
 }
 
 export type FlexCssProps = Omit<

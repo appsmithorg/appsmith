@@ -36,6 +36,8 @@ import Disabler from "pages/common/Disabler";
 import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
+import { PluginType } from "entities/Action";
+import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -83,12 +85,15 @@ function QueryEditor(props: QueryEditorProps) {
           name={action?.name || ""}
           pageId={pageId}
         />
-        <ConvertToModuleInstanceCTA
-          canCreateModuleInstance={isCreatePermitted}
-          canDeleteEntity={isDeletePermitted}
-          entityId={action?.id || ""}
-          moduleType={MODULE_TYPE.QUERY}
-        />
+        {action?.pluginType !== PluginType.INTERNAL && (
+          // Need to remove this check once workflow query is supported in module
+          <ConvertToModuleInstanceCTA
+            canCreateModuleInstance={isCreatePermitted}
+            canDeleteEntity={isDeletePermitted}
+            entityId={action?.id || ""}
+            moduleType={MODULE_TYPE.QUERY}
+          />
+        )}
       </>
     ),
     [
@@ -144,9 +149,7 @@ function QueryEditor(props: QueryEditorProps) {
     [pageId, history, integrationEditorURL],
   );
 
-  const isPagesPaneEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
+  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
@@ -160,7 +163,7 @@ function QueryEditor(props: QueryEditorProps) {
     <QueryEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
       changeQueryPage={changeQueryPage}
-      closeEditorLink={isPagesPaneEnabled ? null : closeEditorLink}
+      closeEditorLink={isEditorPaneEnabled ? null : closeEditorLink}
       moreActionsMenu={moreActionsMenu}
       notification={notification}
       onCreateDatasourceClick={onCreateDatasourceClick}

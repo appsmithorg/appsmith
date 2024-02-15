@@ -36,7 +36,7 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { updateReplayEntity } from "actions/pageActions";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { Form } from "./DBForm";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
@@ -843,6 +843,16 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
           )}
+        </FormInputContainer>
+        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
+          {this.renderInputTextControlViaFormControl({
+            configProperty: "authentication.expiresIn",
+            label: "Authorization expires in (seconds)",
+            placeholderText: "3600",
+            dataType: "NUMBER",
+            encrypted: false,
+            isRequired: false,
+          })}
         </FormInputContainer>
 
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&

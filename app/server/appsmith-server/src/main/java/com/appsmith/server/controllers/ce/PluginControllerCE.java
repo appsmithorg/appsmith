@@ -16,14 +16,18 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -77,12 +81,33 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
             @RequestBody TriggerRequestDTO triggerRequestDTO,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
             ServerWebExchange serverWebExchange) {
-        log.debug("Trigger received for PLugin {}", pluginId);
+        log.debug("Trigger received for Plugin {}", pluginId);
         return pluginTriggerSolution
                 .trigger(
                         pluginId,
                         environmentId,
                         triggerRequestDTO,
+                        serverWebExchange.getRequest().getHeaders())
+                .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping(value = "/{pluginId}/trigger", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ResponseDTO<TriggerResultDTO>> triggerMultipart(
+            @PathVariable String pluginId,
+            @RequestPart("files") Flux<FilePart> filePartFlux,
+            @RequestPart("requestType") String requestType,
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
+            @RequestPart(name = FieldName.WORKSPACE_ID, required = false) String workspaceId,
+            ServerWebExchange serverWebExchange) {
+        log.debug("Trigger received for plugin {}", pluginId);
+        return pluginTriggerSolution
+                .trigger(
+                        pluginId,
+                        environmentId,
+                        workspaceId,
+                        filePartFlux,
+                        requestType,
                         serverWebExchange.getRequest().getHeaders())
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }

@@ -12,6 +12,7 @@ import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTyp
 import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 import type { APPSMITH_INTEGRATIONS } from "./constants";
 import type { Variants } from "./constants";
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export type GenericFunction = (...args: any[]) => any;
 
@@ -162,6 +163,7 @@ export interface DataTreeForActionCreator {
   [key: string]: {
     ENTITY_TYPE?: EntityTypeValue;
     meta?: Record<string, MetaArgs>;
+    type?: MODULE_TYPE;
   };
 }
 

@@ -86,7 +86,11 @@ const _PopoverModalContent = (
 
   return (
     <FloatingPortal root={root as HTMLElement}>
-      <FloatingOverlay className={overlayClassName} data-status={status}>
+      <FloatingOverlay
+        className={overlayClassName}
+        data-status={status}
+        lockScroll
+      >
         <FloatingFocusManager
           closeOnFocusOut={closeOnFocusOut}
           context={context}

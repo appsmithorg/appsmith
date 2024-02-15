@@ -596,7 +596,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgElevation1() {
     const color = this.bg.clone();
 
-    color.oklch.l += 0.07;
+    color.oklch.l += 0.03;
 
     return color;
   }
@@ -604,7 +604,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgElevation2() {
     const color = this.bgElevation1.clone();
 
-    color.oklch.l += 0.04;
+    color.oklch.l += 0.035;
 
     return color;
   }
@@ -612,7 +612,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgElevation3() {
     const color = this.bgElevation2.clone();
 
-    color.oklch.l += 0.02;
+    color.oklch.l += 0.04;
 
     return color;
   }
@@ -624,9 +624,13 @@ export class DarkModeTheme implements ColorModeTheme {
   private get shadowElevation1() {
     const color = this.seedColor.clone();
 
-    color.oklch.l = 0.1;
+    color.oklch.l = 0.15;
 
-    color.alpha = 0.5;
+    color.alpha = 0.35;
+
+    if (color.oklch.c > 0.08) {
+      color.oklch.c = 0.08;
+    }
 
     return color;
   }
@@ -634,9 +638,9 @@ export class DarkModeTheme implements ColorModeTheme {
   private get shadowElevation2() {
     const color = this.shadowElevation1.clone();
 
-    color.oklch.l += 0.05;
+    color.oklch.l += 0.01;
 
-    color.alpha = 0.45;
+    color.alpha = 0.25;
 
     return color;
   }
@@ -644,7 +648,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get shadowElevation3() {
     const color = this.shadowElevation2.clone();
 
-    color.oklch.l += 0.05;
+    color.oklch.l += 0.005;
 
     color.alpha = 0.4;
 

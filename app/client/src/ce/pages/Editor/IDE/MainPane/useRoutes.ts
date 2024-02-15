@@ -17,7 +17,6 @@ import {
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   LIST_PATH,
-  PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -25,7 +24,6 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
-import IntegrationEditor from "pages/Editor/IntegrationEditor";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import ApiEditor from "pages/Editor/APIEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
@@ -41,10 +39,8 @@ import {
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
-import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
-import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
 import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 import { useSelector } from "react-redux";
@@ -61,7 +57,6 @@ export interface RouteReturnType extends RouteProps {
  */
 
 function useRoutes(path: string): RouteReturnType[] {
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
 
@@ -106,9 +101,7 @@ function useRoutes(path: string): RouteReturnType[] {
       },
       {
         key: "Datasource Create and Active",
-        component: isAppSidebarEnabled
-          ? CreateNewDatasourceTab
-          : IntegrationEditor,
+        component: CreateNewDatasourceTab,
         exact: true,
         path: `${path}${INTEGRATION_EDITOR_PATH}`,
       },
@@ -129,12 +122,6 @@ function useRoutes(path: string): RouteReturnType[] {
         component: DatasourceBlankState,
         exact: true,
         path: `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
-      },
-      {
-        key: "ProviderTemplates",
-        component: ProviderTemplates,
-        exact: true,
-        path: `${path}${PROVIDER_TEMPLATE_PATH}`,
       },
       {
         key: "GeneratePage",
@@ -167,9 +154,7 @@ function useRoutes(path: string): RouteReturnType[] {
     },
     {
       key: "Datasource Create and Active",
-      component: isAppSidebarEnabled
-        ? CreateNewDatasourceTab
-        : IntegrationEditor,
+      component: CreateNewDatasourceTab,
       exact: true,
       path: `${path}${INTEGRATION_EDITOR_PATH}`,
     },
@@ -219,7 +204,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "JSEditor File",
       component: JSEditor,
       exact: true,
-      path: `${path}${JS_COLLECTION_ID_PATH}`,
+      path: [
+        `${path}${JS_COLLECTION_ID_PATH}`,
+        `${path}${JS_COLLECTION_ID_PATH}${ADD_PATH}`,
+      ],
     },
     {
       key: "CurlImportEditor",
@@ -262,12 +250,6 @@ function useRoutes(path: string): RouteReturnType[] {
       component: DatasourceBlankState,
       exact: true,
       path: `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
-    },
-    {
-      key: "ProviderTemplates",
-      component: ProviderTemplates,
-      exact: true,
-      path: `${path}${PROVIDER_TEMPLATE_PATH}`,
     },
     {
       key: "GeneratePage",

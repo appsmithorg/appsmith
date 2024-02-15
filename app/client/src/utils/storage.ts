@@ -12,7 +12,6 @@ export const STORAGE_KEYS: {
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
-  POST_WELCOME_TOUR: "PostWelcomeTour",
   RECENT_ENTITIES: "RecentEntities",
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
@@ -192,24 +191,6 @@ export const resetCurrentEnvironment = async () => {
   } catch (error) {
     log.error("An error occurred when resetting current env: ", error);
     return false;
-  }
-};
-
-export const setPostWelcomeTourState = async (flag: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.POST_WELCOME_TOUR, flag);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting post welcome tour state", error);
-    return false;
-  }
-};
-
-export const getPostWelcomeTourState = async () => {
-  try {
-    return await store.getItem(STORAGE_KEYS.POST_WELCOME_TOUR);
-  } catch (error) {
-    log.error("An error occurred when getting post welcome tour state", error);
   }
 };
 
@@ -872,28 +853,6 @@ export const getPartnerProgramCalloutShown = async () => {
     return flag;
   } catch (error) {
     log.error("An error occurred while fetching PARTNER_PROGRAM_CALLOUT");
-    log.error(error);
-  }
-};
-
-export const setUsersFirstApplicationId = async (appId: string) => {
-  try {
-    await store.setItem(STORAGE_KEYS.USERS_FIRST_APPLICATION_ID, appId);
-    return true;
-  } catch (error) {
-    log.error("An error occurred while setting USERS_FIRST_APPLICATION_ID");
-    log.error(error);
-  }
-};
-
-export const getUsersFirstApplicationId = async () => {
-  try {
-    const firstApplicationId: string | null = await store.getItem(
-      STORAGE_KEYS.USERS_FIRST_APPLICATION_ID,
-    );
-    return firstApplicationId;
-  } catch (error) {
-    log.error("An error occurred while fetching USERS_FIRST_APPLICATION_ID");
     log.error(error);
   }
 };

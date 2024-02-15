@@ -22,7 +22,6 @@ describe(
       // Cleanup the canvas before each test
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.switchToAddNew();
-      cy.focused().blur();
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
       agHelper.SetCanvasViewportWidth(808);

@@ -133,8 +133,11 @@ function* readAndUpdateLayoutElementPositions() {
   for (const anvilWidgetDOMId of Object.keys(registeredWidgets)) {
     const { layoutId } = registeredWidgets[anvilWidgetDOMId];
     const parentDropTargetPositions = positions[layoutId];
-    const element: HTMLElement | null =
-      document.getElementById(anvilWidgetDOMId);
+    let element: HTMLElement | null = document.getElementById(anvilWidgetDOMId);
+    if (!element) {
+      const elements = document.getElementsByClassName(anvilWidgetDOMId);
+      element = elements[0] as HTMLDivElement;
+    }
     const widgetId = extractWidgetIdFromAnvilWidgetDOMId(anvilWidgetDOMId);
     if (element) {
       const rect: DOMRect = element.getBoundingClientRect();

@@ -10,11 +10,9 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -119,7 +117,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public void generateAndSetPolicies(NewPage page, ActionCollection actionCollection) {
         Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
+                policyGenerator.getAllChildPolicies(page.getPolicies(), NewPage.class, NewAction.class);
         actionCollection.setPolicies(documentPolicies);
     }
 
@@ -488,6 +486,14 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public Flux<ActionCollection> findByPageId(String pageId) {
         return repository.findByPageId(pageId);
+    }
+
+    @Override
+    public Flux<ActionCollectionDTO> getCollectionsByPageIdAndViewMode(
+            String pageId, boolean viewMode, AclPermission permission) {
+        return repository
+                .findByPageIdAndViewMode(pageId, viewMode, permission)
+                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
     }
 
     @Override

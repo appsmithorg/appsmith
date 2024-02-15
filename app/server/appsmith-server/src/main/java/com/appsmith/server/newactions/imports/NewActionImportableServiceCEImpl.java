@@ -18,7 +18,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -63,18 +63,18 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson,
-            boolean isPartialImport) {
+            ApplicationJson applicationJson) {
 
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
         Mono<List<NewAction>> importedNewActionMono = Mono.justOrEmpty(importedNewActionList);
-        if (TRUE.equals(importingMetaDTO.getAppendToApp())) {
+        if (TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
-                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageOrModuleMap().values().stream()
                         .distinct()
+                        .map(branchAwareDomain -> (NewPage) branchAwareDomain)
                         .toList();
-                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
+                Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getPageOrModuleNewNameToOldName();
 
                 for (NewPage newPage : importedNewPages) {
                     String newPageName = newPage.getUnpublishedPage().getName();
@@ -98,12 +98,12 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
-                            && !TRUE.equals(importingMetaDTO.getAppendToApp())
+                    if (StringUtils.hasText(importingMetaDTO.getArtifactId())
+                            && !TRUE.equals(importingMetaDTO.getAppendToArtifact())
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
                         Set<String> invalidActionIds = new HashSet<>();
-                        if (Boolean.FALSE.equals(isPartialImport)) {
+                        if (Boolean.FALSE.equals(importingMetaDTO.getIsPartialImport())) {
                             for (NewAction action : importActionResultDTO.getExistingActions()) {
                                 if (!importActionResultDTO
                                         .getImportedActionIds()
@@ -138,8 +138,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     public Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            boolean isPartialImport) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
         ImportActionCollectionResultDTO importActionCollectionResultDTO =
@@ -159,9 +158,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
-                            && !TRUE.equals(importingMetaDTO.getAppendToApp())
-                            && Boolean.FALSE.equals(isPartialImport)) {
+                    if (StringUtils.hasText(importingMetaDTO.getArtifactId())
+                            && !TRUE.equals(importingMetaDTO.getAppendToArtifact())
+                            && Boolean.FALSE.equals(importingMetaDTO.getIsPartialImport())) {
                         // Remove unwanted action collections
                         Set<String> invalidCollectionIds = new HashSet<>();
                         for (ActionCollection collection :
@@ -239,6 +238,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         actionsInOtherBranchesMono = Mono.just(Collections.emptyMap());
                     }
 
+                    // update the action name in the json to avoid duplicate names for the partial import
+                    // It is page level action and hence the action name should be unique
+                    if (Boolean.TRUE.equals(importingMetaDTO.getIsPartialImport())
+                            && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
+                        updateActionNameBeforeMerge(
+                                importedNewActionList, mappedImportableResourcesDTO.getRefactoringNameReference());
+                    }
+
                     return Mono.zip(actionsInCurrentAppMono, actionsInOtherBranchesMono)
                             .flatMap(objects -> {
                                 Map<String, NewAction> actionsInCurrentApp = objects.getT1();
@@ -273,7 +280,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         unpublishedAction.setId(newAction.getId());
                                         parentPage = updatePageInAction(
                                                 unpublishedAction,
-                                                mappedImportableResourcesDTO.getPageNameMap(),
+                                                (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap(),
                                                 importActionResultDTO.getActionIdMap());
                                         sanitizeDatasourceInActionDTO(
                                                 unpublishedAction,
@@ -290,7 +298,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         }
                                         NewPage publishedActionPage = updatePageInAction(
                                                 publishedAction,
-                                                mappedImportableResourcesDTO.getPageNameMap(),
+                                                (Map<String, NewPage>)
+                                                        mappedImportableResourcesDTO.getPageOrModuleMap(),
                                                 importActionResultDTO.getActionIdMap());
                                         parentPage = parentPage == null ? publishedActionPage : parentPage;
                                         sanitizeDatasourceInActionDTO(
@@ -315,7 +324,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                         if (actionsInOtherBranches.containsKey(newAction.getGitSyncId())) {
                                             // action found in other branch, copy the default resources from that
                                             // action
-                                            NewAction branchedAction = getExistingActionForImportedAction(
+                                            NewAction branchedAction = getExistingActionInOtherBranchForImportedAction(
                                                     mappedImportableResourcesDTO, actionsInOtherBranches, newAction);
                                             defaultResourcesService.setFromOtherBranch(
                                                     newAction, branchedAction, importingMetaDTO.getBranchName());
@@ -345,7 +354,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                     if (existingAppContainsAction(actionsInCurrentApp, newAction)) {
 
                                         // Since the resource is already present in DB, just update resource
-                                        NewAction existingAction = getExistingActionForImportedAction(
+                                        NewAction existingAction = getExistingActionInCurrentBranchForImportedAction(
                                                 mappedImportableResourcesDTO, actionsInCurrentApp, newAction);
                                         updateExistingAction(
                                                 existingAction,
@@ -398,10 +407,11 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                 mappedImportableResourcesDTO.setActionResultDTO(importActionResultDTO);
 
                                 // Save all the new actions in bulk
-                                return newActionService
-                                        .bulkValidateAndInsertActionInRepository(newNewActionList)
-                                        .zipWith(newActionService.bulkValidateAndUpdateActionInRepository(
-                                                existingNewActionList))
+                                return Mono.when(
+                                                newActionService.bulkValidateAndInsertActionInRepository(
+                                                        newNewActionList),
+                                                newActionService.bulkValidateAndUpdateActionInRepository(
+                                                        existingNewActionList))
                                         .thenReturn(importActionResultDTO);
                             });
                 })
@@ -417,6 +427,26 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             tuple.getT1());
                     return tuple.getT2();
                 });
+    }
+
+    private void updateActionNameBeforeMerge(List<NewAction> importedNewActionList, Set<String> refactoringNames) {
+
+        for (NewAction newAction : importedNewActionList) {
+            String oldNameAction = newAction.getUnpublishedAction().getName(),
+                    newNameAction = newAction.getUnpublishedAction().getName();
+            int i = 1;
+            while (refactoringNames.contains(newNameAction)) {
+                newNameAction = oldNameAction + i++;
+            }
+            String oldId = newAction.getId().split("_")[1];
+            newAction.setId(newNameAction + "_" + oldId);
+            newAction.getUnpublishedAction().setName(newNameAction);
+            newAction.getUnpublishedAction().setFullyQualifiedName(newNameAction);
+            if (newAction.getPublishedAction() != null) {
+                newAction.getPublishedAction().setName(newNameAction);
+                newAction.getPublishedAction().setFullyQualifiedName(newNameAction);
+            }
+        }
     }
 
     private void populateNewAction(
@@ -437,7 +467,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         }
     }
 
-    protected NewAction getExistingActionForImportedAction(
+    protected NewAction getExistingActionInOtherBranchForImportedAction(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, NewAction> actionsInOtherBranches,
+            NewAction newAction) {
+        return actionsInOtherBranches.get(newAction.getGitSyncId());
+    }
+
+    protected NewAction getExistingActionInCurrentBranchForImportedAction(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Map<String, NewAction> actionsInCurrentApp,
             NewAction newAction) {
@@ -484,7 +521,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             NewAction existingAction,
             NewAction actionToImport,
             String branchName,
-            ImportApplicationPermissionProvider permissionProvider) {
+            ImportArtifactPermissionProvider permissionProvider) {
         // Since the resource is already present in DB, just update resource
         if (!permissionProvider.hasEditPermission(existingAction)) {
             log.error("User does not have permission to edit action with id: {}", existingAction.getId());
