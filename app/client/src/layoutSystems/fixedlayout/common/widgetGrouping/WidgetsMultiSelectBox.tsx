@@ -24,7 +24,6 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { Icon } from "design-system";
-import { createPortal } from "react-dom";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
@@ -165,9 +164,10 @@ const StyledActionsContainer = React.forwardRef<
   }
 >((props, ref) => {
   const { children } = props;
-  return createPortal(
-    <StyledActions ref={ref}>{children}</StyledActions>,
-    document.body,
+  return (
+    <StyledActions ref={ref} style={{ top: "0px", left: "0px" }}>
+      {children}
+    </StyledActions>
   );
 });
 
@@ -188,46 +188,7 @@ function WidgetsMultiSelectBox(props: {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  /**
-   * Observer to track the position of the multi-selection bounding box
-   * and update the position of the context menu accordingly
-   */
-  const positionObserver = React.useRef<IntersectionObserver>(
-    new IntersectionObserver(
-      ([node]) => {
-        if (menuRef.current) {
-          requestAnimationFrame(() => {
-            if (menuRef.current) {
-              if (node.isIntersecting) {
-                menuRef.current.style.top = `${node.intersectionRect.top}px`;
-                menuRef.current.style.left = `${node.intersectionRect.left}px`;
-                menuRef.current.style.flexDirection =
-                  node.intersectionRect.height < 160 ? "row" : "column";
-              }
-              menuRef.current.style.visibility = node.isIntersecting
-                ? "visible"
-                : "hidden";
-            }
-          });
-        }
-      },
-      {
-        root: null,
-        threshold: [0, 0.125, 0.25, 0.5, 0.625, 0.75, 0.875, 1],
-      },
-    ),
-  );
-  /**
-   * Update the bounding rectangle to handle scroll, resize events
-   */
-  const updateBoundingClientRect = () => {
-    const node = draggableRef.current;
-    const observer = positionObserver.current;
-    if (observer) {
-      observer.disconnect();
-      if (node) observer.observe(node);
-    }
-  };
+
   /**
    * the multi-selection bounding box should only render when:
    *
@@ -280,7 +241,58 @@ function WidgetsMultiSelectBox(props: {
       });
     }
   };
-
+  /**
+   * Observer to track the position of the multi-selection bounding box
+   * and update the position of the context menu accordingly
+   */
+  const positionObserver = React.useRef<IntersectionObserver>(
+    new IntersectionObserver(
+      ([node]) => {
+        if (menuRef.current) {
+          const isVisible =
+            node.isIntersecting &&
+            (node.intersectionRect.height < 160
+              ? node.intersectionRect.height >= 38 &&
+                node.intersectionRect.width >= 160
+              : node.intersectionRect.width >= 38);
+          requestAnimationFrame(() => {
+            if (menuRef.current) {
+              if (isVisible) {
+                menuRef.current.style.top = `${
+                  node.intersectionRect.top - node.boundingClientRect.top
+                }px`;
+                menuRef.current.style.left = `${
+                  node.intersectionRect.left - node.boundingClientRect.left
+                }px`;
+                menuRef.current.style.flexDirection =
+                  node.intersectionRect.height < 160 ? "row" : "column";
+              }
+              menuRef.current.style.visibility = isVisible
+                ? "visible"
+                : "hidden";
+            }
+          });
+        }
+      },
+      {
+        root: draggableRef.current ?? null,
+        threshold: Array(1000)
+          .fill(0)
+          .map((_, i) => i / 1000),
+      },
+    ),
+  );
+  /**
+   * Update the bounding rectangle to handle scroll, resize events
+   */
+  const observeSelectionBox = () => {
+    const node = draggableRef.current;
+    const observer = positionObserver.current;
+    if (observer) {
+      observer.disconnect();
+      if (node) observer.observe(node);
+    }
+  };
   /**
    * calculate bounding box
    */
@@ -313,18 +325,8 @@ function WidgetsMultiSelectBox(props: {
    * Update the component positions whenever the component re-renders and check for updates at regular intervals
    */
   useEffect(() => {
-    if (shouldRender) updateBoundingClientRect();
-    // Update the bounding rectangle to handle scroll, resize events
-    const intervalId = shouldRender
-      ? setInterval(() => {
-          updateBoundingClientRect();
-        })
-      : null;
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [shouldRender]);
+    if (shouldRender) observeSelectionBox();
+  }, [shouldRender, selectedWidgets]);
   /**
    * copies the selected widgets
    *
