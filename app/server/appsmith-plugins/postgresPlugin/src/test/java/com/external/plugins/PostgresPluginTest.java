@@ -101,6 +101,14 @@ public class PostgresPluginTest {
             .withUsername("postgres_no_pwd_auth")
             .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust");
 
+    @Container
+    public static final PostgreSQLContainer pgsqlContainerWithSSL = new PostgreSQLContainer<>("postgres:alpine")
+            .withExposedPorts(5432)
+            .withUsername("postgres")
+            .withPassword("password")
+            .withCommand(
+                    "-c ssl=on -c ssl_cert_file=/resources/certs/server.crt -c ssl_key_file=/resources/certs/server.key");
+
     private static String address;
     private static Integer port;
     private static String username, password;
