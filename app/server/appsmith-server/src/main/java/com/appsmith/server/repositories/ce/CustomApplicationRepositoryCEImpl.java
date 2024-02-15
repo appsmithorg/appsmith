@@ -28,7 +28,6 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -308,18 +307,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(
-            String defaultId,
-            String defaultIdPath,
-            Map<String, Object> fieldValueMap,
-            String branchName,
-            String branchNamePath,
-            AclPermission permission) {
-        return super.updateFieldByDefaultIdAndBranchName(
-                defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission);
-    }
-
-    @Override
     public Mono<Long> countByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
@@ -347,7 +334,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         ArrayList<Criteria> criteria =
                 new ArrayList<>(List.of(workspaceIdCriteria, permissionGroupCriteria, notDeleted()));
-        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)), null, -1)
+        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)))
                 .map(application -> application.getId());
     }
 
