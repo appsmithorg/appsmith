@@ -27,6 +27,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { GridDefaults } from "constants/WidgetConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 const StyledIframe = styled.iframe<{
   componentWidth: number;
@@ -123,7 +124,8 @@ function CustomComponent(props: CustomComponentProps) {
             if (
               props.renderMode !== "BUILDER" &&
               height &&
-              props.dynamicHeight !== DynamicHeight.FIXED
+              (props.dynamicHeight !== DynamicHeight.FIXED ||
+                props.layoutSystemType === LayoutSystemTypes.AUTO)
             ) {
               iframe.current?.style.setProperty("height", `${height}px`);
               setHeight(height);
@@ -140,7 +142,13 @@ function CustomComponent(props: CustomComponentProps) {
     window.addEventListener("message", handler, false);
 
     return () => window.removeEventListener("message", handler, false);
-  }, [props.model, props.width, props.height]);
+  }, [
+    props.model,
+    props.width,
+    props.height,
+    props.layoutSystemType,
+    props.dynamicHeight,
+  ]);
 
   useEffect(() => {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
@@ -182,11 +190,19 @@ function CustomComponent(props: CustomComponentProps) {
   }, [theme]);
 
   useEffect(() => {
-    if (props.dynamicHeight === DynamicHeight.FIXED) {
+    if (
+      props.dynamicHeight === DynamicHeight.FIXED &&
+      props.layoutSystemType === LayoutSystemTypes.FIXED
+    ) {
       iframe.current?.style.setProperty("height", `${props.height}px`);
       setHeight(props.height);
     }
-  }, [props.dynamicHeight, props.height, iframe.current]);
+  }, [
+    props.dynamicHeight,
+    props.height,
+    iframe.current,
+    props.layoutSystemType,
+  ]);
 
   const srcDoc = `
     <html>
@@ -278,6 +294,7 @@ export interface CustomComponentProps {
   widgetId: string;
   dynamicHeight: DynamicHeight;
   minDynamicHeight: number;
+  layoutSystemType: LayoutSystemTypes;
 }
 
 /**
