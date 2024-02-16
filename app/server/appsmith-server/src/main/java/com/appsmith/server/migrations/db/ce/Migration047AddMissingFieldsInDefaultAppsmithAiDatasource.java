@@ -43,8 +43,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-@ChangeUnit(order = "046", id = "add-missing-fields-in-default-appsmith-datasource", author = " ")
-public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
+@ChangeUnit(order = "047", id = "add-missing-fields-in-default-appsmith-datasource", author = " ")
+public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
     private final MongoTemplate mongoTemplate;
     private final DatasourceStorageMigrationSolution datasourceStorageMigrationSolution =
             new DatasourceStorageMigrationSolution();
@@ -53,7 +53,7 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
     String publicPermissionGroupId = null;
     public static final String APPLICATION = "Application";
 
-    public Migration046AddMissingFieldsInDefaultAppsmithAiDatasource(MongoTemplate mongoTemplate) {
+    public Migration047AddMissingFieldsInDefaultAppsmithAiDatasource(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
