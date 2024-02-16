@@ -39,7 +39,7 @@ public class NewAction extends NewActionCE {
     @Override
     public void sanitiseToExportDBObject() {
         super.sanitiseToExportDBObject();
-
+        this.packageId = null;
         if (this.rootModuleInstanceId != null) {
             this.setOriginActionId(null);
             ActionDTO unpublishedAction = this.getUnpublishedAction();

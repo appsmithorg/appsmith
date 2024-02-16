@@ -21,6 +21,10 @@ import java.util.regex.Matcher;
 @ToString(callSuper = true)
 @QueryEmbeddable
 public class ActionCollectionDTO extends ActionCollectionCE_DTO implements Reusable {
+    @Transient
+    @JsonView(Views.Public.class)
+    String packageId;
+
     @JsonView(Views.Public.class)
     String moduleId;
 
@@ -45,6 +49,7 @@ public class ActionCollectionDTO extends ActionCollectionCE_DTO implements Reusa
         this.moduleInstanceId = actionCollection.getModuleInstanceId();
         this.rootModuleInstanceId = actionCollection.getRootModuleInstanceId();
         this.isPublic = actionCollection.getIsPublic();
+        this.packageId = actionCollection.getPackageId();
     }
 
     @Override
@@ -64,6 +69,7 @@ public class ActionCollectionDTO extends ActionCollectionCE_DTO implements Reusa
     @Override
     protected void resetTransientFields() {
         super.resetTransientFields();
+        this.setPackageId(null);
         this.setModuleInstanceId(null);
         this.setRootModuleInstanceId(null);
         this.setIsPublic(null);

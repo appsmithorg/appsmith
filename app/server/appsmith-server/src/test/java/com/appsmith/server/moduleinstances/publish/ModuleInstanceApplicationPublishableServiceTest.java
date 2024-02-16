@@ -263,6 +263,7 @@ public class ModuleInstanceApplicationPublishableServiceTest {
                     // Assertions for associated action properties
                     assertThat(dbAction.getModuleInstanceId()).isEqualTo(moduleInstance.getId());
                     assertThat(dbAction.getIsPublic()).isTrue();
+                    assertThat(dbAction.getPackageId()).isNull();
                     ActionDTO publishedAction = dbAction.getPublishedAction();
                     ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
                     assertThat(publishedAction.getContextType()).isEqualTo(CreatorContextType.PAGE);
@@ -313,7 +314,7 @@ public class ModuleInstanceApplicationPublishableServiceTest {
         assertThat(viewModeEntities.getActions()).hasSize(1);
         assertThat(viewModeEntities.getJsCollections()).hasSize(2);
 
-        // Verify that entities are returned in view mode depite being deleted in edit mode
+        // Verify that entities are returned in view mode despite being deleted in edit mode
         Set<String> moduleInsatnceIdSet =
                 moduleInstancesInViewMode.stream().map(mi -> mi.getId()).collect(Collectors.toSet());
         Set<String> queryModuleInstanceIdSet = viewModeEntities.getActions().stream()

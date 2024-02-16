@@ -385,6 +385,8 @@ class CrudModuleServiceTest {
                             .getActions()
                             .get(0);
                     assertThat(jsActionDTO.getCollectionId()).isNotNull();
+                    assertThat(jsActionDTO.getPackageId()).isEqualTo(packageId);
+                    assertThat(actionCollectionDTO.getPackageId()).isEqualTo(packageId);
                     assertThat(jsActionDTO.getCollectionId()).isEqualTo(actionCollectionDTO.getId());
                     assertThat(moduleEntitiesDTO.getActions()).hasSize(0);
                 })

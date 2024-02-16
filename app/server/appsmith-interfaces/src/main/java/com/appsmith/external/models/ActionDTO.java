@@ -21,6 +21,10 @@ import java.util.regex.Matcher;
 @ToString(callSuper = true)
 @QueryEmbeddable
 public class ActionDTO extends ActionCE_DTO implements Reusable {
+    @Transient
+    @JsonView(Views.Public.class)
+    String packageId;
+
     @JsonView(Views.Public.class)
     String moduleId;
 
@@ -85,5 +89,6 @@ public class ActionDTO extends ActionCE_DTO implements Reusable {
         this.setModuleInstanceId(null);
         this.setRootModuleInstanceId(null);
         this.setIsPublic(null);
+        this.setPackageId(null);
     }
 }

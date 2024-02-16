@@ -41,8 +41,8 @@ public class NewActionModulePublicEntityServiceImpl extends NewActionModulePubli
                 .flatMap(tuple -> {
                     Module module = tuple.getT1();
                     String workspaceId = tuple.getT2();
-                    NewAction moduleAction = ActionEntityHelper.generateActionDomain(
-                            module.getId(), workspaceId, isPublic, moduleActionDTO);
+                    NewAction moduleAction =
+                            ActionEntityHelper.generateActionDomain(module, workspaceId, isPublic, moduleActionDTO);
                     Set<Policy> childActionPolicies =
                             policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
                     moduleAction.setPolicies(childActionPolicies);

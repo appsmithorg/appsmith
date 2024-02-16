@@ -62,7 +62,7 @@ public class ActionCollectionModuleEntityServiceImpl implements ModuleEntityServ
                     Module module = tuple.getT1();
                     String workspaceId = tuple.getT2();
                     ActionCollection moduleActionCollection = JSModuleEntityHelper.generateActionCollectionDomain(
-                            actionCollectionDTO.getModuleId(), workspaceId, false, actionCollectionDTO);
+                            module, workspaceId, false, actionCollectionDTO);
                     Set<Policy> childActionCollectionPolicies =
                             policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
                     moduleActionCollection.setPolicies(childActionCollectionPolicies);

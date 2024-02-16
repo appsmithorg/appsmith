@@ -46,7 +46,7 @@ public class ActionCollectionModulePublicEntityServiceImpl extends ActionCollect
                     Module module = tuple.getT1();
                     String workspaceId = tuple.getT2();
                     ActionCollection moduleActionCollection = JSModuleEntityHelper.generateActionCollectionDomain(
-                            moduleId, workspaceId, isPublic, actionCollectionDTO);
+                            module, workspaceId, isPublic, actionCollectionDTO);
                     Set<Policy> childActionCollectionPolicies =
                             policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
                     moduleActionCollection.setPolicies(childActionCollectionPolicies);

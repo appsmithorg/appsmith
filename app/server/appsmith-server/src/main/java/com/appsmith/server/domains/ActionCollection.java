@@ -20,6 +20,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document
 public class ActionCollection extends ActionCollectionCE {
+    @JsonView(Views.Public.class)
+    String packageId;
 
     @JsonView(Views.Public.class)
     String moduleInstanceId;
@@ -39,7 +41,7 @@ public class ActionCollection extends ActionCollectionCE {
     @Override
     public void sanitiseToExportDBObject() {
         super.sanitiseToExportDBObject();
-
+        this.packageId = null;
         if (this.rootModuleInstanceId != null) {
             this.setOriginActionCollectionId(null);
             ActionCollectionDTO unpublishedCollection = this.getUnpublishedCollection();

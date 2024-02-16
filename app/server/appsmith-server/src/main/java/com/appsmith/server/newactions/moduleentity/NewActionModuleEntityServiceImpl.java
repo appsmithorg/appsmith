@@ -84,8 +84,8 @@ public class NewActionModuleEntityServiceImpl extends NewActionModuleEntityServi
                     // Name is allowed; Go ahead with creating the action
                     Module module = tuple2.getT1();
                     String workspaceId = tuple2.getT2();
-                    NewAction moduleAction = ActionEntityHelper.generateActionDomain(
-                            module.getId(), workspaceId, false, moduleActionDTO);
+                    NewAction moduleAction =
+                            ActionEntityHelper.generateActionDomain(module, workspaceId, false, moduleActionDTO);
                     Set<Policy> childActionPolicies =
                             policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
                     moduleAction.setPolicies(childActionPolicies);

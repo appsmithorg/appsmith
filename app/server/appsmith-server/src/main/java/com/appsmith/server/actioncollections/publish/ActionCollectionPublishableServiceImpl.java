@@ -119,6 +119,7 @@ public class ActionCollectionPublishableServiceImpl implements PackagePublishabl
         AppsmithBeanUtils.copyNestedNonNullProperties(sourceActionCollection, toBePublishedActionCollection);
         toBePublishedActionCollection.setId(new ObjectId().toString());
         toBePublishedActionCollection.setOriginActionCollectionId(sourceActionCollection.getId());
+        toBePublishedActionCollection.setPackageId(null);
         return toBePublishedActionCollection;
     }
 }

@@ -10,7 +10,6 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import com.appsmith.server.solutions.ActionPermission;
 import org.bson.types.ObjectId;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,11 +41,12 @@ public class NewActionPackagePublishableServiceImpl implements PackagePublishabl
                         newActionService.saveAll(publishableActions).collectList());
     }
 
-    @NotNull private NewAction getNewAction(PackagePublishingMetaDTO publishingMetaDTO, NewAction sourceNewAction) {
+    private NewAction getNewAction(PackagePublishingMetaDTO publishingMetaDTO, NewAction sourceNewAction) {
         NewAction toBePublishedNewAction = new NewAction();
         AppsmithBeanUtils.copyNestedNonNullProperties(sourceNewAction, toBePublishedNewAction);
         toBePublishedNewAction.setId(new ObjectId().toString());
         toBePublishedNewAction.setOriginActionId(sourceNewAction.getId());
+        toBePublishedNewAction.setPackageId(null);
         ActionDTO sourceUnpublishedAction = sourceNewAction.getUnpublishedAction();
         toBePublishedNewAction.setPublishedAction(sourceUnpublishedAction);
         toBePublishedNewAction.setUnpublishedAction(new ActionDTO());

@@ -222,6 +222,7 @@ public class ActionCollectionModuleInstantiatingServiceImpl
         AppsmithBeanUtils.copyNestedNonNullProperties(sourceActionCollection, toBeInstantiatedActionCollection);
         // Give a new id
         toBeInstantiatedActionCollection.setId(new ObjectId().toString());
+        toBeInstantiatedActionCollection.setPackageId(null);
         return toBeInstantiatedActionCollection;
     }
 

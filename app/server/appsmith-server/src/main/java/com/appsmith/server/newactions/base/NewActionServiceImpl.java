@@ -525,6 +525,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         actionDTO.setIsPublic(newAction.getIsPublic());
         actionDTO.setModuleInstanceId(newAction.getModuleInstanceId());
         actionDTO.setRootModuleInstanceId(newAction.getRootModuleInstanceId());
+        actionDTO.setPackageId(newAction.getPackageId());
 
         DefaultResources defaultResources = newAction.getDefaultResources();
         if (actionDTO.getDefaultResources() != null) {
@@ -632,6 +633,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         if (isModuleContext(action.getContextType())) {
             newAction.setIsPublic(action.getIsPublic());
             newAction.setRootModuleInstanceId(action.getRootModuleInstanceId());
+            if (newAction.getPackageId() == null) {
+                newAction.setPackageId(action.getPackageId());
+            }
         } else if (isWorkflowContext(action.getContextType())) {
             newAction.setWorkflowId(action.getWorkflowId());
         }
