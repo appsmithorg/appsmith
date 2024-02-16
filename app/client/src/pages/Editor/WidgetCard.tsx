@@ -20,7 +20,7 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
   color: var(--ads-v2-color-fg);
   min-height: 70px;
   display: flex;
-  justify-content: center;
+  justify-content: start;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
@@ -45,17 +45,17 @@ export const Wrapper = styled.div<{ isThumbnail?: boolean }>`
   ${(props) =>
     props.isThumbnail &&
     `margin-bottom: 0px;
-    
+
     & span {
       padding-left: var(--ads-v2-spaces-3);
       padding-right: var(--ads-v2-spaces-3);
       color: var(--ads-v2-color-fg);
-      font-weight: 600;      
+      font-weight: 600;
       line-height: 1.2;
       padding-bottom: var(--ads-v2-spaces-3);
     }
-    
-   
+
+
     `}
 `;
 
@@ -100,7 +100,7 @@ function WidgetCard(props: CardProps) {
 
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;
   const className = `t--widget-card-draggable t--widget-card-draggable-${type} ${
-    !Boolean(props.details.thumbnail) ? "gap-2 mt-2" : ""
+    !Boolean(props.details.thumbnail) ? "pt-2 gap-2 mt-2" : ""
   }`;
 
   return (
