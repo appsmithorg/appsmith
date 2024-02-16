@@ -7,7 +7,6 @@ import {
   setThenBlockInQuery,
   setCatchBlockInQuery,
 } from "@shared/ast";
-import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { createModalAction } from "actions/widgetActions";
 import type { AppState } from "@appsmith/reducers";
@@ -41,7 +40,6 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import {
   APPSMITH_GLOBAL_FUNCTIONS,
   AppsmithFunction,
@@ -69,6 +67,11 @@ import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { getQueryAddUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
+import history from "utils/history";
+import { setIdeEditorViewMode } from "actions/ideActions";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 const actionList: {
   label: string;
@@ -441,11 +444,12 @@ function getApiAndQueryOptions(
     className: "t--create-datasources-query-btn",
     onSelect: () => {
       handleClose();
-      dispatch(
-        setGlobalSearchCategory(
-          filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
-        ),
+      const currentEntityInfo = identifyEntityFromPath(
+        window.location.pathname,
       );
+      const url = getQueryAddUrl(currentEntityInfo);
+      history.push(url);
+      dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
     },
   };
 
