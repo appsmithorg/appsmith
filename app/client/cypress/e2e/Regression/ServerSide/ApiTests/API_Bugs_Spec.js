@@ -109,7 +109,6 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     // });
 
     //Cocktail DB
-
     cy.xpath("//img/parent::div")
       .eq(2)
       .find("img")
@@ -142,7 +141,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     PageList.AddNewPage();
     //Api 1
     apiPage.CreateAndFillApi(
-      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl1,
       "InternalServerErrorApi",
     );
     apiPage.RunAPI(false);
