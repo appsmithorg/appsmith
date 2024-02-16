@@ -222,7 +222,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     URI redirectUri;
                     try {
                         redirectUri = new URIBuilder()
-                                .setPath("/")
+                                .setPath(exchange.getRequest().getPath().value())
                                 .setParameter("error", error.getMessage())
                                 .build();
                     } catch (URISyntaxException e) {
