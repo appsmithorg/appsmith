@@ -63,12 +63,17 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public Mono<UpdateResult> updateAll(@NonNull UpdateDefinition update) {
         scope = Scope.ALL;
-        return repo.updateAllExecute(this, update);
+        return repo.updateExecute(this, update);
     }
 
     public Mono<UpdateResult> updateFirst(@NonNull UpdateDefinition update) {
         scope = Scope.FIRST;
-        return repo.updateAllExecute(this, update);
+        return repo.updateExecute(this, update);
+    }
+
+    public Mono<T> updateFirstAndFind(@NonNull UpdateDefinition update) {
+        scope = Scope.FIRST;
+        return repo.updateAllExecuteAndFind(this, update);
     }
 
     public QueryAllParams<T> criteria(Criteria... criteria) {
