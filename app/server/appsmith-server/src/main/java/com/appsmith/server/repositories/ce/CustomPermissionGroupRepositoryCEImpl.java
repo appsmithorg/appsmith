@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
@@ -10,14 +9,12 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.bridge.Update;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
@@ -27,7 +24,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +75,9 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Transactional
     @Modifying
     public Optional<UpdateResult> updateById(String id, Update updateObj) {
+        final int count = queryBuilder().byId(id).updateFirst(updateObj);
+
+        /*
         final EntityManager entityManager = getEntityManager();
 
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -107,6 +106,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         }
 
         final int count = entityManager.createQuery(cu).executeUpdate();
+         */
 
         return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
     }

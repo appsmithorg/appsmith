@@ -10,6 +10,8 @@ import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.Update;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -31,12 +33,11 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
-import lombok.NonNull;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -44,11 +45,9 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -64,6 +63,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -194,35 +194,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         if (resource == null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "resource");
         }
-        return updateById(id, resource, Optional.ofNullable(permission));
-    }
 
-    @Transactional
-    @Modifying
-    public Mono<T> updateById(String id, T resource, Optional<AclPermission> permission) {
         // Set policies to null in the update object
         resource.setPolicies(null);
         resource.setUpdatedAt(Instant.now());
 
-        DBObject update = getDbObject(resource);
-        Update updateObj = new Update();
-        update.keySet().forEach(entry -> updateObj.set(entry, update.get(entry)));
-
-        return ReactiveSecurityContextHolder.getContext()
-            .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
-            .flatMap(user -> {
-                resource.setModifiedBy(user.getUsername());
-                return (permission.isPresent() ? getAllPermissionGroupsForUser(user) : Mono.just(Set.<String>of()))
-                    .flatMap(permissionGroups -> queryBuilder()
-                        .byId(id)
-                        .permissionGroups(permissionGroups)
-                        .permission(permission.orElse(null))
-                        .updateFirst(updateObj)
-                        .then(findById(id, permission))
-                        .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups)));
-            });
-
-        /*
         final User user = ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
                 .block();
@@ -241,7 +217,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .orElseThrow(() -> new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
                         genericDomain.getSimpleName().toLowerCase(),
-                        id)));//*/
+                        id))); // */
     }
 
     public Optional<UpdateResult> updateFieldByDefaultIdAndBranchName(
@@ -259,10 +235,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             builder.criteria(Criteria.where(branchNamePath).is(branchName));
         }
 
-        Update update = new Update();
+        Update update = Bridge.update();
         fieldNameValueMap.forEach(update::set);
 
-        return builder.permission(permission).updateFirst(update);
+        final int count = builder.permission(permission).updateFirst(update);
+        return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
     }
 
     protected Set<String> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
@@ -574,12 +551,18 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         cu.where(predicate);
 
         for (com.appsmith.server.helpers.ce.bridge.Update.SetOp op : update.getSetOps()) {
+            Object key = op.key();
             Object value = op.value();
+
+            if (key instanceof Path<?> keyPath) {
+                key = fieldName(keyPath);
+            }
+
             if (value instanceof Path<?> valuePath) {
                 value = root.get(fieldName(valuePath));
             }
 
-            cu.set(root.get(fieldName(op.key())), value);
+            cu.set(root.get((String) key), value);
         }
 
         return em.createQuery(cu).executeUpdate();
@@ -657,7 +640,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     Db query methods
      */
 
-    public Flux<T> queryAllWithoutPermissions(List<Criteria> criterias, List<String> includeFields) {
+    public List<T> queryAllWithoutPermissions(List<Criteria> criterias, List<String> includeFields) {
         return queryBuilder().criteria(criterias).fields(includeFields).all();
     }
 

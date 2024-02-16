@@ -505,8 +505,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         // *
         int count = queryBuilder()
                 .permission(permission)
-                .spec(bridge().equal(fieldName(QNewAction.newAction.applicationId), applicationId))
-                .update(Bridge.update()
+                .criteria(bridge().equal(fieldName(QNewAction.newAction.applicationId), applicationId))
+                .updateAll(Bridge.update()
                         .set(QNewAction.newAction.publishedAction, QNewAction.newAction.unpublishedAction)); // */
 
         return Optional.empty(); // */
@@ -562,7 +562,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                                 root.get(fieldName(QNewAction.newAction.unpublishedAction)),
                                 cb.literal(FieldName.DELETED_AT)))))
                 .permission(permission)
-                .update(Bridge.update().set(QNewAction.newAction.deletedAt, Instant.now()));
+                .updateAll(Bridge.update().set(QNewAction.newAction.deletedAt, Instant.now()));
 
         return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
     }

@@ -7,14 +7,11 @@ import com.appsmith.server.helpers.ce.bridge.Update;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.mongodb.client.result.UpdateResult;
 import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -103,7 +100,7 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.countExecute(this);
     }
 
-    public Mono<UpdateResult> updateAll(@NonNull UpdateDefinition update) {
+    public int updateAll(@NonNull Update update) {
         if (!criteria.isEmpty()) {
             final var e = new RuntimeException("Querying with criteria, instead of specifications!");
             // We're eating up the exception in some places, so let's print it out for debugging ourselves.
@@ -115,7 +112,7 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.updateExecute2(this, update);
     }
 
-    public Mono<UpdateResult> updateFirst(@NonNull UpdateDefinition update) {
+    public int updateFirst(@NonNull Update update) {
         if (!criteria.isEmpty()) {
             final var e = new RuntimeException("Querying with criteria, instead of specifications!");
             // We're eating up the exception in some places, so let's print it out for debugging ourselves.
@@ -139,6 +136,12 @@ public class QueryAllParams<T extends BaseDomain> {
             return this;
         }
         this.criteria.addAll(criterias);
+        return this;
+    }
+
+    @SuppressWarnings("unchecked") // This should be okay with the way we use this fluent API.
+    public QueryAllParams<T> criteria(Specification<? extends BaseDomain> spec) {
+        specifications.add((Specification<T>) spec);
         return this;
     }
 

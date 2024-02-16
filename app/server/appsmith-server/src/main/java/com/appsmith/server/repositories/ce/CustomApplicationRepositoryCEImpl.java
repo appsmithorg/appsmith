@@ -74,7 +74,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Application> findByName(String name, AclPermission permission) {
+    public Optional<Application> findByName(String name, AclPermission permission) {
         return queryBuilder()
                 .criteria(bridge().equal(fieldName(QApplication.application.name), name))
                 .permission(permission)
@@ -305,7 +305,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     @Modifying
     @Transactional
-    public Optional<UpdateResult> setAppTheme(
+    public int setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         final Update update = Bridge.update();
 
@@ -316,7 +316,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             update.set(QApplication.application.publishedModeThemeId, publishedModeThemeId);
         }
 
-        return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(updateObj);
+        return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(update);
     }
 
     @Override

@@ -15,5 +15,10 @@ public class Update {
         return this;
     }
 
-    public record SetOp(Path<?> key, Object value) {}
+    public Update set(String key, Object value) {
+        setOps.add(new SetOp(key, value));
+        return this;
+    }
+
+    public record SetOp(Object key, Object value) {}
 }

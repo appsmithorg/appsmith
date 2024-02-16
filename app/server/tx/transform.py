@@ -185,6 +185,9 @@ def generate_cake_class(domain):
         elif not ret_type.islower():
             ret_type = ("Mono<" + ret_type + ">")
             wrapper = MONO_WRAPPER_NON_OPTIONAL
+        elif ret_type == "int":
+            ret_type = "Mono<Integer>"
+            wrapper = MONO_WRAPPER_NON_OPTIONAL
         else:
             wrapper = "%s"
 
@@ -223,7 +226,7 @@ def generate_cake_class(domain):
     import com.appsmith.external.models.*;
     import com.appsmith.server.acl.AclPermission;
     import com.appsmith.server.domains.*;
-    import com.appsmith.server.helpers.bridge.Update;
+    import com.appsmith.server.helpers.ce.bridge.Update;
     import com.appsmith.server.projections.*;
     import com.appsmith.server.repositories.*;
     import org.springframework.stereotype.Component;

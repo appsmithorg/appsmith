@@ -4,18 +4,20 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.Update;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
@@ -72,14 +74,14 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> Mono.justOrEmpty(getAllPermissionGroupsForUser((User) principal)))
-                .flatMap(permissionGroups -> {
+                .map(permissionGroups -> {
                     Criteria permissionCriteria = userAcl(permissionGroups, AclPermission.MANAGE_THEMES);
 
-                    Update update = new Update();
-                    update.set("deletedAt", Instant.now());
+                    Update update = Bridge.update();
+                    update.set(QTheme.theme.deletedAt, Instant.now());
                     return queryBuilder().criteria(criteria, permissionCriteria).updateAll(update);
                 })
-                .map(updateResult -> updateResult.getModifiedCount() > 0)
+                .map(count -> count > 0)
                 .blockOptional();
     }
 

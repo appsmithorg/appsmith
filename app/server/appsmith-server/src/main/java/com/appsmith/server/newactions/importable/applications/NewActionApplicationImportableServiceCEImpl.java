@@ -16,7 +16,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -33,7 +33,7 @@ import java.util.Optional;
 public class NewActionApplicationImportableServiceCEImpl
         implements ArtifactBasedImportableServiceCE<NewAction, Application> {
 
-    private final NewActionRepository repository;
+    private final NewActionRepositoryCake repository;
     private final DefaultResourcesService<NewAction> defaultResourcesService;
     private final DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
     private final NewActionService newActionService;

@@ -13,8 +13,6 @@ import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
-import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -39,8 +37,6 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
             PagePermission pagePermission,
             ActionPermission actionPermission,
             Gson gson,
-            PermissionGroupRepositoryCake permissionGroupRepository,
-            ImportableService<Plugin> pluginImportableService,
             ImportableService<Theme> themeImportableService,
             ImportableService<NewPage> newPageImportableService,
             ImportableService<CustomJSLib> customJSLibImportableService,
@@ -57,8 +53,6 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
                 pagePermission,
                 actionPermission,
                 gson,
-                permissionGroupRepository,
-                pluginImportableService,
                 themeImportableService,
                 newPageImportableService,
                 customJSLibImportableService,
