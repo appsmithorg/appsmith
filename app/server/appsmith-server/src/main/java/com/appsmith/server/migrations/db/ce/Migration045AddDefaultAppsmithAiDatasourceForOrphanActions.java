@@ -1,10 +1,8 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.helpers.CollectionUtils;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -14,7 +12,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -32,7 +29,6 @@ import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
 @ChangeUnit(order = "045", id = "add-default-appsmith-datasource", author = "")
 public class Migration045AddDefaultAppsmithAiDatasourceForOrphanActions {
     private final MongoTemplate mongoTemplate;
-    private int counter = 1;
 
     public Migration045AddDefaultAppsmithAiDatasourceForOrphanActions(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -78,7 +74,7 @@ public class Migration045AddDefaultAppsmithAiDatasourceForOrphanActions {
                     Datasource datasource = mongoTemplate.findOne(datasourceQuery, Datasource.class);
                     if (datasource == null) {
                         datasource = new Datasource();
-                        datasource.setName(generateDatasourceName());
+                        datasource.setName(DEFAULT_APPSMITH_AI_DATASOURCE);
                         datasource.setPluginId(pluginId);
                         datasource.setWorkspaceId(workspaceId);
                         datasource = mongoTemplate.insert(datasource);
@@ -92,19 +88,5 @@ public class Migration045AddDefaultAppsmithAiDatasourceForOrphanActions {
         } catch (Exception e) {
             log.error("Error processing Appsmith AI actions during migration", e);
         }
-    }
-
-    private String generateDatasourceName() {
-        String name = "Appsmith AI " + counter;
-        List<Datasource> datasources =
-                mongoTemplate.find(new Query(Criteria.where(FieldName.NAME).is(name)), Datasource.class);
-        while (!CollectionUtils.isNullOrEmpty(datasources)) {
-            counter++;
-            name = "Appsmith AI " + counter;
-            datasources =
-                    mongoTemplate.find(new Query(Criteria.where(FieldName.NAME).is(name)), Datasource.class);
-        }
-        counter++;
-        return name;
     }
 }

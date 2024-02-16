@@ -50,7 +50,7 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
     Map<String, Set<PermissionGroup>> workspaceIdToPermissionGroups = new HashMap<>();
     Map<String, String> workspaceIdToEnvironmentId = null;
     String publicPermissionGroupId = null;
-    private static int counter = 1;
+    public static final String APPLICATION = "Application";
 
     public Migration046AddMissingFieldsInDefaultAppsmithAiDatasource(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -59,6 +59,13 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
     @RollbackExecution
     public void rollbackExecution() {}
 
+    /**
+     * Steps of the migration:
+     * 1. Find all Appsmith AI datasources without createdAt field created from Migration 045
+     * 2. For each datasource, create policies based on default workspace permission groups and application specific permission groups
+     * 3. create a datasource storage
+     * 4. set createdAt and updatedAt across
+     */
     @Execution
     public void addMissingFieldsInDefaultAppsmithAiDatasource() {
         // find Appsmith AI plugin id and then find existing Appsmith AI datasource without createdAt
@@ -71,6 +78,7 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
         }
         String pluginId = plugin.getId();
 
+        // mapping to store workspace id to environment id
         workspaceIdToEnvironmentId = datasourceStorageMigrationSolution.getDefaultEnvironmentsMap(mongoTemplate);
         publicPermissionGroupId = getPublicPermissionGroupId();
 
@@ -80,11 +88,13 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
                 .and(FieldName.CREATED_AT)
                 .exists(false));
         try (Stream<Datasource> datasourceStream = mongoTemplate.stream(datasourceQuery, Datasource.class)) {
-            // for each datasource, create policies based on default workspace permission groups, create a datasource
-            // storage and set createdAt and updatedAt across
+            // for each datasource, create policies based on default workspace permission groups and application based
+            // permission groups
+            // create a datasource storage and set createdAt and updatedAt across
             datasourceStream.forEach(datasource -> {
                 String workspaceId = datasource.getWorkspaceId();
                 String uniqueGitSyncId = workspaceId + "_" + new ObjectId();
+                Instant now = Instant.now();
 
                 Pair<Boolean, Set<String>> resultPair =
                         getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(datasource);
@@ -96,8 +106,8 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
 
                 datasource.setPolicies(createPolicies(isPublic, workspacePermissionGroups));
                 datasource.setInvalids(new HashSet<>());
-                datasource.setCreatedAt(Instant.now());
-                datasource.setUpdatedAt(Instant.now());
+                datasource.setCreatedAt(now);
+                datasource.setUpdatedAt(now);
                 if (!StringUtils.hasText(datasource.getGitSyncId())) {
                     datasource.setGitSyncId(uniqueGitSyncId);
                 }
@@ -114,7 +124,7 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
     /**
      * Fetch list of all application ids for the datasource and check if any policy contains public permission group id
      */
-    public Pair<Boolean, Set<String>> getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(Datasource datasource) {
+    private Pair<Boolean, Set<String>> getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(Datasource datasource) {
         Query newActionsQuery = new Query();
         newActionsQuery.addCriteria(
                 Criteria.where("unpublishedAction.datasource.id").is(datasource.getId()));
@@ -125,20 +135,19 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
         Set<String> allApplicationIds = new HashSet<>();
         AtomicReference<Boolean> isPublic = new AtomicReference<>(false);
         try (Stream<NewAction> newActionStream = mongoTemplate.stream(newActionsQuery, NewAction.class)) {
-            newActionStream.forEach(newAction -> {
-                if (!StringUtils.hasText(newAction.getApplicationId())) {
-                    return;
-                }
-                allApplicationIds.add(newAction.getApplicationId());
-                Set<Policy> newActionPolicies = newAction.getPolicies();
-                // check if any policy contains public permission group id
-                for (Policy policy : newActionPolicies) {
-                    if (!CollectionUtils.isNullOrEmpty(policy.getPermissionGroups())
-                            && policy.getPermissionGroups().contains(publicPermissionGroupId)) {
-                        isPublic.set(true);
-                    }
-                }
-            });
+            newActionStream
+                    .filter(newAction -> StringUtils.hasText(newAction.getApplicationId()))
+                    .forEach(newAction -> {
+                        allApplicationIds.add(newAction.getApplicationId());
+                        Set<Policy> newActionPolicies = newAction.getPolicies();
+                        // check if any policy contains public permission group id
+                        for (Policy policy : newActionPolicies) {
+                            if (!CollectionUtils.isNullOrEmpty(policy.getPermissionGroups())
+                                    && policy.getPermissionGroups().contains(publicPermissionGroupId)) {
+                                isPublic.set(true);
+                            }
+                        }
+                    });
             return new MutablePair<>(isPublic.get(), allApplicationIds);
         } catch (Exception e) {
             log.error("Error fetching new actions for datasource {}", datasource.getId(), e);
@@ -177,6 +186,7 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
         String envId = datasourceStorageMigrationSolution.getEnvironmentIdForDatasource(
                 workspaceIdToEnvironmentId, datasource.getWorkspaceId());
 
+        Instant now = Instant.now();
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setDatasourceId(datasource.getId());
         datasourceStorage.setInvalids(new HashSet<>());
@@ -184,8 +194,8 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
         datasourceStorage.setIsConfigured(true);
         datasourceStorage.setGitSyncId(datasource.getGitSyncId());
         datasourceStorage.setEnvironmentId(envId);
-        datasourceStorage.setCreatedAt(Instant.now());
-        datasourceStorage.setUpdatedAt(Instant.now());
+        datasourceStorage.setCreatedAt(now);
+        datasourceStorage.setUpdatedAt(now);
         // empty datasource configuration required for Appsmith AI plugin to work properly
         datasourceStorage.setDatasourceConfiguration(createEmptyDatasourceConfiguration());
 
@@ -193,17 +203,24 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
     }
 
     /**
-     * Create policies for the datasource based on the default permission groups of the workspace
+     * Create policies for the datasource based on the permission groups of the workspace and associated applications
      */
     private Set<Policy> createPolicies(boolean isPublic, Set<PermissionGroup> permissionGroups) {
-        Set<String> devAdminPGIds = new HashSet<>();
-        Set<String> allPGIds = new HashSet<>();
+        Set<String> devAdminPGIds = new HashSet<>(); // all workspace dev and admins
+        Set<String> appDevIds =
+                new HashSet<>(); // all app developers, creating for all permission groups which can read a datasource
+        Set<String> allPGIds = new HashSet<>(); // all workspace and app related permission groups
 
         for (PermissionGroup permissionGroup : permissionGroups) {
             String permissionGroupId = permissionGroup.getId();
             if (permissionGroup.getName().contains(FieldName.VIEWER)) {
                 allPGIds.add(permissionGroupId);
             } else if (permissionGroup.getName().contains(FieldName.DEVELOPER)) {
+                // if developer is app developer, add it to appDevIds
+                if (permissionGroup.getDefaultDomainType() != null
+                        && permissionGroup.getDefaultDomainType().equals(APPLICATION)) {
+                    appDevIds.add(permissionGroupId);
+                }
                 devAdminPGIds.add(permissionGroupId);
                 allPGIds.add(permissionGroupId);
             } else if (permissionGroup.getName().contains(FieldName.ADMINISTRATOR)) {
@@ -215,8 +232,12 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
             allPGIds.add(publicPermissionGroupId);
         }
 
+        appDevIds.addAll(devAdminPGIds);
+        // app developers can read and execute
+        // workspace developers and admins can read, execute, delete and manage
+        // all permission groups can execute
         return Set.of(
-                new Policy(AclPermission.READ_DATASOURCES.getValue(), devAdminPGIds),
+                new Policy(AclPermission.READ_DATASOURCES.getValue(), appDevIds),
                 new Policy(AclPermission.EXECUTE_DATASOURCES.getValue(), allPGIds),
                 new Policy(AclPermission.DELETE_DATASOURCES.getValue(), devAdminPGIds),
                 new Policy(AclPermission.MANAGE_DATASOURCES.getValue(), devAdminPGIds));
@@ -244,13 +265,12 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
             log.error("Workspace not found for id {} or no default permission groups", workspaceId);
             return new HashSet<>();
         }
-
+        String defaultDomainTypeField = fieldName(QPermissionGroup.permissionGroup.defaultDomainType);
         Query permissionGroupQuery = new Query();
-        permissionGroupQuery.fields().include(FieldName.ID, FieldName.NAME);
+        permissionGroupQuery.fields().include(FieldName.ID, FieldName.NAME, defaultDomainTypeField);
         Criteria applicationSpecificPermissionGroupCriteria = new Criteria();
         applicationSpecificPermissionGroupCriteria.andOperator(
-                Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                        .is("Application"),
+                Criteria.where(defaultDomainTypeField).is(APPLICATION),
                 Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
                         .in(applicationIds));
         permissionGroupQuery.addCriteria(new Criteria()
