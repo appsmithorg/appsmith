@@ -247,27 +247,20 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
+  cy.intercept("POST", "/api/v1/git/commit/app/*").as("gitCommitAlias");
   cy.get(homePage.publishButton).click();
   agHelper.AssertElementExist(gitSync._bottomBarPull);
   cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
   cy.get(gitSyncLocators.commitButton).click();
-  if (!assertFailure) {
-    // check for commit success
-    //adding timeout since commit is taking longer sometimes
-    cy.wait("@commit", { timeout: 35000 }).should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-    cy.wait(3000);
-  } else {
-    cy.wait("@commit", { timeout: 35000 }).then((interception) => {
-      const status = interception.response.body.responseMeta.status;
-      expect(status).to.be.gte(400);
-    });
-  }
 
-  cy.get(gitSyncLocators.closeGitSyncModal).click();
+  cy.wait("@gitCommitAlias").then((interception) => {
+    if (!assertFailure) {
+      expect(interception?.response?.statusCode).to.eq(201);
+    } else {
+      expect(interception?.response?.statusCode).to.be.gte(400);
+    }
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+  });
 });
 
 // todo rishabh s: refactor
