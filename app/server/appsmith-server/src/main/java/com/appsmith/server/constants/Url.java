@@ -29,5 +29,10 @@ public class Url extends UrlCE {
     public static final String PROVISION_GROUP_URL = PROVISION_URL + "/groups";
     public static final String KNOWLEDGE_BASE_URL = BASE_URL + VERSION + "/kb";
     public static final String WORKFLOW_URL = BASE_URL + VERSION + "/workflows";
+    public static final String WORKFLOW_TRIGGER_BASEPATH = "/trigger/";
     public static final String WORKFLOW_APPROVAL_URL = WORKFLOW_URL + "/approvalRequest";
+
+    // Git URLs
+    public static final String GIT_URL = BASE_URL + VERSION + "/git";
+    public static final String GIT_DEPLOY_URL_BASEPATH = "/deploy/app/";
 }

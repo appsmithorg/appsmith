@@ -45,4 +45,7 @@ public class PatternConstants {
     // Regex patterns such as (^test1$)|(^test2$)|(^test3$) will match with any of the strings -> test1, test2, test3
     public static final String GROUPED_STRING_WITH_START_END = "(" + STRING_WITH_START_END + ")";
     public static final String REGEX_OR_SEPARATOR = "|";
+
+    // This constant is to allow for CSRF URL filtering for all workflowIds and AppIds
+    public static final String CSRF_URL_ID_REGEX_FILTER = "[0-9A-Za-z]+";
 }

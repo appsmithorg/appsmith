@@ -1,5 +1,6 @@
 package com.appsmith.server.filters;
 
+import com.appsmith.server.constants.PatternConstants;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -25,7 +26,10 @@ public class CSRFFilter implements WebFilter {
             Url.USER_URL + "/verifyEmailVerificationToken");
 
     // Workflows are triggered for specific IDs, and hence exempting complete regex for the same.
-    private static final Set<String> EXEMPT_PATTERNS = Set.of(Url.WORKFLOW_URL + "/trigger/" + "[0-9A-Za-z]+");
+    // Expepting GIT deploy URLs to enable continuos deployment
+    private static final Set<String> EXEMPT_PATTERNS = Set.of(
+            Url.WORKFLOW_URL + Url.WORKFLOW_TRIGGER_BASEPATH + PatternConstants.CSRF_URL_ID_REGEX_FILTER,
+            Url.GIT_URL + Url.GIT_DEPLOY_URL_BASEPATH + PatternConstants.CSRF_URL_ID_REGEX_FILTER);
 
     private static final String X_REQUESTED_BY_NAME = "X-Requested-By";
     private static final String X_REQUESTED_BY_VALUE = "Appsmith";
