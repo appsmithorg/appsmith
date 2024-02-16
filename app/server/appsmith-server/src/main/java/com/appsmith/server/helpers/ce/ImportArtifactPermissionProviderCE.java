@@ -68,7 +68,6 @@ public class ImportArtifactPermissionProviderCE {
      */
     // flag to indicate whether permission check is required on the create datasource operation
     private boolean permissionRequiredToCreateDatasource;
-
     // flag to indicate whether permission check is required on the create page operation
     private boolean permissionRequiredToCreatePage;
     // flag to indicate whether permission check is required on the edit page operation
@@ -77,7 +76,6 @@ public class ImportArtifactPermissionProviderCE {
     protected boolean permissionRequiredToCreateAction;
     // flag to indicate whether permission check is required on the edit action operation
     private boolean permissionRequiredToEditAction;
-
     // flag to indicate whether permission check is required during the edit datasource operation
     private boolean permissionRequiredToEditDatasource;
 

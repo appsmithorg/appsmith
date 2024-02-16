@@ -219,18 +219,15 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .flatMap(user -> signupAndLogin(user, exchange))
                 .then()
                 .onErrorResume(error -> {
-                    String referer = exchange.getRequest().getHeaders().getFirst("referer");
-                    if (referer == null) {
-                        referer = DEFAULT_ORIGIN_HEADER;
-                    }
-                    final URIBuilder redirectUriBuilder =
-                            new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
                     URI redirectUri;
                     try {
-                        redirectUri = redirectUriBuilder.build();
+                        redirectUri = new URIBuilder()
+                                .setPath("/")
+                                .setParameter("error", error.getMessage())
+                                .build();
                     } catch (URISyntaxException e) {
                         log.error("Error building redirect URI with error for signup, {}.", e.getMessage(), error);
-                        redirectUri = URI.create(referer);
+                        redirectUri = URI.create("/");
                     }
                     return redirectStrategy.sendRedirect(exchange, redirectUri);
                 });
