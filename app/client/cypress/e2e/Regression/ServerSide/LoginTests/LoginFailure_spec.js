@@ -13,7 +13,7 @@ describe("Login failure", function () {
     cy.url()
       .then((url) => {
         urlWithoutQueryParams = url.split("?")[0];
-        homePage.LogOutviaAPI();
+        homePage.Signout(false);
         agHelper.VisitNAssert(urlWithoutQueryParams, "getConsolidatedData");
         // agHelper.Sleep(3000); //for page redirect to complete
         // assertHelper.AssertNetworkStatus("signUpLogin");
