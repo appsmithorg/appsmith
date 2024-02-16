@@ -225,7 +225,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     if (referer != null) {
                         try {
                             path = URI.create(referer).getPath();
-                        } catch(IllegalArgumentException ex) {
+                        } catch (IllegalArgumentException ex) {
                             // This is okay, we just use the default value for `path`.
                         }
                     }
