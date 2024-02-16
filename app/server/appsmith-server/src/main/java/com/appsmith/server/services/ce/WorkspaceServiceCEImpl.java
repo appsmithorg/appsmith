@@ -465,7 +465,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     return workspaceFromDb;
                 })
                 .flatMap(this::validateObject)
-                .then(Mono.defer(() -> repository.updateById(id, resource, workspacePermission.getEditPermission())))
+                .then(Mono.defer(() -> repository.updateById(id, resource, null)))
                 .flatMap(analyticsService::sendUpdateEvent);
     }
 
