@@ -283,6 +283,9 @@ public class Migration046AddMissingFieldsInDefaultAppsmithAiDatasource {
 
         Query permissionGroupQuery = new Query()
                 .addCriteria(permissionGroupCriteria(workspace.getDefaultPermissionGroups(), applicationIds));
+        permissionGroupQuery
+                .fields()
+                .include(FieldName.ID, FieldName.NAME, fieldName(QPermissionGroup.permissionGroup.defaultDomainType));
 
         List<PermissionGroup> permissionGroups = mongoTemplate.find(permissionGroupQuery, PermissionGroup.class);
         if (CollectionUtils.isNullOrEmpty(permissionGroups)) {
