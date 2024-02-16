@@ -1,4 +1,6 @@
+import type { ForwardRefExoticComponent, RefAttributes } from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 // Layout system types that Appsmith provides
 export enum LayoutSystemTypes {
@@ -37,7 +39,12 @@ export interface WidgetLayoutSystem {
  */
 
 export interface CanvasLayoutSystem {
-  Canvas: (props: WidgetProps) => JSX.Element;
+  Canvas:
+    | ((props: BaseWidgetProps) => JSX.Element)
+    | ForwardRefExoticComponent<
+        Pick<BaseWidgetProps, keyof BaseWidgetProps> &
+          RefAttributes<HTMLDivElement>
+      >;
   propertyEnhancer: (props: WidgetProps) => WidgetProps;
 }
 

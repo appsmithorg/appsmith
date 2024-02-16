@@ -591,4 +591,32 @@ public class MustacheHelperTest {
                 Map.of("severity", "CRITICAL VALUE"));
         assertThat(rendered).isEqualTo("HL7 Result: CODE 5 - CRITICAL VALUE - {{institution}} {{accessionNumber}}");
     }
+
+    /**
+     * This test case checks for the escaping logic for double quotes (") to (\")
+     * so that the JSON remains valid.
+     * &quot; and &#34; both are HTML reserved characters for double quotes (")
+     */
+    @Test
+    public void render_WhenValueContainsHtmlDoubleQuotes_ReturnsEscapedCharacter() {
+        final String rendered = render(
+                "Testing html double quotes {{doubleQuotes}} with {{doubleQuotesEntityNumber}}",
+                Map.of(
+                        "doubleQuotes", "&quot;",
+                        "doubleQuotesEntityNumber", "&#34;"));
+        assertThat(rendered).isEqualTo("Testing html double quotes \\\" with \\\"");
+    }
+
+    /**
+     * This test case validates the unescaping of HTML characters to string
+     */
+    @Test
+    public void render_WhenValueContainsHtmlReservedCharacters_ReturnsEscapedCharacters() {
+        final String rendered = render(
+                "Testing html lt {{ltSymbol}} and gt {{gtSymbol}} symbols",
+                Map.of(
+                        "ltSymbol", "&lt;",
+                        "gtSymbol", "&gt;"));
+        assertThat(rendered).isEqualTo("Testing html lt < and gt > symbols");
+    }
 }

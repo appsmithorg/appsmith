@@ -47,6 +47,11 @@ export const AnvilFlexComponent = forwardRef(
     }: AnvilFlexComponentProps,
     ref: any,
   ) => {
+    // The `anvil-widget-wrapper` className is necessary for the following features
+    // "Vertical Alignment" and "Asymmetric Padding". The code for the same can be found in `src/index.css`
+    // Please do not remove this class.
+    const _className = `${className} anvil-widget-wrapper`;
+
     const widgetConfigProps = useMemo(() => {
       const widgetConfig:
         | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
@@ -68,12 +73,13 @@ export const AnvilFlexComponent = forwardRef(
         flexBasis: isFillWidget ? "0%" : "auto",
         padding: "spacing-1",
         alignItems: "center",
+        width: "max-content",
       };
       if (widgetSize) {
         const { maxHeight, maxWidth, minHeight, minWidth } = widgetSize;
         data.maxHeight = maxHeight;
         data.maxWidth = maxWidth;
-        data.minHeight = minHeight ?? { base: "sizing-12" };
+        data.minHeight = minHeight;
         data.minWidth = minWidth;
       }
       return data;
@@ -83,7 +89,7 @@ export const AnvilFlexComponent = forwardRef(
     return (
       <Flex
         {...flexProps}
-        className={className}
+        className={_className}
         id={getAnvilWidgetDOMId(widgetId)}
         onClick={onClick}
         onClickCapture={onClickCapture}

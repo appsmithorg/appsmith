@@ -74,6 +74,7 @@ export interface AnvilConfig {
 export interface WidgetBaseConfiguration {
   name: string;
   iconSVG?: string;
+  thumbnailSVG?: string;
   hideCard?: boolean;
   eagerRender?: boolean;
   isDeprecated?: boolean;
