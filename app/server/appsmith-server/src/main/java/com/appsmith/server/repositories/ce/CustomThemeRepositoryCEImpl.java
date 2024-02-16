@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
@@ -78,7 +77,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
                     Update update = new Update();
                     update.set("deletedAt", Instant.now());
-                    return updateByCriteria(List.of(criteria, permissionCriteria), update, null);
+                    return queryBuilder().criteria(criteria, permissionCriteria).updateAll(update);
                 })
                 .map(updateResult -> updateResult.getModifiedCount() > 0)
                 .blockOptional();

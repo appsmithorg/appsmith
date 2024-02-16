@@ -597,10 +597,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
-        return queryBuilder()
-                .criteria(criteriaList)
-                .permission(Optional.ofNullable(permission).orElse(null))
-                .all();
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 
     @Override
@@ -623,9 +620,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
-        return queryBuilder()
-                .criteria(criteriaList)
-                .permission(Optional.ofNullable(permission).orElse(null))
-                .all();
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 }

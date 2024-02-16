@@ -89,6 +89,7 @@ export class DataSources {
   _activeDS = "[data-selected='true']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
+  _bindDataButton = "[data-testid=t--bind-data]";
   _addSuggestedExisting = "t--suggested-widget-existing";
   _addSuggestedAddNew = "t--suggested-widget-add-new";
   _templateMenuOption = (action: string) =>
@@ -204,9 +205,9 @@ export class DataSources {
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
 
   private _suggestedWidget = (widgetType: string, parentClass: string) =>
-    "//div[contains(@class, '" +
+    "//div[contains(@data-testid, '" +
     parentClass +
-    "')]//div[contains(@class, 't--suggested-widget-" +
+    "')]//div[contains(@data-testid, 't--suggested-widget-" +
     widgetType +
     "')]";
 
@@ -289,7 +290,7 @@ export class DataSources {
   _entityExplorerID = (dsName: string) =>
     "[data-testid='t--entity-item-" + dsName + "']";
   _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
-  _graphQlDsFromRightPane = (dsName: string) =>
+  _graphQlDsHintOption = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
   _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
@@ -309,6 +310,7 @@ export class DataSources {
   _dsStructurePreviewMode = ".datasourceStructure-datasource-view-mode";
   private _dsSchemaEntityItem = ".t--entity-item";
   private _entityTriggerElement = ".t--template-menu-trigger";
+  _dsSchemaTableResponse = ".t--table-response";
 
   public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -741,8 +743,10 @@ export class DataSources {
         this.apiPage.EnterURL(
           this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
         );
-      else if (enterOrSelectUrl == "select")
-        this.agHelper.GetNClick(this._graphQlDsFromRightPane(dsNameToSelect));
+      else if (enterOrSelectUrl == "select") {
+        this.agHelper.GetNClick(this.apiPage._resourceUrl);
+        this.agHelper.GetNClick(this._graphQlDsHintOption(dsNameToSelect));
+      }
 
       this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
       cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
@@ -1634,12 +1638,17 @@ export class DataSources {
     );
   }
 
+  public AssertBindDataVisible() {
+    cy.get(this._bindDataButton).should("be.visible");
+  }
+
   public AddSuggestedWidget(
     widget: Widgets,
     parentClass = this._addSuggestedAddNew,
     force = false,
     index = 0,
   ) {
+    cy.get(this._bindDataButton).should("be.visible").click({ force: true });
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(

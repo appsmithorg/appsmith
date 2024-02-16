@@ -306,4 +306,8 @@ public class ActionCE_DTO implements Identifiable, Executable {
         this.setErrorReports(null);
         this.setDocumentation(null);
     }
+
+    public String calculateContextId() {
+        return this.getPageId();
+    }
 }

@@ -257,7 +257,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
-                .permission(Optional.ofNullable(permission).orElse(null))
+                .permission(permission)
                 .all();
     }
 
@@ -270,7 +270,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
-                .permission(Optional.ofNullable(permission).orElse(null))
+                .permission(permission)
                 .all();
     }
 

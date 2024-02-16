@@ -49,7 +49,7 @@ import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;

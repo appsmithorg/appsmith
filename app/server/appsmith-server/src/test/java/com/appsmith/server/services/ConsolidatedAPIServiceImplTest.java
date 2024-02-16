@@ -121,7 +121,7 @@ public class ConsolidatedAPIServiceImplTest {
     @Test
     public void testErrorWhenModeIsNullAndPageIdAvailable() {
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
-                consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, null, null, null);
+                consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, null, null);
         StepVerifier.create(consolidatedInfoForPageLoad).verifyErrorSatisfies(error -> {
             assertTrue(error instanceof AppsmithException);
             assertEquals("Please enter a valid parameter appMode.", error.getMessage());
@@ -152,7 +152,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED, null);
+                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
@@ -246,7 +246,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED, null);
+                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getPublishedActions());
@@ -457,7 +457,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", "appId", "branch", ApplicationMode.EDIT, null);
+                        "pageId", "appId", "branch", ApplicationMode.EDIT);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
@@ -666,7 +666,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED, null);
+                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getUserProfile());

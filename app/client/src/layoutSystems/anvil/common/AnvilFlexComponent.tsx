@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useMemo, useState } from "react";
+import React, { forwardRef, useMemo } from "react";
 import type { CSSProperties } from "react";
 import { Flex } from "@design-system/widgets";
 import {
@@ -11,11 +11,14 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { Layers } from "constants/Layers";
+import { noop } from "utils/AppsmithUtils";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
   // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
   overflow: "hidden",
+  zIndex: Layers.positionedWidget,
 };
 
 /**
@@ -36,36 +39,28 @@ export const AnvilFlexComponent = forwardRef(
       children,
       className,
       flexGrow,
+      onClick = noop,
+      onClickCapture = noop,
       widgetId,
       widgetSize,
       widgetType,
     }: AnvilFlexComponentProps,
     ref: any,
   ) => {
-    // State to manage whether the widget is a fill widget
-    const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
-
-    // State to manage vertical alignment of the widget
-    const [verticalAlignment, setVerticalAlignment] =
-      useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
-
-    // Effect to update state based on widget type
-    useEffect(() => {
+    const widgetConfigProps = useMemo(() => {
       const widgetConfig:
         | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
         | undefined = WidgetFactory.getConfig(widgetType);
-      if (!widgetConfig) return;
-      setIsFillWidget(
-        widgetConfig?.responsiveBehavior === ResponsiveBehavior.Fill,
-      );
-      setVerticalAlignment(
-        widgetConfig?.flexVerticalAlignment || FlexVerticalAlignment.Top,
-      );
+      const isFillWidget =
+        widgetConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
+      const verticalAlignment =
+        widgetConfig?.flexVerticalAlignment || FlexVerticalAlignment.Top;
+      return { isFillWidget, verticalAlignment };
     }, [widgetType]);
-
     // Memoize flex props to be passed to the WDS Flex component.
     // If the widget is being resized => update width and height to auto.
     const flexProps: FlexProps = useMemo(() => {
+      const { isFillWidget, verticalAlignment } = widgetConfigProps;
       const data: FlexProps = {
         alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
         flexGrow: flexGrow ? flexGrow : isFillWidget ? 1 : 0,
@@ -73,6 +68,7 @@ export const AnvilFlexComponent = forwardRef(
         flexBasis: isFillWidget ? "0%" : "auto",
         padding: "spacing-1",
         alignItems: "center",
+        width: "max-content",
       };
       if (widgetSize) {
         const { maxHeight, maxWidth, minHeight, minWidth } = widgetSize;
@@ -82,7 +78,7 @@ export const AnvilFlexComponent = forwardRef(
         data.minWidth = minWidth;
       }
       return data;
-    }, [isFillWidget, widgetSize, verticalAlignment, flexGrow]);
+    }, [widgetConfigProps, widgetSize, flexGrow]);
 
     // Render the Anvil Flex Component using the Flex component from WDS
     return (
@@ -90,6 +86,8 @@ export const AnvilFlexComponent = forwardRef(
         {...flexProps}
         className={className}
         id={getAnvilWidgetDOMId(widgetId)}
+        onClick={onClick}
+        onClickCapture={onClickCapture}
         ref={ref}
         style={anvilWidgetStyleProps}
       >

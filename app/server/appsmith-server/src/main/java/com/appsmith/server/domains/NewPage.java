@@ -16,7 +16,7 @@ import org.hibernate.annotations.Type;
 @Setter
 @NoArgsConstructor
 @Entity
-public class NewPage extends BranchAwareDomain {
+public class NewPage extends BranchAwareDomain implements Context {
     @JsonView(Views.Public.class)
     String applicationId;
 
