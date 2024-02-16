@@ -28,7 +28,7 @@ export class AdminSettings {
   public EnableGAC(
     toNavigateToHome = true,
     toNavigateBackToHome = true,
-    methodType: "adminSettings" | "home" = "adminSettings",
+    methodType: "adminSettings" | "home" | "current" = "adminSettings",
   ) {
     switch (methodType) {
       case "adminSettings":
@@ -46,6 +46,10 @@ export class AdminSettings {
         this.assertHelper.AssertDocumentReady();
         this.agHelper.AssertElementExist(this.homePage._homePageContainer);
         this.agHelper.AssertElementVisibility(this.homePage._homePageContainer);
+        break;
+      case "current":
+        this.enableGACFeatureFlag();
+        this.assertHelper.AssertDocumentReady();
         break;
       default:
         break;

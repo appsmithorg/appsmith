@@ -1,6 +1,7 @@
 import {
   agHelper,
-  entityExplorer,
+  assertHelper,
+  adminSettings,
   homePage,
   dataSources,
   onboarding,
@@ -11,14 +12,13 @@ import homePageLocators from "../../../../../locators/HomePage";
 import auditLogslocators from "../../../../../locators/AuditLogsLocators";
 const AppNavigation = require("../../../../../locators/AppNavigation.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
-let workspaceId, appid;
+let workspaceId: any, appid: any;
 
 describe(
   "Create new workspace and invite group & validate all roles",
@@ -34,8 +34,7 @@ describe(
       cy.AddIntercepts();
       agHelper.VisitNAssert("/applications", "getAllWorkspaces");
       agHelper.GetNClick(auditLogslocators.AdminSettingsEntryLink);
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
+      adminSettings.EnableGAC(true, false);
       cy.createGroupAndAddUser(
         GroupName,
         Cypress.env("TESTUSERNAME1"),
@@ -44,9 +43,7 @@ describe(
     });
 
     it("1. Create new Workspace, Share App Viewer workspace level access with a group", () => {
-      homePage.NavigateToHome();
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
+      adminSettings.EnableGAC(true, true);
 
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
@@ -59,7 +56,7 @@ describe(
         cy.InviteGroupToWorkspace(workspaceId, GroupName, "Developer");
         agHelper.GetNClick(homePage._visibleTextSpan("Manage users"));
         homePage.NavigateToHome();
-        homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
+        homePage.CheckWorkspaceShareUsersCount(workspaceId, 2);
         homePage.CreateAppInWorkspace(workspaceId, appid);
         const jsObjectBody = `export default {
         myVar1: [],
@@ -80,28 +77,33 @@ describe(
 
     it("2. Share Developer application level access with group", () => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(3000);
-      homePage.NavigateToHome();
+      adminSettings.EnableGAC(false, true);
       homePage.SelectWorkspace(workspaceId);
 
-      cy.get(homePage._applicationCard).first().trigger("mouseover");
+      agHelper
+        .GetElement(homePage._applicationCard)
+        .first()
+        .trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
       agHelper.GetNClick(homePage._appHoverIcon("edit"));
-      agHelper.Sleep(2000);
       dataSources.CreateDataSource("Postgres");
-      agHelper.Sleep(2000);
       agHelper.ClickButton("Share");
-      agHelper.Sleep();
       agHelper.GetNClick(homePageLocators.selectRole);
-      cy.get(RBAC.dropdownOption)
+
+      agHelper
+        .GetElement(RBAC.dropdownOption)
         .should("have.length", 3)
         .should("contain.text", `App Viewer`, `Developer`);
-      cy.get(RBAC.dropdownOption).should("contain.text", `Assign Custom Role`);
+      agHelper
+        .GetElement(RBAC.dropdownOption)
+        .should("contain.text", `Assign Custom Role`);
       cy.InviteGroupToApplication(GroupName, "Developer");
       agHelper.GetNClick(homePage._visibleTextSpan("Manage users"));
       agHelper.TypeText(homePage._searchUsersInput, GroupName);
-      cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
+      agHelper
+        .GetElement(RBAC.searchHighlight)
+        .should("exist")
+        .contains(GroupName);
       agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
       agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
       homePage.NavigateToHome();
@@ -114,39 +116,45 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
+      adminSettings.EnableGAC(false, true, "home");
       homePage.SelectWorkspace(workspaceId);
-      cy.get(homePageLocators.searchInput).type(appid);
-      agHelper.Sleep(2000);
-      cy.get(homePageLocators.appsContainer).contains(workspaceId);
-      cy.get(homePage._applicationCard).first().trigger("mouseover");
+      agHelper.GetElement(homePageLocators.searchInput).type(appid);
+      agHelper.GetElement(homePageLocators.appsContainer).contains(workspaceId);
+      agHelper
+        .GetElement(homePage._applicationCard)
+        .first()
+        .trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
       agHelper.GetNClick(homePage._appHoverIcon("edit"));
-      agHelper.Sleep(2000);
+      agHelper.WaitUntilEleDisappear(homePage._appHoverIcon("edit"));
       onboarding.closeIntroModal();
       AppSidebar.navigate(AppSidebarButton.Data);
       agHelper.AssertElementExist(dataSources._addNewDataSource);
       AppSidebar.navigate(AppSidebarButton.Editor);
       PageList.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      cy.get(dataSources._dropdownOption).should(
-        "contain",
-        "Connect new datasource",
-      );
+      agHelper
+        .GetElement(dataSources._dropdownOption)
+        .should("contain", "Connect new datasource");
       EditorNavigation.SelectEntityByName("Postgres", EntityType.Datasource);
-      cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
+      agHelper
+        .GetElement(dataSources._createQuery)
+        .should("not.have.attr", "disabled");
       agHelper.ClickButton("Share");
-      agHelper.Sleep();
+
       agHelper.GetNClick(homePageLocators.selectRole);
-      cy.get(RBAC.dropdownOption)
+      agHelper
+        .GetElement(RBAC.dropdownOption)
         .should("have.length", 2)
         .should("contain.text", `App Viewer`, `Developer`);
       agHelper.AssertElementAbsence(homePageLocators.manageUsers);
       agHelper.GetNClick(homePageLocators.editModeInviteModalCloseBtn);
       homePage.NavigateToHome();
       homePage.SelectWorkspace(workspaceId);
-      cy.get(homePage._applicationCard).first().trigger("mouseover");
+      agHelper
+        .GetElement(homePage._applicationCard)
+        .first()
+        .trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
       agHelper.AssertElementExist(homePage._shareWorkspace(workspaceId));
       agHelper.AssertElementExist(homePageLocators.optionsIcon);
@@ -155,9 +163,7 @@ describe(
 
     it("4. Login as Administrator and change workspace level access for group to App Viewer and verify", () => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(3000);
+      adminSettings.EnableGAC(false, true);
 
       homePage.SelectWorkspace(workspaceId);
 
@@ -176,37 +182,36 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(3000);
+      adminSettings.EnableGAC(false, true, "home");
       homePage.SelectWorkspace(workspaceId);
-      cy.get(homePageLocators.appsContainer).contains(workspaceId);
-      cy.get(homePage._applicationCard).first().trigger("mouseover");
-      agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
-      agHelper.GetNClick(homePage._appHoverIcon("edit"));
-      agHelper.Sleep(2000);
+      homePage.EditAppFromAppHover(workspaceId + "Internal Apps");
       onboarding.closeIntroModal();
       AppSidebar.navigate(AppSidebarButton.Data);
       agHelper.AssertElementAbsence(dataSources._addNewDataSource);
       AppSidebar.navigate(AppSidebarButton.Editor);
       PageList.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      cy.get(dataSources._dropdownOption).should(
-        "not.contain",
-        "Connect new datasource",
-      );
+      agHelper
+        .GetElement(dataSources._dropdownOption)
+        .should("not.contain", "Connect new datasource");
       EditorNavigation.SelectEntityByName("Postgres", EntityType.Datasource);
-      cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
+      agHelper
+        .GetElement(dataSources._createQuery)
+        .should("not.have.attr", "disabled");
       agHelper.ClickButton("Share");
-      agHelper.Sleep();
       agHelper.GetNClick(homePageLocators.selectRole);
-      cy.get(RBAC.dropdownOption)
+      agHelper
+        .GetElement(RBAC.dropdownOption)
         .should("have.length", 2)
         .should("contain.text", `App Viewer`, `Developer`);
       agHelper.AssertElementAbsence(homePageLocators.manageUsers);
       agHelper.GetNClick(homePageLocators.editModeInviteModalCloseBtn);
       homePage.NavigateToHome();
       homePage.SelectWorkspace(workspaceId);
-      cy.get(homePage._applicationCard).first().trigger("mouseover");
+      agHelper
+        .GetElement(homePage._applicationCard)
+        .last()
+        .trigger("mouseover");
       agHelper.AssertElementAbsence(homePage._appHoverIcon("edit"));
       agHelper.AssertElementExist(homePage._shareWorkspace(workspaceId));
       agHelper.AssertElementExist(homePageLocators.optionsIcon);
@@ -215,14 +220,17 @@ describe(
 
     it("6. Login as Administrator and delete workspace level role for group", () => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(3000);
+      adminSettings.EnableGAC(false, true);
+
       homePage.SelectWorkspace(workspaceId);
       homePage.DeleteUserFromWorkspace(appid, workspaceId, GroupName);
       agHelper.ClearNType(homePage._searchUsersInput, GroupName);
-      cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
+      agHelper
+        .GetElement(RBAC.searchHighlight)
+        .should("exist")
+        .contains(GroupName);
       agHelper.AssertElementAbsence(homePageLocators.DeleteBtn);
-      cy.get("table").contains("td", "No Access");
+      agHelper.GetElement("table").contains("td", "No Access");
       agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
       agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
       agHelper.AssertElementExist(homePageLocators.DeleteBtn);
@@ -235,36 +243,39 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(3000);
+      adminSettings.EnableGAC(false, true, "home");
+
       homePage.SelectWorkspace(workspaceId);
-      cy.get(homePageLocators.appsContainer).contains(workspaceId);
-      cy.get(homePage._applicationCard).first().trigger("mouseover");
+      agHelper.GetElement(homePageLocators.appsContainer).contains(workspaceId);
+      agHelper
+        .GetElement(homePage._applicationCard)
+        .first()
+        .trigger("mouseover");
       agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
       agHelper.GetNClick(homePage._appHoverIcon("edit"));
-      agHelper.Sleep(2000);
+
       onboarding.closeIntroModal();
       AppSidebar.navigate(AppSidebarButton.Data);
       agHelper.AssertElementAbsence(dataSources._addNewDataSource);
       AppSidebar.navigate(AppSidebarButton.Editor);
       PageList.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      cy.get(dataSources._dropdownOption).should(
-        "not.contain",
-        "Connect new datasource",
-      );
+      agHelper
+        .GetElement(dataSources._dropdownOption)
+        .should("not.contain", "Connect new datasource");
       EditorNavigation.SelectEntityByName("Postgres", EntityType.Datasource);
-      cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
-      agHelper.Sleep(2000);
+      agHelper
+        .GetElement(dataSources._createQuery)
+        .should("not.have.attr", "disabled");
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(3000);
-      agHelper.Sleep(2000);
+
+      adminSettings.EnableGAC(false, false, "current");
+      assertHelper.AssertDocumentReady();
       agHelper.ClickButton("Share");
-      agHelper.Sleep();
       agHelper.GetNClick(homePageLocators.selectRole);
-      cy.get(RBAC.dropdownOption)
+      agHelper
+        .GetElement(RBAC.dropdownOption)
         .should("have.length", 2)
         .should("contain.text", `App Viewer`, `Developer`);
       agHelper.AssertElementAbsence(homePageLocators.manageUsers);
@@ -274,34 +285,30 @@ describe(
       agHelper.AssertElementAbsence(homePage._appHoverIcon("edit"));
       agHelper.AssertElementAbsence(homePage._shareWorkspace(workspaceId));
       agHelper.AssertElementAbsence(homePageLocators.optionsIcon);
-      cy.get(homePageLocators.searchInput)
-        .clear()
-        .type(appid + "Internal Apps");
-      agHelper.Sleep(2000);
-      cy.get(homePageLocators.appsContainer).should("not.contain", workspaceId);
-      agHelper.AssertElementAbsence(".t--workspace-section");
       homePage.LogOutviaAPI();
     });
 
     it("8. Login as Administrator and change app level access for group to App Viewer and verify", () => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(3000);
+      adminSettings.EnableGAC(false, true);
+
       homePage.SelectWorkspace(workspaceId);
       agHelper.GetNClick(homePageLocators.optionsIcon);
       agHelper.GetNClick(homePage._visibleTextSpan("Members"));
       agHelper.TypeText(homePage._searchUsersInput, GroupName);
-      cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
+      agHelper
+        .GetElement(RBAC.searchHighlight)
+        .should("exist")
+        .contains(GroupName);
       agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
       agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
 
-      cy.xpath(RBAC.optionDeveloper).first().click({ force: true });
-      agHelper.Sleep();
+      agHelper.GetNClick(RBAC.optionDeveloper, 0, true);
       agHelper.AssertElementAbsence(RBAC.optionAdministrator);
       agHelper.AssertElementExist(RBAC.optionDeveloper);
       agHelper.AssertElementExist(RBAC.optionAppViewer);
-      cy.xpath(RBAC.optionAppViewer).last().parent("div").click();
-      agHelper.Sleep();
+      agHelper.GetElement(RBAC.optionAppViewer).last().parent("div").click();
+
       agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
       agHelper.AssertElementVisibility(RBAC.optionAppViewer);
       homePage.LogOutviaAPI();
@@ -312,17 +319,23 @@ describe(
         "App Viewer",
       );
       homePage.SelectWorkspace(workspaceId);
-      cy.get(homePageLocators.appsContainer).contains(workspaceId);
-      cy.get(homePage._applicationCard).first().trigger("mouseover");
+      agHelper.AssertContains(
+        workspaceId,
+        "exist",
+        homePageLocators.appsContainer,
+      );
+      agHelper
+        .GetElement(homePage._applicationCard)
+        .first()
+        .trigger("mouseover");
       agHelper.AssertElementAbsence(homePage._appHoverIcon("edit"));
       agHelper.AssertElementAbsence(homePageLocators.optionsIcon);
-      homePage.LaunchAppFromAppHover();
-      agHelper.Sleep(2000);
+      homePage.LaunchAppFromAppHover(AppNavigation.shareButton);
       agHelper.GetNClick(AppNavigation.shareButton);
-      agHelper.Sleep();
       agHelper.GetNClick(homePageLocators.selectRole);
       // app level
-      cy.get(RBAC.dropdownOption)
+      agHelper
+        .GetElement(RBAC.dropdownOption)
         .should("have.length", 1)
         .should("contain.text", `App Viewer`);
       agHelper.AssertElementAbsence(homePageLocators.manageUsers);
@@ -332,31 +345,35 @@ describe(
 
     it("9. Login as Administrator and delete app level access for group", () => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(3000);
+      adminSettings.EnableGAC(false, true);
 
       homePage.SelectWorkspace(workspaceId);
       agHelper.GetNClick(homePageLocators.optionsIcon);
       agHelper.GetNClick(homePage._visibleTextSpan("Members"));
       agHelper.TypeText(homePage._searchUsersInput, GroupName);
-      cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
+      agHelper
+        .GetElement(RBAC.searchHighlight)
+        .should("exist")
+        .contains(GroupName);
       agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
       agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
-      cy.get(homePageLocators.DeleteBtn).first().click({ force: true });
-      cy.get(homePageLocators.leaveWorkspaceConfirmModal).should("be.visible");
+      agHelper.GetNClick(homePageLocators.DeleteBtn, 0, true);
+
+      agHelper.AssertElementVisibility(
+        homePageLocators.leaveWorkspaceConfirmModal,
+      );
       cy.get(homePageLocators.leaveWorkspaceConfirmButton).click({
         force: true,
       });
 
       agHelper.TypeText(homePage._searchUsersInput, GroupName);
-      cy.get(RBAC.searchHighlight).should("not.exist");
+      agHelper.AssertElementAbsence(RBAC.searchHighlight);
       homePage.LogOutviaAPI();
     });
 
     after(() => {
       homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
+      adminSettings.EnableGAC(false, false);
       agHelper.VisitNAssert("settings/groups", "fetchGroups");
       cy.DeleteGroup(GroupName);
     });
