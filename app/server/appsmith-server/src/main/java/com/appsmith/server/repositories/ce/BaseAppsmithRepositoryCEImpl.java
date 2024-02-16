@@ -36,6 +36,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -318,7 +319,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         }));
     }
 
-    public Mono<T> updateAllExecuteAndFind(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
+    public Mono<T> updateExecuteAndFind(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
         if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
             // Not implemented yet, since not needed yet.
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
@@ -338,6 +339,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
         return getCurrentUserPermissionGroupsIfRequired(
                         Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())
+                .defaultIfEmpty(Collections.emptySet())
                 .doOnNext(params::permissionGroups)
                 .then();
     }
