@@ -29,9 +29,10 @@ export const useClickToClearSelections = (widgetId: string) => {
 
   // Click event handler function
   return (e: MouseEvent<HTMLElement>) => {
-    const isTargetMainCanvas =
-      (e.target as HTMLElement)?.classList.value.indexOf(AnvilCanvasClassName) >
-      -1;
+    // This feature is only relevant in the Anvil canvas
+    const isTargetMainCanvas = (e.target as HTMLElement)?.classList.contains(
+      AnvilCanvasClassName,
+    );
 
     // Checking if there is no ongoing dragging, canvas resizing, or space distribution
     if (!(isDragging || isCanvasResizing || isDistributingSpace)) {
