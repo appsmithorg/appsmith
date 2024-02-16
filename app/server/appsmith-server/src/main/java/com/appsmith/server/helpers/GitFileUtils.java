@@ -26,7 +26,7 @@ import java.util.Set;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.server.constants.FieldName.MODULE_INSTANCE_LIST;
-import static com.appsmith.server.constants.FieldName.MODULE_LIST;
+import static com.appsmith.server.constants.FieldName.SOURCE_MODULE_LIST;
 
 @Slf4j
 @Component
@@ -52,7 +52,7 @@ public class GitFileUtils extends GitFileUtilsCE {
 
         Set<String> newBlockedMetaFields = new HashSet<>(blockedMetadataFields);
 
-        newBlockedMetaFields.addAll(Set.of(MODULE_INSTANCE_LIST, MODULE_LIST));
+        newBlockedMetaFields.addAll(Set.of(MODULE_INSTANCE_LIST, SOURCE_MODULE_LIST));
 
         return newBlockedMetaFields;
     }
@@ -120,16 +120,18 @@ public class GitFileUtils extends GitFileUtilsCE {
 
         setModuleInstancesInApplicationJson(applicationReference, applicationJson);
 
-        setModulesInApplicationJson(applicationReference, applicationJson);
+        setSourceModulesInApplicationJson(applicationReference, applicationJson);
 
         return applicationJson;
     }
 
-    private void setModulesInApplicationJson(
+    private void setSourceModulesInApplicationJson(
             ApplicationGitReference applicationReference, ApplicationJson applicationJson) {
-        // Extract modules
-        applicationJson.setSourceModuleList(
-                getApplicationResource(applicationReference.getSourceModules(), ExportableModule.class));
+        // Extract source modules
+        if (!CollectionUtils.isNullOrEmpty(applicationReference.getSourceModules())) {
+            applicationJson.setSourceModuleList(
+                    getApplicationResource(applicationReference.getSourceModules(), ExportableModule.class));
+        }
     }
 
     private void setModuleInstancesInApplicationJson(

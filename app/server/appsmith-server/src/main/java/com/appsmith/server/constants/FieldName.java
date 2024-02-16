@@ -147,6 +147,7 @@ public class FieldName extends FieldNameCE {
     public static final String PACKAGE = "package";
     public static final String MODULE_INSTANCE_LIST = "moduleInstanceList";
     public static final String MODULE_LIST = "moduleList";
+    public static final String SOURCE_MODULE_LIST = "sourceModuleList";
     public static final String COOKIE = "cookie";
     public static final String GIT_WEB_HOOK_EXECUTOR = "Git Webhook Executor";
     public static final String GIT_WEB_HOOK_EXECUTOR_DESCRIPTION =
