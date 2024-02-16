@@ -38,7 +38,7 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       iconSVG: IconSVG,
       needsMeta: false,
       isCanvas: false,
-      tags: [WIDGET_TAGS.BUTTONS],
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.BUTTONS],
       searchTags: ["click", "submit"],
     };
   }

@@ -67,7 +67,7 @@ public class ImportArtifactPermissionProvider extends ImportArtifactPermissionPr
         private final WorkspacePermission workspacePermission;
 
         private AclPermission requiredPermissionOnTargetWorkspace;
-        private AclPermission requiredPermissionOnTargetApplication;
+        private AclPermission requiredPermissionOnTargetArtifact;
 
         private Set<String> currentUserPermissionGroups;
 
@@ -111,7 +111,7 @@ public class ImportArtifactPermissionProvider extends ImportArtifactPermissionPr
                     datasourcePermission,
                     workspacePermission,
                     requiredPermissionOnTargetWorkspace,
-                    requiredPermissionOnTargetApplication,
+                    requiredPermissionOnTargetArtifact,
                     currentUserPermissionGroups,
                     permissionRequiredToCreateDatasource,
                     permissionRequiredToCreatePage,
