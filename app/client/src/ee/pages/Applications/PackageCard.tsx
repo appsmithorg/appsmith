@@ -8,6 +8,7 @@ import {
   MenuContent,
   MenuItem,
   MenuTrigger,
+  toast,
 } from "design-system";
 import {
   ColorSelector,
@@ -198,8 +199,12 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
   const exportPackage = useCallback(() => {
     exportPackageAsJSONFile({
       packageId: pkg.id,
-      packageName: pkg.name,
-      onSuccessCb: () => setIsMenuOpen(false),
+      onSuccessCb: () => {
+        setIsMenuOpen(false);
+        toast.show(`Successfully exported ${pkg.name}`, {
+          kind: "success",
+        });
+      },
     });
   }, [pkg.id, pkg.name, setIsMenuOpen, exportPackageAsJSONFile]);
 

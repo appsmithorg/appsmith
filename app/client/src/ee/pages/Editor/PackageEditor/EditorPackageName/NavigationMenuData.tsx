@@ -62,7 +62,11 @@ export const GetNavigationMenuData = ({
 
     exportPackageAsJSONFile({
       packageId: currentPackage?.id,
-      packageName: currentPackage?.name,
+      onSuccessCb: () => {
+        toast.show(`Successfully exported ${currentPackage.name}`, {
+          kind: "success",
+        });
+      },
     });
   };
 

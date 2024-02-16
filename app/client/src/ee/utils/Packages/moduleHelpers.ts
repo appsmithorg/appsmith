@@ -7,12 +7,10 @@ import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modu
 import type { PackagesReducerState } from "@appsmith/reducers/entityReducers/packagesReducer";
 import type { ModuleId } from "@appsmith/constants/ModuleInstanceConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { toast } from "design-system";
 
 interface ExportPackageAsJSONFileProps {
   packageId: string;
   onSuccessCb?: () => void;
-  packageName: string;
 }
 
 export const createNewModuleName = (
@@ -68,7 +66,6 @@ export const getExportPackageAPIRoute = (
 export const exportPackageAsJSONFile = ({
   onSuccessCb,
   packageId,
-  packageName,
 }: ExportPackageAsJSONFileProps) => {
   // export api response comes with content-disposition header.
   // there is no straightforward way to handle it with axios/fetch
@@ -86,7 +83,4 @@ export const exportPackageAsJSONFile = ({
   }
 
   onSuccessCb?.();
-  toast.show(`Successfully exported ${packageName}`, {
-    kind: "success",
-  });
 };
