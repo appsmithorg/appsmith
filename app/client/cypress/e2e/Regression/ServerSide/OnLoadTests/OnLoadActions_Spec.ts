@@ -43,7 +43,7 @@ describe(
     it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
       agHelper.AddDsl("onPageLoadActionsDsl", locators._imageWidget);
       apiPage.CreateAndFillApi(
-        dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl,
+        dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl1,
         "RandomFlora",
       );
       //apiPage.RunAPI();
