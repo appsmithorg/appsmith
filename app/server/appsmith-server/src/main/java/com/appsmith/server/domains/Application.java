@@ -280,6 +280,21 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     }
 
     @Override
+    public void setUnpublishedThemeId(String themeId) {
+        this.setEditModeThemeId(themeId);
+    }
+
+    @Override
+    public String getPublishedThemeId() {
+        return this.getPublishedModeThemeId();
+    }
+
+    @Override
+    public void setPublishedThemeId(String themeId) {
+        this.setPublishedModeThemeId(themeId);
+    }
+
+    @Override
     public void sanitiseToExportDBObject() {
         this.setWorkspaceId(null);
         this.setModifiedBy(null);

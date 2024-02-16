@@ -28,10 +28,10 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -71,8 +71,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
-        Criteria nameCriteria = where(fieldName(QApplication.application.name)).is(name);
-        return queryBuilder().criteria(nameCriteria).permission(permission).one();
+        return queryBuilder()
+                .criteria(bridge().equal(fieldName(QApplication.application.name), name))
+                .permission(permission)
+                .one();
     }
 
     @Override
@@ -179,7 +181,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 fieldName(QApplication.application.gitApplicationMetadata.gitAuth));
 
         updateObj.set(path, gitAuth);
-        return this.updateById(applicationId, updateObj, aclPermission);
+        return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(updateObj);
     }
 
     @Override
@@ -304,19 +306,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
         }
 
-        return this.updateById(applicationId, updateObj, aclPermission);
-    }
-
-    @Override
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(
-            String defaultId,
-            String defaultIdPath,
-            Map<String, Object> fieldValueMap,
-            String branchName,
-            String branchNamePath,
-            AclPermission permission) {
-        return super.updateFieldByDefaultIdAndBranchName(
-                defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission);
+        return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(updateObj);
     }
 
     @Override
@@ -347,7 +337,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         ArrayList<Criteria> criteria =
                 new ArrayList<>(List.of(workspaceIdCriteria, permissionGroupCriteria, notDeleted()));
-        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)), null, -1)
+        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)))
                 .map(application -> application.getId());
     }
 
@@ -379,7 +369,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         Update unsetProtected = new Update().set(isProtectedFieldPath, false);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria), unsetProtected, permission);
+        return queryBuilder()
+                .criteria(defaultApplicationIdCriteria)
+                .permission(permission)
+                .updateAll(unsetProtected);
     }
 
     /**
@@ -404,6 +397,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria branchMatchCriteria = Criteria.where(branchNameFieldPath).in(branchNames);
         Update setProtected = new Update().set(isProtectedFieldPath, true);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria, branchMatchCriteria), setProtected, permission);
+        return queryBuilder()
+                .criteria(defaultApplicationIdCriteria, branchMatchCriteria)
+                .permission(permission)
+                .updateAll(setProtected);
     }
 }
