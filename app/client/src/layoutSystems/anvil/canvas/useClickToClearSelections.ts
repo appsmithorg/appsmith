@@ -1,10 +1,10 @@
 import type { MouseEvent } from "react";
 import type { AppState } from "@appsmith/reducers";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
+import { AnvilCanvasClassName } from "widgets/anvil/constants";
 
 /**
  * Custom hook to handle click events for clearing widget selections.
@@ -29,7 +29,9 @@ export const useClickToClearSelections = (widgetId: string) => {
 
   // Click event handler function
   return (e: MouseEvent<HTMLElement>) => {
-    const isTargetMainCanvas = widgetId === MAIN_CONTAINER_WIDGET_ID;
+    const isTargetMainCanvas =
+      (e.target as HTMLElement)?.classList.value.indexOf(AnvilCanvasClassName) >
+      -1;
 
     // Checking if there is no ongoing dragging, canvas resizing, or space distribution
     if (!(isDragging || isCanvasResizing || isDistributingSpace)) {

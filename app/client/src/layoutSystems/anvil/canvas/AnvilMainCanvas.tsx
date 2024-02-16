@@ -20,7 +20,7 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
 
   const handleOnClickCapture = useCallback(
     (event) => {
-      clickToClearSelections(event);
+      if (event.eventPhase === 2) clickToClearSelections(event);
     },
     [clickToClearSelections],
   );

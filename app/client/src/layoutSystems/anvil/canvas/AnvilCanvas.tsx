@@ -4,11 +4,12 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { getAnvilCanvasId } from "./utils";
 import { LayoutProvider } from "../layoutComponents/LayoutProvider";
 import { useRenderDetachedChildren } from "../common/hooks/detachedWidgetHooks";
+import { AnvilCanvasClassName } from "widgets/anvil/constants";
 
 export const AnvilCanvas = React.forwardRef(
   (props: BaseWidgetProps, ref: React.ForwardedRef<HTMLDivElement>) => {
     const className: string = useMemo(
-      () => `anvil-canvas ${props.classList?.join(" ")}`,
+      () => `${AnvilCanvasClassName} ${props.classList?.join(" ")}`,
       [props.classList],
     );
 
