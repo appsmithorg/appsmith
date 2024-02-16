@@ -77,8 +77,8 @@ export const FONT_METRICS = {
 // we use "as const" here because we need to iterate by variants
 export const TYPOGRAPHY_VARIANTS = {
   footnote: "footnote",
-  body: "body",
   caption: "caption",
+  body: "body",
   subtitle: "subtitle",
   title: "title",
   heading: "heading",
