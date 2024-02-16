@@ -429,6 +429,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         dynamicHeight={this.props.dynamicHeight}
         execute={this.execute}
         height={this.props.componentHeight - WIDGET_PADDING * 2}
+        layoutSystemType={this.props.layoutSystemType}
         minDynamicHeight={this.props.minDynamicHeight}
         model={this.props.model || {}}
         renderMode={this.getRenderMode()}
