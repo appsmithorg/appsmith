@@ -27,6 +27,11 @@ public class Bridge extends Criteria {
         return this;
     }
 
+    public Bridge exists(@NonNull String key) {
+        criteriaList.add(Criteria.where(key).exists(true));
+        return this;
+    }
+
     public Bridge isTrue(@NonNull String key) {
         criteriaList.add(Criteria.where(key).is(true));
         return this;

@@ -25,7 +25,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -258,19 +257,17 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Flux<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
-        // isRepoPrivate and gitAuth will be stored only with default application which ensures we will have only single
-        // application per repo
-        Criteria repoCriteria = where(gitApplicationMetadata + "."
-                        + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate))
-                .exists(Boolean.TRUE);
-        Criteria gitAuthCriteria = where(gitApplicationMetadata + "."
-                        + fieldName(QApplication.application.gitApplicationMetadata.gitAuth))
-                .exists(Boolean.TRUE);
-        Criteria workspaceIdCriteria =
-                where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         AclPermission aclPermission = applicationPermission.getEditPermission();
         return queryBuilder()
-                .criteria(workspaceIdCriteria, repoCriteria, gitAuthCriteria)
+                .criteria(bridge()
+                        // isRepoPrivate and gitAuth will be stored only with default application which ensures we will
+                        // have only single
+                        // application per repo
+                        .exists(gitApplicationMetadata + "."
+                                + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate))
+                        .exists(gitApplicationMetadata + "."
+                                + fieldName(QApplication.application.gitApplicationMetadata.gitAuth))
+                        .equal(fieldName(QApplication.application.workspaceId), workspaceId))
                 .permission(aclPermission)
                 .all();
     }
@@ -324,9 +321,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         .and("permission")
                         .is(permission.getValue()));
 
-        ArrayList<Criteria> criteria =
-                new ArrayList<>(List.of(workspaceIdCriteria, permissionGroupCriteria, notDeleted()));
-        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)))
+        return queryBuilder()
+                .criteria(workspaceIdCriteria, permissionGroupCriteria)
+                .fields(fieldName(QApplication.application.id))
+                .all()
                 .map(application -> application.getId());
     }
 
