@@ -13,10 +13,10 @@ import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { PluginType, type Action } from "entities/Action";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 interface ResponseViewProps {
   action: Action;
   moduleInstance: ModuleInstance;

@@ -47,6 +47,7 @@ export interface ModuleInstanceEntityConfig extends EntityConfig {
   dependencyMap: DependencyMap;
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
+  invalids: Array<string>;
 }
 
 export interface QueryModuleInstanceEntityConfig
@@ -69,6 +70,7 @@ export interface ModuleInstanceEntity {
   moduleId: string;
   moduleInstanceId: string;
   inputs: Record<string, string>;
+  isValid: boolean;
 }
 
 export interface QueryModuleInstanceEntity extends ModuleInstanceEntity {

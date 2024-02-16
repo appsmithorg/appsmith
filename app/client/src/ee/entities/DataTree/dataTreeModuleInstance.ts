@@ -92,6 +92,7 @@ export const generateQueryModuleInstance = (
       moduleInstanceId: moduleInstance.id,
       run: {},
       type: MODULE_TYPE.QUERY,
+      isValid: moduleInstance.isValid,
     },
     configEntity: {
       actionId: publicAction.config.id,
@@ -107,6 +108,7 @@ export const generateQueryModuleInstance = (
       },
       dynamicBindingPathList: dynamicBindingPathList,
       dependencyMap: dependencyMap,
+      invalids: moduleInstance.invalids,
     },
   };
 };
@@ -188,6 +190,7 @@ export const generateJSModuleInstance = (
       moduleId: moduleInstance.sourceModuleId,
       moduleInstanceId: moduleInstance.id,
       inputs: moduleInputs,
+      isValid: moduleInstance.isValid,
     },
     configEntity: {
       actionId: publicJSObject.config.id,
@@ -205,6 +208,7 @@ export const generateJSModuleInstance = (
       dynamicBindingPathList: dynamicBindingPathList,
       dependencyMap: dependencyMap,
       meta: meta,
+      invalids: moduleInstance.invalids,
     },
   };
 };

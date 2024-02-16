@@ -10,7 +10,7 @@ import {
   moduleEditorURL,
   moduleInstanceEditorURL,
 } from "@appsmith/RouteBuilder";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
 import { entityTypeLinkMap as CE_entityTypeLinkMap } from "ce/components/editorComponents/Debugger/entityTypeLinkMap";
 import {

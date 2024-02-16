@@ -19,6 +19,7 @@ describe("generateModuleInstance", () => {
       },
       userPermissions: [],
       jsonPathKeys: [],
+      invalids: [],
     };
     const moduleInstanceEntities = {
       actions: [],
@@ -228,6 +229,7 @@ describe("generateModuleInstance", () => {
         email: "{{appsmith.user.email}}",
         userId: "testUser",
       },
+      isValid: true,
     };
 
     const expectedConfigEntity = {
@@ -295,6 +297,7 @@ describe("generateModuleInstance", () => {
           confirmBeforeExecute: false,
         },
       },
+      invalids: [],
     };
 
     const resultData = generateJSModuleInstance(

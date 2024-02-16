@@ -11,7 +11,7 @@ export interface ModuleInstance extends CE_ModuleInstance {
   contextType: ModuleInstanceCreatorType;
   jsonPathKeys: string[];
   dynamicBindingPathList?: Record<string, true>;
-  invalids?: string[];
+  invalids: string[];
   isValid: boolean;
   originPackageId?: string;
 }
