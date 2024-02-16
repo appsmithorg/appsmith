@@ -563,7 +563,7 @@ class JSONFormWidget extends BaseWidget<
       fieldThemeStylesheets: this.props.childStylesheet,
     });
     const {
-      // dynamicPropertyPathList,
+      dynamicPropertyPathList,
       modifiedSchemaItems,
       removedSchemaItems,
       schema,
@@ -578,7 +578,7 @@ class JSONFormWidget extends BaseWidget<
     } else if (status === ComputedSchemaStatus.UPDATED) {
       const payload: BatchPropertyUpdatePayload = {
         modify: {
-          // dynamicPropertyPathList,
+          dynamicPropertyPathList,
           fieldLimitExceeded: false,
         },
       };

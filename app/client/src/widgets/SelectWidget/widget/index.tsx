@@ -152,7 +152,12 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             serverSideFiltering: true,
             onFilterUpdate: queryConfig.select.run,
           };
-          dynamicPropertyPathList.push({ key: "sourceData" });
+          if (
+            !!super.getFeatureFlag(
+              FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
+            )
+          )
+            dynamicPropertyPathList.push({ key: "sourceData" });
         }
 
         return {

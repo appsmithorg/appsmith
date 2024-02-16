@@ -24,6 +24,9 @@ import type {
   ModuleInstanceData,
   ModuleInstanceDataState,
 } from "@appsmith/constants/ModuleInstanceConstants";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { AppState } from "@appsmith/reducers";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -158,6 +161,13 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
 
   const queries = useSelector(getCurrentActions);
   const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
+  const isJSEnabledByDefaultOnForOneClickBinding = useSelector(
+    (state: AppState) =>
+      selectFeatureFlagCheck(
+        state,
+        FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
+      ),
+  );
 
   const { pluginImages, widget } = props;
 
@@ -185,7 +195,10 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
       value: getBindingValue(widget, query),
       icon: getQueryIcon(query, pluginImages),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
-        addBinding(valueOption?.value, true);
+        addBinding(
+          valueOption?.value,
+          !!isJSEnabledByDefaultOnForOneClickBinding,
+        );
 
         updateConfig({
           datasource: "",
