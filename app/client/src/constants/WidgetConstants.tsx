@@ -206,6 +206,7 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   isDeprecated: true,
   searchTags: true,
   iconSVG: true,
+  thumbnailSVG: true,
   version: true,
   displayName: true,
   topRowBeforeCollapse: false,
