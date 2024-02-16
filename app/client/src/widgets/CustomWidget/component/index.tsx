@@ -294,7 +294,7 @@ export interface CustomComponentProps {
   widgetId: string;
   dynamicHeight: DynamicHeight;
   minDynamicHeight: number;
-  layoutSystemType: LayoutSystemTypes;
+  layoutSystemType?: LayoutSystemTypes;
 }
 
 /**
