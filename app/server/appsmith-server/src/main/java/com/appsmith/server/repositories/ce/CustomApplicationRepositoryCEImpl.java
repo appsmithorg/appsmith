@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -70,8 +71,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
-        Criteria nameCriteria = where(fieldName(QApplication.application.name)).is(name);
-        return queryBuilder().criteria(nameCriteria).permission(permission).one();
+        return queryBuilder()
+                .criteria(bridge().equal(fieldName(QApplication.application.name), name))
+                .permission(permission)
+                .one();
     }
 
     @Override

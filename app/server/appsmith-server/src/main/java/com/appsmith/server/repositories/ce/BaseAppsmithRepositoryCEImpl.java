@@ -166,45 +166,26 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<T> updateById(String id, T resource, Optional<AclPermission> permission) {
-        Query query = new Query(Criteria.where("id").is(id));
-
         // Set policies to null in the update object
         resource.setPolicies(null);
         resource.setUpdatedAt(Instant.now());
 
         DBObject update = getDbObject(resource);
         Update updateObj = new Update();
-        update.keySet().stream().forEach(entry -> updateObj.set(entry, update.get(entry)));
+        update.keySet().forEach(entry -> updateObj.set(entry, update.get(entry)));
 
         return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> (User) auth.getPrincipal())
+                .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
                 .flatMap(user -> {
                     resource.setModifiedBy(user.getUsername());
                     return (permission.isPresent() ? getAllPermissionGroupsForUser(user) : Mono.just(Set.<String>of()))
-                            .flatMap(permissionGroups -> {
-                                Criteria userAcl = userAcl(permissionGroups, permission.orElse(null));
-                                query.addCriteria(notDeleted());
-                                if (userAcl != null) {
-                                    query.addCriteria(userAcl);
-                                }
-                                return mongoOperations
-                                        .updateFirst(query, updateObj, resource.getClass())
-                                        .flatMap(obj -> {
-                                            if (obj.getMatchedCount() == 0) {
-                                                return Mono.error(new AppsmithException(
-                                                        AppsmithError.NO_RESOURCE_FOUND,
-                                                        resource.getClass()
-                                                                .getSimpleName()
-                                                                .toLowerCase(),
-                                                        id));
-                                            }
-                                            return findById(id, permission);
-                                        })
-                                        .flatMap(obj -> {
-                                            return setUserPermissionsInObject(obj, permissionGroups);
-                                        });
-                            });
+                            .flatMap(permissionGroups -> queryBuilder()
+                                    .byId(id)
+                                    .permissionGroups(permissionGroups)
+                                    .permission(permission.orElse(null))
+                                    .updateFirst(updateObj)
+                                    .then(findById(id, permission))
+                                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups)));
                 });
     }
 
