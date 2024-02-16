@@ -669,7 +669,7 @@
         "isLoading": false,
         "buttonVariant": "PRIMARY",
         "placement": "CENTER",
-        "onClick": "{{FlowerImage.run();\nDogImage.run();\nNumberFact.run();\nCocktailDB.run()}}",
+        "onClick": "{{FlowerImage1.run();FlowerImage2.run();\nNumberFact.run();\nCocktailDB.run()}}",
         "dynamicPropertyPathList": [
           {
             "key": "onClick"
@@ -697,7 +697,7 @@
         ],
         "defaultImage": "https://assets.appsmith.com/widgets/default.png",
         "key": "k7gqsx8va7",
-        "image": "{{FlowerImage.data}}",
+        "image": "{{FlowerImage1.data}}",
         "rightColumn": 24,
         "objectFit": "contain",
         "widgetId": "14dy28sgfl",
@@ -731,7 +731,7 @@
         ],
         "defaultImage": "https://assets.appsmith.com/widgets/default.png",
         "key": "k7gqsx8va7",
-        "image": "{{DogImage.data.message}}",
+        "image": "{{FlowerImage2.data}}",
         "rightColumn": 37,
         "objectFit": "contain",
         "widgetId": "ctl1a3f5iq",

@@ -33,15 +33,15 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
 
     //Api 1
     apiPage.CreateAndFillApi(
-      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl,
-      "FlowerImage",
+      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl1,
+      "FlowerImage1",
     );
     agHelper.PressEscape();
 
     //Api 2
     apiPage.CreateAndFillApi(
-      "https://dog.ceo/api/breeds/image/random",
-      "DogImage",
+      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl2,
+      "FlowerImage2",
     );
     agHelper.PressEscape();
 
@@ -60,7 +60,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.ClickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
-    //Cat Image
+    //Flower1 Image
     cy.xpath("//img/parent::div")
       .eq(0)
       .find("img")
@@ -80,7 +80,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     //   expect(response.body.data.body.message.length).to.be.above(0); //Dog Image
     // });
 
-    //Dog Image
+    //Flower2 Image
     cy.xpath("//img/parent::div")
       .eq(1)
       .find("img")
