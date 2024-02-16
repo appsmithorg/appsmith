@@ -219,10 +219,21 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .flatMap(user -> signupAndLogin(user, exchange))
                 .then()
                 .onErrorResume(error -> {
+                    String path = "/user/signup";
+
+                    String referer = exchange.getRequest().getHeaders().getFirst("referer");
+                    if (referer != null) {
+                        try {
+                            path = URI.create(referer).getPath();
+                        } catch (IllegalArgumentException ex) {
+                            // This is okay, we just use the default value for `path`.
+                        }
+                    }
+
                     URI redirectUri;
                     try {
                         redirectUri = new URIBuilder()
-                                .setPath("/")
+                                .setPath(path)
                                 .setParameter("error", error.getMessage())
                                 .build();
                     } catch (URISyntaxException e) {
