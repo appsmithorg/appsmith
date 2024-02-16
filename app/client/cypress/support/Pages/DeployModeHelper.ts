@@ -44,6 +44,7 @@ export class DeployMode {
   ) {
     this.agHelper.Sleep();
     toValidateSavedState && this.agHelper.AssertAutoSave();
+    this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000);
