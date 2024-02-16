@@ -41,7 +41,11 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
+import {
+  filterCategories,
+  OmnibarTriggerSources,
+  SEARCH_CATEGORY_ID,
+} from "../GlobalSearch/utils";
 import {
   APPSMITH_GLOBAL_FUNCTIONS,
   AppsmithFunction,
@@ -444,6 +448,7 @@ function getApiAndQueryOptions(
       dispatch(
         setGlobalSearchCategory(
           filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
+          OmnibarTriggerSources.Propertypane,
         ),
       );
     },

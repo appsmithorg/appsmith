@@ -23,7 +23,12 @@ import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
-import type { SearchCategory, SearchItem, SelectEvent } from "./utils";
+import type {
+  ActionOperation,
+  SearchCategory,
+  SearchItem,
+  SelectEvent,
+} from "./utils";
 import {
   algoliaHighlightTag,
   filterCategories,
@@ -36,6 +41,7 @@ import {
   isMatching,
   isMenu,
   isNavigation,
+  OmnibarTriggerSources,
   SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
 } from "./utils";
@@ -71,6 +77,7 @@ import {
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FocusEntity } from "navigation/FocusEntity";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   max-height: 530px;
@@ -110,6 +117,9 @@ export const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
+
+export const omnibarTriggerSourceSelector = (state: AppState) =>
+  state.ui.globalSearch.triggerSource;
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   const title = getItemTitle(item) || "";
@@ -152,6 +162,7 @@ const emptyObj = {};
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId) as string;
   const modalOpen = useSelector(isModalOpenSelector);
+  const triggerSource = useSelector(omnibarTriggerSourceSelector);
   const dispatch = useDispatch();
   const [query, setQueryInState] = useState("");
   const setQuery = useCallback(
@@ -276,7 +287,12 @@ function GlobalSearch() {
       );
     }
     if (isActionOperation(category)) {
-      return filteredFileOperations;
+      return triggerSource === OmnibarTriggerSources.Propertypane
+        ? filteredFileOperations.filter(
+            (oprtn: ActionOperation) =>
+              oprtn.focusEntityType !== FocusEntity.JS_OBJECT,
+          )
+        : filteredFileOperations;
     }
 
     let filteredEntities: any = [];

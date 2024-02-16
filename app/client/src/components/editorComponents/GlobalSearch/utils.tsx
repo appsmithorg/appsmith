@@ -124,6 +124,11 @@ export interface SearchCategory {
   show?: () => boolean;
 }
 
+export enum OmnibarTriggerSources {
+  Omnibar,
+  Propertypane,
+}
+
 export function getOptionalFilters(optionalFilterMeta: any) {
   return Object.entries(optionalFilterMeta || {}).reduce(
     (acc: Array<string>, [key, value]: any) => {

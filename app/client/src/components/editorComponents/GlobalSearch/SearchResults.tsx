@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useContext, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { Hit as IHit } from "react-instantsearch-core";
 import styled, { css } from "styled-components";
 import { getTypographyByKey } from "design-system-old";
@@ -12,6 +12,7 @@ import {
   getItemTitle,
   SEARCH_ITEM_TYPES,
   comboHelpText,
+  OmnibarTriggerSources,
 } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
@@ -28,6 +29,9 @@ import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import { Text } from "design-system";
+import { omnibarTriggerSourceSelector } from "./index";
+import { setIdeEditorViewMode } from "actions/ideActions";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 const overflowCSS = css`
   overflow: hidden;
@@ -402,11 +406,13 @@ interface ItemProps {
 }
 
 function SearchItemComponent(props: ItemProps) {
+  const dispatch = useDispatch();
   const { index, item, query } = props;
   const itemRef = useRef<HTMLDivElement>(null);
   const searchContext = useContext(SearchContext);
   const activeItemIndex = searchContext?.activeItemIndex;
   const setActiveItemIndex = searchContext?.setActiveItemIndex || noop;
+  const triggerSource = useSelector(omnibarTriggerSourceSelector);
 
   const isActiveItem = activeItemIndex === index;
 
@@ -431,6 +437,10 @@ function SearchItemComponent(props: ItemProps) {
         ) {
           setActiveItemIndex(index);
           searchContext?.handleItemLinkClick(e, item, "SEARCH_ITEM");
+          // open side by side if the omnibar was triggered from property pane action creator
+          if (triggerSource === OmnibarTriggerSources.Propertypane) {
+            dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+          }
         }
       }}
       ref={itemRef}
