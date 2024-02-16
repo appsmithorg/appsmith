@@ -1057,6 +1057,10 @@ export class Applications<
     this.props.searchApplications("");
   }
 
+  handleStartFromTemplate() {
+    this.setState({ startFromTemplate: true });
+  }
+
   public render() {
     if (this.props.currentApplicationIdForCreateNewApp) {
       // FOR NEW USER
@@ -1076,9 +1080,7 @@ export class Applications<
       return (
         <>
           <ApplictionsMainPage
-            onStartFromTemplateClick={() => {
-              this.setState({ startFromTemplate: true });
-            }}
+            onStartFromTemplateClick={this.handleStartFromTemplate.bind(this)}
             searchApplications={this.props.searchApplications}
             searchKeyword={this.props.searchKeyword}
           />
