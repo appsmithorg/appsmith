@@ -340,7 +340,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return getCurrentUserPermissionGroupsIfRequired(
                         Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())
                 .defaultIfEmpty(Collections.emptySet())
-                .doOnNext(params::permissionGroups)
+                .map(params::permissionGroups)
                 .then();
     }
 
