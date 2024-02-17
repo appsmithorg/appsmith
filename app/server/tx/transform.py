@@ -245,7 +245,7 @@ def generate_cake_class(domain):
     import java.util.Optional;
     import java.util.Set;
 
-    import static com.appsmith.server.helpers.cs.ReactiveUtils.nonBlocking;
+    import static com.appsmith.server.helpers.cs.ReactorUtils.nonBlocking;
 
     @Component
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{
