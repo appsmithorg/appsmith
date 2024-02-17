@@ -37,7 +37,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
         return queryBuilder()
-                .spec(bridge().equal(fieldName(QWorkspace.workspace.name), name))
+                .criteria(bridge().equal(fieldName(QWorkspace.workspace.name), name))
                 .permission(aclPermission)
                 .one();
     }
@@ -62,7 +62,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         final User user =
                 Objects.requireNonNull(sessionUserService.getCurrentUser().block());
         return queryBuilder()
-                .spec(bridge().equal(fieldName(QWorkspace.workspace.tenantId), user.getTenantId()))
+                .criteria(bridge().equal(fieldName(QWorkspace.workspace.tenantId), user.getTenantId()))
                 .permission(permission)
                 .all();
     }
@@ -70,7 +70,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Optional<Workspace> findByIdAndPluginsPluginId(String id, String pluginId) {
         return queryBuilder()
-                .spec((root, cq, cb) -> cb.and(
+                .criteria((root, cq, cb) -> cb.and(
                         cb.equal(root.get(fieldName(QWorkspace.workspace.id)), id),
                         cb.isTrue(cb.function(
                                 "jsonb_path_exists",

@@ -16,7 +16,7 @@ SUBSCRIBE_WRAPPER = (
     "%s.subscribeOn(Schedulers.boundedElastic())"
 )
 MONO_WRAPPER = (
-    SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s.orElse(null))"
+    "nonBlocking(() -> %s)"
 )
 MONO_WRAPPER_NON_OPTIONAL = (
     SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
@@ -244,6 +244,8 @@ def generate_cake_class(domain):
     import java.util.Map;
     import java.util.Optional;
     import java.util.Set;
+
+    import static com.appsmith.server.helpers.cs.ReactiveUtils.nonBlocking;
 
     @Component
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{

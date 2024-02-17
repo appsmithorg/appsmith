@@ -37,7 +37,7 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
     @Override
     public List<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         return queryBuilder()
-                .spec(bridge().in(fieldName(QPlugin.plugin.id), ids))
+                .criteria(bridge().in(fieldName(QPlugin.plugin.id), ids))
                 .fields(includeFields)
                 .all();
     }

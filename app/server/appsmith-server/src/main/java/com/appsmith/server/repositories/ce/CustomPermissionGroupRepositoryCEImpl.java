@@ -49,7 +49,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findByAssignedToUserIdsIn(String userId) {
         return queryBuilder()
-                .spec(bridge().jsonIn(userId, fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)))
+                .criteria(bridge().jsonIn(userId, fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)))
                 .all();
     }
 
@@ -57,7 +57,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     public List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
         return queryBuilder()
-                .spec((root, cq, cb) -> cb.and(
+                .criteria((root, cq, cb) -> cb.and(
                         cb.isTrue(cb.function(
                                 "jsonb_path_exists",
                                 Boolean.class,
@@ -158,7 +158,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
         return queryBuilder()
-                .spec(bridge().equal(
+                .criteria(bridge().equal(
                                 fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
                                 Workspace.class.getSimpleName())
                         .in(fieldName(QPermissionGroup.permissionGroup.defaultDomainId), workspaceIds))

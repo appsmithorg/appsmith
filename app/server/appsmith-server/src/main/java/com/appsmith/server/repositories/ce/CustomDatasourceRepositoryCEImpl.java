@@ -32,7 +32,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     public List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
         Sort sort = Sort.by(fieldName(QDatasource.datasource.name));
         return queryBuilder()
-                .spec(bridge().equal(fieldName(QDatasource.datasource.workspaceId), workspaceId))
+                .criteria(bridge().equal(fieldName(QDatasource.datasource.workspaceId), workspaceId))
                 .permission(permission)
                 .sort(sort)
                 .all();
@@ -53,7 +53,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     @Deprecated
     public Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
         return queryBuilder()
-                .spec(bridge().equal(fieldName(QDatasource.datasource.name), name)
+                .criteria(bridge().equal(fieldName(QDatasource.datasource.name), name)
                         .equal(fieldName(QDatasource.datasource.workspaceId), workspaceId))
                 .permission(aclPermission)
                 .one();

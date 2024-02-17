@@ -45,7 +45,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         // // getBaseRepository().findAll(expression);
         return queryBuilder(/*repository*/ )
                 // .spec(expression)
-                .spec((root, cq, cb) -> cb.or(
+                .criteria((root, cq, cb) -> cb.or(
                         cb.equal(root.get(fieldName(QTheme.theme.applicationId)), applicationId),
                         cb.isTrue(root.get(fieldName(QTheme.theme.isSystemTheme)))))
                 .permission(aclPermission)
@@ -55,7 +55,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public List<Theme> getSystemThemes() {
         return queryBuilder()
-                .spec(bridge().isTrue(fieldName(QTheme.theme.isSystemTheme)))
+                .criteria(bridge().isTrue(fieldName(QTheme.theme.isSystemTheme)))
                 .permission(AclPermission.READ_THEMES)
                 .all();
     }
@@ -63,7 +63,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public Optional<Theme> getSystemThemeByName(String themeName) {
         return queryBuilder()
-                .spec(bridge().eqIgnoreCase(fieldName(QTheme.theme.name), themeName)
+                .criteria(bridge().eqIgnoreCase(fieldName(QTheme.theme.name), themeName)
                         .isTrue(fieldName(QTheme.theme.isSystemTheme)))
                 .permission(AclPermission.READ_THEMES)
                 .one();

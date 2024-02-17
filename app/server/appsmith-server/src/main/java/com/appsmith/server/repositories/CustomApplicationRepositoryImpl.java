@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomApplicationRepositoryCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
-import jakarta.persistence.EntityManager;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +16,10 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
 
     @Autowired
     public CustomApplicationRepositoryImpl(
-            EntityManager entityManager,
             @NonNull ReactiveMongoOperations mongoOperations,
             @NonNull MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ApplicationPermission applicationPermission) {
-        super(entityManager, mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission);
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission);
     }
 }

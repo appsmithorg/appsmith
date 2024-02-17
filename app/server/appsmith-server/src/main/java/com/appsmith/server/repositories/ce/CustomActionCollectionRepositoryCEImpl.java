@@ -36,7 +36,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Deprecated
     public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
-                .spec(bridge().equal(fieldName(QActionCollection.actionCollection.applicationId), applicationId))
+                .criteria(bridge().equal(fieldName(QActionCollection.actionCollection.applicationId), applicationId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
@@ -220,7 +220,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
         return queryBuilder()
-                .spec(bridge().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
+                .criteria(bridge().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -228,7 +228,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
-                .spec(bridge().in(
+                .criteria(bridge().in(
                                 fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "pageId",
                                 pageIds))
                 .permission(permission)
@@ -243,7 +243,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .spec(bridge().in(FieldName.APPLICATION_ID, applicationIds))
+                .criteria(bridge().in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }
@@ -290,6 +290,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                     // would exist. To handle this, only fetch non-deleted actions
                     .isNull("unpublishedCollection.deletedAt");
         }
-        return queryBuilder().spec(spec).permission(permission).all();
+        return queryBuilder().criteria(spec).permission(permission).all();
     }
 }

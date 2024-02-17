@@ -145,22 +145,16 @@ public class QueryAllParams<T extends BaseDomain> {
         return this;
     }
 
-    @SuppressWarnings("unchecked") // This should be okay with the way we use this fluent API.
-    public QueryAllParams<T> spec(Specification<? extends BaseDomain> spec) {
-        specifications.add((Specification<T>) spec);
-        return this;
-    }
-
     /**
      * Set a condition with querydsl expression.
      */
-    public QueryAllParams<T> spec(BooleanExpression expression) {
+    public QueryAllParams<T> criteria(BooleanExpression expression) {
         querydslExpressions.add(expression);
         return this;
     }
 
     public QueryAllParams<T> byId(String id) {
-        spec(
+        criteria(
                 id == null
                         ? (root, cq, cb) -> cb.isNull(root.get(FieldName.ID))
                         : (root, cq, cb) -> cb.equal(root.get(FieldName.ID), id));

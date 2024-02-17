@@ -12,7 +12,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Expression;
@@ -40,19 +39,16 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepositoryCE {
 
-    private final EntityManager entityManager;
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final ApplicationPermission applicationPermission;
 
     @Autowired
     public CustomApplicationRepositoryCEImpl(
-            EntityManager entityManager,
             @NonNull ReactiveMongoOperations mongoOperations,
             @NonNull MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ApplicationPermission applicationPermission) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-        this.entityManager = entityManager;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.applicationPermission = applicationPermission;
     }
@@ -84,7 +80,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public List<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
         return queryBuilder()
-                .spec(bridge().equal(fieldName(QApplication.application.workspaceId), workspaceId))
+                .criteria(bridge().equal(fieldName(QApplication.application.workspaceId), workspaceId))
                 .permission(permission)
                 .all();
     }
@@ -144,7 +140,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         applicationPage.setDefaultPageId(defaultPageId);
         applicationPage.setId(pageId);
 
-        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         final CriteriaUpdate<Application> cu = cb.createCriteriaUpdate(genericDomain);
         final Root<Application> root = cu.getRoot();
         final Path<Expression<?>> pagesField = root.get("pages");
@@ -159,7 +155,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         cb.literal(true)));
         cu.where(cb.equal(root.get("id"), applicationId));
 
-        return Optional.of(entityManager.createQuery(cu).executeUpdate());
+        return Optional.of(getEntityManager().createQuery(cu).executeUpdate());
 
         /* TODO: Imagined bridge update API:
         return bridgeOperations.updateFirst(
@@ -227,7 +223,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             AclPermission aclPermission) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         return queryBuilder()
-                .spec(bridge().equal(gitApplicationMetadata + "." + "defaultApplicationId", defaultApplicationId)
+                .criteria(bridge().equal(gitApplicationMetadata + "." + "defaultApplicationId", defaultApplicationId)
                         .equal(gitApplicationMetadata + "." + "branchName", branchName))
                 .fields(projectionFieldNames)
                 .permission(aclPermission)
@@ -256,7 +252,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         String gitApplicationMetadata = "gitApplicationMetadata";
 
         return queryBuilder()
-                .spec(bridge().equal(gitApplicationMetadata + "." + "defaultApplicationId", defaultApplicationId))
+                .criteria(bridge().equal(gitApplicationMetadata + "." + "defaultApplicationId", defaultApplicationId))
                 .permission(permission)
                 .all();
     }

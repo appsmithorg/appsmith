@@ -49,7 +49,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
-                .spec(bridge().equal("applicationId", applicationId))
+                .criteria(bridge().equal("applicationId", applicationId))
                 .permission(aclPermission)
                 .all();
     }
@@ -57,7 +57,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         return queryBuilder()
-                .spec(bridge().equal("applicationId", applicationId))
+                .criteria(bridge().equal("applicationId", applicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -107,7 +107,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return queryBuilder().byId(id).spec(specFn).permission(aclPermission).one();
+        return queryBuilder()
+                .byId(id)
+                .criteria(specFn)
+                .permission(aclPermission)
+                .one();
     }
 
     @Override
@@ -279,7 +283,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
         int count = queryBuilder()
                 .permission(permission)
-                .spec(bridge().in(fieldName(QNewPage.newPage.id), pageIds))
+                .criteria(bridge().in(fieldName(QNewPage.newPage.id), pageIds))
                 .updateAll(Bridge.update().set(QNewPage.newPage.publishedPage, QNewPage.newPage.unpublishedPage)); // */
 
         return Optional.empty();
@@ -289,7 +293,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public List<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .spec(bridge().in(FieldName.APPLICATION_ID, applicationIds))
+                .criteria(bridge().in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }
