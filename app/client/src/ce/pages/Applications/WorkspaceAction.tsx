@@ -21,6 +21,7 @@ import { NEW_APP } from "@appsmith/constants/messages";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export interface WorkspaceActionProps {
   workspace: Workspace;
@@ -47,7 +48,7 @@ function WorkspaceAction({
     useSelector(getIsCreatingApplicationByWorkspaceId(workspace.id)),
   );
   const isCreateAppFromTemplatesEnabled = useFeatureFlag(
-    "release_show_create_app_from_templates_enabled",
+    FEATURE_FLAG.release_show_create_app_from_templates_enabled,
   );
 
   const openActionMenu = useCallback(() => {
