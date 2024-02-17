@@ -3,9 +3,10 @@
 #cypress/e2e/Regression/ServerSide/OnLoadTests/OnLoadActions_Spec.ts
 #cypress/e2e/Regression/ServerSide/ApiTests/API_Bugs_Spec.js
 #cypress/e2e/Regression/ServerSide/LoginTests/LoginFailure_spec.js
+cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts
 
 
 # For running all specs - uncomment below:
-cypress/e2e/**/**/*
+#cypress/e2e/**/**/*
 
 #ci-test-limit uses this file to run minimum of specs. Do not run entire suite with this command.
