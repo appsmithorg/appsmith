@@ -16,7 +16,8 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 
-//Running tests only for CE, since in EE repo, chrome crashes. This check can be removed if the issue no more occurs in EE runs
+//FIXME: Running tests only for CE, since in EE repo, chrome crashes.
+//TODO: This check can be removed if the issue no more occurs in EE runs
 if (CURRENT_REPO == REPO.CE) {
   describe(
     "Validate Arango & CURL Import Datasources",
