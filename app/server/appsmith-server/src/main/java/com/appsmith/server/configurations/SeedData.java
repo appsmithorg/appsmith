@@ -336,7 +336,7 @@ public class SeedData {
         .executeUpdate(); //*/
 
         entityManager
-                .createNativeQuery("CREATE UNIQUE INDEX workspace_app_deleted_git_application_metadata"
+                .createNativeQuery("CREATE UNIQUE INDEX IF NOT EXISTS workspace_app_deleted_git_application_metadata"
                         + " ON application (name, workspace_id, deleted_at, (git_application_metadata->>'remoteUrl'), (git_application_metadata->>'branchName'))"
                         + " NULLS NOT DISTINCT")
                 .executeUpdate();

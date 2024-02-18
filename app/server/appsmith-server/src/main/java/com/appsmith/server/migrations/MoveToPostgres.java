@@ -10,7 +10,6 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -24,7 +23,7 @@ import java.util.Set;
 /**
  * This PoC doesn't hold much promise now.
  */
-@Component
+// @Component
 @RequiredArgsConstructor
 @Slf4j
 public class MoveToPostgres {

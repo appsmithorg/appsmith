@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,12 +57,14 @@ public class Plugin extends BaseDomain {
     @JsonView(Views.Public.class)
     ResponseType responseType;
 
-    @OneToMany
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     List<PluginParameterType> datasourceParams;
 
-    @OneToMany
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     List<PluginParameterType> actionParams;
 
     @JsonView(Views.Public.class)

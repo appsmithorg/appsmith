@@ -32,7 +32,8 @@ public class PermissionGroup extends BaseDomain {
     String defaultDomainId;
     String defaultDomainType;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @Deprecated
     private Set<Permission> permissions;
 
