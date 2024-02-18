@@ -15,13 +15,11 @@ FILE_CONTENTS_CACHE = {}
 SUBSCRIBE_WRAPPER = (
     "%s.subscribeOn(Schedulers.boundedElastic())"
 )
-MONO_WRAPPER = (
-    "nonBlocking(() -> %s)"
-)
+MONO_WRAPPER = "toMono(() -> %s)"
 MONO_WRAPPER_NON_OPTIONAL = (
     SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
 )
-FLUX_WRAPPER = SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s).flatMapMany(Flux::fromIterable)"
+FLUX_WRAPPER = "toFlux(() -> %s)"
 
 
 def apply(p, tx):
@@ -245,7 +243,8 @@ def generate_cake_class(domain):
     import java.util.Optional;
     import java.util.Set;
 
-    import static com.appsmith.server.helpers.cs.ReactorUtils.nonBlocking;
+    import static com.appsmith.server.helpers.cs.ReactorUtils.toFlux;
+    import static com.appsmith.server.helpers.cs.ReactorUtils.toMono;
 
     @Component
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{
