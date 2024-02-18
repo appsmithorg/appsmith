@@ -2,13 +2,13 @@ package com.appsmith.server.exports.internal.partial;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -24,11 +24,11 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
             ApplicationPermission applicationPermission,
             CustomJSLibService customJSLibService,
             ActionCollectionService actionCollectionService,
-            NewActionService newActionService,
+            ActionService actionService,
             NewPageService newPageService,
             ExportableService<Datasource> datasourceExportableService,
             ExportableService<Plugin> pluginExportableService,
-            ExportableService<NewAction> newActionExportableService,
+            ExportableService<Action> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
             SessionUserService sessionUserService,
             AnalyticsService analyticsService) {
@@ -37,7 +37,7 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
                 applicationPermission,
                 customJSLibService,
                 actionCollectionService,
-                newActionService,
+                actionService,
                 newPageService,
                 datasourceExportableService,
                 pluginExportableService,

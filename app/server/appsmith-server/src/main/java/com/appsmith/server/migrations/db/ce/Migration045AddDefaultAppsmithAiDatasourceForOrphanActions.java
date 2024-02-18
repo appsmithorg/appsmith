@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Plugin;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -60,7 +60,7 @@ public class Migration045AddDefaultAppsmithAiDatasourceForOrphanActions {
         // for each action, find the workspace id and check if there is a datasource associated with it
         // if yes, then associate the action with that datasource
         // if no, then create a new datasource and associate the action with that datasource
-        try (Stream<NewAction> newActionsStream = mongoTemplate.stream(query, NewAction.class)) {
+        try (Stream<Action> newActionsStream = mongoTemplate.stream(query, Action.class)) {
             newActionsStream.forEach(newAction -> {
                 String workspaceId = newAction.getWorkspaceId();
                 if (workspaceToDatasourceMap.containsKey(workspaceId)) {

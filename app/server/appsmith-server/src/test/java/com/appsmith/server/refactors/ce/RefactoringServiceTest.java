@@ -5,6 +5,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -18,10 +19,9 @@ import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
@@ -63,7 +63,7 @@ import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 public class RefactoringServiceTest {
 
     @SpyBean
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -96,7 +96,7 @@ public class RefactoringServiceTest {
     NewPageService newPageService;
 
     @Autowired
-    NewActionRepository actionRepository;
+    ActionRepository actionRepository;
 
     @SpyBean
     ActionCollectionService actionCollectionService;
@@ -243,7 +243,7 @@ public class RefactoringServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testIsNameAllowed_withRepeatedActionCollectionName_throwsError() {
-        Mockito.doReturn(Flux.empty()).when(newActionService).getUnpublishedActions(Mockito.any());
+        Mockito.doReturn(Flux.empty()).when(actionService).getUnpublishedActions(Mockito.any());
 
         ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
         mockActionCollectionDTO.setName("testCollection");
@@ -277,7 +277,7 @@ public class RefactoringServiceTest {
         secondAction.setCollectionId(null);
 
         Mockito.doReturn(Flux.just(firstAction, secondAction))
-                .when(newActionService)
+                .when(actionService)
                 .getUnpublishedActions(Mockito.any());
 
         ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();

@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Plugin;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -40,7 +40,7 @@ public class Migration013AddEmailBodyTypeToSMTPPlugin {
         Update updateUnpublishedActions = new Update();
         updateUnpublishedActions.set("unpublishedAction.actionConfiguration.formData.send.bodyType", "text/html");
 
-        mongoTemplate.updateMulti(unpublishedActionsQuery, updateUnpublishedActions, NewAction.class);
+        mongoTemplate.updateMulti(unpublishedActionsQuery, updateUnpublishedActions, Action.class);
 
         /* Query to get all smtp plugin published actions which are not deleted and doesn't have bodyType field */
         Query publishedActionsQuery = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(smtpPlugin)
@@ -53,6 +53,6 @@ public class Migration013AddEmailBodyTypeToSMTPPlugin {
         Update updatePublishedActions = new Update();
         updatePublishedActions.set("publishedAction.actionConfiguration.formData.send.bodyType", "text/html");
 
-        mongoTemplate.updateMulti(publishedActionsQuery, updatePublishedActions, NewAction.class);
+        mongoTemplate.updateMulti(publishedActionsQuery, updatePublishedActions, Action.class);
     }
 }

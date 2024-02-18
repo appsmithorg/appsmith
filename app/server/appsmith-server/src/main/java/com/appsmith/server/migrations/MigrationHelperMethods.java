@@ -5,9 +5,9 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
@@ -36,9 +36,9 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 public class MigrationHelperMethods {
     // Migration for deprecating archivedAt field in ActionDTO
-    public static void updateArchivedAtByDeletedATForActions(List<NewAction> actionList) {
-        for (NewAction newAction : actionList) {
-            ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+    public static void updateArchivedAtByDeletedATForActions(List<Action> actionList) {
+        for (Action action : actionList) {
+            ActionDTO unpublishedAction = action.getUnpublishedAction();
             if (unpublishedAction != null) {
                 final Instant archivedAt = unpublishedAction.getArchivedAt();
                 unpublishedAction.setDeletedAt(archivedAt);
@@ -48,7 +48,7 @@ public class MigrationHelperMethods {
     }
 
     public static void migrateActionFormDataToObject(ApplicationJson applicationJson) {
-        final List<NewAction> actionList = applicationJson.getActionList();
+        final List<Action> actionList = applicationJson.getActionList();
 
         if (!CollectionUtils.isNullOrEmpty(actionList)) {
             actionList.parallelStream().forEach(newAction -> {
@@ -174,7 +174,7 @@ public class MigrationHelperMethods {
     }
 
     public static void migrateGoogleSheetsActionsToUqi(ApplicationJson applicationJson) {
-        final List<NewAction> actionList = applicationJson.getActionList();
+        final List<Action> actionList = applicationJson.getActionList();
 
         if (!CollectionUtils.isNullOrEmpty(actionList)) {
             actionList.parallelStream().forEach(newAction -> {
@@ -216,7 +216,7 @@ public class MigrationHelperMethods {
     /**
      * Here 'id' refers to the ObjectId which is used to uniquely identify each Mongo document. 'path' refers to the
      * path in the Query DSL object that indicates which field in a document should be matched against the `id`.
-     * `type` is a POJO class type that indicates which collection we are interested in. eg. path=QNewAction
+     * `type` is a POJO class type that indicates which collection we are interested in. eg. path=QAction
      * .newAction.id, type=NewAction.class
      */
     public static <T extends BaseDomain> T fetchDomainObjectUsingId(
@@ -229,7 +229,7 @@ public class MigrationHelperMethods {
     /**
      * Here 'id' refers to the ObjectId which is used to uniquely identify each Mongo document. 'path' refers to the
      * path in the Query DSL object that indicates which field in a document should be matched against the `id`.
-     * `type` is a POJO class type that indicates which collection we are interested in. eg. path=QNewAction
+     * `type` is a POJO class type that indicates which collection we are interested in. eg. path=QAction
      * .newAction.id, type=NewAction.class
      */
     public static <T extends BaseDomain> List<T> fetchAllDomainObjectsUsingId(

@@ -4,9 +4,9 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -55,7 +55,7 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
     private final EntityValidationService entityValidationService;
 
     protected final EntityRefactoringService<Void> jsActionEntityRefactoringService;
-    protected final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
+    protected final EntityRefactoringService<Action> newActionEntityRefactoringService;
     protected final EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
     protected final EntityRefactoringService<Layout> widgetEntityRefactoringService;
 

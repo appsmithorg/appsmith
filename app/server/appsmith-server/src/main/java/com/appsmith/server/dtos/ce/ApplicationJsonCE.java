@@ -7,12 +7,12 @@ import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.ImportableArtifact;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -74,7 +74,7 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     String unpublishedDefaultPageName;
 
     @JsonView(Views.Public.class)
-    List<NewAction> actionList;
+    List<Action> actionList;
 
     @JsonView(Views.Public.class)
     List<ActionCollection> actionCollectionList;

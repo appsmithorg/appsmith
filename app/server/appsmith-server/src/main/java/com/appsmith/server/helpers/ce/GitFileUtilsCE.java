@@ -10,12 +10,13 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -24,7 +25,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
@@ -78,7 +78,7 @@ public class GitFileUtilsCE {
     private final FileInterface fileUtils;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final ActionCollectionService actionCollectionService;
     private final Gson gson;
 
@@ -337,7 +337,7 @@ public class GitFileUtilsCE {
                 // assume if the unpublished version is deleted entity should not be committed to git
                 .filter(newAction -> newAction.getUnpublishedAction() != null
                         && newAction.getUnpublishedAction().getDeletedAt() == null)
-                .peek(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .peek(newAction -> actionService.generateActionByViewMode(newAction, false))
                 .forEach(newAction -> {
                     String prefix;
                     if (newAction.getUnpublishedAction() != null) {
@@ -547,7 +547,7 @@ public class GitFileUtilsCE {
         // we can call the sanitiseToExportDBObject() from BaseDomain as well here
     }
 
-    private void removeUnwantedFieldFromAction(NewAction action) {
+    private void removeUnwantedFieldFromAction(Action action) {
         // As we are publishing the app and then committing to git we expect the published and unpublished ActionDTO
         // will be same, so we only commit unpublished ActionDTO.
         action.setPublishedAction(null);
@@ -656,7 +656,7 @@ public class GitFileUtilsCE {
             applicationJson.setActionList(new ArrayList<>());
         } else {
             Map<String, String> actionBody = applicationReference.getActionBody();
-            List<NewAction> actions = getApplicationResource(applicationReference.getActions(), NewAction.class);
+            List<Action> actions = getApplicationResource(applicationReference.getActions(), Action.class);
             // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actions, PredicateUtils.notNullPredicate());
             actions.forEach(newAction -> {

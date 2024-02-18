@@ -1,8 +1,8 @@
 package com.appsmith.server.acl;
 
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class AclPermissionTest {
 
         // Assert that NewAction related Permission should return True, when checked against NewAction and Action
         // Collection.
-        assertThat(AclPermission.isPermissionForEntity(AclPermission.MANAGE_ACTIONS, NewAction.class))
+        assertThat(AclPermission.isPermissionForEntity(AclPermission.MANAGE_ACTIONS, Action.class))
                 .isTrue();
         assertThat(AclPermission.isPermissionForEntity(AclPermission.MANAGE_ACTIONS, ActionCollection.class))
                 .isTrue();

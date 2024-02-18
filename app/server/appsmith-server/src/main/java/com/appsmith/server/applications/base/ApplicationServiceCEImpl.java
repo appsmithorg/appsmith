@@ -7,13 +7,13 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
@@ -31,8 +31,8 @@ import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -86,7 +86,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final ConfigService configService;
     private final ResponseUtils responseUtils;
     private final PermissionGroupService permissionGroupService;
-    private final NewActionRepository newActionRepository;
+    private final ActionRepository actionRepository;
     private final AssetService assetService;
 
     private final DatasourcePermission datasourcePermission;
@@ -110,7 +110,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
-            NewActionRepository newActionRepository,
+            ActionRepository actionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
@@ -124,7 +124,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.configService = configService;
         this.responseUtils = responseUtils;
         this.permissionGroupService = permissionGroupService;
-        this.newActionRepository = newActionRepository;
+        this.actionRepository = actionRepository;
         this.assetService = assetService;
         this.datasourcePermission = datasourcePermission;
         this.applicationPermission = applicationPermission;
@@ -606,7 +606,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Set<String> newDatasourceIds = ConcurrentHashMap.newKeySet();
 
         Mono<Void> existingDatasourceIdsMono = otherApplicationsWithAccessFlux
-                .flatMap(ids -> newActionRepository.findByApplicationId(ids))
+                .flatMap(ids -> actionRepository.findByApplicationId(ids))
                 .map(action -> {
                     ActionDTO unpublishedAction = action.getUnpublishedAction();
                     ActionDTO publishedAction = action.getPublishedAction();
@@ -627,7 +627,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 })
                 .then();
 
-        Mono<Void> newDatasourceIdsMono = newActionRepository
+        Mono<Void> newDatasourceIdsMono = actionRepository
                 .findByApplicationId(application.getId())
                 .map(action -> {
                     ActionDTO unpublishedAction = action.getUnpublishedAction();
@@ -678,8 +678,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
         Map<String, Policy> pagePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, NewPage.class);
-        Map<String, Policy> actionPolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
-                pagePolicyMap, NewPage.class, NewAction.class);
+        Map<String, Policy> actionPolicyMap =
+                policySolution.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, NewPage.class, Action.class);
         Map<String, Policy> themePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class);
 

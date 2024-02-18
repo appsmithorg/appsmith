@@ -12,6 +12,7 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
@@ -51,7 +52,6 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
@@ -137,7 +137,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
     private final NewPageService newPageService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils fileUtils;
     private final ImportService importService;
@@ -1197,7 +1197,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 })
                                 .collectList()
                                 .flatMapMany(newPageService::saveAll)
-                                .flatMap(newPage -> newActionService
+                                .flatMap(newPage -> actionService
                                         .findByPageId(newPage.getId(), Optional.empty())
                                         .map(newAction -> {
                                             newAction.setDefaultResources(null);
@@ -1210,7 +1210,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             return createDefaultIdsOrUpdateWithGivenResourceIds(newAction, null);
                                         })
                                         .collectList()
-                                        .flatMapMany(newActionService::saveAll)
+                                        .flatMapMany(actionService::saveAll)
                                         .thenMany(actionCollectionService.findByPageId(newPage.getId()))
                                         .map(actionCollection -> {
                                             actionCollection.setDefaultResources(null);

@@ -6,13 +6,14 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -24,7 +25,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -49,11 +49,11 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private final ApplicationPermission applicationPermission;
     private final CustomJSLibService customJSLibService;
     private final ActionCollectionService actionCollectionService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final NewPageService newPageService;
     private final ExportableService<Datasource> datasourceExportableService;
     private final ExportableService<Plugin> pluginExportableService;
-    private final ExportableService<NewAction> newActionExportableService;
+    private final ExportableService<Action> newActionExportableService;
     private final ExportableService<ActionCollection> actionCollectionExportableService;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
@@ -220,10 +220,10 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
             String branchName) {
-        return newActionService.findByPageId(pageId).collectList().flatMap(actions -> {
+        return actionService.findByPageId(pageId).collectList().flatMap(actions -> {
             // For git connected app, the filtering has to be done on the default action id
             // since the client is not aware of the branched resource id
-            List<NewAction> updatedActionList = actions.stream()
+            List<Action> updatedActionList = actions.stream()
                     .filter(action -> branchName != null
                             ? validActions.contains(action.getDefaultResources().getActionId())
                             : validActions.contains(action.getId()))
@@ -234,7 +234,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                     exportingMetaDTO, mappedResourcesDTO, updatedActionList);
             // Make it exportable by removing the ids
             updatedActionList = updatedActionList.stream()
-                    .peek(NewAction::sanitiseToExportDBObject)
+                    .peek(Action::sanitiseToExportDBObject)
                     .collect(Collectors.toList());
             applicationJson.setActionList(updatedActionList);
             return Mono.just(applicationJson);

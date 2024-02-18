@@ -25,8 +25,8 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -80,7 +80,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
-    private final NewActionRepository newActionRepository;
+    private final ActionRepository actionRepository;
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
@@ -107,7 +107,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             PluginExecutorHelper pluginExecutorHelper,
             PolicyGenerator policyGenerator,
             SequenceService sequenceService,
-            NewActionRepository newActionRepository,
+            ActionRepository actionRepository,
             DatasourceContextService datasourceContextService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
@@ -122,7 +122,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
-        this.newActionRepository = newActionRepository;
+        this.actionRepository = actionRepository;
         this.datasourceContextService = datasourceContextService;
         this.datasourcePermission = datasourcePermission;
         this.workspacePermission = workspacePermission;
@@ -811,7 +811,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .findById(id, datasourcePermission.getDeletePermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
-                .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))
+                .zipWhen(datasource -> actionRepository.countByDatasourceId(datasource.getId()))
                 .flatMap(objects -> {
                     final Long actionsCount = objects.getT2();
                     if (actionsCount > 0) {

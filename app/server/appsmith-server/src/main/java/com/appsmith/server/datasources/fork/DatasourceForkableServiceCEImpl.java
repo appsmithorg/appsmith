@@ -7,7 +7,7 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
-import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.dtos.ForkingMetaDTO;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.fork.forkable.ForkableServiceCE;
@@ -47,7 +47,7 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
             ForkingMetaDTO sourceMeta, Flux<U> dependentEntityFlux) {
 
         return dependentEntityFlux
-                .ofType(NewAction.class)
+                .ofType(Action.class)
                 .map(newAction -> newAction.getUnpublishedAction().getDatasource())
                 .filter(datasource -> datasource.getId() != null)
                 .collect(Collectors.toSet())

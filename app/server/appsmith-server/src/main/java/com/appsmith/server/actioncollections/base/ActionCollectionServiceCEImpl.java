@@ -7,11 +7,12 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
@@ -19,7 +20,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -59,7 +59,7 @@ import static java.util.stream.Collectors.toMap;
 public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionRepository, ActionCollection, String>
         implements ActionCollectionServiceCE {
 
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final PolicyGenerator policyGenerator;
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
@@ -75,7 +75,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             ReactiveMongoTemplate reactiveMongoTemplate,
             ActionCollectionRepository repository,
             AnalyticsService analyticsService,
-            NewActionService newActionService,
+            ActionService actionService,
             PolicyGenerator policyGenerator,
             ApplicationService applicationService,
             ResponseUtils responseUtils,
@@ -84,7 +84,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             DefaultResourcesService<ActionCollection> defaultResourcesService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.newActionService = newActionService;
+        this.actionService = actionService;
         this.policyGenerator = policyGenerator;
         this.applicationService = applicationService;
         this.responseUtils = responseUtils;
@@ -117,7 +117,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public void generateAndSetPolicies(NewPage page, ActionCollection actionCollection) {
         Set<Policy> documentPolicies =
-                policyGenerator.getAllChildPolicies(page.getPolicies(), NewPage.class, NewAction.class);
+                policyGenerator.getAllChildPolicies(page.getPolicies(), NewPage.class, Action.class);
         actionCollection.setPolicies(documentPolicies);
     }
 
@@ -174,7 +174,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         .getDefaultToBranchedArchivedActionIdsMap()
                         .values()))
                 .flatMap(actionId -> {
-                    return newActionService.findActionDTObyIdAndViewMode(
+                    return actionService.findActionDTObyIdAndViewMode(
                             actionId, viewMode, actionPermission.getReadPermission());
                 })
                 .collectList()
@@ -262,7 +262,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         actionCollectionViewDTO.setDefaultResources(defaults);
         return Flux.fromIterable(
                         publishedCollection.getDefaultToBranchedActionIdsMap().values())
-                .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(
+                .flatMap(actionId -> actionService.findActionDTObyIdAndViewMode(
                         actionId, true, actionPermission.getExecutePermission()))
                 .collectList()
                 .map(actionDTOList -> {
@@ -374,7 +374,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         modifiedActionCollectionMono = Flux.fromIterable(toDelete.getUnpublishedCollection()
                                         .getDefaultToBranchedActionIdsMap()
                                         .values())
-                                .flatMap(actionId -> newActionService
+                                .flatMap(actionId -> actionService
                                         .deleteUnpublishedAction(actionId)
                                         // return an empty action so that the filter can remove it from the list
                                         .onErrorResume(throwable -> {
@@ -473,7 +473,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                 .values());
                     }
                     return Flux.fromIterable(actionIds)
-                            .flatMap(newActionService::archiveById)
+                            .flatMap(actionService::archiveById)
                             .onErrorResume(throwable -> {
                                 log.error(throwable.getMessage());
                                 return Mono.empty();
@@ -545,7 +545,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     return actionIds;
                 })
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(actionId -> newActionService
+                .flatMap(actionId -> actionService
                         .archiveById(actionId)
                         // return an empty action so that the filter can remove it from the list
                         .onErrorResume(throwable -> {
@@ -679,7 +679,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         action.setApplicationId(actionCollection.getApplicationId());
 
         // Action doesn't exist. Create now.
-        NewAction newAction = newActionService.generateActionDomain(action);
+        Action newAction = actionService.generateActionDomain(action);
         newAction.setUnpublishedAction(action);
 
         Set<Policy> actionCollectionPolicies = new HashSet();
@@ -693,13 +693,13 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         });
 
         newAction.setPolicies(actionCollectionPolicies);
-        newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
-        newActionService.updateDefaultResourcesInAction(newAction);
+        actionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+        actionService.updateDefaultResourcesInAction(newAction);
 
-        Mono<NewAction> sendAnalyticsMono =
-                analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction));
+        Mono<Action> sendAnalyticsMono =
+                analyticsService.sendCreateEvent(newAction, actionService.getAnalyticsProperties(newAction));
 
-        return newActionService
+        return actionService
                 .validateAndSaveActionToRepository(newAction)
                 .flatMap(savedAction -> sendAnalyticsMono.thenReturn(savedAction));
     }

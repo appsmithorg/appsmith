@@ -10,14 +10,15 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -32,9 +33,8 @@ import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -79,7 +79,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ImportService importService;
     private final ApplicationPageService applicationPageService;
     protected final NewPageRepository newPageRepository;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final LayoutActionService layoutActionService;
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
@@ -87,7 +87,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     protected final ActionPermission actionPermission;
     private final PermissionGroupService permissionGroupService;
     private final ActionCollectionRepository actionCollectionRepository;
-    private final NewActionRepository newActionRepository;
+    private final ActionRepository actionRepository;
     private final WorkspaceRepository workspaceRepository;
     private final ForkableService<Datasource> datasourceForkableService;
     /**
@@ -108,7 +108,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         // A map of datasourceId => { a cached Mono that clones this datasource and yields the cloned datasource }
         final Map<String, Mono<Datasource>> clonedDatasourceMonos = new HashMap<>();
 
-        final Map<ForkingMetaDTO, Flux<NewAction>> forkingSourceToForkableActionsFluxMap = new ConcurrentHashMap<>();
+        final Map<ForkingMetaDTO, Flux<Action>> forkingSourceToForkableActionsFluxMap = new ConcurrentHashMap<>();
         ForkingMetaDTO sourceMeta = new ForkingMetaDTO();
         sourceMeta.setWorkspaceId(application.getWorkspaceId());
         sourceMeta.setEnvironmentId(sourceEnvironmentId);
@@ -188,7 +188,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             .flatMap(savedPage -> newPageRepository.findById(savedPage.getId()))
                             .flatMap(savedPage -> {
                                 clonedPages.add(savedPage);
-                                Flux<NewAction> sourceActionFlux = newActionService
+                                Flux<Action> sourceActionFlux = actionService
                                         .findByPageId(templatePageId)
                                         .cache();
 
@@ -359,7 +359,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                                             originalCollectionId,
                                                                             clonedActionCollection.getId());
                                                                     return Flux.fromIterable(newActionIds.values())
-                                                                            .flatMap(newActionService::findById)
+                                                                            .flatMap(actionService::findById)
                                                                             .flatMap(newlyCreatedAction -> {
                                                                                 ActionDTO unpublishedAction =
                                                                                         newlyCreatedAction
@@ -371,7 +371,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                                                         .setCollectionId(
                                                                                                 clonedActionCollection
                                                                                                         .getId());
-                                                                                return newActionService.update(
+                                                                                return actionService.update(
                                                                                         newlyCreatedAction.getId(),
                                                                                         newlyCreatedAction);
                                                                             })
@@ -689,9 +689,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
                     .flatMap(newPageRepository::setUserPermissionsInObject));
 
-            Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
+            Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> actionRepository
                     .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                    .flatMap(newActionRepository::setUserPermissionsInObject));
+                    .flatMap(actionRepository::setUserPermissionsInObject));
 
             Flux<BaseDomain> actionCollectionFlux =
                     applicationMono.flatMapMany(application -> actionCollectionRepository

@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ApplicationMode;
@@ -26,7 +27,6 @@ import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.themes.base.ThemeService;
@@ -92,7 +92,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
     private final TenantService tenantService;
     private final ProductAlertService productAlertService;
     private final NewPageService newPageService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
     private final ApplicationPageService applicationPageService;
@@ -110,7 +110,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             TenantService tenantService,
             ProductAlertService productAlertService,
             NewPageService newPageService,
-            NewActionService newActionService,
+            ActionService actionService,
             ActionCollectionService actionCollectionService,
             ThemeService themeService,
             ApplicationPageService applicationPageService,
@@ -126,7 +126,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         this.tenantService = tenantService;
         this.productAlertService = productAlertService;
         this.newPageService = newPageService;
-        this.newActionService = newActionService;
+        this.actionService = actionService;
         this.actionCollectionService = actionCollectionService;
         this.themeService = themeService;
         this.applicationPageService = applicationPageService;
@@ -330,7 +330,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         if (isViewMode) {
             /* Get list of all actions in view mode */
             Mono<ResponseDTO<List>> listOfActionViewResponseDTOMono = applicationIdMonoCache
-                    .flatMap(appId -> newActionService
+                    .flatMap(appId -> actionService
                             .getActionsForViewMode(appId, branchName)
                             .collectList())
                     .map(res -> (List) res)
@@ -393,7 +393,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .flatMap(appId -> {
                         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
                         params.add(APPLICATION_ID, appId);
-                        return newActionService
+                        return actionService
                                 .getUnpublishedActions(params, branchName, false)
                                 .collectList();
                     })

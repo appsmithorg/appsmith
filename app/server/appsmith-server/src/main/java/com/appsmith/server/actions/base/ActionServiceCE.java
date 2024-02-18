@@ -1,0 +1,160 @@
+package com.appsmith.server.actions.base;
+
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.Executable;
+import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
+import com.appsmith.server.dtos.ImportActionResultDTO;
+import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
+import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
+import com.appsmith.server.dtos.PluginTypeAndCountDTO;
+import com.appsmith.server.services.CrudService;
+import org.springframework.data.domain.Sort;
+import org.springframework.util.MultiValueMap;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+public interface ActionServiceCE extends CrudService<Action, String> {
+
+    void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, Action newAction);
+
+    ActionDTO generateActionByViewMode(Action action, Boolean viewMode);
+
+    void generateAndSetActionPolicies(NewPage page, Action action);
+
+    Mono<ActionDTO> validateAndSaveActionToRepository(Action action);
+
+    Mono<Action> validateAction(Action action);
+
+    Mono<Void> bulkValidateAndInsertActionInRepository(List<Action> actionList);
+
+    Mono<Void> bulkValidateAndUpdateActionInRepository(List<Action> actionList);
+
+    Mono<Action> extractAndSetJsonPathKeys(Action action);
+
+    Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
+
+    Mono<Tuple2<ActionDTO, Action>> updateUnpublishedActionWithoutAnalytics(
+            String id, ActionDTO action, Optional<AclPermission> permission);
+
+    Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
+
+    Mono<ActionDTO> findActionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
+
+    Flux<Action> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId);
+
+    Flux<Action> findUnpublishedActionsInPageByNames(Set<String> names, String pageId);
+
+    Mono<Action> findById(String id);
+
+    Flux<Action> findAllById(Iterable<String> id);
+
+    Mono<Action> findById(String id, AclPermission aclPermission);
+
+    Flux<Action> findByPageId(String pageId, AclPermission permission);
+
+    Flux<Action> findByPageId(String pageId, Optional<AclPermission> permission);
+
+    Flux<Action> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission);
+
+    Flux<Action> findAllByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
+
+    Flux<Action> findAllByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort);
+
+    Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
+
+    Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
+
+    ActionViewDTO generateActionViewDTO(Action action, ActionDTO actionDTO, boolean viewMode);
+
+    Mono<ActionDTO> deleteUnpublishedAction(String id);
+
+    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions);
+
+    Flux<ActionDTO> getUnpublishedActions(
+            MultiValueMap<String, String> params, String branchName, Boolean includeJsActions);
+
+    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
+
+    Flux<ActionDTO> getUnpublishedActionsByPageId(String pageId, AclPermission permission);
+
+    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName);
+
+    Mono<ActionDTO> populateHintMessages(ActionDTO action);
+
+    Mono<Action> save(Action action);
+
+    Flux<Action> saveAll(List<Action> actions);
+
+    Flux<Action> findByPageId(String pageId);
+
+    Mono<Action> archive(Action action);
+
+    Mono<Action> archiveById(String id);
+
+    Mono<List<Action>> archiveActionsByApplicationId(String applicationId, AclPermission permission);
+
+    List<MustacheBindingToken> extractMustacheKeysInOrder(String query);
+
+    String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
+
+    Mono<Boolean> updateActionsExecuteOnLoad(
+            List<Executable> executables,
+            String pageId,
+            List<LayoutExecutableUpdateDTO> actionUpdates,
+            List<String> messages);
+
+    Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
+
+    Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName);
+
+    Mono<Action> findByBranchNameAndDefaultActionId(
+            String branchName, String defaultActionId, AclPermission permission);
+
+    Mono<String> findBranchedIdByBranchNameAndDefaultActionId(
+            String branchName, String defaultActionId, AclPermission permission);
+
+    Mono<Action> sanitizeAction(Action action);
+
+    Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
+
+    Map<String, Object> getAnalyticsProperties(Action savedAction);
+
+    Mono<ImportedActionAndCollectionMapsDTO> updateActionsWithImportedCollectionIds(
+            ImportActionCollectionResultDTO importActionCollectionResultDTO,
+            ImportActionResultDTO importActionResultDTO);
+
+    Mono<Void> publishActions(String applicationId, AclPermission permission);
+
+    Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
+
+    Flux<Action> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+
+    Flux<Action> findByPageIdsForExport(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+
+    Flux<Action> findAllActionsByContextIdAndContextTypeAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            boolean viewMode,
+            boolean includeJs);
+
+    Action generateActionDomain(ActionDTO action);
+
+    void updateDefaultResourcesInAction(Action action);
+
+    Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO);
+}

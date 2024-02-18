@@ -4,11 +4,11 @@ import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.ImportableArtifact;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Theme;
 
 import java.util.List;
@@ -42,9 +42,9 @@ public interface ArtifactExchangeJsonCE {
 
     void setDatasourceList(List<DatasourceStorage> datasourceStorages);
 
-    List<NewAction> getActionList();
+    List<Action> getActionList();
 
-    void setActionList(List<NewAction> newActions);
+    void setActionList(List<Action> actions);
 
     List<ActionCollection> getActionCollectionList();
 

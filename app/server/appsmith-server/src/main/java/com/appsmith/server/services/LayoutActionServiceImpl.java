@@ -1,9 +1,9 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.ce.LayoutActionServiceCEImpl;
@@ -19,7 +19,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
     public LayoutActionServiceImpl(
             AnalyticsService analyticsService,
             NewPageService newPageService,
-            NewActionService newActionService,
+            ActionService actionService,
             RefactoringService refactoringService,
             CollectionService collectionService,
             UpdateLayoutService updateLayoutService,
@@ -30,7 +30,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
         super(
                 analyticsService,
                 newPageService,
-                newActionService,
+                actionService,
                 refactoringService,
                 collectionService,
                 updateLayoutService,

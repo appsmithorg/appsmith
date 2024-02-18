@@ -2,10 +2,10 @@ package com.appsmith.server.acl;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
@@ -91,10 +91,10 @@ public enum AclPermission {
 
     PAGE_CREATE_PAGE_ACTIONS("create:pageActions", NewPage.class),
 
-    MANAGE_ACTIONS("manage:actions", NewAction.class),
-    READ_ACTIONS("read:actions", NewAction.class),
-    EXECUTE_ACTIONS("execute:actions", NewAction.class),
-    DELETE_ACTIONS("delete:actions", NewAction.class),
+    MANAGE_ACTIONS("manage:actions", Action.class),
+    READ_ACTIONS("read:actions", Action.class),
+    EXECUTE_ACTIONS("execute:actions", Action.class),
+    DELETE_ACTIONS("delete:actions", Action.class),
 
     MANAGE_DATASOURCES("manage:datasources", Datasource.class),
     READ_DATASOURCES("read:datasources", Datasource.class),
@@ -147,7 +147,7 @@ public enum AclPermission {
          * Hence, whenever we want to check for any Permission w.r.t. ActionCollection, we use NewAction.
          */
         if (entityClass.equals(ActionCollection.class)) {
-            entityClass = NewAction.class;
+            entityClass = Action.class;
         }
         return aclPermission.getEntity().equals(entityClass);
     }

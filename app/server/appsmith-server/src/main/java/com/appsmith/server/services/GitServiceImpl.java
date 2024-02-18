@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -13,7 +14,6 @@ import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
@@ -38,7 +38,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             ApplicationService applicationService,
             ApplicationPageService applicationPageService,
             NewPageService newPageService,
-            NewActionService newActionService,
+            ActionService actionService,
             ActionCollectionService actionCollectionService,
             GitFileUtils fileUtils,
             ImportService importService,
@@ -66,7 +66,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 applicationService,
                 applicationPageService,
                 newPageService,
-                newActionService,
+                actionService,
                 actionCollectionService,
                 fileUtils,
                 importService,

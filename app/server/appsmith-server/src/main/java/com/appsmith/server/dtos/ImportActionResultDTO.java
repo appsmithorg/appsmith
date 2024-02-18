@@ -1,6 +1,6 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Action;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +15,7 @@ public class ImportActionResultDTO {
     private final List<String> importedActionIds;
 
     @Setter
-    private Collection<NewAction> existingActions;
+    private Collection<Action> existingActions;
 
     // Map which will be used to store actionIds from imported file to actual actionIds from DB
     // this will eventually be used to update on page load actions

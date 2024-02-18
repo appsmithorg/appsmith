@@ -2,7 +2,7 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.server.constants.ce.FieldNameCE;
-import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Plugin;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -47,7 +47,7 @@ public class Migration039OpenAIMessagesJsToggle {
         Query openAiDatasourceQuery =
                 new Query(Criteria.where(FieldNameCE.PLUGIN_ID).is(plugin.getId()));
         // find all actions of OpenAI plugin
-        Stream<NewAction> actionsStream = mongoTemplate.stream(openAiDatasourceQuery, NewAction.class);
+        Stream<Action> actionsStream = mongoTemplate.stream(openAiDatasourceQuery, Action.class);
 
         actionsStream.forEach(action -> {
             Query findQuery = new Query(Criteria.where("_id").is(action.getId()));
@@ -73,7 +73,7 @@ public class Migration039OpenAIMessagesJsToggle {
                 anyUpdates = true;
             }
             if (anyUpdates) {
-                mongoTemplate.updateFirst(findQuery, update, NewAction.class);
+                mongoTemplate.updateFirst(findQuery, update, Action.class);
             }
         });
     }

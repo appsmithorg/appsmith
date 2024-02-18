@@ -2,10 +2,10 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
@@ -182,36 +182,36 @@ public class ResponseUtilsCE {
         return viewDTO;
     }
 
-    public NewAction updateNewActionWithDefaultResources(NewAction newAction) {
-        DefaultResources defaultResourceIds = newAction.getDefaultResources();
+    public Action updateNewActionWithDefaultResources(Action action) {
+        DefaultResources defaultResourceIds = action.getDefaultResources();
         if (defaultResourceIds == null
                 || StringUtils.isEmpty(defaultResourceIds.getApplicationId())
                 || StringUtils.isEmpty(defaultResourceIds.getActionId())) {
             log.error(
                     "Unable to find default ids for newAction: {}",
-                    newAction.getId(),
-                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "newAction", newAction.getId()));
+                    action.getId(),
+                    new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "newAction", action.getId()));
 
             if (defaultResourceIds == null) {
-                return newAction;
+                return action;
             }
             if (StringUtils.isEmpty(defaultResourceIds.getApplicationId())) {
-                defaultResourceIds.setApplicationId(newAction.getApplicationId());
+                defaultResourceIds.setApplicationId(action.getApplicationId());
             }
             if (StringUtils.isEmpty(defaultResourceIds.getActionId())) {
-                defaultResourceIds.setActionId(newAction.getId());
+                defaultResourceIds.setActionId(action.getId());
             }
         }
 
-        newAction.setId(defaultResourceIds.getActionId());
-        newAction.setApplicationId(defaultResourceIds.getApplicationId());
-        if (newAction.getUnpublishedAction() != null) {
-            newAction.setUnpublishedAction(this.updateActionDTOWithDefaultResources(newAction.getUnpublishedAction()));
+        action.setId(defaultResourceIds.getActionId());
+        action.setApplicationId(defaultResourceIds.getApplicationId());
+        if (action.getUnpublishedAction() != null) {
+            action.setUnpublishedAction(this.updateActionDTOWithDefaultResources(action.getUnpublishedAction()));
         }
-        if (newAction.getPublishedAction() != null) {
-            newAction.setPublishedAction(this.updateActionDTOWithDefaultResources(newAction.getPublishedAction()));
+        if (action.getPublishedAction() != null) {
+            action.setPublishedAction(this.updateActionDTOWithDefaultResources(action.getPublishedAction()));
         }
-        return newAction;
+        return action;
     }
 
     public ActionCollection updateActionCollectionWithDefaultResources(ActionCollection actionCollection) {

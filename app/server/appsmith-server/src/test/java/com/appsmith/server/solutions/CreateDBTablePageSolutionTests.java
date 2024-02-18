@@ -14,13 +14,14 @@ import com.appsmith.external.models.DatasourceStructure.TableType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
@@ -34,7 +35,6 @@ import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
@@ -134,7 +134,7 @@ public class CreateDBTablePageSolutionTests {
     CreateDBTablePageSolution solution;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     NewPageService newPageService;
@@ -253,8 +253,8 @@ public class CreateDBTablePageSolutionTests {
                 workspaceService.archiveById(testWorkspace.getId()).block();
     }
 
-    Mono<List<NewAction>> getActions(String pageId) {
-        return newActionService.findByPageId(pageId).collectList();
+    Mono<List<Action>> getActions(String pageId) {
+        return actionService.findByPageId(pageId).collectList();
     }
 
     @Test
@@ -394,7 +394,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier.create(resultMono.zipWhen(newPage1 -> getActions(newPage1.getId())))
                 .assertNext(tuple -> {
                     NewPage newPage1 = tuple.getT1();
-                    List<NewAction> actionList = tuple.getT2();
+                    List<Action> actionList = tuple.getT2();
 
                     PageDTO page = newPage1.getUnpublishedPage();
                     Layout layout = page.getLayouts().get(0);
@@ -440,7 +440,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier.create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
                 .assertNext(tuple -> {
                     PageDTO page = tuple.getT1();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo(newPage.getName());
                     assertThat(page.getLayouts()).isNotEmpty();
@@ -454,7 +454,7 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
 
                     assertThat(actions).hasSize(4);
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         ActionDTO unpublishedAction = action.getUnpublishedAction();
                         ActionConfiguration actionConfiguration = unpublishedAction.getActionConfiguration();
                         String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
@@ -498,7 +498,7 @@ public class CreateDBTablePageSolutionTests {
                 .assertNext(tuple -> {
                     CRUDPageResponseDTO crudPageResponseDTO = tuple.getT1();
                     PageDTO page = crudPageResponseDTO.getPage();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo(newPage.getName());
                     assertThat(page.getLayouts()).isNotEmpty();
@@ -510,7 +510,7 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
 
                     assertThat(actions).hasSize(4);
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
@@ -594,7 +594,7 @@ public class CreateDBTablePageSolutionTests {
                 .assertNext(tuple -> {
                     CRUDPageResponseDTO crudPageResponseDTO = tuple.getT1();
                     PageDTO page = crudPageResponseDTO.getPage();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo(newPage.getName());
                     assertThat(page.getLayouts()).isNotEmpty();
@@ -606,7 +606,7 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
 
                     assertThat(actions).hasSize(4);
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
@@ -683,7 +683,7 @@ public class CreateDBTablePageSolutionTests {
                 .assertNext(tuple -> {
                     CRUDPageResponseDTO crudPageResponseDTO = tuple.getT1();
                     PageDTO page = crudPageResponseDTO.getPage();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo(newPage.getName());
                     assertThat(page.getLayouts()).isNotEmpty();
@@ -695,7 +695,7 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
 
                     assertThat(actions).hasSize(4);
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
@@ -766,7 +766,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier.create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
                 .assertNext(tuple -> {
                     PageDTO page = tuple.getT1();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo(newPage.getName());
                     assertThat(page.getLayouts()).isNotEmpty();
@@ -775,7 +775,7 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
 
                     assertThat(actions).hasSize(4);
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
@@ -895,7 +895,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier.create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
                 .assertNext(tuple -> {
                     PageDTO page = tuple.getT1();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo("SampleTable");
                     assertThat(page.getLayouts()).isNotEmpty();
@@ -904,7 +904,7 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
 
                     assertThat(actions).hasSize(4);
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         String actionBody = actionConfiguration.getBody().replaceAll(specialCharactersRegex, "");
@@ -980,7 +980,7 @@ public class CreateDBTablePageSolutionTests {
                 .assertNext(tuple -> {
                     CRUDPageResponseDTO crudPage = tuple.getT1();
                     PageDTO page = crudPage.getPage();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).contains("SampleTable");
                     assertThat(page.getLayouts()).isNotEmpty();
@@ -992,7 +992,7 @@ public class CreateDBTablePageSolutionTests {
                     });
 
                     assertThat(actions).hasSize(5);
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         assertThat(((Map<String, String>) actionConfiguration
@@ -1068,7 +1068,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier.create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
                 .assertNext(tuple -> {
                     PageDTO page = tuple.getT1();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo(newPage.getName());
                     assertThat(page.getLayouts()).isNotEmpty();
@@ -1076,7 +1076,7 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(layout.getActionsUsedInDynamicBindings()).hasSize(1);
 
                     assertThat(actions).hasSize(4);
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
@@ -1145,7 +1145,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier.create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
                 .assertNext(tuple -> {
                     PageDTO page = tuple.getT1();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo(newPage.getName());
                     assertThat(page.getLayouts()).isNotEmpty();
@@ -1156,7 +1156,7 @@ public class CreateDBTablePageSolutionTests {
                     });
 
                     assertThat(actions).hasSize(4);
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         ActionConfiguration actionConfiguration =
                                 action.getUnpublishedAction().getActionConfiguration();
                         if (FIND_QUERY.equals(action.getUnpublishedAction().getName())) {

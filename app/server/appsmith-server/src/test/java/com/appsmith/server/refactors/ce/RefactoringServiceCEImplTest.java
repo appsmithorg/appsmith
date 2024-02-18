@@ -2,12 +2,13 @@ package com.appsmith.server.refactors.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -18,7 +19,6 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringServiceCEImpl;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
@@ -68,7 +68,7 @@ class RefactoringServiceCEImplTest {
     private NewPageService newPageService;
 
     @SpyBean
-    private NewActionService newActionService;
+    private ActionService actionService;
 
     @MockBean
     private ResponseUtils responseUtils;
@@ -92,7 +92,7 @@ class RefactoringServiceCEImplTest {
     private EntityRefactoringService<Void> jsActionEntityRefactoringService;
 
     @SpyBean
-    private EntityRefactoringService<NewAction> newActionEntityRefactoringService;
+    private EntityRefactoringService<Action> newActionEntityRefactoringService;
 
     @SpyBean
     private EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
@@ -181,7 +181,7 @@ class RefactoringServiceCEImplTest {
         application.setEvaluationVersion(EVALUATION_VERSION);
         Mockito.when(applicationService.findById(Mockito.anyString())).thenReturn(Mono.just(application));
 
-        Mockito.when(newActionService.findByPageIdAndViewMode(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(actionService.findByPageIdAndViewMode(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Flux.empty());
 
         Mockito.when(updateLayoutService.updateLayout(
@@ -275,11 +275,11 @@ class RefactoringServiceCEImplTest {
         oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
         oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
 
-        Mockito.when(newActionService.findActionDTObyIdAndViewMode(
+        Mockito.when(actionService.findActionDTObyIdAndViewMode(
                         Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Mono.just(new ActionDTO()));
 
-        Mockito.when(newActionService.updateUnpublishedAction(Mockito.any(), Mockito.any()))
+        Mockito.when(actionService.updateUnpublishedAction(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ActionDTO()));
 
         Mockito.doReturn(Mono.empty())
@@ -309,13 +309,13 @@ class RefactoringServiceCEImplTest {
         application.setEvaluationVersion(EVALUATION_VERSION);
         Mockito.when(applicationService.findById(Mockito.anyString())).thenReturn(Mono.just(application));
 
-        NewAction newAction = new NewAction();
+        Action action = new Action();
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setName("testAction");
-        newAction.setUnpublishedAction(actionDTO);
+        action.setUnpublishedAction(actionDTO);
 
-        Mockito.when(newActionService.findByPageIdAndViewMode(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
-                .thenReturn(Flux.just(newAction));
+        Mockito.when(actionService.findByPageIdAndViewMode(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
+                .thenReturn(Flux.just(action));
 
         LayoutDTO layout = new LayoutDTO();
         final JSONObject jsonObject = new JSONObject();

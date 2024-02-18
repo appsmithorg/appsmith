@@ -5,9 +5,10 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -15,7 +16,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +68,7 @@ public class CurlImporterServiceTest {
     NewPageService newPageService;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     UserService userService;
@@ -422,13 +422,13 @@ public class CurlImporterServiceTest {
                         command, null, page.getId(), "actionName", workspaceId, "main"))
                 .cache();
 
-        Mono<NewAction> savedActionMono = resultMono.flatMap(actionDTO -> newActionService.getById(actionDTO.getId()));
+        Mono<Action> savedActionMono = resultMono.flatMap(actionDTO -> actionService.getById(actionDTO.getId()));
 
         StepVerifier.create(Mono.zip(resultMono, defaultPageMono, savedActionMono))
                 .assertNext(tuple -> {
                     ActionDTO action1 = tuple.getT1();
                     NewPage newPage = tuple.getT2();
-                    NewAction newAction = tuple.getT3();
+                    Action action = tuple.getT3();
 
                     assertThat(action1).isNotNull();
                     assertThat(action1.getDatasource()).isNotNull();
@@ -445,13 +445,13 @@ public class CurlImporterServiceTest {
                     assertThat(action1.getActionConfiguration().getHttpMethod()).isEqualTo(HttpMethod.GET);
                     assertThat(action1.getActionConfiguration().getBody()).isEqualTo("{someJson}");
 
-                    assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
+                    assertThat(action.getDefaultResources().getActionId()).isEqualTo(action.getId());
                     assertThat(action1.getDefaultResources().getPageId())
                             .isEqualTo(newPage.getDefaultResources().getPageId());
-                    assertThat(newAction.getDefaultResources().getBranchName()).isNotEmpty();
-                    assertThat(newAction.getDefaultResources().getBranchName())
+                    assertThat(action.getDefaultResources().getBranchName()).isNotEmpty();
+                    assertThat(action.getDefaultResources().getBranchName())
                             .isEqualTo(newPage.getDefaultResources().getBranchName());
-                    assertThat(newAction.getDefaultResources().getApplicationId())
+                    assertThat(action.getDefaultResources().getApplicationId())
                             .isEqualTo(newPage.getDefaultResources().getApplicationId());
                 })
                 .verifyComplete();
@@ -480,15 +480,15 @@ public class CurlImporterServiceTest {
 
         // As importAction updates the ids with the defaultIds before sending the response to client we have to again
         // fetch branched action
-        Mono<NewAction> branchedSavedActionMono =
-                branchedResultMono.flatMap(actionDTO -> newActionService.findByBranchNameAndDefaultActionId(
+        Mono<Action> branchedSavedActionMono =
+                branchedResultMono.flatMap(actionDTO -> actionService.findByBranchNameAndDefaultActionId(
                         "testBranch", actionDTO.getId(), AclPermission.MANAGE_ACTIONS));
 
         StepVerifier.create(Mono.zip(branchedResultMono, branchedPageMono, branchedSavedActionMono))
                 .assertNext(tuple -> {
                     ActionDTO action1 = tuple.getT1();
                     NewPage newPage = tuple.getT2();
-                    NewAction newAction = tuple.getT3();
+                    Action action = tuple.getT3();
 
                     assertThat(action1).isNotNull();
                     assertThat(action1.getDatasource()).isNotNull();
@@ -505,14 +505,14 @@ public class CurlImporterServiceTest {
                     assertThat(action1.getActionConfiguration().getHttpMethod()).isEqualTo(HttpMethod.GET);
                     assertThat(action1.getActionConfiguration().getBody()).isEqualTo("{someJson}");
 
-                    assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
+                    assertThat(action.getDefaultResources().getActionId()).isEqualTo(action.getId());
                     assertThat(action1.getDefaultResources().getPageId())
                             .isEqualTo(newPage.getDefaultResources().getPageId());
                     assertThat(action1.getDefaultResources().getPageId()).isNotEqualTo(newPage.getId());
 
-                    assertThat(newAction.getDefaultResources().getBranchName()).isNotEmpty();
-                    assertThat(newAction.getDefaultResources().getBranchName()).isEqualTo("testBranch");
-                    assertThat(newAction.getDefaultResources().getApplicationId())
+                    assertThat(action.getDefaultResources().getBranchName()).isNotEmpty();
+                    assertThat(action.getDefaultResources().getBranchName()).isEqualTo("testBranch");
+                    assertThat(action.getDefaultResources().getApplicationId())
                             .isEqualTo(newPage.getDefaultResources().getApplicationId());
                 })
                 .verifyComplete();

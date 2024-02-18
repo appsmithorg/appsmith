@@ -2,9 +2,9 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QActionCollection;
@@ -90,7 +90,7 @@ public class Migration016RenameIndexesWithLongNames {
         // update-git-indexes
         dropIndexIfExists(
                 mongoTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
-        dropIndexIfExists(mongoTemplate, NewAction.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
+        dropIndexIfExists(mongoTemplate, Action.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
         dropIndexIfExists(mongoTemplate, NewPage.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
         DatabaseChangelog2.doAddIndexesForGit(mongoTemplate);
 

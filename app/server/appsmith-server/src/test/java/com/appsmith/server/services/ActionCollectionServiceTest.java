@@ -8,11 +8,12 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -27,7 +28,6 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -116,7 +116,7 @@ public class ActionCollectionServiceTest {
     UserWorkspaceService userWorkspaceService;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     PluginService pluginService;
@@ -430,7 +430,7 @@ public class ActionCollectionServiceTest {
                 })
                 .verifyComplete();
 
-        final Mono<NewAction> actionMono = newActionService.getById(createdActionCollectionDTO2.getActions().stream()
+        final Mono<Action> actionMono = actionService.getById(createdActionCollectionDTO2.getActions().stream()
                 .findFirst()
                 .get()
                 .getId());
@@ -524,7 +524,7 @@ public class ActionCollectionServiceTest {
                 })
                 .verifyComplete();
 
-        final Mono<NewAction> actionMono = newActionService.getById(createdActionCollectionDTO2.getActions().stream()
+        final Mono<Action> actionMono = actionService.getById(createdActionCollectionDTO2.getActions().stream()
                 .findFirst()
                 .get()
                 .getId());

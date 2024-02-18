@@ -17,15 +17,16 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -33,10 +34,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
@@ -98,11 +98,11 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE {
 
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final ActionPermission actionPermission;
     private final ObservationRegistry observationRegistry;
     private final ObjectMapper objectMapper;
-    private final NewActionRepository repository;
+    private final ActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final DatasourceContextService datasourceContextService;
@@ -126,11 +126,11 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     List<Pattern> patternList = new ArrayList<>();
 
     public ActionExecutionSolutionCEImpl(
-            NewActionService newActionService,
+            ActionService actionService,
             ActionPermission actionPermission,
             ObservationRegistry observationRegistry,
             ObjectMapper objectMapper,
-            NewActionRepository repository,
+            ActionRepository repository,
             DatasourceService datasourceService,
             PluginService pluginService,
             DatasourceContextService datasourceContextService,
@@ -145,7 +145,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             EnvironmentPermission environmentPermission,
             ConfigService configService,
             TenantService tenantService) {
-        this.newActionService = newActionService;
+        this.actionService = actionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
         this.objectMapper = objectMapper;
@@ -183,12 +183,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     public Mono<ActionExecutionResult> executeAction(
             Flux<Part> partFlux, String branchName, String environmentId, HttpHeaders httpHeaders) {
         return createExecuteActionDTO(partFlux)
-                .flatMap(executeActionDTO -> newActionService
+                .flatMap(executeActionDTO -> actionService
                         .findByBranchNameAndDefaultActionId(
                                 branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
                         .zipWith(configService.getInstanceId().zipWith(tenantService.getDefaultTenantId()))
                         .flatMap(tuple -> {
-                            NewAction branchedAction = tuple.getT1();
+                            Action branchedAction = tuple.getT1();
                             String instanceId = tuple.getT2().getT1();
                             String tenantId = tuple.getT2().getT2();
                             executeActionDTO.setActionId(branchedAction.getId());
@@ -774,7 +774,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
     @Override
     public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO) {
-        return newActionService
+        return actionService
                 .findActionDTObyIdAndViewMode(
                         executeActionDTO.getActionId(),
                         executeActionDTO.getViewMode(),

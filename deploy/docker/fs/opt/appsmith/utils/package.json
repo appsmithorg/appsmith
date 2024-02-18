@@ -20,7 +20,8 @@
     "shelljs": "0.8.5"
   },
   "devDependencies": {
-    "jest": "^29.1.2"
+    "jest": "^29.1.2",
+    "pg": "^8.11.3"
   },
   "bin": {
     "appsmithctl": "./bin/index.js"

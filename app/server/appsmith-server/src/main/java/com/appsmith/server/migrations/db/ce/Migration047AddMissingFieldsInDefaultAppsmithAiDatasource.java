@@ -7,11 +7,11 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -126,13 +126,11 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
      */
     private Pair<Boolean, Set<String>> getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(String datasourceId) {
         Query newActionsQuery = new Query().addCriteria(newActionCriteria(datasourceId));
-        newActionsQuery
-                .fields()
-                .include(FieldName.ID, FieldName.APPLICATION_ID, fieldName(QNewAction.newAction.policies));
+        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, fieldName(QAction.action.policies));
 
         Set<String> allApplicationIds = new HashSet<>();
         AtomicReference<Boolean> isPublic = new AtomicReference<>(false);
-        try (Stream<NewAction> newActionStream = mongoTemplate.stream(newActionsQuery, NewAction.class)) {
+        try (Stream<Action> newActionStream = mongoTemplate.stream(newActionsQuery, Action.class)) {
             newActionStream
                     .filter(newAction -> StringUtils.hasText(newAction.getApplicationId()))
                     .forEach(newAction -> {

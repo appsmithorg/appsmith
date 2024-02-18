@@ -7,12 +7,13 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -20,7 +21,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.partial.PartialImportService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -134,7 +134,7 @@ public class PartialImportServiceTest {
     PartialImportService partialImportService;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     ActionCollectionService actionCollectionService;
@@ -277,12 +277,11 @@ public class PartialImportServiceTest {
 
         Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-resource.json");
 
-        Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
+        Mono<Tuple3<Application, List<Action>, List<ActionCollection>>> result = partialImportService
                 .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, filePart)
                 .flatMap(application -> {
-                    Mono<List<NewAction>> actionList = newActionService
-                            .findByPageId(pageId, Optional.empty())
-                            .collectList();
+                    Mono<List<Action>> actionList =
+                            actionService.findByPageId(pageId, Optional.empty()).collectList();
                     Mono<List<ActionCollection>> actionCollectionList =
                             actionCollectionService.findByPageId(pageId).collectList();
 
@@ -292,7 +291,7 @@ public class PartialImportServiceTest {
         StepVerifier.create(result)
                 .assertNext(object -> {
                     Application application = object.getT1();
-                    List<NewAction> actionList = object.getT2();
+                    List<Action> actionList = object.getT2();
                     List<ActionCollection> actionCollectionList = object.getT3();
 
                     // Verify that the application has the imported resource
@@ -335,10 +334,10 @@ public class PartialImportServiceTest {
         Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-valid-without-widget.json");
 
         PageDTO finalSavedPage = savedPage;
-        Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
+        Mono<Tuple3<Application, List<Action>, List<ActionCollection>>> result = partialImportService
                 .importResourceInPage(workspaceId, application.getId(), savedPage.getId(), "master", filePart)
                 .flatMap(application1 -> {
-                    Mono<List<NewAction>> actionList = newActionService
+                    Mono<List<Action>> actionList = actionService
                             .findByPageId(finalSavedPage.getId(), Optional.empty())
                             .collectList();
                     Mono<List<ActionCollection>> actionCollectionList = actionCollectionService
@@ -350,7 +349,7 @@ public class PartialImportServiceTest {
         StepVerifier.create(result)
                 .assertNext(object -> {
                     Application application1 = object.getT1();
-                    List<NewAction> actionList = object.getT2();
+                    List<Action> actionList = object.getT2();
                     List<ActionCollection> actionCollectionList = object.getT3();
 
                     // Verify that the application has the imported resource
@@ -395,14 +394,13 @@ public class PartialImportServiceTest {
 
         Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-resource.json");
 
-        Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
+        Mono<Tuple3<Application, List<Action>, List<ActionCollection>>> result = partialImportService
                 .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, filePart)
                 .then(partialImportService.importResourceInPage(
                         workspaceId, testApplication.getId(), pageId, null, filePart))
                 .flatMap(application -> {
-                    Mono<List<NewAction>> actionList = newActionService
-                            .findByPageId(pageId, Optional.empty())
-                            .collectList();
+                    Mono<List<Action>> actionList =
+                            actionService.findByPageId(pageId, Optional.empty()).collectList();
                     Mono<List<ActionCollection>> actionCollectionList =
                             actionCollectionService.findByPageId(pageId).collectList();
 
@@ -412,7 +410,7 @@ public class PartialImportServiceTest {
         StepVerifier.create(result)
                 .assertNext(object -> {
                     Application application = object.getT1();
-                    List<NewAction> actionList = object.getT2();
+                    List<Action> actionList = object.getT2();
                     List<ActionCollection> actionCollectionList = object.getT3();
 
                     // Verify that the application has the imported resource

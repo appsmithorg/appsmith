@@ -13,11 +13,11 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -126,7 +126,7 @@ public class DatabaseChangelog2 {
                 Plugin.class);
     }
 
-    public static void migrateFirestoreActionsFormData(NewAction uqiAction) {
+    public static void migrateFirestoreActionsFormData(Action uqiAction) {
         ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
         /**
          * Migrate unpublished action configuration data.
@@ -373,7 +373,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    public static void migrateAmazonS3ActionsFormData(NewAction uqiAction) {
+    public static void migrateAmazonS3ActionsFormData(Action uqiAction) {
         ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
         /**
          * Migrate unpublished action configuration data.
@@ -533,7 +533,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    public static void migrateMongoActionsFormData(NewAction uqiAction) {
+    public static void migrateMongoActionsFormData(Action uqiAction) {
         ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
         /**
          * Migrate unpublished action configuration data.
@@ -618,7 +618,7 @@ public class DatabaseChangelog2 {
 
         ensureIndexes(
                 mongoTemplate,
-                NewAction.class,
+                Action.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
                                 fieldName(QBaseDomain.baseDomain.gitSyncId),
@@ -693,7 +693,7 @@ public class DatabaseChangelog2 {
                         .named("workspace_datasource_deleted_compound_index"));
     }
 
-    public static void migrateGoogleSheetsToUqi(NewAction uqiAction) {
+    public static void migrateGoogleSheetsToUqi(Action uqiAction) {
 
         final Map<Integer, List<String>> googleSheetsMigrationMap = Map.ofEntries(
                 Map.entry(0, List.of("command.data", "entityType.data")),

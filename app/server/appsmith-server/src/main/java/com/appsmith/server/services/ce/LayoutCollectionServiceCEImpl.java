@@ -4,10 +4,11 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
@@ -16,7 +17,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ContextTypeUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -53,7 +53,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final UpdateLayoutService updateLayoutService;
     protected final RefactoringService refactoringService;
     protected final ActionCollectionService actionCollectionService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
     private final ActionCollectionRepository actionCollectionRepository;
@@ -210,7 +210,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     }
 
                     final Flux<ActionDTO> actionUpdatesFlux = Flux.fromIterable(actionIds.values())
-                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(
+                            .flatMap(actionId -> actionService.findActionDTObyIdAndViewMode(
                                     actionId, false, actionPermission.getEditPermission()))
                             .flatMap(actionDTO -> {
                                 actionDTO.setPageId(destinationPageId);
@@ -220,7 +220,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                         .setPageId(destinationPage
                                                 .getDefaultResources()
                                                 .getPageId());
-                                return newActionService
+                                return actionService
                                         .updateUnpublishedAction(actionDTO.getId(), actionDTO)
                                         .onErrorResume(throwable -> {
                                             log.debug(
@@ -378,12 +378,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 // action
                                 Mono<String> branchedActionIdMono = StringUtils.isEmpty(branchName)
                                         ? Mono.just(actionDTO.getId())
-                                        : newActionService
+                                        : actionService
                                                 .findByBranchNameAndDefaultActionId(
                                                         branchName,
                                                         actionDTO.getId(),
                                                         actionPermission.getEditPermission())
-                                                .map(NewAction::getId);
+                                                .map(Action::getId);
                                 actionDTO.setId(null);
                                 return branchedActionIdMono.flatMap(
                                         actionId -> layoutActionService.updateSingleAction(actionId, actionDTO));
@@ -428,12 +428,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 // action
                                 Mono<String> branchedActionIdMono = StringUtils.isEmpty(branchName)
                                         ? Mono.just(actionDTO.getId())
-                                        : newActionService
+                                        : actionService
                                                 .findByBranchNameAndDefaultActionId(
                                                         branchName,
                                                         actionDTO.getId(),
                                                         actionPermission.getEditPermission())
-                                                .map(NewAction::getId);
+                                                .map(Action::getId);
                                 actionDTO.setId(null);
                                 return branchedActionIdMono.flatMap(
                                         actionId -> layoutActionService.updateSingleAction(actionId, actionDTO));
@@ -469,10 +469,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             .collect(Collectors.toUnmodifiableSet());
                 })
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(defaultActionId -> newActionService
+                .flatMap(defaultActionId -> actionService
                         .findBranchedIdByBranchNameAndDefaultActionId(
                                 branchName, defaultActionId, actionPermission.getEditPermission())
-                        .flatMap(newActionService::deleteUnpublishedAction)
+                        .flatMap(actionService::deleteUnpublishedAction)
                         // return an empty action so that the filter can remove it from the list
                         .onErrorResume(throwable -> {
                             log.debug(

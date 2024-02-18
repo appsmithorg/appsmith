@@ -3,8 +3,8 @@ package com.appsmith.server.helpers.ce;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.solutions.ActionPermission;
@@ -102,7 +102,7 @@ public class ImportArtifactPermissionProviderCE {
         return hasPermission(contextPermission.getEditPermission(), page);
     }
 
-    public boolean hasEditPermission(NewAction action) {
+    public boolean hasEditPermission(Action action) {
         if (!permissionRequiredToEditAction) {
             return true;
         }

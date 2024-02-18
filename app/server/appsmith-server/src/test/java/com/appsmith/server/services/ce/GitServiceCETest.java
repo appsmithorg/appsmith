@@ -15,9 +15,11 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
@@ -28,7 +30,6 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -51,7 +52,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -185,7 +185,7 @@ public class GitServiceCETest {
     NewPageService newPageService;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     ActionCollectionService actionCollectionService;
@@ -1246,7 +1246,7 @@ public class GitServiceCETest {
                 applicationMono.flatMap(application -> gitService.detachRemote(application.getId()));
 
         StepVerifier.create(resultMono.zipWhen(application -> Mono.zip(
-                        newActionService
+                        actionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                 .collectList(),
                         actionCollectionService
@@ -1257,7 +1257,7 @@ public class GitServiceCETest {
                                 .collectList())))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
-                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<Action> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
 
@@ -2574,7 +2574,7 @@ public class GitServiceCETest {
                                 createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)));
 
         StepVerifier.create(createBranchMono.zipWhen(application -> Mono.zip(
-                        newActionService
+                        actionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                 .collectList(),
                         actionCollectionService
@@ -2587,7 +2587,7 @@ public class GitServiceCETest {
                                 application.getGitApplicationMetadata().getDefaultApplicationId()))))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
-                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<Action> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
                     Application parentApplication = tuple.getT2().getT4();

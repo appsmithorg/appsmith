@@ -1,8 +1,8 @@
 package com.appsmith.server.applications.base;
 
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
@@ -37,7 +37,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
-            NewActionRepository newActionRepository,
+            ActionRepository actionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
@@ -57,7 +57,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 configService,
                 responseUtils,
                 permissionGroupService,
-                newActionRepository,
+                actionRepository,
                 assetService,
                 datasourcePermission,
                 applicationPermission,

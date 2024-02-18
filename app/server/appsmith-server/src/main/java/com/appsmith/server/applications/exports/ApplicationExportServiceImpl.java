@@ -1,9 +1,9 @@
 package com.appsmith.server.applications.exports;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -22,7 +22,7 @@ public class ApplicationExportServiceImpl extends ApplicationExportServiceCEImpl
             ApplicationService applicationService,
             ApplicationPermission applicationPermission,
             ExportableService<NewPage> newPageExportableService,
-            ExportableService<NewAction> newActionExportableService,
+            ExportableService<Action> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
             ExportableService<Theme> themeExportableService) {
 

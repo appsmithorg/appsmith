@@ -14,9 +14,11 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
@@ -26,7 +28,6 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -53,7 +54,6 @@ import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -199,7 +199,7 @@ public class ApplicationServiceCETest {
     PluginService pluginService;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -1528,7 +1528,7 @@ public class ApplicationServiceCETest {
 
         Mono<Datasource> datasourceMono = publicAppMono.then(datasourceService.findById(savedDatasource.getId()));
 
-        Mono<NewAction> actionMono = publicAppMono.then(newActionService.findById(savedAction.getId()));
+        Mono<Action> actionMono = publicAppMono.then(actionService.findById(savedAction.getId()));
 
         final Mono<ActionCollection> actionCollectionMono =
                 publicAppMono.then(actionCollectionService.findById(savedActionCollection.getId(), READ_ACTIONS));
@@ -1536,7 +1536,7 @@ public class ApplicationServiceCETest {
         StepVerifier.create(Mono.zip(datasourceMono, actionMono, actionCollectionMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Datasource datasource1 = tuple.getT1();
-                    NewAction action1 = tuple.getT2();
+                    Action action1 = tuple.getT2();
                     PermissionGroup publicPermissionGroup = tuple.getT4();
                     final ActionCollection actionCollection1 = tuple.getT3();
 
@@ -1945,12 +1945,12 @@ public class ApplicationServiceCETest {
                 .cloneApplication(gitConnectedApp.getId(), branchName)
                 .cache();
 
-        Mono<List<NewAction>> clonedActionListMono = clonedApplicationMono
-                .flatMapMany(application -> newActionService.findAllByApplicationIdAndViewMode(
-                        application.getId(), false, READ_ACTIONS, null))
+        Mono<List<Action>> clonedActionListMono = clonedApplicationMono
+                .flatMapMany(application ->
+                        actionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null))
                 .collectList();
 
-        Mono<List<NewAction>> srcActionListMono = newActionService
+        Mono<List<Action>> srcActionListMono = actionService
                 .findAllByApplicationIdAndViewMode(gitConnectedApp.getId(), false, READ_ACTIONS, null)
                 .collectList();
 
@@ -1958,8 +1958,8 @@ public class ApplicationServiceCETest {
                         clonedApplicationMono, clonedActionListMono, srcActionListMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     Application clonedApplication = tuple.getT1(); // cloned application
-                    List<NewAction> clonedActionList = tuple.getT2();
-                    List<NewAction> srcActionList = tuple.getT3();
+                    List<Action> clonedActionList = tuple.getT2();
+                    List<Action> srcActionList = tuple.getT3();
                     List<PermissionGroup> permissionGroups = tuple.getT4();
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -2058,7 +2058,7 @@ public class ApplicationServiceCETest {
 
                     assertThat(clonedActionList).isNotEmpty();
                     assertThat(defaultClonedActionIdsFromDb).isNotEmpty();
-                    for (NewAction newAction : clonedActionList) {
+                    for (Action newAction : clonedActionList) {
                         assertThat(newAction.getPolicies())
                                 .containsAll(Set.of(readActionPolicy, executeActionPolicy, manageActionPolicy));
                         assertThat(newAction.getApplicationId()).isEqualTo(clonedApplication.getId());
@@ -2186,7 +2186,7 @@ public class ApplicationServiceCETest {
 
                     originalResourceIds.put("pageIds", pageIds);
                     originalResourceIds.put("collectionIds", collectionIds);
-                    return newActionService
+                    return actionService
                             .findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, READ_ACTIONS, null)
                             .collectList()
                             .flatMap(actionList -> {
@@ -2201,7 +2201,7 @@ public class ApplicationServiceCETest {
                 .cache();
 
         StepVerifier.create(resultMono.zipWhen(application -> Mono.zip(
-                        newActionService
+                        actionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                 .collectList(),
                         actionCollectionService
@@ -2213,7 +2213,7 @@ public class ApplicationServiceCETest {
                         defaultPermissionGroupsMono)))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1(); // cloned application
-                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<Action> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
                     List<PermissionGroup> permissionGroups = tuple.getT2().getT4();
@@ -2349,7 +2349,7 @@ public class ApplicationServiceCETest {
 
         // Check if the resources from original application are intact
         StepVerifier.create(originalApplicationMono.zipWhen(application -> Mono.zip(
-                        newActionService
+                        actionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                 .collectList(),
                         actionCollectionService
@@ -2359,7 +2359,7 @@ public class ApplicationServiceCETest {
                                 .findNewPagesByApplicationId(application.getId(), READ_PAGES)
                                 .collectList())))
                 .assertNext(tuple -> {
-                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<Action> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
 
@@ -2564,9 +2564,9 @@ public class ApplicationServiceCETest {
                                     .findAny()
                                     .orElse(null));
 
-                    return newActionService
+                    return actionService
                             .deleteUnpublishedAction(deletedActionIdWithinActionCollection)
-                            .thenMany(newActionService.findAllByApplicationIdAndViewMode(
+                            .thenMany(actionService.findAllByApplicationIdAndViewMode(
                                     tuple.getT4().getId(), false, READ_ACTIONS, null))
                             .collectList()
                             .flatMap(actionList -> {
@@ -2581,7 +2581,7 @@ public class ApplicationServiceCETest {
                 .cache();
 
         StepVerifier.create(resultMono.zipWhen(application -> Mono.zip(
-                        newActionService
+                        actionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                 .collectList(),
                         actionCollectionService
@@ -2593,7 +2593,7 @@ public class ApplicationServiceCETest {
                         defaultPermissionGroupsMono)))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1(); // cloned application
-                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<Action> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
                     List<PermissionGroup> permissionGroups = tuple.getT2().getT4();
@@ -2896,7 +2896,7 @@ public class ApplicationServiceCETest {
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
-        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService
+        Mono<Tuple3<Action, ActionCollection, NewPage>> resultMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -2953,8 +2953,8 @@ public class ApplicationServiceCETest {
                                         .then(applicationPageService.deleteUnpublishedPage(page.getId()))
                                         .then(applicationPageService.publish(testApplication.getId(), true))
                                         .then(Mono.zip(
-                                                (Mono<NewAction>)
-                                                        this.getArchivedResource(savedAction.getId(), NewAction.class),
+                                                (Mono<Action>)
+                                                        this.getArchivedResource(savedAction.getId(), Action.class),
                                                 (Mono<ActionCollection>) this.getArchivedResource(
                                                         savedActionCollection.getId(), ActionCollection.class),
                                                 (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)));
@@ -2962,19 +2962,19 @@ public class ApplicationServiceCETest {
                 })
                 .cache();
 
-        Mono<NewAction> archivedActionFromActionCollectionMono = resultMono.flatMap(tuple -> {
+        Mono<Action> archivedActionFromActionCollectionMono = resultMono.flatMap(tuple -> {
             final Optional<String> actionId =
                     tuple.getT2().getUnpublishedCollection().getDefaultToBranchedActionIdsMap().values().stream()
                             .findFirst();
-            return (Mono<NewAction>) this.getArchivedResource(actionId.get(), NewAction.class);
+            return (Mono<Action>) this.getArchivedResource(actionId.get(), Action.class);
         });
 
         StepVerifier.create(resultMono.zipWith(archivedActionFromActionCollectionMono))
                 .assertNext(tuple -> {
-                    NewAction archivedAction = tuple.getT1().getT1();
+                    Action archivedAction = tuple.getT1().getT1();
                     ActionCollection archivedActionCollection = tuple.getT1().getT2();
                     NewPage archivedPage = tuple.getT1().getT3();
-                    NewAction archivedActionFromActionCollection = tuple.getT2();
+                    Action archivedActionFromActionCollection = tuple.getT2();
 
                     assertThat(archivedAction.getDeletedAt()).isNotNull();
 
@@ -3435,7 +3435,7 @@ public class ApplicationServiceCETest {
                 .cache();
 
         // Find all actions in new app
-        Mono<List<NewAction>> actionsMono = clonedAppFromDbMono.flatMap(clonedAppFromDb -> newActionService
+        Mono<List<Action>> actionsMono = clonedAppFromDbMono.flatMap(clonedAppFromDb -> actionService
                 .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
                 .collectList());
 
@@ -3454,7 +3454,7 @@ public class ApplicationServiceCETest {
         StepVerifier.create(Mono.zip(clonedAppFromDbMono, actionsMono, pagesMono, actionCollectionsMono))
                 .assertNext(tuple -> {
                     Application cloneApp = tuple.getT1();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     List<PageDTO> pages = tuple.getT3();
                     final List<ActionCollection> actionCollections = tuple.getT4();
 
@@ -3652,7 +3652,7 @@ public class ApplicationServiceCETest {
                 })
                 .cache();
 
-        Mono<List<NewAction>> actionsMono = applicationFromDbPostViewChange.flatMap(clonedAppFromDb -> newActionService
+        Mono<List<Action>> actionsMono = applicationFromDbPostViewChange.flatMap(clonedAppFromDb -> actionService
                 .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
                 .collectList());
 
@@ -3700,7 +3700,7 @@ public class ApplicationServiceCETest {
                         publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application updatedApplication = tuple.getT1();
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     List<PageDTO> pages = tuple.getT3();
                     Datasource datasource1 = tuple.getT4();
                     PermissionGroup permissionGroup = tuple.getT5();
@@ -3725,7 +3725,7 @@ public class ApplicationServiceCETest {
                                 .contains(permissionGroup.getId());
                     }
 
-                    for (NewAction action : actions) {
+                    for (Action action : actions) {
                         assertThat(action.getPolicies().stream()
                                         .filter(policy -> policy.getPermission().equals(EXECUTE_ACTIONS.getValue()))
                                         .findFirst()
@@ -3868,7 +3868,7 @@ public class ApplicationServiceCETest {
         String appName = "deleteApplicationWithPagesAndActions";
         testApplication.setName(appName);
 
-        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService
+        Mono<Tuple3<Action, ActionCollection, NewPage>> resultMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -3926,8 +3926,8 @@ public class ApplicationServiceCETest {
                                         .flatMap(application ->
                                                 applicationPageService.deleteApplication(application.getId()))
                                         .flatMap(ignored -> Mono.zip(
-                                                (Mono<NewAction>)
-                                                        this.getArchivedResource(savedAction.getId(), NewAction.class),
+                                                (Mono<Action>)
+                                                        this.getArchivedResource(savedAction.getId(), Action.class),
                                                 (Mono<ActionCollection>) this.getArchivedResource(
                                                         savedActionCollection.getId(), ActionCollection.class),
                                                 (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)));
@@ -3935,19 +3935,19 @@ public class ApplicationServiceCETest {
                 })
                 .cache();
 
-        Mono<NewAction> archivedActionFromActionCollectionMono = resultMono.flatMap(tuple -> {
+        Mono<Action> archivedActionFromActionCollectionMono = resultMono.flatMap(tuple -> {
             final Optional<String> actionId =
                     tuple.getT2().getUnpublishedCollection().getDefaultToBranchedActionIdsMap().values().stream()
                             .findFirst();
-            return (Mono<NewAction>) this.getArchivedResource(actionId.get(), NewAction.class);
+            return (Mono<Action>) this.getArchivedResource(actionId.get(), Action.class);
         });
 
         StepVerifier.create(resultMono.zipWith(archivedActionFromActionCollectionMono))
                 .assertNext(tuple -> {
-                    NewAction archivedAction = tuple.getT1().getT1();
+                    Action archivedAction = tuple.getT1().getT1();
                     ActionCollection archivedActionCollection = tuple.getT1().getT2();
                     NewPage archivedPage = tuple.getT1().getT3();
-                    NewAction archivedActionFromActionCollection = tuple.getT2();
+                    Action archivedActionFromActionCollection = tuple.getT2();
 
                     assertThat(archivedAction.getDeletedAt()).isNotNull();
 

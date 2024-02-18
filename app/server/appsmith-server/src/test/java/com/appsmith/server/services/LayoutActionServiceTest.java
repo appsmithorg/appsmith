@@ -9,13 +9,14 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -33,10 +34,9 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -89,7 +89,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DirtiesContext
 public class LayoutActionServiceTest {
     @SpyBean
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -122,7 +122,7 @@ public class LayoutActionServiceTest {
     NewPageService newPageService;
 
     @Autowired
-    NewActionRepository actionRepository;
+    ActionRepository actionRepository;
 
     @SpyBean
     ActionCollectionService actionCollectionService;
@@ -481,11 +481,11 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
 
-        StepVerifier.create(newActionService.findById(createdAction1.getId())).assertNext(newAction -> assertThat(
+        StepVerifier.create(actionService.findById(createdAction1.getId())).assertNext(newAction -> assertThat(
                         newAction.getUnpublishedAction().getExecuteOnLoad())
                 .isTrue());
 
-        StepVerifier.create(newActionService.findById(createdAction2.getId())).assertNext(newAction -> assertThat(
+        StepVerifier.create(actionService.findById(createdAction2.getId())).assertNext(newAction -> assertThat(
                         newAction.getUnpublishedAction().getExecuteOnLoad())
                 .isFalse());
 
@@ -530,11 +530,11 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
 
-        StepVerifier.create(newActionService.findById(createdAction1.getId())).assertNext(newAction -> assertThat(
+        StepVerifier.create(actionService.findById(createdAction1.getId())).assertNext(newAction -> assertThat(
                         newAction.getUnpublishedAction().getExecuteOnLoad())
                 .isFalse());
 
-        StepVerifier.create(newActionService.findById(createdAction2.getId())).assertNext(newAction -> assertThat(
+        StepVerifier.create(actionService.findById(createdAction2.getId())).assertNext(newAction -> assertThat(
                         newAction.getUnpublishedAction().getExecuteOnLoad())
                 .isTrue());
     }
@@ -1107,7 +1107,7 @@ public class LayoutActionServiceTest {
                 layoutActionService.createSingleAction(action1, Boolean.FALSE).block(); // create action1
         assertNotNull(createdAction1);
         createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
-        NewAction newAction1 = new NewAction();
+        Action newAction1 = new Action();
         newAction1.setUnpublishedAction(createdAction1);
         newAction1.setDefaultResources(createdAction1.getDefaultResources());
         newAction1.setPluginId(installed_plugin.getId());
@@ -1117,17 +1117,17 @@ public class LayoutActionServiceTest {
                 layoutActionService.createSingleAction(action2, Boolean.FALSE).block(); // create action2
         assertNotNull(createdAction1);
         createdAction2.setExecuteOnLoad(true); // this can only be set to true post action creation.
-        NewAction newAction2 = new NewAction();
+        Action newAction2 = new Action();
         newAction2.setUnpublishedAction(createdAction2);
         newAction2.setDefaultResources(createdAction2.getDefaultResources());
         newAction2.setPluginId(installed_plugin.getId());
         newAction2.setPluginType(installed_plugin.getType());
 
-        NewAction[] newActionArray = new NewAction[2];
-        newActionArray[0] = newAction1;
-        newActionArray[1] = newAction2;
-        Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
-        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any()))
+        Action[] actionArray = new Action[2];
+        actionArray[0] = newAction1;
+        actionArray[1] = newAction2;
+        Flux<Action> newActionFlux = Flux.fromArray(actionArray);
+        Mockito.when(actionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any()))
                 .thenReturn(newActionFlux);
 
         Mono<LayoutDTO> updateLayoutMono =
@@ -1190,16 +1190,16 @@ public class LayoutActionServiceTest {
         assertNotNull(createdAction1);
         createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
         createdAction1.setUserSetOnLoad(true);
-        NewAction newAction1 = new NewAction();
+        Action newAction1 = new Action();
         newAction1.setUnpublishedAction(createdAction1);
         newAction1.setDefaultResources(createdAction1.getDefaultResources());
         newAction1.setPluginId(installed_plugin.getId());
         newAction1.setPluginType(installed_plugin.getType());
 
-        NewAction[] newActionArray = new NewAction[1];
-        newActionArray[0] = newAction1;
-        Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
-        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any()))
+        Action[] actionArray = new Action[1];
+        actionArray[0] = newAction1;
+        Flux<Action> newActionFlux = Flux.fromArray(actionArray);
+        Mockito.when(actionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any()))
                 .thenReturn(newActionFlux);
 
         Mono<LayoutDTO> updateLayoutMono =

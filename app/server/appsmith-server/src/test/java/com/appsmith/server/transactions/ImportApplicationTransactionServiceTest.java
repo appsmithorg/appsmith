@@ -1,9 +1,10 @@
 package com.appsmith.server.transactions;
 
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -14,9 +15,8 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,10 +66,10 @@ public class ImportApplicationTransactionServiceTest {
     MongoTemplate mongoTemplate;
 
     @MockBean
-    NewActionService newActionService;
+    ActionService actionService;
 
     @MockBean
-    NewActionRepository newActionRepository;
+    ActionRepository actionRepository;
 
     @MockBean
     ActionCollectionService actionCollectionService;
@@ -81,7 +81,7 @@ public class ImportApplicationTransactionServiceTest {
     PluginExecutorHelper pluginExecutorHelper;
 
     @MockBean
-    ImportableService<NewAction> newActionImportableService;
+    ImportableService<Action> newActionImportableService;
 
     @Autowired
     private Gson gson;
@@ -97,7 +97,7 @@ public class ImportApplicationTransactionServiceTest {
                 .block();
         applicationCount = mongoTemplate.count(new Query(), Application.class);
         pageCount = mongoTemplate.count(new Query(), NewPage.class);
-        actionCount = mongoTemplate.count(new Query(), NewAction.class);
+        actionCount = mongoTemplate.count(new Query(), Action.class);
         actionCollectionCount = mongoTemplate.count(new Query(), ActionCollection.class);
     }
 
@@ -159,7 +159,7 @@ public class ImportApplicationTransactionServiceTest {
         // check if the saved pages reverted after the exception
         assertThat(mongoTemplate.count(new Query(), Application.class)).isEqualTo(applicationCount);
         assertThat(mongoTemplate.count(new Query(), NewPage.class)).isEqualTo(pageCount);
-        assertThat(mongoTemplate.count(new Query(), NewAction.class)).isEqualTo(actionCount);
+        assertThat(mongoTemplate.count(new Query(), Action.class)).isEqualTo(actionCount);
     }
 
     @Test

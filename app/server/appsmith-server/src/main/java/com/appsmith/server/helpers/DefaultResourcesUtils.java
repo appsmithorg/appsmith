@@ -3,8 +3,8 @@ package com.appsmith.server.helpers;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -18,8 +18,8 @@ import java.util.Set;
 public class DefaultResourcesUtils {
     public static <T> T createDefaultIdsOrUpdateWithGivenResourceIds(T resource, String branchName) {
 
-        if (resource instanceof NewAction) {
-            NewAction action = (NewAction) resource;
+        if (resource instanceof Action) {
+            Action action = (Action) resource;
             DefaultResources actionDefaultResources = action.getDefaultResources();
 
             if (Optional.ofNullable(actionDefaultResources).isEmpty()) {

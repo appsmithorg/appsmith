@@ -3,6 +3,7 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionMoveDTO;
@@ -11,7 +12,6 @@ import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
@@ -45,7 +45,7 @@ import java.util.List;
 public class ActionControllerCE {
 
     private final LayoutActionService layoutActionService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final RefactoringService refactoringService;
     private final ActionExecutionSolution actionExecutionSolution;
     private final ObservationRegistry observationRegistry;
@@ -53,12 +53,12 @@ public class ActionControllerCE {
     @Autowired
     public ActionControllerCE(
             LayoutActionService layoutActionService,
-            NewActionService newActionService,
+            ActionService actionService,
             RefactoringService refactoringService,
             ActionExecutionSolution actionExecutionSolution,
             ObservationRegistry observationRegistry) {
         this.layoutActionService = layoutActionService;
-        this.newActionService = newActionService;
+        this.actionService = actionService;
         this.refactoringService = refactoringService;
         this.actionExecutionSolution = actionExecutionSolution;
         this.observationRegistry = observationRegistry;
@@ -139,7 +139,7 @@ public class ActionControllerCE {
     public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(
             @RequestParam String applicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newActionService
+        return actionService
                 .getActionsForViewMode(applicationId, branchName)
                 .collectList()
                 .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
@@ -189,7 +189,7 @@ public class ActionControllerCE {
         log.debug("Going to get all actions with params: {}, branch: {}", params, branchName);
         // We handle JS actions as part of the collections request, so that all the contextual variables are also picked
         // up
-        return newActionService
+        return actionService
                 .getUnpublishedActionsExceptJs(params, branchName)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));

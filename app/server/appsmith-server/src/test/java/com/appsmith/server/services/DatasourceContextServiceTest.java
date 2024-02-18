@@ -31,8 +31,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -95,7 +95,7 @@ public class DatasourceContextServiceTest {
     DatasourceRepository datasourceRepository;
 
     @SpyBean
-    NewActionRepository newActionRepository;
+    ActionRepository actionRepository;
 
     @Autowired
     UserService userService;
@@ -199,7 +199,7 @@ public class DatasourceContextServiceTest {
                 .when(datasourceRepository)
                 .findById("id1", datasourcePermission.getExecutePermission());
         doReturn(Mono.just(new Plugin())).when(pluginService).findById("mockPlugin");
-        doReturn(Mono.just(0L)).when(newActionRepository).countByDatasourceId("id1");
+        doReturn(Mono.just(0L)).when(actionRepository).countByDatasourceId("id1");
         doReturn(Mono.just(datasource)).when(datasourceRepository).archiveById("id1");
         doReturn(Flux.just(datasourceStorage)).when(datasourceStorageService).findStrictlyByDatasourceId("id1");
         doReturn(Mono.just(datasourceStorage)).when(datasourceStorageService).archive(datasourceStorage);

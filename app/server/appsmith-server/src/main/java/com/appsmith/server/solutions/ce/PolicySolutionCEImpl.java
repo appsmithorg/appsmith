@@ -5,17 +5,17 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -46,7 +46,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     private final ApplicationRepository applicationRepository;
     private final DatasourceRepository datasourceRepository;
     private final NewPageRepository newPageRepository;
-    private final NewActionRepository newActionRepository;
+    private final ActionRepository actionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ThemeRepository themeRepository;
     private final DatasourcePermission datasourcePermission;
@@ -259,10 +259,10 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
      * @return
      */
     @Override
-    public Flux<NewAction> updateWithPagePermissionsToAllItsActions(
+    public Flux<Action> updateWithPagePermissionsToAllItsActions(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
 
-        return newActionRepository
+        return actionRepository
                 .findByApplicationId(applicationId)
                 .switchIfEmpty(Mono.empty())
                 .map(action -> {
@@ -273,7 +273,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(newActionRepository::saveAll);
+                .flatMapMany(actionRepository::saveAll);
     }
 
     @Override

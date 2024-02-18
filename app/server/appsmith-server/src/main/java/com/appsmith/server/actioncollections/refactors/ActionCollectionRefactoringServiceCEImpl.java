@@ -5,12 +5,12 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.entities.EntityRefactoringServiceCE;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -35,7 +35,7 @@ import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_JSOBJECT;
 public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactoringServiceCE<ActionCollection> {
 
     protected final ActionCollectionService actionCollectionService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final ActionPermission actionPermission;
     private final AstService astService;
 
@@ -128,11 +128,11 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
                     }
 
                     Flux<ActionDTO> actionUpdatesFlux = Flux.fromIterable(actionIds.values())
-                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(
+                            .flatMap(actionId -> actionService.findActionDTObyIdAndViewMode(
                                     actionId, false, actionPermission.getEditPermission()))
                             .flatMap(actionDTO -> {
                                 actionDTO.setFullyQualifiedName(newName + "." + actionDTO.getName());
-                                return newActionService
+                                return actionService
                                         .updateUnpublishedAction(actionDTO.getId(), actionDTO)
                                         .onErrorResume(throwable -> {
                                             log.debug(

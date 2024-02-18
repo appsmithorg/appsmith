@@ -1,8 +1,8 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.ActionControllerCE;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
@@ -18,11 +18,11 @@ public class ActionController extends ActionControllerCE {
 
     public ActionController(
             LayoutActionService layoutActionService,
-            NewActionService newActionService,
+            ActionService actionService,
             RefactoringService refactoringService,
             ActionExecutionSolution actionExecutionSolution,
             ObservationRegistry observationRegistry) {
 
-        super(layoutActionService, newActionService, refactoringService, actionExecutionSolution, observationRegistry);
+        super(layoutActionService, actionService, refactoringService, actionExecutionSolution, observationRegistry);
     }
 }

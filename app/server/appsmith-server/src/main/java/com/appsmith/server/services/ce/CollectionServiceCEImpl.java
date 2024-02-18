@@ -2,8 +2,8 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Collection;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CollectionRepository;
@@ -40,7 +40,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
     }
 
     @Override
-    public Mono<Collection> addActionsToCollection(Collection collection, List<NewAction> actions) {
+    public Mono<Collection> addActionsToCollection(Collection collection, List<Action> actions) {
         collection.setActions(actions);
         return repository.save(collection);
     }
@@ -59,7 +59,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .flatMap(collection1 -> {
-                    List<NewAction> actions = collection1.getActions();
+                    List<Action> actions = collection1.getActions();
                     if (actions == null) {
                         actions = new ArrayList<>();
                     }
@@ -69,7 +69,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
                      * the following link for more details :
                      * https://stackoverflow.com/questions/38261838/add-object-to-an-array-in-java-mongodb
                      */
-                    NewAction toSave = new NewAction();
+                    Action toSave = new Action();
                     toSave.setId(action.getId());
                     actions.add(toSave);
                     collection1.setActions(actions);
@@ -82,7 +82,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
     }
 
     @Override
-    public Mono<NewAction> removeSingleActionFromCollection(String collectionId, Mono<NewAction> actionMono) {
+    public Mono<Action> removeSingleActionFromCollection(String collectionId, Mono<Action> actionMono) {
         if (collectionId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -94,19 +94,19 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
                 .zipWith(actionMono)
                 .flatMap(tuple -> {
                     Collection collection = tuple.getT1();
-                    NewAction action = tuple.getT2();
+                    Action action = tuple.getT2();
 
                     if (action.getId() == null) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION));
                     }
 
-                    List<NewAction> actions = collection.getActions();
+                    List<Action> actions = collection.getActions();
                     if (actions == null || actions.isEmpty()) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_PARAMETER,
                                 FieldName.ACTION_ID + " or " + FieldName.COLLECTION_ID));
                     }
-                    ListIterator<NewAction> actionIterator = actions.listIterator();
+                    ListIterator<Action> actionIterator = actions.listIterator();
                     while (actionIterator.hasNext()) {
                         if (actionIterator.next().getId().equals(action.getId())) {
                             actionIterator.remove();

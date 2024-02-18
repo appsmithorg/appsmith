@@ -10,15 +10,16 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -39,7 +40,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -110,7 +110,7 @@ public class PageServiceTest {
     NewPageService newPageService;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     ActionCollectionService actionCollectionService;
@@ -654,8 +654,8 @@ public class PageServiceTest {
                 .clonePage(page.getId(), new ClonePageMetaDTO())
                 .cache();
 
-        Mono<List<NewAction>> actionsMono = pageMono.flatMapMany(
-                        page1 -> newActionService.findByPageId(page1.getId(), READ_ACTIONS))
+        Mono<List<Action>> actionsMono = pageMono.flatMapMany(
+                        page1 -> actionService.findByPageId(page1.getId(), READ_ACTIONS))
                 .collectList();
 
         Mono<List<ActionCollection>> actionCollectionMono = pageMono.flatMapMany(
@@ -730,9 +730,9 @@ public class PageServiceTest {
                     assertThat(clonedPage.getLayouts().get(0).getPublishedDsl()).isNullOrEmpty();
 
                     // Confirm that the page action got copied as well
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     assertThat(actions).hasSize(2);
-                    NewAction actionWithoutCollection = actions.stream()
+                    Action actionWithoutCollection = actions.stream()
                             .filter(newAction -> !StringUtils.hasLength(
                                     newAction.getUnpublishedAction().getCollectionId()))
                             .findFirst()
@@ -863,8 +863,8 @@ public class PageServiceTest {
                         newPageService.findByBranchNameAndDefaultPageId(branchName, pageDTO.getId(), MANAGE_PAGES))
                 .cache();
 
-        Mono<List<NewAction>> actionsMono = pageMono.flatMapMany(
-                        page1 -> newActionService.findByPageId(page1.getId(), READ_ACTIONS))
+        Mono<List<Action>> actionsMono = pageMono.flatMapMany(
+                        page1 -> actionService.findByPageId(page1.getId(), READ_ACTIONS))
                 .collectList();
 
         Mono<List<ActionCollection>> actionCollectionMono = pageMono.flatMapMany(
@@ -952,9 +952,9 @@ public class PageServiceTest {
                     assertThat(clonedPageDefaultRes.getBranchName()).isEqualTo(branchName);
 
                     // Confirm that the page action got copied as well
-                    List<NewAction> actions = tuple.getT2();
+                    List<Action> actions = tuple.getT2();
                     assertThat(actions).hasSize(2);
-                    NewAction actionWithoutCollection = actions.stream()
+                    Action actionWithoutCollection = actions.stream()
                             .filter(newAction -> !StringUtils.hasLength(
                                     newAction.getUnpublishedAction().getCollectionId()))
                             .findFirst()

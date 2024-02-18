@@ -2,14 +2,15 @@ package com.appsmith.server.applications.imports;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ImportableArtifact;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -26,7 +27,6 @@ import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportServiceCE;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -64,7 +64,7 @@ public class ApplicationImportServiceCEImpl
 
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final UpdateLayoutService updateLayoutService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
@@ -75,7 +75,7 @@ public class ApplicationImportServiceCEImpl
     private final ImportableService<Theme> themeImportableService;
     private final ImportableService<NewPage> newPageImportableService;
     private final ImportableService<CustomJSLib> customJSLibImportableService;
-    private final ImportableService<NewAction> newActionImportableService;
+    private final ImportableService<Action> newActionImportableService;
     private final ImportableService<ActionCollection> actionCollectionImportableService;
 
     /**
@@ -297,7 +297,7 @@ public class ApplicationImportServiceCEImpl
             applicationJson.getExportedApplication().setPublishedPages(applicationPageList);
         }
         if (applicationJson.getActionList() != null) {
-            List<NewAction> importedNewActionList = applicationJson.getActionList().stream()
+            List<Action> importedActionList = applicationJson.getActionList().stream()
                     .filter(newAction -> newAction.getUnpublishedAction() != null
                             && (CollectionUtils.isEmpty(entitiesToImport)
                                     || entitiesToImport.contains(
@@ -305,7 +305,7 @@ public class ApplicationImportServiceCEImpl
                     .peek(newAction ->
                             newAction.setGitSyncId(null)) // setting this null so that this action can be imported again
                     .collect(Collectors.toList());
-            applicationJson.setActionList(importedNewActionList);
+            applicationJson.setActionList(importedActionList);
         }
         if (applicationJson.getActionCollectionList() != null) {
             List<ActionCollection> importedActionCollectionList = applicationJson.getActionCollectionList().stream()
@@ -602,7 +602,7 @@ public class ApplicationImportServiceCEImpl
 
     @Override
     public Mono<Set<String>> getDatasourceIdSetConsumedInArtifact(String defaultApplicationId) {
-        return newActionService
+        return actionService
                 .findAllByApplicationIdAndViewMode(defaultApplicationId, false, Optional.empty(), Optional.empty())
                 .filter(newAction -> StringUtils.hasText(
                         newAction.getUnpublishedAction().getDatasource().getId()))

@@ -2,9 +2,9 @@ package com.appsmith.server.imports.internal.partial;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.imports.importable.ImportableService;
@@ -47,7 +47,7 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             ImportableService<NewPage> newPageImportableService,
             ImportableService<CustomJSLib> customJSLibImportableService,
             ImportableService<Datasource> datasourceImportableService,
-            ImportableService<NewAction> newActionImportableService,
+            ImportableService<Action> newActionImportableService,
             ImportableService<ActionCollection> actionCollectionImportableService,
             NewPageService newPageService,
             RefactoringService refactoringService) {

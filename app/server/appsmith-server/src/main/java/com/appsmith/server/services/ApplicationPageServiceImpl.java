@@ -2,21 +2,21 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.clonepage.ClonePageService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.ApplicationPageServiceCEImpl;
@@ -45,7 +45,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             PolicyGenerator policyGenerator,
             ApplicationRepository applicationRepository,
             NewPageService newPageService,
-            NewActionService newActionService,
+            ActionService actionService,
             ActionCollectionService actionCollectionService,
             GitFileUtils gitFileUtils,
             ThemeService themeService,
@@ -57,13 +57,13 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             TransactionalOperator transactionalOperator,
             PermissionGroupService permissionGroupService,
             ActionCollectionRepository actionCollectionRepository,
-            NewActionRepository newActionRepository,
+            ActionRepository actionRepository,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
             DatasourcePermission datasourcePermission,
             DSLMigrationUtils dslMigrationUtils,
             GitAutoCommitHelper gitAutoCommitHelper,
-            ClonePageService<NewAction> actionClonePageService,
+            ClonePageService<Action> actionClonePageService,
             ClonePageService<ActionCollection> actionCollectionClonePageService) {
 
         super(
@@ -77,7 +77,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 policyGenerator,
                 applicationRepository,
                 newPageService,
-                newActionService,
+                actionService,
                 actionCollectionService,
                 gitFileUtils,
                 themeService,
@@ -89,7 +89,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 transactionalOperator,
                 permissionGroupService,
                 actionCollectionRepository,
-                newActionRepository,
+                actionRepository,
                 newPageRepository,
                 datasourceRepository,
                 datasourcePermission,

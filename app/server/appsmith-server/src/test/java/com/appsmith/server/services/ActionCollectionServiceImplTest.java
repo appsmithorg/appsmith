@@ -8,12 +8,13 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.actioncollections.base.ActionCollectionServiceImpl;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
@@ -24,7 +25,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ObjectMapperUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -95,7 +95,7 @@ public class ActionCollectionServiceImplTest {
     ActionCollectionRepository actionCollectionRepository;
 
     @MockBean
-    NewActionService newActionService;
+    ActionService actionService;
 
     @MockBean
     ApplicationService applicationService;
@@ -140,7 +140,7 @@ public class ActionCollectionServiceImplTest {
                 reactiveMongoTemplate,
                 actionCollectionRepository,
                 analyticsService,
-                newActionService,
+                actionService,
                 policyGenerator,
                 applicationService,
                 responseUtils,
@@ -154,7 +154,7 @@ public class ActionCollectionServiceImplTest {
                 updateLayoutService,
                 refactoringService,
                 actionCollectionService,
-                newActionService,
+                actionService,
                 analyticsService,
                 responseUtils,
                 actionCollectionRepository,
@@ -378,16 +378,16 @@ public class ActionCollectionServiceImplTest {
                     argument.setId("testActionId");
                     return Mono.just(argument);
                 });
-        Mockito.when(newActionService.generateActionDomain(Mockito.any())).thenAnswer(invocation -> {
+        Mockito.when(actionService.generateActionDomain(Mockito.any())).thenAnswer(invocation -> {
             final ActionDTO argument = (ActionDTO) invocation.getArguments()[0];
-            NewAction newAction = new NewAction();
+            Action newAction = new Action();
             newAction.setId(argument.getId());
             newAction.setUnpublishedAction(argument);
             return newAction;
         });
-        Mockito.when(newActionService.validateAndSaveActionToRepository(Mockito.any()))
+        Mockito.when(actionService.validateAndSaveActionToRepository(Mockito.any()))
                 .thenAnswer(invocation -> {
-                    final NewAction argument = (NewAction) invocation.getArguments()[0];
+                    final Action argument = (Action) invocation.getArguments()[0];
                     ActionDTO unpublishedAction = argument.getUnpublishedAction();
                     unpublishedAction.setId("testActionId");
                     return Mono.just(unpublishedAction);
@@ -538,7 +538,7 @@ public class ActionCollectionServiceImplTest {
                     return Mono.just(argument);
                 });
 
-        Mockito.when(newActionService.deleteUnpublishedAction(Mockito.any())).thenAnswer(invocation -> {
+        Mockito.when(actionService.deleteUnpublishedAction(Mockito.any())).thenAnswer(invocation -> {
             final ActionDTO argument = (ActionDTO) invocation.getArguments()[1];
             return Mono.just(argument);
         });
@@ -552,7 +552,7 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString()))
                 .thenReturn(Mono.just(modifiedActionCollection));
 
-        Mockito.when(newActionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(actionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenAnswer(invocation -> {
                     String id = (String) invocation.getArguments()[0];
                     return Mono.just(updatedActions.get(id));
@@ -673,7 +673,7 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
                 .thenReturn(Mono.just(actionCollection));
 
-        Mockito.when(newActionService.deleteUnpublishedAction(Mockito.any()))
+        Mockito.when(actionService.deleteUnpublishedAction(Mockito.any()))
                 .thenReturn(Mono.just(
                         actionCollection.getUnpublishedCollection().getActions().get(0)));
 
@@ -762,7 +762,7 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString())).thenReturn(Mono.just(actionCollection));
 
-        Mockito.when(newActionService.archiveById(Mockito.any())).thenReturn(Mono.just(new NewAction()));
+        Mockito.when(actionService.archiveById(Mockito.any())).thenReturn(Mono.just(new Action()));
 
         Mockito.when(actionCollectionRepository.archive(Mockito.any())).thenReturn(Mono.empty());
 
@@ -800,10 +800,10 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(actionCollection));
 
-        Mockito.when(newActionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(actionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Mono.just(action));
 
-        Mockito.when(newActionService.updateUnpublishedAction(Mockito.any(), Mockito.any()))
+        Mockito.when(actionService.updateUnpublishedAction(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ActionDTO()));
 
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString())).thenReturn(Mono.just(actionCollection));

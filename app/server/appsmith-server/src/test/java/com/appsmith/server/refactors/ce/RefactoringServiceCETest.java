@@ -8,13 +8,14 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -31,10 +32,9 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
@@ -85,7 +85,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RefactoringServiceCETest {
 
     @SpyBean
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -118,7 +118,7 @@ class RefactoringServiceCETest {
     NewPageService newPageService;
 
     @Autowired
-    NewActionRepository actionRepository;
+    ActionRepository actionRepository;
 
     @Autowired
     ActionCollectionService actionCollectionService;
@@ -315,7 +315,7 @@ class RefactoringServiceCETest {
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+        Mono<Action> postNameChangeActionMono = actionService.findById(createdAction.getId(), READ_ACTIONS);
 
         StepVerifier.create(postNameChangeActionMono)
                 .assertNext(updatedAction -> {
@@ -391,7 +391,7 @@ class RefactoringServiceCETest {
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+        Mono<Action> postNameChangeActionMono = actionService.findById(createdAction.getId(), READ_ACTIONS);
 
         StepVerifier.create(postNameChangeActionMono)
                 .assertNext(updatedAction -> {
@@ -449,7 +449,7 @@ class RefactoringServiceCETest {
 
         applicationPageService.publish(testPage.getApplicationId(), true).block();
 
-        newActionService.deleteUnpublishedAction(firstAction.getId()).block();
+        actionService.deleteUnpublishedAction(firstAction.getId()).block();
 
         // Create another action with the same name as the erstwhile deleted action
         action.setId(null);
@@ -466,7 +466,7 @@ class RefactoringServiceCETest {
 
         refactoringService.refactorEntityName(refactorActionNameDTO, null).block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), READ_ACTIONS);
+        Mono<Action> postNameChangeActionMono = actionService.findById(secondAction.getId(), READ_ACTIONS);
 
         StepVerifier.create(postNameChangeActionMono)
                 .assertNext(updatedAction -> {
@@ -562,7 +562,7 @@ class RefactoringServiceCETest {
         duplicateName.setActionConfiguration(actionConfiguration);
         duplicateName.setDatasource(datasource);
 
-        NewAction duplicateNameCompleteAction = new NewAction();
+        Action duplicateNameCompleteAction = new Action();
         duplicateNameCompleteAction.setUnpublishedAction(duplicateName);
         duplicateNameCompleteAction.setPublishedAction(new ActionDTO());
         duplicateNameCompleteAction.getPublishedAction().setDatasource(new Datasource());
@@ -574,7 +574,7 @@ class RefactoringServiceCETest {
         duplicateNameCompleteAction.setDefaultResources(new DefaultResources());
 
         // Now save this action directly in the repo to create a duplicate action name scenario
-        newActionService
+        actionService
                 .validateAction(duplicateNameCompleteAction)
                 .flatMap(validatedAction -> actionRepository.save(validatedAction))
                 .block();
@@ -595,7 +595,7 @@ class RefactoringServiceCETest {
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(firstAction.getId(), READ_ACTIONS);
+        Mono<Action> postNameChangeActionMono = actionService.findById(firstAction.getId(), READ_ACTIONS);
 
         StepVerifier.create(postNameChangeActionMono)
                 .assertNext(updatedAction -> {
@@ -817,12 +817,12 @@ class RefactoringServiceCETest {
                 createdActionCollectionDTO1.getDefaultToBranchedActionIdsMap().values().stream()
                         .findFirst();
         assert optional.isPresent();
-        final Mono<NewAction> actionMono = newActionService.findById(optional.get());
+        final Mono<Action> actionMono = actionService.findById(optional.get());
 
         StepVerifier.create(Mono.zip(actionCollectionMono, actionMono))
                 .assertNext(tuple -> {
                     final ActionCollection actionCollection = tuple.getT1();
-                    final NewAction action = tuple.getT2();
+                    final Action action = tuple.getT2();
                     assertThat(actionCollection.getUnpublishedCollection().getBody())
                             .isEqualTo("export default { x : \tNewNameTable1 }");
                     final ActionDTO unpublishedAction = action.getUnpublishedAction();
@@ -880,25 +880,23 @@ class RefactoringServiceCETest {
         refactorActionNameInCollectionDTO.setNewName("newTestAction");
         refactorActionNameInCollectionDTO.setCollectionName("originalName");
 
-        final Mono<Tuple2<ActionCollection, NewAction>> tuple2Mono = refactoringService
+        final Mono<Tuple2<ActionCollection, Action>> tuple2Mono = refactoringService
                 .refactorEntityName(refactorActionNameInCollectionDTO, null)
                 .then(actionCollectionService
                         .getById(dto.getId())
-                        .zipWith(newActionService.findById(
-                                dto.getActions().get(0).getId())));
+                        .zipWith(actionService.findById(dto.getActions().get(0).getId())));
 
         StepVerifier.create(tuple2Mono)
                 .assertNext(tuple -> {
                     final ActionCollectionDTO actionCollectionDTOResult =
                             tuple.getT1().getUnpublishedCollection();
-                    final NewAction newAction = tuple.getT2();
+                    final Action action = tuple.getT2();
                     assertEquals("originalName", actionCollectionDTOResult.getName());
                     assertEquals("export default { x: Table1 }", actionCollectionDTOResult.getBody());
-                    assertEquals(
-                            "newTestAction", newAction.getUnpublishedAction().getName());
+                    assertEquals("newTestAction", action.getUnpublishedAction().getName());
                     assertEquals(
                             "originalName.newTestAction",
-                            newAction.getUnpublishedAction().getFullyQualifiedName());
+                            action.getUnpublishedAction().getFullyQualifiedName());
                 })
                 .verifyComplete();
     }

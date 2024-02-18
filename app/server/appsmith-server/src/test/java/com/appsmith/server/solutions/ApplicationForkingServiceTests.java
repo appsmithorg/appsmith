@@ -19,10 +19,12 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -30,7 +32,6 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -47,7 +48,6 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -146,7 +146,7 @@ public class ApplicationForkingServiceTests {
     private ApplicationPageService applicationPageService;
 
     @Autowired
-    private NewActionService newActionService;
+    private ActionService actionService;
 
     @Autowired
     private ActionCollectionService actionCollectionService;
@@ -368,7 +368,7 @@ public class ApplicationForkingServiceTests {
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono.zipWhen(applicationImportDTO -> Mono.zip(
-                        newActionService
+                        actionService
                                 .findAllByApplicationIdAndViewMode(
                                         applicationImportDTO.getApplication().getId(), false, READ_ACTIONS, null)
                                 .collectList(),
@@ -382,7 +382,7 @@ public class ApplicationForkingServiceTests {
                                 .collectList())))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1().getApplication();
-                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<Action> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
 
@@ -560,7 +560,7 @@ public class ApplicationForkingServiceTests {
                 .cache();
 
         StepVerifier.create(forkedAppFromDbMono.zipWhen(application -> Mono.zip(
-                        newActionService
+                        actionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                 .collectList(),
                         actionCollectionService
@@ -571,7 +571,7 @@ public class ApplicationForkingServiceTests {
                                 .collectList())))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
-                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<Action> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
 
@@ -1062,7 +1062,7 @@ public class ApplicationForkingServiceTests {
                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
-                .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(
+                .flatMap(page -> actionService.getUnpublishedActionsExceptJs(
                         new LinkedMultiValueMap<>(Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
 

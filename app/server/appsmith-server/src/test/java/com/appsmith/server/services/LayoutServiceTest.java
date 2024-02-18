@@ -8,6 +8,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -22,7 +23,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
@@ -87,7 +87,7 @@ public class LayoutServiceTest {
     WorkspaceService workspaceService;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -955,9 +955,9 @@ public class LayoutServiceTest {
                 .verifyComplete();
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService
+            return actionService
                     .findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId(
+                    .zipWith(actionService.findByUnpublishedNameAndPageId(
                             "hiddenAction3", page.getId(), AclPermission.MANAGE_ACTIONS));
         });
 
@@ -1118,9 +1118,9 @@ public class LayoutServiceTest {
                 .verifyComplete();
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService
+            return actionService
                     .findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId(
+                    .zipWith(actionService.findByUnpublishedNameAndPageId(
                             "ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
         });
 
@@ -1218,9 +1218,9 @@ public class LayoutServiceTest {
                 .verifyComplete();
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService
+            return actionService
                     .findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId(
+                    .zipWith(actionService.findByUnpublishedNameAndPageId(
                             "ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
         });
 

@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ApplicationMode;
@@ -25,7 +26,6 @@ import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -86,7 +86,7 @@ public class ConsolidatedAPIServiceImplTest {
     NewPageService spyNewPageService;
 
     @SpyBean
-    NewActionService spyNewActionService;
+    ActionService spyActionService;
 
     @SpyBean
     ActionCollectionService spyActionCollectionService;
@@ -234,9 +234,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         ActionViewDTO sampleActionViewDTO = new ActionViewDTO();
         sampleActionViewDTO.setName("sampleActionViewDTO");
-        doReturn(Flux.just(sampleActionViewDTO))
-                .when(spyNewActionService)
-                .getActionsForViewMode(anyString(), anyString());
+        doReturn(Flux.just(sampleActionViewDTO)).when(spyActionService).getActionsForViewMode(anyString(), anyString());
 
         ActionCollectionViewDTO sampleActionCollectionViewDTO = new ActionCollectionViewDTO();
         sampleActionCollectionViewDTO.setName("sampleActionCollectionViewDTO");
@@ -407,7 +405,7 @@ public class ConsolidatedAPIServiceImplTest {
         ActionDTO sampleActionDTO = new ActionDTO();
         sampleActionDTO.setName("sampleActionDTO");
         doReturn(Flux.just(sampleActionDTO))
-                .when(spyNewActionService)
+                .when(spyActionService)
                 .getUnpublishedActions(any(), anyString(), anyBoolean());
 
         ActionCollectionDTO sampleActionCollectionDTO = new ActionCollectionDTO();

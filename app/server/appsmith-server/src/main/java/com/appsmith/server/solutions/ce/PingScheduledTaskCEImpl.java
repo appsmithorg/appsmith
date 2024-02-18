@@ -5,9 +5,9 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -45,7 +45,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final WorkspaceRepository workspaceRepository;
     private final ApplicationRepository applicationRepository;
     private final NewPageRepository newPageRepository;
-    private final NewActionRepository newActionRepository;
+    private final ActionRepository actionRepository;
     private final DatasourceRepository datasourceRepository;
     private final UserRepository userRepository;
     private final ProjectProperties projectProperties;
@@ -132,7 +132,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                actionRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 datasourceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 userCountMono);
 

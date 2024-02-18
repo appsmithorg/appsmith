@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.QAction;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -28,11 +28,11 @@ public class Migration015AddPluginTypeIndexToNewActionCollection {
     @Execution
     public void addingIndexToNewAction() {
         Index pluginTypeDeletedAtCompoundIndex = makeIndex(
-                        fieldName(QNewAction.newAction.applicationId),
-                        fieldName(QNewAction.newAction.pluginType),
-                        fieldName(QNewAction.newAction.deletedAt))
+                        fieldName(QAction.action.applicationId),
+                        fieldName(QAction.action.pluginType),
+                        fieldName(QAction.action.deletedAt))
                 .named("applicationId_pluginType_deletedAt_compound_index");
 
-        ensureIndexes(mongoTemplate, NewAction.class, pluginTypeDeletedAtCompoundIndex);
+        ensureIndexes(mongoTemplate, Action.class, pluginTypeDeletedAtCompoundIndex);
     }
 }

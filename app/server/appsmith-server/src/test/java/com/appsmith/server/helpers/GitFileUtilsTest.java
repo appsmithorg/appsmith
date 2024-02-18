@@ -2,8 +2,8 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -139,7 +139,7 @@ public class GitFileUtilsTest {
                 validAppJson.getPageList().get(validAppJson.getPageList().size() - 1);
         deletedPage.getUnpublishedPage().setDeletedAt(Instant.now());
 
-        NewAction deletedAction =
+        Action deletedAction =
                 validAppJson.getActionList().get(validAppJson.getActionList().size() - 1);
         deletedAction.getUnpublishedAction().setDeletedAt(Instant.now());
 

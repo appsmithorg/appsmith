@@ -5,12 +5,12 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -42,7 +42,7 @@ public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServic
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
     private final ExportableService<NewPage> newPageExportableService;
-    protected final ExportableService<NewAction> newActionExportableService;
+    protected final ExportableService<Action> newActionExportableService;
     protected final ExportableService<ActionCollection> actionCollectionExportableService;
     private final ExportableService<Theme> themeExportableService;
     private final Map<String, String> applicationConstantsMap = new HashMap<>();
@@ -51,7 +51,7 @@ public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServic
             ApplicationService applicationService,
             ApplicationPermission applicationPermission,
             ExportableService<NewPage> newPageExportableService,
-            ExportableService<NewAction> newActionExportableService,
+            ExportableService<Action> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
             ExportableService<Theme> themeExportableService) {
         this.applicationService = applicationService;

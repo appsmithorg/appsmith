@@ -1,11 +1,11 @@
 package com.appsmith.server.actioncollections.base;
 
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -28,7 +28,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ReactiveMongoTemplate reactiveMongoTemplate,
             ActionCollectionRepository repository,
             AnalyticsService analyticsService,
-            NewActionService newActionService,
+            ActionService actionService,
             PolicyGenerator policyGenerator,
             ApplicationService applicationService,
             ResponseUtils responseUtils,
@@ -42,7 +42,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 reactiveMongoTemplate,
                 repository,
                 analyticsService,
-                newActionService,
+                actionService,
                 policyGenerator,
                 applicationService,
                 responseUtils,

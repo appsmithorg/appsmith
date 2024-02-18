@@ -1,9 +1,9 @@
 package com.appsmith.server.refactors.applications;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -31,7 +31,7 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
             TransactionalOperator transactionalOperator,
             EntityValidationService entityValidationService,
             EntityRefactoringService<Void> jsActionEntityRefactoringService,
-            EntityRefactoringService<NewAction> newActionEntityRefactoringService,
+            EntityRefactoringService<Action> newActionEntityRefactoringService,
             EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService,
             EntityRefactoringService<Layout> widgetEntityRefactoringService) {
         super(

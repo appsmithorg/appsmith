@@ -4,9 +4,9 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
@@ -58,7 +58,7 @@ class ImportArtifactPermissionProviderTest {
                 .build();
 
         assertTrue(importArtifactPermissionProvider.hasEditPermission(new NewPage()));
-        assertTrue(importArtifactPermissionProvider.hasEditPermission(new NewAction()));
+        assertTrue(importArtifactPermissionProvider.hasEditPermission(new Action()));
         assertTrue(importArtifactPermissionProvider.hasEditPermission(new Datasource()));
 
         assertTrue(importArtifactPermissionProvider.canCreateDatasource(new Workspace()));
@@ -74,7 +74,7 @@ class ImportArtifactPermissionProviderTest {
 
         List<Tuple2<BaseDomain, DomainPermission>> domainAndPermissionList = new ArrayList<>();
         domainAndPermissionList.add(Tuples.of(new NewPage(), pagePermission));
-        domainAndPermissionList.add(Tuples.of(new NewAction(), actionPermission));
+        domainAndPermissionList.add(Tuples.of(new Action(), actionPermission));
         domainAndPermissionList.add(Tuples.of(new ActionCollection(), actionPermission));
         domainAndPermissionList.add(Tuples.of(new Datasource(), datasourcePermission));
 
@@ -86,8 +86,8 @@ class ImportArtifactPermissionProviderTest {
 
             if (domain instanceof NewPage) {
                 assertFalse(provider.hasEditPermission((NewPage) domain));
-            } else if (domain instanceof NewAction) {
-                assertFalse(provider.hasEditPermission((NewAction) domain));
+            } else if (domain instanceof Action) {
+                assertFalse(provider.hasEditPermission((Action) domain));
             } else if (domain instanceof Datasource) {
                 assertFalse(provider.hasEditPermission((Datasource) domain));
             }
@@ -190,7 +190,7 @@ class ImportArtifactPermissionProviderTest {
 
         if (baseDomain instanceof NewPage) {
             builder.permissionRequiredToEditContext(true);
-        } else if (baseDomain instanceof NewAction) {
+        } else if (baseDomain instanceof Action) {
             builder.permissionRequiredToEditAction(true);
         } else if (baseDomain instanceof Datasource) {
             builder.permissionRequiredToEditDatasource(true);

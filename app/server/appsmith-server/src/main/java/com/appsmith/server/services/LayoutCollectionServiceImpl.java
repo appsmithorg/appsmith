@@ -1,9 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -23,7 +23,7 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
             UpdateLayoutService updateLayoutService,
             RefactoringService refactoringService,
             ActionCollectionService actionCollectionService,
-            NewActionService newActionService,
+            ActionService actionService,
             AnalyticsService analyticsService,
             ResponseUtils responseUtils,
             ActionCollectionRepository actionCollectionRepository,
@@ -35,7 +35,7 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
                 updateLayoutService,
                 refactoringService,
                 actionCollectionService,
-                newActionService,
+                actionService,
                 analyticsService,
                 responseUtils,
                 actionCollectionRepository,

@@ -9,18 +9,19 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.clonepage.ClonePageService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -42,12 +43,11 @@ import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -109,7 +109,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private final ApplicationRepository applicationRepository;
     private final NewPageService newPageService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
     private final ThemeService themeService;
@@ -122,13 +122,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private final PermissionGroupService permissionGroupService;
     private final ActionCollectionRepository actionCollectionRepository;
-    private final NewActionRepository newActionRepository;
+    private final ActionRepository actionRepository;
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
     private final GitAutoCommitHelper gitAutoCommitHelper;
-    private final ClonePageService<NewAction> actionClonePageService;
+    private final ClonePageService<Action> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
 
     public static final Integer EVALUATION_VERSION = 2;
@@ -581,7 +581,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     protected Mono<Application> deleteApplicationResources(Application application) {
         return actionCollectionService
                 .archiveActionCollectionByApplicationId(application.getId(), actionPermission.getDeletePermission())
-                .then(newActionService.archiveActionsByApplicationId(
+                .then(actionService.archiveActionsByApplicationId(
                         application.getId(), actionPermission.getDeletePermission()))
                 .then(newPageService.archivePagesByApplicationId(
                         application.getId(), pagePermission.getDeletePermission()))
@@ -968,13 +968,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                      *  actionCollection which will be deleted while deleting the collection, this will avoid the race
                      *  condition for delete action
                      */
-                    Mono<List<ActionDTO>> archivedActionsMono = newActionService
+                    Mono<List<ActionDTO>> archivedActionsMono = actionService
                             .findByPageId(page.getId(), actionPermission.getDeletePermission())
                             .filter(newAction -> !StringUtils.hasLength(
                                     newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
-                                return newActionService.deleteUnpublishedAction(action.getId());
+                                return actionService.deleteUnpublishedAction(action.getId());
                             })
                             .collectList();
 
@@ -1134,10 +1134,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
         Mono<Void> publishActionsMono =
-                newActionService.publishActions(applicationId, actionPermission.getEditPermission());
+                actionService.publishActions(applicationId, actionPermission.getEditPermission());
 
         // this is a map of pluginType to count of actions for that pluginType, required for analytics
-        Mono<Map<PluginType, Integer>> actionCountByPluginTypeMapMono = newActionService
+        Mono<Map<PluginType, Integer>> actionCountByPluginTypeMapMono = actionService
                 .countActionsByPluginType(applicationId)
                 .collectMap(PluginTypeAndCountDTO::getPluginType, PluginTypeAndCountDTO::getCount);
 
@@ -1412,9 +1412,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
                 .flatMap(newPageRepository::setUserPermissionsInObject));
-        Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
+        Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> actionRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                .flatMap(newActionRepository::setUserPermissionsInObject));
+                .flatMap(actionRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
                 .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject));
@@ -1447,13 +1447,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
         Flux<BaseDomain> datasourceFlux = applicationMono
-                .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
+                .flatMapMany(application -> actionRepository.findAllByApplicationIdsWithoutPermission(
                         List.of(application.getId()),
                         List.of(
                                 "id",
-                                fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
-                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource.id))))
+                                fieldName(QAction.action.unpublishedAction) + "."
+                                        + fieldName(QAction.action.unpublishedAction.datasource) + "."
+                                        + fieldName(QAction.action.unpublishedAction.datasource.id))))
                 .collectList()
                 .map(actions -> {
                     return actions.stream()

@@ -7,18 +7,18 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Param;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
-import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
@@ -82,7 +82,7 @@ class ActionExecutionSolutionCEImplTest {
     ActionExecutionSolutionCEImpl actionExecutionSolution;
 
     @SpyBean
-    NewActionService newActionService;
+    ActionService actionService;
 
     @MockBean
     ActionPermission actionPermission;
@@ -94,7 +94,7 @@ class ActionExecutionSolutionCEImplTest {
     ObjectMapper objectMapper;
 
     @MockBean
-    NewActionRepository repository;
+    ActionRepository repository;
 
     @SpyBean
     DatasourceService datasourceService;
@@ -145,7 +145,7 @@ class ActionExecutionSolutionCEImplTest {
     @BeforeEach
     public void beforeEach() {
         actionExecutionSolution = new ActionExecutionSolutionCEImpl(
-                newActionService,
+                actionService,
                 actionPermission,
                 observationRegistry,
                 objectMapper,
@@ -295,18 +295,18 @@ class ActionExecutionSolutionCEImplTest {
         mockResult.setBody("test body");
         mockResult.setTitle("test title");
 
-        NewAction newAction = new NewAction();
-        newAction.setId("63285a3388e48972c7519b18");
+        Action action = new Action();
+        action.setId("63285a3388e48972c7519b18");
         Datasource datasource = new Datasource();
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setDatasource(datasource);
-        newAction.setUnpublishedAction(actionDTO);
+        action.setUnpublishedAction(actionDTO);
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
-        doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
+        doReturn(Mono.just(action)).when(actionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
@@ -353,18 +353,18 @@ class ActionExecutionSolutionCEImplTest {
         mockResult.setBody("test body");
         mockResult.setTitle("test title");
 
-        NewAction newAction = new NewAction();
-        newAction.setId("63285a3388e48972c7519b18");
+        Action action = new Action();
+        action.setId("63285a3388e48972c7519b18");
         Datasource datasource = new Datasource();
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setDatasource(datasource);
-        newAction.setUnpublishedAction(actionDTO);
+        action.setUnpublishedAction(actionDTO);
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
-        doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
+        doReturn(Mono.just(action)).when(actionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {

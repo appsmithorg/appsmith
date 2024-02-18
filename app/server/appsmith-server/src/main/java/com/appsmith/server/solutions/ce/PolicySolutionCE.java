@@ -4,9 +4,9 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
@@ -34,7 +34,7 @@ public interface PolicySolutionCE {
     Flux<Theme> updateThemePolicies(
             Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject);
 
-    Flux<NewAction> updateWithPagePermissionsToAllItsActions(
+    Flux<Action> updateWithPagePermissionsToAllItsActions(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject);
 
     Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(

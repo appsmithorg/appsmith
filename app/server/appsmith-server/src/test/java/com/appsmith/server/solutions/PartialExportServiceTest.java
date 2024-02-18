@@ -11,9 +11,9 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -337,7 +337,7 @@ public class PartialExportServiceTest {
                             .isEqualTo("installed-plugin");
                     assertThat(applicationJson.getActionList()).hasSize(1);
 
-                    NewAction newAction = applicationJson.getActionList().get(0);
+                    Action newAction = applicationJson.getActionList().get(0);
                     assertThat(newAction.getUnpublishedAction().getName()).isEqualTo("validAction");
                     assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo("Page 2");
                     assertThat(newAction.getId()).isEqualTo("Page 2_validAction");
@@ -408,7 +408,7 @@ public class PartialExportServiceTest {
                             .isEqualTo("installed-plugin");
                     assertThat(applicationJson.getActionList()).hasSize(1);
 
-                    NewAction newAction = applicationJson.getActionList().get(0);
+                    Action newAction = applicationJson.getActionList().get(0);
                     assertThat(newAction.getUnpublishedAction().getName()).isEqualTo("validAction");
                     assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo("Page 2");
                     assertThat(newAction.getId()).isEqualTo("Page 2_validAction");

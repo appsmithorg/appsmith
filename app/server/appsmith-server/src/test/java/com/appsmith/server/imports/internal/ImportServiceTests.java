@@ -19,9 +19,11 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
@@ -30,7 +32,6 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -55,7 +56,6 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -178,7 +178,7 @@ public class ImportServiceTests {
     NewPageService newPageService;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -319,7 +319,7 @@ public class ImportServiceTests {
         return newPageService
                 // fetch the unpublished pages
                 .findByApplicationId(application.getId(), READ_PAGES, false)
-                .flatMap(page -> newActionService.getUnpublishedActions(
+                .flatMap(page -> actionService.getUnpublishedActions(
                         new LinkedMultiValueMap<>(Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))),
                         ""));
     }
@@ -516,7 +516,7 @@ public class ImportServiceTests {
                 })
                 .cache();
 
-        Mono<List<NewAction>> actionListMono = resultMono.then(newActionService
+        Mono<List<Action>> actionListMono = resultMono.then(actionService
                 .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null)
                 .collectList());
 
@@ -531,13 +531,13 @@ public class ImportServiceTests {
         StepVerifier.create(Mono.zip(resultMono, actionListMono, collectionListMono, pageListMono))
                 .assertNext(tuple -> {
                     ApplicationJson applicationJson = tuple.getT1();
-                    List<NewAction> DBActions = tuple.getT2();
+                    List<Action> DBActions = tuple.getT2();
                     List<ActionCollection> DBCollections = tuple.getT3();
                     List<NewPage> DBPages = tuple.getT4();
 
                     Application exportedApp = applicationJson.getExportedApplication();
                     List<NewPage> pageList = applicationJson.getPageList();
-                    List<NewAction> actionList = applicationJson.getActionList();
+                    List<Action> actionList = applicationJson.getActionList();
                     List<ActionCollection> actionCollectionList = applicationJson.getActionCollectionList();
                     List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList();
 
@@ -545,11 +545,11 @@ public class ImportServiceTests {
                             .map(ActionCollection::getId)
                             .collect(Collectors.toList());
                     List<String> exportedActionIds =
-                            actionList.stream().map(NewAction::getId).collect(Collectors.toList());
+                            actionList.stream().map(Action::getId).collect(Collectors.toList());
                     List<String> DBCollectionIds =
                             DBCollections.stream().map(ActionCollection::getId).collect(Collectors.toList());
                     List<String> DBActionIds =
-                            DBActions.stream().map(NewAction::getId).collect(Collectors.toList());
+                            DBActions.stream().map(Action::getId).collect(Collectors.toList());
                     List<String> DBOnLayoutLoadActionIds = new ArrayList<>();
                     List<String> exportedOnLayoutLoadActionIds = new ArrayList<>();
 
@@ -608,7 +608,7 @@ public class ImportServiceTests {
 
                     assertThat(actionList.isEmpty()).isFalse();
                     assertThat(actionList).hasSize(3);
-                    NewAction validAction = actionList.stream()
+                    Action validAction = actionList.stream()
                             .filter(action -> action.getId().equals("Page1_validAction"))
                             .findFirst()
                             .get();
@@ -624,7 +624,7 @@ public class ImportServiceTests {
                     assertThat(unpublishedAction.getDatasource().getPluginId())
                             .isEqualTo(installedPlugin.getPackageName());
 
-                    NewAction testAction1 = actionList.stream()
+                    Action testAction1 = actionList.stream()
                             .filter(action ->
                                     action.getUnpublishedAction().getName().equals("testAction1"))
                             .findFirst()
@@ -661,7 +661,7 @@ public class ImportServiceTests {
                             .isNull();
 
                     assertThat(applicationJson.getInvisibleActionFields()).isNull();
-                    NewAction validAction2 = actionList.stream()
+                    Action validAction2 = actionList.stream()
                             .filter(action -> action.getId().equals("Page1_validAction2"))
                             .findFirst()
                             .get();
@@ -737,7 +737,7 @@ public class ImportServiceTests {
                 .assertNext(applicationJson -> {
                     Application exportedApp = applicationJson.getExportedApplication();
                     List<NewPage> pageList = applicationJson.getPageList();
-                    List<NewAction> actionList = applicationJson.getActionList();
+                    List<Action> actionList = applicationJson.getActionList();
                     List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList();
 
                     NewPage newPage = pageList.get(0);
@@ -796,7 +796,7 @@ public class ImportServiceTests {
                     assertThat(newPage.getPolicies()).isNull();
 
                     assertThat(actionList.isEmpty()).isFalse();
-                    NewAction validAction = actionList.get(0);
+                    Action validAction = actionList.get(0);
                     assertThat(validAction.getApplicationId()).isNull();
                     assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
@@ -957,7 +957,7 @@ public class ImportServiceTests {
                                     .getAllByWorkspaceIdWithStorages(
                                             application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
                                     .collectList(),
-                            newActionService
+                            actionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                     .collectList(),
                             newPageService
@@ -975,7 +975,7 @@ public class ImportServiceTests {
                             tuple.getT1().getUnConfiguredDatasourceList();
                     final boolean isPartialImport = tuple.getT1().getIsPartialImport();
                     final List<Datasource> datasourceList = tuple.getT2();
-                    final List<NewAction> actionList = tuple.getT3();
+                    final List<Action> actionList = tuple.getT3();
                     final List<PageDTO> pageList = tuple.getT4();
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
                     final List<CustomJSLib> importedJSLibList = tuple.getT6();
@@ -1387,7 +1387,7 @@ public class ImportServiceTests {
                     action.setDatasource(datasourceMap.get("DS1"));
                     return layoutActionService
                             .createAction(action)
-                            .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS));
+                            .flatMap(createdAction -> actionService.findById(createdAction.getId(), READ_ACTIONS));
                 })
                 .then(exportService
                         .exportByArtifactId(savedApplication.getId(), VERSION_CONTROL, APPLICATION)
@@ -1401,7 +1401,7 @@ public class ImportServiceTests {
                 .findNewPagesByApplicationId(savedApplication.getId(), READ_PAGES)
                 .collectList());
 
-        Mono<List<NewAction>> updatedActionsMono = result.then(newActionService
+        Mono<List<Action>> updatedActionsMono = result.then(actionService
                 .findAllByApplicationIdAndViewMode(savedApplication.getId(), false, READ_PAGES, null)
                 .collectList());
 
@@ -1409,7 +1409,7 @@ public class ImportServiceTests {
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
 
                     final String branchName =
                             application.getGitApplicationMetadata().getBranchName();
@@ -1497,7 +1497,7 @@ public class ImportServiceTests {
                                     .getAllByWorkspaceIdWithStorages(
                                             application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
                                     .collectList(),
-                            newActionService
+                            actionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                     .collectList(),
                             newPageService
@@ -1513,7 +1513,7 @@ public class ImportServiceTests {
                             tuple.getT1().getUnConfiguredDatasourceList();
                     final boolean isPartialImport = tuple.getT1().getIsPartialImport();
                     final List<Datasource> datasourceList = tuple.getT2();
-                    final List<NewAction> actionList = tuple.getT3();
+                    final List<Action> actionList = tuple.getT3();
                     final List<PageDTO> pageList = tuple.getT4();
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
 
@@ -1953,7 +1953,7 @@ public class ImportServiceTests {
                     action.setPageId(application.getPages().get(0).getId());
                     return layoutActionService.createAction(action);
                 })
-                .flatMap(actionDTO -> newActionService.getById(actionDTO.getId()))
+                .flatMap(actionDTO -> actionService.getById(actionDTO.getId()))
                 .flatMap(newAction -> applicationRepository.findById(newAction.getApplicationId()))
                 .cache();
 
@@ -2260,7 +2260,7 @@ public class ImportServiceTests {
                             .next()
                             .flatMap(actionDTO -> {
                                 deletedActionName[0] = actionDTO.getName();
-                                return newActionService.deleteUnpublishedAction(actionDTO.getId());
+                                return actionService.deleteUnpublishedAction(actionDTO.getId());
                             })
                             .then(applicationPageService.publish(application.getId(), true));
                 })
@@ -2832,7 +2832,7 @@ public class ImportServiceTests {
                 })
                 .cache();
 
-        Mono<List<NewAction>> actionListMono = resultMono.then(newActionService
+        Mono<List<Action>> actionListMono = resultMono.then(actionService
                 .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null)
                 .collectList());
 
@@ -2847,13 +2847,13 @@ public class ImportServiceTests {
         StepVerifier.create(Mono.zip(resultMono, actionListMono, collectionListMono, pageListMono))
                 .assertNext(tuple -> {
                     ApplicationJson applicationJson = tuple.getT1();
-                    List<NewAction> DBActions = tuple.getT2();
+                    List<Action> DBActions = tuple.getT2();
                     List<ActionCollection> DBCollections = tuple.getT3();
                     List<NewPage> DBPages = tuple.getT4();
 
                     Application exportedApp = applicationJson.getExportedApplication();
                     List<NewPage> pageList = applicationJson.getPageList();
-                    List<NewAction> actionList = applicationJson.getActionList();
+                    List<Action> actionList = applicationJson.getActionList();
                     List<ActionCollection> actionCollectionList = applicationJson.getActionCollectionList();
                     List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList();
 
@@ -2861,11 +2861,11 @@ public class ImportServiceTests {
                             .map(ActionCollection::getId)
                             .collect(Collectors.toList());
                     List<String> exportedActionIds =
-                            actionList.stream().map(NewAction::getId).collect(Collectors.toList());
+                            actionList.stream().map(Action::getId).collect(Collectors.toList());
                     List<String> DBCollectionIds =
                             DBCollections.stream().map(ActionCollection::getId).collect(Collectors.toList());
                     List<String> DBActionIds =
-                            DBActions.stream().map(NewAction::getId).collect(Collectors.toList());
+                            DBActions.stream().map(Action::getId).collect(Collectors.toList());
                     List<String> DBOnLayoutLoadActionIds = new ArrayList<>();
                     List<String> exportedOnLayoutLoadActionIds = new ArrayList<>();
 
@@ -2916,7 +2916,7 @@ public class ImportServiceTests {
 
                     assertThat(actionList.isEmpty()).isFalse();
                     assertThat(actionList).hasSize(3);
-                    NewAction validAction = actionList.stream()
+                    Action validAction = actionList.stream()
                             .filter(action -> action.getId().equals("Page1_validAction"))
                             .findFirst()
                             .get();
@@ -2932,7 +2932,7 @@ public class ImportServiceTests {
                     assertThat(unpublishedAction.getDatasource().getPluginId())
                             .isEqualTo(installedPlugin.getPackageName());
 
-                    NewAction testAction1 = actionList.stream()
+                    Action testAction1 = actionList.stream()
                             .filter(action ->
                                     action.getUnpublishedAction().getName().equals("testAction1"))
                             .findFirst()
@@ -2964,11 +2964,11 @@ public class ImportServiceTests {
                             applicationJson.getInvisibleActionFields();
 
                     assertThat(invisibleActionFields).isNull();
-                    for (NewAction newAction : actionList) {
-                        if (newAction.getId().equals("Page1_validAction2")) {
-                            assertEquals(true, newAction.getUnpublishedAction().getUserSetOnLoad());
+                    for (Action action : actionList) {
+                        if (action.getId().equals("Page1_validAction2")) {
+                            assertEquals(true, action.getUnpublishedAction().getUserSetOnLoad());
                         } else {
-                            assertEquals(false, newAction.getUnpublishedAction().getUserSetOnLoad());
+                            assertEquals(false, action.getUnpublishedAction().getUserSetOnLoad());
                         }
                     }
 
@@ -3041,13 +3041,13 @@ public class ImportServiceTests {
                                 .getAllByWorkspaceIdWithStorages(
                                         application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
                                 .collectList(),
-                        newActionService
+                        actionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                 .collectList())))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
                     final List<Datasource> datasourceList = tuple.getT2();
-                    final List<NewAction> actionList = tuple.getT3();
+                    final List<Action> actionList = tuple.getT3();
 
                     assertThat(application.getName()).isEqualTo("valid_application");
 
@@ -3105,13 +3105,13 @@ public class ImportServiceTests {
                                 .getAllByWorkspaceIdWithStorages(
                                         application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
                                 .collectList(),
-                        newActionService
+                        actionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                                 .collectList())))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
                     final List<Datasource> datasourceList = tuple.getT2();
-                    final List<NewAction> actionList = tuple.getT3();
+                    final List<Action> actionList = tuple.getT3();
 
                     assertThat(application.getName()).isEqualTo("valid_application");
 
@@ -3500,7 +3500,7 @@ public class ImportServiceTests {
 
         // add pages and actions
         List<NewPage> newPageList = new ArrayList<>(pageNames.size());
-        List<NewAction> actionList = new ArrayList<>();
+        List<Action> actionList = new ArrayList<>();
         List<ActionCollection> actionCollectionList = new ArrayList<>();
 
         for (String pageName : pageNames) {
@@ -3510,7 +3510,7 @@ public class ImportServiceTests {
             newPage.getUnpublishedPage().setLayouts(List.of());
             newPageList.add(newPage);
 
-            NewAction action = new NewAction();
+            Action action = new Action();
             action.setId(pageName + "_SampleQuery");
             action.setPluginType(PluginType.API);
             action.setPluginId("restapi-plugin");
@@ -3561,7 +3561,7 @@ public class ImportServiceTests {
         // let's create an ApplicationJSON which we'll merge with application created by createAppAndPageMono
         ApplicationJson applicationJson = createApplicationJSON(List.of("Home", "About"));
 
-        Mono<Tuple3<ApplicationPagesDTO, List<NewAction>, List<ActionCollection>>> tuple2Mono = createAppAndPageMono
+        Mono<Tuple3<ApplicationPagesDTO, List<Action>, List<ActionCollection>>> tuple2Mono = createAppAndPageMono
                 .flatMap(application ->
                         // merge the application json with the application we've created
                         importService
@@ -3573,7 +3573,7 @@ public class ImportServiceTests {
                         Mono.zip(
                                 newPageService.findApplicationPages(
                                         application.getId(), null, null, ApplicationMode.EDIT),
-                                newActionService
+                                actionService
                                         .findAllByApplicationIdAndViewMode(
                                                 application.getId(), false, MANAGE_ACTIONS, null)
                                         .collectList(),
@@ -3585,7 +3585,7 @@ public class ImportServiceTests {
         StepVerifier.create(tuple2Mono)
                 .assertNext(objects -> {
                     ApplicationPagesDTO applicationPagesDTO = objects.getT1();
-                    List<NewAction> newActionList = objects.getT2();
+                    List<Action> actionList = objects.getT2();
                     List<ActionCollection> actionCollectionList = objects.getT3();
 
                     assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo(destApplication.getName());
@@ -3599,7 +3599,7 @@ public class ImportServiceTests {
                             .map(PageNameIdDTO::getName)
                             .collect(Collectors.toList());
                     assertThat(pageNames).contains("Home", "Home2", "About");
-                    assertThat(newActionList).hasSize(2); // we imported two pages and each page has one action
+                    assertThat(actionList).hasSize(2); // we imported two pages and each page has one action
                     assertThat(actionCollectionList)
                             .hasSize(2); // we imported two pages and each page has one Collection
                 })
@@ -3761,7 +3761,7 @@ public class ImportServiceTests {
                 createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
 
         Application finalApplication = application;
-        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication =
+        Mono<Tuple4<Application, List<NewPage>, List<Action>, List<ActionCollection>>> importedApplication =
                 applicationJson
                         .flatMap(applicationJson1 -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                 workspaceId, finalApplication.getId(), null, applicationJson1, new ArrayList<>()))
@@ -3770,7 +3770,7 @@ public class ImportServiceTests {
                             Mono<List<NewPage>> pageList = newPageService
                                     .findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES)
                                     .collectList();
-                            Mono<List<NewAction>> actionList = newActionService
+                            Mono<List<Action>> actionList = actionService
                                     .findAllByApplicationIdAndViewMode(
                                             application1.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList();
@@ -3785,7 +3785,7 @@ public class ImportServiceTests {
                 .assertNext(tuple -> {
                     Application application1 = tuple.getT1();
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
@@ -3852,7 +3852,7 @@ public class ImportServiceTests {
                 createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
 
         Application finalApplication = application;
-        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication =
+        Mono<Tuple4<Application, List<NewPage>, List<Action>, List<ActionCollection>>> importedApplication =
                 applicationJson
                         .flatMap(applicationJson1 -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                 workspaceId, finalApplication.getId(), "master", applicationJson1, new ArrayList<>()))
@@ -3861,7 +3861,7 @@ public class ImportServiceTests {
                             Mono<List<NewPage>> pageList = newPageService
                                     .findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES)
                                     .collectList();
-                            Mono<List<NewAction>> actionList = newActionService
+                            Mono<List<Action>> actionList = actionService
                                     .findAllByApplicationIdAndViewMode(
                                             application1.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList();
@@ -3876,7 +3876,7 @@ public class ImportServiceTests {
                 .assertNext(tuple -> {
                     Application application1 = tuple.getT1();
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
@@ -3964,7 +3964,7 @@ public class ImportServiceTests {
                 createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
 
         Application finalApplication = application;
-        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication =
+        Mono<Tuple4<Application, List<NewPage>, List<Action>, List<ActionCollection>>> importedApplication =
                 applicationJson
                         .flatMap(applicationJson1 -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                 workspaceId, branchApp.getId(), "feature", applicationJson1, new ArrayList<>()))
@@ -3973,7 +3973,7 @@ public class ImportServiceTests {
                             Mono<List<NewPage>> pageList = newPageService
                                     .findNewPagesByApplicationId(branchApp.getId(), MANAGE_PAGES)
                                     .collectList();
-                            Mono<List<NewAction>> actionList = newActionService
+                            Mono<List<Action>> actionList = actionService
                                     .findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList();
                             Mono<List<ActionCollection>> actionCollectionList = actionCollectionService
@@ -3986,7 +3986,7 @@ public class ImportServiceTests {
                 .assertNext(tuple -> {
                     Application application3 = tuple.getT1();
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
@@ -4075,7 +4075,7 @@ public class ImportServiceTests {
                 createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
 
         Application finalApplication = application;
-        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication =
+        Mono<Tuple4<Application, List<NewPage>, List<Action>, List<ActionCollection>>> importedApplication =
                 applicationJson
                         .flatMap(applicationJson1 -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                 workspaceId, branchApp.getId(), "feature", applicationJson1, List.of("Page1")))
@@ -4084,7 +4084,7 @@ public class ImportServiceTests {
                             Mono<List<NewPage>> pageList = newPageService
                                     .findNewPagesByApplicationId(branchApp.getId(), MANAGE_PAGES)
                                     .collectList();
-                            Mono<List<NewAction>> actionList = newActionService
+                            Mono<List<Action>> actionList = actionService
                                     .findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList();
                             Mono<List<ActionCollection>> actionCollectionList = actionCollectionService
@@ -4097,7 +4097,7 @@ public class ImportServiceTests {
                 .assertNext(tuple -> {
                     Application application3 = tuple.getT1();
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
@@ -4186,7 +4186,7 @@ public class ImportServiceTests {
                 createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
 
         Application finalApplication = application;
-        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication =
+        Mono<Tuple4<Application, List<NewPage>, List<Action>, List<ActionCollection>>> importedApplication =
                 applicationJson
                         .flatMap(applicationJson1 -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                 workspaceId, branchApp.getId(), "feature", applicationJson1, List.of("Page1", "Page2")))
@@ -4195,7 +4195,7 @@ public class ImportServiceTests {
                             Mono<List<NewPage>> pageList = newPageService
                                     .findNewPagesByApplicationId(branchApp.getId(), MANAGE_PAGES)
                                     .collectList();
-                            Mono<List<NewAction>> actionList = newActionService
+                            Mono<List<Action>> actionList = actionService
                                     .findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList();
                             Mono<List<ActionCollection>> actionCollectionList = actionCollectionService
@@ -4208,7 +4208,7 @@ public class ImportServiceTests {
                 .assertNext(tuple -> {
                     Application application3 = tuple.getT1();
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
@@ -4260,7 +4260,7 @@ public class ImportServiceTests {
                 createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
 
         Application finalApplication = application;
-        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication =
+        Mono<Tuple4<Application, List<NewPage>, List<Action>, List<ActionCollection>>> importedApplication =
                 applicationJson
                         .flatMap(applicationJson1 -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                 workspaceId, finalApplication.getId(), null, applicationJson1, List.of("Page1")))
@@ -4269,7 +4269,7 @@ public class ImportServiceTests {
                             Mono<List<NewPage>> pageList = newPageService
                                     .findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES)
                                     .collectList();
-                            Mono<List<NewAction>> actionList = newActionService
+                            Mono<List<Action>> actionList = actionService
                                     .findAllByApplicationIdAndViewMode(
                                             application1.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList();
@@ -4284,7 +4284,7 @@ public class ImportServiceTests {
                 .assertNext(tuple -> {
                     Application application1 = tuple.getT1();
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
@@ -4336,7 +4336,7 @@ public class ImportServiceTests {
                 createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
 
         Application finalApplication = application;
-        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication =
+        Mono<Tuple4<Application, List<NewPage>, List<Action>, List<ActionCollection>>> importedApplication =
                 applicationJson
                         .flatMap(applicationJson1 -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                 workspaceId,
@@ -4349,7 +4349,7 @@ public class ImportServiceTests {
                             Mono<List<NewPage>> pageList = newPageService
                                     .findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES)
                                     .collectList();
-                            Mono<List<NewAction>> actionList = newActionService
+                            Mono<List<Action>> actionList = actionService
                                     .findAllByApplicationIdAndViewMode(
                                             application1.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList();
@@ -4364,7 +4364,7 @@ public class ImportServiceTests {
                 .assertNext(tuple -> {
                     Application application1 = tuple.getT1();
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
@@ -4603,7 +4603,7 @@ public class ImportServiceTests {
         application.setName("Application_" + randomUUID);
         application.setWorkspaceId(workspaceId);
 
-        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication =
+        Mono<Tuple4<Application, List<NewPage>, List<Action>, List<ActionCollection>>> importedApplication =
                 applicationPageService
                         .createApplication(application)
                         .flatMap(createdApp -> {
@@ -4626,7 +4626,7 @@ public class ImportServiceTests {
                             Mono<List<NewPage>> pageList = newPageService
                                     .findNewPagesByApplicationId(newApp.getId(), MANAGE_PAGES)
                                     .collectList();
-                            Mono<List<NewAction>> actionList = newActionService
+                            Mono<List<Action>> actionList = actionService
                                     .findAllByApplicationIdAndViewMode(newApp.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList();
                             Mono<List<ActionCollection>> actionCollectionList = actionCollectionService
@@ -4638,7 +4638,7 @@ public class ImportServiceTests {
         StepVerifier.create(importedApplication)
                 .assertNext(tuple -> {
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
                     assertThat(pageList).hasSize(2);

@@ -6,16 +6,16 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.QActionCollection;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.Sequence;
@@ -420,16 +420,16 @@ public class DatabaseChangelog1 {
         Index createdAtIndex = makeIndex("createdAt");
 
         // Drop existing NewAction class
-        mongoTemplate.dropCollection(NewAction.class);
+        mongoTemplate.dropCollection(Action.class);
 
         // Now add an index
-        ensureIndexes(mongoTemplate, NewAction.class, createdAtIndex);
+        ensureIndexes(mongoTemplate, Action.class, createdAtIndex);
     }
 
     @ChangeSet(order = "040", id = "new-page-new-action-add-indexes", author = "")
     public void addNewPageAndNewActionNewIndexes(MongoTemplate mongoTemplate) {
 
-        dropIndexIfExists(mongoTemplate, NewAction.class, "createdAt");
+        dropIndexIfExists(mongoTemplate, Action.class, "createdAt");
 
         dropIndexIfExists(mongoTemplate, NewPage.class, "createdAt");
 
@@ -442,9 +442,9 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
     public void updateActionIndexToSingleMultipleIndices(MongoTemplate mongoTemplate) {
 
-        ensureIndexes(mongoTemplate, NewAction.class, makeIndex("applicationId").named("applicationId"));
+        ensureIndexes(mongoTemplate, Action.class, makeIndex("applicationId").named("applicationId"));
 
-        ensureIndexes(mongoTemplate, NewAction.class, makeIndex("deleted").named("deleted"));
+        ensureIndexes(mongoTemplate, Action.class, makeIndex("deleted").named("deleted"));
     }
 
     @ChangeSet(order = "043", id = "add-firestore-plugin", author = "")
@@ -580,7 +580,7 @@ public class DatabaseChangelog1 {
     }
 
     private static Set<String> getInvalidDynamicBindingPathsInAction(
-            ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
+            ObjectMapper mapper, Action action, List<String> dynamicBindingPathNames) {
         Set<String> pathsToRemove = new HashSet<>();
         for (String path : dynamicBindingPathNames) {
 
@@ -860,7 +860,7 @@ public class DatabaseChangelog1 {
     static List<Property> getUpdatedDynamicBindingPathList(
             List<Property> dynamicBindingPathList,
             ObjectMapper objectMapper,
-            NewAction action,
+            Action action,
             Map<Integer, List<String>> migrationMap) {
         // Return if empty.
         if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
@@ -997,7 +997,7 @@ public class DatabaseChangelog1 {
         // on our end instead of asking mongo driver to perform this operation
         ensureIndexes(
                 mongoTemplate,
-                NewAction.class,
+                Action.class,
                 makeIndex("defaultResources.actionId", "defaultResources.branchName", "deleted")
                         .named("defaultActionId_branchName_deleted_compound_index"));
 
@@ -1071,16 +1071,14 @@ public class DatabaseChangelog1 {
 
         ensureIndexes(
                 mongoTemplate,
-                NewAction.class,
-                makeIndex(
-                                fieldName(QNewAction.newAction.unpublishedAction) + "." + FieldName.PAGE_ID,
-                                FieldName.DELETED)
+                Action.class,
+                makeIndex(fieldName(QAction.action.unpublishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("unpublishedActionPageId_deleted_compound_index"));
 
         ensureIndexes(
                 mongoTemplate,
-                NewAction.class,
-                makeIndex(fieldName(QNewAction.newAction.publishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                Action.class,
+                makeIndex(fieldName(QAction.action.publishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("publishedActionPageId_deleted_compound_index"));
 
         ensureIndexes(

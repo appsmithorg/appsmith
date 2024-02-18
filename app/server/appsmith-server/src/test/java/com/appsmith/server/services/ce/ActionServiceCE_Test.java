@@ -16,14 +16,15 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -41,7 +42,6 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -111,7 +111,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class ActionServiceCE_Test {
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -312,9 +312,9 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<NewAction> actionMono = layoutActionService
+        Mono<Action> actionMono = layoutActionService
                 .createSingleActionWithBranch(action, branchName)
-                .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(
+                .flatMap(createdAction -> actionService.findByBranchNameAndDefaultActionId(
                         branchName, createdAction.getId(), READ_ACTIONS));
 
         StepVerifier.create(actionMono)
@@ -740,7 +740,7 @@ public class ActionServiceCE_Test {
                 .then(layoutActionService.createSingleAction(action1, Boolean.FALSE))
                 .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .then(applicationPageService.publish(testPage.getApplicationId(), true))
-                .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
+                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier.create(actionsListMono)
                 .assertNext(actionsList -> {
@@ -796,7 +796,7 @@ public class ActionServiceCE_Test {
         Mono<List<ActionViewDTO>> actionViewModeListMono = createActionMono
                 // Publish the application before fetching the action in view mode
                 .then(applicationPageService.publish(testApp.getId(), true))
-                .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
+                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier.create(actionViewModeListMono)
                 .assertNext(actions -> {
@@ -1055,7 +1055,7 @@ public class ActionServiceCE_Test {
 
         Mono<Datasource> datasourceMono = publicAppMono.then(datasourceService.findById(savedDatasource.getId()));
 
-        Mono<NewAction> actionMono = publicAppMono.then(newActionService.findById(savedAction.getId()));
+        Mono<Action> actionMono = publicAppMono.then(actionService.findById(savedAction.getId()));
 
         Mono<PermissionGroup> publicAppPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
@@ -1065,7 +1065,7 @@ public class ActionServiceCE_Test {
                         Mono.zip(datasourceMono, actionMono, defaultPermissionGroupsMono, publicAppPermissionGroupMono))
                 .assertNext(tuple -> {
                     Datasource datasourceFromDb = tuple.getT1();
-                    NewAction actionFromDb = tuple.getT2();
+                    Action actionFromDb = tuple.getT2();
                     List<PermissionGroup> permissionGroups = tuple.getT3();
                     PermissionGroup publicAppPermissionGroup = tuple.getT4();
 
@@ -1272,8 +1272,8 @@ public class ActionServiceCE_Test {
 
         Mono<ActionDTO> actionMono = layoutActionService
                 .createSingleAction(action, Boolean.FALSE)
-                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
-                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .flatMap(createdAction -> actionService.findById(createdAction.getId(), READ_ACTIONS))
+                .map(newAction -> actionService.generateActionByViewMode(newAction, false));
 
         StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
@@ -1304,8 +1304,8 @@ public class ActionServiceCE_Test {
 
         Mono<ActionDTO> actionMono = layoutActionService
                 .createSingleAction(action, Boolean.FALSE)
-                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
-                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .flatMap(createdAction -> actionService.findById(createdAction.getId(), READ_ACTIONS))
+                .map(newAction -> actionService.generateActionByViewMode(newAction, false));
 
         StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
@@ -1477,13 +1477,13 @@ public class ActionServiceCE_Test {
         ActionDTO createdAction =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        NewAction newAction = newActionService.findById(createdAction.getId()).block();
+        Action newAction = actionService.findById(createdAction.getId()).block();
 
         Set<Policy> datasourceExistingPolicies = datasource.getPolicies();
         datasource.setPolicies(Set.of());
         Datasource updatedDatasource = datasourceRepository.save(datasource).block();
         ActionDTO savedAction =
-                newActionService.validateAndSaveActionToRepository(newAction).block();
+                actionService.validateAndSaveActionToRepository(newAction).block();
         assertThat(savedAction.getIsValid()).isTrue();
         datasource.setPolicies(datasourceExistingPolicies);
         datasource = datasourceRepository.save(datasource).block();

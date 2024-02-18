@@ -2,7 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.client.result.UpdateResult;
@@ -14,62 +14,60 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewAction> {
+public interface CustomNewActionRepositoryCE extends AppsmithRepository<Action> {
 
-    Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission);
+    Flux<Action> findByApplicationId(String applicationId, AclPermission aclPermission);
 
-    Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
+    Mono<Action> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
 
-    Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
+    Flux<Action> findByPageId(String pageId, AclPermission aclPermission);
 
-    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission);
+    Flux<Action> findByPageId(String pageId, Optional<AclPermission> aclPermission);
 
-    Flux<NewAction> findByPageId(String pageId);
+    Flux<Action> findByPageId(String pageId);
 
-    Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
+    Flux<Action> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
 
-    Flux<NewAction> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission);
+    Flux<Action> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission);
 
-    Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
-            String pageId, AclPermission permission);
+    Flux<Action> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(String pageId, AclPermission permission);
 
-    Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(
+    Flux<Action> findUnpublishedActionsForRestApiOnLoad(
             Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission);
 
-    Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
+    Flux<Action> findAllActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 
-    Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
+    Flux<Action> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
             Set<String> names, String pageId, AclPermission permission);
 
-    Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
+    Flux<Action> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
-    Flux<NewAction> findByApplicationId(
-            String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
+    Flux<Action> findByApplicationId(String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
 
-    Flux<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
+    Flux<Action> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
 
     Mono<Long> countByDatasourceId(String datasourceId);
 
-    Mono<NewAction> findByBranchNameAndDefaultActionId(
+    Mono<Action> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission);
 
-    Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
+    Mono<Action> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, AclPermission permission);
 
-    Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
+    Flux<Action> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
 
-    Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
+    Mono<Action> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
-    Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
+    Flux<Action> findByPageIds(List<String> pageIds, AclPermission permission);
 
-    Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
+    Flux<Action> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
-    Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(
+    Flux<Action> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission);
 
-    Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
+    Flux<Action> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 
     Mono<Void> publishActions(String applicationId, AclPermission permission);
@@ -78,11 +76,11 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
-    Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
+    Flux<Action> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 
-    Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
+    Flux<Action> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs);
 
-    Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
+    Flux<Action> findAllPublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs);
 }

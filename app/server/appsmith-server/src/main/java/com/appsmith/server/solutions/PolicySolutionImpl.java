@@ -2,9 +2,9 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.solutions.ce.PolicySolutionCEImpl;
@@ -17,7 +17,7 @@ public class PolicySolutionImpl extends PolicySolutionCEImpl implements PolicySo
             ApplicationRepository applicationRepository,
             DatasourceRepository datasourceRepository,
             NewPageRepository newPageRepository,
-            NewActionRepository newActionRepository,
+            ActionRepository actionRepository,
             ActionCollectionRepository actionCollectionRepository,
             ThemeRepository themeRepository,
             DatasourcePermission datasourcePermission,
@@ -28,7 +28,7 @@ public class PolicySolutionImpl extends PolicySolutionCEImpl implements PolicySo
                 applicationRepository,
                 datasourceRepository,
                 newPageRepository,
-                newActionRepository,
+                actionRepository,
                 actionCollectionRepository,
                 themeRepository,
                 datasourcePermission,

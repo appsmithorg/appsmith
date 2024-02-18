@@ -2,13 +2,13 @@ package com.appsmith.server.fork.internal;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -41,7 +41,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
             ImportService importService,
             ApplicationPageService applicationPageService,
             NewPageRepository newPageRepository,
-            NewActionService newActionService,
+            ActionService actionService,
             LayoutActionService layoutActionService,
             ActionCollectionService actionCollectionService,
             ThemeService themeService,
@@ -49,7 +49,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
             ActionPermission actionPermission,
             PermissionGroupService permissionGroupService,
             ActionCollectionRepository actionCollectionRepository,
-            NewActionRepository newActionRepository,
+            ActionRepository actionRepository,
             WorkspaceRepository workspaceRepository,
             ForkableService<Datasource> datasourceForkableService) {
         super(
@@ -63,7 +63,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                 importService,
                 applicationPageService,
                 newPageRepository,
-                newActionService,
+                actionService,
                 layoutActionService,
                 actionCollectionService,
                 themeService,
@@ -71,7 +71,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                 actionPermission,
                 permissionGroupService,
                 actionCollectionRepository,
-                newActionRepository,
+                actionRepository,
                 workspaceRepository,
                 datasourceForkableService);
     }

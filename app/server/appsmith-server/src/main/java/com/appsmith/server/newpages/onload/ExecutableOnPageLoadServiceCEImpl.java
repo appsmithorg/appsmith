@@ -2,6 +2,7 @@ package com.appsmith.server.newpages.onload;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Executable;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
@@ -9,7 +10,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.executables.ExecutableOnLoadServiceCE;
 import com.appsmith.server.solutions.ActionPermission;
@@ -28,7 +28,7 @@ import java.util.List;
 @Service
 public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServiceCE<NewPage> {
 
-    private final NewActionService newActionService;
+    private final ActionService actionService;
     private final NewPageService newPageService;
     private final ApplicationService applicationService;
 
@@ -37,32 +37,30 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
 
     @Override
     public Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId) {
-        return newActionService
+        return actionService
                 .findByPageIdAndViewMode(creatorId, false, actionPermission.getEditPermission())
-                .map(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .map(newAction -> actionService.generateActionByViewMode(newAction, false))
                 .map(actionDTO -> (Executable) actionDTO)
                 .cache();
     }
 
     @Override
     public Mono<Executable> fillSelfReferencingPaths(Executable executable) {
-        return newActionService
+        return actionService
                 .fillSelfReferencingDataPaths((ActionDTO) executable)
                 .map(actionDTO -> actionDTO);
     }
 
     @Override
     public Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(String creatorId) {
-        return newActionService
+        return actionService
                 .findUnpublishedOnLoadActionsExplicitSetByUserInPage(creatorId)
-                .map(newAction -> newActionService.generateActionByViewMode(newAction, false));
+                .map(newAction -> actionService.generateActionByViewMode(newAction, false));
     }
 
     @Override
     public Mono<Executable> updateUnpublishedExecutable(String id, Executable executable) {
-        return newActionService
-                .updateUnpublishedAction(id, (ActionDTO) executable)
-                .map(updated -> updated);
+        return actionService.updateUnpublishedAction(id, (ActionDTO) executable).map(updated -> updated);
     }
 
     @Override

@@ -7,17 +7,17 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.AnalyticsService;
@@ -41,7 +41,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     private final AnalyticsService analyticsService;
     private final NewPageService newPageService;
-    protected final NewActionService newActionService;
+    protected final ActionService actionService;
     protected final RefactoringService refactoringService;
     private final CollectionService collectionService;
     private final UpdateLayoutService updateLayoutService;
@@ -77,7 +77,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     .thenReturn(updatedAction));
         } else if (action.getCollectionId().length() == 0) {
             // The Action has been removed from existing collection.
-            return newActionService
+            return actionService
                     .getById(id)
                     .flatMap(action1 -> collectionService.removeSingleActionFromCollection(
                             action1.getUnpublishedAction().getCollectionId(), Mono.just(action1)))
@@ -92,16 +92,16 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
             // If the code flow has reached this point, that means that the collectionId has been changed to another
             // collection.
             // Remove the action from previous collection and add it to the new collection.
-            return newActionService
+            return actionService
                     .getById(id)
                     .flatMap(action1 -> {
                         if (action1.getUnpublishedAction().getCollectionId() != null) {
                             return collectionService.removeSingleActionFromCollection(
                                     action1.getUnpublishedAction().getCollectionId(), Mono.just(action1));
                         }
-                        return Mono.just(newActionService.generateActionByViewMode(action1, false));
+                        return Mono.just(actionService.generateActionByViewMode(action1, false));
                     })
-                    .map(obj -> (NewAction) obj)
+                    .map(obj -> (Action) obj)
                     .flatMap(action1 -> {
                         ActionDTO unpublishedAction = action1.getUnpublishedAction();
                         unpublishedAction.setId(action1.getId());
@@ -152,7 +152,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         action.getDefaultResources()
                                 .setPageId(destinationPage.getDefaultResources().getPageId());
                     }
-                    return newActionService
+                    return actionService
                             .updateUnpublishedAction(action.getId(), action)
                             .switchIfEmpty(Mono.error(new AppsmithException(
                                     AppsmithError.NO_RESOURCE_FOUND,
@@ -210,13 +210,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         branchName, actionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission())
                 .map(NewPage::getId);
 
-        Mono<NewAction> branchedActionMono = newActionService.findByBranchNameAndDefaultActionId(
+        Mono<Action> branchedActionMono = actionService.findByBranchNameAndDefaultActionId(
                 branchName, actionMoveDTO.getAction().getId(), actionPermission.getEditPermission());
 
         return Mono.zip(toPageMono, branchedActionMono)
                 .flatMap(tuple -> {
                     String toPageId = tuple.getT1();
-                    NewAction branchedAction = tuple.getT2();
+                    Action branchedAction = tuple.getT2();
                     ActionDTO moveAction = actionMoveDTO.getAction();
                     actionMoveDTO.setDestinationPageId(toPageId);
                     moveAction.setPageId(branchedAction.getUnpublishedAction().getPageId());
@@ -243,16 +243,16 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      */
     @Override
     public Mono<ActionDTO> updateSingleAction(String id, ActionDTO action) {
-        return newActionService
+        return actionService
                 .updateUnpublishedAction(id, action)
-                .flatMap(newActionService::populateHintMessages)
+                .flatMap(actionService::populateHintMessages)
                 .cache();
     }
 
     @Override
     public Mono<ActionDTO> updateSingleActionWithBranchName(
             String defaultActionId, ActionDTO action, String branchName) {
-        return newActionService
+        return actionService
                 .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                 .flatMap(newAction -> updateActionBasedOnContextType(newAction, action));
     }
@@ -261,7 +261,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      * Does not check for any CreatorContext on Actions.
      * This is a basic action update, which updates actions related to pages.
      */
-    protected Mono<ActionDTO> updateActionBasedOnContextType(NewAction newAction, ActionDTO action) {
+    protected Mono<ActionDTO> updateActionBasedOnContextType(Action newAction, ActionDTO action) {
         log.debug("Updating action based on context type with action id: {}", action != null ? action.getId() : null);
         String pageId = action.getPageId();
         action.setApplicationId(null);
@@ -287,7 +287,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
-        return newActionService
+        return actionService
                 .findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .flatMap(newAction -> {
@@ -298,16 +298,16 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     newAction.setUnpublishedAction(action);
 
-                    return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
+                    return actionService.save(newAction).flatMap(savedAction -> updateLayoutService
                             .updatePageLayoutsByPageId(
                                     savedAction.getUnpublishedAction().getPageId())
-                            .thenReturn(newActionService.generateActionByViewMode(savedAction, false)));
+                            .thenReturn(actionService.generateActionByViewMode(savedAction, false)));
                 });
     }
 
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad) {
-        return newActionService
+        return actionService
                 .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                 .flatMap(branchedAction -> setExecuteOnLoad(branchedAction.getId(), isExecuteOnLoad))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
@@ -318,7 +318,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      * - Update page layout since a deleted action cannot be marked as on page load.
      */
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        return newActionService
+        return actionService
                 .deleteUnpublishedAction(id)
                 .flatMap(actionDTO -> Mono.zip(
                         Mono.just(actionDTO), updateLayoutService.updatePageLayoutsByPageId(actionDTO.getPageId())))
@@ -329,13 +329,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
-        return newActionService
+        return actionService
                 .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getDeletePermission())
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
-                .flatMap(actionDTO -> newActionService
-                        .saveLastEditInformationInParent(actionDTO)
-                        .thenReturn(actionDTO));
+                .flatMap(actionDTO ->
+                        actionService.saveLastEditInformationInParent(actionDTO).thenReturn(actionDTO));
     }
 
     @Override
@@ -393,11 +392,11 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     newAction.setUnpublishedAction(action);
 
-                    newActionService.updateDefaultResourcesInAction(newAction);
+                    actionService.updateDefaultResourcesInAction(newAction);
 
                     return Mono.just(newAction);
                 })
-                .flatMap(savedNewAction -> newActionService
+                .flatMap(savedNewAction -> actionService
                         .validateAndSaveActionToRepository(savedNewAction)
                         .zipWith(Mono.just(savedNewAction)))
                 .zipWhen(zippedActions -> {
@@ -411,21 +410,21 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     }
                 })
                 .flatMap(zippedData -> {
-                    final Tuple2<ActionDTO, NewAction> zippedActions = zippedData.getT1();
+                    final Tuple2<ActionDTO, Action> zippedActions = zippedData.getT1();
                     final Datasource datasource = zippedData.getT2();
-                    final NewAction newAction1 = zippedActions.getT2();
+                    final Action action1 = zippedActions.getT2();
                     final Datasource embeddedDatasource =
-                            newAction1.getUnpublishedAction().getDatasource();
+                            action1.getUnpublishedAction().getDatasource();
                     embeddedDatasource.setIsMock(datasource.getIsMock());
                     embeddedDatasource.setIsTemplate(datasource.getIsTemplate());
 
                     return analyticsService
-                            .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
+                            .sendCreateEvent(action1, actionService.getAnalyticsProperties(action1))
                             .thenReturn(zippedActions.getT1());
                 });
     }
 
-    protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(ActionDTO action, boolean isJsAction) {
+    protected Mono<Action> validateAndGenerateActionDomainBasedOnContext(ActionDTO action, boolean isJsAction) {
         if (!StringUtils.hasLength(action.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
@@ -440,7 +439,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .cache();
 
-        final NewAction newAction = newActionService.generateActionDomain(action);
+        final Action newAction = actionService.generateActionDomain(action);
 
         return pageMono.flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
@@ -461,9 +460,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 })
                 .flatMap(page -> {
                     // Inherit the action policies from the page.
-                    newActionService.generateAndSetActionPolicies(page, newAction);
+                    actionService.generateAndSetActionPolicies(page, newAction);
 
-                    newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+                    actionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
 
                     // Set the application id in the main domain
                     newAction.setApplicationId(page.getApplicationId());

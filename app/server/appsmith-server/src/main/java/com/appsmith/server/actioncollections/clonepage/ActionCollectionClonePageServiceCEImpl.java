@@ -2,11 +2,11 @@ package com.appsmith.server.actioncollections.clonepage;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.clonepage.ClonePageServiceCE;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
-import com.appsmith.server.newactions.base.NewActionService;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 @RequiredArgsConstructor
 public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceCE<ActionCollection> {
     private final ActionCollectionService actionCollectionService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
 
     @Override
     public Mono<Void> cloneEntities(ClonePageMetaDTO clonePageMetaDTO) {
@@ -135,7 +135,7 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
                                     .getUnpublishedCollection()
                                     .getDefaultToBranchedActionIdsMap()
                                     .values())
-                            .flatMap(newActionService::findById)
+                            .flatMap(actionService::findById)
                             .flatMap(newlyCreatedAction -> {
                                 newlyCreatedAction
                                         .getUnpublishedAction()
@@ -146,7 +146,7 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
                                         .setCollectionId(clonedActionCollection
                                                 .getDefaultResources()
                                                 .getCollectionId());
-                                return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
+                                return actionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
                             });
                 })
                 .collectList()

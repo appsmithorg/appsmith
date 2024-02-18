@@ -2,6 +2,7 @@ package com.appsmith.server.newpages.importable;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Application;
@@ -22,7 +23,6 @@ import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +55,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
 
     private final NewPageService newPageService;
     private final ApplicationPageService applicationPageService;
-    private final NewActionService newActionService;
+    private final ActionService actionService;
 
     @Override
     public ArtifactBasedImportableService<NewPage, ?> getArtifactBasedImportableService(
@@ -599,7 +599,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         Set<String> layoutOnLoadActionsForPage = getLayoutOnLoadActionsForPage(
                 newPage, actionIdMap, unpublishedActionIdToCollectionIdsMap, publishedActionIdToCollectionIdsMap);
 
-        return newActionService
+        return actionService
                 .findAllById(layoutOnLoadActionsForPage)
                 .map(newAction -> {
                     final String defaultActionId =

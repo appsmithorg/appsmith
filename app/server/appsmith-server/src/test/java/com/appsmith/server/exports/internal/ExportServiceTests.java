@@ -18,11 +18,13 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.actions.base.ActionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
@@ -30,7 +32,6 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -49,7 +50,6 @@ import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -148,7 +148,7 @@ public class ExportServiceTests {
     NewPageService newPageService;
 
     @Autowired
-    NewActionService newActionService;
+    ActionService actionService;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -500,7 +500,7 @@ public class ExportServiceTests {
                 })
                 .cache();
 
-        Mono<List<NewAction>> actionListMono = resultMono.then(newActionService
+        Mono<List<Action>> actionListMono = resultMono.then(actionService
                 .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null)
                 .collectList());
 
@@ -515,13 +515,13 @@ public class ExportServiceTests {
         StepVerifier.create(Mono.zip(resultMono, actionListMono, collectionListMono, pageListMono))
                 .assertNext(tuple -> {
                     ApplicationJson applicationJson = tuple.getT1();
-                    List<NewAction> DBActions = tuple.getT2();
+                    List<Action> DBActions = tuple.getT2();
                     List<ActionCollection> DBCollections = tuple.getT3();
                     List<NewPage> DBPages = tuple.getT4();
 
                     Application exportedApp = applicationJson.getExportedApplication();
                     List<NewPage> pageList = applicationJson.getPageList();
-                    List<NewAction> actionList = applicationJson.getActionList();
+                    List<Action> actionList = applicationJson.getActionList();
                     List<ActionCollection> actionCollectionList = applicationJson.getActionCollectionList();
                     List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList();
 
@@ -529,11 +529,11 @@ public class ExportServiceTests {
                             .map(ActionCollection::getId)
                             .collect(Collectors.toList());
                     List<String> exportedActionIds =
-                            actionList.stream().map(NewAction::getId).collect(Collectors.toList());
+                            actionList.stream().map(Action::getId).collect(Collectors.toList());
                     List<String> DBCollectionIds =
                             DBCollections.stream().map(ActionCollection::getId).collect(Collectors.toList());
                     List<String> DBActionIds =
-                            DBActions.stream().map(NewAction::getId).collect(Collectors.toList());
+                            DBActions.stream().map(Action::getId).collect(Collectors.toList());
                     List<String> DBOnLayoutLoadActionIds = new ArrayList<>();
                     List<String> exportedOnLayoutLoadActionIds = new ArrayList<>();
 
@@ -592,7 +592,7 @@ public class ExportServiceTests {
 
                     assertThat(actionList.isEmpty()).isFalse();
                     assertThat(actionList).hasSize(3);
-                    NewAction validAction = actionList.stream()
+                    Action validAction = actionList.stream()
                             .filter(action -> action.getId().equals("Page1_validAction"))
                             .findFirst()
                             .get();
@@ -608,7 +608,7 @@ public class ExportServiceTests {
                     assertThat(unpublishedAction.getDatasource().getPluginId())
                             .isEqualTo(installedPlugin.getPackageName());
 
-                    NewAction testAction1 = actionList.stream()
+                    Action testAction1 = actionList.stream()
                             .filter(action ->
                                     action.getUnpublishedAction().getName().equals("testAction1"))
                             .findFirst()
@@ -645,7 +645,7 @@ public class ExportServiceTests {
                             .isNull();
 
                     assertThat(applicationJson.getInvisibleActionFields()).isNull();
-                    NewAction validAction2 = actionList.stream()
+                    Action validAction2 = actionList.stream()
                             .filter(action -> action.getId().equals("Page1_validAction2"))
                             .findFirst()
                             .get();
@@ -724,7 +724,7 @@ public class ExportServiceTests {
                 .assertNext(applicationJson -> {
                     Application exportedApp = applicationJson.getExportedApplication();
                     List<NewPage> pageList = applicationJson.getPageList();
-                    List<NewAction> actionList = applicationJson.getActionList();
+                    List<Action> actionList = applicationJson.getActionList();
                     List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList();
 
                     NewPage newPage = pageList.get(0);
@@ -788,7 +788,7 @@ public class ExportServiceTests {
                     assertThat(newPage.getPolicies()).isNull();
 
                     assertThat(actionList.isEmpty()).isFalse();
-                    NewAction validAction = actionList.get(0);
+                    Action validAction = actionList.get(0);
                     assertThat(validAction.getApplicationId()).isNull();
                     assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
@@ -850,7 +850,7 @@ public class ExportServiceTests {
                     action.setDatasource(datasourceMap.get("DS1"));
                     return layoutActionService
                             .createAction(action)
-                            .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS));
+                            .flatMap(createdAction -> actionService.findById(createdAction.getId(), READ_ACTIONS));
                 })
                 .then(exportService
                         .exportByArtifactId(
@@ -867,7 +867,7 @@ public class ExportServiceTests {
                 .findNewPagesByApplicationId(savedApplication.getId(), READ_PAGES)
                 .collectList());
 
-        Mono<List<NewAction>> updatedActionsMono = result.then(newActionService
+        Mono<List<Action>> updatedActionsMono = result.then(actionService
                 .findAllByApplicationIdAndViewMode(savedApplication.getId(), false, READ_PAGES, null)
                 .collectList());
 
@@ -875,7 +875,7 @@ public class ExportServiceTests {
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
                     List<NewPage> pageList = tuple.getT2();
-                    List<NewAction> actionList = tuple.getT3();
+                    List<Action> actionList = tuple.getT3();
 
                     final String branchName =
                             application.getGitApplicationMetadata().getBranchName();
@@ -1092,7 +1092,7 @@ public class ExportServiceTests {
                 })
                 .cache();
 
-        Mono<List<NewAction>> actionListMono = resultMono.then(newActionService
+        Mono<List<Action>> actionListMono = resultMono.then(actionService
                 .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null)
                 .collectList());
 
@@ -1107,13 +1107,13 @@ public class ExportServiceTests {
         StepVerifier.create(Mono.zip(resultMono, actionListMono, collectionListMono, pageListMono))
                 .assertNext(tuple -> {
                     ApplicationJson applicationJson = tuple.getT1();
-                    List<NewAction> DBActions = tuple.getT2();
+                    List<Action> DBActions = tuple.getT2();
                     List<ActionCollection> DBCollections = tuple.getT3();
                     List<NewPage> DBPages = tuple.getT4();
 
                     Application exportedApp = applicationJson.getExportedApplication();
                     List<NewPage> pageList = applicationJson.getPageList();
-                    List<NewAction> actionList = applicationJson.getActionList();
+                    List<Action> actionList = applicationJson.getActionList();
                     List<ActionCollection> actionCollectionList = applicationJson.getActionCollectionList();
                     List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList();
 
@@ -1121,11 +1121,11 @@ public class ExportServiceTests {
                             .map(ActionCollection::getId)
                             .collect(Collectors.toList());
                     List<String> exportedActionIds =
-                            actionList.stream().map(NewAction::getId).collect(Collectors.toList());
+                            actionList.stream().map(Action::getId).collect(Collectors.toList());
                     List<String> DBCollectionIds =
                             DBCollections.stream().map(ActionCollection::getId).collect(Collectors.toList());
                     List<String> DBActionIds =
-                            DBActions.stream().map(NewAction::getId).collect(Collectors.toList());
+                            DBActions.stream().map(Action::getId).collect(Collectors.toList());
                     List<String> DBOnLayoutLoadActionIds = new ArrayList<>();
                     List<String> exportedOnLayoutLoadActionIds = new ArrayList<>();
 
@@ -1176,7 +1176,7 @@ public class ExportServiceTests {
 
                     assertThat(actionList.isEmpty()).isFalse();
                     assertThat(actionList).hasSize(3);
-                    NewAction validAction = actionList.stream()
+                    Action validAction = actionList.stream()
                             .filter(action -> action.getId().equals("Page1_validAction"))
                             .findFirst()
                             .get();
@@ -1192,7 +1192,7 @@ public class ExportServiceTests {
                     assertThat(unpublishedAction.getDatasource().getPluginId())
                             .isEqualTo(installedPlugin.getPackageName());
 
-                    NewAction testAction1 = actionList.stream()
+                    Action testAction1 = actionList.stream()
                             .filter(action ->
                                     action.getUnpublishedAction().getName().equals("testAction1"))
                             .findFirst()
@@ -1224,11 +1224,11 @@ public class ExportServiceTests {
                             applicationJson.getInvisibleActionFields();
 
                     assertThat(invisibleActionFields).isNull();
-                    for (NewAction newAction : actionList) {
-                        if (newAction.getId().equals("Page1_validAction2")) {
-                            assertEquals(true, newAction.getUnpublishedAction().getUserSetOnLoad());
+                    for (Action action : actionList) {
+                        if (action.getId().equals("Page1_validAction2")) {
+                            assertEquals(true, action.getUnpublishedAction().getUserSetOnLoad());
                         } else {
-                            assertEquals(false, newAction.getUnpublishedAction().getUserSetOnLoad());
+                            assertEquals(false, action.getUnpublishedAction().getUserSetOnLoad());
                         }
                     }
 
