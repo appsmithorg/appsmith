@@ -99,14 +99,6 @@ export function useAddBordersToDetachedWidgets(widgetId: string) {
   if (element) {
     if (borderStyled.border) element.style.border = borderStyled.border;
     else element.style.border = "none";
-    if (borderStyled.outline) element.style.outline = borderStyled.outline;
-    else element.style.outline = "none";
-    if (borderStyled.outlineOffset)
-      element.style.outlineOffset = borderStyled.outlineOffset;
-    else element.style.outlineOffset = "none";
-    if (borderStyled.boxShadow)
-      element.style.boxShadow = borderStyled.boxShadow;
-    else element.style.boxShadow = "none";
     if (borderStyled.borderRadius)
       element.style.borderRadius = borderStyled.borderRadius;
     else element.style.borderRadius = "none";
