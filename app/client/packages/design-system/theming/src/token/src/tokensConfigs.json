@@ -27,12 +27,12 @@
     "userDensityRatio": 2.5
   },
   "typography": {
-    "V": 6.25,
-    "R": 2.5,
-    "N": 3,
-    "stepsUp": 5,
-    "stepsDown": 1,
-    "userSizingRatio": 1.7,
-    "userDensityRatio": 0
+    "V": 5.7125,
+    "R": 2.25,
+    "N": 4,
+    "stepsUp": 4,
+    "stepsDown": 2,
+    "userSizingRatio": 1.75,
+    "userDensityRatio": 0.1
   }
 }
