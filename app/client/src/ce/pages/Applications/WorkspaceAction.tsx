@@ -1,4 +1,3 @@
-import React, { useCallback, useState } from "react";
 import {
   Button,
   Divider,
@@ -7,21 +6,22 @@ import {
   MenuItem,
   MenuTrigger,
 } from "design-system";
+import React, { useCallback, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
-import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import {
   IMPORT_BTN_LABEL,
+  NEW_APP,
   NEW_APP_FROM_TEMPLATE,
   WORKSPACE_ACTION_BUTTON,
   createMessage,
 } from "@appsmith/constants/messages";
-import { NEW_APP } from "@appsmith/constants/messages";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export interface WorkspaceActionProps {
   workspace: Workspace;
