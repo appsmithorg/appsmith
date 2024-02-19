@@ -760,6 +760,11 @@ export function ApplicationsSection(props: any) {
                 workspaceId={selectedWorkspaceIdForImportApplication}
               />
             )}
+            <CreateNewAppFromTemplatesWrapper
+              currentWorkspaceId={activeWorkspaceId}
+              isOpen={isCreateAppFromTemplateModalOpen}
+              onModalClose={onCreateAppFromTemplatesModalClose}
+            />
             {!isLoadingResources && (
               <WorkspaceShareUsers>
                 <SharedUserList />
@@ -783,11 +788,6 @@ export function ApplicationsSection(props: any) {
                   }
                   workspace={activeWorkspace}
                   workspaceId={activeWorkspaceId}
-                />
-                <CreateNewAppFromTemplatesWrapper
-                  currentWorkspaceId={activeWorkspaceId}
-                  isOpen={isCreateAppFromTemplateModalOpen}
-                  onModalClose={onCreateAppFromTemplatesModalClose}
                 />
                 {(currentUser || isLoadingResources) &&
                   !isMobile &&
