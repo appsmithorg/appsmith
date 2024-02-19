@@ -103,7 +103,9 @@ function DraggablePageList(props: {
     <Flex
       flexDirection="column"
       height={
-        props.heightTobeReduced ? `calc(100% - ${props.heightTobeReduced})` : ``
+        props.heightTobeReduced
+          ? `calc(100% - ${props.heightTobeReduced})`
+          : `100%`
       }
       overflowX="auto"
       px="spaces-3"

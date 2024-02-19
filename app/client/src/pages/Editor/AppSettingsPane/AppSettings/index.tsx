@@ -195,7 +195,13 @@ function AppSettings() {
   // 50 px height of the sectionHeader item
   // 41px height of pages title
   // 1px + 20px divider + spacing
-  const heightTobeReduced = SectionHeadersConfig.length * 50 + 41 + 21;
+  const SECTION_HEADER_HEIGHT = 50;
+  const PAGES_TITLE_HEIGHT = 41;
+  const DIVIDER_AND_SPACING_HEIGHT = 21;
+  const heightTobeReduced =
+    SectionHeadersConfig.length * SECTION_HEADER_HEIGHT +
+    PAGES_TITLE_HEIGHT +
+    DIVIDER_AND_SPACING_HEIGHT;
 
   return (
     <Wrapper className="flex flex-row">
