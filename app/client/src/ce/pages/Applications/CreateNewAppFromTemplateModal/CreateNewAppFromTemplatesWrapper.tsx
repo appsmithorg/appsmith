@@ -1,23 +1,20 @@
+import { hideCreateAppFromTemplatesModal } from "actions/templateActions";
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { createAppFromTemplatesModalSelector } from "selectors/templatesSelectors";
 import CreateNewAppFromTemplatesModal from ".";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 interface Props {
   currentWorkspaceId: string;
-  handleClose: () => void;
-  isOpen: boolean;
 }
 
-const CreateNewAppFromTemplatesWrapper = ({
-  currentWorkspaceId,
-  handleClose,
-  isOpen,
-}: Props) => {
-  const isCreateAppFromTemplatesEnabled = useFeatureFlag(
-    "release_show_create_app_from_templates_enabled",
-  );
+const CreateNewAppFromTemplatesWrapper = ({ currentWorkspaceId }: Props) => {
+  const isOpen = useSelector(createAppFromTemplatesModalSelector);
+  const dispatch = useDispatch();
 
-  if (!isCreateAppFromTemplatesEnabled) return null;
+  const handleClose = () => {
+    dispatch(hideCreateAppFromTemplatesModal());
+  };
 
   return (
     <CreateNewAppFromTemplatesModal

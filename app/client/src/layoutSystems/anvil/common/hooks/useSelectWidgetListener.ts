@@ -8,11 +8,6 @@ import { useDispatch } from "react-redux";
  * A custom event is dispatched by all widgets on click
  * This hook listens to that event and dispatches the select action
  *
- * We throttle (and use trailing) the listener to prevent multiple dispatches, as well as to pick the latest event
- * The latest event is going to be the most deeply nested child that has triggered this event
- *
- * The maxWait value and wait values for throttle are variable, they can be adjusted according to the need
- * For now, 100ms seems like a good middle ground.
  */
 export function useSelectWidgetListener() {
   const dispatch = useDispatch();
