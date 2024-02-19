@@ -225,6 +225,3 @@ export const templatesCountSelector = (state: AppState) =>
 
 export const activeLoadingTemplateId = (state: AppState) =>
   state.ui.templates.activeLoadingTemplateId;
-
-export const createAppFromTemplatesModalSelector = (state: AppState) =>
-  state.ui.templates.isCreateAppFromTemplateModalOpen;
