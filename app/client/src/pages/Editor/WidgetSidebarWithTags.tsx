@@ -1,39 +1,80 @@
-import React, { useMemo, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import WidgetCard from "./WidgetCard";
-import { getWidgetCards } from "selectors/editorSelectors";
-import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
-import { debounce, sortBy } from "lodash";
-import Fuse from "fuse.js";
-import type { WidgetCardProps } from "widgets/BaseWidget";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  WIDGET_PANEL_EMPTY_MESSAGE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { getAllTemplates } from "actions/templateActions";
+import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
+import {
+  INITIAL_BUILDING_BLOCKS_IN_EXPLORER,
   SUGGESTED_WIDGETS_ORDER,
   WIDGET_TAGS,
   type WidgetCardsGroupedByTags,
   type WidgetTags,
 } from "constants/WidgetConstants";
-import { groupWidgetCardsByTags } from "./utils";
 import {
+  Button,
   Collapsible,
-  CollapsibleHeader,
   CollapsibleContent,
+  CollapsibleHeader,
   SearchInput,
   Text,
 } from "design-system";
+import Fuse from "fuse.js";
+import { debounce, sortBy } from "lodash";
+import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "pages/Templates/constants";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getWidgetCards } from "selectors/editorSelectors";
 import {
-  WIDGET_PANEL_EMPTY_MESSAGE,
-  createMessage,
-} from "@appsmith/constants/messages";
+  getTemplatesSelector,
+  templatesCountSelector,
+} from "selectors/templatesSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { WidgetCardProps } from "widgets/BaseWidget";
+import BuildingBlockExplorerCard from "./BuildingBlockExplorerCard";
+import WidgetCard from "./WidgetCard";
+import {
+  groupWidgetCardsByTags,
+  transformTemplatesToWidgetCard,
+} from "./utils";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
-  const cards = useSelector(getWidgetCards);
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
+  const dispatch = useDispatch();
+  const [buildingBlockInitList, setBuildingBlockInitList] = useState(
+    INITIAL_BUILDING_BLOCKS_IN_EXPLORER,
+  );
+  const templatesCount = useSelector(templatesCountSelector);
+  const buildingBlocks = useSelector(getTemplatesSelector).filter(
+    (template) =>
+      template.functions[0] === TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
+  );
+  const widgetCards = useSelector(getWidgetCards);
+  const buildingBlockCards = releaseDragDropBuildingBlocks
+    ? transformTemplatesToWidgetCard(buildingBlocks)
+    : [];
+  const cards = [
+    ...widgetCards,
+    ...buildingBlockCards.slice(0, buildingBlockInitList),
+  ];
   const groupedCards = useMemo(() => groupWidgetCardsByTags(cards), [cards]);
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
+  const SEE_MORE_LESS_TEXT =
+    buildingBlockInitList === INITIAL_BUILDING_BLOCKS_IN_EXPLORER
+      ? "See more"
+      : "See less";
+  const SEE_MORE_ARROW =
+    buildingBlockInitList === INITIAL_BUILDING_BLOCKS_IN_EXPLORER
+      ? "arrow-down-s-line"
+      : "arrow-up-s-line";
 
   const searchWildcards = useMemo(() => {
     return cards
@@ -97,6 +138,14 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
   const search = debounce((value: string) => {
     filterCards(value.toLowerCase());
   }, 300);
+
+  useEffect(() => {
+    if (!templatesCount) {
+      dispatch(getAllTemplates());
+    } else {
+      setFilteredCards(groupedCards);
+    }
+  }, [templatesCount, buildingBlockInitList]);
 
   return (
     <div
@@ -173,10 +222,43 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
                         }).map((card) => (
                           <WidgetCard details={card} key={card.key} />
                         ))
-                      : cardsForThisTag.map((card) => (
-                          <WidgetCard details={card} key={card.key} />
-                        ))}
+                      : cardsForThisTag.map((card) => {
+                          if (card.type === "BUILDING_BLOCK") {
+                            return (
+                              <BuildingBlockExplorerCard
+                                details={card}
+                                key={card.key}
+                              />
+                            );
+                          } else {
+                            return <WidgetCard details={card} key={card.key} />;
+                          }
+                        })}
                   </div>
+
+                  {tag === WIDGET_TAGS.BUILDING_BLOCKS && (
+                    <Button
+                      className="mt-4"
+                      data-testid="t--canvas-building-block-see-more"
+                      kind="tertiary"
+                      onClick={() => {
+                        if (
+                          buildingBlockInitList ===
+                          INITIAL_BUILDING_BLOCKS_IN_EXPLORER
+                        ) {
+                          setBuildingBlockInitList(buildingBlocks.length);
+                        } else {
+                          setBuildingBlockInitList(
+                            INITIAL_BUILDING_BLOCKS_IN_EXPLORER,
+                          );
+                        }
+                      }}
+                      size="md"
+                      startIcon={SEE_MORE_ARROW}
+                    >
+                      {SEE_MORE_LESS_TEXT}
+                    </Button>
+                  )}
                 </CollapsibleContent>
               </Collapsible>
             );

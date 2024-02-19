@@ -228,6 +228,7 @@ export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
 
 export const WIDGET_TAGS = {
   SUGGESTED_WIDGETS: "Suggested",
+  BUILDING_BLOCKS: "Building Blocks",
   INPUTS: "Inputs",
   BUTTONS: "Buttons",
   SELECT: "Select",
@@ -255,3 +256,5 @@ export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
 
 // Constant key to show walkthrough for a widget -> stores widget id
 export const WIDGET_ID_SHOW_WALKTHROUGH = "WIDGET_ID_SHOW_WALKTHROUGH";
+
+export const INITIAL_BUILDING_BLOCKS_IN_EXPLORER = 9;

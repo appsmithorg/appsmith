@@ -53,6 +53,8 @@ export const FEATURE_FLAG = {
     "release_show_create_app_from_templates_enabled",
   rollout_remove_feature_walkthrough_enabled:
     "rollout_remove_feature_walkthrough_enabled",
+  release_drag_drop_building_blocks_enabled:
+    "release_drag_drop_building_blocks_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -75,6 +77,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_anvil_enabled: false,
   ab_show_templates_instead_of_blank_canvas_enabled: false,
   release_server_dsl_migrations_enabled: false,
+  release_drag_drop_building_blocks_enabled: false,
   license_git_branch_protection_enabled: false,
   release_git_autocommit_feature_enabled: false,
   license_git_continuous_delivery_enabled: false,

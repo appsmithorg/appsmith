@@ -19,6 +19,7 @@ import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import type { ActionResponse } from "api/ActionAPI";
+import type { Template } from "api/TemplatesApi";
 
 export const draggableElement = (
   id: string,
@@ -336,3 +337,23 @@ export const actionResponseDisplayDataFormats = (
     responseDisplayFormat,
   };
 };
+
+export function transformTemplatesToWidgetCard(
+  templates: Template[],
+): WidgetCardProps[] {
+  const adjustedBuildingBlocks: WidgetCardProps[] = templates.map(
+    (template) => ({
+      rows: 20,
+      columns: 5,
+      type: "BUILDING_BLOCK",
+      displayName: template.title,
+      icon:
+        template.screenshotUrls.length > 1
+          ? template.screenshotUrls[1]
+          : template.screenshotUrls[0],
+      tags: ["Building Blocks"],
+    }),
+  );
+
+  return adjustedBuildingBlocks;
+}
