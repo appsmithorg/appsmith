@@ -5,21 +5,21 @@
     "N": 1,
     "stepsUp": 1,
     "stepsDown": 0,
-    "userSizingRatio": 1.4,
+    "userSizingRatio": 1.5,
     "userDensityRatio": 0.2
   },
   "outerSpacing": {
-    "V": 2,
+    "V": 2.25,
     "R": 2,
     "N": 2,
     "stepsUp": 8,
     "stepsDown": 0,
     "userSizingRatio": 0.8,
-    "userDensityRatio": 1.5
+    "userDensityRatio": 1.75
   },
   "innerSpacing": {
     "V": 1.5,
-    "R": 2,
+    "R": 2.5,
     "N": 2,
     "stepsUp": 8,
     "stepsDown": 0,
@@ -27,12 +27,12 @@
     "userDensityRatio": 2.5
   },
   "typography": {
-    "V": 6,
-    "R": 2,
-    "N": 3,
-    "stepsUp": 5,
-    "stepsDown": 1,
-    "userSizingRatio": 1.6,
-    "userDensityRatio": 0
+    "V": 5.7125,
+    "R": 2.25,
+    "N": 4,
+    "stepsUp": 4,
+    "stepsDown": 2,
+    "userSizingRatio": 1.75,
+    "userDensityRatio": 0.1
   }
 }
