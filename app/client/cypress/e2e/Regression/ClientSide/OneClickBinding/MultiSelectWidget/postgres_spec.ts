@@ -13,6 +13,7 @@ import commonlocators from "../../../../../locators/commonlocators.json";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -21,6 +22,9 @@ describe(
   { tags: ["@tag.Binding"] },
   () => {
     it("should check that queries are created and bound to table widget properly", () => {
+      featureFlagIntercept({
+        rollout_js_enabled_one_click_binding_enabled: false,
+      });
       entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.MULTISELECT,
         450,
