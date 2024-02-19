@@ -63,7 +63,7 @@ export class EntityExplorer {
   _adsPopup = "div[role='menu']";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
   _widgetTagsList =
-    "[data-testid='widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
+    "[data-testid='t--widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
   _widgetCards = ".t--widget-card-draggable";
   _widgetSearchInput = "#entity-explorer-search";
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
