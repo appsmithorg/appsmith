@@ -28,7 +28,6 @@ import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import {
   getAllTemplates,
-  hideCreateAppFromTemplatesModal,
   hideTemplatesModal,
   setTemplateNotificationSeenAction,
   showStarterBuildingBlockDatasourcePrompt,
@@ -66,7 +65,6 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
-import { createAppFromTemplatesModalSelector } from "selectors/templatesSelectors";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -130,12 +128,6 @@ function* importTemplateToWorkspaceSaga(
         history.push(pageURL);
       }
       yield put(getAllTemplates());
-      const isCreateAppFromTemplateModal: boolean = yield select(
-        createAppFromTemplatesModalSelector,
-      );
-      if (isCreateAppFromTemplateModal) {
-        yield put(hideCreateAppFromTemplatesModal());
-      }
     }
   } catch (error) {
     yield put({

@@ -1,25 +1,21 @@
-import { hideCreateAppFromTemplatesModal } from "actions/templateActions";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { createAppFromTemplatesModalSelector } from "selectors/templatesSelectors";
 import CreateNewAppFromTemplatesModal from ".";
 
 interface Props {
   currentWorkspaceId: string;
+  isOpen: boolean;
+  onModalClose: () => void;
 }
 
-const CreateNewAppFromTemplatesWrapper = ({ currentWorkspaceId }: Props) => {
-  const isOpen = useSelector(createAppFromTemplatesModalSelector);
-  const dispatch = useDispatch();
-
-  const handleClose = () => {
-    dispatch(hideCreateAppFromTemplatesModal());
-  };
-
+const CreateNewAppFromTemplatesWrapper = ({
+  currentWorkspaceId,
+  isOpen,
+  onModalClose,
+}: Props) => {
   return (
     <CreateNewAppFromTemplatesModal
       currentWorkSpaceId={currentWorkspaceId}
-      handleClose={handleClose}
+      handleClose={onModalClose}
       isOpen={isOpen}
     />
   );

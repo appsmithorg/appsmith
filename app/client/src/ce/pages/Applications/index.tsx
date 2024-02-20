@@ -120,16 +120,15 @@ import { setHeaderMeta } from "actions/themeActions";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { Indices } from "constants/Layers";
+import ImportModal from "pages/common/ImportModal";
 import SharedUserList from "pages/common/SharedUserList";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import ImportModal from "pages/common/ImportModal";
-import { showCreateAppFromTemplatesModal } from "actions/templateActions";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -537,6 +536,10 @@ export function ApplicationsSection(props: any) {
   const isLoadingResources =
     isFetchingWorkspaces || isFetchingApplications || isFetchingPackages;
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const [
+    isCreateAppFromTemplateModalOpen,
+    setIsCreateAppFromTemplateModalOpen,
+  ] = useState(false);
 
   useEffect(() => {
     // Clears URL params cache
@@ -635,10 +638,14 @@ export function ApplicationsSection(props: any) {
     });
   };
 
-  const onCreateNewApplicationFromTemplate = () => {
+  const onCreateNewApplicationFromTemplate = useCallback(() => {
     AnalyticsUtil.logEvent("TEMPLATE_DROPDOWN_CLICK");
-    dispatch(showCreateAppFromTemplatesModal());
-  };
+    setIsCreateAppFromTemplateModalOpen(true);
+  }, [setIsCreateAppFromTemplateModalOpen]);
+
+  const onCreateAppFromTemplatesModalClose = useCallback(() => {
+    setIsCreateAppFromTemplateModalOpen(false);
+  }, [setIsCreateAppFromTemplateModalOpen]);
 
   function NoWorkspaceFound() {
     return (
@@ -753,6 +760,11 @@ export function ApplicationsSection(props: any) {
                 workspaceId={selectedWorkspaceIdForImportApplication}
               />
             )}
+            <CreateNewAppFromTemplatesWrapper
+              currentWorkspaceId={activeWorkspaceId}
+              isOpen={isCreateAppFromTemplateModalOpen}
+              onModalClose={onCreateAppFromTemplatesModalClose}
+            />
             {!isLoadingResources && (
               <WorkspaceShareUsers>
                 <SharedUserList />
@@ -1053,15 +1065,10 @@ export class Applications<
       );
     } else {
       return (
-        <>
-          <ApplictionsMainPage
-            searchApplications={this.props.searchApplications}
-            searchKeyword={this.props.searchKeyword}
-          />
-          <CreateNewAppFromTemplatesWrapper
-            currentWorkspaceId={this.props.currentWorkspaceId}
-          />
-        </>
+        <ApplictionsMainPage
+          searchApplications={this.props.searchApplications}
+          searchKeyword={this.props.searchKeyword}
+        />
       );
     }
   }
