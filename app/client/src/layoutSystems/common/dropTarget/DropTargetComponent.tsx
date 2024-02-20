@@ -86,6 +86,7 @@ function Onboarding() {
       showStarterTemplatesInsteadofBlankCanvas &&
       !isMobileCanvas &&
       !isAirgappedInstance &&
+      // This is to hide starter building blocks once building blocks are available in the explorer
       !releaseDragDropBuildingBlocks,
     [
       showStarterTemplatesInsteadofBlankCanvas,
