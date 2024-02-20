@@ -74,6 +74,7 @@ export class DataManager {
       mockApiUrl: "http://host.docker.internal:5001/v1/mock-api?records=10",
       mockGenderAge:
         "http://host.docker.internal:5001/v1/genderize_agify?name=",
+      mockGzipApi: "http://host.docker.internal:5001/v1/mock-api?records=10",
 
       mockApiObjectUrl:
         "http://host.docker.internal:5001/v1/mock-api-object?records=10",
