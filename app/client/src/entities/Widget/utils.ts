@@ -3,7 +3,6 @@ import type {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { createDraft, finishDraft } from "immer";
 import { get, isObject, isUndefined, omitBy } from "lodash";
 import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -85,10 +84,10 @@ const childHasPanelConfig = (
   const panelPropertyPath = config.propertyName;
   const widgetPanelPropertyValues = get(widget, panelPropertyPath);
 
-  const bindingPaths: BindingPaths = createDraft({});
-  const reactivePaths: ReactivePaths = createDraft({});
-  const triggerPaths: Record<string, true> = createDraft({});
-  const validationPaths: Record<any, ValidationConfig> = createDraft({});
+  const bindingPaths: BindingPaths = {};
+  const reactivePaths: ReactivePaths = {};
+  const triggerPaths: Record<string, true> = {};
+  const validationPaths: Record<any, ValidationConfig> = {};
   if (widgetPanelPropertyValues) {
     Object.values(widgetPanelPropertyValues).forEach(
       (widgetPanelPropertyValue: any) => {
@@ -267,10 +266,10 @@ const childHasPanelConfig = (
   }
 
   return {
-    reactivePaths: finishDraft(reactivePaths),
-    triggerPaths: finishDraft(triggerPaths),
-    validationPaths: finishDraft(validationPaths),
-    bindingPaths: finishDraft(bindingPaths),
+    reactivePaths: reactivePaths,
+    triggerPaths: triggerPaths,
+    validationPaths: validationPaths,
+    bindingPaths: bindingPaths,
   };
 };
 
@@ -284,13 +283,13 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
   triggerPaths: Record<string, true>;
   validationPaths: Record<string, ValidationConfig>;
 } => {
-  const bindingPaths: BindingPaths = createDraft({});
-  const reactivePaths: ReactivePaths = createDraft({});
+  const bindingPaths: BindingPaths = {};
+  const reactivePaths: ReactivePaths = {};
   Object.keys(defaultProperties).forEach((property) => {
     reactivePaths[property] = EvaluationSubstitutionType.TEMPLATE;
   });
-  const triggerPaths: Record<string, true> = createDraft({});
-  const validationPaths: Record<any, ValidationConfig> = createDraft({});
+  const triggerPaths: Record<string, true> = {};
+  const validationPaths: Record<any, ValidationConfig> = {};
 
   widgetConfig.forEach((config) => {
     if (config.children) {
@@ -374,10 +373,10 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
   });
 
   return {
-    reactivePaths: finishDraft(reactivePaths),
-    triggerPaths: finishDraft(triggerPaths),
-    validationPaths: finishDraft(validationPaths),
-    bindingPaths: finishDraft(bindingPaths),
+    reactivePaths: reactivePaths,
+    triggerPaths: triggerPaths,
+    validationPaths: validationPaths,
+    bindingPaths: bindingPaths,
   };
 };
 
