@@ -1,4 +1,4 @@
-import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
+import WidgetSidebarWithTags from "pages/Editor/widgetSidebar/WidgetSidebarWithTags";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Button, Flex, Icon, Text } from "design-system";

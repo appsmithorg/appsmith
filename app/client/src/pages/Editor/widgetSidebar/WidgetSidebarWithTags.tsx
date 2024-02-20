@@ -36,7 +36,7 @@ import WidgetCard from "./WidgetCard";
 import {
   groupWidgetCardsByTags,
   transformTemplatesToWidgetCard,
-} from "./utils";
+} from "../utils";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
