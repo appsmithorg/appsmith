@@ -41,6 +41,7 @@ import {
 } from "entities/Datasource";
 import type { JSCollection } from "entities/JSCollection";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { ModuleIcon } from "pages/Editor/Explorer/ExplorerIcons";
 
 export const getCurrentModule = createSelector(
   getAllModules,
@@ -173,6 +174,7 @@ export const getQuerySegmentItems = createSelector(
           title: instance.name,
           group: modulePackageMap[instance.sourceModuleId] || "Packages",
           type: PluginType.DB,
+          icon: ModuleIcon(),
         });
       }
     });
@@ -197,6 +199,7 @@ export const getJSSegmentItems = createSelector(
           title: instance.name,
           group: modulePackageMap[instance.sourceModuleId] || "Packages",
           type: PluginType.JS,
+          icon: ModuleIcon(),
         });
       }
     });
