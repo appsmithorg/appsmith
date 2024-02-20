@@ -52,7 +52,6 @@ const StyledIconImg = styled.img`
 
 const BuildingBlockExplorerCard = (props: CardProps) => {
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
 
   const onDragStart = (e: any) => {
     e.preventDefault();
@@ -60,10 +59,10 @@ const BuildingBlockExplorerCard = (props: CardProps) => {
   };
   return (
     <Wrapper
-      className={className}
-      data-guided-tour-id={`widget-card-${type}`}
+      data-guided-tour-id={`building-block-card-${type}`}
+      data-testid={`building-block-explorer-card-${type}`}
       draggable
-      id={`widget-card-draggable-${type}`}
+      id={`building-block-card-draggable-${type}`}
       onDragStart={onDragStart}
     >
       <div className="gap-2">
