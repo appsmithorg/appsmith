@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
-    "start": "BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco --max_old_space_size=4096 start",
+    "start": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=0.0.0.0 craco --max_old_space_size=7168 start",
     "build": "./build.sh",
     "build-airgap": "node download-assets.js && ./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",

@@ -30,8 +30,8 @@ else
     echo "Skipping server side check..."
   fi
 
-  if [ "$is_client_change" -ge 1 ]; then
-    echo "Running client check..."
+  if [ "$is_client_change" -ge 1  ]; then
+    echo "Running client check ..."
     npx lint-staged --cwd app/client
   else
     echo "Skipping client side check..."

@@ -71,7 +71,7 @@ import {
   fetchFeatureFlagsInit,
   fetchProductAlertInit,
 } from "actions/userActions";
-import { embedRedirectURL, validateResponse } from "./ErrorSagas";
+import { validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ProductAlert } from "reducers/uiReducers/usersReducer";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
