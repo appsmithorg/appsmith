@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import AppCrashImage from "assets/images/404-image.png";
+import AppCrashImage from "./assets/images/404-image.png";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import AnalyticsUtil from "utils/AnalyticsUtil";
