@@ -190,7 +190,6 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockGzipApi,
       "GarbledResponseAPI",
-      30000,
     );
     apiPage.RunAPI(false);
     apiPage.SelectPaneTab("Response");
