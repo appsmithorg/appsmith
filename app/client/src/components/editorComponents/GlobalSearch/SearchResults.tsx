@@ -32,6 +32,7 @@ import { Text } from "design-system";
 import { omnibarTriggerSourceSelector } from "./index";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 const overflowCSS = css`
   overflow: hidden;
@@ -413,6 +414,7 @@ function SearchItemComponent(props: ItemProps) {
   const activeItemIndex = searchContext?.activeItemIndex;
   const setActiveItemIndex = searchContext?.setActiveItemIndex || noop;
   const triggerSource = useSelector(omnibarTriggerSourceSelector);
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
 
   const isActiveItem = activeItemIndex === index;
 
@@ -438,7 +440,10 @@ function SearchItemComponent(props: ItemProps) {
           setActiveItemIndex(index);
           searchContext?.handleItemLinkClick(e, item, "SEARCH_ITEM");
           // open side by side if the omnibar was triggered from property pane action creator
-          if (triggerSource === OmnibarTriggerSources.Propertypane) {
+          if (
+            isSideBySideEnabled &&
+            triggerSource === OmnibarTriggerSources.Propertypane
+          ) {
             dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
           }
         }
