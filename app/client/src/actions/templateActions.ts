@@ -118,11 +118,3 @@ export const setActiveLoadingTemplateId = (templateId: string) => ({
   type: ReduxActionTypes.SET_ACTIVE_LOADING_TEMPLATE_ID,
   payload: templateId,
 });
-
-export const showCreateAppFromTemplatesModal = () => ({
-  type: ReduxActionTypes.SHOW_CREATE_APP_FROM_TEMPLATES_MODAL,
-});
-
-export const hideCreateAppFromTemplatesModal = () => ({
-  type: ReduxActionTypes.HIDE_CREATE_APP_FROM_TEMPLATES_MODAL,
-});
