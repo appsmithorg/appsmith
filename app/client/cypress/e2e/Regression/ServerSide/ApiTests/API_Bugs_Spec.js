@@ -214,6 +214,6 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.RefreshPage();
 
     apiPage.ValidateHeaderParams({ key: "hello", value: "world" }, 0);
-    apiPage.ValidateHeaderParams({ key: "hey", value: "there" }, 2);
+    apiPage.ValidateHeaderParams({ key: "hey", value: "there" }, 1);
   });
 });
