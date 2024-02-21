@@ -51,7 +51,6 @@ describe(
       apiPage.SelectPaneTab("Headers");
       EditorNavigation.ShowCanvas();
       debuggerHelper.AssertErrorCount(1);
-      debuggerHelper.ClickDebuggerIcon();
       debuggerHelper.ClicklogEntityLink();
 
       agHelper.AssertElementVisibility(apiPage._bodyValue(0));

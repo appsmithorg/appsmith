@@ -148,8 +148,10 @@ export const getScrollPosition = (state: AppState) =>
 export const getDebuggerContext = (state: AppState) =>
   state.ui.debugger.context;
 
+export const getDebuggerOpen = (state: AppState) => state.ui.debugger.isOpen;
+
 export const showDebuggerFlag = createSelector(
-  (state) => state.ui.debugger.isOpen,
+  getDebuggerOpen,
   combinedPreviewModeSelector,
   (isOpen, isPreview) => isOpen && !isPreview,
 );

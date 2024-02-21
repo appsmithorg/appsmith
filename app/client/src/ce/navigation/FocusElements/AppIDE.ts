@@ -1,5 +1,6 @@
 import {
   setApiPaneConfigSelectedTabIndex,
+  setApiPaneDebuggerState,
   setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import {
@@ -13,6 +14,7 @@ import {
 } from "actions/editorContextActions";
 import {
   getApiPaneConfigSelectedTabIndex,
+  getApiPaneDebuggerState,
   getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
@@ -33,14 +35,20 @@ import {
 
 import { setDatasourceViewMode } from "actions/datasourceActions";
 import { updateExplorerWidthAction } from "actions/explorerActions";
-import { setJsPaneConfigSelectedTab } from "actions/jsPaneActions";
+import {
+  setJsPaneConfigSelectedTab,
+  setJsPaneDebuggerState,
+} from "actions/jsPaneActions";
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
   setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
+import {
+  setQueryPaneConfigSelectedTabIndex,
+  setQueryPaneDebuggerState,
+} from "actions/queryPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   DEFAULT_ENTITY_EXPLORER_WIDTH,
@@ -53,6 +61,7 @@ import { getExplorerWidth } from "selectors/explorerSelector";
 import {
   getFirstJSObject,
   getJSPaneConfigSelectedTab,
+  getJsPaneDebuggerState,
 } from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
@@ -62,6 +71,7 @@ import {
 import {
   getFirstQuery,
   getQueryPaneConfigSelectedTabIndex,
+  getQueryPaneDebuggerState,
 } from "selectors/queryPaneSelectors";
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
@@ -81,6 +91,7 @@ import {
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import { setJSTabs, setQueryTabs } from "actions/ideActions";
 
@@ -116,6 +127,17 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       selector: getJSPaneConfigSelectedTab,
       setter: setJsPaneConfigSelectedTab,
       defaultValue: JSEditorTab.CODE,
+    },
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.JSDebugger,
+      selector: getJsPaneDebuggerState,
+      setter: setJsPaneDebuggerState,
+      defaultValue: {
+        open: false,
+        responseTabHeight: ActionExecutionResizerHeight,
+        selectedTab: undefined,
+      },
     },
   ],
   [FocusEntity.QUERY]: [
@@ -155,6 +177,28 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.ApiRightPaneTabs,
       selector: getApiRightPaneSelectedTab,
       setter: setApiRightPaneSelectedTab,
+    },
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.QueryDebugger,
+      selector: getQueryPaneDebuggerState,
+      setter: setQueryPaneDebuggerState,
+      defaultValue: {
+        open: false,
+        responseTabHeight: ActionExecutionResizerHeight,
+        selectedTab: undefined,
+      },
+    },
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.ApiDebugger,
+      selector: getApiPaneDebuggerState,
+      setter: setApiPaneDebuggerState,
+      defaultValue: {
+        open: false,
+        responseTabHeight: ActionExecutionResizerHeight,
+        selectedTab: undefined,
+      },
     },
   ],
   [FocusEntity.PROPERTY_PANE]: [

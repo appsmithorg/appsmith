@@ -24,7 +24,7 @@ import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import history from "utils/history";
-import { showDebuggerFlag } from "../../../selectors/debuggerSelectors";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   createMessage,
