@@ -269,7 +269,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           });
 
           if (
-            !!this.getFeatureFlag(
+            !!TableWidgetV2.getFeatureFlag(
               FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
             )
           )
