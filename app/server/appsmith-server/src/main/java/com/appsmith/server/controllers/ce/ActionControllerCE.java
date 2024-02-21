@@ -6,6 +6,7 @@ import com.appsmith.external.models.ExecutionMetricRequestDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.dtos.ActionMetricsDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.EntityType;
@@ -207,11 +208,19 @@ public class ActionControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/{id}/metric")
+    @PostMapping("/{id}/metrics")
     public Mono<ResponseDTO<Boolean>> recordActionExecutionMetrics(
             @PathVariable String id, @RequestBody ExecutionMetricRequestDTO executionMetricRequestDTO) {
         return newActionService
                 .recordActionExecutionMetrics(id, executionMetricRequestDTO)
                 .map(resources -> new ResponseDTO<>(HttpStatus.CREATED.value(), resources, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{id}/metrics")
+    public Mono<ResponseDTO<ActionMetricsDTO>> fetchActionExecutionMetrics(@PathVariable String id) {
+        return newActionService
+                .fetchActionExecutionMetrics(id)
+                .map(actionMetrics -> new ResponseDTO<>(HttpStatus.OK.value(), actionMetrics, null));
     }
 }

@@ -1946,4 +1946,41 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         String stringHash = new String(messageDigest.digest());
         return stringHash;
     }
+
+    @Override
+    public Mono<ActionMetricsDTO> fetchActionExecutionMetrics(String id) {
+        return repository.findById(id).flatMap(action -> {
+            ActionDTO actionDTO = action.getUnpublishedAction();
+            if (actionDTO == null) {
+                return Mono.empty();
+            }
+            String hash;
+            try {
+                hash = calculateHash(actionDTO.getActionConfiguration());
+            } catch (NoSuchAlgorithmException e) {
+                return Mono.empty();
+            }
+            return actionExecutionMetricRepository
+                    .findByActionIdAndHash(action.getId(), hash)
+                    .collectList()
+                    .map(metrics -> {
+                        int sum = 0;
+                        for (ActionExecutionMetric metric : metrics) {
+                            sum += metric.getExecutionTimeInMs();
+                        }
+                        int avgExecutionTime = 0;
+                        if (metrics.size() > 0) {
+                            avgExecutionTime = sum / metrics.size();
+                        }
+                        ActionMetricsDTO actionMetricsDTO = new ActionMetricsDTO();
+                        actionMetricsDTO.setActionId(action.getId());
+                        actionMetricsDTO.setActionName(actionDTO.getName());
+                        actionMetricsDTO.setPluginType(action.getPluginType().name());
+                        actionMetricsDTO.setPluginName(actionDTO.getPluginName());
+                        actionMetricsDTO.setAvgExecutionTime(avgExecutionTime);
+                        actionMetricsDTO.setPluginId(action.getPluginId());
+                        return actionMetricsDTO;
+                    });
+        });
+    }
 }

@@ -8,6 +8,7 @@ import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.ActionMetricsDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportActionResultDTO;
@@ -163,4 +164,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<PageMetricsDTO> findAllActionExecutionMetrics(String applicationId);
 
     Mono<Boolean> recordActionExecutionMetrics(String id, ExecutionMetricRequestDTO executionMetricRequestDTO);
+
+    Mono<ActionMetricsDTO> fetchActionExecutionMetrics(String id);
 }
