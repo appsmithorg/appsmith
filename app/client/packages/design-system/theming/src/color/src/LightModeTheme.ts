@@ -620,7 +620,7 @@ export class LightModeTheme implements ColorModeTheme {
    * Elevation colors
    */
 
-  private get bgElevation3() {
+  private get bgElevation1() {
     const color = this.bg.clone();
 
     if (this.seedIsVeryLight) {
@@ -635,7 +635,7 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgElevation2() {
-    const color = this.bgElevation3.clone();
+    const color = this.bgElevation1.clone();
 
     if (this.seedIsVeryLight) {
       color.oklch.l += 0.012;
@@ -647,7 +647,7 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
-  private get bgElevation1() {
+  private get bgElevation3() {
     const color = this.bgElevation2.clone();
 
     color.oklch.l += 0.01;

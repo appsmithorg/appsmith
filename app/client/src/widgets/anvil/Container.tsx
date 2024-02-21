@@ -23,7 +23,8 @@ const StyledContainerComponent = styled.div<
     props.elevatedBackground
       ? `var(--color-bg-elevation-${props.elevation})`
       : "inherit"};
-  border-radius: ${(props) => `var(--border-radius-${props.elevation})`};
+  border-radius: ${(props) =>
+    `var(--border-radius-elevation-${props.elevation})`};
   padding-block: var(--outer-spacing-0);
   padding-inline: var(--outer-spacing-0);
 

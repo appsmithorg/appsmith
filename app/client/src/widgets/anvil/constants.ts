@@ -4,7 +4,7 @@ export const anvilWidgets = {
 };
 
 export enum Elevations {
-  SECTION_ELEVATION = 3,
+  SECTION_ELEVATION = 1,
   ZONE_ELEVATION = 2,
 }
 
