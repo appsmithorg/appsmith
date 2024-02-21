@@ -34,5 +34,41 @@
     "stepsDown": 2,
     "userSizingRatio": 1.75,
     "userDensityRatio": 0.1
+  },
+  "icon": {
+    "density": {
+      "tight": {
+        "1": "1px",
+        "2": "1.25px",
+        "3": "1.67px"
+      },
+      "regular": {
+        "1": "1.17px",
+        "2": "1.5px",
+        "3": "2px"
+      },
+      "loose": {
+        "1": "1.33px",
+        "2": "2px",
+        "3": "2.67px"
+      }
+    },
+    "sizing": {
+      "small": {
+        "1": "12px",
+        "2": "16px",
+        "3": "24px"
+      },
+      "regular": {
+        "1": "16px",
+        "2": "24px",
+        "3": "32px"
+      },
+      "big": {
+        "1": "24px",
+        "2": "32px",
+        "3": "40px"
+      }
+    }
   }
 }
