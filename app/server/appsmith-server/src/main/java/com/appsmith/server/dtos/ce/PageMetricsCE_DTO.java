@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ApplicationMetricsCE_DTO {
+public class PageMetricsCE_DTO {
 
     @JsonView(Views.Public.class)
     String pageId;
