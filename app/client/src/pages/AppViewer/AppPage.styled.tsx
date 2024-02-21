@@ -13,6 +13,7 @@ export const PageViewWrapper = styled.div<{
   ${({ hasPinnedSidebar, sidebarWidth }) =>
     hasPinnedSidebar ? `margin-left: ${sidebarWidth}px;` : ""};
   ${({ isPreview }) => (isPreview ? "width: 100%;" : "")};
+  margin: 0 auto;
 `;
 
 export const PageView = styled.div<{ width: string }>`
