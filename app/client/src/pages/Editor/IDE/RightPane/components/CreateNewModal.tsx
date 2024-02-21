@@ -32,7 +32,7 @@ const CreateNewModal: React.FC = () => {
 
   return (
     <Modal onOpenChange={onCloseHandler} open={showCreateNewModal}>
-      <ModalContent className="!w-[400px]">
+      <ModalContent className="!w-[400px] action-creator-create-new-modal">
         <ModalHeader>{createMessage(CREATE_A_NEW_ITEM, "query")}</ModalHeader>
         <ModalBody>
           <GroupedList

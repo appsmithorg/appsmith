@@ -31,6 +31,10 @@ const AddQuery = () => {
         titleMessage={EDITOR_PANE_TEXTS.query_create_tab_title}
       />
       <GroupedList
+        flexProps={{
+          pr: "spaces-2",
+          px: "spaces-3",
+        }}
         groups={groupedActionOperations.map((group) => ({
           groupTitle: group.title,
           className: group.className,
