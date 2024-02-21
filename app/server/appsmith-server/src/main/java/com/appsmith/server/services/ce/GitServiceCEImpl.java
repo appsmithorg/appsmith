@@ -32,6 +32,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -1896,7 +1897,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.just(gitApplicationMetadata);
                     }
                 })
-                .flatMap(gitApplicationMetadata -> {
+                .elapsed()
+                .flatMap(tuple2 -> {
+                    log.debug("file lock took: {}", tuple2.getT1());
+                    GitArtifactMetadata gitApplicationMetadata = tuple2.getT2();
                     Mono<Tuple2<Application, ApplicationJson>> applicationJsonTuple = branchedAppMono
                             .onErrorResume(error -> {
                                 // if the branch does not exist in local, checkout remote branch
@@ -1910,6 +1914,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
 
                                 // Create a Mono to fetch the status from remote
+                                // TODO: Check why do we check out to remote?
                                 Mono<String> fetchRemoteMono;
                                 if (compareRemote) {
                                     fetchRemoteMono = gitExecutor
@@ -1928,17 +1933,25 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                 Mono<ApplicationJson> exportAppMono = exportService
                                         .exportByArtifactId(application.getId(), VERSION_CONTROL, APPLICATION)
-                                        .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
+                                        .elapsed()
+                                        .map(longTuple2 -> {
+                                            log.debug("export took: {}", longTuple2.getT1());
+                                            ArtifactExchangeJson artifactExchangeJson = longTuple2.getT2();
+                                            return (ApplicationJson) artifactExchangeJson;
+                                        });
 
                                 return Mono.zip(exportAppMono, fetchRemoteMono) // zip will run them in parallel
                                         .map(Tuple2::getT1);
                             });
                     return Mono.zip(Mono.just(gitApplicationMetadata), applicationJsonTuple);
                 })
+                .elapsed()
                 .flatMap(tuple -> {
-                    GitArtifactMetadata defaultApplicationMetadata = tuple.getT1();
-                    Application application = tuple.getT2().getT1();
-                    ApplicationJson applicationJson = tuple.getT2().getT2();
+                    log.debug("fetchRemote took : {}", tuple.getT1());
+                    GitArtifactMetadata defaultApplicationMetadata =
+                            tuple.getT2().getT1();
+                    Application application = tuple.getT2().getT2().getT1();
+                    ApplicationJson applicationJson = tuple.getT2().getT2().getT2();
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     gitData.setGitAuth(defaultApplicationMetadata.getGitAuth());
                     Path repoSuffix = Paths.get(
@@ -1953,25 +1966,37 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
                     }
                 })
-                .flatMap(tuple -> gitExecutor
-                        .getStatus(tuple.getT1(), finalBranchName)
-                        // Remove any files which are copied by hard resetting the repo
-                        .flatMap(result -> {
-                            try {
-                                return gitExecutor
-                                        .resetToLastCommit(tuple.getT2(), branchName)
-                                        .thenReturn(result);
-                            } catch (Exception e) {
-                                log.error(
-                                        "failed to reset to last commit for application: {}, branch: {}",
-                                        defaultApplicationId,
-                                        branchName,
-                                        e);
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
-                            }
-                        }))
-                .flatMap(result -> {
+                .elapsed()
+                .flatMap(tuple -> {
+                    log.debug("saveApplicationToLocalRepo took: {}", tuple.getT1());
+                    return gitExecutor
+                            .getStatus(tuple.getT2().getT1(), finalBranchName)
+                            .elapsed()
+                            // Remove any files which are copied by hard resetting the repo
+                            .flatMap(tuple2 -> {
+                                log.debug("git status took: {}", tuple2.getT1());
+                                try {
+                                    // TODO: Why are we doing reset to last commit always???
+                                    // TODO: We can get rid of that - Anagh
+                                    GitStatusDTO result = tuple2.getT2();
+                                    return gitExecutor
+                                            .resetToLastCommit(tuple.getT2().getT2(), branchName)
+                                            .thenReturn(result);
+                                } catch (Exception e) {
+                                    log.error(
+                                            "failed to reset to last commit for application: {}, branch: {}",
+                                            defaultApplicationId,
+                                            branchName,
+                                            e);
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
+                                }
+                            });
+                })
+                .elapsed()
+                .flatMap(tuple2 -> {
+                    log.debug("reset to last commit took: {}", tuple2.getT1());
+                    GitStatusDTO result = tuple2.getT2();
                     // release the lock if there's a successful response
                     if (isFileLock) {
                         return releaseFileLock(defaultApplicationId).thenReturn(result);
@@ -1999,6 +2024,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .elapsed()
                 .flatMap(objects -> {
                     Long elapsedTime = objects.getT1();
+                    log.debug("Multi mono took: {}", elapsedTime);
                     GitStatusDTO gitStatusDTO = objects.getT2().getT1();
                     User currentUser = objects.getT2().getT2();
                     Application app = objects.getT2().getT3();
