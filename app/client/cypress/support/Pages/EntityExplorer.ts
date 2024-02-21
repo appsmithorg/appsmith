@@ -146,8 +146,8 @@ export class EntityExplorer {
 
   public DragNDropWidget(
     widgetType: string,
-    x = 200,
-    y = 100,
+    x = 300,
+    y = 150,
     parentWidgetType = "",
     dropTargetId = "",
     skipWidgetSearch = false,
@@ -193,8 +193,8 @@ export class EntityExplorer {
 
   public DragDropWidgetNVerify(
     widgetType: string,
-    x = 200,
-    y = 100,
+    x = 300,
+    y = 150,
     parentWidgetType = "",
     dropTargetId = "",
     skipWidgetSearch = false,
