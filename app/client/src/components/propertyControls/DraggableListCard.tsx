@@ -6,7 +6,7 @@ import {
   StyledActionContainer,
   InputGroup,
 } from "components/propertyControls/StyledControls";
-import { Button, Checkbox } from "design-system";
+import { Button, Tooltip } from "design-system";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -58,13 +58,6 @@ const StyledInputGroup = styled(InputGroup)<{
   }
 `;
 
-const StyledCheckbox = styled(Checkbox)`
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  margin-top: 4px;
-  margin-left: 4px;
-`;
 export function DraggableListCard(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
   const [isEditing, setEditing] = useState(false);
@@ -134,7 +127,8 @@ export function DraggableListCard(props: RenderComponentProps) {
   };
 
   const renderVisibilityIcon = () => {
-    return visibility ? (
+    const tooltipMsg = visibility ? "Hide column" : "Show column";
+    const button = visibility ? (
       <Button
         className="t--show-column-btn"
         isIconButton
@@ -159,9 +153,46 @@ export function DraggableListCard(props: RenderComponentProps) {
         startIcon="eye-off"
       />
     );
+
+    return (
+      <Tooltip content={tooltipMsg} placement="top">
+        {button}
+      </Tooltip>
+    );
   };
 
   const showDelete = !!item.isDerived || isDelete;
+
+  // This can passed as a prop
+  const renderEditableIcon = (index: number, isEnabled?: boolean) => {
+    if (!showCheckbox) return null;
+
+    const toggle = () => toggleCheckbox?.(index, !isEnabled);
+    const tooltipMsg = item.isChecked ? "Disable edit" : "Enable edit";
+    const button = item.isChecked ? (
+      <Button
+        isIconButton
+        kind="tertiary"
+        onClick={toggle}
+        size="sm"
+        startIcon="pencil-fill-icon"
+      />
+    ) : (
+      <Button
+        isIconButton
+        kind="tertiary"
+        onClick={toggle}
+        size="sm"
+        startIcon="close-x"
+      />
+    );
+
+    return (
+      <Tooltip content={tooltipMsg} placement="top">
+        {button}
+      </Tooltip>
+    );
+  };
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       {item?.isDragDisabled ? (
@@ -192,17 +223,19 @@ export function DraggableListCard(props: RenderComponentProps) {
       />
       <StyledActionContainer>
         {!isSeparator && (
-          <Button
-            className="t--edit-column-btn"
-            isIconButton
-            kind="tertiary"
-            onClick={() => {
-              onEdit && onEdit(index);
-            }}
-            onFocus={(e) => e.stopPropagation()}
-            size="sm"
-            startIcon="settings-2-line"
-          />
+          <Tooltip content="Settings" placement="top">
+            <Button
+              className="t--edit-column-btn"
+              isIconButton
+              kind="tertiary"
+              onClick={() => {
+                onEdit && onEdit(index);
+              }}
+              onFocus={(e) => e.stopPropagation()}
+              size="sm"
+              startIcon="settings-2-line"
+            />
+          </Tooltip>
         )}
         {showDelete && (
           <Button
@@ -222,18 +255,7 @@ export function DraggableListCard(props: RenderComponentProps) {
          * Using a common name `showCheckbox` instead of showEditable or isEditable,
          * to be generic and reusable.
          */}
-        {showCheckbox && (
-          <StyledCheckbox
-            className={`t--card-checkbox ${
-              item.isChecked ? "t--checked" : "t--unchecked"
-            }`}
-            isDisabled={item.isCheckboxDisabled}
-            isSelected={item.isChecked}
-            onChange={(isSelected: boolean) =>
-              toggleCheckbox && toggleCheckbox(index, isSelected)
-            }
-          />
-        )}
+        {renderEditableIcon(index, item.isChecked)}
       </StyledActionContainer>
     </ItemWrapper>
   );
