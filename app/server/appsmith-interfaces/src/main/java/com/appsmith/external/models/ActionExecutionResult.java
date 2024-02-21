@@ -42,6 +42,8 @@ public class ActionExecutionResult {
 
     PluginErrorDetails pluginErrorDetails;
 
+    Long executionTime;
+
     public void setErrorInfo(Throwable error, AppsmithPluginErrorUtils pluginErrorUtils) {
         this.body = error.getMessage();
 

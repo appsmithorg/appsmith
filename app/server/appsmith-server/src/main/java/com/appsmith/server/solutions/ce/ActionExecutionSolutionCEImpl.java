@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -182,6 +183,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     @Override
     public Mono<ActionExecutionResult> executeAction(
             Flux<Part> partFlux, String branchName, String environmentId, HttpHeaders httpHeaders) {
+        Stopwatch stopwatch = new Stopwatch("executeAction");
         return createExecuteActionDTO(partFlux)
                 .flatMap(executeActionDTO -> newActionService
                         .findByBranchNameAndDefaultActionId(
@@ -219,8 +221,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                             environmentPermission.getExecutePermission(),
                                             isEmbedded));
                         }))
-                .flatMap(tuple2 ->
-                        this.executeAction(tuple2.getT1(), tuple2.getT2(), httpHeaders)) // getTrue is temporary call
+                .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2(), httpHeaders)
+                        .map(actionExecutionResult -> {
+                            stopwatch.stopTimer();
+                            actionExecutionResult.setExecutionTime(stopwatch.getExecutionTime());
+                            return actionExecutionResult;
+                        })) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
