@@ -4,7 +4,7 @@ import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isNumber, isObject, set } from "lodash";
-import { isMoment } from "moment";
+// import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
 export const fn_keys: string = "__fn_keys__";
@@ -271,16 +271,16 @@ const generateDiffUpdates = (
 
       //when a moment value changes we do not want the inner moment object updates, we just want the ISO result of it
       // which we get during the serialisation process we perform at latter steps
-      if (isMoment(rhs)) {
-        attachDirectly.push({
-          kind: "E",
-          lhs,
-          rhs: rhs as any,
-          path: segmentedPath,
-        });
-        // ignore trying to diff moment objects
-        return true;
-      }
+      // if (isMoment(rhs)) {
+      //   attachDirectly.push({
+      //     kind: "E",
+      //     lhs,
+      //     rhs: rhs as any,
+      //     path: segmentedPath,
+      //   });
+      //   // ignore trying to diff moment objects
+      //   return true;
+      // }
       if (rhs === undefined) {
         //if an undefined value is being set it should be a delete
         if (lhs !== undefined) {

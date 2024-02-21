@@ -31,24 +31,39 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
+
+import FusionCharts from "fusioncharts";
+import Charts from "fusioncharts/fusioncharts.charts";
+import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
+import Widgets from "fusioncharts/fusioncharts.widgets";
+import ZoomScatter from "fusioncharts/fusioncharts.zoomscatter";
+import ZoomLine from "fusioncharts/fusioncharts.zoomline";
+import PowerCharts from "fusioncharts/fusioncharts.powercharts";
+import TimeSeries from "fusioncharts/fusioncharts.timeseries";
+import OverlappedColumn from "fusioncharts/fusioncharts.overlappedcolumn2d";
+import OverlappedBar from "fusioncharts/fusioncharts.overlappedbar2d";
+import TreeMap from "fusioncharts/fusioncharts.treemap";
+import Maps from "fusioncharts/fusioncharts.maps";
+import Gantt from "fusioncharts/fusioncharts.gantt";
+import VML from "fusioncharts/fusioncharts.vml";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const FusionCharts = require("fusioncharts");
+// const FusionCharts = require("fusioncharts");
 const plugins: Record<string, any> = {
-  Charts: require("fusioncharts/fusioncharts.charts"),
-  FusionTheme: require("fusioncharts/themes/fusioncharts.theme.fusion"),
-  Widgets: require("fusioncharts/fusioncharts.widgets"),
-  ZoomScatter: require("fusioncharts/fusioncharts.zoomscatter"),
-  ZoomLine: require("fusioncharts/fusioncharts.zoomline"),
-  PowerCharts: require("fusioncharts/fusioncharts.powercharts"),
-  TimeSeries: require("fusioncharts/fusioncharts.timeseries"),
-  OverlappedColumn: require("fusioncharts/fusioncharts.overlappedcolumn2d"),
-  OverlappedBar: require("fusioncharts/fusioncharts.overlappedbar2d"),
-  TreeMap: require("fusioncharts/fusioncharts.treemap"),
-  Maps: require("fusioncharts/fusioncharts.maps"),
-  Gantt: require("fusioncharts/fusioncharts.gantt"),
-  VML: require("fusioncharts/fusioncharts.vml"),
+  Charts,
+  FusionTheme,
+  Widgets,
+  ZoomScatter,
+  ZoomLine,
+  PowerCharts,
+  TimeSeries,
+  OverlappedColumn,
+  OverlappedBar,
+  TreeMap,
+  Maps,
+  Gantt,
+  VML,
 };
 
 // Enable all plugins.
@@ -58,6 +73,8 @@ Object.keys(plugins).forEach((key: string) =>
 );
 
 const { fusioncharts } = getAppsmithConfigs();
+// ! VITE hack
+// @ts-expect-error just testing with vite
 FusionCharts.options.license({
   key: fusioncharts.licenseKey,
   creditLabel: false,

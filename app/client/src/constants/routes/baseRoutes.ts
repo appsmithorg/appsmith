@@ -1,5 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { match } = require("path-to-regexp");
+// const { match } = require("path-to-regexp");
+import { match } from "path-to-regexp";
 
 export const BASE_URL = "/";
 export const WORKSPACE_URL = "/workspace";
@@ -34,3 +34,4 @@ export const WORKSPACE_SETTINGS_LICENSE_PAGE_URL = `/settings/license`;
 export const matchApplicationPath = match(APPLICATIONS_URL);
 export const matchTemplatesPath = match(TEMPLATES_PATH);
 export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);
+export default {};

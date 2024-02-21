@@ -3,15 +3,15 @@ import styled from "styled-components";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import script from "!!raw-loader!./customWidgetscript.js";
+import script from "./customWidgetscript.js?raw";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
+import appsmithConsole from "./appsmithConsole.js?raw";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import css from "!!raw-loader!./reset.css";
+import css from "./reset.css?raw";
 import clsx from "clsx";
 import type { AppThemeProperties } from "entities/AppTheming";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";

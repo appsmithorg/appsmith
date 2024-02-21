@@ -1,3 +1,3 @@
-import widgetPropertyFns from "!!raw-loader!./derived.js";
+import widgetPropertyFns from "./derived.js?raw";
 
 export default widgetPropertyFns;

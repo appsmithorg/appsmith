@@ -30,7 +30,7 @@ import type { Alignment } from "@blueprintjs/core";
 import type { TextSize } from "constants/WidgetConstants";
 
 // @ts-expect-error: loader types not available
-import cssVariables from "!!raw-loader!theme/wds.css";
+import cssVariables from "theme/wds.css?raw";
 import { isMacOs } from "utils/AppsmithUtils";
 import LabelWithTooltip, {
   labelLayoutStyles,

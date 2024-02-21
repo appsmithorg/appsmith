@@ -3,10 +3,10 @@ import styled from "styled-components";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import script from "!!raw-loader!./script.js";
+import script from "./script.js?raw";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import css from "!!raw-loader!./reset.css";
+import css from "./reset.css?raw";
 
 const StyledIframe = styled.iframe`
   width: ${(props) => props.width}px;

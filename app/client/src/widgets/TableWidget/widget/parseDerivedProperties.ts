@@ -1,5 +1,5 @@
 // @ts-expect-error: loader types not available
-import widgetPropertyFns from "!!raw-loader!./derived.js";
+import widgetPropertyFns from "./derived.js?raw";
 
 // TODO(abhinav):
 // Add unit test cases

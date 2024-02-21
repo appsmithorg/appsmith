@@ -2,15 +2,16 @@ import type { Def, Server } from "tern";
 import type { CallbackFn } from "./types";
 import { TernWorkerAction } from "./types";
 
-const ternWorker = new Worker(
-  new URL("../../workers/Tern/tern.worker.ts", import.meta.url),
-  {
-    // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
-    // relies on it to find workers in the list of all requests.
-    name: "TernWorker",
-    type: "module",
-  },
-);
+const ternWorker: any = {};
+// const ternWorker = new Worker(
+//   new URL("../../workers/Tern/tern.worker.ts", import.meta.url),
+//   {
+//     // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
+//     // relies on it to find workers in the list of all requests.
+//     name: "TernWorker",
+//     type: "module",
+//   },
+// );
 
 function getFile(ts: any, name: string, c: CallbackFn) {
   const buf = ts.docs[name];
@@ -41,7 +42,7 @@ function TernWorkerServer(this: any, ts: any) {
     }
     worker.postMessage(data);
   }
-  worker.onmessage = function (e) {
+  worker.onmessage = function (e: any) {
     const data = e.data;
     if (data) {
       if (data.type == TernWorkerAction.GET_FILE) {
@@ -61,7 +62,7 @@ function TernWorkerServer(this: any, ts: any) {
       }
     }
   };
-  worker.onerror = function (e) {
+  worker.onerror = function (e: any) {
     for (const id in pending) pending[id](e);
     pending = {};
   };

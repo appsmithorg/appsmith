@@ -5,7 +5,8 @@
 import { matchPath } from "react-router";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { match } = require("path-to-regexp");
+// const { match } = require("path-to-regexp");
+import { match } from "path-to-regexp";
 
 export const BUILDER_BASE_PATH_DEPRECATED = "/applications";
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
