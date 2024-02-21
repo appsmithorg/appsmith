@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ExecutionMetricRequestDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -193,5 +194,14 @@ public class ActionControllerCE {
                 .getUnpublishedActionsExceptJs(params, branchName)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/{id}/metric")
+    public Mono<ResponseDTO<Boolean>> recordActionExecutionMetrics(
+            @PathVariable String id, @RequestBody ExecutionMetricRequestDTO executionMetricRequestDTO) {
+        return newActionService
+                .recordActionExecutionMetrics(id, executionMetricRequestDTO)
+                .map(resources -> new ResponseDTO<>(HttpStatus.CREATED.value(), resources, null));
     }
 }

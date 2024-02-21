@@ -3,6 +3,7 @@ package com.appsmith.server.newactions.base;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
+import com.appsmith.external.models.ExecutionMetricRequestDTO;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
@@ -157,4 +158,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     void updateDefaultResourcesInAction(NewAction newAction);
 
     Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO);
+
+    Mono<Boolean> recordActionExecutionMetrics(String id, ExecutionMetricRequestDTO executionMetricRequestDTO);
 }

@@ -11,6 +11,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Executable;
+import com.appsmith.external.models.ExecutionMetricRequestDTO;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -23,6 +24,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.ActionExecutionMetric;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
@@ -43,6 +45,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.ActionExecutionMetricRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -73,6 +76,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,6 +136,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final AtomicReference<Plugin> jsTypePluginReference = new AtomicReference<>();
     private final DefaultResourcesService<NewAction> defaultResourcesService;
     private final DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
+    private final ActionExecutionMetricRepository actionExecutionMetricRepository;
 
     public NewActionServiceCEImpl(
             Scheduler scheduler,
@@ -157,7 +163,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             EntityValidationService entityValidationService,
             ObservationRegistry observationRegistry,
             DefaultResourcesService<NewAction> defaultResourcesService,
-            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
+            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService,
+            ActionExecutionMetricRepository actionExecutionMetricRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -180,6 +187,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.actionPermission = actionPermission;
         this.defaultResourcesService = defaultResourcesService;
         this.dtoDefaultResourcesService = dtoDefaultResourcesService;
+        this.actionExecutionMetricRepository = actionExecutionMetricRepository;
     }
 
     protected void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
@@ -1826,5 +1834,42 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO) {
         // Do nothing as this is already taken care for actions in the context of page
         return Mono.empty().then();
+    }
+
+    @Override
+    public Mono<Boolean> recordActionExecutionMetrics(String id, ExecutionMetricRequestDTO executionMetricRequestDTO) {
+        return repository
+                .findById(id)
+                .flatMap(action -> {
+                    Boolean viewMode = executionMetricRequestDTO.getViewMode();
+                    ActionDTO actionDTO = viewMode ? action.getPublishedAction() : action.getUnpublishedAction();
+
+                    if (actionDTO == null) {
+                        return Mono.just(false);
+                    }
+
+                    String hash;
+                    try {
+                        hash = calculateHash(actionDTO.getActionConfiguration());
+                    } catch (NoSuchAlgorithmException e) {
+                        return Mono.just(false);
+                    }
+
+                    ActionExecutionMetric metric = new ActionExecutionMetric();
+                    metric.setActionId(id);
+                    metric.setExecutionTimeInMs(executionMetricRequestDTO.getExecutionTimeInMs());
+                    metric.setHash(hash);
+
+                    return actionExecutionMetricRepository.save(metric).thenReturn(true);
+                })
+                .defaultIfEmpty(false);
+    }
+
+    private String calculateHash(ActionConfiguration actionConfiguration) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = null;
+        messageDigest = MessageDigest.getInstance("SHA-256");
+        messageDigest.update(actionConfiguration.toString().getBytes());
+        String stringHash = new String(messageDigest.digest());
+        return stringHash;
     }
 }
