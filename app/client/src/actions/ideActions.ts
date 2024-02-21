@@ -11,6 +11,12 @@ export const setIdeEditorViewMode = (mode: EditorViewMode) => {
   };
 };
 
+export const restoreIDEEditorViewMode = () => {
+  return {
+    type: ReduxActionTypes.RESTORE_IDE_EDITOR_VIEW_MODE,
+  };
+};
+
 export const setIdeEditorPagesActiveStatus = (active: boolean) => {
   return {
     type: ReduxActionTypes.SET_IDE_EDITOR_PAGES_ACTIVE_STATUS,

@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import EditorNavigation from "./EditorNavigation";
 
 export class DeployMode {
   private locator = ObjectsRegistry.CommonLocators;
@@ -174,6 +175,7 @@ export class DeployMode {
     // });
     this.assertHelper.AssertDocumentReady();
     //this.agHelper.Sleep(2000);
+    EditorNavigation.ShowCanvas();
     this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 
