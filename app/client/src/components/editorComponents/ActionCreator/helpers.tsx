@@ -70,6 +70,13 @@ import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { setShowCreateNewModal } from "actions/propertyPaneActions";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
+import {
+  filterCategories,
+  OmnibarTriggerSources,
+  SEARCH_CATEGORY_ID,
+} from "../GlobalSearch/utils";
 
 const actionList: {
   label: string;
@@ -434,6 +441,9 @@ function getApiAndQueryOptions(
   handleClose: () => void,
   queryModuleInstances: ModuleInstanceDataState,
 ) {
+  const state = store.getState();
+  const isSideBySideEnabled = getIsSideBySideEnabled(state);
+
   const createQueryObject: TreeDropdownOption = {
     label: "New query",
     value: "datasources",
@@ -441,8 +451,17 @@ function getApiAndQueryOptions(
     icon: "plus",
     className: "t--create-datasources-query-btn",
     onSelect: () => {
-      dispatch(setShowCreateNewModal(true));
-      dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+      if (isSideBySideEnabled) {
+        dispatch(setShowCreateNewModal(true));
+        dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+      } else {
+        dispatch(
+          setGlobalSearchCategory(
+            filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
+            OmnibarTriggerSources.Propertypane,
+          ),
+        );
+      }
     },
   };
 
