@@ -30,6 +30,7 @@ const initialState: TemplatesReduxState = {
     isOpen: false,
     isOpenFromCanvas: false,
   },
+  isCreateAppFromTemplateModalOpen: false,
 };
 
 const templateReducer = createReducer(initialState, {
@@ -264,6 +265,22 @@ const templateReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.SHOW_CREATE_APP_FROM_TEMPLATES_MODAL]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isCreateAppFromTemplateModalOpen: true,
+    };
+  },
+  [ReduxActionTypes.HIDE_CREATE_APP_FROM_TEMPLATES_MODAL]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isCreateAppFromTemplateModalOpen: false,
+    };
+  },
   [ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT]: (
     state: TemplatesReduxState,
   ) => {
@@ -313,6 +330,7 @@ export interface TemplatesReduxState {
     isOpenFromCanvas: boolean;
   };
   loadingFilters: boolean;
+  isCreateAppFromTemplateModalOpen: boolean;
 }
 
 export default templateReducer;
