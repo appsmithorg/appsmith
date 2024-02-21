@@ -1,8 +1,10 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-cypress/e2e/Regression/ServerSide/OnLoadTests/OnLoadActions_Spec.ts
-cypress/e2e/Regression/ServerSide/ApiTests/API_Bugs_Spec.js
-cypress/e2e/Regression/ServerSide/LoginTests/LoginFailure_spec.js
+#cypress/e2e/Regression/ServerSide/OnLoadTests/OnLoadActions_Spec.ts
+#cypress/e2e/Regression/ServerSide/ApiTests/API_Bugs_Spec.js
+#cypress/e2e/Regression/ServerSide/LoginTests/LoginFailure_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Camera/Image_Spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/Button/ButtonGroup_spec.js
 
 
 # For running all specs - uncomment below:
