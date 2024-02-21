@@ -175,7 +175,10 @@ export class EntityExplorer {
         eventConstructor: "MouseEvent",
         force: true,
       })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        force: true,
+      });
     this.agHelper.Sleep(200);
     cy.get(
       parentWidgetType
