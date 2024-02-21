@@ -139,7 +139,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       ) {
         let modify;
 
-        const dynamicPropertyPathList: DynamicPath[] = [];
+        const dynamicPropertyPathList: DynamicPath[] = [
+          ...(widget.dynamicPropertyPathList || []),
+        ];
 
         if (queryConfig.select) {
           modify = {
@@ -153,7 +155,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             onFilterUpdate: queryConfig.select.run,
           };
           if (
-            !!super.getFeatureFlag(
+            !!SelectWidget.getFeatureFlag(
               FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
             )
           )

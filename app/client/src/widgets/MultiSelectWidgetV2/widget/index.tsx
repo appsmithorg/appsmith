@@ -162,7 +162,9 @@ class MultiSelectWidget extends BaseWidget<
       ) {
         let modify;
 
-        const dynamicPropertyPathList: DynamicPath[] = [];
+        const dynamicPropertyPathList: DynamicPath[] = [
+          ...(widget.dynamicPropertyPathList || []),
+        ];
         if (queryConfig.select) {
           modify = {
             sourceData: queryConfig.select.data,
@@ -175,12 +177,12 @@ class MultiSelectWidget extends BaseWidget<
             onFilterUpdate: queryConfig.select.run,
           };
 
-          // if (
-          //   !!super.getFeatureFlag(
-          //     FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
-          //   )
-          // )
-          //   dynamicPropertyPathList.push({ key: "sourceData" });
+          if (
+            !!MultiSelectWidget.getFeatureFlag(
+              FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
+            )
+          )
+            dynamicPropertyPathList.push({ key: "sourceData" });
         }
 
         return {
