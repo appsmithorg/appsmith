@@ -3,6 +3,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { useSelector } from "react-redux";
+import { Toaster } from "sonner";
+
 import {
   getCurrentApplication,
   getAppSidebarPinned,
@@ -69,6 +71,7 @@ export function AppPage(props: AppPageProps) {
         isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
       }
     >
+      <Toaster visibleToasts={100} />
       <PageView className="t--app-viewer-page" width={width}>
         {props.widgetsStructure.widgetId &&
           renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}

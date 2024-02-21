@@ -4,6 +4,7 @@ import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import log from "loglevel";
+import { toast as sonnerToast } from "sonner";
 
 interface ExtraOptions {
   // This enables showing of toast no matter the conditions
@@ -30,6 +31,9 @@ export default function* showToast(
     log.error(message);
     return;
   }
-
+  if (options?.kind === "error") {
+    sonnerToast.error(message);
+    return;
+  }
   toast.show(message, options);
 }

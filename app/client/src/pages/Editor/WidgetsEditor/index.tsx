@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import { Toaster } from "sonner";
 import Debugger from "components/editorComponents/Debugger";
 
 import {
@@ -189,6 +189,15 @@ function WidgetsEditor() {
   return (
     <EditorContextProvider renderMode="CANVAS">
       <div className="relative flex flex-row h-full w-full overflow-hidden">
+        <Toaster
+          toastOptions={{
+            style: {
+              background: "red",
+            },
+            className: "class",
+          }}
+          visibleToasts={10}
+        />
         <div
           className={classNames({
             "relative flex flex-col w-full overflow-hidden": true,
