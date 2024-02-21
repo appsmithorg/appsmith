@@ -19,13 +19,11 @@ const StyledContainerComponent = styled.div<
   outline: none;
   border: none;
   position: relative;
-
-  ${(props) =>
+  background-color: ${(props) =>
     props.elevatedBackground
-      ? `background: var(--color-bg-elevation-${props.elevation}); `
-      : ""}
-
-  border-radius: var(--border-radius-1);
+      ? `var(--color-bg-elevation-${props.elevation})`
+      : "inherit"};
+  border-radius: ${(props) => `var(--border-radius-${props.elevation})`};
   padding-block: var(--outer-spacing-0);
   padding-inline: var(--outer-spacing-0);
 

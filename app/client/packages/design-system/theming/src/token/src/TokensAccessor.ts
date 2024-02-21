@@ -80,6 +80,15 @@ export class TokensAccessor {
   };
 
   updateBorderRadius = (borderRadius: TokenObj) => {
+    // when the border-radius base is 0px, we set all other border-radius to 0px
+    if (borderRadius["base"] == "0px") {
+      Object.keys(borderRadius).forEach((key) => {
+        if (key !== "base") {
+          borderRadius[key] = "0px";
+        }
+      });
+    }
+
     this.borderRadius = borderRadius;
   };
 
