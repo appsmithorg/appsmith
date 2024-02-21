@@ -6,6 +6,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionMoveDTO;
+import com.appsmith.server.dtos.ActionPerformanceDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -15,6 +16,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
+import com.appsmith.server.solutions.PromptSolution;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Valid;
@@ -50,18 +52,22 @@ public class ActionControllerCE {
     private final ActionExecutionSolution actionExecutionSolution;
     private final ObservationRegistry observationRegistry;
 
+    private final PromptSolution promptSolution;
+
     @Autowired
     public ActionControllerCE(
             LayoutActionService layoutActionService,
             NewActionService newActionService,
             RefactoringService refactoringService,
             ActionExecutionSolution actionExecutionSolution,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            PromptSolution promptSolution) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
         this.refactoringService = refactoringService;
         this.actionExecutionSolution = actionExecutionSolution;
         this.observationRegistry = observationRegistry;
+        this.promptSolution = promptSolution;
     }
 
     @JsonView(Views.Public.class)
@@ -193,5 +199,13 @@ public class ActionControllerCE {
                 .getUnpublishedActionsExceptJs(params, branchName)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/execute/{id}")
+    public Mono<ResponseDTO<String>> analyseQuery(@RequestBody ActionPerformanceDTO actionPerformanceDTO) {
+        return promptSolution
+                .getQueryAnalysis(actionPerformanceDTO)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }

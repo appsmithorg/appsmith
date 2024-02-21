@@ -23,6 +23,12 @@ public class ActionController extends ActionControllerCE {
             ActionExecutionSolution actionExecutionSolution,
             ObservationRegistry observationRegistry) {
 
-        super(layoutActionService, newActionService, refactoringService, actionExecutionSolution, observationRegistry);
+        super(
+                layoutActionService,
+                newActionService,
+                refactoringService,
+                actionExecutionSolution,
+                observationRegistry,
+                promptSolution);
     }
 }
