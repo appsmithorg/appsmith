@@ -7,6 +7,7 @@ import type {
 } from "components/editorComponents/GlobalSearch/utils";
 import {
   filterCategories,
+  OmnibarTriggerSources,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 
@@ -15,6 +16,7 @@ const initialState: GlobalSearchReduxState = {
   modalOpen: false,
   recentEntities: [],
   recentEntitiesRestored: false,
+  triggerSource: OmnibarTriggerSources.Omnibar,
   filterContext: {
     category: filterCategories[SEARCH_CATEGORY_ID.INIT],
   },
@@ -36,13 +38,17 @@ const globalSearchReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_GLOBAL_SEARCH_CATEGORY]: (
     state: GlobalSearchReduxState,
-    action: ReduxAction<SearchCategory>,
+    action: ReduxAction<{
+      category: SearchCategory;
+      triggerSource: OmnibarTriggerSources;
+    }>,
   ) => ({
     ...state,
     modalOpen: true,
+    triggerSource: action.payload.triggerSource,
     filterContext: {
       ...state.filterContext,
-      category: action.payload,
+      category: action.payload.category,
     },
   }),
   [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
@@ -81,6 +87,7 @@ export interface GlobalSearchReduxState {
   modalOpen: boolean;
   recentEntities: Array<RecentEntity>;
   recentEntitiesRestored: boolean;
+  triggerSource: OmnibarTriggerSources;
   filterContext: {
     category: SearchCategory;
   };
