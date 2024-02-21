@@ -36,6 +36,7 @@ import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportActionResultDTO;
 import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
+import com.appsmith.server.dtos.PageMetricsDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -1834,6 +1835,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO) {
         // Do nothing as this is already taken care for actions in the context of page
         return Mono.empty().then();
+    }
+
+    @Override
+    public Flux<PageMetricsDTO> findAllActionExecutionMetrics(String applicationId) {
+        return repository.findByApplicationId(applicationId).flatMap(action -> {
+            PageMetricsDTO pageMetricsDTO = new PageMetricsDTO();
+            pageMetricsDTO.setPageId(action.getUnpublishedAction().getPageId());
+            return Mono.just(pageMetricsDTO);
+        });
     }
 
     @Override

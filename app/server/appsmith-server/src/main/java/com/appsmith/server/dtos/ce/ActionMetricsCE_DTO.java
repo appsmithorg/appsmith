@@ -24,8 +24,11 @@ public class ActionMetricsCE_DTO implements Serializable {
     String pluginType;
 
     @JsonView(Views.Public.class)
+    String pluginName;
+
+    @JsonView(Views.Public.class)
     String pluginId;
 
     @JsonView(Views.Public.class)
-    String avgExecutionTime;
+    int avgExecutionTime;
 }

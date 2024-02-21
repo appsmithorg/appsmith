@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.PageMetricsDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -194,6 +195,15 @@ public class ActionControllerCE {
                 .getUnpublishedActionsExceptJs(params, branchName)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{applicationId}/metrics")
+    public Mono<ResponseDTO<List<PageMetricsDTO>>> getAllActionExecutionMetrics(@PathVariable String applicationId) {
+        return newActionService
+                .findAllActionExecutionMetrics(applicationId)
+                .collectList()
+                .map(actionsMetricsList -> new ResponseDTO<>(HttpStatus.OK.value(), actionsMetricsList, null));
     }
 
     @JsonView(Views.Public.class)
