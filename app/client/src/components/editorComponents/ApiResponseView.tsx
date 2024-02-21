@@ -6,7 +6,7 @@ import styled from "styled-components";
 import type { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import type { SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { isArray, isEmpty, isString } from "lodash";
