@@ -31,6 +31,7 @@ import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.dtos.ActionMetricsDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportActionResultDTO;
@@ -76,11 +77,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1839,11 +1842,70 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<PageMetricsDTO> findAllActionExecutionMetrics(String applicationId) {
-        return repository.findByApplicationId(applicationId).flatMap(action -> {
-            PageMetricsDTO pageMetricsDTO = new PageMetricsDTO();
-            pageMetricsDTO.setPageId(action.getUnpublishedAction().getPageId());
-            return Mono.just(pageMetricsDTO);
-        });
+        Mono<Map<String, Collection<Tuple2<Integer, NewAction>>>> pageToActionListMap = repository
+                .findByApplicationId(applicationId)
+                .flatMap(newAction -> {
+                    String hash;
+                    try {
+                        hash = calculateHash(newAction.getUnpublishedAction().getActionConfiguration());
+                    } catch (NoSuchAlgorithmException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return actionExecutionMetricRepository
+                            .findByActionIdAndHash(newAction.getId(), hash)
+                            .collectList()
+                            .map(metrics -> {
+                                int sum = 0;
+                                for (ActionExecutionMetric metric : metrics) {
+                                    sum += metric.getExecutionTimeInMs();
+                                }
+                                int avgExecutionTime = 0;
+                                if (metrics.size() > 0) {
+                                    avgExecutionTime = sum / metrics.size();
+                                }
+                                return Tuples.of(avgExecutionTime, newAction);
+                            });
+                })
+                .collectMultimap(entry -> {
+                    return entry.getT2().getUnpublishedAction().getPageId();
+                })
+                .cache();
+
+        return pageToActionListMap
+                .map(pageToActionList -> {
+                    return pageToActionList.keySet();
+                })
+                .flatMapMany(pageIds -> {
+                    return Flux.fromIterable(pageIds);
+                })
+                .flatMap(pageId -> {
+                    return Mono.zip(newPageService.getNameByPageId(pageId, FALSE), pageToActionListMap)
+                            .map(tuple -> {
+                                String pageName = tuple.getT1();
+                                Collection<Tuple2<Integer, NewAction>> actions =
+                                        tuple.getT2().get(pageId);
+                                PageMetricsDTO pageMetricsDTO = new PageMetricsDTO();
+                                pageMetricsDTO.setPageId(pageId);
+                                pageMetricsDTO.setPageName(pageName);
+                                List<ActionMetricsDTO> actionMetricsDTOList = new ArrayList<>();
+                                for (Tuple2<Integer, NewAction> tupleNew : actions) {
+                                    NewAction newAction = tupleNew.getT2();
+                                    ActionMetricsDTO actionMetricsDTO = new ActionMetricsDTO();
+                                    actionMetricsDTO.setActionId(newAction.getId());
+                                    actionMetricsDTO.setActionName(
+                                            newAction.getUnpublishedAction().getName());
+                                    actionMetricsDTO.setPluginType(
+                                            newAction.getPluginType().name());
+                                    actionMetricsDTO.setPluginId(newAction.getPluginId());
+                                    actionMetricsDTO.setPluginName(
+                                            newAction.getUnpublishedAction().getPluginName());
+                                    actionMetricsDTO.setAvgExecutionTime(tupleNew.getT1());
+                                    actionMetricsDTOList.add(actionMetricsDTO);
+                                }
+                                pageMetricsDTO.setActionMetricsDTOList(actionMetricsDTOList);
+                                return pageMetricsDTO;
+                            });
+                });
     }
 
     @Override
@@ -1878,7 +1940,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private String calculateHash(ActionConfiguration actionConfiguration) throws NoSuchAlgorithmException {
         MessageDigest messageDigest = null;
         messageDigest = MessageDigest.getInstance("SHA-256");
-        messageDigest.update(actionConfiguration.toString().getBytes());
+        if (actionConfiguration != null) {
+            messageDigest.update(actionConfiguration.toString().getBytes());
+        }
         String stringHash = new String(messageDigest.digest());
         return stringHash;
     }

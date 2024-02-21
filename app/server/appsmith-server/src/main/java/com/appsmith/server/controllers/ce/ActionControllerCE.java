@@ -198,7 +198,7 @@ public class ActionControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{applicationId}/metrics")
+    @GetMapping("/applications/{applicationId}/metrics")
     public Mono<ResponseDTO<List<PageMetricsDTO>>> getAllActionExecutionMetrics(@PathVariable String applicationId) {
         return newActionService
                 .findAllActionExecutionMetrics(applicationId)
