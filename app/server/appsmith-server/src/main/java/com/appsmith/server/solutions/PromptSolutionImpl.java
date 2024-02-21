@@ -6,9 +6,11 @@ import com.appsmith.server.dtos.PromptGenerateDTO;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+@Component
 @RequiredArgsConstructor
 public class PromptSolutionImpl implements PromptSolution {
 

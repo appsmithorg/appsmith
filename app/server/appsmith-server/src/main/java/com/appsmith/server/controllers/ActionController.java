@@ -6,6 +6,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
+import com.appsmith.server.solutions.PromptSolution;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,8 @@ public class ActionController extends ActionControllerCE {
             NewActionService newActionService,
             RefactoringService refactoringService,
             ActionExecutionSolution actionExecutionSolution,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            PromptSolution promptSolution) {
 
         super(
                 layoutActionService,
