@@ -193,7 +193,7 @@ export class EntityExplorer {
 
   public DragDropWidgetNVerify(
     widgetType: string,
-    x = 300,
+    x = 200,
     y = 100,
     parentWidgetType = "",
     dropTargetId = "",
