@@ -117,6 +117,7 @@ jobs:
           tags=${{ inputs.tags }}
           args=(-Dgroups=$tags)
           args+=("-DfailIfNoTests=false")
+          echo "$args"
           if ! mvn test "${args[@]}"; then
             if [[ -s failed-server-tests.txt ]]; then
               content="$(
