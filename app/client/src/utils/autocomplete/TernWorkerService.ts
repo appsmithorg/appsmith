@@ -2,7 +2,11 @@ import type { Def, Server } from "tern";
 import type { CallbackFn } from "./types";
 import { TernWorkerAction } from "./types";
 
-const ternWorker: any = {};
+const ternWorker: any = {
+  postMessage: () => {},
+  onmessage: () => {},
+  onerror: () => {},
+};
 // const ternWorker = new Worker(
 //   new URL("../../workers/Tern/tern.worker.ts", import.meta.url),
 //   {

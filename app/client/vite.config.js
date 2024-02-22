@@ -129,11 +129,14 @@ export default defineConfig(({ command, mode }) => {
       host: "dev.appsmith.com",
       port: 3000,
       strictPort: true,
-      hmr: {
-        protocol: "ws",
-        host: "localhost",
-        port: 3000,
-      },
+      watch: {
+        usePolling: true
+      }
+      // hmr: {
+      //   protocol: "ws",
+      //   host: "localhost",
+      //   port: 3000,
+      // },
     },
     define,
     resolve: {

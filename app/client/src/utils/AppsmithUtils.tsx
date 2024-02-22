@@ -351,7 +351,8 @@ export const retryPromise = async (
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
-      .catch(() => {
+      .catch((err) => {
+        console.log({ err });
         setTimeout(async () => {
           if (retriesLeft === 1) {
             return Promise.reject({

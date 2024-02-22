@@ -23,14 +23,19 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
     this.props.closeDebugger();
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     AnalyticsUtil.logEvent("APPLICATIONS_PAGE_LOAD");
-    retryPromise(
-      async () =>
-        import(
-          /* webpackChunkName: "applications" */ "@appsmith/pages/Applications/index"
-        ),
-    ).then((module) => {
-      this.setState({ Page: module.default });
-    });
+    retryPromise(async () => {
+      console.log("here");
+      const mod = await import("@appsmith/pages/Applications");
+      return mod;
+    })
+      .then((module) => {
+        console.log("here2", { module });
+        this.setState({ Page: module.default });
+      })
+      .catch((err) => {
+        console.log("here catch", { module });
+        console.error(err);
+      });
   }
 
   render() {

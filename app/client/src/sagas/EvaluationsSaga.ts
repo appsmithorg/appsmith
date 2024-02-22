@@ -111,6 +111,8 @@ const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 const evalWorker: any = {
   request: {},
+  shutdown: async () => Promise.resolve(),
+  start: async () => Promise.resolve(),
 };
 // const evalWorker = new GracefulWorkerService(
 //   new Worker(

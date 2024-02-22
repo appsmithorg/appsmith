@@ -1,4 +1,4 @@
-import { GracefulWorkerService } from "utils/WorkerUtil";
+// import { GracefulWorkerService } from "utils/WorkerUtil";
 import type {
   LintTreeRequestPayload,
   updateJSLibraryProps,
@@ -17,8 +17,12 @@ export interface ILinter {
 export class WorkerLinter implements ILinter {
   server: any;
   constructor() {
-    // ! VITE
-    this.server = {};
+    // ! VITE patch
+    this.server = {
+      postMessage: () => {},
+      onmessage: () => {},
+      onerror: () => {},
+    };
     // this.server = new GracefulWorkerService(
     //   new Worker(new URL("./worker.ts", import.meta.url), {
     //     type: "module",

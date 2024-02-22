@@ -14,7 +14,8 @@ import {
   StyledIcon,
   InputContainer,
 } from "./index.styled";
-import "rc-tree-select/assets/index.less";
+// ! Vite patch
+// import "rc-tree-select/assets/index.less";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import type { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import type { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";

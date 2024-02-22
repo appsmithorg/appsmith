@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.path.json",
   "compilerOptions": {
-    "target": "ES6",
+    "module": "esnext",
+    "target": "ESNext",
+    "moduleResolution": "Node",
     "lib": [
       "DOM",
       "ES6",
@@ -19,8 +21,6 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
