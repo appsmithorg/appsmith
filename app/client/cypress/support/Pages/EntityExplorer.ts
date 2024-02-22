@@ -147,7 +147,7 @@ export class EntityExplorer {
   public DragNDropWidget(
     widgetType: string,
     x = 300,
-    y = 150,
+    y = 100,
     parentWidgetType = "",
     dropTargetId = "",
     skipWidgetSearch = false,
@@ -173,9 +173,11 @@ export class EntityExplorer {
       .first()
       .trigger("mousemove", x, y, {
         eventConstructor: "MouseEvent",
+        scrollBehavior: false,
       })
       .trigger("mousemove", x, y, {
         eventConstructor: "MouseEvent",
+        scrollBehavior: false,
       });
     this.agHelper.Sleep(200);
     cy.get(
@@ -188,13 +190,14 @@ export class EntityExplorer {
       .first()
       .trigger("mouseup", x, y, {
         eventConstructor: "MouseEvent",
+        scrollBehavior: false,
       });
   }
 
   public DragDropWidgetNVerify(
     widgetType: string,
     x = 300,
-    y = 150,
+    y = 100,
     parentWidgetType = "",
     dropTargetId = "",
     skipWidgetSearch = false,
