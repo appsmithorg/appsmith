@@ -2,16 +2,14 @@
     "children": [
         {
             "configProperty": "actionConfiguration.formData.name",
-            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
             "identifier": "name",
-            "isRequired": true,
             "label": "Name",
             "tooltipText": ""
         }
     ],
     "conditionals": {
-        "show": "{{actionConfiguration.formData.command.data === 'get_recodrs'}}"
+        "show": "{{actionConfiguration.formData.command.data === 'get_records'}}"
     },
     "controlType": "SECTION",
-    "identifier": "get_recodrs"
+    "identifier": "get_records"
 }

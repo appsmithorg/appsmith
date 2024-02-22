@@ -11,7 +11,7 @@
                     "options": [
                         {
                             "label": "Get records",
-                            "value": "get_recodrs"
+                            "value": "get_records"
                         }
                     ],
                     "propertyName": "rows_commands",
@@ -23,6 +23,6 @@
         }
     ],
     "files": [
-        "get_recodrs.json"
+        "get_records.json"
     ]
 }
