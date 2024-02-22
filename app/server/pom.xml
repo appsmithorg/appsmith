@@ -84,6 +84,7 @@
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.time=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+                    <groups>env-manager,appsmith-error,</groups>
                 </configuration>
                 <dependencies>
                     <dependency>

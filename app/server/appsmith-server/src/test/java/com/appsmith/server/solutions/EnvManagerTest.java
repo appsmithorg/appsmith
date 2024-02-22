@@ -20,6 +20,8 @@ import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -116,6 +118,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void simpleSample() {
         final String content =
                 "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
@@ -154,6 +157,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void emptyValues() {
         final String content =
                 "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=\n\nAPPSMITH_INSTANCE_NAME=third value";
@@ -174,6 +178,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void quotedValues() {
         final String content =
                 "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME='third value'";
@@ -209,6 +214,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void parseEmptyValues() {
 
         assertThat(
@@ -221,6 +227,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void parseQuotedValues() {
 
         assertThat(
@@ -236,6 +243,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void parseTestWithEscapes() {
         assertThat(envManager.parseToMap(
                         "APPSMITH_ALLOWED_FRAME_ANCESTORS=\"'\"'none'\"'\"\nAPPSMITH_REDIS_URL='second\" value'\n"))
@@ -245,6 +253,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void disallowedVariable() {
         final String content =
                 "APPSMITH_MONGODB_URI=first value\nDISALLOWED_NASTY_STUFF=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value";
@@ -259,6 +268,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void addNewVariable() {
         final String content =
                 "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
@@ -277,6 +287,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void setValueWithQuotes() {
         final String content =
                 "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
@@ -295,6 +306,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void download_UserIsNotSuperUser_ThrowsAccessDenied() {
         User user = new User();
         user.setEmail("sample-super-user");
@@ -312,6 +324,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void download_UserIsSuperUser_ReturnsZip() throws IOException {
         User user = new User();
         user.setEmail("sample-super-user");
@@ -340,6 +353,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags({@Tag("env-manager")})
     public void sendTestEmail_WhenUserNotSuperUser_ThrowsException() {
         User user = new User();
         user.setEmail("sample-super-user");
@@ -353,6 +367,7 @@ public class EnvManagerTest {
     }
 
     @Test
+    @Tags(@Tag("env-manager"))
     public void setEnv_AndGetAll() {
         EnvManager envManagerInner = Mockito.mock(EnvManagerImpl.class);
 

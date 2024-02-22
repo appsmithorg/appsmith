@@ -1,0 +1,6 @@
+{
+  "tags": [
+    {"tag": "env-manager", "files":  ["EnvManagerCE.java", "EnvManagerCEImpl.java", "EnvManager.java", "EnvManagerImpl.java"]},
+    {"tag": "appsmith-error", "files":  ["AppsmithError.java"]}
+  ]
+}

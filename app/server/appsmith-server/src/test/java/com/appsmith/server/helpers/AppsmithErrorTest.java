@@ -2,6 +2,8 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DuplicateKeyException;
 
@@ -12,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AppsmithErrorTest {
     @Test
+    @Tags(@Tag("appsmith-error"))
     public void verifyUniquenessOfAppsmithErrorCode() {
         assert (Arrays.stream(AppsmithError.values())
                         .map(AppsmithError::getAppErrorCode)
@@ -21,6 +24,7 @@ public class AppsmithErrorTest {
     }
 
     @Test
+    @Tags(@Tag("appsmith-error"))
     public void verifyDuplicateKeyExceptionDoesnotDiscloseSensitiveInformation() {
         // Context: https://github.com/appsmithorg/appsmith/issues/21568
         final DuplicateKeyException exception =
