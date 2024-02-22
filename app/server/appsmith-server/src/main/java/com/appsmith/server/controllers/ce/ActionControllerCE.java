@@ -202,7 +202,7 @@ public class ActionControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/execute/{id}")
+    @GetMapping("/analyse")
     public Mono<ResponseDTO<String>> analyseQuery(@RequestBody ActionPerformanceDTO actionPerformanceDTO) {
         return promptSolution
                 .getQueryAnalysis(actionPerformanceDTO)
