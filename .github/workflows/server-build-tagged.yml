@@ -1,0 +1,167 @@
+# This workflow is responsible for building, testing & packaging the Java server codebase
+name: Appsmith Server Workflow (Tagged tests only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: Server test tags
+        type: string
+        required: true
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/server
+
+jobs:
+  server-unit-tests:
+    runs-on: ubuntu-latest-8-cores
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+
+    steps:
+      # - name: Check if tags arg is present in the command
+      #   id: checkTags
+      #   run: |
+      #     checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("tags")'`
+      #     echo "$checkArg" >> $GITHUB_OUTPUT
+      #     echo $checkArgs
+
+      # - name: Add a comment on the PR with tags documentation link
+      #   if: steps.checkTags.outputs.tags != 'true'
+      #   uses: peter-evans/create-or-update-comment@v3
+      #   with:
+      #     issue-number: ${{ github.event.client_payload.pull_request.number }}
+      #     body: |
+      #       The provided command lacks any tags. Please execute '/run-server-test' again, specifying the tags you want to include.
+      
+      # - name: Stop the workflow run if tags are not present
+      #   if: steps.checkTags.outputs.tags != 'true'
+      #   run: exit 1
+
+      # The checkout steps MUST happen first because the default directory is set according to the code base.
+      # GitHub Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # the code before doing anything else.
+
+      # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      - name: Check out merged commit from PR and base branch
+        uses: actions/checkout@v4
+        if: inputs.pr != 0
+        with:
+          fetch-tags: true
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: ${{ inputs.branch }}
+
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Check out the head commit of the branch
+        uses: actions/checkout@v4
+        if: inputs.pr == 0 && inputs.branch == ''
+        with:
+          fetch-tags: true
+
+      - name: Figure out the PR number
+        run: echo ${{ inputs.pr }}
+
+      - name: Print the Github event
+        run: echo ${{ github.event_name }}
+
+      # Setup Java
+      - name: Set up JDK 17
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Test the code
+      - name: Run only tagged tests
+        env:
+          ACTIVE_PROFILE: test
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+          APPSMITH_VERBOSE_LOGGING_ENABLED: false
+        run: |
+          tags=${{ inputs.tags }}
+          args=(-Dgroups=$tags)
+          args+=("-DfailIfNoTests=false")
+          if ! mvn test "${args[@]}"; then
+            if [[ -s failed-server-tests.txt ]]; then
+              content="$(
+                echo "## Failed server tests"
+                echo
+                sed 's/^/- /' 'failed-server-tests.txt' | sort -u
+              )"
+              echo "$content" >> "$GITHUB_STEP_SUMMARY"
+              # Add a comment to the PR with the list of failed tests.
+              curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                --data "$(jq -n --arg body "$content" '$ARGS.named')" \
+                "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ inputs.pr }}/comments"
+            fi
+            exit 1
+          fi
+
+      # Set status = failedtest
+      - name: Set fail if there are test failures
+        if: failure()
+        run: |
+          echo "run_result=failedtest" >> $GITHUB_OUTPUT
+          echo "failedtest" > ~/run_result
+
+      - name: Fetch server build from cache
+        if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          mkdir cacherepo
+          cd ./cacherepo
+          git lfs install
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd cibuildcache/$repodir/release/server
+          git lfs pull ./server.jar
+          mv ./server.jar ../../../../../server.jar
+          cd ../../../../../
+          tar -xzvf ./server.jar
+
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
