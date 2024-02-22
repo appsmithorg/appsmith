@@ -9,11 +9,29 @@
                     "label": "Authentication type",
                     "options": [
                         {
+                            "apiValue": "apiKey",
+                            "label": "API Key",
+                            "value": "apiKey"
+                        },
+                        {
                             "apiValue": "basic",
                             "label": "Basic Auth",
                             "value": "basic"
                         }
                     ]
+                },
+                {
+                    "configProperty": "datasourceConfiguration.authentication.value",
+                    "controlType": "INPUT_TEXT",
+                    "dataType": "PASSWORD",
+                    "encrypted": true,
+                    "hidden": {
+                        "comparison": "NOT_EQUALS",
+                        "path": "datasourceConfiguration.authentication.authenticationType",
+                        "value": "apiKey"
+                    },
+                    "identifier": "apiKey",
+                    "label": "API Key"
                 },
                 {
                     "configProperty": "datasourceConfiguration.authentication.username",

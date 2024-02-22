@@ -1,0 +1,17 @@
+{
+    "children": [
+        {
+            "configProperty": "actionConfiguration.formData.name",
+            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+            "identifier": "name",
+            "isRequired": true,
+            "label": "Name",
+            "tooltipText": ""
+        }
+    ],
+    "conditionals": {
+        "show": "{{actionConfiguration.formData.command.data === 'get_recodrs'}}"
+    },
+    "controlType": "SECTION",
+    "identifier": "get_recodrs"
+}

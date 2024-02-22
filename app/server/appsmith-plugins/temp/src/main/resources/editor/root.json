@@ -10,8 +10,8 @@
                     "label": "Operation",
                     "options": [
                         {
-                            "label": "test",
-                            "value": "test"
+                            "label": "Get records",
+                            "value": "get_recodrs"
                         }
                     ],
                     "propertyName": "rows_commands",
@@ -23,6 +23,6 @@
         }
     ],
     "files": [
-        "undefined.json"
+        "get_recodrs.json"
     ]
 }
