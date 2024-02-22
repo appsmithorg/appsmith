@@ -1,0 +1,17 @@
+{
+    "form": [
+        {
+            "DSName": "one",
+            "children": [
+                {
+                    "configProperty": "datasourceConfiguration.authentication.authenticationType",
+                    "controlType": "DROP_DOWN",
+                    "description": "Select the authentication type to use",
+                    "label": "Authentication type",
+                    "options": []
+                }
+            ],
+            "sectionName": "Connection"
+        }
+    ]
+}
