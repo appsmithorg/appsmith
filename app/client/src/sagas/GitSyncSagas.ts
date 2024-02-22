@@ -563,7 +563,7 @@ function* fetchGitStatusSaga(action: ReduxAction<GitStatusParams>) {
     response = yield GitSyncAPI.getGitStatus({
       applicationId,
       branch: gitMetaData?.branchName || "",
-      compareRemote: action.payload.compareRemote ?? true,
+      compareRemote: action.payload.compareRemote ?? false,
     });
     const isValidResponse: boolean = yield validateResponse(
       response,

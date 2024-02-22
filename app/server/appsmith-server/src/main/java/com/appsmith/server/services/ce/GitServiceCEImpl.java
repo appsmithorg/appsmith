@@ -1907,30 +1907,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return checkoutBranch(defaultApplicationId, finalBranchName, false);
                             })
                             .zipWhen(application -> {
-                                Path repoSuffix = Paths.get(
-                                        application.getWorkspaceId(),
-                                        gitApplicationMetadata.getDefaultApplicationId(),
-                                        gitApplicationMetadata.getRepoName());
-                                GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
-
-                                // Create a Mono to fetch the status from remote
-                                // TODO: Check why do we check out to remote?
-                                Mono<String> fetchRemoteMono;
-                                if (compareRemote) {
-                                    fetchRemoteMono = gitExecutor
-                                            .fetchRemote(
-                                                    repoSuffix,
-                                                    gitAuth.getPublicKey(),
-                                                    gitAuth.getPrivateKey(),
-                                                    false,
-                                                    branchName,
-                                                    false)
-                                            .onErrorResume(error -> Mono.error(new AppsmithException(
-                                                    AppsmithError.GIT_GENERIC_ERROR, error.getMessage())));
-                                } else {
-                                    fetchRemoteMono = Mono.just("ignored");
-                                }
-
                                 Mono<ApplicationJson> exportAppMono = exportService
                                         .exportByArtifactId(application.getId(), VERSION_CONTROL, APPLICATION)
                                         .elapsed()
@@ -1940,14 +1916,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             return (ApplicationJson) artifactExchangeJson;
                                         });
 
-                                return Mono.zip(exportAppMono, fetchRemoteMono) // zip will run them in parallel
-                                        .map(Tuple2::getT1);
+                                return exportAppMono;
                             });
                     return Mono.zip(Mono.just(gitApplicationMetadata), applicationJsonTuple);
                 })
                 .elapsed()
                 .flatMap(tuple -> {
-                    log.debug("fetchRemote took : {}", tuple.getT1());
                     GitArtifactMetadata defaultApplicationMetadata =
                             tuple.getT2().getT1();
                     Application application = tuple.getT2().getT2().getT1();
@@ -1958,9 +1932,32 @@ public class GitServiceCEImpl implements GitServiceCE {
                             application.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
 
                     try {
-                        return fileUtils
-                                .saveApplicationToLocalRepoWithAnalytics(repoSuffix, applicationJson, finalBranchName)
-                                .zipWith(Mono.just(repoSuffix));
+                        // Create a Mono to fetch the status from remote
+                        // TODO: Check why do we check out to remote?
+                        Path repoSuffixForFetchRemote = Paths.get(
+                                application.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                        GitAuth gitAuth = gitData.getGitAuth();
+                        Mono<String> fetchRemoteMono;
+
+                        if (compareRemote) {
+                            fetchRemoteMono = gitExecutor
+                                    .fetchRemote(
+                                            repoSuffixForFetchRemote,
+                                            gitAuth.getPublicKey(),
+                                            gitAuth.getPrivateKey(),
+                                            false,
+                                            branchName,
+                                            false)
+                                    .onErrorResume(error -> Mono.error(new AppsmithException(
+                                            AppsmithError.GIT_GENERIC_ERROR, error.getMessage())));
+                        } else {
+                            fetchRemoteMono = Mono.just("ignored");
+                        }
+                        return Mono.zip(
+                                fileUtils.saveApplicationToLocalRepoWithAnalytics(
+                                        repoSuffix, applicationJson, finalBranchName),
+                                Mono.just(repoSuffix),
+                                fetchRemoteMono);
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(
                                 new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
