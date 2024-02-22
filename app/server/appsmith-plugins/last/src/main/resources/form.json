@@ -1,0 +1,36 @@
+{
+    "form": [
+        {
+            "DSName": "last",
+            "children": [
+                {
+                    "configProperty": "datasourceConfiguration.authentication.authenticationType",
+                    "controlType": "DROP_DOWN",
+                    "description": "Select the authentication type to use",
+                    "label": "Authentication type",
+                    "options": [
+                        {
+                            "apiValue": "apiKey",
+                            "label": "API Key",
+                            "value": "apiKey"
+                        }
+                    ]
+                },
+                {
+                    "configProperty": "datasourceConfiguration.authentication.value",
+                    "controlType": "INPUT_TEXT",
+                    "dataType": "PASSWORD",
+                    "encrypted": true,
+                    "hidden": {
+                        "comparison": "NOT_EQUALS",
+                        "path": "datasourceConfiguration.authentication.authenticationType",
+                        "value": "apiKey"
+                    },
+                    "identifier": "apiKey",
+                    "label": "API Key"
+                }
+            ],
+            "sectionName": "Connection"
+        }
+    ]
+}
