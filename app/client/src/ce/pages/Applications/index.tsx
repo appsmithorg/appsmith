@@ -120,15 +120,15 @@ import { setHeaderMeta } from "actions/themeActions";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { Indices } from "constants/Layers";
+import ImportModal from "pages/common/ImportModal";
 import SharedUserList from "pages/common/SharedUserList";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import ImportModal from "pages/common/ImportModal";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -494,14 +494,8 @@ export const WorkspaceSelectorWrapper = styled.div`
 `;
 
 export function ApplicationsSection(props: any) {
-  const {
-    activeWorkspaceId,
-    applications,
-    onStartFromTemplateClick,
-    packages,
-    workflows,
-    workspaces,
-  } = props;
+  const { activeWorkspaceId, applications, packages, workflows, workspaces } =
+    props;
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
@@ -542,6 +536,10 @@ export function ApplicationsSection(props: any) {
   const isLoadingResources =
     isFetchingWorkspaces || isFetchingApplications || isFetchingPackages;
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const [
+    isCreateAppFromTemplateModalOpen,
+    setIsCreateAppFromTemplateModalOpen,
+  ] = useState(false);
 
   useEffect(() => {
     // Clears URL params cache
@@ -640,10 +638,14 @@ export function ApplicationsSection(props: any) {
     });
   };
 
-  const onCreateNewApplicationFromTemplate = () => {
+  const onCreateNewApplicationFromTemplate = useCallback(() => {
     AnalyticsUtil.logEvent("TEMPLATE_DROPDOWN_CLICK");
-    onStartFromTemplateClick();
-  };
+    setIsCreateAppFromTemplateModalOpen(true);
+  }, [setIsCreateAppFromTemplateModalOpen]);
+
+  const onCreateAppFromTemplatesModalClose = useCallback(() => {
+    setIsCreateAppFromTemplateModalOpen(false);
+  }, [setIsCreateAppFromTemplateModalOpen]);
 
   function NoWorkspaceFound() {
     return (
@@ -758,6 +760,11 @@ export function ApplicationsSection(props: any) {
                 workspaceId={selectedWorkspaceIdForImportApplication}
               />
             )}
+            <CreateNewAppFromTemplatesWrapper
+              currentWorkspaceId={activeWorkspaceId}
+              isOpen={isCreateAppFromTemplateModalOpen}
+              onModalClose={onCreateAppFromTemplatesModalClose}
+            />
             {!isLoadingResources && (
               <WorkspaceShareUsers>
                 <SharedUserList />
@@ -969,7 +976,6 @@ export const ApplictionsMainPage = (props: any) => {
             <ApplicationsSection
               activeWorkspaceId={activeWorkspaceId}
               applications={fetchedApplications}
-              onStartFromTemplateClick={props.onStartFromTemplateClick}
               packages={packagesOfWorkspace}
               searchKeyword={searchKeyword}
               workflows={workflowsOfWorkspace}
@@ -1011,9 +1017,7 @@ export interface ApplicationProps {
   isReconnectModalOpen: boolean;
 }
 
-export interface ApplicationState {
-  startFromTemplate: boolean;
-}
+export interface ApplicationState {}
 
 export class Applications<
   Props extends ApplicationProps,
@@ -1021,19 +1025,6 @@ export class Applications<
 > extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    this.state = {
-      startFromTemplate: false,
-    } as State;
-  }
-
-  componentDidUpdate(prevProps: Readonly<Props>): void {
-    if (
-      prevProps.isReconnectModalOpen !== this.props.isReconnectModalOpen &&
-      this.props.isReconnectModalOpen
-    ) {
-      this.setState({ startFromTemplate: false });
-    }
   }
 
   componentDidMount() {
@@ -1057,10 +1048,6 @@ export class Applications<
     this.props.searchApplications("");
   }
 
-  handleStartFromTemplate() {
-    this.setState({ startFromTemplate: true });
-  }
-
   public render() {
     if (this.props.currentApplicationIdForCreateNewApp) {
       // FOR NEW USER
@@ -1078,20 +1065,10 @@ export class Applications<
       );
     } else {
       return (
-        <>
-          <ApplictionsMainPage
-            onStartFromTemplateClick={this.handleStartFromTemplate.bind(this)}
-            searchApplications={this.props.searchApplications}
-            searchKeyword={this.props.searchKeyword}
-          />
-          <CreateNewAppFromTemplatesWrapper
-            currentWorkspaceId={this.props.currentWorkspaceId}
-            handleClose={() => {
-              this.setState({ startFromTemplate: false });
-            }}
-            isOpen={this.state.startFromTemplate}
-          />
-        </>
+        <ApplictionsMainPage
+          searchApplications={this.props.searchApplications}
+          searchKeyword={this.props.searchKeyword}
+        />
       );
     }
   }
