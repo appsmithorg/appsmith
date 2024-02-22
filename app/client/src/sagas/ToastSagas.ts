@@ -1,5 +1,4 @@
 import type { ToastProps } from "design-system";
-import { toast } from "design-system";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
@@ -31,18 +30,28 @@ export default function* showToast(
     log.error(message);
     return;
   }
-  if (options?.kind === "error") {
-    if (options?.action) {
-      sonnerToast.error(message, {
-        action: {
-          label: options.action.text,
-          onClick: () => options.action?.effect(),
-        },
-      });
-    } else {
-      sonnerToast.error(message);
-    }
-    return;
+  let toastFn = sonnerToast.info;
+  switch (options?.kind) {
+    case "success":
+      toastFn = sonnerToast.success;
+      break;
+    case "warning":
+      toastFn = sonnerToast.warning;
+      break;
+    case "error":
+      toastFn = sonnerToast.error;
+      break;
+    default:
+      break;
   }
-  toast.show(message, options);
+  if (options?.action) {
+    toastFn(message, {
+      action: {
+        label: options.action.text,
+        onClick: () => options.action?.effect(),
+      },
+    });
+  } else {
+    toastFn(message);
+  }
 }
