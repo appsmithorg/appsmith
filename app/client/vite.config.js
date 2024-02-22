@@ -126,7 +126,7 @@ export default defineConfig(({ command, mode }) => {
       }
     },
     server: {
-      host: "dev.appsmith.com",
+      host: "localhost",
       port: 3000,
       strictPort: true,
       watch: {

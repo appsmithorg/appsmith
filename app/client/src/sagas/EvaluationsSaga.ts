@@ -106,7 +106,6 @@ import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
-// import w from "../workers/Evaluation/evaluation.worker?worker";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 const evalWorker: any = {
