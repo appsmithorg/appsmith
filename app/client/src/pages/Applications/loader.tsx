@@ -23,6 +23,7 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
     this.props.closeDebugger();
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     AnalyticsUtil.logEvent("APPLICATIONS_PAGE_LOAD");
+    // ! VITE patch
     retryPromise(async () => {
       console.log("here");
       const mod = await import("@appsmith/pages/Applications");

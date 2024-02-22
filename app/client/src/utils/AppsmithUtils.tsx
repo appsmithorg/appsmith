@@ -352,7 +352,8 @@ export const retryPromise = async (
     fn()
       .then(resolve)
       .catch((err) => {
-        console.log({ err });
+        // ! VITE patch
+        console.error(err);
         setTimeout(async () => {
           if (retriesLeft === 1) {
             return Promise.reject({
