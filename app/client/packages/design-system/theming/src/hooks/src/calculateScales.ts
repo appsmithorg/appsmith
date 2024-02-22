@@ -1,6 +1,6 @@
-import type { ScaleConfig } from "./types";
+import type { TokenScaleConfig } from "../../token";
 
-export const calculateScales = (scaleConfig: ScaleConfig): number[] => {
+export const calculateScales = (scaleConfig: TokenScaleConfig): number[] => {
   const { N, R, stepsDown, stepsUp, V } = scaleConfig;
 
   const scales = [];
