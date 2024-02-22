@@ -84,7 +84,10 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   }
 
   static getStylesheetConfig(): Stylesheet {
-    return {};
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */

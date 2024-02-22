@@ -13,6 +13,7 @@ import { ButtonBoxShadowTypes } from "components/constants";
 
 export const defaultConfig: WidgetDefaultProps = {
   elevatedBackground: false,
+  borderRadius: "0.375rem",
   boxShadow: ButtonBoxShadowTypes.NONE,
   children: [],
   columns: 0,

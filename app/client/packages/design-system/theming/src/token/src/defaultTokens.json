@@ -1,11 +1,8 @@
 {
   "seedColor": "#0080ff",
   "colorMode": "light",
-  "borderRadiusElevation": {
-    "base": "0px",
-    "1": "calc(var(--border-radius-elevation-base) + var(--outer-spacing-1) * 2)",
-    "2": "calc(var(--border-radius-elevation-base) + var(--outer-spacing-1))",
-    "3": "var(--border-radius-elevation-base)"
+  "borderRadius": {
+    "1": "0px"
   },
   "boxShadow": {
     "1": "0 var(--inner-spacing-2) var(--inner-spacing-3) 0 var(--color-shadow-elevation-1)",
