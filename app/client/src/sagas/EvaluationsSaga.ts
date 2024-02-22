@@ -25,7 +25,7 @@ import {
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
-import { GracefulWorkerService } from "utils/WorkerUtil";
+// import { GracefulWorkerService } from "utils/WorkerUtil";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";

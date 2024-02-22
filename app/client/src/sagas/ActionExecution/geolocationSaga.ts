@@ -5,7 +5,7 @@ import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import type { Channel } from "redux-saga";
 import { channel } from "redux-saga";
-import { evalWorker } from "sagas/EvaluationsSaga";
+import { EvalWorker } from "sagas/EvaluationsSaga";
 import type {
   TGetGeoLocationDescription,
   TWatchGeoLocationDescription,
@@ -91,7 +91,7 @@ function* successCallbackHandler(listenerId?: string) {
     const currentLocation = extractGeoLocation(payload);
     yield put(setUserCurrentGeoLocation(currentLocation));
     if (listenerId)
-      yield call(evalWorker.ping, { data: currentLocation }, listenerId);
+      yield call(EvalWorker.ping, { data: currentLocation }, listenerId);
   }
 }
 
@@ -101,7 +101,7 @@ function* errorCallbackHandler(triggerMeta: TriggerMeta, listenerId?: string) {
   while ((error = yield take(errorChannel))) {
     if (listenerId)
       yield call(
-        evalWorker.ping,
+        EvalWorker.ping,
         { error: sanitizeGeolocationError(error) },
         listenerId,
       );

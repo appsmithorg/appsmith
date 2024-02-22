@@ -13,7 +13,7 @@ import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import type { ResponsePayload } from "../sagas/EvaluationsSaga";
 import {
-  evalWorker,
+  EvalWorker,
   executeTriggerRequestSaga,
   updateDataTreeHandler,
 } from "../sagas/EvaluationsSaga";
@@ -101,7 +101,7 @@ export function* processTriggerHandler(message: any) {
     triggerMeta,
   );
   if (messageType === MessageType.REQUEST)
-    yield call(evalWorker.respond, message.messageId, result);
+    yield call(EvalWorker.respond, message.messageId, result);
 }
 
 export function* handleEvalWorkerMessage(message: TMessage<any>) {

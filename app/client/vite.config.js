@@ -1,19 +1,27 @@
-import * as path from "path";
-import envCompatible from "vite-plugin-env-compatible";
-import vitePluginRequire from "vite-plugin-require";
-import viteRawPlugin from "vite-raw-plugin";
-import react from "@vitejs/plugin-react";
-import svgrPlugin from "vite-plugin-svgr";
-import viteCompression from "vite-plugin-compression";
-import viteSentry from "vite-plugin-sentry";
-import { VitePWA } from "vite-plugin-pwa";
-import { defineConfig, loadEnv } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
-import { fileURLToPath } from "url";
-import pkg from "./package.json";
+const path = require("path");
+const envCompatible = require("vite-plugin-env-compatible");
+const vitePluginRequire = require("vite-plugin-require");
+const viteRawPlugin = require("vite-raw-plugin");
+const react = require("@vitejs/plugin-react");
+const svgrPlugin = require("vite-plugin-svgr");
+const viteCompression = require("vite-plugin-compression");
+const viteSentry = require("vite-plugin-sentry");
+const { VitePWA } = require("vite-plugin-pwa");
+const { defineConfig, loadEnv } = require("vite");
+const tsconfigPaths = require("vite-tsconfig-paths");
+const { fileURLToPath } = require("url");
+// // node-externals.ts
+// const rrequire = createRequire(import.meta.url);
+// const { externals } = rrequire('rollup-plugin-node-externals');
 
-const externals = Object.keys(pkg.dependencies);
 
+// const externals = Object.keys(pkg.dependencies);
+// const externalObj = externals.reduce((acc, external) => {
+//   acc[external] = external.replace('@', '').replace('/', '__').replace('if', '').replace('needed', '');
+//   return acc;
+// }, {});
+
+// console.log({externalObj})
 // const nodeExternals = require("rollup-plugin-node-externals");
 
 export default defineConfig(({ command, mode }) => {
@@ -22,9 +30,9 @@ export default defineConfig(({ command, mode }) => {
     https://stackoverflow.com/questions/66389043/how-can-i-use-vite-env-variables-in-vite-config-js
   */
   process.env = { ...process.env, ...loadEnv(mode, process.cwd(), "") };
-  const babelPlugins: any[] = [];
-  const babelPresets: string[] = [];
-  const configPlugins: any[] = [];
+  const babelPlugins = [];
+  const babelPresets = [];
+  const configPlugins = [];
   const define = {};
 
   if (command === "serve") {
@@ -71,10 +79,10 @@ export default defineConfig(({ command, mode }) => {
     // build configurations
     configPlugins.push(
       viteCompression(),
-      viteCompression({
-        algorithm: "brotliCompress",
-        threshold: 10240,
-      }),
+      // viteCompression({
+      //   algorithm: "brotliCompress",
+      //   threshold: 10240,
+      // }),
       VitePWA({
         strategies: "injectManifest",
         srcDir: "src",
@@ -88,12 +96,15 @@ export default defineConfig(({ command, mode }) => {
   }
 
   configPlugins.push(
-    tsconfigPaths(),
-    envCompatible(),
-    vitePluginRequire(),
-    viteRawPlugin({
-      fileRegex: /_derived\.js$/,
-    }),
+    tsconfigPaths.default(),
+    envCompatible.default(),
+    vitePluginRequire.default(),
+    // viteRawPlugin({
+    //   fileRegex: /_derived\.js$/,
+    // }),
+    // createExternal({
+    //   externals: {...externalObj, 'react': 'React'}
+    // }),
     react({
       jsxRuntime: "classic",
       babel: {
@@ -104,19 +115,15 @@ export default defineConfig(({ command, mode }) => {
         },
       },
     }),
-    svgrPlugin(),
+    svgrPlugin.default(),
   );
 
   return {
     build: {
       outDir: "build",
       rollupOptions: {
-        plugins: [...externals],
-        // external: [
-        //   "./src/workers/Evaluation/evaluation.worker.ts",
-        //   "rc-tree-select",
-        // ],
-      },
+        external: ['core-js', 'simplebar', 'rc-tree-select']
+      }
     },
     server: {
       host: "dev.appsmith.com",
@@ -133,7 +140,7 @@ export default defineConfig(({ command, mode }) => {
       alias: {
         "@": path.resolve(__dirname, "src"),
         "@appsmith": fileURLToPath(new URL("./src/ee", import.meta.url)),
-        "core-js": "core-js/stable",
+        // "core-js": "core-js/stable",
       },
     },
     plugins: configPlugins,

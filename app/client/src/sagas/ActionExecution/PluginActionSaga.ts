@@ -107,7 +107,7 @@ import * as log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
-import { evalWorker, evaluateActionBindings } from "sagas/EvaluationsSaga";
+import { EvalWorker, evaluateActionBindings } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
@@ -1622,6 +1622,7 @@ function* softRefreshActionsSaga() {
   if (isQueryPane) {
     yield put(
       changeQuery({
+        // @ts-expect-error VITE
         id: isQueryPane.params.queryId,
         pageId,
         applicationId,
@@ -1640,7 +1641,7 @@ function* handleUpdateActionData(
 ) {
   const { actionDataPayload, parentSpan } = action.payload;
   yield call(
-    evalWorker.request,
+    EvalWorker.request,
     EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
     actionDataPayload,
   );
