@@ -246,7 +246,7 @@ function WidgetsEditor() {
                   <SnapShotBannerCTA />
                 </BannerWrapper>
               )}
-              <Toaster closeButton richColors visibleToasts={10} />
+              <Toaster closeButton visibleToasts={10} />
               <MainContainerWrapper
                 canvasWidth={canvasWidth}
                 currentPageId={currentPageId}

@@ -289,3 +289,34 @@ div.anvil-widget-wrapper:not(:has(div[data-elevation="true"][elevation="2"]))
   div.anvil-widget-wrapper:has(div[data-elevation]) {
   padding-block: var(--outer-sizing-0);
 }
+
+[data-sonner-toast] {
+  background: var(--ads-v2-color-bg) !important;
+  color: var(--ads-v2-color-fg) !important;
+  border-radius: var(--ads-v2-border-radius) !important;
+  border: solid 1px var(--ads-v2-color-border) !important;
+  box-shadow:
+    rgba(42, 42, 42, 0.01) 0px 1.9px 7px 0px,
+    rgba(42, 42, 42, 0.07) 0px 15px 56px 0px !important;
+}
+
+[data-sonner-toast] [data-close-button] {
+  background: var(--ads-v2-color-bg) !important;
+  color: var(--ads-v2-color-fg) !important;
+  border: solid 1px var(--ads-v2-color-border) !important;
+}
+
+[data-sonner-toast] [data-icon] {
+  color: var(--ads-v2-color-fg-error) !important;
+}
+
+[data-sonner-toast] [data-button] {
+  background: transparent !important;
+  border-radius: var(--ads-v2-border-radius) !important;
+  color: var(--ads-v2-color-fg) !important;
+}
+
+[data-sonner-toast] [data-button]:hover {
+  background: var(--ads-v2-color-bg-subtle) !important;
+  color: var(--ads-v2-color-fg) !important;
+}
