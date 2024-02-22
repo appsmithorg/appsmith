@@ -71,7 +71,7 @@ export function AppPage(props: AppPageProps) {
         isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
       }
     >
-      <Toaster visibleToasts={100} />
+      <Toaster closeButton richColors visibleToasts={100} />
       <PageView className="t--app-viewer-page" width={width}>
         {props.widgetsStructure.widgetId &&
           renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}

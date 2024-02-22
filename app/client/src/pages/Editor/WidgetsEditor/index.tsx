@@ -189,15 +189,6 @@ function WidgetsEditor() {
   return (
     <EditorContextProvider renderMode="CANVAS">
       <div className="relative flex flex-row h-full w-full overflow-hidden">
-        <Toaster
-          toastOptions={{
-            style: {
-              background: "red",
-            },
-            className: "class",
-          }}
-          visibleToasts={10}
-        />
         <div
           className={classNames({
             "relative flex flex-col w-full overflow-hidden": true,
@@ -255,6 +246,12 @@ function WidgetsEditor() {
                   <SnapShotBannerCTA />
                 </BannerWrapper>
               )}
+              <Toaster
+                closeButton
+                position="bottom-right"
+                richColors
+                visibleToasts={10}
+              />
               <MainContainerWrapper
                 canvasWidth={canvasWidth}
                 currentPageId={currentPageId}

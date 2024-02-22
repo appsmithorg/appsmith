@@ -32,7 +32,16 @@ export default function* showToast(
     return;
   }
   if (options?.kind === "error") {
-    sonnerToast.error(message);
+    if (options?.action) {
+      sonnerToast.error(message, {
+        action: {
+          label: options.action.text,
+          onClick: () => options.action?.effect(),
+        },
+      });
+    } else {
+      sonnerToast.error(message);
+    }
     return;
   }
   toast.show(message, options);
