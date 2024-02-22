@@ -73,7 +73,7 @@ describe(
 
     it("6. Tc #1910 - Verify the Number of confirmation models of JS Object on page load", () => {
       homePage.CreateAppInWorkspace("JSOnLoadTest");
-      entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
+      entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 150);
       dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then((dsName) => {
         datasourceName = dsName;

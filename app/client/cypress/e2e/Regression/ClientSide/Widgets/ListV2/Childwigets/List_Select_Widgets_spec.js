@@ -19,7 +19,7 @@ describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   });
 
   it("1. Select Widgets default value", function () {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 500, 100); //for test #2
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 500, 150); //for test #2
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.MULTISELECT,
       200,

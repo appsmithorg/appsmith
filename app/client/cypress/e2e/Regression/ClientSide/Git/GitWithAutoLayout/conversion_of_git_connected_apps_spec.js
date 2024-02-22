@@ -42,7 +42,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   });
 
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CONTAINER, 100, 100);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CONTAINER, 100, 150);
 
     PageList.AddNewPage("New blank page");
 
@@ -74,7 +74,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   it("3. Switch to parentBranch and when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
     cy.switchGitBranch(parentBranchKey);
 
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CONTAINER, 100, 100);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CONTAINER, 100, 200);
 
     autoLayout.ConvertToAutoLayoutAndVerify();
 

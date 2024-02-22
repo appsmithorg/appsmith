@@ -23,7 +23,7 @@ const jsObjectBody = `export default {
 
 describe("Autocomplete tests for setters", { tags: ["@tag.JS"] }, () => {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 150);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHECKBOX, 300, 300);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SWITCH, 400, 400);
@@ -101,7 +101,7 @@ describe("Autocomplete tests for setters", { tags: ["@tag.JS"] }, () => {
   });
 
   it("4. function description tooltip shows up", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 250);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "{{showAlert", true, false);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "showAlert");

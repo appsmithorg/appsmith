@@ -44,7 +44,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.INPUT_V2,
         100,
-        100,
+        150,
         "tabswidget",
       );
 

@@ -21,7 +21,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.STATBOX,
         300,
-        100,
+        150,
         draggableWidgets.CONTAINER,
       );
       PageLeftPane.switchSegment(PagePaneSegment.UI);

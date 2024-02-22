@@ -426,7 +426,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
       it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {
         _.agHelper.AddDsl("defaultMetaDsl");
-        _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 100);
+        _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 150);
 
         if (testConfig.setupWidget) {
           testConfig.setupWidget();

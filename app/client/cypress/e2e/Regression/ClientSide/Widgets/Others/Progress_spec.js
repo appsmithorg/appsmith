@@ -167,7 +167,7 @@ describe(
 
     it("13. Check binding in Progress ", function () {
       agHelper.GetNClick(widgets.linearProgressWidget);
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 600, 100);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 600, 150);
       agHelper.GetNClick(widgets.progressWidget);
       // assert error texts in Progress property
       propPane.UpdatePropertyFieldValue("Progress", "-1");

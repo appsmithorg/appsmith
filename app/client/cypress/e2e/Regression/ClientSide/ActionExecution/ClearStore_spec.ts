@@ -11,7 +11,7 @@ import EditorNavigation, {
 
 describe("clearStore Action test", { tags: ["@tag.JS"] }, () => {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 150);
   });
 
   it("1. Feature 11639 : Clear all store value", function () {
@@ -52,7 +52,7 @@ describe("clearStore Action test", { tags: ["@tag.JS"] }, () => {
       );
     });
 
-    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 250);
     EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "ClearStore");

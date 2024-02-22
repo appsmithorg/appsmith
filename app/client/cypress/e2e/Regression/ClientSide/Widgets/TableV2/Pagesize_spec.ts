@@ -8,7 +8,7 @@ describe(
   function () {
     it("1. should test that pageSize is computed properly for all the row sizes", function () {
       PageList.AddNewPage();
-      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 300, 100);
+      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 300, 150);
       _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.pageSize}}");
       _.entityExplorer.DragDropWidgetNVerify(
         _.draggableWidgets.TABLE,

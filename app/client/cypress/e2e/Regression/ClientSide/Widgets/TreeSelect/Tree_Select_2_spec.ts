@@ -17,7 +17,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
-      entityExplorer.DragDropWidgetNVerify("formwidget", 500, 100);
+      entityExplorer.DragDropWidgetNVerify("formwidget", 500, 150);
       entityExplorer.DragDropWidgetNVerify("singleselecttreewidget", 350, 300);
       entityExplorer.DragDropWidgetNVerify("buttonwidget", 450, 350);
     });

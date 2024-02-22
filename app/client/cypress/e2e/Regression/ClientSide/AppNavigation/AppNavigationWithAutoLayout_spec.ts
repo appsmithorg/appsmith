@@ -20,8 +20,8 @@ describe(
     it("1. Drag and Drop multiple widgets in auto layout mode", function () {
       autoLayout.ConvertToAutoLayoutAndVerify(false);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 200);
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 10, 20);
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 10, 20);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 150, 250);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 300);
       propPane.NavigateToPage("Page1", "onClick");
     });
 

@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe("Number Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify("numbersliderwidget", 550, 100);
+    entityExplorer.DragDropWidgetNVerify("numbersliderwidget", 550, 150);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{NumberSlider1.value}}");

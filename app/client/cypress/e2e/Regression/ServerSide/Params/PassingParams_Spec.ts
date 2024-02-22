@@ -25,8 +25,8 @@ describe(
   { tags: ["@tag.Datasource"] },
   () => {
     before(() => {
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 500, 100);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 150);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 500, 150);
       propPane.EnterJSContext(
         "Source Data",
         `[\n  {\n    \"label\": \"7\",\n    \"value\": \"7\"\n  },\n  {\n    \"label\": \"8\",\n    \"value\": \"8\"\n  },\n  {\n    \"label\": \"9\",\n    \"value\": \"9\"\n  }\n]`,

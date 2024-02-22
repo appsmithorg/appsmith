@@ -15,7 +15,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Multiselect"] },
   function () {
     before(() => {
-      entityExplorer.DragDropWidgetNVerify("multiselectwidgetv2", 550, 100);
+      entityExplorer.DragDropWidgetNVerify("multiselectwidgetv2", 550, 150);
     });
 
     it("1. Verify property visibility", function () {

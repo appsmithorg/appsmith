@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe("removeValue Action test", { tags: ["@tag.JS"] }, () => {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 150);
     PageLeftPane.switchSegment(PagePaneSegment.JS);
   });
 

@@ -11,7 +11,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 150);
       table.AddSampleTableData();
     });
     it("1. should test that select column dropdown has no results found string when select option is {{null}} ", function () {

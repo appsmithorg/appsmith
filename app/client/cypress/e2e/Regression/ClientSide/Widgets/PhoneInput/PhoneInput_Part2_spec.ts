@@ -15,7 +15,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.PhoneInput"] },
   function () {
     before(() => {
-      entityExplorer.DragDropWidgetNVerify("phoneinputwidget", 550, 100);
+      entityExplorer.DragDropWidgetNVerify("phoneinputwidget", 550, 150);
     });
 
     it("1. Verify property visibility", function () {

@@ -111,7 +111,7 @@ describe(
     });
 
     it("1. should test that the number of columns needs to be same when table data changes in depoyed app", function () {
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 150);
       propPane.EnterJSContext(
         "Table data",
         `{{appsmith.store.test === '0' ? ${TABLE_DATA_1} : ${TABLE_DATA_2}}}`,

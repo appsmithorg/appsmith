@@ -30,7 +30,7 @@ describe(
       agHelper.AssertContains("{{Api1.data.users}}");
 
       // Select widget
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 100, 100);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 100, 150);
 
       agHelper.GetNClick(OneClickBindingLocator.datasourceDropdownSelector);
       agHelper.GetNClick(

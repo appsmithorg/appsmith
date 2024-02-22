@@ -17,7 +17,7 @@ describe("Reset widget action", { tags: ["@tag.Widget"] }, () => {
     propPane.EnterJSContext("onClick", `{{Input1.setValue('Hello!')}}`);
     propPane.UpdatePropertyFieldValue("Label", "Set value");
 
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 500, 100);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 500, 150);
     propPane.EnterJSContext("onClick", `{{resetWidget("Input1")}}`);
     propPane.UpdatePropertyFieldValue("Label", "Reset value");
 
@@ -55,11 +55,11 @@ describe("Reset widget action", { tags: ["@tag.Widget"] }, () => {
     const JS_OBJECT_BODY = `export default {
       async resetInputWithoutAwait () {
          resetWidget('Input1')
-         showAlert(Input1.text)	
+         showAlert(Input1.text)
       },
       async resetInputWithAwait () {
       await resetWidget('Input1')
-      showAlert(Input1.text)	
+      showAlert(Input1.text)
       }
     }`;
 

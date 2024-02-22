@@ -28,7 +28,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   });
 
   it("1. Input Widgets default value", function () {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 100); //for test #2
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 150); //for test #2
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.CURRENCY_INPUT,
       200,

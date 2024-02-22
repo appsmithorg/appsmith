@@ -42,7 +42,7 @@ describe(
     }
   ]`;
     before(() => {
-      entityExplorer.DragDropWidgetNVerify("categorysliderwidget", 550, 100);
+      entityExplorer.DragDropWidgetNVerify("categorysliderwidget", 550, 150);
       entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);
       EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Text", "{{CategorySlider1.value}}");
