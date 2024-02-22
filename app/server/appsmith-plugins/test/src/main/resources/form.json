@@ -1,3 +1,33 @@
 {
-    "a": 123
+    "form": [
+        {
+            "children": [
+                {
+                    "configProperty": "datasourceConfiguration.authentication.authenticationType",
+                    "controlType": "DROP_DOWN",
+                    "description": "Select the authentication type to use",
+                    "label": "Authentication type",
+                    "options": [
+                        {
+                            "apiValue": "basic",
+                            "label": "Basic Auth",
+                            "value": "basic"
+                        }
+                    ]
+                },
+                {
+                    "configProperty": "datasourceConfiguration.authentication.username",
+                    "controlType": "INPUT_TEXT",
+                    "hidden": {
+                        "comparison": "NOT_EQUALS",
+                        "path": "datasourceConfiguration.authentication.authenticationType",
+                        "value": "basic"
+                    },
+                    "identifier": "username",
+                    "label": "Username"
+                }
+            ],
+            "sectionName": "Connection"
+        }
+    ]
 }

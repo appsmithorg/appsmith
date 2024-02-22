@@ -1,0 +1,21 @@
+{
+    "children": [
+        {
+            "configProperty": "actionConfiguration.formData.",
+            "identifier": "",
+            "label": "",
+            "tooltipText": ""
+        },
+        {
+            "configProperty": "actionConfiguration.formData.TEST",
+            "identifier": "TEST",
+            "label": "test",
+            "tooltipText": ""
+        }
+    ],
+    "conditionals": {
+        "show": "{{actionConfiguration.formData.command.data === 'test'}}"
+    },
+    "controlType": "SECTION",
+    "identifier": "test"
+}

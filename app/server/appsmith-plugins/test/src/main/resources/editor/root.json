@@ -1,0 +1,28 @@
+{
+    "editor": [
+        {
+            "children": [
+                {
+                    "configProperty": "actionConfiguration.formData.command.data",
+                    "controlType": "DROP_DOWN",
+                    "description": "Select the operation you would like to execute",
+                    "isRequired": true,
+                    "label": "Operation",
+                    "options": [
+                        {
+                            "label": "test",
+                            "value": "test"
+                        }
+                    ],
+                    "propertyName": "rows_commands",
+                    "tooltipText": "The command to run on the datasource"
+                }
+            ],
+            "controlType": "SECTION",
+            "identifier": "SELECTOR"
+        }
+    ],
+    "files": [
+        "undefined.json"
+    ]
+}

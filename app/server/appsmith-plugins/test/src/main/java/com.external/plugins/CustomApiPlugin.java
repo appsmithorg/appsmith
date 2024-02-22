@@ -75,11 +75,11 @@ public class CustomApiPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            datasourceConfiguration.setUrl("http://test.com");
-            actionConfiguration.setPath("/test");
+            datasourceConfiguration.setUrl("");
+            actionConfiguration.setPath("");
             actionConfiguration.setHeaders("");
             actionConfiguration.setQueryParameters("");
-            actionConfiguration.setBody("something");
+            actionConfiguration.setBody("");
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
             Boolean smartJsonSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
