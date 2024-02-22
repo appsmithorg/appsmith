@@ -115,7 +115,7 @@ jobs:
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
           tags=${{ inputs.tags }}
-          args=(-Dgroups=$tags)
+          args=(-Dtags=$tags)
           args+=("-DfailIfNoTests=false")
           echo "$args"
           if ! mvn test "${args[@]}"; then

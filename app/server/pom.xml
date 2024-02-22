@@ -47,6 +47,8 @@
         <source.disabled>true</source.disabled>
         <spotless.version>2.36.0</spotless.version>
         <spring-boot.version>3.0.9</spring-boot.version>
+        <!--suppress UnresolvedMavenProperty -->
+        <test.tags>${tags}</test.tags>
         <testcontainers.version>1.19.3</testcontainers.version>
     </properties>
 
@@ -84,7 +86,7 @@
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.time=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED</argLine>
-                    <groups>env-manager,appsmith-error,</groups>
+                    <groups>${test.tags}</groups>
                 </configuration>
                 <dependencies>
                     <dependency>
