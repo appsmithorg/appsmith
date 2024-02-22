@@ -66,7 +66,9 @@ export function evalTreeWithChanges(
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
     dataTreeEvaluator,
+    evalOrder,
   );
+
   const evalTreeResponse: EvalTreeResponseData = {
     updates,
     dependencies,
