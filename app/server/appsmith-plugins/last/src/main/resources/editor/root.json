@@ -8,7 +8,12 @@
                     "description": "Select the operation you would like to execute",
                     "isRequired": true,
                     "label": "Operation",
-                    "options": [],
+                    "options": [
+                        {
+                            "label": "get records",
+                            "value": "get_records"
+                        }
+                    ],
                     "propertyName": "rows_commands",
                     "tooltipText": "The command to run on the datasource"
                 }
@@ -17,5 +22,7 @@
             "identifier": "SELECTOR"
         }
     ],
-    "files": []
+    "files": [
+        "get_records.json"
+    ]
 }

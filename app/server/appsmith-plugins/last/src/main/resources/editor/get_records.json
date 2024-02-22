@@ -1,0 +1,15 @@
+{
+    "children": [
+        {
+            "configProperty": "actionConfiguration.formData.name",
+            "identifier": "name",
+            "label": "Name",
+            "tooltipText": ""
+        }
+    ],
+    "conditionals": {
+        "show": "{{actionConfiguration.formData.command.data === 'get_records'}}"
+    },
+    "controlType": "SECTION",
+    "identifier": "get_records"
+}
