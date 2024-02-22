@@ -105,24 +105,21 @@ import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSele
 import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { GracefulWorkerService } from "utils/WorkerUtil";
 
-// import w from "../workers/Evaluation/evaluation.worker?worker";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
-const evalWorker: any = {
-  request: {},
-};
-// const evalWorker = new GracefulWorkerService(
-//   new Worker(
-//     new URL(w, import.meta.url),
-//     {
-//       type: "module",
-//       // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
-//       // relies on it to find workers in the list of all requests.
-//       name: "evalWorker",
-//     },
-//   ),
-// );
+const evalWorker = new GracefulWorkerService(
+  new Worker(
+    new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
+    {
+      type: "module",
+      // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
+      // relies on it to find workers in the list of all requests.
+      name: "evalWorker",
+    },
+  ),
+);
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
