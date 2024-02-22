@@ -137,8 +137,6 @@ import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
 import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
-import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
-import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -577,9 +575,7 @@ export function* deleteActionSaga(
   try {
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
-    const currentUrl = window.location.pathname;
     const action: Action | undefined = yield select(getAction, id);
-    const ideType = getIDETypeByUrl(currentUrl);
 
     if (!action) return;
 
@@ -614,11 +610,12 @@ export function* deleteActionSaga(
         queryName: name,
       });
     }
+    const currentUrl = window.location.pathname;
     const isEditorPaneSegmentsEnabled: boolean = yield select(
       getIsEditorPaneSegmentsEnabled,
     );
 
-    if (isEditorPaneSegmentsEnabled && ideType === IDE_TYPE.App) {
+    if (isEditorPaneSegmentsEnabled) {
       yield call(handleQueryEntityRedirect, action.id);
     } else {
       if (!!actionPayload.payload.onSuccess) {
