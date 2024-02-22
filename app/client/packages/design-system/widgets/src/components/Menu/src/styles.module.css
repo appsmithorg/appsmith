@@ -2,7 +2,7 @@
 
 .menu {
   background-color: var(--color-bg-elevation-3);
-  border-radius: var(--border-radius-elevation-3);
+  border-radius: var(--border-radius-1);
   z-index: var(--z-index-99);
   box-shadow: var(--box-shadow-1);
   min-inline-size: var(--sizing-30);
@@ -32,13 +32,13 @@
 }
 
 .menuList li:first-of-type {
-  border-top-left-radius: var(--border-radius-elevation-3);
-  border-top-right-radius: var(--border-radius-elevation-3);
+  border-top-left-radius: var(--border-radius-1);
+  border-top-right-radius: var(--border-radius-1);
 }
 
 .menuList li:last-of-type {
-  border-bottom-left-radius: var(--border-radius-elevation-3);
-  border-bottom-right-radius: var(--border-radius-elevation-3);
+  border-bottom-left-radius: var(--border-radius-1);
+  border-bottom-right-radius: var(--border-radius-1);
 }
 
 .menuList li:focus {

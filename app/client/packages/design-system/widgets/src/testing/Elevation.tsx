@@ -9,7 +9,10 @@ export const Elevation = () => {
       style={{
         background: "var(--color-bg-elevation-1)",
         boxShadow: "var(--box-shadow-1)",
-        borderRadius: "var(--border-radius-elevation-3)",
+        // Uncomment for quick testing of harmonized corner radii
+        // TODO: replace with proper radii scale
+        // borderRadius: "calc(var(--border-radius-1) + var(--outer-spacing-6)*2)",
+        borderRadius: "var(--border-radius-1)",
       }}
     >
       <Flex
@@ -18,7 +21,10 @@ export const Elevation = () => {
         style={{
           background: "var(--color-bg-elevation-2)",
           boxShadow: "var(--box-shadow-2)",
-          borderRadius: "var(--border-radius-elevation-3)",
+          // Uncomment for quick testing of harmonized corner radii
+          // TODO: replace with proper radii scale
+          // borderRadius: "calc(var(--border-radius-1) + var(--outer-spacing-6))",
+          borderRadius: "var(--border-radius-1)",
         }}
       >
         <Flex
@@ -27,7 +33,7 @@ export const Elevation = () => {
           style={{
             background: "var(--color-bg-elevation-3)",
             boxShadow: "var(--box-shadow-3)",
-            borderRadius: "var(--border-radius-elevation-3)",
+            borderRadius: "var(--border-radius-1)",
           }}
         >
           <Button>Do the Thing</Button>

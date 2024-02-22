@@ -39,5 +39,6 @@ export function useWidgetBorderStyles(widgetId: string) {
 
   return {
     border: `2px solid ${canShowBorder ? borderColor : "transparent"}`,
+    borderRadius: "4px 0 4px 4px",
   };
 }

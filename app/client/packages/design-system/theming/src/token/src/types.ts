@@ -1,17 +1,3 @@
-import arial from "@capsizecss/metrics/arial";
-import inter from "@capsizecss/metrics/inter";
-import rubik from "@capsizecss/metrics/rubik";
-import roboto from "@capsizecss/metrics/roboto";
-import ubuntu from "@capsizecss/metrics/ubuntu";
-import poppins from "@capsizecss/metrics/poppins";
-import segoeUI from "@capsizecss/metrics/segoeUI";
-import openSans from "@capsizecss/metrics/openSans";
-import notoSans from "@capsizecss/metrics/notoSans";
-import montserrat from "@capsizecss/metrics/montserrat";
-import nunitoSans from "@capsizecss/metrics/nunitoSans12pt";
-import appleSystem from "@capsizecss/metrics/appleSystem";
-import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
-
 import type { ColorMode, ColorTypes } from "../../color";
 
 export type ThemeToken = {
@@ -23,7 +9,7 @@ export type TokenType =
   | "color"
   | "outerSpacing"
   | "innerSpacing"
-  | "borderRadiusElevation"
+  | "borderRadius"
   | "boxShadow"
   | "borderWidth"
   | "opacity"
@@ -40,7 +26,7 @@ export interface TokenSource {
   typography?: Typography;
   seedColor?: ColorTypes;
   colorMode?: ColorMode;
-  borderRadiusElevation?: TokenObj;
+  borderRadius?: TokenObj;
   boxShadow?: TokenObj;
   borderWidth?: TokenObj;
   opacity?: TokenObj;
@@ -58,27 +44,19 @@ export interface TokenObj {
   [key: string]: string | number;
 }
 
-export interface IconDensity {
-  tight: TokenObj;
-  regular: TokenObj;
-  loose: TokenObj;
-}
-
-export interface IconSizing {
-  small: TokenObj;
-  regular: TokenObj;
-  big: TokenObj;
-}
-
-export interface TokenScaleConfig {
-  V: number;
-  R: number;
-  N: number;
-  stepsUp: number;
-  stepsDown: number;
-  userSizingRatio?: number;
-  userDensityRatio?: number;
-}
+import arial from "@capsizecss/metrics/arial";
+import inter from "@capsizecss/metrics/inter";
+import rubik from "@capsizecss/metrics/rubik";
+import roboto from "@capsizecss/metrics/roboto";
+import ubuntu from "@capsizecss/metrics/ubuntu";
+import poppins from "@capsizecss/metrics/poppins";
+import segoeUI from "@capsizecss/metrics/segoeUI";
+import openSans from "@capsizecss/metrics/openSans";
+import notoSans from "@capsizecss/metrics/notoSans";
+import montserrat from "@capsizecss/metrics/montserrat";
+import nunitoSans from "@capsizecss/metrics/nunitoSans12pt";
+import appleSystem from "@capsizecss/metrics/appleSystem";
+import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
 
 export const FONT_METRICS = {
   Poppins: poppins,

@@ -14,7 +14,7 @@
   padding-inline: var(--inner-spacing-3);
   padding-block: var(--inner-spacing-2);
   min-inline-size: var(--sizing-14);
-  border-radius: var(--border-radius-elevation-3);
+  border-radius: var(--border-radius-1);
 
   @each $color in colors {
     &[data-variant="filled"][data-color="$(color)"] {
@@ -170,11 +170,21 @@
     min-inline-size: var(--sizing-7);
     block-size: var(--sizing-7);
     padding-inline: var(--inner-spacing-2);
+
+    & [data-icon] {
+      inline-size: var(--sizing-4);
+      min-inline-size: var(--sizing-4);
+    }
   }
 
   &[data-size="medium"] {
     min-inline-size: var(--sizing-9);
     block-size: var(--sizing-9);
+
+    & [data-icon] {
+      inline-size: var(--sizing-5);
+      min-inline-size: var(--sizing-5);
+    }
   }
 }
 

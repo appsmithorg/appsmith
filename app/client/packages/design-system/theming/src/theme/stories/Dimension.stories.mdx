@@ -10,43 +10,69 @@ import {
 
 # Dimension
 
-WDS provides a set of dimensions scales defining sizing, distances, corner radii etc. They define dimensions of UI in an application. WDS always provide precise integer pixel values. This is used to optimize the quality of rendering, e.g. rasterization of strokes in icons.
+WDS provides a set of dimensions scales defining sizing, distances, corner radii etc. They define dimensions of UI in an application. Instead of switching between different tokens depending on the viewport size WDS opts out to provide fluid tokens, so the token values themselves are responsive to the viewport size and fluidly interpolate between minimum and maximum value.
+
+In addition to fluid scales WDS provides non-fluid scales. They always provide precise integer pixel values and switch between those based on viewport size. This is used to optimize the quality of rendering, e.g. rasterization of strokes in icons.
 
 ## Available Scales
+
+### Fluid
 
 - [Outer Spacing](#outer-spacing)
 - [Inner Spacing](#inner-spacing)
 - [Typography Sizing](#typography-sizing)
 - [Border Radii](#border-radii)
+
+### Non-fluid
+
 - [Icon Sizing](#icon-sizing)
-- [Icon Stroke](#icon-stroke)
 - [Border Thickness](#border-thickness)
 
-## Sizing
+## Fluid Sizing
 
-As a basis for token calculations, we use the musical scale formula. The base formula for the token size looks like this:
+The base formula for the minimum token size looks like this:
 
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-  <mi>Size</mi>
+  <mi>MinSize</mi>
   <mo>=</mo>
-  <mi>V</mi>
+  <mi>MinV</mi>
   <mo>×</mo>
   <mi>
     <msup>
-      <mi>R</mi>
+      <mi>MinR</mi>
       <mn>
         <mfrac>
           <mi>i</mi>
-          <mi>N</mi>
+          <mi>MinN</mi>
         </mfrac>
       </mn>
     </msup>
   </mi>
 </math>
 
-In here `V`, `R`, and `N` are configuration defined values and `i` is step numerator.
+In here `MinV`, `MinR`, and `MinN` are configuration defined values and `i` is step numerator.
 
-> [Related article](https://spencermortensen.com/articles/typographic-scale/)
+For maximum value the formula is nearly identical:
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mi>MaxSize</mi>
+  <mo>=</mo>
+  <mi>MaxV</mi>
+  <mo>×</mo>
+  <mi>
+    <msup>
+      <mi>MaxR</mi>
+      <mn>
+        <mfrac>
+          <mi>i</mi>
+          <mi>MaxN</mi>
+        </mfrac>
+      </mn>
+    </msup>
+  </mi>
+</math>
+
+In between these two values the value of the token is interpolated using CSS `clamp` function and vieport-relative `vw` units, e.g.: `--outer-spacing-1: clamp(4.6px, calc(0.29vw + 3.54px), 9.2px)`.
 
 ## User Sizing and Density Coefficient Adjustments
 
@@ -59,9 +85,12 @@ const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
 
 const scales = calculateScales(
  {
-  V: V * ratio,
+  minV: minV * ratio,
+  maxV: maxV * ratio,
   ...rest,
  },
+ minVw,
+ maxVw,
 );
 ```
 
@@ -134,11 +163,7 @@ export const BorderRadius = () => {
 
 ### Icon Sizing
 
---
-
-### Icon Stroke
-
---
+Icon size tokens are applied to icons and are affected by `sizing` theme prop as well as available viewport size.
 
 [Table will be here once scale is implemented]
 
