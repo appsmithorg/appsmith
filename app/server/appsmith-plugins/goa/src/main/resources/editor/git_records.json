@@ -1,0 +1,24 @@
+{
+    "children": [
+        {
+            "configProperty": "actionConfiguration.formData.name",
+            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+            "identifier": "name",
+            "isRequired": true,
+            "label": "Name",
+            "tooltipText": ""
+        },
+        {
+            "configProperty": "actionConfiguration.formData.page_number",
+            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+            "identifier": "page_number",
+            "label": "page",
+            "tooltipText": ""
+        }
+    ],
+    "conditionals": {
+        "show": "{{actionConfiguration.formData.command.data === 'git_records'}}"
+    },
+    "controlType": "SECTION",
+    "identifier": "git_records"
+}

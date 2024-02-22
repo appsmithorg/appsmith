@@ -1,0 +1,17 @@
+{
+    "children": [
+        {
+            "configProperty": "actionConfiguration.formData.data",
+            "controlType": "QUERY_DYNAMIC_TEXT",
+            "identifier": "data",
+            "isRequired": true,
+            "label": "",
+            "tooltipText": ""
+        }
+    ],
+    "conditionals": {
+        "show": "{{actionConfiguration.formData.command.data === 'put_records'}}"
+    },
+    "controlType": "SECTION",
+    "identifier": "put_records"
+}

@@ -1,0 +1,33 @@
+{
+    "editor": [
+        {
+            "children": [
+                {
+                    "configProperty": "actionConfiguration.formData.command.data",
+                    "controlType": "DROP_DOWN",
+                    "description": "Select the operation you would like to execute",
+                    "isRequired": true,
+                    "label": "Operation",
+                    "options": [
+                        {
+                            "label": "get records",
+                            "value": "git_records"
+                        },
+                        {
+                            "label": "pug records",
+                            "value": "put_records"
+                        }
+                    ],
+                    "propertyName": "rows_commands",
+                    "tooltipText": "The command to run on the datasource"
+                }
+            ],
+            "controlType": "SECTION",
+            "identifier": "SELECTOR"
+        }
+    ],
+    "files": [
+        "git_records.json",
+        "put_records.json"
+    ]
+}
