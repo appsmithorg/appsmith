@@ -1842,6 +1842,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<PageMetricsDTO> findAllActionExecutionMetrics(String applicationId) {
+        Set<String> pluginIds = new HashSet<>();
         Mono<Map<String, Collection<Tuple2<Integer, NewAction>>>> pageToActionListMap = repository
                 .findByApplicationId(applicationId)
                 .flatMap(newAction -> {
@@ -1851,6 +1852,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     } catch (NoSuchAlgorithmException e) {
                         throw new RuntimeException(e);
                     }
+
+                    // Collect the plugin ids used in the application.
+                    String pluginId = newAction.getPluginId();
+                    pluginIds.add(pluginId);
+
                     return actionExecutionMetricRepository
                             .findByActionIdAndHash(newAction.getId(), hash)
                             .collectList()
@@ -1871,6 +1877,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .cache();
 
+        Mono<Map<String, Collection<Tuple2<String, String>>>> pluginIdToPluginNameMapMono = pageToActionListMap
+                .thenMany(Flux.fromIterable(pluginIds))
+                .flatMap(pluginId -> pluginService.findById(pluginId))
+                .map(plugin -> Tuples.of(plugin.getId(), plugin.getName()))
+                .collectMultimap(entry -> entry.getT1());
+
         return pageToActionListMap
                 .map(pageToActionList -> {
                     return pageToActionList.keySet();
@@ -1879,11 +1891,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return Flux.fromIterable(pageIds);
                 })
                 .flatMap(pageId -> {
-                    return Mono.zip(newPageService.getNameByPageId(pageId, FALSE), pageToActionListMap)
+                    return Mono.zip(
+                                    newPageService.getNameByPageId(pageId, FALSE),
+                                    pageToActionListMap,
+                                    pluginIdToPluginNameMapMono)
                             .map(tuple -> {
                                 String pageName = tuple.getT1();
                                 Collection<Tuple2<Integer, NewAction>> actions =
                                         tuple.getT2().get(pageId);
+                                Map<String, Collection<Tuple2<String, String>>> pluginIdToPluginCollectionMap =
+                                        tuple.getT3();
                                 PageMetricsDTO pageMetricsDTO = new PageMetricsDTO();
                                 pageMetricsDTO.setPageId(pageId);
                                 pageMetricsDTO.setPageName(pageName);
@@ -1897,8 +1914,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     actionMetricsDTO.setPluginType(
                                             newAction.getPluginType().name());
                                     actionMetricsDTO.setPluginId(newAction.getPluginId());
-                                    actionMetricsDTO.setPluginName(
-                                            newAction.getUnpublishedAction().getPluginName());
+                                    Collection<Tuple2<String, String>> tuple2s =
+                                            pluginIdToPluginCollectionMap.get(newAction.getPluginId());
+                                    String pluginName =
+                                            tuple2s.stream().findFirst().get().getT2();
+                                    actionMetricsDTO.setPluginName(pluginName);
                                     actionMetricsDTO.setAvgExecutionTime(tupleNew.getT1());
                                     actionMetricsDTOList.add(actionMetricsDTO);
                                 }
@@ -1960,10 +1980,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             } catch (NoSuchAlgorithmException e) {
                 return Mono.empty();
             }
+
+            String pluginId = action.getPluginId();
+            Mono<String> pluginNameMono = pluginService.findById(pluginId).map(Plugin::getName);
+
             return actionExecutionMetricRepository
                     .findByActionIdAndHash(action.getId(), hash)
                     .collectList()
-                    .map(metrics -> {
+                    .zipWith(pluginNameMono)
+                    .map(tuple -> {
+                        List<ActionExecutionMetric> metrics = tuple.getT1();
+                        String pluginName = tuple.getT2();
                         int sum = 0;
                         for (ActionExecutionMetric metric : metrics) {
                             sum += metric.getExecutionTimeInMs();
@@ -1976,7 +2003,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         actionMetricsDTO.setActionId(action.getId());
                         actionMetricsDTO.setActionName(actionDTO.getName());
                         actionMetricsDTO.setPluginType(action.getPluginType().name());
-                        actionMetricsDTO.setPluginName(actionDTO.getPluginName());
+                        actionMetricsDTO.setPluginName(pluginName);
                         actionMetricsDTO.setAvgExecutionTime(avgExecutionTime);
                         actionMetricsDTO.setPluginId(action.getPluginId());
                         return actionMetricsDTO;
