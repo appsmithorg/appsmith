@@ -272,6 +272,15 @@ const StyledText = styled(Text)`
   }
 `;
 
+const ExecutionTime = styled(Text)<{ status: string }>`
+  color: ${(props) =>
+    props.status === "success"
+      ? "var(--ads-v2-color-fg-success)"
+      : props.status === "warning"
+      ? "yellow"
+      : "var(--ads-v2-color-fg-error)"} !important;
+`;
+
 interface NoResponseProps {
   isButtonDisabled: boolean | undefined;
   isQueryRunning: boolean;
@@ -601,6 +610,15 @@ function ApiResponseView(props: Props) {
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
 
+  const getStatus = (time: number): string => {
+    if (time > 750 && time <= 1000) {
+      return "warning";
+    } else if (time > 1000) {
+      return "error";
+    }
+    return "success";
+  };
+
   return (
     <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>
       <Resizer
@@ -628,10 +646,15 @@ function ApiResponseView(props: Props) {
               </FlexContainer>
             )}
             <ResponseMetaInfo>
-              {actionResponse.duration && (
+              {actionResponse.executionTime && (
                 <FlexContainer>
                   <Text type={TextType.P3}>Time: </Text>
-                  <Text type={TextType.H5}>{actionResponse.duration} ms</Text>
+                  <ExecutionTime
+                    status={getStatus(actionResponse.executionTime)}
+                    type={TextType.H5}
+                  >
+                    {actionResponse.executionTime} ms
+                  </ExecutionTime>
                 </FlexContainer>
               )}
               {actionResponse.size && (

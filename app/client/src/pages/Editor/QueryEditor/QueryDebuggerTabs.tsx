@@ -43,13 +43,6 @@ import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { DatasourceStructureContext } from "entities/Datasource";
 
-const ResultsCount = styled.div`
-  position: absolute;
-  right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: 9px;
-  color: var(--ads-v2-color-fg);
-`;
-
 export const TabbedViewContainer = styled.div`
   ${ResizerCSS};
   height: ${ActionExecutionResizerHeight}px;
@@ -58,6 +51,34 @@ export const TabbedViewContainer = styled.div`
   width: 100%;
   background-color: var(--ads-v2-color-bg);
   border-top: 1px solid var(--ads-v2-color-border);
+`;
+
+const ResponseMetaWrapper = styled.div`
+  align-items: center;
+  display: flex;
+  position: absolute;
+  right: ${(props) => props.theme.spaces[17] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 3}px;
+  z-index: 6;
+`;
+
+const FlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+
+  span:first-child {
+    margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+  }
+`;
+
+const ExecutionTime = styled(Text)<{ status: string }>`
+  color: ${(props) =>
+    props.status === "success"
+      ? "var(--ads-v2-color-fg-success)"
+      : props.status === "warning"
+      ? "yellow"
+      : "var(--ads-v2-color-fg-error)"} !important;
 `;
 
 interface QueryDebuggerTabsProps {
@@ -197,6 +218,15 @@ function QueryDebuggerTabs({
     });
   }
 
+  const getStatus = (time: number): string => {
+    if (time > 750 && time <= 1000) {
+      return "warning";
+    } else if (time > 1000) {
+      return "error";
+    }
+    return "success";
+  };
+
   return (
     <TabbedViewContainer
       className="t--query-bottom-pane-container"
@@ -212,16 +242,30 @@ function QueryDebuggerTabs({
         snapToHeight={ActionExecutionResizerHeight}
       />
 
-      {output && !!output.length && (
-        <ResultsCount>
-          <Text type={TextType.P3}>
-            Result:
-            <Text type={TextType.H5}>{` ${output.length} Record${
-              output.length > 1 ? "s" : ""
-            }`}</Text>
-          </Text>
-        </ResultsCount>
-      )}
+      <ResponseMetaWrapper>
+        {output && !!output.length && (
+          <FlexContainer>
+            <Text type={TextType.P3}>
+              Result:
+              <Text type={TextType.H5}>{` ${output.length} Record${
+                output.length > 1 ? "s" : ""
+              }`}</Text>
+            </Text>
+          </FlexContainer>
+        )}
+
+        {actionResponse?.executionTime && (
+          <FlexContainer>
+            <Text type={TextType.P3}>Time: </Text>
+            <ExecutionTime
+              status={getStatus(actionResponse.executionTime)}
+              type={TextType.H5}
+            >
+              {actionResponse.executionTime} ms
+            </ExecutionTime>
+          </FlexContainer>
+        )}
+      </ResponseMetaWrapper>
 
       <EntityBottomTabs
         expandedHeight={`${ActionExecutionResizerHeight}px`}
