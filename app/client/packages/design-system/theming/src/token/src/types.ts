@@ -23,7 +23,7 @@ export type TokenType =
   | "color"
   | "outerSpacing"
   | "innerSpacing"
-  | "borderRadius"
+  | "borderRadiusElevation"
   | "boxShadow"
   | "borderWidth"
   | "opacity"
@@ -40,7 +40,7 @@ export interface TokenSource {
   typography?: Typography;
   seedColor?: ColorTypes;
   colorMode?: ColorMode;
-  borderRadius?: TokenObj;
+  borderRadiusElevation?: TokenObj;
   boxShadow?: TokenObj;
   borderWidth?: TokenObj;
   opacity?: TokenObj;
