@@ -75,8 +75,8 @@ public class CustomApiPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            datasourceConfiguration.setUrl("http://example.com");
-            actionConfiguration.setPath("/path");
+            datasourceConfiguration.setUrl("http://test.com");
+            actionConfiguration.setPath("/test");
             actionConfiguration.setHeaders("");
             actionConfiguration.setQueryParameters("");
             actionConfiguration.setBody("something");
