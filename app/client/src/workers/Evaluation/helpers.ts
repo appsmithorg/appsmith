@@ -304,6 +304,7 @@ const generateDiffUpdates = (
         return true;
       }
 
+      //
       //if the values are different attach the update directly
       !equal(lhs, rhs) &&
         attachDirectly.push({ kind: "N", path: segmentedPath, rhs });
