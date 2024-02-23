@@ -216,7 +216,7 @@ describe.skip(
           entityType: entityItems.Query,
         });
         dataSources.DeleteDatasourceFromWithinDS(dsName);
-        //dataSources.StopNDeleteContainer(containerName);
+        dataSources.StopNDeleteContainer(containerName);
       });
     });
   },
