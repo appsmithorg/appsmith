@@ -1,3 +1,4 @@
+import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
@@ -31,7 +32,11 @@ describe(
 
     it("1. Table Widget one click binding in enabled JS mode for datasource and API", () => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
-      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.TABLE,
+        300,
+        400,
+      );
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
@@ -39,10 +44,9 @@ describe(
         `${datasourceName}`,
         datasourceName,
         "public.employees",
-        {
-          searchableColumn: "first_name",
-        },
       );
+
+      _.agHelper.GetNClick(OneClickBindingLocator.connectData);
 
       _.agHelper.AssertClassExists(
         _.locators._jsToggle("tabledata"),
@@ -50,7 +54,7 @@ describe(
       );
 
       EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
-      oneClickBinding.ChooseAndAssertForm(`Api1`, "");
+      oneClickBinding.ChooseQuery(`Api1`);
       _.agHelper.AssertClassExists(
         _.locators._jsToggle("tabledata"),
         "is-active",
@@ -58,8 +62,12 @@ describe(
     });
 
     it("2. Select Widget one click binding in enabled JS mode for datasource and API", () => {
-      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT);
-      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT);
+      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 600);
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.SELECT,
+        600,
+        200,
+      );
 
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
@@ -68,26 +76,37 @@ describe(
         datasourceName,
         "public.employees",
         {
-          searchableColumn: "first_name",
+          label: "first_name",
+          value: "last_name",
         },
       );
 
+      _.agHelper.GetNClick(OneClickBindingLocator.connectData);
+
       _.agHelper.AssertClassExists(
-        _.locators._jsToggle("tabledata"),
+        _.locators._jsToggle("sourcedata"),
         "is-active",
       );
 
       EditorNavigation.SelectEntityByName("Select2", EntityType.Widget);
-      oneClickBinding.ChooseAndAssertForm(`Api1`, "");
+      oneClickBinding.ChooseQuery(`Api1`);
       _.agHelper.AssertClassExists(
-        _.locators._jsToggle("tabledata"),
+        _.locators._jsToggle("sourcedata"),
         "is-active",
       );
     });
 
     it("3. Multi Select Widget one click binding in enabled JS mode for datasource and API", () => {
-      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MULTISELECT);
-      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT);
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.MULTISELECT,
+        600,
+        400,
+      );
+      _.entityExplorer.DragDropWidgetNVerify(
+        _.draggableWidgets.MULTISELECT,
+        600,
+        800,
+      );
 
       EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
 
@@ -96,19 +115,22 @@ describe(
         datasourceName,
         "public.employees",
         {
-          searchableColumn: "first_name",
-        },
+          label: "first_name",
+          value: "last_name",
+        }
       );
 
+      _.agHelper.GetNClick(OneClickBindingLocator.connectData);
+
       _.agHelper.AssertClassExists(
-        _.locators._jsToggle("tabledata"),
+        _.locators._jsToggle("sourcedata"),
         "is-active",
       );
 
       EditorNavigation.SelectEntityByName("MultiSelect2", EntityType.Widget);
-      oneClickBinding.ChooseAndAssertForm(`Api1`, "");
+      oneClickBinding.ChooseQuery(`Api1`);
       _.agHelper.AssertClassExists(
-        _.locators._jsToggle("tabledata"),
+        _.locators._jsToggle("sourcedata"),
         "is-active",
       );
     });
