@@ -4,7 +4,6 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
-  dataManager,
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
@@ -73,8 +72,7 @@ describe(
     it("4. In case of an image loading error, show off the error message", () => {
       cy.openPropertyPane("imagewidget");
       // Invalid image url
-      const invalidImageUrl =
-        "http://host.docker.internal:8001/photo-not-exists.jpeg";
+      const invalidImageUrl = "https://www.example.com/does-not-exist.jpg";
       cy.testCodeMirror(invalidImageUrl);
 
       // Show off error message
