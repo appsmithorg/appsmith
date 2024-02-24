@@ -70,6 +70,7 @@ const checkPathsInConfig = (
 
 // "originalWidget" param here always contains the complete widget props
 // as this function's widget parameter tends to change in each iteration
+let totalTime = 0
 const childHasPanelConfig = (
   config: any,
   widget: WidgetProps,
@@ -292,6 +293,7 @@ const childHasPanelConfig = (
   //   validationPaths: finishDraft(validationPaths),
   //   bindingPaths: finishDraft(bindingPaths),
   // };
+  totalTime += (performance.now() - start);
   if (widget.type == 'JSON_FORM_WIDGET') {
     console.log("***", "child has pannnneeeel config timing for widget ", widget.type, " is ", performance.now() - start);
   }
@@ -368,6 +370,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             basePath,
             widget, {}, {}, {}, {}
           );
+          console.log("***", "total time taken by child has panel config is ", totalTime);
           Object.assign(bindingPaths, resultingPaths.bindingPaths);
           Object.assign(reactivePaths, resultingPaths.reactivePaths);
           Object.assign(triggerPaths, resultingPaths.triggerPaths);
