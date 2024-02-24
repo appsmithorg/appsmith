@@ -139,7 +139,7 @@ const childHasPanelConfig = (
                             reactivePaths: panelReactivePaths,
                             triggerPaths: panelTriggerPaths,
                             validationPaths: panelValidationPaths,
-                          } = childHasPanelConfig(
+                          } = memoizedChildHasPanelConfig(
                             panelColumnControlConfig,
                             widgetPanelPropertyValue,
                             panelPropertyConfigPath,
@@ -187,7 +187,7 @@ const childHasPanelConfig = (
                         reactivePaths: panelReactivePaths,
                         triggerPaths: panelTriggerPaths,
                         validationPaths: panelValidationPaths,
-                      } = childHasPanelConfig(
+                      } = memoizedChildHasPanelConfig(
                         panelColumnControlOrSectionConfig,
                         widgetPanelPropertyValue,
                         panelPropertyConfigPath,
@@ -221,6 +221,8 @@ const childHasPanelConfig = (
     bindingPaths: bindingPaths,
   };
 };
+
+const memoizedChildHasPanelConfig = memoize(childHasPanelConfig);
 
 const getAllPathsFromPropertyConfigWithoutMemo = (
   widget: WidgetProps,
@@ -263,7 +265,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
         }
         // Has child Panel Config
         if (controlConfig.panelConfig) {
-          const resultingPaths = childHasPanelConfig(
+          const resultingPaths = memoizedChildHasPanelConfig(
             controlConfig,
             widget,
             basePath,

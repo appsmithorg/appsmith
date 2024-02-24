@@ -136,6 +136,7 @@ export class DataTreeFactory {
     };
 
     log.debug("### Create unevalTree timing", out);
+    console.log("***", "TOTAL TIME for creating uneval tree is ", out.total)
     return { unEvalTree: dataTree, configTree };
   }
 }
