@@ -3,6 +3,7 @@ import type {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+// import type { GraphQLSchemaValidationOptions } from "graphql/type/schema";
 import { createDraft, finishDraft } from "immer";
 import { get, isObject, isUndefined, omitBy } from "lodash";
 import memoize from "micro-memoize";
@@ -62,10 +63,10 @@ const checkPathsInConfig = (
     configValidationPaths,
   };
 };
-const mergeObjectThroughMutation = (draft: any, obj: object) =>
-  Object.entries(obj).forEach(([key, value]) => {
-    draft[key] = value;
-  });
+// const mergeObjectThroughMutation = (draft: any, obj: object) =>
+//   Object.entries(obj).forEach(([key, value]) => {
+//     draft[key] = value;
+//   });
 
 // "originalWidget" param here always contains the complete widget props
 // as this function's widget parameter tends to change in each iteration
@@ -74,14 +75,19 @@ const childHasPanelConfig = (
   widget: WidgetProps,
   basePath: string,
   originalWidget: WidgetProps,
+  bindingPaths: BindingPaths,
+  reactivePaths : ReactivePaths,
+  triggerPaths: Record<string, true>,
+  validationPaths : Record<any, ValidationConfig>
 ) => {
   const panelPropertyPath = config.propertyName;
   const widgetPanelPropertyValues = get(widget, panelPropertyPath);
+  const start = performance.now();
 
-  const bindingPaths: BindingPaths = createDraft({});
-  const reactivePaths: ReactivePaths = createDraft({});
-  const triggerPaths: Record<string, true> = createDraft({});
-  const validationPaths: Record<any, ValidationConfig> = createDraft({});
+  // const bindingPaths: BindingPaths = createDraft({});
+  // const reactivePaths: ReactivePaths = createDraft({});
+  // const triggerPaths: Record<string, true> = createDraft({});
+  // const validationPaths: Record<any, ValidationConfig> = createDraft({});
   if (widgetPanelPropertyValues) {
     Object.values(widgetPanelPropertyValues).forEach(
       (widgetPanelPropertyValue: any) => {
@@ -130,22 +136,26 @@ const childHasPanelConfig = (
                           panelColumnControlConfig,
                           panelPropertyConfigPath,
                         );
-                        mergeObjectThroughMutation(
-                          bindingPaths,
-                          configBindingPaths,
-                        );
-                        mergeObjectThroughMutation(
-                          reactivePaths,
-                          configReactivePaths,
-                        );
-                        mergeObjectThroughMutation(
-                          triggerPaths,
-                          configTriggerPaths,
-                        );
-                        mergeObjectThroughMutation(
-                          validationPaths,
-                          configValidationPaths,
-                        );
+                        Object.assign(bindingPaths, configBindingPaths);
+                        Object.assign(reactivePaths, configReactivePaths);
+                        Object.assign(triggerPaths, configTriggerPaths);
+                        Object.assign(validationPaths, configValidationPaths);
+                        // mergeObjectThroughMutation(
+                        //   bindingPaths,
+                        //   configBindingPaths,
+                        // );
+                        // mergeObjectThroughMutation(
+                        //   reactivePaths,
+                        //   configReactivePaths,
+                        // );
+                        // mergeObjectThroughMutation(
+                        //   triggerPaths,
+                        //   configTriggerPaths,
+                        // );
+                        // mergeObjectThroughMutation(
+                        //   validationPaths,
+                        //   configValidationPaths,
+                        // );
 
                         // Has child Panel Config
                         if (panelColumnControlConfig.panelConfig) {
@@ -159,24 +169,30 @@ const childHasPanelConfig = (
                             widgetPanelPropertyValue,
                             panelPropertyConfigPath,
                             originalWidget,
+                            bindingPaths, reactivePaths, triggerPaths, validationPaths
                           );
 
-                          mergeObjectThroughMutation(
-                            bindingPaths,
-                            panelBindingPaths,
-                          );
-                          mergeObjectThroughMutation(
-                            reactivePaths,
-                            panelReactivePaths,
-                          );
-                          mergeObjectThroughMutation(
-                            triggerPaths,
-                            panelTriggerPaths,
-                          );
-                          mergeObjectThroughMutation(
-                            validationPaths,
-                            panelValidationPaths,
-                          );
+                          Object.assign(bindingPaths, panelBindingPaths);
+                        Object.assign(reactivePaths, panelReactivePaths);
+                        Object.assign(triggerPaths, panelTriggerPaths);
+                        Object.assign(validationPaths, panelValidationPaths);
+
+                          // mergeObjectThroughMutation(
+                          //   bindingPaths,
+                          //   panelBindingPaths,
+                          // );
+                          // mergeObjectThroughMutation(
+                          //   reactivePaths,
+                          //   panelReactivePaths,
+                          // );
+                          // mergeObjectThroughMutation(
+                          //   triggerPaths,
+                          //   panelTriggerPaths,
+                          // );
+                          // mergeObjectThroughMutation(
+                          //   validationPaths,
+                          //   panelValidationPaths,
+                          // );
                         }
                       }
                     },
@@ -200,23 +216,28 @@ const childHasPanelConfig = (
                       panelColumnControlOrSectionConfig,
                       panelPropertyConfigPath,
                     );
-                    mergeObjectThroughMutation(
-                      bindingPaths,
-                      configBindingPaths,
-                    );
-                    mergeObjectThroughMutation(
-                      reactivePaths,
-                      configReactivePaths,
-                    );
+                    Object.assign(bindingPaths, configBindingPaths);
+                        Object.assign(reactivePaths, configReactivePaths);
+                        Object.assign(triggerPaths, configTriggerPaths);
+                        Object.assign(validationPaths, configValidationPaths);
 
-                    mergeObjectThroughMutation(
-                      triggerPaths,
-                      configTriggerPaths,
-                    );
-                    mergeObjectThroughMutation(
-                      validationPaths,
-                      configValidationPaths,
-                    );
+                    // mergeObjectThroughMutation(
+                    //   bindingPaths,
+                    //   configBindingPaths,
+                    // );
+                    // mergeObjectThroughMutation(
+                    //   reactivePaths,
+                    //   configReactivePaths,
+                    // );
+
+                    // mergeObjectThroughMutation(
+                    //   triggerPaths,
+                    //   configTriggerPaths,
+                    // );
+                    // mergeObjectThroughMutation(
+                    //   validationPaths,
+                    //   configValidationPaths,
+                    // );
 
                     // Has child Panel Config
                     if (panelColumnControlOrSectionConfig.panelConfig) {
@@ -229,25 +250,31 @@ const childHasPanelConfig = (
                         panelColumnControlOrSectionConfig,
                         widgetPanelPropertyValue,
                         panelPropertyConfigPath,
-                        originalWidget,
-                      );
-                      mergeObjectThroughMutation(
-                        bindingPaths,
-                        panelBindingPaths,
-                      );
-                      mergeObjectThroughMutation(
-                        reactivePaths,
-                        panelReactivePaths,
+                        originalWidget, bindingPaths, reactivePaths, triggerPaths, validationPaths
                       );
 
-                      mergeObjectThroughMutation(
-                        triggerPaths,
-                        panelTriggerPaths,
-                      );
-                      mergeObjectThroughMutation(
-                        validationPaths,
-                        panelValidationPaths,
-                      );
+                      Object.assign(bindingPaths, panelBindingPaths);
+                        Object.assign(reactivePaths, panelReactivePaths);
+                        Object.assign(triggerPaths, panelTriggerPaths);
+                        Object.assign(validationPaths, panelValidationPaths);
+                      
+                      // mergeObjectThroughMutation(
+                      //   bindingPaths,
+                      //   panelBindingPaths,
+                      // );
+                      // mergeObjectThroughMutation(
+                      //   reactivePaths,
+                      //   panelReactivePaths,
+                      // );
+
+                      // mergeObjectThroughMutation(
+                      //   triggerPaths,
+                      //   panelTriggerPaths,
+                      // );
+                      // mergeObjectThroughMutation(
+                      //   validationPaths,
+                      //   panelValidationPaths,
+                      // );
                     }
                   }
                 }
@@ -259,11 +286,21 @@ const childHasPanelConfig = (
     );
   }
 
+  // return {
+  //   reactivePaths: finishDraft(reactivePaths),
+  //   triggerPaths: finishDraft(triggerPaths),
+  //   validationPaths: finishDraft(validationPaths),
+  //   bindingPaths: finishDraft(bindingPaths),
+  // };
+  if (widget.type == 'JSON_FORM_WIDGET') {
+    console.log("***", "child has pannnneeeel config timing for widget ", widget.type, " is ", performance.now() - start);
+  }
+  
   return {
-    reactivePaths: finishDraft(reactivePaths),
-    triggerPaths: finishDraft(triggerPaths),
-    validationPaths: finishDraft(validationPaths),
-    bindingPaths: finishDraft(bindingPaths),
+    reactivePaths: reactivePaths,
+    triggerPaths: triggerPaths,
+    validationPaths: validationPaths,
+    bindingPaths: bindingPaths,
   };
 };
 
@@ -277,13 +314,21 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
   triggerPaths: Record<string, true>;
   validationPaths: Record<string, ValidationConfig>;
 } => {
-  const bindingPaths: BindingPaths = createDraft({});
-  const reactivePaths: ReactivePaths = createDraft({});
+  // const bindingPaths: BindingPaths = createDraft({});
+  // const reactivePaths: ReactivePaths = createDraft({});
+  // Object.keys(defaultProperties).forEach((property) => {
+  //   reactivePaths[property] = EvaluationSubstitutionType.TEMPLATE;
+  // });
+  // const triggerPaths: Record<string, true> = createDraft({});
+  // const validationPaths: Record<any, ValidationConfig> = createDraft({});
+
+  const bindingPaths: BindingPaths = {};
+  const reactivePaths: ReactivePaths = {};
   Object.keys(defaultProperties).forEach((property) => {
     reactivePaths[property] = EvaluationSubstitutionType.TEMPLATE;
   });
-  const triggerPaths: Record<string, true> = createDraft({});
-  const validationPaths: Record<any, ValidationConfig> = createDraft({});
+  const triggerPaths: Record<string, true> = {};
+  const validationPaths: Record<any, ValidationConfig> = {};
 
   widgetConfig.forEach((config) => {
     if (config.children) {
@@ -301,15 +346,19 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             configTriggerPaths,
             configValidationPaths,
           } = checkPathsInConfig(controlConfig, path);
+          Object.assign(bindingPaths, configBindingPaths);
+          Object.assign(reactivePaths, configReactivePaths);
+          Object.assign(triggerPaths, configTriggerPaths);
+          Object.assign(validationPaths, configValidationPaths);
 
-          mergeObjectThroughMutation(bindingPaths, configBindingPaths);
+          // mergeObjectThroughMutation(bindingPaths, configBindingPaths);
 
-          // Update default path configs with the ones in the property config
-          mergeObjectThroughMutation(reactivePaths, configReactivePaths);
+          // // Update default path configs with the ones in the property config
+          // mergeObjectThroughMutation(reactivePaths, configReactivePaths);
 
-          mergeObjectThroughMutation(triggerPaths, configTriggerPaths);
+          // mergeObjectThroughMutation(triggerPaths, configTriggerPaths);
 
-          mergeObjectThroughMutation(validationPaths, configValidationPaths);
+          // mergeObjectThroughMutation(validationPaths, configValidationPaths);
         }
         // Has child Panel Config
         if (controlConfig.panelConfig) {
@@ -317,18 +366,23 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             controlConfig,
             widget,
             basePath,
-            widget,
+            widget, {}, {}, {}, {}
           );
-          mergeObjectThroughMutation(bindingPaths, resultingPaths.bindingPaths);
-          mergeObjectThroughMutation(
-            reactivePaths,
-            resultingPaths.reactivePaths,
-          );
-          mergeObjectThroughMutation(triggerPaths, resultingPaths.triggerPaths);
-          mergeObjectThroughMutation(
-            validationPaths,
-            resultingPaths.validationPaths,
-          );
+          Object.assign(bindingPaths, resultingPaths.bindingPaths);
+          Object.assign(reactivePaths, resultingPaths.reactivePaths);
+          Object.assign(triggerPaths, resultingPaths.triggerPaths);
+          Object.assign(validationPaths, resultingPaths.validationPaths);
+
+          // mergeObjectThroughMutation(bindingPaths, resultingPaths.bindingPaths);
+          // mergeObjectThroughMutation(
+          //   reactivePaths,
+          //   resultingPaths.reactivePaths,
+          // );
+          // mergeObjectThroughMutation(triggerPaths, resultingPaths.triggerPaths);
+          // mergeObjectThroughMutation(
+          //   validationPaths,
+          //   resultingPaths.validationPaths,
+          // );
         }
         if (controlConfig.children) {
           const basePropertyPath = controlConfig.propertyName;
@@ -351,13 +405,19 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
                   childPropertyConfig,
                   childArrayPropertyPath,
                 );
-                mergeObjectThroughMutation(bindingPaths, configBindingPaths);
-                mergeObjectThroughMutation(reactivePaths, configReactivePaths);
-                mergeObjectThroughMutation(triggerPaths, configTriggerPaths);
-                mergeObjectThroughMutation(
-                  validationPaths,
-                  configValidationPaths,
-                );
+
+                Object.assign(bindingPaths, configBindingPaths);
+          Object.assign(reactivePaths, configReactivePaths);
+          Object.assign(triggerPaths, configTriggerPaths);
+          Object.assign(validationPaths, configValidationPaths);
+                
+                // mergeObjectThroughMutation(bindingPaths, configBindingPaths);
+                // mergeObjectThroughMutation(reactivePaths, configReactivePaths);
+                // mergeObjectThroughMutation(triggerPaths, configTriggerPaths);
+                // mergeObjectThroughMutation(
+                //   validationPaths,
+                //   configValidationPaths,
+                // );
               });
             });
           }
@@ -366,11 +426,17 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
     }
   });
 
+  // return {
+  //   reactivePaths: finishDraft(reactivePaths),
+  //   triggerPaths: finishDraft(triggerPaths),
+  //   validationPaths: finishDraft(validationPaths),
+  //   bindingPaths: finishDraft(bindingPaths),
+  // };
   return {
-    reactivePaths: finishDraft(reactivePaths),
-    triggerPaths: finishDraft(triggerPaths),
-    validationPaths: finishDraft(validationPaths),
-    bindingPaths: finishDraft(bindingPaths),
+    reactivePaths: reactivePaths,
+    triggerPaths: triggerPaths,
+    validationPaths: validationPaths,
+    bindingPaths: bindingPaths,
   };
 };
 
