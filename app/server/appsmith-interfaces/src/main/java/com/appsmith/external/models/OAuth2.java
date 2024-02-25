@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.FieldNameConstants;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @DocumentType(Authentication.OAUTH2)
-@FieldNameConstants
 public class OAuth2 extends AuthenticationDTO {
 
     public enum Type {

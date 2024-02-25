@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
@@ -17,7 +16,6 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
-@FieldNameConstants
 public class CustomJSLib extends CustomJSLibCE {
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
