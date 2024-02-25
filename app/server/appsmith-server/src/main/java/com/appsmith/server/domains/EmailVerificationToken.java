@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.time.Instant;
 @ToString
 @NoArgsConstructor
 @Document
+@FieldNameConstants
 public class EmailVerificationToken extends BaseDomain {
     String tokenHash;
     String email;

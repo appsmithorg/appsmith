@@ -1,9 +1,9 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.QActionConfiguration;
-import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
@@ -80,15 +80,15 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria nameCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.name))
                 .is(name);
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria pageCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .is(pageId);
         // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
         // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria deletedCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                 .is(null);
 
@@ -100,10 +100,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission) {
-        String unpublishedPage = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.pageId);
-        String publishedPage = fieldName(QNewAction.newAction.publishedAction) + "."
-                + fieldName(QNewAction.newAction.publishedAction.pageId);
+        String unpublishedPage =
+                NewAction.Fields.unpublishedAction + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId);
+        String publishedPage =
+                NewAction.Fields.publishedAction + "." + fieldName(QNewAction.newAction.publishedAction.pageId);
 
         Criteria pageCriteria = new Criteria()
                 .orOperator(
@@ -114,10 +114,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission) {
-        String unpublishedPage = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.pageId);
-        String publishedPage = fieldName(QNewAction.newAction.publishedAction) + "."
-                + fieldName(QNewAction.newAction.publishedAction.pageId);
+        String unpublishedPage =
+                NewAction.Fields.unpublishedAction + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId);
+        String publishedPage =
+                NewAction.Fields.publishedAction + "." + fieldName(QNewAction.newAction.publishedAction.pageId);
 
         Criteria pageCriteria = new Criteria()
                 .orOperator(
@@ -143,21 +143,21 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriterion = where(fieldName(QNewAction.newAction.publishedAction) + "."
+            pageCriterion = where(NewAction.Fields.publishedAction + "."
                             + fieldName(QNewAction.newAction.publishedAction.pageId))
                     .is(pageId);
             criteria.add(pageCriterion);
         }
         // Fetch unpublished actions
         else {
-            pageCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+            pageCriterion = where(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                     .is(pageId);
             criteria.add(pageCriterion);
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+            Criteria deletedCriteria = where(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                     .is(null);
             criteria.add(deletedCriteria);
@@ -168,26 +168,26 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(
             Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission) {
-        Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
+        Criteria namesCriteria = where(NewAction.Fields.unpublishedAction
                         + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.name))
                 .in(names);
 
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
+        Criteria pageCriteria = where(NewAction.Fields.unpublishedAction
                         + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .is(pageId);
 
-        Criteria userSetOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
+        Criteria userSetOnLoadCriteria = where(NewAction.Fields.unpublishedAction
                         + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.userSetOnLoad))
                 .is(userSetOnLoad);
 
-        String httpMethodQueryKey = fieldName(QNewAction.newAction.unpublishedAction)
+        String httpMethodQueryKey = NewAction.Fields.unpublishedAction
                 + "."
                 + fieldName(QNewAction.newAction.unpublishedAction.actionConfiguration)
                 + "."
-                + fieldName(QActionConfiguration.actionConfiguration.httpMethod);
+                + ActionConfiguration.Fields.httpMethod;
 
         Criteria httpMethodCriteria = where(httpMethodQueryKey).is(httpMethod);
         List<Criteria> criterias = List.of(namesCriteria, pageCriteria, httpMethodCriteria, userSetOnLoadCriteria);
@@ -221,14 +221,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "."
+                Criteria nameCriteria = where(NewAction.Fields.publishedAction + "."
                                 + fieldName(QNewAction.newAction.publishedAction.name))
                         .is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "."
+                Criteria pageCriteria = where(NewAction.Fields.publishedAction + "."
                                 + fieldName(QNewAction.newAction.publishedAction.pageId))
                         .in(pageIds);
                 criteriaList.add(pageCriteria);
@@ -238,14 +238,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         else {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                Criteria nameCriteria = where(NewAction.Fields.unpublishedAction + "."
                                 + fieldName(QNewAction.newAction.unpublishedAction.name))
                         .is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                Criteria pageCriteria = where(NewAction.Fields.unpublishedAction + "."
                                 + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                         .in(pageIds);
                 criteriaList.add(pageCriteria);
@@ -253,7 +253,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+            Criteria deletedCriteria = where(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                     .is(null);
             criteriaList.add(deletedCriteria);
@@ -266,24 +266,24 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             Set<String> names, String pageId, AclPermission permission) {
         List<Criteria> criteriaList = new ArrayList<>();
         if (names != null) {
-            Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+            Criteria namesCriteria = where(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.name))
                     .in(names);
             criteriaList.add(namesCriteria);
         }
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria pageCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .is(pageId);
         criteriaList.add(pageCriteria);
 
-        Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria executeOnLoadCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad))
                 .is(Boolean.TRUE);
         criteriaList.add(executeOnLoadCriteria);
 
         // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
         // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria deletedCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                 .is(null);
         criteriaList.add(deletedCriteria);
@@ -297,22 +297,22 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         List<Criteria> criteriaList = new ArrayList<>();
 
         if (names != null) {
-            Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+            Criteria namesCriteria = where(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.name))
                     .in(names);
-            Criteria fullyQualifiedNamesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+            Criteria fullyQualifiedNamesCriteria = where(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.fullyQualifiedName))
                     .in(names);
             criteriaList.add(new Criteria().orOperator(namesCriteria, fullyQualifiedNamesCriteria));
         }
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria pageCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .is(pageId);
         criteriaList.add(pageCriteria);
 
         // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
         // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria deletedCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                 .is(null);
         criteriaList.add(deletedCriteria);
@@ -325,24 +325,24 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String pageId, AclPermission permission) {
         List<Criteria> criteriaList = new ArrayList<>();
 
-        Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria executeOnLoadCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad))
                 .is(Boolean.TRUE);
         criteriaList.add(executeOnLoadCriteria);
 
-        Criteria setByUserCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria setByUserCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.userSetOnLoad))
                 .is(Boolean.TRUE);
         criteriaList.add(setByUserCriteria);
 
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria pageCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .is(pageId);
         criteriaList.add(pageCriteria);
 
         // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
         // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria deletedCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                 .is(null);
         criteriaList.add(deletedCriteria);
@@ -363,8 +363,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     protected Criteria getCriterionForFindByApplicationId(String applicationId) {
-        Criteria applicationCriteria =
-                where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        Criteria applicationCriteria = where(NewAction.Fields.applicationId).is(applicationId);
         return applicationCriteria;
     }
 
@@ -386,7 +385,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+            Criteria deletedCriterion = where(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                     .is(null);
             criteria.add(deletedCriterion);
@@ -396,12 +395,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<Long> countByDatasourceId(String datasourceId) {
-        Criteria unpublishedDatasourceCriteria = where(
-                        fieldName(QNewAction.newAction.unpublishedAction) + ".datasource._id")
-                .is(new ObjectId(datasourceId));
-        Criteria publishedDatasourceCriteria = where(
-                        fieldName(QNewAction.newAction.publishedAction) + ".datasource._id")
-                .is(new ObjectId(datasourceId));
+        Criteria unpublishedDatasourceCriteria =
+                where(NewAction.Fields.unpublishedAction + ".datasource._id").is(new ObjectId(datasourceId));
+        Criteria publishedDatasourceCriteria =
+                where(NewAction.Fields.publishedAction + ".datasource._id").is(new ObjectId(datasourceId));
 
         Criteria datasourceCriteria =
                 notDeleted().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
@@ -415,7 +412,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission) {
-        final String defaultResources = fieldName(QNewAction.newAction.defaultResources);
+        final String defaultResources = NewAction.Fields.defaultResources;
         Criteria defaultActionIdCriteria =
                 where(defaultResources + "." + FieldName.ACTION_ID).is(defaultActionId);
         Criteria branchCriteria =
@@ -435,7 +432,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
@@ -448,7 +445,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
 
-        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria pageIdCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .in(pageIds);
 
@@ -457,7 +454,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria pageIdCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .in(pageIds);
 
@@ -483,14 +480,13 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria applicationCriterion = this.getCriterionForFindByApplicationId(applicationId);
         criteria.add(applicationCriterion);
 
-        Criteria nonJsTypeCriteria =
-                where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        Criteria nonJsTypeCriteria = where(NewAction.Fields.pluginType).ne(PluginType.JS);
         criteria.add(nonJsTypeCriteria);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+            Criteria deletedCriterion = where(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                     .is(null);
             criteria.add(deletedCriterion);
@@ -515,22 +511,21 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String name, List<String> pageIds, Boolean viewMode) {
         List<Criteria> criteriaList = new ArrayList<>();
 
-        Criteria nonJsTypeCriteria =
-                where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        Criteria nonJsTypeCriteria = where(NewAction.Fields.pluginType).ne(PluginType.JS);
         criteriaList.add(nonJsTypeCriteria);
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "."
+                Criteria nameCriteria = where(NewAction.Fields.publishedAction + "."
                                 + fieldName(QNewAction.newAction.publishedAction.name))
                         .is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "."
+                Criteria pageCriteria = where(NewAction.Fields.publishedAction + "."
                                 + fieldName(QNewAction.newAction.publishedAction.pageId))
                         .in(pageIds);
                 criteriaList.add(pageCriteria);
@@ -541,14 +536,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         else {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                Criteria nameCriteria = where(NewAction.Fields.unpublishedAction + "."
                                 + fieldName(QNewAction.newAction.unpublishedAction.name))
                         .is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                Criteria pageCriteria = where(NewAction.Fields.unpublishedAction + "."
                                 + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                         .in(pageIds);
                 criteriaList.add(pageCriteria);
@@ -556,7 +551,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+            Criteria deletedCriteria = where(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                     .is(null);
             criteriaList.add(deletedCriteria);
@@ -566,7 +561,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         return queryBuilder()
@@ -596,8 +591,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                                 AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
                                 AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
                                 AggregationOperation addFieldsOperation = Aggregation.addFields()
-                                        .addField(fieldName(QNewAction.newAction.publishedAction))
-                                        .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
+                                        .addField(NewAction.Fields.publishedAction)
+                                        .withValueOf(Fields.field(NewAction.Fields.unpublishedAction))
                                         .build();
                                 Aggregation combinedAggregation = Aggregation.newAggregation(
                                         matchAggregation,
@@ -616,8 +611,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
         String unpublishedDeletedAtFieldName = String.format(
                 "%s.%s",
-                fieldName(QNewAction.newAction.unpublishedAction),
-                fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
+                NewAction.Fields.unpublishedAction, fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
         Criteria deletedFromUnpublishedCriteria =
                 where(unpublishedDeletedAtFieldName).ne(null);
 
@@ -633,10 +627,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId) {
         GroupOperation countByPluginType =
-                group(fieldName(QNewAction.newAction.pluginType)).count().as("count");
-        MatchOperation filterStates = match(where(fieldName(QNewAction.newAction.applicationId))
-                .is(applicationId)
-                .andOperator(notDeleted()));
+                group(NewAction.Fields.pluginType).count().as("count");
+        MatchOperation filterStates =
+                match(where(NewAction.Fields.applicationId).is(applicationId).andOperator(notDeleted()));
         ProjectionOperation projectionOperation = project("count").and("_id").as("pluginType");
         Aggregation aggregation = newAggregation(filterStates, countByPluginType, projectionOperation);
         return mongoOperations.aggregate(
@@ -671,7 +664,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         if (!includeJs) {
             Criteria jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+                    where(NewAction.Fields.pluginType).ne(PluginType.JS);
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
@@ -691,11 +684,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
-            jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
+            jsInclusionOrExclusionCriteria = where(NewAction.Fields.pluginType).is(PluginType.JS);
         } else {
-            jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+            jsInclusionOrExclusionCriteria = where(NewAction.Fields.pluginType).ne(PluginType.JS);
         }
 
         criteriaList.add(jsInclusionOrExclusionCriteria);

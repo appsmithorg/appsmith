@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 
 @Builder
 @Getter
@@ -18,6 +19,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @DocumentType(Authentication.API_KEY)
+@FieldNameConstants
 public class ApiKeyAuth extends AuthenticationDTO {
 
     public enum Type {

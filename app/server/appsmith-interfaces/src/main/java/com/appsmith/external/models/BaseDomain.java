@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,6 +32,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
+@FieldNameConstants
 public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
 
     private static final long serialVersionUID = 7459916000501322517L;
@@ -130,4 +132,6 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         }
         this.setUpdatedAt(Instant.now());
     }
+
+    public static class Fields {}
 }

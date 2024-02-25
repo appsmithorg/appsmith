@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @Document
+@FieldNameConstants
 public class Collection extends BaseDomain {
 
     String name;

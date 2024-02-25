@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Setter
@@ -16,6 +17,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @DocumentType(Authentication.BEARER_TOKEN)
+@FieldNameConstants
 public class BearerTokenAuth extends AuthenticationDTO {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
