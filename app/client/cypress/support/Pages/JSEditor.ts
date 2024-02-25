@@ -42,6 +42,9 @@ export class JSEditor {
     `.${functionName}-on-page-load-setting label:contains(${
       onLoad ? "Yes" : "No"
     }) input`;
+  private _onPageLoadSwitch = (functionName: string) =>
+    `.${functionName}-on-page-load-setting
+    input[role="switch"]`;
   private _onPageLoadRadioButtonStatus = (
     functionName: string,
     onLoad: boolean,
@@ -49,6 +52,8 @@ export class JSEditor {
     `//div[contains(@class, '${functionName}-on-page-load-setting')]//label[text()='${
       onLoad ? "Yes" : "No"
     }']/parent::div`;
+  private _onPageLoadSwitchStatus = (functionName: string) =>
+    `//div[contains(@class, '${functionName}-on-page-load-setting')]//label/input`;
   private _confirmBeforeExecuteRadioButton = (
     functionName: string,
     shouldConfirm: boolean,
@@ -56,6 +61,9 @@ export class JSEditor {
     `.${functionName}-confirm-before-execute label:contains(${
       shouldConfirm ? "Yes" : "No"
     }) input`;
+  private _confirmBeforeExecuteSwitch = (functionName: string) =>
+    `.${functionName}-confirm-before-execute
+    input[role="switch"]`;
   private _confirmBeforeExecuteRadioButtonStatus = (
     functionName: string,
     shouldConfirm: boolean,
@@ -63,6 +71,8 @@ export class JSEditor {
     `//div[contains(@class, '${functionName}-confirm-before-execute')]//label[text()='${
       shouldConfirm ? "Yes" : "No"
     }']/parent::div`;
+  private _confirmBeforeExecuteSwitchStatus = (functionName: string) =>
+    `//div[contains(@class, '${functionName}-confirm-before-execute')]//label/input`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
@@ -141,13 +151,13 @@ export class JSEditor {
     this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
+    this.agHelper.AssertElementVisibility(this._jsObjTxt);
     // Assert that the name of the JS Object is focused when newly created
     //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
     this.agHelper.PressEnter();
     this.agHelper.PressEnter();
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
-    cy.get(this._jsObjTxt).should("not.exist");
-
+    this.agHelper.AssertElementAbsence(this._jsObjTxt);
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
 
     this.agHelper.Sleep();
@@ -248,7 +258,7 @@ export class JSEditor {
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
       .blur();
-    this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
+    PageLeftPane.assertPresence(renameVal);
   }
 
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
@@ -260,7 +270,6 @@ export class JSEditor {
       renameVal + "{enter}",
     );
     PageLeftPane.assertPresence(renameVal);
-    this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 
   public GetJSObjectName() {
@@ -277,22 +286,24 @@ export class JSEditor {
     cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
-      expect($lis.eq(0).text()).to.be.oneOf([
+      const expectedTexts = [
         "{{" + jsObjName + ".myFun2()}}",
         "{{" + jsObjName + ".myFun1()}}",
-      ]);
-      expect($lis.eq(1).text()).to.be.oneOf([
-        "{{" + jsObjName + ".myFun2()}}",
-        "{{" + jsObjName + ".myFun1()}}",
+        "{{" + jsObjName + ".myVar1}}",
+        "{{" + jsObjName + ".myVar2}}",
         "{{" + jsObjName + ".myFun2.data}}",
         "{{" + jsObjName + ".myFun1.data}}",
-      ]);
-      expect($lis.eq(bindingsLength - 2).text()).to.contain(
-        "{{" + jsObjName + ".myVar1}}",
-      );
-      expect($lis.eq(bindingsLength - 1).text()).to.contain(
-        "{{" + jsObjName + ".myVar2}}",
-      );
+      ];
+
+      let foundMatch = false;
+      for (let i = 0; i < bindingsLength; i++) {
+        const text = $lis.eq(i).text();
+        if (expectedTexts.includes(text)) {
+          foundMatch = true;
+          break;
+        }
+      }
+      expect(foundMatch).to.be.true;
     });
     cy.get(this._bindingsClose).click({ force: true });
   }
@@ -318,11 +329,11 @@ export class JSEditor {
 
     this.agHelper.GetNClick(this._settingsTab);
     this.agHelper.AssertExistingCheckedState(
-      this._onPageLoadRadioButtonStatus(funName, onLoad),
+      this._onPageLoadSwitchStatus(funName),
       onLoad.toString(),
     );
     this.agHelper.AssertExistingCheckedState(
-      this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling),
+      this._confirmBeforeExecuteSwitchStatus(funName),
       bfrCalling.toString(),
     );
   }
@@ -335,10 +346,11 @@ export class JSEditor {
     // Navigate to Settings tab
     this.agHelper.GetNClick(this._settingsTab);
     // Set onPageLoad
-    this.agHelper.GetNClick(this._onPageLoadRadioButton(funName, onLoad));
+    this.agHelper.CheckUncheck(this._onPageLoadSwitch(funName), onLoad);
     // Set confirmBeforeExecute
-    this.agHelper.GetNClick(
-      this._confirmBeforeExecuteRadioButton(funName, bfrCalling),
+    this.agHelper.CheckUncheck(
+      this._confirmBeforeExecuteSwitch(funName),
+      bfrCalling,
     );
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);

@@ -18,7 +18,6 @@ import {
   EventType,
   type ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Icon as BIcon } from "@blueprintjs/core";
 import { Text } from "@design-system/widgets";
 
 class WDSMenuButtonWidget extends BaseWidget<
@@ -43,18 +42,15 @@ class WDSMenuButtonWidget extends BaseWidget<
     return defaultsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return {
       isLargeWidget: false,
       widgetSize: {
-        maxHeight: {},
-        maxWidth: { base: "360px" },
-        minHeight: { base: "40px" },
-        minWidth: { base: "120px" },
+        maxWidth: {
+          base: "100%",
+          "280px": "sizing-70",
+        },
+        minWidth: "sizing-14",
       },
     };
   }
@@ -162,11 +158,6 @@ class WDSMenuButtonWidget extends BaseWidget<
     const disabledKeys = visibleItems
       .filter((item) => item.isDisabled === true)
       .map((item) => item.id);
-    const triggerButtonIcon =
-      triggerButtonIconName &&
-      (() => {
-        return <BIcon icon={triggerButtonIconName} />;
-      });
 
     return (
       <Menu
@@ -186,7 +177,7 @@ class WDSMenuButtonWidget extends BaseWidget<
       >
         <Button
           color={triggerButtonColor}
-          icon={triggerButtonIcon}
+          icon={triggerButtonIconName}
           iconPosition={triggerButtonIconAlign}
           isDisabled={isDisabled}
           variant={triggerButtonVariant}

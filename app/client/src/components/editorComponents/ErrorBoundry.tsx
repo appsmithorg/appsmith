@@ -1,11 +1,13 @@
-import type { ReactNode } from "react";
 import React from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import * as log from "loglevel";
 
+import type { ReactNode, CSSProperties } from "react";
+
 interface Props {
   children: ReactNode;
+  style?: CSSProperties;
 }
 interface State {
   hasError: boolean;
@@ -39,7 +41,10 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     return (
-      <ErrorBoundaryContainer className="error-boundary">
+      <ErrorBoundaryContainer
+        className="error-boundary"
+        style={this.props.style}
+      >
         {this.state.hasError ? (
           <p>
             Oops, Something went wrong.

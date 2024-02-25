@@ -1,703 +1,239 @@
 /* THIS FILE IS CREATED AUTOMATICALLY. PLEASE DON'T EDIT IT. */
 :root {
   --outer-spacing-0: 0;
-  --outer-spacing-1: clamp(
-    4.6px,
-    calc(0.29 * var(--provider-width) / 100 + 3.54px),
-    9.2px
-  );
-  --outer-spacing-2: clamp(
-    6.51px,
-    calc(0.43 * var(--provider-width) / 100 + 4.94px),
-    13.27px
-  );
-  --outer-spacing-3: clamp(
-    9.2px,
-    calc(0.64 * var(--provider-width) / 100 + 6.91px),
-    19.14px
-  );
-  --outer-spacing-4: clamp(
-    13.01px,
-    calc(0.94 * var(--provider-width) / 100 + 9.64px),
-    27.6px
-  );
-  --outer-spacing-5: clamp(
-    18.4px,
-    calc(1.37 * var(--provider-width) / 100 + 13.46px),
-    39.81px
-  );
-  --outer-spacing-6: clamp(
-    26.02px,
-    calc(2.01 * var(--provider-width) / 100 + 18.78px),
-    57.41px
-  );
-  --outer-spacing-7: clamp(
-    36.8px,
-    calc(2.95 * var(--provider-width) / 100 + 26.18px),
-    82.8px
-  );
-  --outer-spacing-8: clamp(
-    52.04px,
-    calc(4.32 * var(--provider-width) / 100 + 36.49px),
-    119.42px
-  );
+  --outer-spacing-1: 4.6px;
+  --outer-spacing-2: 6.5px;
+  --outer-spacing-3: 9.2px;
+  --outer-spacing-4: 13px;
+  --outer-spacing-5: 18.4px;
+  --outer-spacing-6: 26px;
+  --outer-spacing-7: 36.8px;
+  --outer-spacing-8: 52px;
   --inner-spacing-0: 0;
-  --inner-spacing-1: clamp(
-    6.19px,
-    calc(0.13 * var(--provider-width) / 100 + 5.71px),
-    8.25px
-  );
-  --inner-spacing-2: clamp(
-    8.75px,
-    calc(0.2 * var(--provider-width) / 100 + 8.02px),
-    11.9px
-  );
-  --inner-spacing-3: clamp(
-    12.38px,
-    calc(0.31 * var(--provider-width) / 100 + 11.27px),
-    17.16px
-  );
-  --inner-spacing-4: clamp(
-    17.5px,
-    calc(0.46 * var(--provider-width) / 100 + 15.83px),
-    24.75px
-  );
-  --inner-spacing-5: clamp(
-    24.75px,
-    calc(0.7 * var(--provider-width) / 100 + 22.22px),
-    35.7px
-  );
-  --inner-spacing-6: clamp(
-    35px,
-    calc(1.06 * var(--provider-width) / 100 + 31.2px),
-    51.48px
-  );
-  --inner-spacing-7: clamp(
-    49.5px,
-    calc(1.59 * var(--provider-width) / 100 + 43.79px),
-    74.25px
-  );
-  --inner-spacing-8: clamp(
-    70px,
-    calc(2.38 * var(--provider-width) / 100 + 61.45px),
-    107.09px
-  );
+  --inner-spacing-1: 4.1px;
+  --inner-spacing-2: 5.8px;
+  --inner-spacing-3: 8.3px;
+  --inner-spacing-4: 11.7px;
+  --inner-spacing-5: 16.5px;
+  --inner-spacing-6: 23.3px;
+  --inner-spacing-7: 33px;
+  --inner-spacing-8: 46.7px;
   --sizing-0: 0;
-  --sizing-1: calc(
-    1 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-2: calc(
-    2 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-3: calc(
-    3 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-4: calc(
-    4 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-5: calc(
-    5 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-6: calc(
-    6 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-7: calc(
-    7 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-8: calc(
-    8 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-9: calc(
-    9 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-10: calc(
-    10 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-11: calc(
-    11 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-12: calc(
-    12 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-13: calc(
-    13 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-14: calc(
-    14 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-15: calc(
-    15 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-16: calc(
-    16 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-17: calc(
-    17 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-18: calc(
-    18 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-19: calc(
-    19 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-20: calc(
-    20 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-21: calc(
-    21 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-22: calc(
-    22 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-23: calc(
-    23 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-24: calc(
-    24 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-25: calc(
-    25 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-26: calc(
-    26 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-27: calc(
-    27 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-28: calc(
-    28 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-29: calc(
-    29 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-30: calc(
-    30 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-31: calc(
-    31 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-32: calc(
-    32 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-33: calc(
-    33 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-34: calc(
-    34 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-35: calc(
-    35 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-36: calc(
-    36 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-37: calc(
-    37 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-38: calc(
-    38 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-39: calc(
-    39 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-40: calc(
-    40 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-41: calc(
-    41 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-42: calc(
-    42 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-43: calc(
-    43 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-44: calc(
-    44 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-45: calc(
-    45 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-46: calc(
-    46 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-47: calc(
-    47 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-48: calc(
-    48 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-49: calc(
-    49 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-50: calc(
-    50 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-51: calc(
-    51 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-52: calc(
-    52 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-53: calc(
-    53 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-54: calc(
-    54 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-55: calc(
-    55 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-56: calc(
-    56 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-57: calc(
-    57 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-58: calc(
-    58 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-59: calc(
-    59 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-60: calc(
-    60 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-61: calc(
-    61 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-62: calc(
-    62 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-63: calc(
-    63 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-64: calc(
-    64 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-65: calc(
-    65 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-66: calc(
-    66 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-67: calc(
-    67 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-68: calc(
-    68 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-69: calc(
-    69 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-70: calc(
-    70 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-71: calc(
-    71 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-72: calc(
-    72 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-73: calc(
-    73 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-74: calc(
-    74 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-75: calc(
-    75 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-76: calc(
-    76 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-77: calc(
-    77 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-78: calc(
-    78 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-79: calc(
-    79 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-80: calc(
-    80 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-81: calc(
-    81 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-82: calc(
-    82 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-83: calc(
-    83 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-84: calc(
-    84 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-85: calc(
-    85 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-86: calc(
-    86 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-87: calc(
-    87 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-88: calc(
-    88 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-89: calc(
-    89 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-90: calc(
-    90 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-91: calc(
-    91 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-92: calc(
-    92 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-93: calc(
-    93 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-94: calc(
-    94 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-95: calc(
-    95 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-96: calc(
-    96 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-97: calc(
-    97 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-98: calc(
-    98 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-99: calc(
-    99 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-100: calc(
-    100 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-101: calc(
-    101 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-102: calc(
-    102 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-103: calc(
-    103 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-104: calc(
-    104 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-105: calc(
-    105 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-106: calc(
-    106 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-107: calc(
-    107 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-108: calc(
-    108 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-109: calc(
-    109 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-110: calc(
-    110 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-111: calc(
-    111 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-112: calc(
-    112 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-113: calc(
-    113 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-114: calc(
-    114 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-115: calc(
-    115 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-116: calc(
-    116 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-117: calc(
-    117 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-118: calc(
-    118 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-119: calc(
-    119 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-120: calc(
-    120 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-121: calc(
-    121 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-122: calc(
-    122 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-123: calc(
-    123 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-124: calc(
-    124 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-125: calc(
-    125 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-126: calc(
-    126 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-127: calc(
-    127 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-128: calc(
-    128 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-129: calc(
-    129 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-130: calc(
-    130 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-131: calc(
-    131 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-132: calc(
-    132 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-133: calc(
-    133 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-134: calc(
-    134 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-135: calc(
-    135 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-136: calc(
-    136 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-137: calc(
-    137 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-138: calc(
-    138 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-139: calc(
-    139 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-140: calc(
-    140 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-141: calc(
-    141 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-142: calc(
-    142 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-143: calc(
-    143 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-144: calc(
-    144 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-145: calc(
-    145 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-146: calc(
-    146 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-147: calc(
-    147 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-148: calc(
-    148 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-149: calc(
-    149 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-150: calc(
-    150 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-151: calc(
-    151 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-152: calc(
-    152 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-153: calc(
-    153 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-154: calc(
-    154 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-155: calc(
-    155 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-156: calc(
-    156 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-157: calc(
-    157 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-158: calc(
-    158 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-159: calc(
-    159 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-160: calc(
-    160 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-161: calc(
-    161 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-162: calc(
-    162 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-163: calc(
-    163 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-164: calc(
-    164 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-165: calc(
-    165 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-166: calc(
-    166 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-167: calc(
-    167 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-168: calc(
-    168 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-169: calc(
-    169 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-170: calc(
-    170 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-171: calc(
-    171 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-172: calc(
-    172 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-173: calc(
-    173 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-174: calc(
-    174 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-175: calc(
-    175 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-176: calc(
-    176 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-177: calc(
-    177 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-178: calc(
-    178 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-179: calc(
-    179 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-180: calc(
-    180 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-181: calc(
-    181 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-182: calc(
-    182 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-183: calc(
-    183 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-184: calc(
-    184 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-185: calc(
-    185 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-186: calc(
-    186 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-187: calc(
-    187 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-188: calc(
-    188 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-189: calc(
-    189 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-190: calc(
-    190 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-191: calc(
-    191 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-192: calc(
-    192 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-193: calc(
-    193 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-194: calc(
-    194 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-195: calc(
-    195 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-196: calc(
-    196 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-197: calc(
-    197 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-198: calc(
-    198 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-199: calc(
-    199 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --sizing-200: calc(
-    200 * clamp(3.2px, calc(0.1 * var(--provider-width) / 100 + 2.83px), 4.8px)
-  );
-  --color-bg: rgb(94.217% 94.598% 97.227%);
-  --color-bg-accent: rgb(33.333% 23.922% 91.373%);
-  --color-bg-accent-hover: rgb(38.033% 31.188% 98.353%);
-  --color-bg-accent-active: rgb(31.537% 20.805% 88.597%);
-  --color-bg-accent-subtle: rgb(88.264% 89.286% 100%);
-  --color-bg-accent-subtle-hover: rgb(91.308% 92.034% 100%);
-  --color-bg-accent-subtle-active: rgb(86.728% 87.915% 100%);
-  --color-bg-assistive: rgb(3.6713% 2.414% 16.412%);
-  --color-bg-neutral: rgb(27.359% 28.199% 35.2%);
-  --color-bg-neutral-opacity: rgb(27.359% 28.199% 35.2% / 0.5);
-  --color-bg-neutral-hover: rgb(32.654% 33.544% 40.754%);
-  --color-bg-neutral-active: rgb(26.32% 27.149% 34.105%);
-  --color-bg-neutral-subtle: rgb(90.262% 90.681% 93.577%);
-  --color-bg-neutral-subtle-hover: rgb(92.856% 93.277% 96.189%);
-  --color-bg-neutral-subtle-active: rgb(88.971% 89.388% 92.276%);
+  --sizing-1: 3.2px;
+  --sizing-2: 6.4px;
+  --sizing-3: 9.6px;
+  --sizing-4: 12.8px;
+  --sizing-5: 16px;
+  --sizing-6: 19.2px;
+  --sizing-7: 22.4px;
+  --sizing-8: 25.6px;
+  --sizing-9: 28.8px;
+  --sizing-10: 32px;
+  --sizing-11: 35.2px;
+  --sizing-12: 38.4px;
+  --sizing-13: 41.6px;
+  --sizing-14: 44.8px;
+  --sizing-15: 48px;
+  --sizing-16: 51.2px;
+  --sizing-17: 54.4px;
+  --sizing-18: 57.6px;
+  --sizing-19: 60.8px;
+  --sizing-20: 64px;
+  --sizing-21: 67.2px;
+  --sizing-22: 70.4px;
+  --sizing-23: 73.6px;
+  --sizing-24: 76.8px;
+  --sizing-25: 80px;
+  --sizing-26: 83.2px;
+  --sizing-27: 86.4px;
+  --sizing-28: 89.6px;
+  --sizing-29: 92.8px;
+  --sizing-30: 96px;
+  --sizing-31: 99.2px;
+  --sizing-32: 102.4px;
+  --sizing-33: 105.6px;
+  --sizing-34: 108.8px;
+  --sizing-35: 112px;
+  --sizing-36: 115.2px;
+  --sizing-37: 118.4px;
+  --sizing-38: 121.6px;
+  --sizing-39: 124.8px;
+  --sizing-40: 128px;
+  --sizing-41: 131.2px;
+  --sizing-42: 134.4px;
+  --sizing-43: 137.6px;
+  --sizing-44: 140.8px;
+  --sizing-45: 144px;
+  --sizing-46: 147.2px;
+  --sizing-47: 150.4px;
+  --sizing-48: 153.6px;
+  --sizing-49: 156.8px;
+  --sizing-50: 160px;
+  --sizing-51: 163.2px;
+  --sizing-52: 166.4px;
+  --sizing-53: 169.6px;
+  --sizing-54: 172.8px;
+  --sizing-55: 176px;
+  --sizing-56: 179.2px;
+  --sizing-57: 182.4px;
+  --sizing-58: 185.6px;
+  --sizing-59: 188.8px;
+  --sizing-60: 192px;
+  --sizing-61: 195.2px;
+  --sizing-62: 198.4px;
+  --sizing-63: 201.6px;
+  --sizing-64: 204.8px;
+  --sizing-65: 208px;
+  --sizing-66: 211.2px;
+  --sizing-67: 214.4px;
+  --sizing-68: 217.6px;
+  --sizing-69: 220.8px;
+  --sizing-70: 224px;
+  --sizing-71: 227.2px;
+  --sizing-72: 230.4px;
+  --sizing-73: 233.6px;
+  --sizing-74: 236.8px;
+  --sizing-75: 240px;
+  --sizing-76: 243.2px;
+  --sizing-77: 246.4px;
+  --sizing-78: 249.6px;
+  --sizing-79: 252.8px;
+  --sizing-80: 256px;
+  --sizing-81: 259.2px;
+  --sizing-82: 262.4px;
+  --sizing-83: 265.6px;
+  --sizing-84: 268.8px;
+  --sizing-85: 272px;
+  --sizing-86: 275.2px;
+  --sizing-87: 278.4px;
+  --sizing-88: 281.6px;
+  --sizing-89: 284.8px;
+  --sizing-90: 288px;
+  --sizing-91: 291.2px;
+  --sizing-92: 294.4px;
+  --sizing-93: 297.6px;
+  --sizing-94: 300.8px;
+  --sizing-95: 304px;
+  --sizing-96: 307.2px;
+  --sizing-97: 310.4px;
+  --sizing-98: 313.6px;
+  --sizing-99: 316.8px;
+  --sizing-100: 320px;
+  --sizing-101: 323.2px;
+  --sizing-102: 326.4px;
+  --sizing-103: 329.6px;
+  --sizing-104: 332.8px;
+  --sizing-105: 336px;
+  --sizing-106: 339.2px;
+  --sizing-107: 342.4px;
+  --sizing-108: 345.6px;
+  --sizing-109: 348.8px;
+  --sizing-110: 352px;
+  --sizing-111: 355.2px;
+  --sizing-112: 358.4px;
+  --sizing-113: 361.6px;
+  --sizing-114: 364.8px;
+  --sizing-115: 368px;
+  --sizing-116: 371.2px;
+  --sizing-117: 374.4px;
+  --sizing-118: 377.6px;
+  --sizing-119: 380.8px;
+  --sizing-120: 384px;
+  --sizing-121: 387.2px;
+  --sizing-122: 390.4px;
+  --sizing-123: 393.6px;
+  --sizing-124: 396.8px;
+  --sizing-125: 400px;
+  --sizing-126: 403.2px;
+  --sizing-127: 406.4px;
+  --sizing-128: 409.6px;
+  --sizing-129: 412.8px;
+  --sizing-130: 416px;
+  --sizing-131: 419.2px;
+  --sizing-132: 422.4px;
+  --sizing-133: 425.6px;
+  --sizing-134: 428.8px;
+  --sizing-135: 432px;
+  --sizing-136: 435.2px;
+  --sizing-137: 438.4px;
+  --sizing-138: 441.6px;
+  --sizing-139: 444.8px;
+  --sizing-140: 448px;
+  --sizing-141: 451.2px;
+  --sizing-142: 454.4px;
+  --sizing-143: 457.6px;
+  --sizing-144: 460.8px;
+  --sizing-145: 464px;
+  --sizing-146: 467.2px;
+  --sizing-147: 470.4px;
+  --sizing-148: 473.6px;
+  --sizing-149: 476.8px;
+  --sizing-150: 480px;
+  --sizing-151: 483.2px;
+  --sizing-152: 486.4px;
+  --sizing-153: 489.6px;
+  --sizing-154: 492.8px;
+  --sizing-155: 496px;
+  --sizing-156: 499.2px;
+  --sizing-157: 502.4px;
+  --sizing-158: 505.6px;
+  --sizing-159: 508.8px;
+  --sizing-160: 512px;
+  --sizing-161: 515.2px;
+  --sizing-162: 518.4px;
+  --sizing-163: 521.6px;
+  --sizing-164: 524.8px;
+  --sizing-165: 528px;
+  --sizing-166: 531.2px;
+  --sizing-167: 534.4px;
+  --sizing-168: 537.6px;
+  --sizing-169: 540.8px;
+  --sizing-170: 544px;
+  --sizing-171: 547.2px;
+  --sizing-172: 550.4px;
+  --sizing-173: 553.6px;
+  --sizing-174: 556.8px;
+  --sizing-175: 560px;
+  --sizing-176: 563.2px;
+  --sizing-177: 566.4px;
+  --sizing-178: 569.6px;
+  --sizing-179: 572.8px;
+  --sizing-180: 576px;
+  --sizing-181: 579.2px;
+  --sizing-182: 582.4px;
+  --sizing-183: 585.6px;
+  --sizing-184: 588.8px;
+  --sizing-185: 592px;
+  --sizing-186: 595.2px;
+  --sizing-187: 598.4px;
+  --sizing-188: 601.6px;
+  --sizing-189: 604.8px;
+  --sizing-190: 608px;
+  --sizing-191: 611.2px;
+  --sizing-192: 614.4px;
+  --sizing-193: 617.6px;
+  --sizing-194: 620.8px;
+  --sizing-195: 624px;
+  --sizing-196: 627.2px;
+  --sizing-197: 630.4px;
+  --sizing-198: 633.6px;
+  --sizing-199: 636.8px;
+  --sizing-200: 640px;
+  --color-bg: rgb(93.292% 94.955% 97.227%);
+  --color-bg-accent: rgb(0% 50.196% 100%);
+  --color-bg-accent-hover: rgb(13.479% 56.597% 100%);
+  --color-bg-accent-active: rgb(0% 47.644% 97.234%);
+  --color-bg-accent-subtle: rgb(84.049% 91.286% 100%);
+  --color-bg-accent-subtle-hover: rgb(88.309% 93.691% 100%);
+  --color-bg-accent-subtle-active: rgb(81.868% 90.09% 100%);
+  --color-bg-assistive: rgb(0% 4.2493% 16.493%);
+  --color-bg-neutral: rgb(36.27% 41.013% 47.456%);
+  --color-bg-neutral-opacity: rgb(36.27% 41.013% 47.456% / 0.5);
+  --color-bg-neutral-hover: rgb(41.835% 46.688% 53.284%);
+  --color-bg-neutral-active: rgb(35.173% 39.893% 46.305%);
+  --color-bg-neutral-subtle: rgb(89.241% 91.074% 93.578%);
+  --color-bg-neutral-subtle-hover: rgb(91.83% 93.672% 96.189%);
+  --color-bg-neutral-subtle-active: rgb(87.952% 89.78% 92.277%);
   --color-bg-positive: rgb(6.7435% 63.436% 18.481%);
   --color-bg-positive-hover: rgb(18.172% 69.721% 25.266%);
   --color-bg-positive-active: rgb(0% 60.947% 15.563%);
@@ -716,46 +252,49 @@
   --color-bg-warning-subtle: rgb(100% 94.114% 80.142%);
   --color-bg-warning-subtle-hover: rgb(100% 97.012% 87.859%);
   --color-bg-warning-subtle-active: rgb(99.63% 92.81% 78.869%);
-  --color-bg-elevation-1: rgb(96.832% 97.215% 99.857%);
-  --color-bg-elevation-2: rgb(98.836% 99.192% 100%);
-  --color-bg-elevation-3: rgb(100% 100% 100%);
-  --color-shadow-elevation-1: rgb(0% 0% 0%);
-  --color-shadow-elevation-2: rgb(13.355% 0% 21.478%);
-  --color-shadow-elevation-3: rgb(19.719% 0% 40.53%);
-  --color-fg: rgb(1.6475% 1.7126% 6.8084%);
-  --color-fg-accent: rgb(33.333% 23.922% 91.373%);
-  --color-fg-neutral: rgb(26.531% 27.672% 39.337%);
-  --color-fg-neutral-subtle: rgb(37.193% 38.537% 50.855%);
+  --color-bg-elevation-1: rgb(95.902% 97.573% 99.857%);
+  --color-bg-elevation-2: rgb(97.988% 99.528% 100%);
+  --color-bg-elevation-3: rgb(99.697% 100% 100%);
+  --color-shadow-elevation-1: rgb(0% 5.9131% 57.625% / 0.1);
+  --color-shadow-elevation-2: rgb(0% 15.277% 63.167% / 0.12);
+  --color-shadow-elevation-3: rgb(0% 16.799% 64.298% / 0.15);
+  --color-fg: rgb(0.3864% 2.2133% 6.8342%);
+  --color-fg-accent: rgb(0% 31.772% 67.873%);
+  --color-fg-neutral: rgb(26.26% 33.939% 44.326%);
+  --color-fg-neutral-subtle: rgb(37.08% 45.134% 56.045%);
   --color-fg-positive: rgb(6.7435% 63.436% 18.481%);
   --color-fg-negative: rgb(100% 0% 28.453%);
   --color-fg-warning: rgb(71.79% 51.231% 0%);
-  --color-fg-on-accent: rgb(91.588% 90.378% 100%);
-  --color-fg-on-accent-subtle: rgb(1.6475% 1.7126% 6.8084%);
-  --color-fg-on-assistive: rgb(94.469% 95.075% 100%);
-  --color-fg-on-neutral: rgb(93.156% 94.218% 100%);
+  --color-fg-on-accent: rgb(89.856% 93.58% 100%);
+  --color-fg-on-accent-subtle: rgb(0.3864% 2.2133% 6.8342%);
+  --color-fg-on-assistive: rgb(92.536% 96.25% 100%);
+  --color-fg-on-neutral: rgb(90.444% 95.285% 100%);
   --color-fg-on-positive: rgb(89.702% 100% 89.053%);
   --color-fg-on-negative: rgb(100% 87.612% 85.249%);
   --color-fg-on-warning: rgb(21.953% 9.0775% 0%);
-  --color-bd: rgb(72.54% 73.727% 82.602%);
-  --color-bd-accent: rgb(33.333% 23.922% 91.373%);
-  --color-bd-focus: rgb(33.333% 23.922% 91.373%);
-  --color-bd-neutral: rgb(37.869% 38.922% 47.553%);
-  --color-bd-neutral-hover: rgb(49.162% 50.308% 59.345%);
+  --color-bd: rgb(69.282% 74.927% 82.61%);
+  --color-bd-accent: rgb(0% 50.196% 100%);
+  --color-bd-focus: rgb(0% 50.196% 100%);
+  --color-bd-neutral: rgb(46.767% 52.551% 60.409%);
+  --color-bd-neutral-hover: rgb(58.499% 64.503% 72.668%);
   --color-bd-positive: rgb(6.7435% 63.436% 18.481%);
   --color-bd-positive-hover: rgb(26.362% 76.094% 31.718%);
   --color-bd-negative: rgb(83.108% 4.6651% 10.252%);
   --color-bd-negative-hover: rgb(97.525% 25.712% 23.78%);
   --color-bd-warning: rgb(85.145% 64.66% 8.0286%);
   --color-bd-warning-hover: rgb(98.232% 77.293% 27.893%);
-  --color-bd-on-accent: rgb(0% 0% 0%);
-  --color-bd-on-neutral: rgb(0.1663% 0.0515% 1.6668%);
+  --color-bd-on-accent: rgb(0% 1.6859% 55.697%);
+  --color-bd-on-neutral: rgb(2.3313% 5.7416% 10.634%);
   --color-bd-on-positive: rgb(0% 22.552% 3.6201%);
   --color-bd-on-negative: rgb(21.923% 0% 2.8118%);
   --color-bd-on-warning: rgb(39.972% 27.552% 0%);
   --border-radius-1: 0px;
-  --box-shadow-1: 0 4px 6px 0 var(--color-shadow-elevation-1);
-  --box-shadow-2: 0 2px 4px 0 var(--color-shadow-elevation-2);
-  --box-shadow-3: 0 1px 2px 0 var(--color-shadow-elevation-3);
+  --box-shadow-1: 0 var(--inner-spacing-2) var(--inner-spacing-3) 0
+    var(--color-shadow-elevation-1);
+  --box-shadow-2: 0 var(--inner-spacing-1) var(--inner-spacing-3) 0
+    var(--color-shadow-elevation-2);
+  --box-shadow-3: 0 calc(var(--inner-spacing-1) / 2) var(--inner-spacing-3) 0
+    var(--color-shadow-elevation-3);
   --border-width-1: 1px;
   --border-width-2: 2px;
   --opacity-disabled: 0.3;
@@ -763,9 +302,10 @@
   --z-index-2: 4;
   --z-index-3: 10;
   --z-index-99: 9999;
-  ---0: undefined;
-  ---1: undefined;
-  ---2: undefined;
-  ---3: undefined;
-  ---4: undefined;
+  --stroke-width-1: 1px;
+  --stroke-width-2: 1.5px;
+  --stroke-width-3: 2px;
+  --icon-size-1: 16px;
+  --icon-size-2: 24px;
+  --icon-size-3: 32px;
 }

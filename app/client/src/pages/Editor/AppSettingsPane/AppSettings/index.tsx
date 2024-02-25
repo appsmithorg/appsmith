@@ -14,8 +14,8 @@ import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
   APP_NAVIGATION_SETTING,
   createMessage,
-  GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER,
+  GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER_DESC,
   IN_APP_EMBED_SETTING,
   PAGE_SETTINGS_SECTION_CONTENT_HEADER,
@@ -28,10 +28,7 @@ import {
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
-import {
-  closeAppSettingsPaneAction,
-  updateAppSettingsPaneSelectedTabAction,
-} from "actions/appSettingsPaneActions";
+import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
@@ -54,6 +51,7 @@ export interface SelectedTab {
 
 const Wrapper = styled.div`
   height: calc(100% - 48px);
+  overflow: hidden;
 `;
 
 const SectionContent = styled.div`
@@ -79,7 +77,7 @@ const PageSectionTitle = styled.p`
 
 const ThemeContentWrapper = styled.div`
   height: calc(100% - 48px);
-  overflow-y: overlay;
+  overflow-y: scroll;
 `;
 
 function AppSettings() {
@@ -116,9 +114,13 @@ function AppSettings() {
         },
       }),
     );
-
     return () => {
-      dispatch(closeAppSettingsPaneAction());
+      dispatch(
+        updateAppSettingsPaneSelectedTabAction({
+          isOpen: false,
+          context: undefined,
+        }),
+      );
     };
   }, [selectedTab]);
 
@@ -190,15 +192,27 @@ function AppSettings() {
     },
   ];
 
+  // 50 px height of the sectionHeader item
+  // 41px height of pages title
+  // 1px + 20px divider + spacing
+  const SECTION_HEADER_HEIGHT = 50;
+  const PAGES_TITLE_HEIGHT = 41;
+  const DIVIDER_AND_SPACING_HEIGHT = 21;
+  const heightTobeReduced =
+    SectionHeadersConfig.length * SECTION_HEADER_HEIGHT +
+    PAGES_TITLE_HEIGHT +
+    DIVIDER_AND_SPACING_HEIGHT;
+
   return (
     <Wrapper className="flex flex-row">
       <div className="w-1/2">
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />
         ))}
-        <Divider />
+        <Divider orientation={"horizontal"} />
         <PageSectionTitle>{PAGE_SETTINGS_SECTION_HEADER()}</PageSectionTitle>
         <DraggablePageList
+          heightTobeReduced={heightTobeReduced + "px"}
           onPageSelect={(pageId: string) =>
             setSelectedTab({
               type: AppSettingsTabs.Page,

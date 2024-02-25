@@ -16,6 +16,7 @@ export const INTERCOM_CONSENT_MESSAGE = () =>
   `Can we have your email for better support?`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
+export const CHAT_WITH_US = () => `Chat with us`;
 export const ERROR_ADD_API_INVALID_URL = () =>
   `Unable to create API. Try adding a URL to the datasource`;
 export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
@@ -200,6 +201,8 @@ export const PARTNER_PROGRAM_CALLOUT = (
 for someone else, you should check out our partner program.`;
 export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
   `Learn about Appsmith Partner Program`;
+export const NEW_APPLICATION = () => `New application`;
+export const APPLICATIONS = () => `Applications`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -216,17 +219,6 @@ export const USER_RESET_PASSWORD = () => "Reset password";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
-
-export const DELETING_APPLICATION = () => `Deleting application...`;
-export const DELETING_MULTIPLE_APPLICATION = () =>
-  `Deleting multiple applications...`;
-export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
-  `You don't have permission to delete this application`;
-
-export const DELETING_MULTIPLE_APPLICATION_MODAL_TITLE = () =>
-  `Delete Confirmation`;
-export const DELETING_MULTIPLE_APPLICATION_MODAL_DESC = () =>
-  `Are you sure you want to delete selected applications?`;
 
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
@@ -263,11 +255,21 @@ export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `Getting started`;
 export const WORKSPACES_HEADING = () => `Workspaces`;
+export const CREATE_A_NEW_WORKSPACE = () => `Create a new workspace`;
 export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
 export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
-  `There are no apps in this workspace.`;
+  `There are no applications in this workspace.`;
+export const TRY_GUIDED_TOUR = () => `Try guided tour`;
+export const JOIN_OUR_DISCORD = () => `Join our discord`;
+export const WHATS_NEW = () => `What's new?`;
+export const WORKSPACE_ACTION_BUTTON = () => "Create new";
+export const NEW_APP = () => "Application";
+export const NEW_APP_FROM_TEMPLATE = () => "Templates";
+export const NO_WORKSPACE_HEADING = () => "Oops! No workspace found";
+export const NO_WORKSPACE_DESCRIPTION = () =>
+  "You can find workspace list on the left sidebar, try selecting one of them to access a workspace.";
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
@@ -732,14 +734,14 @@ export const NO_CONNECTIONS = () => "No connections to show here";
 export const BACK_TO_CANVAS = () => "Back to canvas";
 export const SUGGESTED_WIDGET_DESCRIPTION = () =>
   "This will add a new widget to the canvas.";
-export const ADD_NEW_WIDGET = () => "Add new widget";
+export const ADD_NEW_WIDGET = () => "Add a widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 export const BINDING_SECTION_LABEL = () => "Bindings";
 export const ADD_NEW_WIDGET_SUB_HEADING = () =>
   "Select how you want to display data.";
-export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
+export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a widget";
 export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
   "Replace the data of an existing widget";
 export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
@@ -756,8 +758,8 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_NOT_FOUND = () => "Table not found.";
-export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
-  "Search for table";
+export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
+  `Search for tables in ${name}`;
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -1112,6 +1114,15 @@ export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
 // Git Branch Protection end
 
+export const GENERAL = () => "General";
+export const BRANCH = () => "Branch";
+
+export const CONTINUOUS_DELIVERY = () => "Continuous delivery";
+export const CONFIGURE_CD_TITLE = () => "Configure continuous delivery";
+export const CONFIGURE_CD_DESC = () =>
+  "To automatically trigger a pull when changes occur on the remote branch, consider upgrading to our enterprise edition for enhanced functionality";
+export const TRY_APPSMITH_ENTERPRISE = () => "Try Appsmith Enterprise";
+
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
@@ -1374,6 +1385,7 @@ export const SETTINGS_TOOLTIP = () => "Settings";
 
 //settings
 export const ADMIN_SETTINGS = () => "Admin settings";
+export const HELP = () => "Help";
 export const RESTART_BANNER_BODY = () =>
   "Hang in there. This should be done soon.";
 export const RESTART_BANNER_HEADER = () => "Restarting your server";
@@ -1648,12 +1660,9 @@ export const CONTINUE = () => "Continue";
 export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
 export const PROCEED = () => "Proceed";
 export const COMPLETE = () => "Complete";
-// -- Modal --
-export const DEVIATION = () => "You are deviating from the tutorial";
-export const END_CONFIRMATION = () => "Are you sure you want to end?";
-export const CANCEL_DIALOG = () => "Cancel";
 // -- End Tutorial --
 export const END_TUTORIAL = () => "End tutorial";
+export const CANCEL_DIALOG = () => "Cancel";
 // -- Intro content --
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
@@ -1825,7 +1834,7 @@ export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
-  "your app URL to new readable format to change this";
+  "your app URL to the new format to set the page URL.";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP = () =>
   "Show or hide the page in the appsmith navbar in view mode";
@@ -1929,6 +1938,7 @@ export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 // Datasource/New query
 export const NEW_QUERY_BUTTON_TEXT = () => "New query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
+export const NEW_AI_BUTTON_TEXT = () => "New AI Query";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "Generate new page";
 export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
@@ -2215,6 +2225,7 @@ export const COMMUNITY_TEMPLATES = {
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
+export const NO_COLUMNS_MESSAGE_TEXT = () => "There are no columns to show";
 export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
 export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
@@ -2229,9 +2240,9 @@ export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
 export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   header: () => "Choose a template",
   layouts: {
-    dashboard: {
-      name: () => "Visualize your data",
-      description: () => "Use to see your data in charts",
+    sortFilterTable: {
+      name: () => "Filter your data",
+      description: () => "Use to filter and sort your data",
     },
     form: {
       name: () => "Form",
@@ -2290,9 +2301,11 @@ export const EDITOR_PANE_TEXTS = {
     "Drag & drop widgets to create your app",
   query_add_button: () => "New query / API",
   js_add_button: () => "New JS object",
+  js_blank_object_item: () => "Blank JS object",
   widget_add_button: () => "New widget",
   query_create_tab_title: () => "Create new query / API",
   widgets_create_tab_title: () => "Drag & drop a widget",
+  js_create_tab_title: () => "Create JS object",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
 };
@@ -2340,9 +2353,10 @@ export const CUSTOM_WIDGET_FEATURE = {
       "Connection lost because the custom widget was deselected. Please reselect this widget to continue editing.",
     editor: {
       css: {
-        contextTooltip: () => "You can use following css variables",
+        contextTooltipScss: () => "Supports SCSS syntax.",
+        contextTooltipVariables: () => "You can use following css variables.",
         placeholder: () =>
-          "/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/",
+          "/* you can access string and number properties of your model using `var(--appsmith-model-<property-name>)`*/",
       },
       html: {
         placeholder: () =>
@@ -2356,6 +2370,7 @@ export const CUSTOM_WIDGET_FEATURE = {
   },
   templateKey: {
     blank: () => "Blank",
+    vanillaJs: () => "Vanilla JS",
     react: () => "React",
     vue: () => "Vue",
   },
@@ -2375,7 +2390,7 @@ export const CUSTOM_WIDGET_FEATURE = {
     split: () => "Splits",
   },
   referrences: {
-    title: () => "Referrences",
+    title: () => "References",
     tooltip: {
       open: () => "Open references",
       close: () => "Close references",
@@ -2411,6 +2426,8 @@ export const CUSTOM_WIDGET_FEATURE = {
     helpDropdown: {
       stackoverflow: () => "Search StackOverflow",
     },
+    noOnReadyWarning: (url: string) =>
+      `Missing appsmith.onReady() function call. Initiate your component inside 'appsmith.onReady()' for your custom widget to work as expected. For more information - ${url}`,
   },
   preview: {
     eventFired: () => "Event fired:",
@@ -2434,3 +2451,5 @@ export const HEADER_TITLES = {
   SETTINGS: () => "Settings",
   LIBRARIES: () => "Libraries",
 };
+
+export const PASTE_FAILED = (str: string): string => `Paste failed! ${str}`;

@@ -8,6 +8,7 @@ import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors"
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";
+import type { Plugin } from "api/PluginApi";
 import type { EditConsolidatedApi } from "sagas/InitSagas";
 
 export const CreateNewActionKey = {
@@ -19,9 +20,9 @@ export const ActionParentEntityType = {
 } as const;
 
 export const getPageDependencyActions = (
-  allResponses: EditConsolidatedApi,
   currentWorkspaceId: string = "",
   featureFlags: DependentFeatureFlags = {},
+  allResponses: EditConsolidatedApi,
 ) => {
   const { datasources, pagesWithMigratedDsl, plugins } = allResponses || {};
   const initActions = [
@@ -47,4 +48,10 @@ export const getPageDependencyActions = (
     successActions,
     errorActions,
   };
+};
+
+export const doesPluginRequireDatasource = (plugin: Plugin | undefined) => {
+  return !!plugin && plugin.hasOwnProperty("requiresDatasource")
+    ? plugin.requiresDatasource
+    : true;
 };

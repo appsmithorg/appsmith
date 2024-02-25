@@ -37,7 +37,6 @@ import {
   selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
-import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import type { AppEnginePayload } from "entities/Engine";
 import { PageNotFoundError } from "entities/Engine";
@@ -59,13 +58,10 @@ import {
 import {
   isEditorPath,
   isViewerPath,
+  matchEditorPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
-import {
-  GIT_BRANCH_QUERY_KEY,
-  matchBuilderPath,
-  matchViewerPath,
-} from "../constants/routes";
+import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
@@ -77,7 +73,7 @@ import {
   fetchFeatureFlagsInit,
   fetchProductAlertInit,
 } from "actions/userActions";
-import { validateResponse } from "./ErrorSagas";
+import { embedRedirectURL, validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ProductAlert } from "reducers/uiReducers/usersReducer";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -228,7 +224,6 @@ export function* getInitResponses({
     {
       applicationId,
       defaultPageId: pageId,
-      mode,
     },
     identity,
   );
@@ -260,14 +255,21 @@ export function* getInitResponses({
         // its only invalid when there is a axios related error
         throw new Error("Error occured " + axiosConnectionAbortedCode);
       }
-    } catch (e) {
+    } catch (e: any) {
+      // when the user is an anonymous user we embed the url with the attempted route
+      // this is taken care in ce code repo but not on ee
+      if (e?.response?.status === 401) {
+        embedRedirectURL();
+      }
+
       yield call(
         executeActionDuringUserDetailsInitialisation,
         ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
         shouldInitialiseUserDetails,
       );
+
       Sentry.captureMessage(
-        `consolidated api failure for ${JSON.stringify(
+        `consolidated api failure for mode=${mode} ${JSON.stringify(
           params,
         )} errored message response ${e}`,
       );
@@ -338,7 +340,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   }
 }
 
-function* resetDebuggerLogs() {
+export function* resetDebuggerLogs() {
   // clear all existing debugger errors
   const debuggerErrors: ReturnType<typeof getDebuggerErrors> =
     yield select(getDebuggerErrors);
@@ -356,8 +358,6 @@ function* resetEditorSaga() {
   yield put(resetPageList());
   yield put(resetApplicationWidgets());
   yield put(resetRecentEntities());
-  // End guided tour once user exits editor
-  yield put(enableGuidedTour(false));
   // Reset to edit mode once user exits editor
   // Without doing this if the user creates a new app they
   // might end up in preview mode if they were in preview mode
@@ -418,13 +418,12 @@ function* appEngineSaga(action: ReduxAction<AppEnginePayload>) {
 function* eagerPageInitSaga() {
   const url = window.location.pathname;
   const search = window.location.search;
-
   if (isEditorPath(url)) {
-    const matchObj = matchBuilderPath(url);
-    if (matchObj) {
+    const matchedEditorParams = matchEditorPath(url);
+    if (matchedEditorParams) {
       const {
         params: { applicationId, pageId },
-      } = matchObj;
+      } = matchedEditorParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
       if (pageId) {
         yield put(
@@ -440,11 +439,11 @@ function* eagerPageInitSaga() {
       }
     }
   } else if (isViewerPath(url)) {
-    const matchObj = matchViewerPath(url);
-    if (matchObj) {
+    const matchedViewerParams = matchViewerPath(url);
+    if (matchedViewerParams) {
       const {
         params: { applicationId, pageId },
-      } = matchObj;
+      } = matchedViewerParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
       if (applicationId || pageId) {
         yield put(

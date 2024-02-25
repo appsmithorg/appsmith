@@ -44,6 +44,7 @@ describe("EditorContextProvider", () => {
       "checkContainersForAutoHeight",
       "updatePositionsOnTabChange",
       "updateOneClickBindingOptionsVisibility",
+      "unfocusWidget",
     ].sort();
 
     const testRenderer = TestRenderer.create(
@@ -55,7 +56,10 @@ describe("EditorContextProvider", () => {
     );
     const testInstance = testRenderer.root;
     const result = (
-      Object.keys(testInstance.findByType(TestChild).props.editorContext) || []
+      Object.keys(
+        // eslint-disable-next-line testing-library/await-async-queries
+        testInstance.findByType(TestChild).props.editorContext,
+      ) || []
     ).sort();
 
     expect(result).toEqual(expectedMethods);
@@ -79,6 +83,7 @@ describe("EditorContextProvider", () => {
       "updateWidgetDimension",
       "checkContainersForAutoHeight",
       "updatePositionsOnTabChange",
+      "unfocusWidget",
     ].sort();
 
     const testRenderer = TestRenderer.create(
@@ -90,7 +95,10 @@ describe("EditorContextProvider", () => {
     );
     const testInstance = testRenderer.root;
     const result = (
-      Object.keys(testInstance.findByType(TestChild).props.editorContext) || []
+      Object.keys(
+        // eslint-disable-next-line testing-library/await-async-queries
+        testInstance.findByType(TestChild).props.editorContext,
+      ) || []
     ).sort();
 
     expect(result).toEqual(expectedMethods);

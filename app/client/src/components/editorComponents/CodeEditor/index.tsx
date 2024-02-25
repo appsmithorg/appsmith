@@ -78,17 +78,11 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import {
-  getEvalErrorPath,
-  getEvalValuePath,
-  isDynamicValue,
-} from "utils/DynamicBindingUtils";
+import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
+import { getEvalErrorPath, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   addEventToHighlightedElement,
   getInputValue,
-  isActionEntity,
-  isWidgetEntity,
   removeEventFromHighlightedElement,
   removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
@@ -97,7 +91,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
@@ -165,6 +159,7 @@ import {
   setActiveEditorField,
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -255,6 +250,8 @@ export type EditorProps = EditorStyleProps &
     lineCommentString?: string;
     evaluatedPopUpLabel?: string;
     removeHoverAndFocusStyle?: boolean;
+
+    customErrors?: LintError[];
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -645,7 +642,10 @@ class CodeEditor extends Component<Props, State> {
           this.props.entitiesForNavigation,
         );
       }
-      if (prevProps.lintErrors !== this.props.lintErrors) {
+      if (
+        prevProps.lintErrors !== this.props.lintErrors ||
+        prevProps.customErrors !== this.props.customErrors
+      ) {
         this.lintCode(this.editor);
       }
       if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
@@ -1287,7 +1287,7 @@ class CodeEditor extends Component<Props, State> {
   getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, expected } = this.props;
     const configTree = ConfigTreeActions.getConfigTree();
-    const entityInformation: FieldEntityInformation = {
+    let entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
       example: expected?.example,
       mode: this.props.mode,
@@ -1306,18 +1306,11 @@ class CodeEditor extends Component<Props, State> {
     const entityType = entity.ENTITY_TYPE;
     entityInformation.entityType = entityType;
 
-    if (isActionEntity(entity)) {
-      entityInformation.entityId = entity.actionId;
-    } else if (isWidgetEntity(entity)) {
-      const isTriggerPath = entity.triggerPaths[propertyPath];
-      entityInformation.entityId = entity.widgetId;
-      if (isTriggerPath)
-        entityInformation.expectedType = AutocompleteDataType.FUNCTION;
-      entityInformation.isTriggerPath = isTriggerPath;
-      entityInformation.widgetType = entity.type;
-    } else {
-      entityInformation.isTriggerPath = true;
-    }
+    entityInformation = getEachEntityInformation[entityType](
+      entity,
+      entityInformation,
+      propertyPath,
+    );
     return entityInformation;
   };
 
@@ -1418,6 +1411,10 @@ class CodeEditor extends Component<Props, State> {
     }
     const lintErrors = this.props.lintErrors;
 
+    if (this.props.customErrors?.length) {
+      lintErrors.push(...this.props.customErrors);
+    }
+
     const annotations = getLintAnnotations(editor.getValue(), lintErrors, {
       isJSObject,
       contextData,
@@ -1471,11 +1468,12 @@ class CodeEditor extends Component<Props, State> {
 
   getPropertyValidation = (
     dataTreePath?: string,
+    isTriggerPath?: boolean,
   ): {
     evalErrors: EvaluationError[];
     pathEvaluatedValue: unknown;
   } => {
-    if (!dataTreePath) {
+    if (!dataTreePath || !!isTriggerPath) {
       return {
         evalErrors: [],
         pathEvaluatedValue: undefined,
@@ -1484,10 +1482,7 @@ class CodeEditor extends Component<Props, State> {
 
     const evalErrors = this.getErrors(this.props.dynamicData, dataTreePath);
 
-    const pathEvaluatedValue = _.get(
-      this.props.dynamicData,
-      getEvalValuePath(dataTreePath),
-    );
+    const pathEvaluatedValue = _.get(this.props.dynamicData, dataTreePath);
 
     return {
       evalErrors,
@@ -1545,8 +1540,12 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
 
-    const { evalErrors, pathEvaluatedValue } =
-      this.getPropertyValidation(dataTreePath);
+    const entityInformation = this.getEntityInformation();
+
+    const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
+      dataTreePath,
+      entityInformation?.isTriggerPath,
+    );
 
     let errors = evalErrors,
       isInvalid = evalErrors.length > 0,
@@ -1556,7 +1555,6 @@ class CodeEditor extends Component<Props, State> {
       evaluated =
         pathEvaluatedValue !== undefined ? pathEvaluatedValue : evaluated;
     }
-    const entityInformation = this.getEntityInformation();
 
     const showSlashCommandButton =
       showLightningMenu !== false &&

@@ -22,18 +22,9 @@ import EditorNavigation, {
 import PageList from "../../../../../support/Pages/PageList";
 
 describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
-  before(() => {
-    homePage.NavigateToHome();
-    homePage.CreateNewWorkspace();
-    cy.get("@workspaceName").then((workspaceName) => {
-      newWorkspaceName = workspaceName;
-      homePage.CreateAppInWorkspace(workspaceName);
-    });
-  });
-
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
     homePage.NavigateToHome();
-    cy.get(homePageLocators.optionsIcon).first().click();
+    agHelper.GetNClick(homePageLocators.createNew, 0);
     cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
     cy.get(homePageLocators.workspaceImportAppModal).should("be.visible");
     cy.wait(1000);
@@ -89,15 +80,12 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   it("2. Import the previous app connected to Git and reconnect Postgres, MySQL and Mongo db ", () => {
     homePage.NavigateToHome();
     cy.createWorkspace();
+    let newWorkspaceName;
     cy.wait("@createWorkspace").then((interception) => {
-      const newWorkspaceName = interception.response.body.data.name;
+      newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, "gitImport");
     });
-    cy.get(homePageLocators.homeIcon).click();
-    cy.get(homePageLocators.optionsIcon).first().click();
-    cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
-    cy.get(".t--import-json-card").next().click();
-    cy.importAppFromGit(repoName);
+    gitSync.ImportAppFromGit(newWorkspaceName, repoName);
     cy.wait(5000);
     cy.get(reconnectDatasourceModal.Modal).should("be.visible");
     cy.ReconnectDatasource("TEDPostgres");
@@ -175,7 +163,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     // verify jsObject is not duplicated
     agHelper.Sleep(2000); //for cloning of table data to finish
     EditorNavigation.SelectEntityByName(jsObject, EntityType.JSObject); //Also checking jsobject exists after cloning the page
-    EditorNavigation.SelectEntityByName("Page1 Copy", EntityType.Page);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );

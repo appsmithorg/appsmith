@@ -1,5 +1,5 @@
 import { isStoredDatasource } from "entities/Action";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { keyBy } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { getPluginIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";

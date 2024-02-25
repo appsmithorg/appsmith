@@ -63,7 +63,6 @@ const preview = {
   },
   parameters: {
     viewport: { viewports: customViewports },
-    actions: { argTypesRegex: "^on[A-Z].*" },
     docs: {
       container: ({ children, context }) => (
         <DocsContainer context={context}>

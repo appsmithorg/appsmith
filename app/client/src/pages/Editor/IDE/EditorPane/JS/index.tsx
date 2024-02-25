@@ -1,30 +1,21 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import JSEditor from "pages/Editor/JSEditor";
-import ListJS from "./List";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { LIST_PATH } from "@appsmith/constants/routes/appRoutes";
+import { useJSSegmentRoutes } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 
 const JSSegment = () => {
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
-  const editorMode = useSelector(getIDEViewMode);
   const { path } = useRouteMatch();
+  const routes = useJSSegmentRoutes(path);
   return (
     <Switch>
-      {isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen ? (
+      {routes.map((route) => (
         <SentryRoute
-          component={JSEditor}
-          exact
-          path={[path + "/:collectionId"]}
+          component={route.component}
+          exact={route.exact}
+          key={route.key}
+          path={route.path}
         />
-      ) : null}
-      <SentryRoute
-        component={ListJS}
-        path={[path, `${path}/:collectionId${LIST_PATH}`]}
-      />
+      ))}
     </Switch>
   );
 };

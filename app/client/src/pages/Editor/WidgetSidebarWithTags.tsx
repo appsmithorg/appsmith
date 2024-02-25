@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
@@ -94,10 +94,6 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
     }
   };
 
-  useEffect(() => {
-    if (isActive) searchInputRef.current?.focus();
-  }, [isActive]);
-
   const search = debounce((value: string) => {
     filterCards(value.toLowerCase());
   }, 300);
@@ -111,7 +107,6 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
           autoComplete="off"
-          autoFocus
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
           placeholder="Search widgets"
@@ -121,7 +116,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
       </div>
       <div
         className="flex-grow px-3 mt-2 overflow-y-scroll"
-        data-testid="widget-sidebar-scrollable-wrapper"
+        data-testid="t--widget-sidebar-scrollable-wrapper"
       >
         {isEmpty && (
           <Text
@@ -171,7 +166,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
                 </CollapsibleHeader>
 
                 <CollapsibleContent>
-                  <div className="grid items-stretch grid-cols-3 gap-x-2 gap-y-1 justify-items-stretch">
+                  <div className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch">
                     {tag === WIDGET_TAGS.SUGGESTED_WIDGETS
                       ? sortBy(cardsForThisTag, (widget) => {
                           return SUGGESTED_WIDGETS_ORDER[widget.type];

@@ -52,13 +52,13 @@ export const QUERIES_EDITOR_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`;
 export const QUERIES_EDITOR_ID_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId/add`;
 export const JS_COLLECTION_EDITOR_PATH = `/jsObjects`;
 export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId`;
+export const JS_COLLECTION_ID_ADD_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId/add`;
 export const CURL_IMPORT_PAGE_PATH = `/api/curl/curl-import`;
 export const DATA_SOURCES_EDITOR_LIST_PATH = `/datasource`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const APP_LIBRARIES_EDITOR_PATH = `/libraries`;
 export const APP_SETTINGS_EDITOR_PATH = `/settings`;
 export const SAAS_GSHEET_EDITOR_ID_PATH = `/saas/google-sheets-plugin/datasources/:datasourceId`;
-export const PROVIDER_TEMPLATE_PATH = `/provider/:providerId`;
 export const GEN_TEMPLATE_URL = "generate-page";
 export const GENERATE_TEMPLATE_PATH = `/${GEN_TEMPLATE_URL}`;
 export const GEN_TEMPLATE_FORM_ROUTE = "/form";
@@ -136,11 +136,6 @@ export interface AppViewerRouteParams {
 export interface APIEditorRouteParams {
   pageId: string;
   apiId?: string;
-}
-
-export interface ProviderViewerRouteParams {
-  pageId: string;
-  providerId: string;
 }
 
 export interface QueryEditorRouteParams {

@@ -471,47 +471,58 @@ describe(
 
         cy.ClickGotIt();
 
+        agHelper.WaitUntilAllToastsDisappear();
+
         //Verifying Searching File from UI
         agHelper.TypeText(
           queryLocators.searchFilefield,
           fileName.substring(0, 14),
         );
 
-        agHelper
-          .AssertElementVisibility(
-            ".t--widget-textwidget span:contains('" + fileName + "')",
-          )
-          .should("have.length", 1);
+        agHelper.AssertElementVisibility(
+          ".t--widget-textwidget span:contains('" + fileName + "')",
+        );
+
+        agHelper.AssertElementLength(
+          ".t--widget-textwidget span:contains('" + fileName + "')",
+          1,
+        );
 
         //Verifying CopyFile URL icon from UI - Browser pop up appearing
         // cy.xpath(queryLocators.copyURLicon).click()
         // cy.window().its('navigator.clipboard').invoke('readText').should('contain', 'CRUDNewPageFile')
 
         //Verifying DeleteFile icon from UI
-        cy.xpath(
+        agHelper.GetNClick(
           "//span[text()='" +
             fileName +
             "']/ancestor::div[@type='CANVAS_WIDGET']//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]",
-        )
-          .eq(0)
-          .click(); //Verifies 8684
+        );
+
+        //Verifies 8684
         cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
-        expect(
-          cy.xpath(
-            "//span[text()='Are you sure you want to delete the file?']",
-          ),
-        ).to.exist; //verify Delete File dialog appears
-        cy.clickButton("Confirm").wait(1000); //wait for Delete operation to be successfull, //Verifies 8684
-        agHelper.AssertElementAbsence(".t--modal-widget", 10000);
+        agHelper.AssertElementVisibility(
+          "//span[text()='Are you sure you want to delete the file?']",
+        ); //verify Delete File dialog appears
+
+        agHelper.ClickButton("Confirm"); //wait for Delete operation to be successfull, //Verifies 8684
+
+        agHelper.AssertElementAbsence(
+          ".t--modal-widget",
+          Cypress.config().pageLoadTimeout,
+        );
         cy.wait("@postExecute").then(({ response }) => {
           expect(response.body.data.isExecutionSuccess).to.eq(true);
         });
         cy.wait("@postExecute").then(({ response }) => {
           expect(response.body.data.isExecutionSuccess).to.eq(true);
         });
-        cy.wait(2000);
-        cy.get("span:contains('" + fileName + "')").should("not.exist"); //verify Deletion of file is success from UI also
+
+        agHelper.AssertElementAbsence(
+          "span:contains('" + fileName + "')",
+          Cypress.config().pageLoadTimeout,
+        ); //verify Deletion of file is success from UI also
       });
     });
 

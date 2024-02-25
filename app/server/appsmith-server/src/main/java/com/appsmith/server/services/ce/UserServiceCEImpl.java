@@ -245,7 +245,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
         return repository
                 .findByEmail(email)
-                .switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
+                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
@@ -479,7 +479,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
         return repository
-                .findByCaseInsensitiveEmail(user.getUsername())
+                .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -751,7 +751,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Flux<User> getAllByEmails(Set<String> emails, AclPermission permission) {
-        return repository.findAllByEmails(emails);
+        return repository.findAllByEmailIn(emails);
     }
 
     @Override
@@ -775,7 +775,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // Check if the user exists in our DB. If not, we will not send the email verification link to the user
         Mono<User> userMono = repository.findByEmail(email).cache();
-        return userMono.switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
+        return userMono.switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {

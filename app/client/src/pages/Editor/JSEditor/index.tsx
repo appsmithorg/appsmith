@@ -13,8 +13,7 @@ import { updateFunctionProperty } from "actions/jsPaneActions";
 import type { OnUpdateSettingsProps } from "./JSFunctionSettings";
 import { saveJSObjectName } from "actions/jsActionActions";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -33,9 +32,7 @@ function JSEditor(props: Props) {
     getJSCollectionDataById(state, collectionId),
   );
   const { isCreating } = useSelector((state) => state.ui.jsPane);
-  const isPagesPaneEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
+  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
   const jsCollection = jsCollectionData?.config;
 
   const contextMenu = useMemo(() => {
@@ -65,7 +62,7 @@ function JSEditor(props: Props) {
   if (!!jsCollection) {
     return (
       <JsEditorForm
-        backLink={isPagesPaneEnabled ? null : backLink}
+        backLink={isEditorPaneEnabled ? null : backLink}
         contextMenu={contextMenu}
         hideContextMenuOnEditor={Boolean(
           jsCollectionData?.config.isMainJSCollection,

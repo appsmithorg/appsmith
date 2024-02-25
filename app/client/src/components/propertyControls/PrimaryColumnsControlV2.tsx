@@ -24,7 +24,7 @@ import {
   getPathEvalErrors,
 } from "selectors/dataTreeSelectors";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { getEvalValuePath, isDynamicValue } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
@@ -114,6 +114,10 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     };
   }
 
+  componentDidMount(): void {
+    this.setHasScrollableList();
+  }
+
   componentDidUpdate(prevProps: ControlProps): void {
     /**
      * On adding a new column the last column should get focused.
@@ -135,18 +139,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       );
     }
 
-    const listElement = document.querySelector(`.${LIST_CLASSNAME}`);
-
-    requestAnimationFrame(() => {
-      const hasScrollableList =
-        listElement && listElement?.scrollHeight > listElement?.clientHeight;
-
-      if (hasScrollableList !== this.state.hasScrollableList) {
-        this.setState({
-          hasScrollableList: !!hasScrollableList,
-        });
-      }
-    });
+    this.setHasScrollableList();
   }
 
   render() {
@@ -262,6 +255,21 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     const column = createColumn(this.props.widgetProperties, "customColumn");
 
     this.updateProperty(`${this.props.propertyName}.${column.id}`, column);
+  };
+
+  setHasScrollableList = () => {
+    const listElement = document.querySelector(`.${LIST_CLASSNAME}`);
+
+    requestAnimationFrame(() => {
+      const hasScrollableList =
+        listElement && listElement?.scrollHeight > listElement?.clientHeight;
+
+      if (hasScrollableList !== this.state.hasScrollableList) {
+        this.setState({
+          hasScrollableList: !!hasScrollableList,
+        });
+      }
+    });
   };
 
   onEdit = (index: number) => {
@@ -488,7 +496,7 @@ class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapp
       };
     }
 
-    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+    const pathEvaluatedValue = _.get(dataTree, dataTreePath);
 
     return {
       isInvalid: errors.length > 0,

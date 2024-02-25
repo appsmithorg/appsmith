@@ -15,8 +15,9 @@ body,
   width: 100%;
 }
 
+.sb-show-main.sb-main-padded,
 .sbdocs.sbdocs-wrapper {
-  padding: 20px;
+  padding: 0;
 }
 
 .sbdocs.sbdocs-content {

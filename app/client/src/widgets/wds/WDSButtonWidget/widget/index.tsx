@@ -2,12 +2,12 @@ import React from "react";
 import { toast } from "design-system";
 
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import BaseWidget from "widgets/BaseWidget";
 import ButtonComponent from "../component";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { propertyPaneStyleConfig } from "./styleConfig";
 import { propertyPaneContentConfig } from "./contentConfig";
-import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { ButtonWidgetProps, ButtonWidgetState } from "./types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -16,10 +16,11 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
+import { RecaptchaTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   constructor(props: ButtonWidgetProps) {
@@ -36,9 +37,10 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return {
       name: "Button",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       needsMeta: false,
       isCanvas: false,
-      tags: [WIDGET_TAGS.BUTTONS],
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.BUTTONS],
       searchTags: ["click", "submit"],
     };
   }
@@ -53,9 +55,6 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       text: "Submit",
       buttonVariant: BUTTON_VARIANTS.filled,
       buttonColor: COLORS.accent,
-      placement: ButtonPlacementTypes.CENTER,
-      rows: 4,
-      columns: 16,
       widgetName: "Button",
       isDisabled: false,
       isVisible: true,
@@ -65,46 +64,18 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       recaptchaType: RecaptchaTypes.V3,
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Hug,
-      minWidth: BUTTON_MIN_WIDTH,
-    };
-  }
-
-  static getAutoLayoutConfig() {
-    return {
-      defaults: {
-        rows: 4,
-        columns: 6.453,
-      },
-      autoDimension: {
-        width: true,
-      },
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "120px",
-              maxWidth: "360px",
-              minHeight: "40px",
-            };
-          },
-        },
-      ],
-      disableResizeHandles: {
-        horizontal: true,
-        vertical: true,
-      },
-    };
+    } as unknown as WidgetDefaultProps;
   }
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
       isLargeWidget: false,
       widgetSize: {
-        maxHeight: {},
-        maxWidth: { base: "360px" },
-        minHeight: { base: "40px" },
-        minWidth: { base: "128px" },
+        maxWidth: {
+          base: "100%",
+          "280px": "sizing-70",
+        },
+        minWidth: "sizing-14",
       },
     };
   }

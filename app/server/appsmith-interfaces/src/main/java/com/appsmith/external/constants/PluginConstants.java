@@ -1,5 +1,11 @@
 package com.appsmith.external.constants;
 
+import java.util.List;
+
+import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+
 public interface PluginConstants {
 
     interface PackageName {
@@ -15,11 +21,13 @@ public interface PluginConstants {
         String OPEN_AI_PLUGIN = "openai-plugin";
         String ANTHROPIC_PLUGIN = "anthropic-plugin";
         String GOOGLE_AI_PLUGIN = "googleai-plugin";
+        String APPSMITH_AI_PLUGIN = "appsmithai-plugin";
         String DATABRICKS_PLUGIN = "databricks-plugin";
         String AWS_LAMBDA_PLUGIN = "aws-lambda-plugin";
     }
 
     public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";
+    public static final String DEFAULT_APPSMITH_AI_DATASOURCE = "DEFAULT_APPSMITH_AI_DATASOURCE";
 
     interface PluginName {
         public static final String S3_PLUGIN_NAME = "S3";
@@ -43,6 +51,7 @@ public interface PluginConstants {
         public static final String OPEN_AI_PLUGIN_NAME = "Open AI";
         public static final String ANTHROPIC_PLUGIN_NAME = "Anthropic";
         public static final String GOOGLE_AI_PLUGIN_NAME = "Google AI";
+        public static final String APPSMITH_AI_PLUGIN_NAME = "Appsmith AI";
         public static final String DATABRICKS_PLUGIN_NAME = "Databricks";
         public static final String AWS_LAMBDA_PLUGIN_NAME = "AWS Lambda";
     }
@@ -50,4 +59,7 @@ public interface PluginConstants {
     interface HostName {
         public static final String LOCALHOST = "localhost";
     }
+
+    public static List<String> PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE =
+            List.of(REST_API_PLUGIN, GRAPHQL_PLUGIN, APPSMITH_AI_PLUGIN);
 }

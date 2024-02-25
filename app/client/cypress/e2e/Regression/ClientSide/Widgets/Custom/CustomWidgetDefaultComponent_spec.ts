@@ -1,14 +1,23 @@
 import {
   agHelper,
+  autoLayout,
   deployMode,
   entityExplorer,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Custom widget Tests",
   { tags: ["@tag.Widget", "@tag.Custom"] },
   function () {
     before(() => {
+      featureFlagIntercept({ release_custom_widgets_enabled: true });
+
       entityExplorer.DragDropWidgetNVerify("customwidget", 550, 100);
       cy.wait(5000);
     });
@@ -74,6 +83,36 @@ describe(
       getIframeBody().find("button.reset").trigger("click");
 
       agHelper.ValidateToastMessage("Successfully reset!!");
+
+      deployMode.NavigateBacktoEditor();
+
+      EditorNavigation.SelectEntityByName("Custom1", EntityType.Widget);
+
+      propPane.DeleteWidgetFromPropertyPane("Custom1");
+    });
+
+    it("#31170 - should check that custom widget height is not growing constantly in auto layout", () => {
+      featureFlagIntercept({ release_custom_widgets_enabled: true });
+
+      autoLayout.ConvertToAutoLayoutAndVerify(false);
+
+      entityExplorer.DragDropWidgetNVerify("customwidget", 550, 100);
+
+      agHelper
+        .GetNClick(".t--widget-customwidget iframe")
+        .invoke("height")
+        .then((height) => {
+          cy.wrap(height).as("height");
+        });
+
+      agHelper.Sleep(2000);
+
+      cy.get("@height").then((height) => {
+        agHelper.AssertHeight(
+          ".t--widget-customwidget iframe",
+          height as unknown as number,
+        );
+      });
     });
   },
 );

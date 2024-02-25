@@ -16,7 +16,7 @@ import type {
   WidgetType,
 } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { Context, ReactNode, RefObject } from "react";
 import { Component } from "react";
@@ -53,6 +53,13 @@ import store from "store";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+  PastePayload,
+} from "layoutSystems/anvil/utils/paste/types";
+import { type CallEffect, call } from "redux-saga/effects";
 
 /***
  * BaseWidget
@@ -147,6 +154,30 @@ abstract class BaseWidget<
     return {};
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  static pasteOperationChecks(
+    allWidgets: CanvasWidgetsReduxState, // All widgets
+    oldWidget: FlattenedWidgetProps, // Original copied widget
+    newWidget: FlattenedWidgetProps, // Newly generated widget
+    widgetIdMap: Record<string, string>, // Map of oldWidgetId -> newWidgetId
+  ): FlattenedWidgetProps | null {
+    return null;
+  }
+
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  static *performPasteOperation(
+    allWidgets: CanvasWidgetsReduxState, // All widgets
+    copiedWidgets: CopiedWidgetData[], // Original copied widgets
+    destinationInfo: PasteDestinationInfo, // Destination info of copied widgets
+    widgetIdMap: Record<string, string>, // Map of oldWidgetId -> newWidgetId
+    reverseWidgetIdMap: Record<string, string>, // Map of newWidgetId -> oldWidgetId
+  ): Generator<CallEffect<PastePayload>, PastePayload, any> {
+    const res: PastePayload = yield call(function* () {
+      return { widgets: allWidgets, widgetIdMap, reverseWidgetIdMap };
+    });
+    return res;
+  }
+
   /**
    * getLoadingProperties returns a list of regexp's used to specify bindingPaths,
    * which can set the isLoading prop of the widget.
@@ -238,6 +269,13 @@ abstract class BaseWidget<
     const { selectWidgetRequest } = this.context;
     if (selectWidgetRequest) {
       selectWidgetRequest(selectionRequestType, payload);
+    }
+  };
+
+  unfocusWidget = () => {
+    const { unfocusWidget } = this.context;
+    if (unfocusWidget) {
+      unfocusWidget();
     }
   };
 
@@ -519,6 +557,7 @@ export interface WidgetCardProps {
   key?: string;
   displayName: string;
   icon: string;
+  thumbnail?: string;
   isBeta?: boolean;
   tags?: WidgetTags[];
   isSearchWildcard?: boolean;

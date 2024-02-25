@@ -27,11 +27,12 @@ import PaneHeader from "./PaneHeader";
 import { useEditorType } from "@appsmith/hooks";
 import { INTEGRATION_TABS } from "../../../../constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { EmptyState } from "../EditorPane/components/EmptyState";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const PaneContainer = styled.div`
   width: 300px;
@@ -134,7 +135,9 @@ const DataSidePane = () => {
                 isSelected: currentSelectedDatasource === data.id,
                 startIcon: (
                   <DatasourceIcon
-                    src={groupedPlugins[data.pluginId].iconLocation}
+                    src={getAssetUrl(
+                      groupedPlugins[data.pluginId].iconLocation,
+                    )}
                   />
                 ),
               }))}

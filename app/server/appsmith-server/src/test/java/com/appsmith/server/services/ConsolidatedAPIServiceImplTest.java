@@ -47,6 +47,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -118,7 +121,7 @@ public class ConsolidatedAPIServiceImplTest {
     @Test
     public void testErrorWhenModeIsNullAndPageIdAvailable() {
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
-                consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, null, null, null);
+                consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, null, null);
         StepVerifier.create(consolidatedInfoForPageLoad).verifyErrorSatisfies(error -> {
             assertTrue(error instanceof AppsmithException);
             assertEquals("Please enter a valid parameter appMode.", error.getMessage());
@@ -149,7 +152,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED, null);
+                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
@@ -243,7 +246,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED, null);
+                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getPublishedActions());
@@ -420,7 +423,22 @@ public class ConsolidatedAPIServiceImplTest {
 
         Plugin samplePlugin = new Plugin();
         samplePlugin.setName("samplePlugin");
-        when(mockPluginService.get(any())).thenReturn(Flux.just(samplePlugin));
+        samplePlugin.setId("samplePluginId");
+        samplePlugin.setPackageName("sample-plugin");
+        Plugin sampleRestApiPlugin = new Plugin();
+        sampleRestApiPlugin.setName("sampleRestApiPlugin");
+        sampleRestApiPlugin.setId("sampleRestApiPluginId");
+        sampleRestApiPlugin.setPackageName(REST_API_PLUGIN);
+        Plugin sampleGraphqlPlugin = new Plugin();
+        sampleGraphqlPlugin.setName("sampleGraphqlPlugin");
+        sampleGraphqlPlugin.setId("sampleGraphqlPluginId");
+        sampleGraphqlPlugin.setPackageName(GRAPHQL_PLUGIN);
+        Plugin sampleAiPlugin = new Plugin();
+        sampleAiPlugin.setName("sampleAiPlugin");
+        sampleAiPlugin.setId("sampleAiPluginId");
+        sampleAiPlugin.setPackageName(APPSMITH_AI_PLUGIN);
+        when(mockPluginService.get(any()))
+                .thenReturn(Flux.just(samplePlugin, sampleRestApiPlugin, sampleGraphqlPlugin, sampleAiPlugin));
 
         Datasource sampleDatasource = new Datasource();
         sampleDatasource.setName("sampleDatasource");
@@ -439,7 +457,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", "appId", "branch", ApplicationMode.EDIT, null);
+                        "pageId", "appId", "branch", ApplicationMode.EDIT);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
@@ -563,18 +581,17 @@ public class ConsolidatedAPIServiceImplTest {
 
                     assertNotNull(consolidatedAPIResponseDTO.getPlugins());
                     assertEquals(
-                            1, consolidatedAPIResponseDTO.getPlugins().getData().size());
-                    assertEquals(
-                            "samplePlugin",
-                            consolidatedAPIResponseDTO
-                                    .getPlugins()
-                                    .getData()
-                                    .get(0)
-                                    .getName());
+                            4, consolidatedAPIResponseDTO.getPlugins().getData().size());
+                    List<String> pluginPackageNameList = consolidatedAPIResponseDTO.getPlugins().getData().stream()
+                            .map(Plugin::getPackageName)
+                            .toList();
+                    assertTrue(pluginPackageNameList.contains(REST_API_PLUGIN));
+                    assertTrue(pluginPackageNameList.contains(GRAPHQL_PLUGIN));
+                    assertTrue(pluginPackageNameList.contains(APPSMITH_AI_PLUGIN));
 
                     assertNotNull(consolidatedAPIResponseDTO.getPluginFormConfigs());
                     assertEquals(
-                            1,
+                            4,
                             consolidatedAPIResponseDTO
                                     .getPluginFormConfigs()
                                     .getData()
@@ -584,6 +601,18 @@ public class ConsolidatedAPIServiceImplTest {
                             .getPluginFormConfigs()
                             .getData()
                             .containsKey("samplePluginId"));
+                    assertTrue(consolidatedAPIResponseDTO
+                            .getPluginFormConfigs()
+                            .getData()
+                            .containsKey("sampleRestApiPluginId"));
+                    assertTrue(consolidatedAPIResponseDTO
+                            .getPluginFormConfigs()
+                            .getData()
+                            .containsKey("sampleGraphqlPluginId"));
+                    assertTrue(consolidatedAPIResponseDTO
+                            .getPluginFormConfigs()
+                            .getData()
+                            .containsKey("sampleAiPluginId"));
 
                     assertNotNull(consolidatedAPIResponseDTO.getMockDatasources());
                     assertEquals(
@@ -637,7 +666,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED, null);
+                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getUserProfile());

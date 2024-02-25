@@ -2,7 +2,7 @@
   background-color: var(--color-bg-assistive);
   color: var(--color-fg-on-assistive);
   padding: var(--inner-spacing-2) var(--inner-spacing-3);
-  border-radius: var(--border-radius-1);
+  border-radius: var(--border-radius-elevation-3);
   z-index: var(--z-index-99);
 
   & [data-tooltip-trigger-arrow] {

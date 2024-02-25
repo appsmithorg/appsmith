@@ -23,7 +23,6 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
-import com.mongodb.bulk.BulkWriteResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -628,10 +627,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository.findById(
-                    defaultPageId,
-                    List.of(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES),
-                    pagePermission.getReadPermission());
+            getPageMono = repository
+                    .queryBuilder()
+                    .byId(defaultPageId)
+                    .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
+                    .permission(pagePermission.getReadPermission())
+                    .one();
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(
                     branchName, defaultPageId, pagePermission.getReadPermission());
@@ -696,7 +697,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
+    public Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
         return repository.publishPages(pageIds, permission);
     }
 }

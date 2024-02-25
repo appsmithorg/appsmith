@@ -5,7 +5,6 @@ import type {
   ButtonGroupComponentProps,
   ButtonGroupItemComponentProps,
 } from "./types";
-import { Icon as BIcon } from "@blueprintjs/core";
 import { sortBy } from "lodash";
 
 export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
@@ -41,19 +40,12 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
   };
 
   const onAction = (key: Key) => {
-    const clickedItemIndex = sortedButtons.findIndex((item) => item.id === key);
+    if (props.buttonsList[key].onClick) {
+      setLoadingButtonIds([...loadingButtonIds, key as string]);
 
-    if (clickedItemIndex > -1) {
-      if (props.buttonsList[clickedItemIndex].onClick) {
-        setLoadingButtonIds([
-          ...loadingButtonIds,
-          sortedButtons[clickedItemIndex].id,
-        ]);
-
-        props.onButtonClick(sortedButtons[clickedItemIndex].onClick, () =>
-          onActionComplete(sortedButtons[clickedItemIndex]),
-        );
-      }
+      props.onButtonClick(props.buttonsList[key].onClick, () =>
+        onActionComplete(props.buttonsList[key]),
+      );
     }
   };
 
@@ -67,17 +59,12 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
       variant={props.variant}
     >
       {sortedButtons.map((button: ButtonGroupItemComponentProps) => {
-        const icon =
-          button.iconName &&
-          (() => {
-            return <BIcon icon={button.iconName} />;
-          });
-
         return (
           <Item
-            icon={icon}
+            icon={button.iconName}
             iconPosition={button.iconAlign}
             isLoading={loadingButtonIds.includes(button.id)}
+            isSeparator={button.itemType === "SEPARATOR"}
             key={button.id}
           >
             {button.label}

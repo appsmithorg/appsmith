@@ -33,7 +33,9 @@ interface EntityActionParams {
     | "Move to page"
     | "Hide"
     | "Refresh"
-    | "Set as home page";
+    | "Set as home page"
+    | "Export"
+    | "Import";
   subAction?: string;
   //@ts-expect-error: type mismatch
   entityType?: EntityItems;
@@ -61,7 +63,7 @@ export class EntityExplorer {
   _adsPopup = "div[role='menu']";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
   _widgetTagsList =
-    "[data-testid='widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
+    "[data-testid='t--widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
   _widgetCards = ".t--widget-card-draggable";
   _widgetSearchInput = "#entity-explorer-search";
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
@@ -150,6 +152,7 @@ export class EntityExplorer {
     dropTargetId = "",
     skipWidgetSearch = false,
   ) {
+    PageLeftPane.switchToAddNew();
     if (!skipWidgetSearch) {
       this.SearchWidgetPane(widgetType);
     }
@@ -168,8 +171,14 @@ export class EntityExplorer {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      })
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      });
     this.agHelper.Sleep(200);
     cy.get(
       parentWidgetType
@@ -179,7 +188,10 @@ export class EntityExplorer {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mouseup", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      });
   }
 
   public DragDropWidgetNVerify(
@@ -193,7 +205,7 @@ export class EntityExplorer {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
     PageLeftPane.switchToAddNew();
-    cy.focused().blur();
+
     this.DragNDropWidget(
       widgetType,
       x,
@@ -202,7 +214,7 @@ export class EntityExplorer {
       dropTargetId,
       skipWidgetSearch,
     );
-    this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
+    this.agHelper.AssertAutoSave(); //allowing widget to autosave on canvas!
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");
     } else {

@@ -210,6 +210,7 @@ export const StickyCanvasArena = forwardRef(
         />
         <StyledCanvasSlider
           data-testid={sliderId}
+          data-type={"canvas-slider"}
           id={sliderId}
           paddingBottom={canvasPadding}
           ref={slidingArenaRef}

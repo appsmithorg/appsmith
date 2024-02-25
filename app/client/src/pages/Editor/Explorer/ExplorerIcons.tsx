@@ -18,6 +18,9 @@ const CurlIcon = importSvg(async () => import("assets/images/Curl-logo.svg"));
 const GraphqlIcon = importSvg(
   async () => import("assets/images/Graphql-logo.svg"),
 );
+const AppsmithAISVG = importSvg(
+  async () => import("assets/images/appsmith-ai.svg"),
+);
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -283,6 +286,15 @@ export function CurlIconV2() {
   );
 }
 
+// TODO (workflows): replace with actual workflow icon
+export function WorkflowIcon() {
+  return (
+    <EntityIcon>
+      <Icon name="fork" size="lg" />
+    </EntityIcon>
+  );
+}
+
 // height and width are set to 18px by default. This is to maintain the current icon sizes.
 // fontSize is set to 56% by default.
 export function JsFileIconV2(
@@ -307,6 +319,36 @@ export function GraphQLIconV2() {
   return (
     <EntityIcon>
       <GraphqlIcon />
+    </EntityIcon>
+  );
+}
+
+export function AppsmithAIIcon() {
+  return (
+    <EntityIcon>
+      <AppsmithAISVG />
+    </EntityIcon>
+  );
+}
+
+export function ActionUrlIcon(url: string) {
+  return <img src={url} />;
+}
+
+export function ModuleIcon(
+  height = 18,
+  width = 18,
+  noBackground = false,
+  noBorder = false,
+) {
+  return (
+    <EntityIcon
+      height={height + "px"}
+      noBackground={noBackground}
+      noBorder={noBorder}
+      width={width + "px"}
+    >
+      <Icon name="module" size="md" />
     </EntityIcon>
   );
 }

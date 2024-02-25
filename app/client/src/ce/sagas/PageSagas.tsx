@@ -13,7 +13,7 @@ import type {
   CreatePageActionPayload,
   FetchPageListPayload,
 } from "actions/pageActions";
-import { createPage } from "actions/pageActions";
+import { createPage, fetchPublishedPage } from "actions/pageActions";
 import {
   clonePageSuccess,
   deletePageSuccess,
@@ -60,7 +60,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, delay, put, select } from "redux-saga/effects";
+import { all, call, delay, put, select, take } from "redux-saga/effects";
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -69,11 +69,8 @@ import {
   getDefaultPageId,
   getEditorConfigs,
   getWidgets,
-} from "../../sagas/selectors";
-import {
-  IncorrectBindingError,
-  validateResponse,
-} from "../../sagas/ErrorSagas";
+} from "sagas/selectors";
+import { IncorrectBindingError, validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
@@ -109,7 +106,6 @@ import DEFAULT_TEMPLATE from "templates/default";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
   fetchJSCollectionsForPageError,
@@ -117,17 +113,13 @@ import {
 } from "actions/jsActionActions";
 
 import WidgetFactory from "WidgetProvider/factory";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL } from "@appsmith/RouteBuilder";
-import {
-  failFastApiCalls,
-  waitForWidgetConfigBuild,
-} from "../../sagas/InitSagas";
-import { resizePublishedMainCanvasToLowestWidget } from "../../sagas/WidgetOperationUtils";
+import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
+import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
 import {
   checkAndLogErrorsIfCyclicDependency,
   getFromServerWhenNoPrefetchedResult,
-} from "../../sagas/helper";
+} from "sagas/helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
@@ -137,8 +129,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { UserCancelledActionExecutionError } from "../../sagas/ActionExecution/errorUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -153,6 +144,7 @@ import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/Layout
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -535,7 +527,6 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 
   if (!editorConfigs) return;
 
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const savePageRequest: SavePageRequest = getLayoutSavePayload(
     widgets,
     editorConfigs,
@@ -581,7 +572,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       const { actionUpdates, messages } = savePageResponse.data;
       // We do not want to show these toasts in guided tour
       // Show toast messages from the server
-      if (messages && messages.length && !guidedTourEnabled) {
+      if (messages && messages.length) {
         savePageResponse.data.messages.forEach((message) => {
           toast.show(message, {
             kind: "info",
@@ -797,7 +788,6 @@ export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
-    const guidedTourEnabled: boolean = yield select(inGuidedTour);
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
     const mainCanvasProps: MainCanvasReduxState =
@@ -807,11 +797,6 @@ export function* createPageSaga(
       mainCanvasProps.width,
     );
 
-    // Prevent user from creating a new page during the guided tour
-    if (guidedTourEnabled) {
-      yield put(toggleShowDeviationDialog(true));
-      return;
-    }
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -1465,10 +1450,12 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
   try {
     const { id, isFirstLoad, pageWithMigratedDsl } = action.payload;
 
-    yield call(fetchPageSaga, {
-      type: ReduxActionTypes.FETCH_PAGE_INIT,
-      payload: { id, isFirstLoad, pageWithMigratedDsl },
-    });
+    /*
+      Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
+      Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
+    */
+    yield put(fetchPage(id, isFirstLoad, pageWithMigratedDsl));
+    yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
 
     yield put({
       type: ReduxActionTypes.SETUP_PAGE_SUCCESS,
@@ -1493,10 +1480,14 @@ export function* setupPublishedPageSaga(
     const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
       action.payload;
 
-    yield call(fetchPublishedPageSaga, {
-      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      payload: { bustCache, firstLoad, pageId, pageWithMigratedDsl },
-    });
+    /*
+      Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
+      Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
+    */
+    yield put(
+      fetchPublishedPage(pageId, bustCache, firstLoad, pageWithMigratedDsl),
+    );
+    yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
 
     yield put({
       type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,

@@ -5,13 +5,13 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -43,8 +43,8 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
             GitFileUtils fileUtils,
-            ImportApplicationService importApplicationService,
-            ExportApplicationService exportApplicationService,
+            ImportService importService,
+            ExportService exportService,
             GitExecutor gitExecutor,
             ResponseUtils responseUtils,
             EmailConfig emailConfig,
@@ -71,8 +71,8 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
                 newActionService,
                 actionCollectionService,
                 fileUtils,
-                importApplicationService,
-                exportApplicationService,
+                importService,
+                exportService,
                 gitExecutor,
                 responseUtils,
                 emailConfig,

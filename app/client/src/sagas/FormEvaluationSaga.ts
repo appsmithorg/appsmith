@@ -16,7 +16,7 @@ import type { Action, ActionConfig } from "entities/Action";
 import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
@@ -29,6 +29,8 @@ import {
 } from "./helper";
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
+import type { Plugin } from "api/PluginApi";
+import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface FormEvalActionPayload {
   formId: string;
@@ -166,7 +168,13 @@ function* fetchDynamicValueSaga(
 
     dynamicFetchedValues.hasStarted = true;
 
+    const plugin: Plugin = yield select(getPlugin, pluginId);
+
     let url = PluginsApi.defaultDynamicTriggerURL(datasourceId);
+
+    if (!doesPluginRequireDatasource(plugin)) {
+      url = PluginsApi.dynamicTriggerURLForInternalPlugins(pluginId);
+    }
 
     if (
       "url" in evaluatedConfig &&
@@ -183,6 +191,7 @@ function* fetchDynamicValueSaga(
     let substitutedParameters = {};
 
     const action: Action = yield select(getAction, actionId);
+    const { workspaceId } = action;
     const dataTree: DataTree = yield select(getDataTree);
 
     if (!!action) {
@@ -199,8 +208,9 @@ function* fetchDynamicValueSaga(
         const dataTreeActionConfigPath =
           getDataTreeActionConfigPath(dynamicBindingValue);
         // then we get the value of the current parameter from the evaluatedValues in the action object stored in the dataTree.
+        // TODOD: Find a better way to pass the workspaceId
         const evaluatedValue = get(
-          evalAction?.__evaluation__?.evaluatedValues,
+          { ...evalAction, workspaceId },
           dataTreeActionConfigPath,
         );
         // if it exists, we store it in the substituted params object.

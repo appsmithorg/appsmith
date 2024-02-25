@@ -1,9 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ce.ApplicationSnapshotServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -19,16 +19,16 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
     public ApplicationSnapshotServiceImpl(
             ApplicationSnapshotRepository applicationSnapshotRepository,
             ApplicationService applicationService,
-            ImportApplicationService importApplicationService,
-            ExportApplicationService exportApplicationService,
+            ImportService importService,
+            ExportService exportService,
             ApplicationPermission applicationPermission,
             Gson gson,
             ResponseUtils responseUtils) {
         super(
                 applicationSnapshotRepository,
                 applicationService,
-                importApplicationService,
-                exportApplicationService,
+                importService,
+                exportService,
                 applicationPermission,
                 gson,
                 responseUtils);

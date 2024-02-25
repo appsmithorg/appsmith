@@ -18,6 +18,7 @@ import ColorPickerComponent from "components/propertyControls/ColorPickerCompone
 import {
   THEME_SETTINGS_BORDER_RADIUS_OPTIONS,
   THEME_SETTINGS_DENSITY_OPTIONS,
+  THEME_SETTINGS_ICON_STYLE_OPTIONS,
   THEME_SETTINGS_SIZING_OPTIONS,
 } from "./constants";
 import SettingSection from "../ThemePropertyPane/SettingSection";
@@ -127,7 +128,10 @@ function WDSThemePropertyPane() {
             }}
             value={theme.fontFamily}
           >
-            {Object.keys(FONT_METRICS)
+            {Object.keys({
+              "System Default": "System Default",
+              ...FONT_METRICS,
+            })
               .filter((item) => {
                 return (
                   ["-apple-system", "BlinkMacSystemFont", "Segoe UI"].includes(
@@ -202,6 +206,28 @@ function WDSThemePropertyPane() {
             }}
             options={buttonGroupOptions}
             value={theme.borderRadius}
+          />
+        </section>
+      </SettingSection>
+
+      {/* Icon Style */}
+      <SettingSection
+        className="px-4 py-3 border-t"
+        isDefaultOpen
+        title="Icons"
+      >
+        <section className="space-y-2">
+          <SubText>Icon Style</SubText>
+          <SegmentedControl
+            isFullWidth={false}
+            onChange={(value: string) => {
+              updateTheme({
+                ...theme,
+                iconStyle: value as ThemeSetting["iconStyle"],
+              });
+            }}
+            options={THEME_SETTINGS_ICON_STYLE_OPTIONS}
+            value={theme.iconStyle}
           />
         </section>
       </SettingSection>

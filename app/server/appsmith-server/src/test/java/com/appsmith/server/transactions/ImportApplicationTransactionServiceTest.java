@@ -12,7 +12,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.importable.ImportableService;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -45,7 +45,6 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 
 // All the test case are for failure or exception. Test cases for valid json file is already present in
 // ImportExportApplicationServiceTest class
@@ -58,7 +57,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 public class ImportApplicationTransactionServiceTest {
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -138,13 +137,14 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any(), anyBoolean()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST)));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
-                createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importService
+                .importNewArtifactInWorkspaceFromJson(createdWorkspace.getId(), applicationJson)
+                .map(importableArtifact -> (Application) importableArtifact);
 
         // Check  if expected exception is thrown
         StepVerifier.create(resultMono)
@@ -169,14 +169,15 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any(), anyBoolean()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new MongoTransactionException(
                         "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'")));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
-                createdWorkspace.getId(), applicationJson);
+        Mono<Application> resultMono = importService
+                .importNewArtifactInWorkspaceFromJson(createdWorkspace.getId(), applicationJson)
+                .map(importableArtifact -> (Application) importableArtifact);
 
         // Check  if expected exception is thrown
         StepVerifier.create(resultMono)

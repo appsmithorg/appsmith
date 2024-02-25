@@ -10,14 +10,17 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -25,10 +28,10 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -128,10 +131,10 @@ public class LayoutActionServiceTest {
     ApplicationService applicationService;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @Autowired
     ApplicationPermission applicationPermission;
@@ -214,21 +217,22 @@ public class LayoutActionServiceTest {
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
         newApp.setGitApplicationMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
                 .flatMap(application1 -> {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
-                    return applicationService
-                            .save(application1)
-                            .zipWhen(application11 -> exportApplicationService.exportApplicationById(
-                                    application11.getId(), gitData.getBranchName()));
+                    return applicationService.save(application1).zipWhen(application11 -> exportService
+                            .exportByArtifactIdAndBranchName(
+                                    application11.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
+                            .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importService.importArtifactInWorkspaceFromGit(
+                        workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getBranchName()))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         gitConnectedPage = newPageService
@@ -471,7 +475,7 @@ public class LayoutActionServiceTest {
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
                     List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
-                    assertThat(actionUpdates.size()).isEqualTo(1);
+                    assertThat(actionUpdates).hasSize(1);
                     assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
                     assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
                 })
@@ -508,7 +512,7 @@ public class LayoutActionServiceTest {
                     assertThat(actionDTO.getName()).isEqualTo("secondAction");
 
                     List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
-                    assertThat(actionUpdates.size()).isEqualTo(2);
+                    assertThat(actionUpdates).hasSize(2);
 
                     Optional<LayoutExecutableUpdateDTO> firstActionUpdateOptional = actionUpdates.stream()
                             .filter(actionUpdate -> actionUpdate.getName().equals("firstAction"))
@@ -746,7 +750,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO = updatedLayout
@@ -864,7 +868,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that all three the actions dont belong to the same set
                     final Set<DslExecutableDTO> firstSet =
@@ -957,7 +961,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     DslExecutableDTO actionDTO = updatedLayout
                             .getLayoutOnLoadActions()
@@ -1010,7 +1014,9 @@ public class LayoutActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateMultipleLayouts_MultipleLayouts_LayoutsUpdated() {
         // clone the current page to create another page for testing
-        PageDTO secondPage = applicationPageService.clonePage(testPage.getId()).block();
+        PageDTO secondPage = applicationPageService
+                .clonePage(testPage.getId(), new ClonePageMetaDTO())
+                .block();
 
         List<PageDTO> testPages = List.of(testPage, secondPage);
         UpdateMultiplePageLayoutDTO multiplePageLayoutDTO = new UpdateMultiplePageLayoutDTO();
@@ -1129,7 +1135,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO1 = updatedLayout
@@ -1201,7 +1207,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions()).hasSize(1);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslExecutableDTO actionDTO1 = updatedLayout

@@ -10,6 +10,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @QueryEmbeddable
 public class ActionCollectionDTO extends ActionCollectionCE_DTO {}

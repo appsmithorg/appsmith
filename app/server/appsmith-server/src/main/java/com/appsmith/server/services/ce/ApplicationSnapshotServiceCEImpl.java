@@ -1,16 +1,17 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
@@ -28,8 +29,8 @@ import java.util.List;
 public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServiceCE {
     private final ApplicationSnapshotRepository applicationSnapshotRepository;
     private final ApplicationService applicationService;
-    private final ImportApplicationService importApplicationService;
-    private final ExportApplicationService exportApplicationService;
+    private final ImportService importService;
+    private final ExportService exportService;
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
     private final ResponseUtils responseUtils;
@@ -40,16 +41,18 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     public Mono<Boolean> createApplicationSnapshot(String applicationId, String branchName) {
         return applicationService
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
-                /* SerialiseApplicationObjective=VERSION_CONTROL because this API can be invoked from developers.
-                exportApplicationById method check for MANAGE_PERMISSION if SerialiseApplicationObjective=SHARE.
+                /* SerialiseArtifactObjective=VERSION_CONTROL because this API can be invoked from developers.
+                exportApplicationById method check for MANAGE_PERMISSION if SerialiseArtifactObjective=SHARE.
                 */
                 .flatMap(branchedAppId -> Mono.zip(
-                        exportApplicationService.exportApplicationById(
-                                branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL),
+                        exportService.exportByArtifactId(
+                                branchedAppId,
+                                SerialiseArtifactObjective.VERSION_CONTROL,
+                                ArtifactJsonType.APPLICATION),
                         Mono.just(branchedAppId)))
                 .flatMapMany(objects -> {
                     String branchedAppId = objects.getT2();
-                    ApplicationJson applicationJson = objects.getT1();
+                    ApplicationJson applicationJson = (ApplicationJson) objects.getT1();
                     return applicationSnapshotRepository
                             .deleteAllByApplicationId(branchedAppId)
                             .thenMany(createSnapshots(branchedAppId, applicationJson));
@@ -87,9 +90,10 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                     String applicationJsonString = objects.getT1();
                     Application application = objects.getT2();
                     ApplicationJson applicationJson = gson.fromJson(applicationJsonString, ApplicationJson.class);
-                    return importApplicationService.restoreSnapshot(
-                            application.getWorkspaceId(), applicationJson, application.getId(), branchName);
+                    return importService.restoreSnapshot(
+                            application.getWorkspaceId(), application.getId(), branchName, applicationJson);
                 })
+                .map(importableArtifact -> (Application) importableArtifact)
                 .flatMap(application -> applicationSnapshotRepository
                         .deleteAllByApplicationId(application.getId())
                         .thenReturn(application))

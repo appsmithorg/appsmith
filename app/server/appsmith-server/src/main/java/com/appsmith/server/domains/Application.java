@@ -34,7 +34,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @NoArgsConstructor
 @QueryEntity
 @Document
-public class Application extends BaseDomain {
+public class Application extends BaseDomain implements ImportableArtifact, ExportableArtifact {
 
     @NotNull @JsonView(Views.Public.class)
     String name;
@@ -97,7 +97,7 @@ public class Application extends BaseDomain {
     Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
-    GitApplicationMetadata gitApplicationMetadata;
+    GitArtifactMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
@@ -268,6 +268,32 @@ public class Application extends BaseDomain {
         }
     }
 
+    @JsonView(Views.Internal.class)
+    @Override
+    public GitArtifactMetadata getGitArtifactMetadata() {
+        return this.gitApplicationMetadata;
+    }
+
+    @Override
+    public String getUnpublishedThemeId() {
+        return this.getEditModeThemeId();
+    }
+
+    @Override
+    public void setUnpublishedThemeId(String themeId) {
+        this.setEditModeThemeId(themeId);
+    }
+
+    @Override
+    public String getPublishedThemeId() {
+        return this.getPublishedModeThemeId();
+    }
+
+    @Override
+    public void setPublishedThemeId(String themeId) {
+        this.setPublishedModeThemeId(themeId);
+    }
+
     @Override
     public void sanitiseToExportDBObject() {
         this.setWorkspaceId(null);
@@ -423,6 +449,9 @@ public class Application extends BaseDomain {
         @JsonView(Views.Public.class)
         Type colorMode;
 
+        @JsonView(Views.Public.class)
+        IconStyle iconStyle;
+
         public ThemeSetting(Type colorMode) {
             this.colorMode = colorMode;
         }
@@ -430,6 +459,11 @@ public class Application extends BaseDomain {
         public enum Type {
             LIGHT,
             DARK
+        }
+
+        public enum IconStyle {
+            OUTLINED,
+            FILLED
         }
     }
 }

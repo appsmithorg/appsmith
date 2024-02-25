@@ -54,7 +54,7 @@ import {
   updateJSFunction,
   executeJSFunctionInit,
 } from "actions/jsPaneActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginPackageName, PluginType } from "entities/Action";
 import {
@@ -69,7 +69,10 @@ import {
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  PLATFORM_ERROR,
+} from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
@@ -571,11 +574,19 @@ function* handleUpdateJSCollectionBody(
         yield JSActionAPI.updateJSCollection(jsCollection);
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
-        // @ts-expect-error: response is of type unknown
-        yield put(updateJSCollectionBodySuccess({ data: response?.data }));
-        checkAndLogErrorsIfCyclicDependency(
-          (response.data as JSCollection).errorReports,
+        // since server is not sending the info about whether the js collection is main or not
+        // we are retaining it manually
+        const updatedJSCollection: JSCollection = {
+          // @ts-expect-error: response is of type unknown
+          ...response.data,
+          isMainJSCollection: !!jsCollection.isMainJSCollection,
+        };
+        yield put(
+          updateJSCollectionBodySuccess({
+            data: updatedJSCollection,
+          }),
         );
+        checkAndLogErrorsIfCyclicDependency(updatedJSCollection.errorReports);
       }
     }
   } catch (error) {

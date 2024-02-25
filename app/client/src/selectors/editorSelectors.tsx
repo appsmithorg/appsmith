@@ -71,9 +71,6 @@ const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
 const getPageListState = (state: AppState) => state.entities.pageList;
 
-export const getProviderCategories = (state: AppState) =>
-  state.ui.providers.providerCategories;
-
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
@@ -360,6 +357,7 @@ export const getWidgetCards = createSelector(
         key,
         searchTags,
         tags,
+        thumbnailSVG,
         type,
       } = config;
       let { columns, rows } = config;
@@ -378,6 +376,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout,
         displayName,
         icon: iconSVG,
+        thumbnail: thumbnailSVG,
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),

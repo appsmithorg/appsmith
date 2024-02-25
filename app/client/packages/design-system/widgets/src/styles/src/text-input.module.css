@@ -5,10 +5,9 @@
     display: flex;
     align-items: center;
     gap: var(--inner-spacing-1);
-    border-radius: var(--border-radius-1);
-    box-shadow: 0 0 0 1px var(--color-bd-neutral);
+    border-radius: var(--border-radius-elevation-3);
+    box-shadow: inset 0 0 0 1px var(--color-bd-neutral);
     padding-inline: var(--inner-spacing-1);
-    padding-block: var(--inner-spacing-1);
     flex: 1;
   }
 
@@ -19,7 +18,6 @@
     flex-grow: 1;
     color: var(--color-fg);
     text-overflow: ellipsis;
-    width: 100%;
     padding: 0;
 
     &:autofill,
@@ -61,7 +59,7 @@
     height: 100%;
     position: absolute;
     box-shadow: 0 0 0 2px var(--color-bd-focus);
-    border-radius: var(--border-radius-1);
+    border-radius: var(--border-radius-elevation-3);
   }
 
   & [data-readonly][data-field-input][data-focused]:before {
@@ -121,6 +119,8 @@
   */
   & [data-field-input] [data-icon-button] {
     block-size: calc(100% - var(--inner-spacing-1));
+    inline-size: calc(100% - var(--inner-spacing-1));
+    min-inline-size: 100%;
   }
 
   /**
@@ -139,11 +139,32 @@
   * START ICON AND END ICON
   *-----------------------------------------------------------------------------
   */
-  & [data-field-input-start-icon] div {
+  & :is([data-field-input-start-icon], [data-field-input-end-icon]) {
     width: max-content;
+    display: flex;
+    align-items: center;
   }
 
-  & [data-field-input-end-icon] div {
-    width: max-content;
+  /**
+  * ----------------------------------------------------------------------------
+  * SIZE
+  *-----------------------------------------------------------------------------
+  */
+  &:has(input[data-size="small"]) [data-field-input] {
+    block-size: var(--sizing-7);
+
+    & [data-icon] {
+      inline-size: var(--sizing-5);
+      aspect-ratio: 1;
+    }
+  }
+
+  &:has(input[data-size="medium"]) [data-field-input] {
+    block-size: var(--sizing-9);
+
+    & [data-icon] {
+      inline-size: var(--sizing-7);
+      aspect-ratio: 1;
+    }
   }
 }

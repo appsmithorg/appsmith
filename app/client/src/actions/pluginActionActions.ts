@@ -20,6 +20,12 @@ import type { JSCollection } from "entities/JSCollection";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
+    type: ReduxActionTypes.CREATE_ACTION_REQUEST,
+    payload,
+  };
+};
+export const createActionInit = (payload: Partial<Action>) => {
+  return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
   };

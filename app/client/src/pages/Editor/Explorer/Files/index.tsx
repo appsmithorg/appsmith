@@ -48,6 +48,7 @@ function Files() {
     parentEntityType,
     selectFilesForExplorer = default_selectFilesForExplorer,
     showModules = true,
+    showWorkflows = true,
   } = context;
 
   const files = useSelector(selectFilesForExplorer);
@@ -61,6 +62,7 @@ function Files() {
     query,
     canCreateActions,
     showModules,
+    showWorkflows,
   });
 
   const onCreate = useCallback(() => {
@@ -107,7 +109,6 @@ function Files() {
               key={entity.id}
               searchKeyword={""}
               step={2}
-              type={type}
             />
           );
         } else if (type === "JS") {

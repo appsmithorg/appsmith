@@ -1,12 +1,11 @@
-import { IconButton } from "@design-system/widgets";
+import { Flex, IconButton, SIZES } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
-import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 
 <Meta
   title="Design-system/Widgets/IconButton"
   component={IconButton}
   args={{
-    icon: EmotionHappyLineIcon,
+    icon: "plus",
   }}
 />
 
@@ -51,19 +50,15 @@ Just like Button component, There are 3 variants of the icon button component.
 `IconButton` component has 3 visual style variants and 5 semantic color options, similar to `Button` component.
 
 <Story name="Semantic">
-  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+  <Flex gap="spacing-2" wrap="wrap">
     {["filled", "outlined", "ghost"].map((variant) =>
       ["accent", "neutral", "positive", "negative", "warning"].map((color) => (
-        <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
-          <IconButton
-            variant={variant}
-            color={color}
-            icon={EmotionHappyLineIcon}
-          />
+        <div key={`${variant}-${color}`}>
+          <IconButton variant={variant} color={color} icon="plus" />
         </div>
       )),
     )}
-  </div>
+  </Flex>
 </Story>
 
 ## Size
@@ -71,13 +66,15 @@ Just like Button component, There are 3 variants of the icon button component.
 `IconButton` component has 3 size options. `small`, `medium`, `large`.
 
 <Story name="Size">
-  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-    {["small", "medium", "large"].map((size) => (
-      <div key={size} style={{ marginBottom: 10 }}>
-        <IconButton size={size} icon={EmotionHappyLineIcon} />
-      </div>
-    ))}
-  </div>
+  <Flex gap="spacing-2">
+    {Object.keys(SIZES)
+      .filter((size) => !["large"].includes(size))
+      .map((size) => (
+        <div key={size}>
+          <IconButton size={size} icon="plus" />
+        </div>
+      ))}
+  </Flex>
 </Story>
 
 ## Disabled
@@ -97,7 +94,6 @@ Just like Button component, There are 3 variants of the icon button component.
   name="Loading State"
   args={{
     isLoading: true,
-    icon: EmotionHappyLineIcon,
     onPress: () => alert("on pressed"),
   }}
 >

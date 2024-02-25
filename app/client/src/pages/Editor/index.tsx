@@ -29,8 +29,6 @@ import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import { setupPage, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getSearchQuery } from "utils/helpers";
-import { loading } from "selectors/onboardingSelectors";
-import GuidedTourModal from "./GuidedTour/DeviationModal";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
 import { getIsBranchUpdated } from "../utils";
@@ -44,6 +42,9 @@ import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
+import GitSettingsModal from "./gitSync/GitSettingsModal";
+import ReconfigureCDKeyModal from "@appsmith/components/gitComponents/ReconfigureCDKeyModal";
+import DisableCDModal from "@appsmith/components/gitComponents/DisableCDModal";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -167,9 +168,11 @@ class Editor extends Component<Props> {
           <GlobalHotKeys>
             <IDE />
             <GitSyncModal />
+            <GitSettingsModal />
+            <DisableCDModal />
+            <ReconfigureCDKeyModal />
             <DisconnectGitModal />
             <DisableAutocommitModal />
-            <GuidedTourModal />
             <RepoLimitExceededErrorModal />
             <TemplatesModal />
             <ImportedApplicationSuccessModal />
@@ -194,7 +197,6 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
-  loadingGuidedTour: loading(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

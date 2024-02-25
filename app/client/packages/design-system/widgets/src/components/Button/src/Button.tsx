@@ -1,28 +1,28 @@
 import clsx from "clsx";
-import {
-  Button as HeadlessButton,
-  Icon as HeadlessIcon,
-} from "@design-system/headless";
 import React, { forwardRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import { getTypographyClassName } from "@design-system/theming";
+import { Button as HeadlessButton } from "@design-system/headless";
 import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
+import type { SIZES } from "../../../shared";
 
 import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
 import styles from "./styles.module.css";
 import type { ButtonProps } from "./types";
+import { Icon } from "../../Icon";
 
 const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
   props = useVisuallyDisabled(props);
   const {
     children,
     color = "accent",
-    icon: Icon,
+    icon,
     iconPosition = "start",
     isDisabled = false,
     isLoading = false,
     loadingText = "Loading...",
+    size = "medium",
     // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
     onKeyUp,
     variant = "filled",
@@ -35,11 +35,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
     return (
       <>
         <span aria-hidden={isLoading ? true : undefined} data-content="">
-          {Icon && (
-            <HeadlessIcon>
-              <Icon />
-            </HeadlessIcon>
-          )}
+          {icon && <Icon name={icon} size={size as keyof typeof SIZES} />}
           {Boolean(children) && (
             <Text fontWeight={600} lineClamp={1} textAlign="center">
               {children}
@@ -68,6 +64,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}
       data-loading={isLoading ? "" : undefined}
+      data-size={Boolean(size) ? size : undefined}
       data-variant={variant}
       draggable
       isDisabled={isDisabled}

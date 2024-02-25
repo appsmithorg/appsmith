@@ -1,52 +1,55 @@
+import { CUSTOM_WIDGET_ONREADY_DOC_URL } from "pages/Editor/CustomWidgetBuilder/constants";
+
 export default {
   uncompiledSrcDoc: {
     html: `<!-- no need to write html, head, body tags, it is handled by the widget -->
 <div id="root"></div>
 `,
     css: `.app {
-	height: calc(var(--appsmith-ui-height) * 1px);
-	width: calc(var(--appsmith-ui-width) * 1px);
-	justify-content: center;
-	border-radius: var(--appsmith-theme-borderRadius);
-	box-shadow: var(--appsmith-theme-boxShadow);
-}
+  width: calc(1px * var(--appsmith-ui-width));
+  justify-content: center;
+  border-radius: 0px;
+  border: none;
+  
+  .tip-container {
+    margin-bottom: 20px;
 
-.tip-container {
-  margin-bottom: 20px;
-}
+    h2 {
+      margin-bottom: 20px;
+      font-size: 16px;
+      font-weight: 700;
+    }
 
-.tip-container h2 {
-  margin-bottom: 20px;
-	font-size: 16px;
-	font-weight: 700;
-}
+    .tip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
 
-.tip-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: baseline;
-}
+      div {
+        color: #999;
+      }
+    }
+  }
+	
+	.button-container {
+      text-align: right;
 
-.tip-header div {
-	color: #999;
-}
+      button {
+        margin: 0 10px;
+        border-radius: var(--appsmith-theme-borderRadius) !important;
 
-.button-container {
-	text-align: right;	
-}
+        &.primary {
+          background: var(--appsmith-theme-primaryColor) !important;
+        }
 
-.button-container button {
-  margin: 0 10px;
+        &.reset:not([disabled]) {
+          color: var(--appsmith-theme-primaryColor) !important;
+          border-color: var(--appsmith-theme-primaryColor) !important;
+        }
+      }
+    }
 }
-
-.button-container button.primary {
-	background: var(--appsmith-theme-primaryColor) !important;
-}
-
-.button-container button.reset {
-	color: var(--appsmith-theme-primaryColor) !important;
-	border-color: var(--appsmith-theme-primaryColor) !important;
-}`,
+`,
     js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm'
 import { Button, Card } from 'https://cdn.jsdelivr.net/npm/antd@5.11.1/+esm'
@@ -75,13 +78,18 @@ function App() {
 			</div>
 			<div className="button-container">
 				<Button className="primary" onClick={handleNext} type="primary">Next Tip</Button>
-				<Button className="reset" onClick={handleReset}>Reset</Button>
+				<Button className="reset" disabled={currentIndex === 0} onClick={handleReset}>Reset</Button>
 			</div>
 	</Card>
 );
 }
 
 appsmith.onReady(() => {
+	/*
+	 * This handler function will get called when parent application is ready.
+	 * Initialize your component here
+	 * more info - ${CUSTOM_WIDGET_ONREADY_DOC_URL}
+	 */
 	reactDom.render(<App />, document.getElementById("root"));
 });`,
   },
@@ -90,11 +98,10 @@ appsmith.onReady(() => {
 <div id="root"></div>
 `,
     css: `.app {
-	height: calc(var(--appsmith-ui-height) * 1px);
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
-	border-radius: var(--appsmith-theme-borderRadius);
-	box-shadow: var(--appsmith-theme-boxShadow);
+	border-radius: 0px;
+	border: none;
 }
 
 .tip-container {
@@ -123,13 +130,14 @@ appsmith.onReady(() => {
 
 .button-container button {
   margin: 0 10px;
+	border-radius: var(--appsmith-theme-borderRadius) !important;
 }
 
 .button-container button.primary {
 	background: var(--appsmith-theme-primaryColor) !important;
 }
 
-.button-container button.reset {
+.button-container button.reset:not([disabled]) {
 	color: var(--appsmith-theme-primaryColor) !important;
 	border-color: var(--appsmith-theme-primaryColor) !important;
 }`,
@@ -161,6 +169,7 @@ function App() {
     type: "primary"
   }, "Next Tip"), /*#__PURE__*/React.createElement(Button, {
 	className: "reset",
+	disabled: currentIndex === 0,
     onClick: handleReset
   }, "Reset")));
 }

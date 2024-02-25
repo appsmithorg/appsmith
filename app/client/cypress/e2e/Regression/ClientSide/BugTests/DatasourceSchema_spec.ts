@@ -8,9 +8,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let guid;
 let dataSourceName: string;
@@ -19,10 +17,6 @@ describe(
   { tags: ["@tag.Datasource"] },
   function () {
     before(() => {
-      featureFlagIntercept({
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      });
       homePage.CreateNewWorkspace("FetchSchemaOnce", true);
       homePage.CreateAppInWorkspace("FetchSchemaOnce");
     });
@@ -77,8 +71,8 @@ describe(
         dataSources.CreateMockDB("Users");
         dataSources.CreateQueryAfterDSSaved();
         dataSources.VerifyTableSchemaOnQueryEditor("public.users");
-        PageLeftPane.expandCollapseItem("public.users");
-        dataSources.VerifyColumnSchemaOnQueryEditor("id");
+        dataSources.SelectTableFromPreviewSchemaList("public.users");
+        dataSources.VerifyColumnSchemaOnQueryEditor("id", 1);
         dataSources.FilterAndVerifyDatasourceSchemaBySearch(
           "public.us",
           "public.users",
@@ -87,18 +81,17 @@ describe(
     );
 
     it(
-      "4. Verify if collapsible opens when refresh button is opened.",
+      "4. Verify if refresh works.",
       { tags: ["@tag.excludeForAirgap"] },
       () => {
         agHelper.RefreshPage();
         dataSources.CreateMockDB("Users");
         dataSources.CreateQueryAfterDSSaved();
-        // close the schema
-        agHelper.GetNClick(dataSources._queryEditorCollapsibleIcon);
+        dataSources.VerifyTableSchemaOnQueryEditor("public.users");
         // then refresh
         dataSources.RefreshDatasourceSchema();
-        // assert the schema is open.
-        dataSources.VerifySchemaCollapsibleOpenState(true);
+        // assert the schema is still shown.
+        dataSources.VerifyTableSchemaOnQueryEditor("public.users");
       },
     );
 

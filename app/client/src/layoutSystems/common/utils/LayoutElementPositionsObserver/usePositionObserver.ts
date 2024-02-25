@@ -9,6 +9,27 @@ import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 export type ObservableElementType = "widget" | "layout";
 
+export function useObserveDetachedWidget(widgetId: string) {
+  // We don't need the observer in preview mode or the published app
+  // This is because the positions need to be observed only to enable
+  // editor features
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const appMode = useSelector(getAppMode);
+  if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
+    return;
+  }
+  const className = getAnvilWidgetDOMId(widgetId);
+  const ref = {
+    current: document.querySelector(`.${className}`) as HTMLDivElement,
+  };
+  positionObserver.observeWidget(widgetId, "", ref, true);
+  return () => {
+    const element = document.querySelector(`.${className}`) as HTMLDivElement;
+    const domID = element.getAttribute("id");
+    if (domID) positionObserver.unObserveWidget(domID);
+  };
+}
+
 /**
  * A hook to register a widget or a layout with the position observer
  * @param type Are we registering a widget or a layout

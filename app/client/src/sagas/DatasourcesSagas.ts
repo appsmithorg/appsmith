@@ -98,7 +98,7 @@ import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
 import { getFormData } from "selectors/formSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
@@ -117,7 +117,7 @@ import {
   OAUTH_AUTHORIZATION_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
@@ -129,7 +129,6 @@ import { getQueryParams } from "utils/URLUtils";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
-import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
@@ -166,15 +165,16 @@ import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
+  isEnvironmentFetching,
 } from "@appsmith/selectors/environmentSelectors";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { executeGoogleApi } from "./loadGoogleApi";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -317,8 +317,6 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       const isGeneratePageInitiator =
         getIsGeneratePageInitiator(isGeneratePageMode);
 
-      const isInGuidedTour: boolean = yield select(inGuidedTour);
-
       if (isGeneratePageInitiator) {
         history.push(
           generateTemplateFormURL({
@@ -329,7 +327,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           }),
         );
       } else {
-        if (isInGuidedTour || skipRedirection) {
+        if (skipRedirection) {
           return;
         }
 
@@ -451,12 +449,11 @@ export function* deleteDatasourceSaga(
           datasourceId: id,
         }),
       );
-      const isPagePaneSegmentsEnabled: boolean = yield select(
-        selectFeatureFlagCheck,
-        FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+      const isEditorPaneSegmentsEnabled: boolean = yield select(
+        getIsEditorPaneSegmentsEnabled,
       );
       const currentUrl = `${window.location.pathname}`;
-      if (isPagePaneSegmentsEnabled) {
+      if (isEditorPaneSegmentsEnabled) {
         yield call(handleDatasourceDeleteRedirect, id);
       } else if (
         currentUrl === datasourcePathWithoutQuery ||
@@ -1193,6 +1190,14 @@ function* createDatasourceFromFormSaga(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
       );
 
+      // Set datasource page to view mode
+      yield put(
+        setDatasourceViewMode({
+          datasourceId: response?.data?.id,
+          viewMode: true,
+        }),
+      );
+
       // fetch the datasource structure.
       yield put(fetchDatasourceStructure(response?.data?.id, true));
 
@@ -1456,6 +1461,10 @@ function* fetchDatasourceStructureSaga(
     schemaFetchContext: DatasourceStructureContext;
   }>,
 ) {
+  const isLoadingEnv: boolean = yield select(isEnvironmentFetching);
+  if (isLoadingEnv) {
+    yield take(ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS);
+  }
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, action.payload.id),
     `Datasource not found for id - ${action.payload.id}`,
@@ -2021,6 +2030,7 @@ function* loadFilePickerSaga() {
   // This adds overlay on document body
   // This is done for google sheets file picker, as file picker needs to be shown on blank page
   // when overlay needs to be shown, we get showPicker search param in redirect url
+  yield executeGoogleApi();
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
   const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);

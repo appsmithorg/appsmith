@@ -7,14 +7,16 @@ export const anvilConfig: AnvilConfig = {
   isLargeWidget: true,
   widgetSize: (props: WidgetProps, isPreviewMode: boolean): SizeConfig => {
     return {
-      minWidth: {
-        base: "100%",
-        [`${MOBILE_BREAKPOINT}px`]:
-          props?.renderMode === RenderModes.CANVAS && !isPreviewMode
-            ? "unset"
-            : "min-content",
+      minWidth:
+        props?.renderMode === RenderModes.CANVAS && !isPreviewMode
+          ? {}
+          : {
+              base: "100%",
+              [`${MOBILE_BREAKPOINT}px`]: "min-content",
+            },
+      minHeight: {
+        base: "sizing-12",
       },
-      minHeight: { base: "50px" },
     };
   },
 };

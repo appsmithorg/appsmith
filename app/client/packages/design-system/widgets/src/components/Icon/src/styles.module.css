@@ -1,0 +1,19 @@
+.icon {
+  &[data-size="small"] {
+    inline-size: var(--icon-size-1);
+    block-size: var(--icon-size-1);
+    stroke-width: var(--stroke-width-1);
+  }
+
+  &[data-size="medium"] {
+    inline-size: var(--icon-size-2);
+    block-size: var(--icon-size-2);
+    stroke-width: var(--stroke-width-2);
+  }
+
+  &[data-size="large"] {
+    inline-size: var(--icon-size-3);
+    block-size: var(--icon-size-3);
+    stroke-width: var(--stroke-width-3);
+  }
+}

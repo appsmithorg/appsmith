@@ -36,6 +36,7 @@ import {
   getScrollEndHandler,
   getScrollHandler,
 } from "./eventHandlers";
+import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
 
 /**
  * This Component contains logic to draw widget name on canvas
@@ -93,6 +94,10 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
     canvasPositions,
   });
 
+  const modalScrollParent: HTMLDivElement | null = document.querySelector(
+    `.${WDS_MODAL_WIDGET_CLASSNAME}`,
+  ) as HTMLDivElement;
+
   // Used to set canvasPositions, which is used further to calculate the exact positions of widgets
   useEffect(() => {
     if (!stageRef?.current?.content || !wrapperRef?.current) return;
@@ -119,6 +124,15 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
    * 2. Scroll: On the MainContainer, to check if the user is scrolling. This is so that we can hide the widget names
    * Also, this tells us that we need to compute and store scroll offset values to correctly position the widget name components.
    * 3. Scroll End: On the MainContainer, to check if the user has stopped scrolling. This is so that we can show the widget names again
+   *
+   *
+   * The logic for handling modal scroll is similar to the main container scroll
+   * The functions have been modified to be able to handle this for any scrollParent
+   *
+   * It is likely that the code below will need to be refactored for any new use cases
+   * However, the logic for handling scroll and scroll end will remain the same
+   *
+   *
    */
   useEffect(() => {
     const scrollParent: HTMLDivElement | null =
@@ -129,11 +143,34 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
 
     const reset = resetCanvas.bind(this, widgetNamePositions, stageRef);
 
+    // As we're not in control of when a modal mounts or unmounts
+    // from this component, we need to create abort controllers
+    // to remotely abort the event listeners
+    const scrollController = new AbortController();
+    const scrollEndController = new AbortController();
+
+    const modalScrollHandler = getScrollHandler(
+      isScrolling,
+      hasScroll,
+      reset,
+      scrollTop,
+      modalScrollParent,
+    );
+
+    const modalScrollEndHandler = getScrollEndHandler(
+      isScrolling,
+      hasScroll,
+      updateFn,
+    );
+
+    // Since we're not handling scroll in a modal,
+    // we need to handle scroll for the main container
     const scrollHandler = getScrollHandler(
       isScrolling,
       hasScroll,
       reset,
       scrollTop,
+      scrollParent,
     );
 
     const scrollEndHandler = getScrollEndHandler(
@@ -141,6 +178,35 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       hasScroll,
       updateFn,
     );
+
+    // If we have a modal parent, we need to handle scroll for the modal
+    // While the modal is visible the scrollParent will be the modal
+    if (modalScrollParent) {
+      modalScrollParent.addEventListener("scroll", modalScrollHandler, {
+        signal: scrollController.signal,
+        // we need to let the browser handle scroll without waiting for the
+        // event listener to run
+        passive: true,
+      });
+      modalScrollParent.addEventListener("scrollend", modalScrollEndHandler, {
+        signal: scrollEndController.signal,
+        // we need to let the browser handle scroll end without waiting for the
+        // event listener to run
+        passive: true,
+      });
+    } else {
+      // Aborting the controllers here, because otherwise we may have memory leaks
+      // Tryout this code by removing the this code and then opening a modal
+      // The event listeners will be added to the main container, but they won't be removed
+      // The number of event listeners shoot up from ~1000 in the test app to ~9000
+      scrollController.abort();
+      scrollEndController.abort();
+
+      scrollParent.addEventListener("scroll", scrollHandler, { passive: true });
+      scrollParent.addEventListener("scrollend", scrollEndHandler, {
+        passive: true,
+      });
+    }
 
     const mouseMoveHandler = getMouseMoveHandler(
       wrapperRef,
@@ -157,8 +223,6 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
 
     scrollParent.addEventListener("mouseover", mouseOverHandler);
     scrollParent.addEventListener("mousemove", mouseMoveHandler);
-    scrollParent.addEventListener("scroll", scrollHandler);
-    scrollParent.addEventListener("scrollend", scrollEndHandler);
     wrapper.addEventListener("mousemove", mouseMoveHandler);
 
     return () => {
@@ -167,8 +231,20 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       scrollParent.removeEventListener("scroll", scrollHandler);
       scrollParent.removeEventListener("scrollend", scrollEndHandler);
       wrapper.removeEventListener("mousemove", mouseMoveHandler);
+      if (modalScrollParent) {
+        // This piece of code is unlikely to be executed, because modalScrollParent
+        // could be unmounted but this component will still be mounted
+        modalScrollParent.removeEventListener("scroll", modalScrollHandler);
+        modalScrollParent.removeEventListener(
+          "scrollend",
+          modalScrollEndHandler,
+        );
+      }
+      // Aborting for good measure
+      scrollController.abort();
+      scrollEndController.abort();
     };
-  }, [wrapperRef?.current, stageRef?.current]);
+  }, [wrapperRef?.current, stageRef?.current, modalScrollParent]);
 
   // Reset the canvas if no widgets are focused or selected
   // Update the widget name positions if there are widgets focused or selected

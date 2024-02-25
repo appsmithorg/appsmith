@@ -7,14 +7,19 @@ import type { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
 import type {
   Datasource,
-  MockDatasource,
   DatasourceStructure,
+  MockDatasource,
 } from "entities/Datasource";
-import { isEmbeddedRestDatasource } from "entities/Datasource";
+import {
+  isEmbeddedAIDataSource,
+  isEmbeddedRestDatasource,
+} from "entities/Datasource";
 import type { Action } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
-import { isStoredDatasource } from "entities/Action";
-import { PluginType } from "entities/Action";
+import {
+  isStoredDatasource,
+  PluginPackageName,
+  PluginType,
+} from "entities/Action";
 import { find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -27,6 +32,7 @@ import type {
 import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
+  Plugin,
 } from "api/PluginApi";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
@@ -45,13 +51,20 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { Module } from "@appsmith/constants/ModuleConstants";
-import type { Plugin } from "api/PluginApi";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
 } from "@appsmith/selectors/workflowSelectors";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
+import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import {
+  ActionUrlIcon,
+  JsFileIconV2,
+} from "pages/Editor/Explorer/ExplorerIcons";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -67,6 +80,12 @@ export enum PluginCategory {
   Databases = "Databases",
   APIs = "APIs",
   Others = "Others",
+}
+
+export interface NewEntityNameOptions {
+  prefix: string;
+  parentEntityId: string;
+  parentEntityKey: CreateNewActionKeyInterface;
 }
 
 export type DatasourceGroupByPluginCategory = Record<
@@ -597,7 +616,7 @@ export const getPluginIdPackageNamesMap = createSelector(
 export const getCurrentActions = createSelector(
   getCurrentPageId,
   getActions,
-  (pageId, actions) => {
+  (pageId, actions): ActionData[] => {
     if (!pageId) return [];
     return actions.filter((a) => a.config.pageId === pageId);
   },
@@ -1030,6 +1049,13 @@ export const selectFilesForExplorer = createSelector(
         group = isEmbeddedRestDatasource(file.config.datasource)
           ? "APIs"
           : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else if (file.config.pluginType === PluginType.AI) {
+        group = isEmbeddedAIDataSource(file.config.datasource)
+          ? "AI Queries"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
+      } else if (file.config.pluginType === PluginType.INTERNAL) {
+        // TODO: Add a group for internal actions, currently only Workflow actions are internal
+        group = "Workflows";
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
@@ -1042,7 +1068,6 @@ export const selectFilesForExplorer = createSelector(
     }, [] as Array<ExplorerFileEntity>);
 
     const filesSortedByGroupName = sortBy(files, [
-      (file) => file.entity.config?.isMainJSCollection,
       (file) => file.group?.toLowerCase(),
       (file) => file.entity.config?.name?.toLowerCase(),
     ]);
@@ -1400,69 +1425,6 @@ export const getModuleInstanceEntities = () => {
   return null;
 };
 
-export interface PagePaneDataObject {
-  id: string;
-  name: string;
-  type: PluginType;
-}
-
-export interface PagePaneData {
-  [key: string]: PagePaneDataObject[];
-}
-
-const GroupAndSortPagePaneData = (
-  files: ActionData[] | JSCollectionData[],
-  datasourceIdToNameMap: Record<string, string>,
-) => {
-  let data: PagePaneData = {};
-
-  files.forEach((file) => {
-    let group = "";
-
-    if (file.config.pluginType === PluginType.JS) {
-      group = "JS Objects";
-    } else if (file.config.pluginType === PluginType.API) {
-      group = isEmbeddedRestDatasource(file.config.datasource)
-        ? "APIs"
-        : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-    } else {
-      group = datasourceIdToNameMap[file.config.datasource.id];
-    }
-    if (!data[group]) {
-      data[group] = [];
-    }
-    data[group].push({
-      id: file.config.id,
-      name: file.config.name,
-      type: file.config.pluginType,
-    });
-  });
-
-  data = Object.keys(data)
-    .sort()
-    .reduce(function (acc, key) {
-      acc[key] = sortBy(data[key], (file) => file.name);
-      return acc;
-    }, {} as PagePaneData);
-  return data;
-};
-
-export const selectQueriesForPagespane = createSelector(
-  getCurrentActions,
-  selectDatasourceIdToNameMap,
-  (actions, datasourceIdToNameMap) => {
-    return GroupAndSortPagePaneData(actions, datasourceIdToNameMap);
-  },
-);
-
-export const selectJSForPagespane = createSelector(
-  getCurrentJSCollections,
-  selectDatasourceIdToNameMap,
-  (jsActions, datasourceIdToNameMap) => {
-    return GroupAndSortPagePaneData(jsActions, datasourceIdToNameMap);
-  },
-);
-
 export const getQueryModuleInstances = () => {
   return [];
 };
@@ -1486,3 +1448,70 @@ export const getAllJSCollections = createSelector(
 export const getIsActionConverting = (state: AppState, actionId: string) => {
   return false;
 };
+
+export const getNewEntityName = createSelector(
+  getActions,
+  getJSCollections,
+  (_state: AppState, options: NewEntityNameOptions) => options,
+  (actions, jsCollections, options) => {
+    const { parentEntityId, parentEntityKey, prefix } = options;
+
+    const actionNames = actions
+      .filter((a) => a.config[parentEntityKey] === parentEntityId)
+      .map((a) => a.config.name);
+    const jsActionNames = jsCollections
+      .filter((a) => a.config[parentEntityKey] === parentEntityId)
+      .map((a) => a.config.name);
+
+    return getNextEntityName(prefix, actionNames.concat(jsActionNames));
+  },
+);
+
+export const getQuerySegmentItems = createSelector(
+  getCurrentActions,
+  getPlugins,
+  selectDatasourceIdToNameMap,
+  (actions, plugins, datasourceIdToNameMap) => {
+    const pluginGroups = keyBy(plugins, "id");
+    const items: EntityItem[] = actions.map((action) => {
+      let group;
+      const iconUrl = getAssetUrl(
+        pluginGroups[action.config.pluginId]?.iconLocation,
+      );
+      if (action.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(action.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
+      } else if (action.config.pluginType === PluginType.AI) {
+        group = isEmbeddedAIDataSource(action.config.datasource)
+          ? "AI Queries"
+          : datasourceIdToNameMap[action.config.datasource.id] ?? "AI Queries";
+      } else {
+        group = datasourceIdToNameMap[action.config.datasource.id];
+      }
+      return {
+        icon: ActionUrlIcon(iconUrl),
+        title: action.config.name,
+        key: action.config.id,
+        type: action.config.pluginType,
+        group,
+      };
+    });
+    return items;
+  },
+);
+export const getJSSegmentItems = createSelector(
+  getCurrentJSCollections,
+  (jsActions) => {
+    const items: EntityItem[] = jsActions.map((js) => ({
+      icon: JsFileIconV2(),
+      title: js.config.name,
+      key: js.config.id,
+      type: PluginType.JS,
+    }));
+    return items;
+  },
+);
+
+export const getSelectedTableName = (state: AppState) =>
+  state.ui.datasourcePane.selectedTableName;

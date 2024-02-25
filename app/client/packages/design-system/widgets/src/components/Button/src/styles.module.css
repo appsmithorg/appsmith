@@ -13,8 +13,8 @@
   border-width: var(--border-width-1);
   padding-inline: var(--inner-spacing-3);
   padding-block: var(--inner-spacing-2);
-  min-inline-size: var(--sizing-12);
-  border-radius: var(--border-radius-1);
+  min-inline-size: var(--sizing-14);
+  border-radius: var(--border-radius-elevation-3);
 
   @each $color in colors {
     &[data-variant="filled"][data-color="$(color)"] {
@@ -67,10 +67,6 @@
     color: inherit !important;
   }
 
-  &[data-button] [data-icon] path {
-    fill: currentColor;
-  }
-
   /**
   * ----------------------------------------------------------------------------
   * CONTENT
@@ -103,9 +99,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 1.2em;
-    width: 1.2em;
-    margin: -1.2em 0;
   }
 
   /**
@@ -165,30 +158,23 @@
   &[data-icon-button] {
     text-align: center;
     padding: 0;
-    container-type: inline-size;
+    aspect-ratio: 1;
+  }
 
-    &[data-size="small"] {
-      min-inline-size: var(--sizing-5);
-      block-size: var(--sizing-5);
-      inline-size: var(--sizing-5);
-    }
+  /**
+  * ----------------------------------------------------------------------------
+  * SIZES
+  *-----------------------------------------------------------------------------
+  */
+  &[data-size="small"] {
+    min-inline-size: var(--sizing-7);
+    block-size: var(--sizing-7);
+    padding-inline: var(--inner-spacing-2);
+  }
 
-    &[data-size="medium"] {
-      min-inline-size: var(--sizing-7);
-      block-size: var(--sizing-7);
-      inline-size: var(--sizing-7);
-    }
-
-    &[data-size="large"] {
-      min-inline-size: var(--sizing-9);
-      block-size: var(--sizing-9);
-      inline-size: var(--sizing-9);
-    }
-
-    & [data-icon] {
-      width: 80cqw;
-      height: 80cqw;
-    }
+  &[data-size="medium"] {
+    min-inline-size: var(--sizing-9);
+    block-size: var(--sizing-9);
   }
 }
 
