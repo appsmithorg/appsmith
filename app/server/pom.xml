@@ -18,6 +18,7 @@
     <name>Integrated Appsmith</name>
 
     <modules>
+        <module>annotation-processor</module>
         <module>reactive-caching</module>
         <module>appsmith-interfaces</module>
         <module>appsmith-plugins</module>

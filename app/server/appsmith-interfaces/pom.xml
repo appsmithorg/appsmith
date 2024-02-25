@@ -24,6 +24,12 @@
             <version>0.35.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.appsmith</groupId>
+            <artifactId>annotation-processor</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
