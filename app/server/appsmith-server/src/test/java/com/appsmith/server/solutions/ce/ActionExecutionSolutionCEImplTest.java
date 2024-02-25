@@ -29,6 +29,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,6 +86,9 @@ class ActionExecutionSolutionCEImplTest {
 
     @MockBean
     ActionPermission actionPermission;
+
+    @MockBean
+    ObservationRegistry observationRegistry;
 
     @SpyBean
     ObjectMapper objectMapper;

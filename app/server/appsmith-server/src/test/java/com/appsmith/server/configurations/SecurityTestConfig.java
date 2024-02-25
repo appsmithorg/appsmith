@@ -12,6 +12,6 @@ public class SecurityTestConfig {
 
     @Bean
     public SecurityWebFilterChain testSecurityWebFilterChain(ServerHttpSecurity http) {
-        return http.csrf().disable().build();
+        return http.csrf(csrf -> csrf.disable()).build();
     }
 }
