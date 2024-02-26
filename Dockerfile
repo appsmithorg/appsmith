@@ -27,7 +27,8 @@ COPY ./app/client/packages/rts/dist rts/
 
 ENV PATH /opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
 
-RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
+RUN test -f /opt/appsmith/info.json  # Fail fast if this file is missing \
+  && cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod +x *.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
   && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
