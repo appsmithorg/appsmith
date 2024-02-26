@@ -70,6 +70,7 @@ import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { setShowCreateNewModal } from "actions/propertyPaneActions";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 const actionList: {
   label: string;
@@ -434,6 +435,9 @@ function getApiAndQueryOptions(
   handleClose: () => void,
   queryModuleInstances: ModuleInstanceDataState,
 ) {
+  const state = store.getState();
+  const isSideBySideEnabled = getIsSideBySideEnabled(state);
+
   const createQueryObject: TreeDropdownOption = {
     label: "New query",
     value: "datasources",
@@ -442,7 +446,9 @@ function getApiAndQueryOptions(
     className: "t--create-datasources-query-btn",
     onSelect: () => {
       dispatch(setShowCreateNewModal(true));
-      dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+      if (isSideBySideEnabled) {
+        dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+      }
     },
   };
 
