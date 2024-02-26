@@ -43,15 +43,12 @@ export class DeployMode {
     toValidateSavedState = true,
     addDebugFlag = true,
   ) {
-    // Wait before publish
-    this.agHelper.Sleep(); //wait for elements settle!
+    this.agHelper.Sleep();
     toValidateSavedState && this.agHelper.AssertAutoSave();
-    // Stubbing window.open to open in the same tab
     this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
-    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
-    //cy.get("@windowDeployStub").should("be.calledOnce");
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000);
     this.assertHelper.AssertDocumentReady();
 
     this.agHelper.WaitUntilEleAppear(
@@ -62,7 +59,6 @@ export class DeployMode {
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast("has failed"),
       ); //Validating bug - 14141 + 14252
-    this.agHelper.AssertElementExist(this._deployPageWidgets);
     this.agHelper.AssertElementVisibility(this._deployPageWidgets);
     this.agHelper.Sleep(2000); //for view page widgets to load
   }
@@ -107,8 +103,7 @@ export class DeployMode {
               : ""
           }`,
           "_self",
-        ); // Call the original window.open function
-        //cy.wrap(originalOpen).as("windowDeployStub");  //this is not working! to check later
+        );
         return null;
       };
     });
@@ -121,19 +116,10 @@ export class DeployMode {
   ) {
     this.StubbingWindow();
     this.agHelper.GetNClick(selector, 0, false, 0);
-    // cy.window().then((win) => {
-    //   win.location.reload();
-    // });
-    this.agHelper.Sleep(4000); //Waiting a bit for new url to settle loading
-    // cy.url().then((url) => {
-    //   cy.window().then((window) => {
-    //     window.location.href = url;
-    //   }); //only reload page to get new url
-    // });
+    this.agHelper.Sleep(4000);
     cy.get("@windowStub").should("be.calledOnce");
     cy.url().should("contain", expectedUrl);
-    this.agHelper.Sleep(2000); //stay in the page a bit before navigating back
-    //this.assertHelper.AssertDocumentReady();
+    this.agHelper.Sleep(2000);
     cy.window({ timeout: 60000 }).then((win) => {
       win.history.back();
     });
@@ -149,7 +135,6 @@ export class DeployMode {
     if (toastToCheck) {
       this.agHelper.ValidateToastMessage(toastToCheck);
     }
-    //Assert no error toast in Edit mode when navigating back from Deploy mode
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("There was an unexpected error"),
     );
@@ -161,22 +146,12 @@ export class DeployMode {
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("Cannot read properties of undefined"),
     );
-    this.assertHelper.AssertNetworkResponseData("@getConsolidatedData"); //for auth rest api
+    this.assertHelper.AssertNetworkResponseData("@getConsolidatedData");
 
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
-
-    // cy.window().then((win) => {
-    //   win.location.reload();
-    // });
-    // cy.url().then((url) => {//also not working consistently!
-    //   cy.window().then((window) => {
-    //     window.location.href = url;
-    //   }); // //only reloading edit page to load elements
-    // });
     this.assertHelper.AssertDocumentReady();
-    //this.agHelper.Sleep(2000);
     EditorNavigation.ShowCanvas();
-    this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
+    this.agHelper.AssertElementVisibility(this.locator._editPage);
   }
 
   public NavigateToHomeDirectly() {
@@ -220,7 +195,7 @@ export class DeployMode {
     cy.get(this.locator._selectOptionValue(dropdownOption)).click({
       force: true,
     });
-    this.agHelper.Sleep(); //for selected value to reflect!
+    this.agHelper.Sleep();
   }
 
   public SelectJsonFormMultiSelect(
@@ -256,7 +231,6 @@ export class DeployMode {
         );
       });
     }
-    // //closing multiselect dropdown
     cy.get("body").type("{esc}");
   }
 }
