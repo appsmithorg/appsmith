@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -33,10 +32,9 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
-        Criteria appThemeCriteria =
-                Criteria.where(fieldName(QTheme.theme.applicationId)).is(applicationId);
+        Criteria appThemeCriteria = Criteria.where(Theme.Fields.applicationId).is(applicationId);
         Criteria systemThemeCriteria =
-                Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
+                Criteria.where(Theme.Fields.isSystemTheme).is(Boolean.TRUE);
         Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
         return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
@@ -44,7 +42,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public Flux<Theme> getSystemThemes() {
         Criteria systemThemeCriteria =
-                Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
+                Criteria.where(Theme.Fields.isSystemTheme).is(Boolean.TRUE);
         return queryBuilder()
                 .criteria(systemThemeCriteria)
                 .permission(AclPermission.READ_THEMES)
@@ -54,9 +52,9 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public Mono<Theme> getSystemThemeByName(String themeName) {
         String findNameRegex = String.format("^%s$", Pattern.quote(themeName));
-        Criteria criteria = where(fieldName(QTheme.theme.name))
+        Criteria criteria = where(Theme.Fields.name)
                 .regex(findNameRegex, "i")
-                .and(fieldName(QTheme.theme.isSystemTheme))
+                .and(Theme.Fields.isSystemTheme)
                 .is(true);
         return queryBuilder()
                 .criteria(criteria)
@@ -73,23 +71,22 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                     Criteria permissionCriteria = userAcl(permissionGroups, AclPermission.MANAGE_THEMES);
 
                     Update update = new Update();
-                    update.set(fieldName(QTheme.theme.deletedAt), Instant.now());
+                    update.set(Theme.Fields.deletedAt, Instant.now());
                     return queryBuilder().criteria(criteria, permissionCriteria).updateAll(update);
                 })
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
+                .map(count -> count > 0);
     }
 
     @Override
     public Mono<Boolean> archiveByApplicationId(String applicationId) {
-        return archiveThemeByCriteria(
-                where(fieldName(QTheme.theme.applicationId)).is(applicationId));
+        return archiveThemeByCriteria(where(Theme.Fields.applicationId).is(applicationId));
     }
 
     @Override
     public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
-        Criteria criteria = where(fieldName(QTheme.theme.id))
+        Criteria criteria = where(Theme.Fields.id)
                 .in(editModeThemeId, publishedModeThemeId)
-                .and(fieldName(QTheme.theme.isSystemTheme))
+                .and(Theme.Fields.isSystemTheme)
                 .is(false);
         return archiveThemeByCriteria(criteria);
     }

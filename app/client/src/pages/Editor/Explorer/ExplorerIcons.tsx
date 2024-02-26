@@ -334,3 +334,21 @@ export function AppsmithAIIcon() {
 export function ActionUrlIcon(url: string) {
   return <img src={url} />;
 }
+
+export function ModuleIcon(
+  height = 18,
+  width = 18,
+  noBackground = false,
+  noBorder = false,
+) {
+  return (
+    <EntityIcon
+      height={height + "px"}
+      noBackground={noBackground}
+      noBorder={noBorder}
+      width={width + "px"}
+    >
+      <Icon name="module" size="md" />
+    </EntityIcon>
+  );
+}

@@ -70,6 +70,8 @@ import { getWidgets } from "sagas/selectors";
 import { removeFocusHistoryRequest } from "actions/focusHistoryActions";
 import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
+import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -281,22 +283,23 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
+    const currentUrl = window.location.pathname;
     const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
+    const ideType = getIDETypeByUrl(currentUrl);
 
     if (isValidResponse) {
       // @ts-expect-error: response.data is of type unknown
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
-      const currentUrl = window.location.pathname;
       const isEditorPaneSegmentsEnabled: boolean = yield select(
         getIsEditorPaneSegmentsEnabled,
       );
-      if (isEditorPaneSegmentsEnabled) {
+      if (isEditorPaneSegmentsEnabled && ideType === IDE_TYPE.App) {
         yield call(handleJSEntityRedirect, id);
-      } else if (pageId) {
+      } else {
         history.push(builderURL({ pageId }));
       }
       yield put(removeFocusHistoryRequest(currentUrl));
