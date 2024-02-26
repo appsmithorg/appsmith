@@ -25,18 +25,33 @@ import WorkflowApiEditor from "../../WorkflowEditor/WorkflowApiEditor";
 import TriggerWorkflowSettings from "../../WorkflowEditor/WorkflowSettingsPane/WorkflowSettings/TriggerWorkflowSettings";
 import GeneralWorkflowSettings from "../../WorkflowEditor/WorkflowSettingsPane/WorkflowSettings/GeneralWorkflowSettings";
 import WorkflowCurlImportEditor from "../../WorkflowEditor/WorkflowCurlImportEditor";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import WidgetsEditor from "pages/Editor/WidgetsEditor";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 function useRoutes(path: string) {
   const ceRoutes = useCE_Routes(path);
   const showQueryModule = useSelector(getShowQueryModule);
   const showWorkflows = useSelector(getShowWorkflowFeature);
-
-  let moduleRoutes: RouteReturnType[] = [];
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
+  const moduleRoutes: RouteReturnType[] = [];
   let workflowRoutes: RouteReturnType[] = [];
 
   if (showQueryModule) {
-    moduleRoutes = [
-      {
+    if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
+      // Show Canvas on Main pane when in split screen
+      moduleRoutes.push({
+        key: "ModuleInstance",
+        component: WidgetsEditor,
+        exact: true,
+        path: [
+          `${path}${MODULE_INSTANCE_ID_PATH}`,
+          `${path}${MODULE_INSTANCE_ID_PATH}${ADD_PATH}`,
+        ],
+      });
+    } else {
+      moduleRoutes.push({
         key: "ModuleInstance",
         component: ModuleInstanceEditor,
         exact: true,
@@ -44,13 +59,14 @@ function useRoutes(path: string) {
           `${path}${MODULE_INSTANCE_ID_PATH}`,
           `${path}${MODULE_INSTANCE_ID_PATH}${ADD_PATH}`,
         ],
-      },
-      {
-        key: "ModuleEditor",
-        component: ModuleEditor,
-        path: `${MODULE_EDITOR_PATH}`,
-      },
-    ];
+      });
+    }
+    // Module Editor is on Package IDE which does not have split screen
+    moduleRoutes.push({
+      key: "ModuleEditor",
+      component: ModuleEditor,
+      path: `${MODULE_EDITOR_PATH}`,
+    });
   }
 
   if (showWorkflows) {
