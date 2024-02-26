@@ -1,11 +1,13 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.annotations.encryption.EncryptionEntityListener;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryTransient;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
@@ -34,6 +36,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @MappedSuperclass
+@EntityListeners(EncryptionEntityListener.class)
 public abstract class BaseDomain implements AppsmithDomain, Serializable {
 
     private static final long serialVersionUID = 7459916000501322517L;
@@ -69,16 +72,6 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     protected PolicyMap policyMap;
-
-    @PrePersist
-    @PreUpdate
-    public void preSave() {
-        setPolicyMap(PolicyMap.fromPolicies(policies));
-        if (id == null) {
-            // TODO: Use custom generation strategy instead of this.
-            setId(UUID.randomUUID().toString());
-        }
-    }
 
     @JsonView(Views.Public.class)
     public boolean isNew() {
@@ -133,5 +126,16 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
             this.setCreatedAt(Instant.now());
         }
         this.setUpdatedAt(Instant.now());
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void preSave() {
+        if (id == null) {
+            // TODO: Use custom generation strategy instead of this.
+            setId(UUID.randomUUID().toString());
+        }
+
+        policyMap = PolicyMap.fromPolicies(policies);
     }
 }
