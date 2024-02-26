@@ -9,6 +9,7 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   ENTITY_PATH,
   INTEGRATION_EDITOR_PATH,
+  JS_COLLECTION_ID_ADD_PATH,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -20,6 +21,7 @@ import {
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
 import type { PluginType } from "entities/Action";
+import type { ReactNode, ComponentType } from "react";
 
 export enum EditorState {
   DATA = "DATA",
@@ -110,6 +112,7 @@ export const EntityPaths: string[] = [
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
   JS_COLLECTION_ID_PATH,
+  JS_COLLECTION_ID_ADD_PATH,
   WIDGETS_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH + ADD_PATH,
   CURL_IMPORT_PAGE_PATH,
@@ -126,5 +129,13 @@ export interface EntityItem {
   title: string;
   type: PluginType;
   key: string;
+  icon?: ReactNode;
   group?: string;
 }
+
+export type UseRoutes = Array<{
+  key: string;
+  component: ComponentType<any>;
+  path: string[];
+  exact: boolean;
+}>;

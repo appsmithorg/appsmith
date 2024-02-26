@@ -25,11 +25,7 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   });
 
   it("Testing connect to git flow - V2", function () {
-    featureFlagIntercept({
-      release_git_connect_v2_enabled: true,
-    });
-
-    _.gitSync.CreateNConnectToGitV2();
+    _.gitSync.CreateNConnectToGit();
 
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
@@ -37,10 +33,6 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   });
 
   it("Testing import via git flow - V2", function () {
-    featureFlagIntercept({
-      release_git_connect_v2_enabled: true,
-    });
-
     _.gitSync.CreateGitBranch("test", true);
     cy.get("@gitbranchName").then((bName) => {
       branchName = bName;
@@ -49,7 +41,7 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
       _.propPane.UpdatePropertyFieldValue("Text", "Hello World");
       _.gitSync.CommitAndPush();
 
-      _.gitSync.ImportAppFromGitV2(ws2Name, repoName);
+      _.gitSync.ImportAppFromGit(ws2Name, repoName);
       _.gitSync.SwitchGitBranch(branchName);
       EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
       _.propPane.ValidatePropertyFieldValue("Text", "Hello World");

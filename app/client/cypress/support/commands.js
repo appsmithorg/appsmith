@@ -282,7 +282,7 @@ Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
   goToLoginPage && cy.visit("/user/login", { timeout: 60000 });
   cy.wait(3000); //for login page to load fully for CI runs
   cy.wait("@getConsolidatedData");
-  cy.get(loginPage.username).should("be.visible");
+  agHelper.AssertElementVisibility(loginPage.username);
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword, { log: false });
   cy.get(loginPage.submitBtn).click();
@@ -731,7 +731,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
 
-  const option = { eventConstructor: "MouseEvent" };
+  const option = { eventConstructor: "MouseEvent", scrollBehavior: false };
 
   cy.get(explorer.dropHere)
     .trigger("mousemove", x, y, option)
@@ -957,7 +957,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
 
   cy.intercept("POST", "/api/v1/actions").as("createNewApi");
-  cy.intercept("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as(
+  cy.intercept("POST", "/api/v1/import?type=CURL&contextId=*&name=*").as(
     "curlImport",
   );
   cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
@@ -1073,6 +1073,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("postTenant");
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
+
   if (Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST)) {
     // intercept features call for creating pages that support Anvil + WDS tests
     featureFlagIntercept(
@@ -1082,6 +1083,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   } else {
     featureFlagIntercept({}, false);
   }
+
   cy.intercept(
     {
       method: "GET",

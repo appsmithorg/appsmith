@@ -2,8 +2,6 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.CollectionUtils;
 import io.mongock.api.annotations.ChangeUnit;
@@ -22,7 +20,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
@@ -43,7 +40,7 @@ public class Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId {
                 .is(RESET_PASSWORD_USERS.getValue())
                 .andOperator(notDeleted());
         Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
-        queryExistingUsersWithResetPasswordPolicy.fields().include(fieldName(QUser.user.policies));
+        queryExistingUsersWithResetPasswordPolicy.fields().include(User.Fields.policies);
 
         List<User> existingUsers = mongoTemplate.find(queryExistingUsersWithResetPasswordPolicy, User.class);
 
@@ -66,13 +63,11 @@ public class Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId {
         });
 
         Criteria criteriaUserManagementRoleIds =
-                Criteria.where(fieldName(QPermissionGroup.permissionGroup.id)).in(userManagementRoleIds);
+                Criteria.where(PermissionGroup.Fields.id).in(userManagementRoleIds);
         Criteria criteriaDefaultDomainIdDoesNotExist = new Criteria()
                 .orOperator(
-                        Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                                .isNull(),
-                        Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                                .exists(false));
+                        Criteria.where(PermissionGroup.Fields.defaultDomainId).isNull(),
+                        Criteria.where(PermissionGroup.Fields.defaultDomainId).exists(false));
         Criteria criteriaUserManagementRolesWithDefaultDomainIdDoesNotExist =
                 new Criteria().andOperator(criteriaUserManagementRoleIds, criteriaDefaultDomainIdDoesNotExist);
         Query queryUserManagementRolesWithDefaultDomainIdDoesNotExist =

@@ -3,7 +3,6 @@ import React, { useCallback } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
-import { DatasourceStructureContext } from "entities/Datasource";
 import { getPluginNameFromId } from "@appsmith/selectors/entitiesSelector";
 import {
   PluginName,
@@ -42,7 +41,7 @@ import {
   showDebuggerFlag,
 } from "selectors/debuggerSelectors";
 import type { SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -233,7 +232,6 @@ export function EditorJSONtoForm(props: Props) {
     actionRightPaneBackLink,
     closeEditorLink,
     notification,
-    showSuggestedWidgets = true,
   } = useContext(QueryEditorContext);
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
@@ -257,10 +255,7 @@ export function EditorJSONtoForm(props: Props) {
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
-  const showRightPane =
-    showSchema ||
-    showSuggestedWidgets ||
-    Boolean(actionRightPaneAdditionSections);
+  const showRightPane = Boolean(actionRightPaneAdditionSections);
 
   // get the current action's plugin name
   const currentActionPluginName = useSelector((state: AppState) =>
@@ -285,6 +280,13 @@ export function EditorJSONtoForm(props: Props) {
       setShowResponseOnFirstLoad(true);
     }
   }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
+
+  useEffect(() => {
+    if (showSchema) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.SCHEMA_TAB));
+    }
+  }, [showSchema]);
 
   // When multiple page load queries exist, we want to response tab by default for all of them
   // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
@@ -473,6 +475,7 @@ export function EditorJSONtoForm(props: Props) {
                     isRunning={isRunning}
                     onRunClick={onRunClick}
                     runErrorMessage={runErrorMessage}
+                    showSchema={showSchema}
                   />
                 )}
             </SecondaryWrapper>
@@ -480,17 +483,8 @@ export function EditorJSONtoForm(props: Props) {
           {showRightPane && (
             <SidebarWrapper show={shouldOpenActionPaneByDefault}>
               <ActionRightPane
-                actionName={actionName}
                 actionRightPaneBackLink={actionRightPaneBackLink}
                 additionalSections={actionRightPaneAdditionSections}
-                context={DatasourceStructureContext.QUERY_EDITOR}
-                datasourceId={props.datasourceId}
-                hasConnections={hasDependencies}
-                hasResponse={!!actionResponse}
-                pluginId={props.pluginId}
-                showSchema={showSchema}
-                showSuggestedWidgets={showSuggestedWidgets}
-                suggestedWidgets={actionResponse?.suggestedWidgets}
               />
             </SidebarWrapper>
           )}

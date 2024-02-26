@@ -22,7 +22,10 @@ import isEmpty from "lodash/isEmpty";
 import pickBy from "lodash/pickBy";
 import { getFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
+import {
+  DEFAULT_EDITOR_PANE_WIDTH,
+  DEFAULT_SPLIT_SCREEN_WIDTH,
+} from "constants/AppConstants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
@@ -118,7 +121,7 @@ export const useEditorPaneWidth = (): string => {
       segment !== EditorEntityTab.UI
     ) {
       // 1px is propertypane border width
-      setWidth("40.4vw");
+      setWidth(DEFAULT_SPLIT_SCREEN_WIDTH);
     } else {
       setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
     }

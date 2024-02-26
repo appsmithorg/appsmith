@@ -2,10 +2,8 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.QDatasourceStorageStructure;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -30,18 +28,17 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
     public static Criteria getDatasourceIdAndEnvironmentIdCriteria(String datasourceId, String environmentId) {
         return new Criteria()
                 .andOperator(
-                        where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.datasourceId))
-                                .is(datasourceId),
-                        where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.environmentId))
-                                .is(environmentId));
+                        where(DatasourceStorageStructure.Fields.datasourceId).is(datasourceId),
+                        where(DatasourceStorageStructure.Fields.environmentId).is(environmentId));
     }
 
     @Override
-    public Mono<UpdateResult> updateStructure(
-            String datasourceId, String environmentId, DatasourceStructure structure) {
-        return mongoOperations.upsert(
-                new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
-                Update.update(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.structure), structure),
-                DatasourceStorageStructure.class);
+    public Mono<Integer> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
+        return mongoOperations
+                .upsert(
+                        new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
+                        Update.update(DatasourceStorageStructure.Fields.structure, structure),
+                        DatasourceStorageStructure.class)
+                .map(updateResult -> Math.toIntExact(updateResult.getModifiedCount()));
     }
 }

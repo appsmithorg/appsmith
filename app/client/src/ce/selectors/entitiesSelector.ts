@@ -60,6 +60,11 @@ import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants"
 import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import {
+  ActionUrlIcon,
+  JsFileIconV2,
+} from "pages/Editor/Explorer/ExplorerIcons";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1464,10 +1469,15 @@ export const getNewEntityName = createSelector(
 
 export const getQuerySegmentItems = createSelector(
   getCurrentActions,
+  getPlugins,
   selectDatasourceIdToNameMap,
-  (actions, datasourceIdToNameMap) => {
+  (actions, plugins, datasourceIdToNameMap) => {
+    const pluginGroups = keyBy(plugins, "id");
     const items: EntityItem[] = actions.map((action) => {
       let group;
+      const iconUrl = getAssetUrl(
+        pluginGroups[action.config.pluginId]?.iconLocation,
+      );
       if (action.config.pluginType === PluginType.API) {
         group = isEmbeddedRestDatasource(action.config.datasource)
           ? "APIs"
@@ -1480,6 +1490,7 @@ export const getQuerySegmentItems = createSelector(
         group = datasourceIdToNameMap[action.config.datasource.id];
       }
       return {
+        icon: ActionUrlIcon(iconUrl),
         title: action.config.name,
         key: action.config.id,
         type: action.config.pluginType,
@@ -1493,6 +1504,7 @@ export const getJSSegmentItems = createSelector(
   getCurrentJSCollections,
   (jsActions) => {
     const items: EntityItem[] = jsActions.map((js) => ({
+      icon: JsFileIconV2(),
       title: js.config.name,
       key: js.config.id,
       type: PluginType.JS,

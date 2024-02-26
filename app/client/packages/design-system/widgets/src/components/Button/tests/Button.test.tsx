@@ -33,18 +33,16 @@ describe("@design-system/widgets/Button", () => {
     render(<Button isLoading />);
     expect(screen.getByRole("button")).toHaveAttribute("data-loading");
 
+    // eslint-disable-next-line testing-library/no-node-access
     const icon = screen.getByRole("button").querySelector("[data-icon]");
     expect(icon).toBeInTheDocument();
   });
 
   it("renders icon when passed", () => {
-    const { container } = render(<Button icon="star" />);
+    render(<Button icon="star" />);
     // Note: using testid=t--fallack-icon as the icon is rendered lazily and the fallback component
     // has a testid
-    const icon = container.querySelector(
-      "button [data-testid='t--fallback-icon']",
-    ) as HTMLElement;
-
+    const icon = screen.getByTestId("t--fallback-icon");
     expect(icon).toBeInTheDocument();
   });
 

@@ -3,6 +3,7 @@ import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
+
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -169,7 +170,6 @@ export class HomePage {
         .find(this.adsV2Text)
         .then(($ele) => {
           oldName = $ele.text();
-          cy.log("oldName is : " + oldName);
           this.RenameWorkspace(oldName, workspaceNewName, false);
         });
   }
@@ -354,7 +354,6 @@ export class HomePage {
     }).then((response) => {
       expect(response.status).equal(200); //Verifying logout is success
     });
-    this.agHelper.Sleep(2000); //for logout to complete - CI!
   }
 
   public Signout(toNavigateToHome = true) {
@@ -424,7 +423,7 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.VisitNAssert("/user/signup", "@getConsolidatedData");
+    this.agHelper.VisitNAssert("/user/signup");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
     this.agHelper.TypeText(this.signupUsername, uname);
@@ -567,7 +566,6 @@ export class HomePage {
     newRole: string,
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
-    cy.log(workspaceName, email, currentRole);
     this.agHelper.TypeText(this._searchUsersInput, email);
     cy.get(".search-highlight").should("exist").contains(email);
     this.agHelper.Sleep(2000);
@@ -624,8 +622,8 @@ export class HomePage {
         .GetElement(this._leftPanel)
         .contains("span", intoWorkspaceName)
         .click();
-      this.agHelper.GetNClick(this._newIcon);
-    } else this.agHelper.GetNClick(this._optionsIcon);
+    }
+    this.agHelper.GetNClick(this._newIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
     this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
     this.agHelper.GetNClick(this._importFromGitBtn);

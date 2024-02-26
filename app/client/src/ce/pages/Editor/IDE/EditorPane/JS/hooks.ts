@@ -2,13 +2,17 @@ import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import history from "utils/history";
-import { LIST_PATH } from "@appsmith/constants/routes/appRoutes";
-import { useLocation } from "react-router";
 import type { GroupedAddOperations } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
+import type { UseRoutes } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import JSEditor from "pages/Editor/JSEditor";
+import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
+import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
+import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
@@ -16,14 +20,6 @@ export const useJSAdd = () => {
   return useCallback(() => {
     dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
   }, [dispatch]);
-};
-
-export const useJSList = () => {
-  const location = useLocation();
-  const onListClickHandler = useCallback(() => {
-    history.push(`${location.pathname}${LIST_PATH}`);
-  }, []);
-  return onListClickHandler;
 };
 
 export const useGroupedAddJsOperations = (): GroupedAddOperations => {
@@ -39,6 +35,41 @@ export const useGroupedAddJsOperations = (): GroupedAddOperations => {
           action: (pageId) => createNewJSCollection(pageId, "ENTITY_EXPLORER"),
         },
       ],
+    },
+  ];
+};
+
+export const useJSSegmentRoutes = (path: string): UseRoutes => {
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
+  if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
+    return [
+      {
+        exact: true,
+        key: "AddJS",
+        component: AddJS,
+        path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
+      },
+      {
+        exact: true,
+        key: "JSEditor",
+        component: JSEditor,
+        path: [path + "/:collectionId"],
+      },
+    ];
+  }
+  return [
+    {
+      exact: true,
+      key: "AddJS",
+      component: AddJS,
+      path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
+    },
+    {
+      exact: false,
+      key: "ListJS",
+      component: ListJS,
+      path: [path],
     },
   ];
 };

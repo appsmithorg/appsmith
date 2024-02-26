@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -34,6 +35,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @NoArgsConstructor
 @QueryEntity
 @Document
+@FieldNameConstants
 public class Application extends BaseDomain implements ImportableArtifact, ExportableArtifact {
 
     @NotNull @JsonView(Views.Public.class)
@@ -97,7 +99,7 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
-    GitApplicationMetadata gitApplicationMetadata;
+    GitArtifactMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
@@ -266,6 +268,32 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
             applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
             applicationPage.setDefaultPageId(null);
         }
+    }
+
+    @JsonView(Views.Internal.class)
+    @Override
+    public GitArtifactMetadata getGitArtifactMetadata() {
+        return this.gitApplicationMetadata;
+    }
+
+    @Override
+    public String getUnpublishedThemeId() {
+        return this.getEditModeThemeId();
+    }
+
+    @Override
+    public void setUnpublishedThemeId(String themeId) {
+        this.setEditModeThemeId(themeId);
+    }
+
+    @Override
+    public String getPublishedThemeId() {
+        return this.getPublishedModeThemeId();
+    }
+
+    @Override
+    public void setPublishedThemeId(String themeId) {
+        this.setPublishedModeThemeId(themeId);
     }
 
     @Override
@@ -439,5 +467,18 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
             OUTLINED,
             FILLED
         }
+    }
+
+    public static class Fields extends BaseDomain.Fields {
+        public static final String gitApplicationMetadata_gitAuth =
+                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.gitAuth;
+        public static final String gitApplicationMetadata_defaultApplicationId =
+                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.defaultApplicationId;
+        public static final String gitApplicationMetadata_branchName =
+                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.branchName;
+        public static final String gitApplicationMetadata_isRepoPrivate =
+                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.isRepoPrivate;
+        public static final String gitApplicationMetadata_isProtectedBranch =
+                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.isProtectedBranch;
     }
 }

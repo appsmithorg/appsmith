@@ -22,7 +22,7 @@ import {
   SAVE_APP_THEME,
   SET_DEFAULT_SELECTED_THEME,
 } from "@appsmith/constants/messages";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { updateReplayEntity } from "actions/pageActions";
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";

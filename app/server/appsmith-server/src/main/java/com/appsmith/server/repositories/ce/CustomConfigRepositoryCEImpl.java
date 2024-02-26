@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -26,7 +25,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
 
     @Override
     public Mono<Config> findByName(String name, AclPermission permission) {
-        Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
+        Criteria nameCriteria = where(Config.Fields.name).is(name);
         return queryBuilder().criteria(nameCriteria).permission(permission).one();
     }
 
@@ -34,7 +33,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
     public Mono<Config> findByNameAsUser(String name, User user, AclPermission permission) {
 
         return getAllPermissionGroupsForUser(user).flatMap(permissionGroups -> {
-            Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
+            Criteria nameCriteria = where(Config.Fields.name).is(name);
             Query query = new Query(nameCriteria);
             query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
 

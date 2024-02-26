@@ -327,7 +327,8 @@ public class CurlImporterServiceTest {
                 .block();
 
         assert page != null;
-        Mono<ActionDTO> action = curlImporterService.importAction("'", page.getId(), "actionName", workspaceId, null);
+        Mono<ActionDTO> action =
+                curlImporterService.importAction("'", null, page.getId(), "actionName", workspaceId, null);
 
         StepVerifier.create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -350,7 +351,8 @@ public class CurlImporterServiceTest {
                 .block();
 
         assert page != null;
-        Mono<ActionDTO> action = curlImporterService.importAction(null, page.getId(), "actionName", workspaceId, null);
+        Mono<ActionDTO> action =
+                curlImporterService.importAction(null, null, page.getId(), "actionName", workspaceId, null);
 
         StepVerifier.create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -373,7 +375,8 @@ public class CurlImporterServiceTest {
                 .block();
 
         assert page != null;
-        Mono<ActionDTO> action = curlImporterService.importAction("", page.getId(), "actionName", workspaceId, null);
+        Mono<ActionDTO> action =
+                curlImporterService.importAction("", null, page.getId(), "actionName", workspaceId, null);
 
         StepVerifier.create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -415,8 +418,8 @@ public class CurlImporterServiceTest {
                 "curl -X GET http://localhost:8080/api/v1/actions?name=something -H 'Accept: */*' -H 'Accept-Encoding: gzip, deflate' -H 'Authorization: Basic YXBpX3VzZXI6OHVBQDsmbUI6Y252Tn57Iw==' -H 'Cache-Control: no-cache' -H 'Connection: keep-alive' -H 'Content-Type: application/json' -H 'Cookie: SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5,SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5; SESSION=' -H 'Host: localhost:8080' -H 'Postman-Token: 16e4b6bc-2c7a-4ab1-a127-bca382dfc0f0,a6655daa-db07-4c5e-aca3-3fd505bd230d' -H 'User-Agent: PostmanRuntime/7.20.1' -H 'cache-control: no-cache' -d '{someJson}'";
 
         Mono<ActionDTO> resultMono = defaultPageMono
-                .flatMap(page ->
-                        curlImporterService.importAction(command, page.getId(), "actionName", workspaceId, "main"))
+                .flatMap(page -> curlImporterService.importAction(
+                        command, null, page.getId(), "actionName", workspaceId, "main"))
                 .cache();
 
         Mono<NewAction> savedActionMono = resultMono.flatMap(actionDTO -> newActionService.getById(actionDTO.getId()));
@@ -472,7 +475,7 @@ public class CurlImporterServiceTest {
 
         Mono<ActionDTO> branchedResultMono = branchedPageMono
                 .flatMap(page -> curlImporterService.importAction(
-                        command, page.getDefaultResources().getPageId(), "actionName", workspaceId, "testBranch"))
+                        command, null, page.getDefaultResources().getPageId(), "actionName", workspaceId, "testBranch"))
                 .cache();
 
         // As importAction updates the ids with the defaultIds before sending the response to client we have to again
@@ -1047,7 +1050,7 @@ public class CurlImporterServiceTest {
         String command = "invalid curl command here";
 
         Mono<ActionDTO> actionMono =
-                curlImporterService.importAction(command, "pageId", "actionName", workspaceId, null);
+                curlImporterService.importAction(command, null, "pageId", "actionName", workspaceId, null);
 
         StepVerifier.create(actionMono).verifyError();
     }

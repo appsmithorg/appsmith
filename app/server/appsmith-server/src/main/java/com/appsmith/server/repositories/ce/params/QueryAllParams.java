@@ -5,8 +5,10 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
+import lombok.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +32,14 @@ public class QueryAllParams<T extends BaseDomain> {
     private int limit = NO_RECORD_LIMIT;
     private int skip = NO_SKIP;
 
+    /**
+     * When this flag is true, permission checks will include the affects of anonymous user permissions. This is the
+     * default and very-usually, what we want. When it's false, we are only checking for the permissions of the user.
+     */
+    private boolean includeAnonymousUserPermissions = true;
+
+    private Scope scope;
+
     public QueryAllParams(BaseAppsmithRepositoryCEImpl<T> repo) {
         this.repo = repo;
     }
@@ -48,6 +58,21 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public Mono<Long> count() {
         return repo.countExecute(this);
+    }
+
+    public Mono<Integer> updateAll(@NonNull UpdateDefinition update) {
+        scope = Scope.ALL;
+        return repo.updateExecute(this, update);
+    }
+
+    public Mono<Integer> updateFirst(@NonNull UpdateDefinition update) {
+        scope = Scope.FIRST;
+        return repo.updateExecute(this, update);
+    }
+
+    public Mono<T> updateFirstAndFind(@NonNull UpdateDefinition update) {
+        scope = Scope.FIRST;
+        return repo.updateExecuteAndFind(this, update);
     }
 
     public QueryAllParams<T> criteria(Criteria... criteria) {
@@ -105,5 +130,16 @@ public class QueryAllParams<T extends BaseDomain> {
     public QueryAllParams<T> skip(int skip) {
         this.skip = skip;
         return this;
+    }
+
+    public QueryAllParams<T> includeAnonymousUserPermissions(boolean value) {
+        includeAnonymousUserPermissions = value;
+        return this;
+    }
+
+    public enum Scope {
+        ALL,
+        FIRST,
+        ONE,
     }
 }

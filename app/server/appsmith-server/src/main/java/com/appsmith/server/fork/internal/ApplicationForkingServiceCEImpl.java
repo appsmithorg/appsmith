@@ -11,6 +11,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -30,7 +31,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -47,7 +48,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
-import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -75,7 +75,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ResponseUtils responseUtils;
     protected final WorkspacePermission workspacePermission;
     protected final ApplicationPermission applicationPermission;
-    private final ImportApplicationService importApplicationService;
+    private final ImportService importService;
     private final ApplicationPageService applicationPageService;
     protected final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
@@ -477,7 +477,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         });
     }
 
-    private Mono<UpdateResult> forkThemes(Application srcApplication, Application destApplication) {
+    private Mono<Integer> forkThemes(Application srcApplication, Application destApplication) {
         return Mono.zip(
                         themeService.cloneThemeToApplication(srcApplication.getEditModeThemeId(), destApplication),
                         themeService.cloneThemeToApplication(srcApplication.getPublishedModeThemeId(), destApplication))
@@ -627,8 +627,12 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     return forkApplicationToWorkspaceWithEnvironment(
                                     fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
                             .map(responseUtils::updateApplicationWithDefaultResources)
-                            .flatMap(application -> importApplicationService.getApplicationImportDTO(
-                                    application.getId(), application.getWorkspaceId(), application));
+                            .flatMap(application -> importService.getArtifactImportDTO(
+                                    application.getWorkspaceId(),
+                                    application.getId(),
+                                    application,
+                                    ArtifactJsonType.APPLICATION))
+                            .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
                 });
     }
 
