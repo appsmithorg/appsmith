@@ -20,7 +20,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -246,12 +245,10 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
                     updateObj.set(path, assignedToUserIds);
 
-                    Mono<UpdateResult> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
+                    Mono<Integer> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
                     Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds));
 
-                    return updatePermissionGroupResultMono
-                            .zipWhen(updatedPermissionGroupResult -> clearCacheForUsersMono)
-                            .map(tuple -> tuple.getT1());
+                    return updatePermissionGroupResultMono.then(clearCacheForUsersMono);
                 })
                 .then(Mono.just(TRUE));
     }

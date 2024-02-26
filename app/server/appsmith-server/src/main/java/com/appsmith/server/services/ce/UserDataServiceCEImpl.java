@@ -24,7 +24,6 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -367,7 +366,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      * @return update result obtained from DB
      */
     @Override
-    public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
+    public Mono<Void> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
 
         return applicationRepository
                 .findIdsByWorkspaceId(workspaceId)
