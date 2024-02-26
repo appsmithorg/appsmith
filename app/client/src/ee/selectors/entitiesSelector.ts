@@ -42,6 +42,7 @@ import {
 import type { JSCollection } from "entities/JSCollection";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { ModuleIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { getCurrentWorkflowJSActions } from "./workflowSelectors";
 
 export const getCurrentModule = createSelector(
   getAllModules,
@@ -298,8 +299,17 @@ export const getJSCollectionFromAllEntities = (
 export const getAllJSCollections = createSelector(
   getCurrentJSCollections,
   getCurrentModuleJSCollections,
-  (currentContextJSCollections, moduleInstanceJSCollections) => {
-    return [...moduleInstanceJSCollections, ...currentContextJSCollections];
+  getCurrentWorkflowJSActions,
+  (
+    currentContextJSCollections,
+    moduleInstanceJSCollections,
+    workflowJsCollections,
+  ) => {
+    return [
+      ...moduleInstanceJSCollections,
+      ...currentContextJSCollections,
+      ...workflowJsCollections,
+    ];
   },
 );
 
