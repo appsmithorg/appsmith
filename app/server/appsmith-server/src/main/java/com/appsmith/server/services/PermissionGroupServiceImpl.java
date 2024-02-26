@@ -30,7 +30,6 @@ import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -322,12 +321,12 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                     String path = fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds);
 
                     updateObj.set(path, assignedToGroupIds);
-                    Mono<UpdateResult> updatePermissionGroupResultMono =
+                    Mono<Integer> updatePermissionGroupResultMono =
                             repository.updateById(permissionGroup.getId(), updateObj);
                     Mono<Boolean> clearCacheForUsersMono =
                             cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
                     return updatePermissionGroupResultMono
-                            .zipWhen(updatePermissionGroupResult -> clearCacheForUsersMono)
+                            .then(clearCacheForUsersMono)
                             .then(repository.findById(permissionGroup.getId()));
                 });
     }
@@ -668,7 +667,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
             role.getAssignedToUserIds().removeAll(userIds);
             role.getAssignedToGroupIds().removeAll(groupIds);
         });
-        Mono<List<UpdateResult>> updateRolesMono = Flux.fromIterable(roles)
+        Mono<Void> updateRolesMono = Flux.fromIterable(roles)
                 .flatMap(role -> {
                     Update update = new Update();
                     update.set(
@@ -678,16 +677,15 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                             role.getAssignedToGroupIds());
                     return repository.updateById(role.getId(), update);
                 })
-                .collectList();
+                .then();
 
         List<String> userIdsForClearingCache = new ArrayList<>(groups.stream()
                 .map(UserGroup::getUsers)
                 .flatMap(Collection::stream)
                 .toList());
         userIdsForClearingCache.addAll(userIds);
-        Mono<Boolean> clearCacheForUsers =
-                cleanPermissionGroupCacheForUsers(userIdsForClearingCache).thenReturn(TRUE);
-        return updateRolesMono.zipWhen(updatedRoles -> clearCacheForUsers).map(pair -> TRUE);
+        Mono<Void> clearCacheForUsers = cleanPermissionGroupCacheForUsers(userIdsForClearingCache);
+        return updateRolesMono.then(clearCacheForUsers).thenReturn(TRUE);
     }
 
     @Override
@@ -700,7 +698,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
             role.getAssignedToUserIds().addAll(userIds);
             role.getAssignedToGroupIds().addAll(groupIds);
         });
-        Mono<List<UpdateResult>> updateRolesMono = Flux.fromIterable(roles)
+        Mono<Void> updateRolesMono = Flux.fromIterable(roles)
                 .flatMap(role -> {
                     Update update = new Update();
                     update.set(
@@ -710,16 +708,15 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                             role.getAssignedToGroupIds());
                     return repository.updateById(role.getId(), update);
                 })
-                .collectList();
+                .then();
 
         List<String> userIdsForClearingCache = new ArrayList<>(groups.stream()
                 .map(UserGroup::getUsers)
                 .flatMap(Collection::stream)
                 .toList());
         userIdsForClearingCache.addAll(userIds);
-        Mono<Boolean> clearCacheForUsers =
-                cleanPermissionGroupCacheForUsers(userIdsForClearingCache).thenReturn(TRUE);
-        return updateRolesMono.zipWhen(updatedRoles -> clearCacheForUsers).map(pair -> TRUE);
+        Mono<Void> clearCacheForUsers = cleanPermissionGroupCacheForUsers(userIdsForClearingCache);
+        return updateRolesMono.then(clearCacheForUsers).thenReturn(TRUE);
     }
 
     @Override
@@ -757,8 +754,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                     String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
                     updateObj.set(path, assignedToUserIds);
-                    Mono<UpdateResult> updateAssignedToUserIdsForRoleMono =
-                            repository.updateById(pg.getId(), updateObj);
+                    Mono<Integer> updateAssignedToUserIdsForRoleMono = repository.updateById(pg.getId(), updateObj);
 
                     // Trigger disassociation from role event, if the role is not Default Role For All Users.
                     Mono<Long> sendEventUserRemovedFromRoleIfRoleIsNotDefaultRoleMono = permissionGroupHelper
@@ -770,8 +766,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                                 }
                                 return Mono.just(1L);
                             });
-                    return updateAssignedToUserIdsForRoleMono.zipWhen(
-                            updatedRole -> sendEventUserRemovedFromRoleIfRoleIsNotDefaultRoleMono);
+                    return updateAssignedToUserIdsForRoleMono.then(
+                            sendEventUserRemovedFromRoleIfRoleIsNotDefaultRoleMono);
                 })
                 .then(Mono.just(TRUE));
     }
@@ -790,14 +786,11 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                 .addToSet(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
                 .each(userIds.toArray());
 
-        Mono<UpdateResult> permissionGroupUpdateMono = repository.updateById(pg.getId(), updateAssignedToUserIdsUpdate);
+        Mono<Integer> permissionGroupUpdateMono = repository.updateById(pg.getId(), updateAssignedToUserIdsUpdate);
 
-        Mono<Boolean> clearCacheForUsersMono =
-                cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
+        Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(userIds);
 
-        return permissionGroupUpdateMono
-                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
-                .thenReturn(TRUE);
+        return permissionGroupUpdateMono.then(clearCacheForUsersMono).thenReturn(TRUE);
     }
 
     @Override

@@ -23,7 +23,6 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -198,7 +197,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     @Override
     public Mono<List<ActionCollection>> publishActionCollectionsForWorkflow(
             String workflowId, AclPermission aclPermission) {
-        Mono<UpdateResult> archiveDeletedUnpublishedActionsCollectionsMono =
+        Mono<Void> archiveDeletedUnpublishedActionsCollectionsMono =
                 repository.archiveDeletedUnpublishedActionsCollectionsForWorkflows(workflowId, aclPermission);
 
         Mono<List<ActionCollection>> publishActionCollectionsAndChildActionsMono = repository

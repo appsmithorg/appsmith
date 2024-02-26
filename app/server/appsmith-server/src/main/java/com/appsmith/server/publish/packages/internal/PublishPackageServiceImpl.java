@@ -23,7 +23,6 @@ import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.publish.packages.publishable.PackagePublishableService;
 import com.appsmith.server.publish.packages.upgradable.PackageUpgradableService;
 import com.appsmith.server.repositories.PackageRepository;
-import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -93,7 +92,7 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                     originalPackage.setLastPublishedAt(packageToBePublished.getLastPublishedAt());
                     publishingMetaDTO.setOriginPackageId(packageId);
 
-                    Mono<UpdateResult> unsetCurrentLatestMono =
+                    Mono<Void> unsetCurrentLatestMono =
                             packageRepository.unsetLatestPackageByOriginId(originalPackage.getId(), null);
                     Mono<Package> saveOriginalPackage = packageRepository.save(originalPackage);
                     Mono<Package> savePackageToBePublished = packageRepository.save(packageToBePublished);

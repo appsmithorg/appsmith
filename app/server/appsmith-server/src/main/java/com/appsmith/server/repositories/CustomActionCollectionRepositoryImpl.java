@@ -8,7 +8,6 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomActionCollectionRepositoryCEImpl;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -178,7 +177,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     }
 
     @Override
-    public Mono<UpdateResult> archiveDeletedUnpublishedActionsCollectionsForWorkflows(
+    public Mono<Void> archiveDeletedUnpublishedActionsCollectionsForWorkflows(
             String workflowId, AclPermission aclPermission) {
         Criteria workflowIdCriteria =
                 where(fieldName(QActionCollection.actionCollection.workflowId)).is(workflowId);
@@ -195,7 +194,8 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         return queryBuilder()
                 .criteria(workflowIdCriteria, deletedFromUnpublishedCriteria)
                 .permission(aclPermission)
-                .updateAll(update);
+                .updateAll(update)
+                .then();
     }
 
     @Override

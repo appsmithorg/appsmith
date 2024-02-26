@@ -7,7 +7,6 @@ import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.permissions.PackagePermission;
-import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -53,7 +52,7 @@ public class PackageJsLibServiceImpl extends PackageJsLibServiceCECompatibleImpl
     }
 
     @Override
-    public Mono<UpdateResult> updateJsLibsInContext(
+    public Mono<Integer> updateJsLibsInContext(
             String contextId, String branchName, Set<CustomJSLibContextDTO> updatedJSLibDTOSet) {
         Map<String, Object> fieldNameValueMap =
                 Map.of(completeFieldName(QPackage.package$.unpublishedPackage.customJSLibs), updatedJSLibDTOSet);
@@ -86,7 +85,7 @@ public class PackageJsLibServiceImpl extends PackageJsLibServiceCECompatibleImpl
     }
 
     @Override
-    public Mono<UpdateResult> updateHiddenJsLibsInContext(
+    public Mono<Integer> updateHiddenJsLibsInContext(
             String contextId, String branchName, Set<CustomJSLibContextDTO> updatedJSLibDTOSet) {
         Map<String, Object> fieldNameValueMap =
                 Map.of(completeFieldName(QPackage.package$.unpublishedPackage.hiddenJSLibs), updatedJSLibDTOSet);

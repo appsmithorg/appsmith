@@ -3,8 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.dtos.ExportableModule;
-import com.mongodb.client.result.UpdateResult;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -17,12 +15,10 @@ public interface CustomPackageRepository extends AppsmithRepository<Package> {
 
     Flux<Package> findAllConsumablePackages(String workspaceId, AclPermission permission);
 
-    Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission);
-
     Mono<Package> findByBranchNameAndDefaultPackageId(
             String defaultPackageId, List<String> projectionFieldNames, String branchName, AclPermission aclPermission);
 
-    Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(
+    Mono<Integer> updateFieldByDefaultIdAndBranchName(
             String contextId,
             String defaultIdPath,
             Map<String, Object> fieldNameValueMap,
@@ -41,7 +37,7 @@ public interface CustomPackageRepository extends AppsmithRepository<Package> {
     Flux<Package> findAllPackagesByWorkspaceId(
             String workspaceId, List<String> projectionFields, Optional<AclPermission> permissionOptional);
 
-    Mono<UpdateResult> unsetLatestPackageByOriginId(String originPackageId, AclPermission permission);
+    Mono<Void> unsetLatestPackageByOriginId(String originPackageId, AclPermission permission);
 
     Mono<Package> findLatestPackageByOriginPackageId(String originPackageId, Optional<AclPermission> permission);
 

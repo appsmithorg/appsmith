@@ -3,7 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.QWorkflow;
 import com.appsmith.server.domains.Workflow;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -25,8 +24,12 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
     }
 
     @Override
-    public Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission) {
-        return queryBuilder().byId(id).permission(permission).updateFirst(updateObj);
+    public Mono<Void> update(String id, Update updateObj, AclPermission permission) {
+        return queryBuilder()
+                .byId(id)
+                .permission(permission)
+                .updateFirst(updateObj)
+                .then();
     }
 
     @Override
@@ -63,13 +66,14 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
     }
 
     @Override
-    public Mono<UpdateResult> updateGeneratedTokenForWorkflow(
+    public Mono<Void> updateGeneratedTokenForWorkflow(
             String workflowId, boolean tokenGenerated, Optional<AclPermission> aclPermission) {
         Update generatedTokenUpdate = new Update();
         generatedTokenUpdate.set(fieldName(QWorkflow.workflow.tokenGenerated), tokenGenerated);
         return queryBuilder()
                 .byId(workflowId)
                 .permission(aclPermission.orElse(null))
-                .updateFirst(generatedTokenUpdate);
+                .updateFirst(generatedTokenUpdate)
+                .then();
     }
 }

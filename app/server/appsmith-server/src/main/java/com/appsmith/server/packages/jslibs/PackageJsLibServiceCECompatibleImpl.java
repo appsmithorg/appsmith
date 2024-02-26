@@ -5,7 +5,6 @@ import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibServiceCE;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -20,7 +19,7 @@ public class PackageJsLibServiceCECompatibleImpl implements ContextBasedJsLibSer
     }
 
     @Override
-    public Mono<UpdateResult> updateJsLibsInContext(
+    public Mono<Integer> updateJsLibsInContext(
             String contextId, String branchName, Set<CustomJSLibContextDTO> customJSLibContextDTOS) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }

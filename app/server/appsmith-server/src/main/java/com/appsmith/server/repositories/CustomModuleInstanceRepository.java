@@ -4,7 +4,6 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
-import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,7 +29,7 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
 
     Flux<ModuleInstance> findAllByApplicationId(String applicationId, Optional<AclPermission> permission);
 
-    Mono<UpdateResult> archiveDeletedUnpublishedModuleInstances(String applicationId, AclPermission permission);
+    Mono<Void> archiveDeletedUnpublishedModuleInstances(String applicationId, AclPermission permission);
 
     Flux<ModuleInstance> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 

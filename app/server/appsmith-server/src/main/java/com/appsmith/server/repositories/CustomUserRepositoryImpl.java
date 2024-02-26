@@ -198,10 +198,7 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         Update update = new Update();
         update.set(fieldName(QUser.user.source), LoginSource.FORM);
         update.set(fieldName(QUser.user.isEnabled), false);
-        return queryBuilder()
-                .criteria(criterias)
-                .updateAll(update)
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
+        return queryBuilder().criteria(criterias).updateAll(update).map(count -> count > 0);
     }
 
     @Override

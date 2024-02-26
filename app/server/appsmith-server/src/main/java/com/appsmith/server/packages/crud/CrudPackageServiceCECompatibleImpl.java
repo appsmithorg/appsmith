@@ -8,7 +8,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.packages.base.BasePackageServiceImpl;
 import com.appsmith.server.repositories.PackageRepository;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,7 +37,7 @@ public class CrudPackageServiceCECompatibleImpl extends BasePackageServiceImpl
     }
 
     @Override
-    public Mono<UpdateResult> update(String contextId, Map<String, Object> fieldNameValueMap, String branchName) {
+    public Mono<Integer> update(String contextId, Map<String, Object> fieldNameValueMap, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 

@@ -4,7 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QPackage;
 import com.appsmith.server.dtos.ExportableModule;
-import com.mongodb.client.result.UpdateResult;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -61,11 +60,6 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 .criteria(originPackageCriteria)
                 .permission(permission.orElse(null))
                 .all();
-    }
-
-    @Override
-    public Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission) {
-        return queryBuilder().byId(id).permission(permission).updateFirst(updateObj);
     }
 
     @Override
@@ -155,7 +149,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
     }
 
     @Override
-    public Mono<UpdateResult> unsetLatestPackageByOriginId(String originPackageId, AclPermission permission) {
+    public Mono<Void> unsetLatestPackageByOriginId(String originPackageId, AclPermission permission) {
         Criteria latestPackageCriteria =
                 where(completeFieldName(QPackage.package$.latest)).is(true);
         Criteria originPackageIdCriteria =
@@ -166,7 +160,8 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
         return queryBuilder()
                 .criteria(latestPackageCriteria, originPackageIdCriteria)
                 .permission(permission)
-                .updateAll(update);
+                .updateAll(update)
+                .then();
     }
 
     @Override

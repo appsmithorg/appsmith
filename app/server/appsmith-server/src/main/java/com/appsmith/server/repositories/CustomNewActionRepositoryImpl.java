@@ -8,7 +8,6 @@ import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCEImpl;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -218,8 +217,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
-    public Mono<UpdateResult> archiveDeletedUnpublishedActionsForWorkflows(
-            String workflowId, AclPermission aclPermission) {
+    public Mono<Void> archiveDeletedUnpublishedActionsForWorkflows(String workflowId, AclPermission aclPermission) {
         Criteria workflowIdCriteria =
                 where(fieldName(QNewAction.newAction.workflowId)).is(workflowId);
         String unpublishedDeletedAtFieldName = String.format(
@@ -235,7 +233,8 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         return queryBuilder()
                 .criteria(workflowIdCriteria, deletedFromUnpublishedCriteria)
                 .permission(aclPermission)
-                .updateAll(update);
+                .updateAll(update)
+                .then();
     }
 
     @Override
@@ -459,7 +458,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
-    public Mono<UpdateResult> archiveDeletedUnpublishedActionsForCollection(
+    public Mono<Void> archiveDeletedUnpublishedActionsForCollection(
             String actionCollectionId, AclPermission aclPermission) {
         Criteria collectionIdCriteria = where(completeFieldName(QNewAction.newAction.unpublishedAction.collectionId))
                 .is(actionCollectionId);
@@ -476,7 +475,8 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         return queryBuilder()
                 .criteria(collectionIdCriteria, deletedFromUnpublishedCriteria)
                 .permission(aclPermission)
-                .updateAll(update);
+                .updateAll(update)
+                .then();
     }
 
     @Override

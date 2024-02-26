@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCE;
-import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -46,14 +45,13 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
             Optional<List<String>> includeFields,
             Boolean includeJs);
 
-    Mono<UpdateResult> archiveDeletedUnpublishedActionsForWorkflows(String workflowId, AclPermission aclPermission);
+    Mono<Void> archiveDeletedUnpublishedActionsForWorkflows(String workflowId, AclPermission aclPermission);
 
     Mono<Void> publishActionsForWorkflows(String workflowId, AclPermission aclPermission);
 
     Flux<NewAction> findPublicActionsByModuleInstanceId(String moduleInstanceId, Optional<AclPermission> permission);
 
-    Mono<UpdateResult> archiveDeletedUnpublishedActionsForCollection(
-            String actionCollectionId, AclPermission aclPermission);
+    Mono<Void> archiveDeletedUnpublishedActionsForCollection(String actionCollectionId, AclPermission aclPermission);
 
     Mono<Void> publishActionsForCollection(String actionCollectionId, AclPermission aclPermission);
 

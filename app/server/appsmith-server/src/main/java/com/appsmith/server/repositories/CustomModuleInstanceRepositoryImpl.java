@@ -6,7 +6,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.QModuleInstance;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -135,7 +134,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Mono<UpdateResult> archiveDeletedUnpublishedModuleInstances(String applicationId, AclPermission permission) {
+    public Mono<Void> archiveDeletedUnpublishedModuleInstances(String applicationId, AclPermission permission) {
         Criteria applicationIdCriterion =
                 where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
         String unpublishedDeletedAtFieldName = String.format(
@@ -151,7 +150,8 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         return queryBuilder()
                 .criteria(applicationIdCriterion, deletedFromUnpublishedCriteria)
                 .permission(permission)
-                .updateAll(update);
+                .updateAll(update)
+                .then();
     }
 
     @Override

@@ -138,6 +138,6 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
                 })
                 .flatMap(updatedHiddenJSLibDTOSet -> contextBasedService.updateHiddenJsLibsInContext(
                         contextId, branchName, updatedHiddenJSLibDTOSet))
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
+                .map(count -> count > 0);
     }
 }

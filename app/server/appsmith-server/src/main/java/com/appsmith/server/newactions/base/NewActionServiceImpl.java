@@ -45,7 +45,6 @@ import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.validations.EntityValidationService;
 import com.appsmith.server.workflows.helpers.WorkflowUtils;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
-import com.mongodb.client.result.UpdateResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -478,7 +477,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
     @Override
     public Mono<Void> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
-        Mono<UpdateResult> archiveDeletedUnpublishedActions =
+        Mono<Void> archiveDeletedUnpublishedActions =
                 repository.archiveDeletedUnpublishedActionsForWorkflows(workflowId, aclPermission);
         Mono<Void> publishActionsForWorkflows = repository.publishActionsForWorkflows(workflowId, aclPermission);
         return archiveDeletedUnpublishedActions.then(publishActionsForWorkflows);
@@ -612,7 +611,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
     @Override
     public Mono<Void> publishActionsForActionCollection(String actionCollectionId, AclPermission aclPermission) {
-        Mono<UpdateResult> archiveDeletedUnpublishedActions =
+        Mono<Void> archiveDeletedUnpublishedActions =
                 repository.archiveDeletedUnpublishedActionsForCollection(actionCollectionId, aclPermission);
         Mono<Void> publishActions = repository.publishActionsForCollection(actionCollectionId, aclPermission);
         return archiveDeletedUnpublishedActions.then(publishActions);

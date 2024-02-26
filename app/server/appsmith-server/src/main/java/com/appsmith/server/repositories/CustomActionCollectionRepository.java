@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.ce.CustomActionCollectionRepositoryCE;
-import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,8 +23,7 @@ public interface CustomActionCollectionRepository extends CustomActionCollection
     Flux<ActionCollection> findByWorkflowIds(
             List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
 
-    Mono<UpdateResult> archiveDeletedUnpublishedActionsCollectionsForWorkflows(
-            String workflowId, AclPermission aclPermission);
+    Mono<Void> archiveDeletedUnpublishedActionsCollectionsForWorkflows(String workflowId, AclPermission aclPermission);
 
     Flux<ActionCollection> findAllModuleInstanceEntitiesByContextAndViewMode(
             String contextId,

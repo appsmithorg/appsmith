@@ -37,7 +37,6 @@ import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.mongodb.client.result.UpdateResult;
 import org.bson.types.ObjectId;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Update;
@@ -169,7 +168,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     }
 
     @Override
-    public Mono<UpdateResult> update(String contextId, Map<String, Object> fieldNameValueMap, String branchName) {
+    public Mono<Integer> update(String contextId, Map<String, Object> fieldNameValueMap, String branchName) {
         String defaultIdPath = "id";
         if (!isBlank(branchName)) {
             // TODO: Use QDSL here

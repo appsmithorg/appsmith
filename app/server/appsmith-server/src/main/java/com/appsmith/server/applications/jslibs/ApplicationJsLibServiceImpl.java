@@ -5,7 +5,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -58,7 +57,7 @@ public class ApplicationJsLibServiceImpl extends ApplicationJsLibServiceCEImpl
     }
 
     @Override
-    public Mono<UpdateResult> updateHiddenJsLibsInContext(
+    public Mono<Integer> updateHiddenJsLibsInContext(
             String contextId, String branchName, Set<CustomJSLibContextDTO> updatedJSLibDTOSet) {
         Map<String, Object> fieldNameValueMap = Map.of(
                 completeFieldName(QApplication.application.unpublishedApplicationDetail.hiddenJSLibs),
