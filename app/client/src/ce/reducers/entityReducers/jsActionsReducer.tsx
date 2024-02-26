@@ -417,10 +417,7 @@ export const handlers = {
       if (a.config.id === action.payload.collection.id) {
         return {
           ...a,
-          data: {
-            ...action.payload,
-            isMainJSCollection: a.data?.isMainJSCollection || false,
-          },
+          data: action.payload,
         };
       }
       return a;
