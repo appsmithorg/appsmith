@@ -21,8 +21,8 @@ export class HomePage {
   private _optionsIcon = ".t--options-icon";
   public _newIcon = ".createnew";
   private _renameWorkspaceContainer = ".editable-text-container";
-  private _wsrenamePencilIcon = "span[name='pencil-line']";
-  private _renameWorkspaceInput = ".t--workspace-rename-input input";
+  private _renameWorkspaceParent = ".t--workspace-rename-input";
+  private _renameWorkspaceInput = this._renameWorkspaceParent + " input";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
   private _workspaceNoApps = (workspaceName: string) =>
@@ -193,7 +193,7 @@ export class HomePage {
     this.OpenWorkspaceOptions(oldName, networkCallAlias);
     this.agHelper.AssertElementVisibility(this._renameWorkspaceContainer);
     Cypress._.times(2, () => {
-      this.agHelper.GetNClick(".t--workspace-rename-input", 0, true);
+      this.agHelper.GetNClick(this._renameWorkspaceParent, 0, true);
     });
     this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
     this.agHelper
