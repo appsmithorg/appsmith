@@ -65,6 +65,11 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.updateExecute(this, update);
     }
 
+    public Mono<Integer> updateFirst(@NonNull T resource) {
+        scope = Scope.FIRST;
+        return repo.updateExecute(this, resource);
+    }
+
     public Mono<Integer> updateFirst(@NonNull UpdateDefinition update) {
         scope = Scope.FIRST;
         return repo.updateExecute(this, update);

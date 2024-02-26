@@ -36,10 +36,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ActionPermission actionPermission,
             DefaultResourcesService<ActionCollection> defaultResourcesService) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 newActionService,

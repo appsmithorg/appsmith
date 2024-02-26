@@ -47,10 +47,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             WorkspacePermission workspacePermission) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 policySolution,
