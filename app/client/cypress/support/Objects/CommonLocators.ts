@@ -204,7 +204,7 @@ export class CommonLocators {
   _tern_doc = ".t--tern-doc";
   _argHintFnName = ".CodeMirror-Tern-tooltip .CodeMirror-Tern-fname";
   _cancelActionExecution = ".t--cancel-action-button";
-  _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
+  _widgetPane = "[data-testid='t--widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-testid="slider-thumb"]';
   _optionsJsToggle = ".t--property-control-options .t--js-toggle";
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";

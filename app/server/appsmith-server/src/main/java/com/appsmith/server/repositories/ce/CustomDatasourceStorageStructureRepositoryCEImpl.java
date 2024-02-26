@@ -5,7 +5,6 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.QDatasourceStorageStructure;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -37,11 +36,13 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
     }
 
     @Override
-    public Mono<UpdateResult> updateStructure(
-            String datasourceId, String environmentId, DatasourceStructure structure) {
-        return mongoOperations.upsert(
-                new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
-                Update.update(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.structure), structure),
-                DatasourceStorageStructure.class);
+    public Mono<Integer> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
+        return mongoOperations
+                .upsert(
+                        new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
+                        Update.update(
+                                fieldName(QDatasourceStorageStructure.datasourceStorageStructure.structure), structure),
+                        DatasourceStorageStructure.class)
+                .map(updateResult -> Math.toIntExact(updateResult.getModifiedCount()));
     }
 }

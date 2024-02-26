@@ -33,7 +33,7 @@ import {
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";

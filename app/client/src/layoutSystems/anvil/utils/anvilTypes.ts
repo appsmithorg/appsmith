@@ -120,6 +120,7 @@ export interface HighlightDropInfo {
   canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
   layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
   rowIndex: number; // Index with in the layout array to insert the child at.
+  existingPositionHighlight?: boolean; // Whether the highlight is targeting the current position in the layout.
 }
 
 export interface AnvilHighlightInfo

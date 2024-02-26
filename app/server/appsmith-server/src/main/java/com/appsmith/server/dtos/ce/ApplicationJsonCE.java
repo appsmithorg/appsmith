@@ -136,4 +136,9 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
         this.setEditModeTheme(unpublishedTheme);
         this.setPublishedTheme(publishedTheme);
     }
+
+    @Override
+    public Theme getUnpublishedTheme() {
+        return this.getEditModeTheme();
+    }
 }

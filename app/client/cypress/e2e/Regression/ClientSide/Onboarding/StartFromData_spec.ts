@@ -5,10 +5,11 @@ import {
   dataSources,
   homePage,
   assertHelper,
+  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
-  "Start with data userflow",
+  "Start with data userflow : Create different datasources and save",
   { tags: ["@tag.excludeForAirgap", "@tag.Datasource"] },
   function () {
     beforeEach(() => {
@@ -17,6 +18,7 @@ describe(
         {
           ab_show_templates_instead_of_blank_canvas_enabled: true,
           ab_create_new_apps_enabled: true,
+          ab_start_with_data_default_enabled: true,
         },
         false,
       );
@@ -25,10 +27,9 @@ describe(
         homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
         onboarding.closeIntroModal();
       });
-      agHelper.GetNClick(onboarding.locators.startFromDataCard);
     });
 
-    it("1. onboarding flow - create datasource and save, it should take me to datasource page with view mode", function () {
+    it("1. Postgres : should take me to datasource page with view mode", function () {
       assertHelper.AssertNetworkStatus("@getPlugins");
       dataSources.CreateDataSource("Postgres", false);
       dataSources.selectTabOnDatasourcePage("View data");
@@ -40,6 +41,32 @@ describe(
       agHelper.AssertElementAbsence(
         dataSources._dsPageTableTriggermenuTarget("public.users"),
       );
+    });
+
+    it("2. Mysql : should take me to datasource page with view mode", function () {
+      assertHelper.AssertNetworkStatus("@getPlugins");
+      dataSources.CreateDataSource("MySql", false);
+      dataSources.selectTabOnDatasourcePage("View data");
+      assertHelper.AssertNetworkExecutionSuccess("@schemaPreview");
+      agHelper.AssertElementExist(dataSources._dsSchemaTableResponse);
+    });
+
+    it("3. S3 : should take me to datasource page", function () {
+      assertHelper.AssertNetworkStatus("@getPlugins");
+      dataSources.CreateDataSource("S3", false);
+      dataSources.CreateQueryAfterDSSaved("", "S3Query");
+    });
+
+    it("4. Airtable : should take me to datasource page", function () {
+      assertHelper.AssertNetworkStatus("@getPlugins");
+      dataSources.CreateDataSource("Airtable", false, false);
+      dataSources.CreateQueryAfterDSSaved("", "AirtableQuery");
+    });
+
+    it("5. Rest API action : should take me to action page directly", function () {
+      assertHelper.AssertNetworkStatus("@getPlugins");
+      agHelper.GetNClick(apiPage._createapi, 0);
+      assertHelper.AssertNetworkStatus("@createNewApi", 201);
     });
   },
 );

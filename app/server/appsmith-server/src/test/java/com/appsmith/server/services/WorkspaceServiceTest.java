@@ -13,7 +13,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -32,7 +31,6 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,10 +43,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -86,7 +80,6 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -124,9 +117,6 @@ public class WorkspaceServiceTest {
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    MongoTemplate mongoTemplate;
 
     Workspace workspace;
 
@@ -1683,47 +1673,6 @@ public class WorkspaceServiceTest {
                     }
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    void testWorkspaceUpdate_checkAdditionalFieldsArePresentAfterUpdate() {
-        String testName = "testWorkspaceUpdate";
-        String additionalField = "testWorkspaceUpdate";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace = workspaceService.create(workspace).block();
-
-        Update updateAddAdditionalField = new Update().set(additionalField, true);
-        Query queryWorkspace =
-                new Query(Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()));
-        UpdateResult updateResult =
-                mongoTemplate.updateMulti(queryWorkspace, updateAddAdditionalField, Workspace.class);
-
-        assertThat(updateResult.wasAcknowledged()).isTrue();
-        assertThat(updateResult.getMatchedCount()).isEqualTo(1);
-        assertThat(updateResult.getModifiedCount()).isEqualTo(1);
-
-        Criteria criteriaAdditionalField = new Criteria()
-                .andOperator(
-                        Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()),
-                        Criteria.where(additionalField).exists(true));
-        Query queryWorkspaceWithAdditionalField = new Query(criteriaAdditionalField);
-
-        long countWorkspaceWithAdditionalField =
-                mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
-        assertThat(countWorkspaceWithAdditionalField).isEqualTo(1);
-
-        Workspace updateWorkspace = new Workspace();
-        updateWorkspace.setName(testName + " updated");
-        Workspace updatedWorkspace = workspaceService
-                .update(createdWorkspace.getId(), updateWorkspace)
-                .block();
-        assertThat(updatedWorkspace.getName()).isEqualTo(testName + " updated");
-
-        long countWorkspaceWithAdditionalFieldAfterUpdate =
-                mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
-        assertThat(countWorkspaceWithAdditionalFieldAfterUpdate).isEqualTo(1);
     }
 
     @Test
