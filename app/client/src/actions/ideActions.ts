@@ -1,6 +1,5 @@
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { IDETabs } from "../reducers/uiReducers/ideReducer";
 
 export const setIdeEditorViewMode = (mode: EditorViewMode) => {
   return {
@@ -36,13 +35,6 @@ export const setJSTabs = (tabs: string[]) => {
 export const setQueryTabs = (tabs: string[]) => {
   return {
     type: ReduxActionTypes.SET_IDE_QUERIES_TABS,
-    payload: tabs,
-  };
-};
-
-export const setIDETabs = (tabs: IDETabs) => {
-  return {
-    type: ReduxActionTypes.SET_IDE_TABS,
     payload: tabs,
   };
 };

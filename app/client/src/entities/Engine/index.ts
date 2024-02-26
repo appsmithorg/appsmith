@@ -18,7 +18,7 @@ import type URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { restoreIDEEditorViewMode } from "../../actions/ideActions";
+import { restoreIDEEditorViewMode } from "actions/ideActions";
 
 export interface AppEnginePayload {
   applicationId?: string;

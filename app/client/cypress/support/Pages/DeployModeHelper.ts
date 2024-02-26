@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-import EditorNavigation from "./EditorNavigation";
 
 export class DeployMode {
   private locator = ObjectsRegistry.CommonLocators;
@@ -150,7 +149,6 @@ export class DeployMode {
 
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
     this.assertHelper.AssertDocumentReady();
-    EditorNavigation.ShowCanvas();
     this.agHelper.AssertElementVisibility(this.locator._editPage);
   }
 

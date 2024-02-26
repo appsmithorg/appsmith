@@ -368,7 +368,7 @@ export const handlers = {
       ...state.currentApplication,
       gitApplicationMetadata: {
         ...(state.currentApplication?.gitApplicationMetadata || {}),
-        branchName: action.payload || undefined,
+        branchName: action.payload,
       },
     },
   }), // updating default branch when git sync on branch list

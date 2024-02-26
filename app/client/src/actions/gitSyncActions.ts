@@ -200,7 +200,7 @@ export const discardChangesFailure = (payload: any) => ({
   payload: { error: payload.error, show: false },
 });
 
-export const updateBranchLocally = (payload?: string) => ({
+export const updateBranchLocally = (payload: string) => ({
   type: ReduxActionTypes.UPDATE_BRANCH_LOCALLY,
   payload,
 });

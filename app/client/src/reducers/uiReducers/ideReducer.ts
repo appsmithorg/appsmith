@@ -27,13 +27,6 @@ const ideReducer = createReducer(initialState, {
     state: IDEState,
     action: ReduxAction<{ pagesActive: boolean }>,
   ) => ({ ...state, pagesActive: action.payload.pagesActive }),
-  [ReduxActionTypes.SET_IDE_TABS]: (
-    state: IDEState,
-    action: ReduxAction<IDETabs>,
-  ): IDEState => ({
-    ...state,
-    tabs: action.payload,
-  }),
   [ReduxActionTypes.SET_IDE_JS_TABS]: (
     state: IDEState,
     action: ReduxAction<string[]>,
