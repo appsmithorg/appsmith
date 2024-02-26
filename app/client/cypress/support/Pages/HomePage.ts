@@ -192,10 +192,8 @@ export class HomePage {
   ) {
     this.OpenWorkspaceOptions(oldName, networkCallAlias);
     this.agHelper.AssertElementVisibility(this._renameWorkspaceContainer);
-    this.agHelper.WaitForCondition(() => {
-      this.agHelper.GetNClick(this._wsrenamePencilIcon, 0, true);
-      this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
-    });
+    this.agHelper.GetNClick(".t--workspace-rename-input", 0, true);
+    this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
