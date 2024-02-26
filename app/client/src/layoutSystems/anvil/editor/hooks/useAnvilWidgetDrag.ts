@@ -1,3 +1,4 @@
+import type { WidgetType } from "WidgetProvider/factory";
 import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
 import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -12,6 +13,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export const useAnvilWidgetDrag = (
   widgetId: string,
+  widgetType: WidgetType,
   layoutId: string,
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {
@@ -22,6 +24,7 @@ export const useAnvilWidgetDrag = (
   const { selectWidget } = useWidgetSelection();
   const generateDragState = useCallback(() => {
     return generateDragStateForAnvilLayout({
+      widgetType,
       layoutId,
     });
   }, [layoutId]);

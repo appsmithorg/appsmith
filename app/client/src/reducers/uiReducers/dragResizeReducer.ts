@@ -139,6 +139,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
 
 export interface DraggingGroupCenter {
   widgetId?: string;
+  widgetType?: string;
   top?: number;
   left?: number;
 }

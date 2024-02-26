@@ -10,10 +10,12 @@ import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getDraggedBlocks, getDraggedWidgetTypes } from "../utils";
 import type { AnvilDraggedWidgetTypes } from "../../types";
+import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
 
 export interface AnvilCanvasActivationStates {
   activateOverlayWidgetDrop: boolean;
   dragDetails: DragDetails;
+  draggedBlocks: DraggedWidget[];
   draggedWidgetTypes: AnvilDraggedWidgetTypes;
   isDragging: boolean;
   isNewWidget: boolean;
@@ -70,6 +72,7 @@ export const useCanvasActivationStates = (): AnvilCanvasActivationStates => {
   return {
     activateOverlayWidgetDrop,
     dragDetails,
+    draggedBlocks,
     draggedWidgetTypes,
     isDragging,
     isNewWidget,

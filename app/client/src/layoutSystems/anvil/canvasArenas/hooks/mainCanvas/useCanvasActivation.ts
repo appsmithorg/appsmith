@@ -10,6 +10,7 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useCanvasActivationStates } from "./useCanvasActivationStates";
 import { canActivateCanvasForDraggedWidget } from "../utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import { useAnvilDragPreview } from "./useAnvilDragPreview";
 
 // Z-Index values for activated and deactivated states
 export const AnvilCanvasZIndex = {
@@ -54,6 +55,7 @@ export const useCanvasActivation = () => {
     mainCanvasLayoutId,
     selectedWidgets,
   } = useCanvasActivationStates();
+
   // Getting the main canvas DOM node
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
 
@@ -207,18 +209,21 @@ export const useCanvasActivation = () => {
       }
     }
   };
-
+  useAnvilDragPreview({
+    isDragging,
+    isNewWidget,
+    dragDetails,
+  });
   useEffect(() => {
     if (isDragging) {
       // Adding event listeners for mouse move and mouse up events
       document?.addEventListener("mousemove", onMouseMoveWhileDragging);
       document.body.addEventListener("mouseup", onMouseUp, false);
       window.addEventListener("mouseup", onMouseUp, false);
-
       // Removing event listeners when the component unmounts or when dragging ends
       return () => {
         document?.removeEventListener("mousemove", onMouseMoveWhileDragging);
-        document.body.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener("mouseup", onMouseUp);
         window.removeEventListener("mouseup", onMouseUp);
       };
     }
