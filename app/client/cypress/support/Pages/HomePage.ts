@@ -191,6 +191,7 @@ export class HomePage {
     networkCallAlias = true,
   ) {
     this.OpenWorkspaceOptions(oldName, networkCallAlias);
+    this.agHelper.Sleep(3000);
     this.agHelper.WaitUntilEleAppear(this._renameWorkspaceContainer);
     this.agHelper.GetNClick(this._wsrenamePencilIcon);
     this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
