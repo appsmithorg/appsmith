@@ -5,7 +5,6 @@ import type {
 } from "components/editorComponents/GlobalSearch/utils";
 import {
   filterCategories,
-  OmnibarTriggerSources,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 
@@ -20,10 +19,9 @@ export const toggleShowGlobalSearchModal = () => ({
 
 export const setGlobalSearchCategory = (
   category: SearchCategory = filterCategories[SEARCH_CATEGORY_ID.INIT],
-  triggerSource: OmnibarTriggerSources = OmnibarTriggerSources.Omnibar,
 ) => ({
   type: ReduxActionTypes.SET_GLOBAL_SEARCH_CATEGORY,
-  payload: { category, triggerSource },
+  payload: category,
 });
 
 export const setGlobalSearchFilterContext = (payload: any) => ({
