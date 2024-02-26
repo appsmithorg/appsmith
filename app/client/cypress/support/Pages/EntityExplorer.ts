@@ -171,8 +171,14 @@ export class EntityExplorer {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      })
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      });
     this.agHelper.Sleep(200);
     cy.get(
       parentWidgetType
@@ -182,7 +188,10 @@ export class EntityExplorer {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mouseup", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      });
   }
 
   public DragDropWidgetNVerify(
