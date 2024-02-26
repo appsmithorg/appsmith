@@ -18,6 +18,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.PostgresErrorMessages;
 import com.external.plugins.exceptions.PostgresPluginError;
@@ -1212,25 +1213,23 @@ public class PostgresPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         SSLDetails sslDetails = new SSLDetails();
-        sslDetails.setAuthType(SSLDetails.AuthType.REQUIRE);
-        /*dsConfig.setSslMode("verify-ca");
-        sslDetails.setSslRootCert("classpath:ca.crt");*/
-        /*
+        sslDetails.setAuthType(SSLDetails.AuthType.VERIFY_CA);
+        sslDetails.setCertificateFile(new UploadedFile());
+        sslDetails.setCaCertificateFile(new UploadedFile());
+        sslDetails.setKeyFile(new UploadedFile());
+        com.appsmith.external.models.Connection connection = new com.appsmith.external.models.Connection();
+        connection.setSsl(sslDetails);
         dsConfig.getConnection().setSsl(sslDetails);
         Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono).verifyErrorSatisfies(error -> {
-            */
-        /*
-         * - This error message indicates that the client was trying to establish an SSL connection but
-         *   could not because the testcontainer server does not have SSL enabled.
-         */
-        /*
+            /* * - This error message indicates that the client was trying to establish an SSL connection but
+             *   could not because the testcontainer server does not have SSL enabled.*/
             assertTrue(((AppsmithPluginException) error)
                     .getDownstreamErrorMessage()
                     .contains("The server does not support SSL"));
-        });*/
+        });
     }
 
     @Test
