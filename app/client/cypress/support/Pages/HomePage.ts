@@ -190,7 +190,7 @@ export class HomePage {
     networkCallAlias = true,
   ) {
     this.OpenWorkspaceOptions(oldName, networkCallAlias);
-    this.agHelper.GetNClick(this._renameWorkspaceContainer, 0, true);
+    this.agHelper.GetNClick(this._renameWorkspaceContainer);
     this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
