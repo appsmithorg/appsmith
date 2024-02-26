@@ -7,7 +7,6 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Query;
@@ -31,17 +30,18 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
-    public Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
-        return mongoOperations.upsert(
-                query(where(fieldName(QUserData.userData.userId)).is(userId)),
-                Update.update(fieldName(QUserData.userData.releaseNotesViewedVersion), version)
-                        .setOnInsert(fieldName(QUserData.userData.userId), userId),
-                UserData.class);
+    public Mono<Void> saveReleaseNotesViewedVersion(String userId, String version) {
+        return mongoOperations
+                .upsert(
+                        query(where(fieldName(QUserData.userData.userId)).is(userId)),
+                        Update.update(fieldName(QUserData.userData.releaseNotesViewedVersion), version)
+                                .setOnInsert(fieldName(QUserData.userData.userId), userId),
+                        UserData.class)
+                .then();
     }
 
     @Override
-    public Mono<UpdateResult> removeIdFromRecentlyUsedList(
-            String userId, String workspaceId, List<String> applicationIds) {
+    public Mono<Void> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds) {
         Update update = new Update().pull(fieldName(QUserData.userData.recentlyUsedWorkspaceIds), workspaceId);
         if (!CollectionUtils.isEmpty(applicationIds)) {
             update = update.pullAll(fieldName(QUserData.userData.recentlyUsedAppIds), applicationIds.toArray());
@@ -49,8 +49,9 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         update.pull(
                 fieldName(QUserData.userData.recentlyUsedEntityIds),
                 new BasicDBObject(fieldName(QRecentlyUsedEntityDTO.recentlyUsedEntityDTO.workspaceId), workspaceId));
-        return mongoOperations.updateFirst(
-                query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class);
+        return mongoOperations
+                .updateFirst(query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class)
+                .then();
     }
 
     @Override

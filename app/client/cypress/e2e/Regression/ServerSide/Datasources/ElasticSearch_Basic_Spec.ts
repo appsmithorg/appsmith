@@ -2,7 +2,6 @@ import {
   agHelper,
   dataSources,
   entityItems,
-  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate Elasticsearch DS", { tags: ["@tag.Datasource"] }, () => {
@@ -11,7 +10,7 @@ describe("Validate Elasticsearch DS", { tags: ["@tag.Datasource"] }, () => {
     containerName = "elasticsearch";
 
   before("Create a new ElasticSearch DS", () => {
-    //dataSources.StartContainerNVerify("Elasticsearch", containerName, 45000); Since its run in Hosted runs & container is already running, commenting this line
+    dataSources.StartContainerNVerify("Elasticsearch", containerName, 45000);
     dataSources.CreateDataSource("Elasticsearch");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -209,6 +208,6 @@ describe("Validate Elasticsearch DS", { tags: ["@tag.Datasource"] }, () => {
       entityType: entityItems.Query,
     });
     dataSources.DeleteDatasourceFromWithinDS(dsName);
-    //dataSources.StopNDeleteContainer(containerName);
+    dataSources.StopNDeleteContainer(containerName);
   });
 });
