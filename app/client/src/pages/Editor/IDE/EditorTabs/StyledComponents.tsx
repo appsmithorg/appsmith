@@ -42,12 +42,10 @@ export const StyledTab = styled(Flex)`
   }
 
   &.active {
-    background-color: var(--ads-v2-colors-control-knob-default-bg);
-    color: var(--ads-v2-colors-text-default);
-    border-top: 1px solid var(--ads-v2-color-bg-brand);
-    box-shadow:
-      1px 0px 0px 0px var(--ads-v2-color-border) inset,
-      -1px 0px 0px 0px var(--ads-v2-color-border) inset;
+    border-top: 2px solid var(--ads-v2-color-bg-brand);
+    border-left: 1px solid var(--ads-v2-color-border);
+    border-right: 1px solid var(--ads-v2-color-border);
+    box-shadow: 0px -2px 4px rgba(0,0,0,0.08);
   }
 `;
 
