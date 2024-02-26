@@ -14,6 +14,9 @@ export const anvilConfig: AnvilConfig = {
               base: "100%",
               [`${MOBILE_BREAKPOINT}px`]: "min-content",
             },
+      minHeight: {
+        base: "sizing-12",
+      },
     };
   },
 };

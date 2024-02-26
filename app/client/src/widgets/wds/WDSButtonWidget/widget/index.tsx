@@ -2,6 +2,7 @@ import React from "react";
 import { toast } from "design-system";
 
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import BaseWidget from "widgets/BaseWidget";
 import ButtonComponent from "../component";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
@@ -36,9 +37,10 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return {
       name: "Button",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       needsMeta: false,
       isCanvas: false,
-      tags: [WIDGET_TAGS.BUTTONS],
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.BUTTONS],
       searchTags: ["click", "submit"],
     };
   }

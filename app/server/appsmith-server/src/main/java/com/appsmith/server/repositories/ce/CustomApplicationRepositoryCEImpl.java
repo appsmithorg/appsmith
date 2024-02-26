@@ -4,7 +4,6 @@ import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -25,13 +24,12 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -71,8 +69,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
-        Criteria nameCriteria = where(fieldName(QApplication.application.name)).is(name);
-        return queryBuilder().criteria(nameCriteria).permission(permission).one();
+        return queryBuilder()
+                .criteria(bridge().equal(fieldName(QApplication.application.name), name))
+                .permission(permission)
+                .one();
     }
 
     @Override
@@ -129,28 +129,32 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<UpdateResult> addPageToApplication(
+    public Mono<Integer> addPageToApplication(
             String applicationId, String pageId, boolean isDefault, String defaultPageId) {
         final ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setIsDefault(isDefault);
         applicationPage.setDefaultPageId(defaultPageId);
         applicationPage.setId(pageId);
-        return mongoOperations.updateFirst(
-                Query.query(getIdCriteria(applicationId)),
-                new Update().push(fieldName(QApplication.application.pages), applicationPage),
-                Application.class);
+        return mongoOperations
+                .updateFirst(
+                        Query.query(getIdCriteria(applicationId)),
+                        new Update().push(fieldName(QApplication.application.pages), applicationPage),
+                        Application.class)
+                .map(updateResult -> Math.toIntExact(updateResult.getModifiedCount()));
     }
 
     @Override
-    public Mono<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages) {
-        return mongoOperations.updateFirst(
-                Query.query(getIdCriteria(applicationId)),
-                new Update().set(fieldName(QApplication.application.pages), pages),
-                Application.class);
+    public Mono<Integer> setPages(String applicationId, List<ApplicationPage> pages) {
+        return mongoOperations
+                .updateFirst(
+                        Query.query(getIdCriteria(applicationId)),
+                        new Update().set(fieldName(QApplication.application.pages), pages),
+                        Application.class)
+                .map(updateResult -> Math.toIntExact(updateResult.getModifiedCount()));
     }
 
     @Override
-    public Mono<UpdateResult> setDefaultPage(String applicationId, String pageId) {
+    public Mono<Void> setDefaultPage(String applicationId, String pageId) {
         // Since this can only happen during edit, the page in question is unpublished page. Hence the update should
         // be to pages and not publishedPages
 
@@ -166,20 +170,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 new Update().set("pages.$.isDefault", true),
                 Application.class);
 
-        return setAllAsNonDefaultMono.then(setDefaultMono);
-    }
-
-    @Override
-    public Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission) {
-        Update updateObj = new Update();
-        gitAuth.setGeneratedAt(Instant.now());
-        String path = String.format(
-                "%s.%s",
-                fieldName(QApplication.application.gitApplicationMetadata),
-                fieldName(QApplication.application.gitApplicationMetadata.gitAuth));
-
-        updateObj.set(path, gitAuth);
-        return this.updateById(applicationId, updateObj, aclPermission);
+        return setAllAsNonDefaultMono.then(setDefaultMono).then();
     }
 
     @Override
@@ -294,7 +285,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<UpdateResult> setAppTheme(
+    public Mono<Integer> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         Update updateObj = new Update();
         if (StringUtils.hasLength(editModeThemeId)) {
@@ -304,19 +295,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
         }
 
-        return this.updateById(applicationId, updateObj, aclPermission);
-    }
-
-    @Override
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(
-            String defaultId,
-            String defaultIdPath,
-            Map<String, Object> fieldValueMap,
-            String branchName,
-            String branchNamePath,
-            AclPermission permission) {
-        return super.updateFieldByDefaultIdAndBranchName(
-                defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission);
+        return queryBuilder().byId(applicationId).permission(aclPermission).updateFirst(updateObj);
     }
 
     @Override
@@ -347,7 +326,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         ArrayList<Criteria> criteria =
                 new ArrayList<>(List.of(workspaceIdCriteria, permissionGroupCriteria, notDeleted()));
-        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)), null, -1)
+        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)))
                 .map(application -> application.getId());
     }
 
@@ -368,7 +347,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<UpdateResult> unprotectAllBranches(String applicationId, AclPermission permission) {
+    public Mono<Integer> unprotectAllBranches(String applicationId, AclPermission permission) {
         String isProtectedFieldPath = fieldName(QApplication.application.gitApplicationMetadata) + "."
                 + fieldName(QApplication.application.gitApplicationMetadata.isProtectedBranch);
 
@@ -379,17 +358,21 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         Update unsetProtected = new Update().set(isProtectedFieldPath, false);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria), unsetProtected, permission);
+        return queryBuilder()
+                .criteria(defaultApplicationIdCriteria)
+                .permission(permission)
+                .updateAll(unsetProtected);
     }
 
     /**
      * This method sets protected=true to the Applications whose branch names are present in the given branchNames list.
+     *
      * @param applicationId default Application id which is stored in git Application Meta data
-     * @param branchNames list of branches to be protected
+     * @param branchNames   list of branches to be protected
      * @return Mono<Void>
      */
     @Override
-    public Mono<UpdateResult> protectBranchedApplications(
+    public Mono<Integer> protectBranchedApplications(
             String applicationId, List<String> branchNames, AclPermission permission) {
         String isProtectedFieldPath = fieldName(QApplication.application.gitApplicationMetadata) + "."
                 + fieldName(QApplication.application.gitApplicationMetadata.isProtectedBranch);
@@ -404,6 +387,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria branchMatchCriteria = Criteria.where(branchNameFieldPath).in(branchNames);
         Update setProtected = new Update().set(isProtectedFieldPath, true);
 
-        return updateByCriteria(List.of(defaultApplicationIdCriteria, branchMatchCriteria), setProtected, permission);
+        return queryBuilder()
+                .criteria(defaultApplicationIdCriteria, branchMatchCriteria)
+                .permission(permission)
+                .updateAll(setProtected);
     }
 }

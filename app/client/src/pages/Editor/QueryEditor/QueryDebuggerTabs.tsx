@@ -100,18 +100,21 @@ function QueryDebuggerTabs({
   );
 
   const datasourceStructure = useSelector((state) =>
-    getDatasourceStructureById(state, currentActionConfig?.datasource.id || ""),
+    getDatasourceStructureById(
+      state,
+      currentActionConfig?.datasource?.id ?? "",
+    ),
   );
 
   useEffect(() => {
     if (
-      currentActionConfig?.datasource.id &&
+      currentActionConfig?.datasource?.id &&
       datasourceStructure === undefined &&
       pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
     ) {
       dispatch(
         fetchDatasourceStructure(
-          currentActionConfig?.datasource.id,
+          currentActionConfig.datasource.id,
           true,
           DatasourceStructureContext.QUERY_EDITOR,
         ),
@@ -226,7 +229,7 @@ function QueryDebuggerTabs({
     });
   }
 
-  if (showSchema && currentActionConfig) {
+  if (showSchema && currentActionConfig && currentActionConfig.datasource) {
     responseTabs.unshift({
       key: "schema",
       title: "Schema",

@@ -17,6 +17,8 @@ export interface AnvilFlexComponentProps {
   widgetName: string;
   widgetSize?: SizeConfig;
   widgetType: WidgetType;
+  onClick?: (e: any) => void;
+  onClickCapture?: () => void;
 }
 
 export type PositionValues =

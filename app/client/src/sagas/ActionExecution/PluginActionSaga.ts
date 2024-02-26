@@ -66,7 +66,10 @@ import {
   unset,
 } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  PLATFORM_ERROR,
+} from "@appsmith/entities/AppsmithConsole/utils";
 import {
   extractClientDefinedErrorMetadata,
   validateResponse,

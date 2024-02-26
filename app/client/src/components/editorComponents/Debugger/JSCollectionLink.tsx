@@ -3,7 +3,7 @@ import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 import { useCallback } from "react";
 import { navigateToEntity } from "actions/editorActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 
 export default function JSCollectionLink(props: EntityLinkProps) {
   const dispatch = useDispatch();

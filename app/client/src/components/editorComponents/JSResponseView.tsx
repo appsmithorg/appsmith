@@ -40,8 +40,8 @@ import {
 } from "./ApiResponseView";
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { Log, SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { SourceEntity, Log } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";

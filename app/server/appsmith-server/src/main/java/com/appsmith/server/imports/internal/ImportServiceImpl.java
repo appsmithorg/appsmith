@@ -1,12 +1,12 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.applications.imports.ApplicationImportService;
-import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Theme;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -18,26 +18,22 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 public class ImportServiceImpl extends ImportServiceCEImpl implements ImportService {
 
     public ImportServiceImpl(
-            ApplicationImportService applicationImportService,
+            ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson> applicationImportService,
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
-            ImportableService<CustomJSLib> customJSLibImportableService,
             PermissionGroupRepository permissionGroupRepository,
             TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ImportableService<Plugin> pluginImportableService,
-            ImportableService<Datasource> datasourceImportableService,
-            ImportableService<Theme> themeImportableService) {
+            ImportableService<Datasource> datasourceImportableService) {
         super(
                 applicationImportService,
                 sessionUserService,
                 workspaceService,
-                customJSLibImportableService,
                 permissionGroupRepository,
                 transactionalOperator,
                 analyticsService,
                 pluginImportableService,
-                datasourceImportableService,
-                themeImportableService);
+                datasourceImportableService);
     }
 }

@@ -255,9 +255,9 @@
   --color-bg-elevation-1: rgb(95.902% 97.573% 99.857%);
   --color-bg-elevation-2: rgb(97.988% 99.528% 100%);
   --color-bg-elevation-3: rgb(99.697% 100% 100%);
-  --color-shadow-elevation-1: rgb(10.027% 0% 19.009% / 0.35);
-  --color-shadow-elevation-2: rgb(4.6079% 0% 43.546% / 0.3);
-  --color-shadow-elevation-3: rgb(0% 5.9131% 57.625% / 0.25);
+  --color-shadow-elevation-1: rgb(0% 5.9131% 57.625% / 0.1);
+  --color-shadow-elevation-2: rgb(0% 15.277% 63.167% / 0.12);
+  --color-shadow-elevation-3: rgb(0% 16.799% 64.298% / 0.15);
   --color-fg: rgb(0.3864% 2.2133% 6.8342%);
   --color-fg-accent: rgb(0% 31.772% 67.873%);
   --color-fg-neutral: rgb(26.26% 33.939% 44.326%);
@@ -289,9 +289,12 @@
   --color-bd-on-negative: rgb(21.923% 0% 2.8118%);
   --color-bd-on-warning: rgb(39.972% 27.552% 0%);
   --border-radius-1: 0px;
-  --box-shadow-1: 0 4px 8px 0 var(--color-shadow-elevation-1);
-  --box-shadow-2: 0 2px 4px 0 var(--color-shadow-elevation-2);
-  --box-shadow-3: 0 1px 2px 0 var(--color-shadow-elevation-3);
+  --box-shadow-1: 0 var(--inner-spacing-2) var(--inner-spacing-3) 0
+    var(--color-shadow-elevation-1);
+  --box-shadow-2: 0 var(--inner-spacing-1) var(--inner-spacing-3) 0
+    var(--color-shadow-elevation-2);
+  --box-shadow-3: 0 calc(var(--inner-spacing-1) / 2) var(--inner-spacing-3) 0
+    var(--color-shadow-elevation-3);
   --border-width-1: 1px;
   --border-width-2: 2px;
   --opacity-disabled: 0.3;
@@ -300,7 +303,8 @@
   --z-index-3: 10;
   --z-index-99: 9999;
   --stroke-width-1: 1px;
-  --stroke-width-2: 2px;
+  --stroke-width-2: 1.5px;
+  --stroke-width-3: 2px;
   --icon-size-1: 16px;
   --icon-size-2: 24px;
   --icon-size-3: 32px;
