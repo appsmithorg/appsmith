@@ -77,8 +77,9 @@ function Onboarding() {
   const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
   );
-  const releaseDragDropBuildingBlocks = true;
-  useFeatureFlag(FEATURE_FLAG.release_drag_drop_building_blocks_enabled);
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
 
   const shouldShowStarterTemplates = useMemo(
     () =>

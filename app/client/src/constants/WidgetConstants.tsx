@@ -283,7 +283,5 @@ export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
 // Constant key to show walkthrough for a widget -> stores widget id
 export const WIDGET_ID_SHOW_WALKTHROUGH = "WIDGET_ID_SHOW_WALKTHROUGH";
 
-export const INITIAL_BUILDING_BLOCKS_IN_EXPLORER = 9;
-
 export const DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS = 30;
 export const DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS = 5;
