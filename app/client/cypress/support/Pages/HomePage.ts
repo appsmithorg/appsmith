@@ -21,6 +21,7 @@ export class HomePage {
   private _optionsIcon = ".t--options-icon";
   public _newIcon = ".createnew";
   private _renameWorkspaceContainer = ".editable-text-container";
+  private _wsrenamePencilIcon = "input[name='pencil-line']";
   private _renameWorkspaceInput = ".t--workspace-rename-input input";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
@@ -191,7 +192,7 @@ export class HomePage {
   ) {
     this.OpenWorkspaceOptions(oldName, networkCallAlias);
     this.agHelper.WaitUntilEleAppear(this._renameWorkspaceContainer);
-    this.agHelper.GetNClick(this._renameWorkspaceContainer);
+    this.agHelper.GetNClick(this._wsrenamePencilIcon);
     this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
     this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
