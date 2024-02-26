@@ -243,7 +243,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Flux<T> queryAllExecute(QueryAllParams<T> params) {
-        return ensurePermissionGroups(params).thenMany(Flux.defer(() -> {
+        return ensurePermissionGroupsInParams(params).thenMany(Flux.defer(() -> {
             final Query query = createQueryWithPermission(
                     params.getCriteria(), params.getFields(), params.getPermissionGroups(), params.getPermission());
 
@@ -268,7 +268,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<T> queryOneExecute(QueryAllParams<T> params) {
-        return ensurePermissionGroups(params).then(Mono.defer(() -> mongoOperations
+        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
                 .query(this.genericDomain)
                 .matching(createQueryWithPermission(
                                 params.getCriteria(),
@@ -281,7 +281,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
-        return ensurePermissionGroups(params).then(Mono.defer(() -> mongoOperations
+        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
                 .query(this.genericDomain)
                 .matching(createQueryWithPermission(
                         params.getCriteria(), params.getFields(), params.getPermissionGroups(), params.getPermission()))
@@ -290,7 +290,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<Long> countExecute(QueryAllParams<T> params) {
-        return ensurePermissionGroups(params)
+        return ensurePermissionGroupsInParams(params)
                 .then(Mono.defer(() -> mongoOperations.count(
                         createQueryWithPermission(
                                 params.getCriteria(), params.getPermissionGroups(), params.getPermission()),
@@ -305,7 +305,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "fields"));
         }
 
-        return ensurePermissionGroups(params)
+        return ensurePermissionGroupsInParams(params)
                 .then(Mono.defer(() -> {
                     final Query query = createQueryWithPermission(
                             params.getCriteria(), null, params.getPermissionGroups(), params.getPermission());
@@ -333,7 +333,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         }
     }
 
-    private Mono<Void> ensurePermissionGroups(QueryAllParams<T> params) {
+    /**
+     * This method will try to ensure that permission groups are present in the params. If they're already there, don't
+     * do anything. If not, and if a `permission` is available, then get the permission groups for the current user and
+     * permission and fill that into the `params` object.
+     * @param params that may have permission groups already, and a permission that can be used to get permission groups otherwise.
+     * @return the same `params` object, but with permission groups filled in.
+     */
+    private Mono<Void> ensurePermissionGroupsInParams(QueryAllParams<T> params) {
         if (params.getPermissionGroups() != null) {
             return Mono.empty();
         }
