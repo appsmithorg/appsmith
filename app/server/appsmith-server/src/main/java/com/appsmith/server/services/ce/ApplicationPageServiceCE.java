@@ -6,7 +6,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;
 
 public interface ApplicationPageServiceCE {
@@ -15,7 +14,7 @@ public interface ApplicationPageServiceCE {
 
     Mono<PageDTO> createPageWithBranchName(PageDTO page, String branchName);
 
-    Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault);
+    Mono<Integer> addPageToApplication(Application application, PageDTO page, Boolean isDefault);
 
     Mono<PageDTO> getPage(NewPage newPage, boolean viewMode);
 

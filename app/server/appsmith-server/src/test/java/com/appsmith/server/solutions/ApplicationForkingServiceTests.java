@@ -45,7 +45,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;

@@ -134,7 +134,7 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
       </div>
       <div
         className="flex-grow px-3 mt-2 overflow-y-scroll"
-        data-testid="widget-sidebar-scrollable-wrapper"
+        data-testid="t--widget-sidebar-scrollable-wrapper"
       >
         {isEmpty && (
           <Text
@@ -200,7 +200,7 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
                   </Text>
                 </CollapsibleHeader>
                 <CollapsibleContent>
-                  <div className="grid items-stretch grid-cols-3 gap-x-2 gap-y-1 justify-items-stretch">
+                  <div className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch">
                     {tag === WIDGET_TAGS.SUGGESTED_WIDGETS
                       ? sortBy(
                           cardsForThisTag.data,

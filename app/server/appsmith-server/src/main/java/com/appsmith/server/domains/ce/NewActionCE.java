@@ -9,10 +9,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Setter
 @ToString
+@FieldNameConstants
 public class NewActionCE extends BranchAwareDomain {
 
     // Fields in action that are not allowed to change between published and unpublished versions
@@ -53,4 +55,6 @@ public class NewActionCE extends BranchAwareDomain {
         }
         super.sanitiseToExportDBObject();
     }
+
+    public static class Fields extends BranchAwareDomain.Fields {}
 }

@@ -4,7 +4,7 @@
   min-height: var(--sizing-10);
   min-width: var(--sizing-27);
   cursor: pointer;
-  border-radius: var(--border-radius-1);
+  border-radius: var(--border-radius-elevation-3);
   outline: 0;
 
   &[data-variant="primary"] {

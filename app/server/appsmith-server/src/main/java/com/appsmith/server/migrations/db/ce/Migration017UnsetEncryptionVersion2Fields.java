@@ -1,9 +1,8 @@
 package com.appsmith.server.migrations.db.ce;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.QAuthenticationDTO;
-import com.appsmith.external.models.QDatasource;
-import com.appsmith.external.models.QDatasourceConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.constants.FieldName;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -21,7 +20,6 @@ import static com.appsmith.external.constants.CommonFieldName.REFRESH_TOKEN;
 import static com.appsmith.external.constants.CommonFieldName.TOKEN;
 import static com.appsmith.external.constants.CommonFieldName.TOKEN_RESPONSE;
 import static com.appsmith.server.constants.ce.FieldNameCE.PASSWORD;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -32,17 +30,14 @@ public class Migration017UnsetEncryptionVersion2Fields {
     private final MongoTemplate mongoTemplate;
     private static final int ENCRYPTION_VERSION = 2;
     private static final String ENCRYPTION_VERSION_FIELD_NAME = "encryptionVersion";
-    private static final String DATASOURCE_CONFIGURATION_FIELD_NAME =
-            fieldName(QDatasource.datasource.datasourceConfiguration);
-    private static final String AUTHENTICATION_FIELD_NAME =
-            fieldName(QDatasourceConfiguration.datasourceConfiguration.authentication);
+    private static final String DATASOURCE_CONFIGURATION_FIELD_NAME = Datasource.Fields.datasourceConfiguration;
+    private static final String AUTHENTICATION_FIELD_NAME = DatasourceConfiguration.Fields.authentication;
     private static final String DELIMITER = ".";
 
     private static final String AUTHENTICATION_QUALIFIED_NAME =
             DATASOURCE_CONFIGURATION_FIELD_NAME + DELIMITER + AUTHENTICATION_FIELD_NAME;
-    private static final String AUTHENTICATION_RESPONSE_QUALIFIED_NAME = AUTHENTICATION_QUALIFIED_NAME
-            + DELIMITER
-            + fieldName(QAuthenticationDTO.authenticationDTO.authenticationResponse);
+    private static final String AUTHENTICATION_RESPONSE_QUALIFIED_NAME =
+            AUTHENTICATION_QUALIFIED_NAME + DELIMITER + AuthenticationDTO.Fields.authenticationResponse;
     private static final String PASSWORD_QUALIFIED_NAME = AUTHENTICATION_QUALIFIED_NAME + DELIMITER + PASSWORD;
     private static final String CLIENT_SECRET_QUALIFIED_NAME =
             AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + CLIENT_SECRET;
@@ -73,7 +68,7 @@ public class Migration017UnsetEncryptionVersion2Fields {
                 .unset(CLIENT_SECRET_QUALIFIED_NAME)
                 .unset(TOKEN_RESPONSE_QUALIFIED_NAME)
                 .unset(ENCRYPTION_VERSION_FIELD_NAME)
-                .set(fieldName(QDatasource.datasource.isConfigured), Boolean.FALSE);
+                .set(Datasource.Fields.isConfigured, Boolean.FALSE);
         mongoOperations.updateMulti(datasourcesToUpdateQuery, updateQuery, Datasource.class);
     }
 

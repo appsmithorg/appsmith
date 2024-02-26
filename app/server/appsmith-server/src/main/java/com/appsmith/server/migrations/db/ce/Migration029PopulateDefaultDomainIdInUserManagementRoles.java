@@ -2,8 +2,6 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -24,7 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
@@ -48,7 +45,7 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
                 .is(RESET_PASSWORD_USERS.getValue())
                 .andOperator(notDeleted());
         Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
-        queryExistingUsersWithResetPasswordPolicy.fields().include(fieldName(QUser.user.policies));
+        queryExistingUsersWithResetPasswordPolicy.fields().include(User.Fields.policies);
         Map<String, String> userManagementRoleIdToUserIdMap = new HashMap<>();
         mongoTemplate.stream(queryExistingUsersWithResetPasswordPolicy, User.class)
                 .forEach(existingUser -> {
@@ -69,9 +66,7 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
         Query queryUserManagementRolesWithWithMigrationFlag028Set =
                 new Query(criteriaUserManagementRolesWithMigrationFlag028Set);
 
-        queryUserManagementRolesWithWithMigrationFlag028Set
-                .fields()
-                .include(fieldName(QPermissionGroup.permissionGroup.id));
+        queryUserManagementRolesWithWithMigrationFlag028Set.fields().include(PermissionGroup.Fields.id);
         long countOfUserManagementRolesWithMigrationFlag028Set =
                 mongoTemplate.count(queryUserManagementRolesWithWithMigrationFlag028Set, PermissionGroup.class);
         int attempt = 0;
@@ -82,18 +77,17 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
             userManagementRolesWithMigrationFlag028Set.parallelStream().forEach(userManagementRole -> {
                 if (userManagementRoleIdToUserIdMap.containsKey(userManagementRole.getId())
                         && StringUtils.isNotEmpty(userManagementRoleIdToUserIdMap.get(userManagementRole.getId()))) {
-                    Criteria criteriaUserManagementRoleById = Criteria.where(
-                                    fieldName(QPermissionGroup.permissionGroup.id))
-                            .is(userManagementRole.getId());
+                    Criteria criteriaUserManagementRoleById =
+                            Criteria.where(PermissionGroup.Fields.id).is(userManagementRole.getId());
                     Query queryUserManagementRoleById = new Query(criteriaUserManagementRoleById);
                     Update updateDefaultDomainIdOfUserManagementRole = new Update();
 
                     updateDefaultDomainIdOfUserManagementRole.set(
-                            fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                            PermissionGroup.Fields.defaultDomainId,
                             userManagementRoleIdToUserIdMap.get(userManagementRole.getId()));
 
                     updateDefaultDomainIdOfUserManagementRole.set(
-                            fieldName(QPermissionGroup.permissionGroup.defaultDomainType), User.class.getSimpleName());
+                            PermissionGroup.Fields.defaultDomainType, User.class.getSimpleName());
 
                     updateDefaultDomainIdOfUserManagementRole.unset(
                             Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId
