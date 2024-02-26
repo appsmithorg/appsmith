@@ -8,9 +8,9 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Mono;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Config>
@@ -31,17 +31,10 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
 
     @Override
     public Mono<Config> findByNameAsUser(String name, User user, AclPermission permission) {
-
-        return getAllPermissionGroupsForUser(user).flatMap(permissionGroups -> {
-            Criteria nameCriteria = where(Config.Fields.name).is(name);
-            Query query = new Query(nameCriteria);
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-
-            return mongoOperations
-                    .query(this.genericDomain)
-                    .matching(query)
-                    .one()
-                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-        });
+        return getAllPermissionGroupsForUser(user).flatMap(permissionGroups -> queryBuilder()
+                .criteria(bridge().equal(Config.Fields.name, name))
+                .permission(permission)
+                .permissionGroups(permissionGroups)
+                .one());
     }
 }

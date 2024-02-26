@@ -9,14 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
 public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User> implements CustomUserRepositoryCE {
@@ -36,15 +35,9 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
 
     @Override
     public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
-        Criteria emailCriteria = where(User.Fields.email).is(email);
-        Criteria tenantIdCriteria = where(User.Fields.tenantId).is(tenantId);
-
-        Criteria andCriteria = new Criteria();
-        andCriteria.andOperator(emailCriteria, tenantIdCriteria);
-
-        Query query = new Query();
-        query.addCriteria(andCriteria);
-        return mongoOperations.findOne(query, User.class);
+        return queryBuilder()
+                .criteria(bridge().equal(User.Fields.email, email).equal(User.Fields.tenantId, tenantId))
+                .one();
     }
 
     /**
@@ -55,12 +48,12 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
      */
     @Override
     public Mono<Boolean> isUsersEmpty() {
-        final Query q = query(new Criteria());
-        q.fields().include(User.Fields.email);
-        // Basically limit to system generated emails plus 1 more.
-        q.limit(getSystemGeneratedUserEmails().size() + 1);
-        return mongoOperations
-                .find(q, User.class)
+        return queryBuilder()
+                .criteria(bridge())
+                .fields(User.Fields.email)
+                // Basically limit to system generated emails plus 1 more.
+                .limit(getSystemGeneratedUserEmails().size() + 1)
+                .all()
                 .filter(user -> !getSystemGeneratedUserEmails().contains(user.getEmail()))
                 .count()
                 .map(count -> count == 0);
