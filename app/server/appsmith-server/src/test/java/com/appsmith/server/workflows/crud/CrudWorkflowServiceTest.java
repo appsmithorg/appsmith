@@ -211,6 +211,10 @@ public class CrudWorkflowServiceTest {
                             EXECUTE_ACTIONS.getValue(),
                             DELETE_ACTIONS.getValue());
                     assertThat(userPermissions).containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
+                    assertThat(jsObject.getUnpublishedCollection().getVariables())
+                            .isEmpty();
+                    assertThat(jsObject.getUnpublishedCollection().getVariables())
+                            .isNotNull();
                 })
                 .verifyComplete();
     }

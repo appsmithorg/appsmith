@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
@@ -366,6 +367,7 @@ class CrudWorkflowEntityServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setWorkspaceId(workspace.getId());
         actionCollectionDTO.setContextType(WORKFLOW);
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         ActionDTO action1 = new ActionDTO();
         action1.setName("testValid_createWorkflowActionCollection_withAction");
         action1.setActionConfiguration(new ActionConfiguration());
@@ -394,6 +396,11 @@ class CrudWorkflowEntityServiceTest {
                 .findById(workflowActionCollectionDTO.getId())
                 .block();
         assertThat(createdActionCollection.getWorkflowId()).isEqualTo(workflow.getId());
+        List<JSValue> variables =
+                createdActionCollection.getUnpublishedCollection().getVariables();
+        assertThat(variables).hasSize(1);
+        assertThat(variables.get(0).getValue()).isEqualTo("test");
+
         String actionInActionCollectionId =
                 workflowActionCollectionDTO.getActions().get(0).getId();
         NewAction actionInActionCollection =

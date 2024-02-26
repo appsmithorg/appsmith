@@ -158,6 +158,7 @@ public class WorkflowHelperImpl implements WorkflowHelper {
             actionCollectionDTO.setName("Main");
             actionCollectionDTO.setPluginType(PluginType.JS);
             actionCollectionDTO.setPluginId(jsPlugin.getId());
+            actionCollectionDTO.setVariables(new ArrayList<>());
             ActionDTO actionDTO = new ActionDTO();
             actionDTO.setContextType(CreatorContextType.WORKFLOW);
             actionDTO.setName("executeWorkflow");
