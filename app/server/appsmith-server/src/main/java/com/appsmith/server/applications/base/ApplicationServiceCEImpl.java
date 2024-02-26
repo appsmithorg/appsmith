@@ -45,7 +45,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -403,8 +402,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         });
     }
 
-    public Mono<UpdateResult> update(
-            String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
+    public Mono<Integer> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
         String defaultIdPath = "id";
         if (!isBlank(branchName)) {
             defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
@@ -1009,7 +1007,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<UpdateResult> setAppTheme(
+    public Mono<Integer> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
     }

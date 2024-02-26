@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
-import com.mongodb.client.result.UpdateResult;
 import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.domain.Sort;
@@ -61,12 +60,12 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.countExecute(this);
     }
 
-    public Mono<UpdateResult> updateAll(@NonNull UpdateDefinition update) {
+    public Mono<Integer> updateAll(@NonNull UpdateDefinition update) {
         scope = Scope.ALL;
         return repo.updateAllExecute(this, update);
     }
 
-    public Mono<UpdateResult> updateFirst(@NonNull UpdateDefinition update) {
+    public Mono<Integer> updateFirst(@NonNull UpdateDefinition update) {
         scope = Scope.FIRST;
         return repo.updateAllExecute(this, update);
     }

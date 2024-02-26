@@ -62,7 +62,6 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
 import com.google.common.base.Strings;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -218,7 +217,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return UpdateResult object with details on how many documents have been updated, which should be 0 or 1.
      */
     @Override
-    public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
+    public Mono<Integer> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
 
         String defaultPageId = page.getDefaultResources() == null
                         || StringUtils.isEmpty(page.getDefaultResources().getPageId())
@@ -227,8 +226,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         if (isDuplicatePage(application, page.getId())) {
             return applicationRepository
                     .addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId)
-                    .doOnSuccess(result -> {
-                        if (result.getModifiedCount() != 1) {
+                    .doOnSuccess(count -> {
+                        if (count != 1) {
                             log.error(
                                     "Add page to application didn't update anything, probably because application wasn't found.");
                         }
@@ -491,7 +490,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
                             // Now publish this newly created app with default states so that
                             // launching of newly created application is possible.
-                            .flatMap(updatedApplication -> publish(savedApplication.getId(), false)
+                            .flatMap(ignored -> publish(savedApplication.getId(), false)
                                     .then(applicationService.findById(
                                             savedApplication.getId(), applicationPermission.getReadPermission())));
                 });
@@ -1321,7 +1320,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     return applicationRepository
                             .setPages(application.getId(), pages)
-                            .flatMap(updateResult ->
+                            .flatMap(ignored ->
                                     sendPageOrderAnalyticsEvent(application, defaultPageId, order, branchName))
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(
                                     application.getId(), Boolean.FALSE, false));

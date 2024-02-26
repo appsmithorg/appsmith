@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -74,7 +73,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Mono<Void> publishActions(String applicationId, AclPermission permission);
 
-    Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
+    Mono<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
