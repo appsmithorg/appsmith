@@ -1,10 +1,9 @@
 package com.appsmith.server.migrations.db.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -25,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -51,9 +49,9 @@ public class Migration031CreateUserManagementRolesForUsersTaggedIn030 {
                 .is(TRUE);
 
         Query queryUsersTaggedInMigration030 = new Query(criteriaUsersTaggedInMigration030);
-        queryUsersTaggedInMigration030.fields().include(fieldName(QUser.user.id));
-        queryUsersTaggedInMigration030.fields().include(fieldName(QUser.user.policies));
-        queryUsersTaggedInMigration030.fields().include(fieldName(QUser.user.email));
+        queryUsersTaggedInMigration030.fields().include(User.Fields.id);
+        queryUsersTaggedInMigration030.fields().include(User.Fields.policies);
+        queryUsersTaggedInMigration030.fields().include(User.Fields.email);
 
         Query optimisedQueryUsersTaggedInMigration030 = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, queryUsersTaggedInMigration030, User.class);
@@ -70,9 +68,9 @@ public class Migration031CreateUserManagementRolesForUsersTaggedIn030 {
                                 Migration030TagUsersWithNoUserManagementRoles
                                         .MIGRATION_FLAG_030_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE);
                         updateMigrationFlagAndPoliciesForUser.set(
-                                fieldName(QUser.user.policies), userWithUpdatedPolicies.getPolicies());
-                        Criteria criteriaUserId = Criteria.where(fieldName(QBaseDomain.baseDomain.id))
-                                .is(user.getId());
+                                User.Fields.policies, userWithUpdatedPolicies.getPolicies());
+                        Criteria criteriaUserId =
+                                Criteria.where(BaseDomain.Fields.id).is(user.getId());
                         Query queryUserId = new Query(criteriaUserId);
                         mongoTemplate.updateFirst(queryUserId, updateMigrationFlagAndPoliciesForUser, User.class);
                     });

@@ -7,12 +7,14 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Document
+@FieldNameConstants
 public class NewPage extends BranchAwareDomain implements Context {
     @JsonView(Views.Public.class)
     String applicationId;
@@ -35,4 +37,6 @@ public class NewPage extends BranchAwareDomain implements Context {
         }
         super.sanitiseToExportDBObject();
     }
+
+    public static class Fields extends BranchAwareDomain.Fields {}
 }
