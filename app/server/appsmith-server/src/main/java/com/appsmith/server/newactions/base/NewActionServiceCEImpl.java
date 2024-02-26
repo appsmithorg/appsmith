@@ -1638,10 +1638,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsMock(), ""));
         }
 
-        if (eventContext != null
-                && AppsmithEventContextType.GENERATE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
-            analyticsProperties.put("isUserCreated", false);
-            analyticsProperties.put("accelerator", "generate-crud");
+        if (eventContext != null) {
+            if (AppsmithEventContextType.GENERATE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
+                analyticsProperties.put("isUserCreated", false);
+                analyticsProperties.put("accelerator", "generate-crud");
+            } else if (AppsmithEventContextType.DEFAULT.equals(eventContext.getAppsmithEventContextType())) {
+                analyticsProperties.put("isUserCreated", true);
+            }
         }
         return analyticsProperties;
     }
