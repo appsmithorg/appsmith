@@ -9,7 +9,6 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -64,7 +63,6 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -760,7 +758,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params) {
-        String workspaceId = params.getFirst(fieldName(QDatasource.datasource.workspaceId));
+        String workspaceId = params.getFirst(Datasource.Fields.workspaceId);
         if (workspaceId != null) {
             return this.getAllByWorkspaceIdWithStorages(
                     workspaceId, Optional.of(datasourcePermission.getReadPermission()));

@@ -7,12 +7,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Document
+@FieldNameConstants
 @NoArgsConstructor
 @Getter
 @Setter
@@ -40,4 +42,6 @@ public class PermissionGroup extends BaseDomain {
     Set<String> assignedToUserIds = new HashSet<>();
 
     Set<String> assignedToGroupIds = new HashSet<>();
+
+    public static class Fields extends BaseDomain.Fields {}
 }

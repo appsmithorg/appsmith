@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 @ToString
 @NoArgsConstructor
 @Document
+@FieldNameConstants
 public class Plugin extends BaseDomain {
 
     public enum ResponseType {
@@ -121,4 +123,6 @@ public class Plugin extends BaseDomain {
 
     @JsonView(Views.Public.class)
     Boolean requiresDatasource = Boolean.TRUE;
+
+    public static class Fields extends BaseDomain.Fields {}
 }

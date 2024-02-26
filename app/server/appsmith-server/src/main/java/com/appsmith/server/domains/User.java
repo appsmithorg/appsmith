@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,6 +27,7 @@ import java.util.Set;
 @Setter
 @ToString
 @Document
+@FieldNameConstants
 public class User extends BaseDomain implements UserDetails, OidcUser {
 
     @JsonView(Views.Public.class)
@@ -175,4 +177,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     public String computeFirstName() {
         return (StringUtils.isEmpty(name) ? email : name).split("[\\s@]+", 2)[0];
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

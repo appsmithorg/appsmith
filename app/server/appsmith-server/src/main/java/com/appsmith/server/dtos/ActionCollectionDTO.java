@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.util.regex.Matcher;
@@ -20,6 +21,7 @@ import java.util.regex.Matcher;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @QueryEmbeddable
+@FieldNameConstants
 public class ActionCollectionDTO extends ActionCollectionCE_DTO implements Reusable {
     @Transient
     @JsonView(Views.Public.class)
@@ -74,4 +76,6 @@ public class ActionCollectionDTO extends ActionCollectionCE_DTO implements Reusa
         this.setRootModuleInstanceId(null);
         this.setIsPublic(null);
     }
+
+    public static class Fields extends ActionCollectionCE_DTO.Fields {}
 }
