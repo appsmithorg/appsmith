@@ -64,20 +64,18 @@ const checkPathsInConfig = (
 
 // "originalWidget" param here always contains the complete widget props
 // as this function's widget parameter tends to change in each iteration
-let totalTime = 0
 const childHasPanelConfig = (
   config: any,
   widget: WidgetProps,
   basePath: string,
   originalWidget: WidgetProps,
   bindingPaths: BindingPaths,
-  reactivePaths : ReactivePaths,
+  reactivePaths: ReactivePaths,
   triggerPaths: Record<string, true>,
-  validationPaths : Record<any, ValidationConfig>
+  validationPaths: Record<any, ValidationConfig>,
 ) => {
   const panelPropertyPath = config.propertyName;
   const widgetPanelPropertyValues = get(widget, panelPropertyPath);
-  const start = performance.now();
 
   if (widgetPanelPropertyValues) {
     Object.values(widgetPanelPropertyValues).forEach(
@@ -144,7 +142,10 @@ const childHasPanelConfig = (
                             widgetPanelPropertyValue,
                             panelPropertyConfigPath,
                             originalWidget,
-                            bindingPaths, reactivePaths, triggerPaths, validationPaths
+                            bindingPaths,
+                            reactivePaths,
+                            triggerPaths,
+                            validationPaths,
                           );
 
                           Object.assign(bindingPaths, panelBindingPaths);
@@ -191,7 +192,11 @@ const childHasPanelConfig = (
                         panelColumnControlOrSectionConfig,
                         widgetPanelPropertyValue,
                         panelPropertyConfigPath,
-                        originalWidget, bindingPaths, reactivePaths, triggerPaths, validationPaths
+                        originalWidget,
+                        bindingPaths,
+                        reactivePaths,
+                        triggerPaths,
+                        validationPaths,
                       );
 
                       Object.assign(bindingPaths, panelBindingPaths);
@@ -209,11 +214,6 @@ const childHasPanelConfig = (
     );
   }
 
-  totalTime += (performance.now() - start);
-  if (widget.type == 'JSON_FORM_WIDGET') {
-    console.log("***", "child has pannnneeeel config timing for widget ", widget.type, " is ", performance.now() - start);
-  }
-  
   return {
     reactivePaths: reactivePaths,
     triggerPaths: triggerPaths,
@@ -269,9 +269,12 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             controlConfig,
             widget,
             basePath,
-            widget, {}, {}, {}, {}
+            widget,
+            {},
+            {},
+            {},
+            {},
           );
-          console.log("***", "total time taken by child has panel config is ", totalTime);
           Object.assign(bindingPaths, resultingPaths.bindingPaths);
           Object.assign(reactivePaths, resultingPaths.reactivePaths);
           Object.assign(triggerPaths, resultingPaths.triggerPaths);
@@ -299,10 +302,10 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
                   childArrayPropertyPath,
                 );
 
-              Object.assign(bindingPaths, configBindingPaths);
-              Object.assign(reactivePaths, configReactivePaths);
-              Object.assign(triggerPaths, configTriggerPaths);
-              Object.assign(validationPaths, configValidationPaths);
+                Object.assign(bindingPaths, configBindingPaths);
+                Object.assign(reactivePaths, configReactivePaths);
+                Object.assign(triggerPaths, configTriggerPaths);
+                Object.assign(validationPaths, configValidationPaths);
               });
             });
           }
