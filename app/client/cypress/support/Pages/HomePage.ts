@@ -192,9 +192,13 @@ export class HomePage {
   ) {
     this.OpenWorkspaceOptions(oldName, networkCallAlias);
     this.agHelper.AssertElementVisibility(this._renameWorkspaceContainer);
-    this.agHelper.GetNClick(".t--workspace-rename-input", 0, true);
+    Cypress._.times(2, () => {
+      this.agHelper.GetNClick(".t--workspace-rename-input", 0, true);
+    });
     this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
-    this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
+    this.agHelper
+      .ClearNType(this._renameWorkspaceInput, newWorkspaceName)
+      .blur();
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
     this.agHelper.AssertElementVisibility(
