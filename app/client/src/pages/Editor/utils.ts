@@ -1,25 +1,28 @@
-import { debounce, random } from "lodash";
-import { useEffect, useMemo, useState } from "react";
-import ReactDOM from "react-dom";
-import { useLocation } from "react-router";
+import {
+  WIDGET_DEPRECATION_MESSAGE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
+import WidgetFactory from "WidgetProvider/factory";
+import type { ActionResponse } from "api/ActionAPI";
 import type {
+  GroupedWidgetCardsWithMaxRenderList,
   WidgetCardsGroupedByTags,
   WidgetTags,
   WidgetType,
 } from "constants/WidgetConstants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import ResizeObserver from "resize-observer-polyfill";
-import WidgetFactory from "WidgetProvider/factory";
 import {
-  createMessage,
-  WIDGET_DEPRECATION_MESSAGE,
-} from "@appsmith/constants/messages";
-import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
+  WIDGET_TAGS,
+  widgetCardTagMaxRenderList,
+} from "constants/WidgetConstants";
+import { debounce, random } from "lodash";
+import { useEffect, useMemo, useState } from "react";
+import ReactDOM from "react-dom";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import ResizeObserver from "resize-observer-polyfill";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";
-import type { ActionResponse } from "api/ActionAPI";
-import type { Template } from "api/TemplatesApi";
 
 export const draggableElement = (
   id: string,
@@ -338,22 +341,48 @@ export const actionResponseDisplayDataFormats = (
   };
 };
 
-export function transformTemplatesToWidgetCard(
-  templates: Template[],
-): WidgetCardProps[] {
-  const adjustedBuildingBlocks: WidgetCardProps[] = templates.map(
-    (template) => ({
-      rows: 20,
-      columns: 5,
-      type: "BUILDING_BLOCK",
-      displayName: template.title,
-      icon:
-        template.screenshotUrls.length > 1
-          ? template.screenshotUrls[1]
-          : template.screenshotUrls[0],
-      tags: ["Building Blocks"],
-    }),
-  );
+/**
+ * Sets the maximum items to render for each group of widget cards based on provided criteria.
+ * @param groupedWidgets - Grouped widget cards based on tags.
+ * @param showMaxWidgetsPerTag - Object indicating whether to show full list for each widget tag.
+ * @returns Grouped widget cards with maximum items to render.
+ */
+export const setWidgetTagMaxRender = (
+  groupedWidgets: WidgetCardsGroupedByTags,
+  showMaxWidgetsPerTag: Record<WidgetTags, boolean>,
+): GroupedWidgetCardsWithMaxRenderList => {
+  const groupedWidgetCardsWithMaxRender: GroupedWidgetCardsWithMaxRenderList =
+    {} as GroupedWidgetCardsWithMaxRenderList;
 
-  return adjustedBuildingBlocks;
-}
+  Object.entries(groupedWidgets).forEach(([tag, widgets]) => {
+    const tagValue = tag as WidgetTags;
+
+    // Retrieve maximum number to render for the current tag
+    const maxRenderValue = widgetCardTagMaxRenderList[tagValue] || null;
+
+    // Initialize group if not already present
+    if (!groupedWidgetCardsWithMaxRender[tagValue]) {
+      groupedWidgetCardsWithMaxRender[tagValue] = {
+        data: [],
+        maxRenderList: maxRenderValue,
+      };
+    }
+
+    // Determine how many items to push into the render list based on criteria
+    let howManyToPushIn: number = widgets.length + 1; // If no criteria, return all widgets
+    const shouldLimitWidgetsToMax = showMaxWidgetsPerTag[tagValue];
+
+    if (shouldLimitWidgetsToMax) {
+      howManyToPushIn = maxRenderValue as number;
+    }
+
+    // Push widgets into render list based on the determined count
+    widgets.forEach((widget, index) => {
+      if (index < howManyToPushIn) {
+        groupedWidgetCardsWithMaxRender[tagValue].data.push(widget);
+      }
+    });
+  });
+
+  return groupedWidgetCardsWithMaxRender;
+};

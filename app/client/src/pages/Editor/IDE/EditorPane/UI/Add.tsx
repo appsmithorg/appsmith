@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 import history from "utils/history";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import WidgetSidebarWithTags from "pages/Editor/widgetSidebar/WidgetSidebarWithTags";
+import WidgetSidebarWithTags from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import { widgetListURL } from "@appsmith/RouteBuilder";
 import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
