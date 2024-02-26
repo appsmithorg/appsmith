@@ -14,7 +14,7 @@ const generateTestLogString = () => {
   return logString;
 };
 
-describe("Debugger logs", function () {
+describe("Debugger logs", { tags: ["@tag.Debugger"] }, function () {
   this.beforeEach(() => {
     logString = generateTestLogString();
   });
