@@ -21,7 +21,7 @@ export class HomePage {
   private _optionsIcon = ".t--options-icon";
   public _newIcon = ".createnew";
   private _renameWorkspaceContainer = ".editable-text-container";
-  private _wsrenamePencilIcon = "input[name='pencil-line']";
+  private _wsrenamePencilIcon = "span[name='pencil-line']";
   private _renameWorkspaceInput = ".t--workspace-rename-input input";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
