@@ -31,7 +31,6 @@ describe(
       debuggerHelper.ClicklogEntityLink();
 
       agHelper.AssertElementVisibility(apiPage._nextCursorValue);
-      debuggerHelper.CloseBottomBar();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Api1",
         entityType: entityItems.Api,
@@ -54,7 +53,6 @@ describe(
       debuggerHelper.ClicklogEntityLink();
 
       agHelper.AssertElementVisibility(apiPage._bodyValue(0));
-      debuggerHelper.CloseBottomBar();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Api2",
         entityType: entityItems.Api,
@@ -73,7 +71,6 @@ describe(
       debuggerHelper.ClicklogEntityLink(true);
 
       agHelper.AssertElementVisibility(dataSources._queryTimeout);
-      debuggerHelper.CloseBottomBar();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Api3",
         entityType: entityItems.Api,

@@ -49,17 +49,13 @@ const getConfig = (focusInfo: FocusEntityInfo): Config => {
       }
       return queryDebuggerConfig;
     case FocusEntity.JS_OBJECT:
-      if (focusInfo.params.apiId) {
-        return {
-          set: setJsPaneDebuggerState,
-          get: getJsPaneDebuggerState,
-        };
-      }
-      break;
+      return {
+        set: setJsPaneDebuggerState,
+        get: getJsPaneDebuggerState,
+      };
     default:
       return canvasDebuggerConfig;
   }
-  return canvasDebuggerConfig;
 };
 
 const useDebuggerTriggerClick = () => {
