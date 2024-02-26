@@ -177,7 +177,7 @@ export class HomePage {
 
   public OpenWorkspaceOptions(workspaceName: string, networkCallAlias = true) {
     this.SelectWorkspace(workspaceName, networkCallAlias);
-    this.agHelper.GetElement(this._optionsIcon).click({ force: true });
+    this.agHelper.GetNClick(this._optionsIcon, 0, true);
   }
 
   public OpenWorkspaceSettings(workspaceName: string) {
