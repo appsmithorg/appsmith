@@ -41,7 +41,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     /**
-     * Fetch minmal information from *a* user document in the database, limit to two documents, filter anonymousUser
+     * Fetch minimal information from *a* user document in the database, limit to two documents, filter anonymousUser
      * If no documents left return true otherwise return false.
      *
      * @return Boolean, indicated where there exists at least one user in the system or not.
@@ -49,7 +49,6 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     @Override
     public Mono<Boolean> isUsersEmpty() {
         return queryBuilder()
-                .criteria(bridge())
                 .fields(User.Fields.email)
                 // Basically limit to system generated emails plus 1 more.
                 .limit(getSystemGeneratedUserEmails().size() + 1)
