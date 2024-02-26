@@ -111,10 +111,9 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     });
     return entities;
   },
-  *getEntitiesForStore(path: string, currentPath: string) {
+  *getEntitiesForStore(path: string) {
     const branch: string | undefined = yield select(getCurrentGitBranch);
     const entities: Array<FocusPath> = [];
-    const currentFocusEntityInfo = identifyEntityFromPath(currentPath);
     const prevFocusEntityInfo = identifyEntityFromPath(path);
 
     // If the entity has a parent defined, store the state of the parent as well.
@@ -141,10 +140,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     // Does not matter if still in editor or not
     if (
       prevFocusEntityInfo.appState === EditorState.EDITOR &&
-      prevFocusEntityInfo.entity !== FocusEntity.NONE &&
-      (prevFocusEntityInfo.entity !== currentFocusEntityInfo.entity ||
-        prevFocusEntityInfo.params.pageId !==
-          currentFocusEntityInfo.params.pageId)
+      prevFocusEntityInfo.entity !== FocusEntity.NONE
     ) {
       entities.push({
         entityInfo: {
