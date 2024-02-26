@@ -560,9 +560,25 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
             if (value instanceof Path<?> valuePath) {
                 value = root.get(fieldName(valuePath));
-            }
+                cu.set(root.get((String) key), value);
 
-            cu.set(root.get((String) key), value);
+            } else if (value instanceof Collection<?> collection) {
+                try {
+                    // The type witness is needed here to pick the right overloaded signature of the set method.
+                    // Without it, we see a compile error.
+                    cu.<Object>set(
+                            root.get((String) key),
+                            cb.function(
+                                    "json",
+                                    Object.class,
+                                    cb.literal(new ObjectMapper().writeValueAsString(collection))));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+
+            } else {
+                cu.set(root.get((String) key), value);
+            }
         }
 
         return em.createQuery(cu).executeUpdate();
