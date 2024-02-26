@@ -48,7 +48,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
-import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -478,7 +477,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         });
     }
 
-    private Mono<UpdateResult> forkThemes(Application srcApplication, Application destApplication) {
+    private Mono<Integer> forkThemes(Application srcApplication, Application destApplication) {
         return Mono.zip(
                         themeService.cloneThemeToApplication(srcApplication.getEditModeThemeId(), destApplication),
                         themeService.cloneThemeToApplication(srcApplication.getPublishedModeThemeId(), destApplication))
