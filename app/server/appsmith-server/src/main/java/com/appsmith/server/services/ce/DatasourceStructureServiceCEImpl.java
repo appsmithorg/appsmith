@@ -3,7 +3,6 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.server.repositories.DatasourceStorageStructureRepository;
-import com.mongodb.client.result.UpdateResult;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -26,7 +25,7 @@ public class DatasourceStructureServiceCEImpl implements DatasourceStructureServ
     }
 
     @Override
-    public Mono<UpdateResult> saveStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
+    public Mono<Integer> saveStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
         return repository.updateStructure(datasourceId, environmentId, structure);
     }
 }

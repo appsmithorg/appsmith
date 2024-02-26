@@ -14,7 +14,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
-import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
@@ -189,7 +188,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 });
     }
 
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(
+    public Mono<Integer> updateFieldByDefaultIdAndBranchName(
             String defaultId,
             String defaultIdPath,
             Map<String, Object> fieldNameValueMap,
@@ -316,7 +315,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         this.genericDomain));
     }
 
-    public Mono<UpdateResult> updateAllExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
+    public Mono<Integer> updateAllExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
         Objects.requireNonNull(params.getCriteria());
 
         if (!isEmpty(params.getFields())) {
@@ -324,17 +323,19 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "fields"));
         }
 
-        return tryGetPermissionGroups(params).flatMap(permissionGroups -> {
-            final Query query =
-                    createQueryWithPermission(params.getCriteria(), null, permissionGroups, params.getPermission());
-            if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
-                return mongoOperations.updateMulti(query, update, genericDomain);
-            } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
-                return mongoOperations.updateFirst(query, update, genericDomain);
-            } else {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-            }
-        });
+        return tryGetPermissionGroups(params)
+                .flatMap(permissionGroups -> {
+                    final Query query = createQueryWithPermission(
+                            params.getCriteria(), null, permissionGroups, params.getPermission());
+                    if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
+                        return mongoOperations.updateMulti(query, update, genericDomain);
+                    } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
+                        return mongoOperations.updateFirst(query, update, genericDomain);
+                    } else {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
+                    }
+                })
+                .map(updateResult -> Math.toIntExact(updateResult.getModifiedCount()));
     }
 
     private Mono<Set<String>> tryGetPermissionGroups(QueryAllParams<T> params) {

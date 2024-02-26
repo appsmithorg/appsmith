@@ -1,28 +1,21 @@
 import React from "react";
 import CreateNewAppFromTemplatesModal from ".";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 interface Props {
   currentWorkspaceId: string;
-  handleClose: () => void;
   isOpen: boolean;
+  onModalClose: () => void;
 }
 
 const CreateNewAppFromTemplatesWrapper = ({
   currentWorkspaceId,
-  handleClose,
   isOpen,
+  onModalClose,
 }: Props) => {
-  const isCreateAppFromTemplatesEnabled = useFeatureFlag(
-    "release_show_create_app_from_templates_enabled",
-  );
-
-  if (!isCreateAppFromTemplatesEnabled) return null;
-
   return (
     <CreateNewAppFromTemplatesModal
       currentWorkSpaceId={currentWorkspaceId}
-      handleClose={handleClose}
+      handleClose={onModalClose}
       isOpen={isOpen}
     />
   );
