@@ -19,12 +19,18 @@ import log from "loglevel";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   const { entity, id } = entityInfo;
-  if (entity === FocusEntity.JS_OBJECT) {
+  if (
+    entity === FocusEntity.JS_OBJECT ||
+    entity === FocusEntity.JS_MODULE_INSTANCE
+  ) {
     const jsTabs: string[] = yield select(getJSTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, jsTabs);
     yield put(setJSTabs(newTabs));
   }
-  if (entity === FocusEntity.QUERY) {
+  if (
+    entity === FocusEntity.QUERY ||
+    entity === FocusEntity.QUERY_MODULE_INSTANCE
+  ) {
     const queryTabs: string[] = yield select(getQueryTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, queryTabs);
     yield put(setQueryTabs(newTabs));
@@ -46,12 +52,12 @@ export function* handleJSEntityRedirect(deletedId: string) {
   const redirectAction = getNextEntityAfterDelete(deletedId, allJsItems);
   switch (redirectAction.action) {
     case RedirectAction.CREATE:
-      history.push(jsCollectionAddURL({}));
+      history.push(jsCollectionAddURL({ pageId }));
       break;
     case RedirectAction.ITEM:
       if (!redirectAction.payload) {
         log.error("Redirect item does not have a payload");
-        history.push(jsCollectionAddURL({}));
+        history.push(jsCollectionAddURL({ pageId }));
         break;
       }
       const { payload } = redirectAction;
@@ -66,11 +72,11 @@ export function* handleQueryEntityRedirect(deletedId: string) {
   const redirectAction = getNextEntityAfterDelete(deletedId, allQueryItems);
   switch (redirectAction.action) {
     case RedirectAction.CREATE:
-      history.push(queryAddURL({}));
+      history.push(queryAddURL({ pageId }));
       break;
     case RedirectAction.ITEM:
       if (!redirectAction.payload) {
-        history.push(queryAddURL({}));
+        history.push(queryAddURL({ pageId }));
         log.error("Redirect item does not have a payload");
         break;
       }

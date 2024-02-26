@@ -6,6 +6,7 @@ import {
   propertyPaneStyleConfig,
 } from "./propertyPaneConfig";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -34,6 +35,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     return {
       name: "Input",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.INPUTS],
       needsMeta: true,
       searchTags: ["form", "text input", "number", "textarea"],
