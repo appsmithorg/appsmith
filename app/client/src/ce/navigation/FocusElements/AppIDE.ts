@@ -257,7 +257,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.SelectedSegment,
       selector: getSelectedSegment,
       setter: setSelectedSegment,
-      persist: true,
     },
     {
       type: FocusElementConfigType.Redux,
