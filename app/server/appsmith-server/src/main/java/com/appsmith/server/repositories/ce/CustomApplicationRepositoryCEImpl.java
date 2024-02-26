@@ -9,7 +9,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -143,12 +142,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         // Since this can only happen during edit, the page in question is unpublished page. Hence the update should
         // be to pages and not publishedPages
 
-        final Mono<UpdateResult> setAllAsNonDefaultMono = queryBuilder()
+        final Mono<Integer> setAllAsNonDefaultMono = queryBuilder()
                 .byId(applicationId)
                 .criteria(bridge().isTrue("pages.isDefault"))
                 .updateFirst(new Update().set("pages.$.isDefault", false));
 
-        final Mono<UpdateResult> setDefaultMono = queryBuilder()
+        final Mono<Integer> setDefaultMono = queryBuilder()
                 .byId(applicationId)
                 .criteria(bridge().equal("pages._id", new ObjectId(pageId)))
                 .updateFirst(new Update().set("pages.$.isDefault", true));
