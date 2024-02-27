@@ -1,6 +1,7 @@
 package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
@@ -599,9 +600,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Map<String, Object> getAnalyticsProperties(NewAction savedAction) {
+    public Map<String, Object> getAnalyticsProperties(NewAction savedAction, AppsmithEventContext eventContext) {
         ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
-        Map<String, Object> analyticsProperties = super.getAnalyticsProperties(savedAction);
+        Map<String, Object> analyticsProperties = super.getAnalyticsProperties(savedAction, eventContext);
         analyticsProperties.put(
                 FieldName.WORKFLOW_ID,
                 ObjectUtils.defaultIfNull(
