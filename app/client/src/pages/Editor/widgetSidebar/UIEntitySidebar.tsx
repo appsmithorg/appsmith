@@ -29,6 +29,8 @@ import SeeMoreButton from "./SeeMoreButton";
 import WidgetCard from "./WidgetCard";
 import { useUIExplorerItems } from "./hooks";
 import styled from "styled-components";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const LoadingWrapper = styled.div`
   display: flex;
@@ -54,6 +56,10 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
+
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
 
   const searchWildcards = useMemo(
     () =>
@@ -152,8 +158,13 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
             const cardsForThisTag: WidgetCardWithMaxRenderList =
               filteredCards[tag as WidgetTags];
 
+            const showBuildingBlocksLoading =
+              isLoadingTemplates &&
+              tag === WIDGET_TAGS.BUILDING_BLOCKS &&
+              releaseDragDropBuildingBlocks;
+
             /* Show loading indicator only for Building Blocks */
-            if (isLoadingTemplates && tag === WIDGET_TAGS.BUILDING_BLOCKS) {
+            if (showBuildingBlocksLoading) {
               return (
                 <LoadingWrapper key={tag}>
                   <CollapsibleHeader arrowPosition="start">
