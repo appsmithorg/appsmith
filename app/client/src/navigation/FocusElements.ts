@@ -39,6 +39,7 @@ interface ConfigOther {
   derive a default value */
   defaultValue?: unknown | ((state: AppState) => unknown);
   subTypes?: Record<string, { defaultValue: unknown }>;
+  persist?: boolean;
 }
 
 type ConfigRedux = {

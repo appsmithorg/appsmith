@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Bridge extends Criteria {
@@ -24,6 +25,11 @@ public class Bridge extends Criteria {
 
     public Bridge equal(@NonNull String key, @NonNull ObjectId value) {
         criteriaList.add(Criteria.where(key).is(value));
+        return this;
+    }
+
+    public Bridge in(@NonNull String key, @NonNull Collection<String> value) {
+        criteriaList.add(Criteria.where(key).in(value));
         return this;
     }
 
@@ -47,6 +53,11 @@ public class Bridge extends Criteria {
 
     @Override
     public Document getCriteriaObject() {
+        if (criteriaList.isEmpty()) {
+            throw new UnsupportedOperationException(
+                    "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
+        }
+
         return new Criteria().andOperator(criteriaList.toArray(new Criteria[0])).getCriteriaObject();
     }
 }

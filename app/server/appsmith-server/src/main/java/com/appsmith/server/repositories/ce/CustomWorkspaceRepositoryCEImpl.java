@@ -55,7 +55,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Workspace> findAllWorkspaces() {
-        return mongoOperations.find(new Query(), Workspace.class);
+        return queryBuilder().all();
     }
 
     @Override
