@@ -10291,25 +10291,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-hooks@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "@testing-library/react-hooks@npm:7.0.2"
+"@testing-library/react-hooks@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "@testing-library/react-hooks@npm:8.0.1"
   dependencies:
     "@babel/runtime": ^7.12.5
-    "@types/react": ">=16.9.0"
-    "@types/react-dom": ">=16.9.0"
-    "@types/react-test-renderer": ">=16.9.0"
     react-error-boundary: ^3.1.0
   peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-    react-test-renderer: ">=16.9.0"
+    "@types/react": ^16.9.0 || ^17.0.0
+    react: ^16.9.0 || ^17.0.0
+    react-dom: ^16.9.0 || ^17.0.0
+    react-test-renderer: ^16.9.0 || ^17.0.0
   peerDependenciesMeta:
+    "@types/react":
+      optional: true
     react-dom:
       optional: true
     react-test-renderer:
       optional: true
-  checksum: 27c6169b5c9832bd02dcea232e6a0a3cd8d4504e13ecb49d57eb5ab6bea5e2f1bff65f3102068b7e57eec3cbd671326dc0b277335014b0edfbdedf11a1fe6db5
+  checksum: 7fe44352e920deb5cb1876f80d64e48615232072c9d5382f1e0284b3aab46bb1c659a040b774c45cdf084a5257b8fe463f7e08695ad8480d8a15635d4d3d1f6d
   languageName: node
   linkType: hard
 
@@ -11186,7 +11186,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:*, @types/react-dom@npm:>=16.9.0":
+"@types/react-dom@npm:*":
   version: 18.2.6
   resolution: "@types/react-dom@npm:18.2.6"
   dependencies:
@@ -11358,7 +11358,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-test-renderer@npm:>=16.9.0, @types/react-test-renderer@npm:^17.0.1":
+"@types/react-test-renderer@npm:^17.0.1":
   version: 17.0.1
   resolution: "@types/react-test-renderer@npm:17.0.1"
   dependencies:
@@ -13105,7 +13105,7 @@ __metadata:
     "@tanstack/virtual-core": ^3.0.0-beta.18
     "@testing-library/jest-dom": 5.16.1
     "@testing-library/react": 12.1.2
-    "@testing-library/react-hooks": ^7.0.2
+    "@testing-library/react-hooks": ^8.0.1
     "@testing-library/user-event": 13.5.0
     "@tinymce/tinymce-react": ^3.13.0
     "@types/babel__standalone": ^7.1.7
