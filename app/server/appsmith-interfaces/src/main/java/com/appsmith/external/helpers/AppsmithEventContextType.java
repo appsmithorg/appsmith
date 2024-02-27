@@ -2,5 +2,6 @@ package com.appsmith.external.helpers;
 
 public enum AppsmithEventContextType {
     DEFAULT,
-    CLONE_PAGE;
+    CLONE_PAGE,
+    GENERATE_PAGE;
 }

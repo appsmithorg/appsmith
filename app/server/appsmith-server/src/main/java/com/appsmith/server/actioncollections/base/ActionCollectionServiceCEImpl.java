@@ -697,7 +697,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         newActionService.updateDefaultResourcesInAction(newAction);
 
         Mono<NewAction> sendAnalyticsMono =
-                analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction));
+                analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction, null));
 
         return newActionService
                 .validateAndSaveActionToRepository(newAction)
