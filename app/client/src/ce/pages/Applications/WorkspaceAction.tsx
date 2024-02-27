@@ -47,8 +47,9 @@ function WorkspaceAction({
   const isCreatingApplication = Boolean(
     useSelector(getIsCreatingApplicationByWorkspaceId(workspace.id)),
   );
-  const isCreateAppFromTemplatesEnabled = true;
-  useFeatureFlag(FEATURE_FLAG.release_show_create_app_from_templates_enabled);
+  const isCreateAppFromTemplatesEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_create_app_from_templates_enabled,
+  );
 
   const openActionMenu = useCallback(() => {
     setIsActionMenuOpen(true);
