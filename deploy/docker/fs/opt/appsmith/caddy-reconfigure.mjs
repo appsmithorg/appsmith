@@ -38,6 +38,7 @@ const parts = []
 
 parts.push(`
 {
+  debug
   admin 127.0.0.1:2019
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
@@ -155,7 +156,10 @@ if (CUSTOM_DOMAIN !== "") {
   `)
 }
 
-finalizeIndexHtml()
+if (!process.argv.includes("--no-finalize-index-html")) {
+  finalizeIndexHtml()
+}
+
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
 spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
@@ -167,7 +171,7 @@ function finalizeIndexHtml() {
     info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
   } catch(e) {
     // info will be empty, that's okay.
-    console.error("Error reading info.json", e)
+    console.error("Error reading info.json", e.message)
   }
 
   const extraEnv = {
@@ -177,7 +181,7 @@ function finalizeIndexHtml() {
   }
 
   const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replace(
-    /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
+    /\b\{\{env\s+"(APPSMITH_[A-Z0-9_]+)"\}\}\b/g,
     (_, name) => (process.env[name] || extraEnv[name] || "")
   )
 
