@@ -110,7 +110,13 @@ export function ModuleJSEditorContextMenu({
   if (isDeletePermitted) options.push(deleteOption);
 
   return (
-    <JSEditorContextMenu className="t--more-action-menu" options={options} />
+    <JSEditorContextMenu
+      className="t--more-action-menu"
+      onMenuClose={() => {
+        setConfirmDelete(false);
+      }}
+      options={options}
+    />
   );
 }
 
