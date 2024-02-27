@@ -16,21 +16,15 @@ import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
 public class UserServiceImpl extends UserServiceCECompatibleImpl implements UserService {
 
     public UserServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             UserRepository repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
@@ -54,10 +48,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 workspaceService,
                 analyticsService,

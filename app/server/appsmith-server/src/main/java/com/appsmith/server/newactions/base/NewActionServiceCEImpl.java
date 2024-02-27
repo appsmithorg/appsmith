@@ -62,8 +62,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
@@ -72,7 +70,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.time.Instant;
@@ -135,10 +132,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
 
     public NewActionServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             NewActionRepository repository,
             AnalyticsService analyticsService,
             DatasourceService datasourceService,
@@ -161,7 +155,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             DefaultResourcesService<NewAction> defaultResourcesService,
             DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
