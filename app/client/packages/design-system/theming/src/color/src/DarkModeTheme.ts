@@ -1152,17 +1152,23 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdElevation1() {
     const color = this.bdNeutral.clone();
 
+    color.oklch.l -= 0.55;
+
     return color;
   }
 
   private get bdElevation2() {
-    const color = this.bdNeutral.clone();
+    const color = this.bdElevation1.clone();
+
+    color.oklch.l += 0.015;
 
     return color;
   }
 
   private get bdElevation3() {
-    const color = this.bdNeutral.clone();
+    const color = this.bdElevation2.clone();
+
+    color.oklch.l += 0.035;
 
     return color;
   }
