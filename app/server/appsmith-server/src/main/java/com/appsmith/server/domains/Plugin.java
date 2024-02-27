@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 @ToString
 @NoArgsConstructor
 @Document
+@FieldNameConstants
 public class Plugin extends BaseDomain {
 
     public enum ResponseType {
@@ -115,4 +117,6 @@ public class Plugin extends BaseDomain {
     // Config to set if the plugin has any dependency on cloud-services
     @JsonView(Views.Internal.class)
     Boolean isDependentOnCS;
+
+    public static class Fields extends BaseDomain.Fields {}
 }
