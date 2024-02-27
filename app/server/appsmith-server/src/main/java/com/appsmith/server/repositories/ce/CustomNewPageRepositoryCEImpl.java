@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -189,18 +188,14 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<String> getNameByPageId(String pageId, boolean isPublishedName) {
-        return mongoOperations
-                .query(NewPage.class)
-                .matching(Query.query(Criteria.where(NewPage.Fields.id).is(pageId)))
-                .one()
-                .map(p -> {
-                    PageDTO page = (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage());
-                    if (page != null) {
-                        return page.getName();
-                    }
-                    // If the page hasn't been published, just send the unpublished page name
-                    return p.getUnpublishedPage().getName();
-                });
+        return queryBuilder().byId(pageId).one().map(p -> {
+            PageDTO page = (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage());
+            if (page != null) {
+                return page.getName();
+            }
+            // If the page hasn't been published, just send the unpublished page name
+            return p.getUnpublishedPage().getName();
+        });
     }
 
     @Override
