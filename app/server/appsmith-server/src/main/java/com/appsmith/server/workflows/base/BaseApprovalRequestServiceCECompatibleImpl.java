@@ -19,6 +19,6 @@ public class BaseApprovalRequestServiceCECompatibleImpl
             ReactiveMongoTemplate reactiveMongoTemplate,
             ApprovalRequestRepository repository,
             AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
     }
 }

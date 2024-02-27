@@ -57,7 +57,7 @@ public class EnvironmentServiceCECompatibleImpl extends BaseService<EnvironmentR
             EnvironmentRepository repository,
             AnalyticsService analyticsService,
             @Lazy WorkspaceService workspaceService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
     }
 

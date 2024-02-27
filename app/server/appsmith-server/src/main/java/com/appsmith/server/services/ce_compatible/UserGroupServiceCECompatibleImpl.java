@@ -35,7 +35,7 @@ public class UserGroupServiceCECompatibleImpl extends BaseService<UserGroupRepos
             ReactiveMongoTemplate reactiveMongoTemplate,
             UserGroupRepository repository,
             AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
     }
 
     @Override

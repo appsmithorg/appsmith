@@ -18,6 +18,6 @@ public class BaseWorkflowServiceCECompatibleImpl extends BaseService<WorkflowRep
             ReactiveMongoTemplate reactiveMongoTemplate,
             WorkflowRepository repository,
             AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
     }
 }

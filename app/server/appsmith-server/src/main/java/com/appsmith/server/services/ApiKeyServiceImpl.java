@@ -41,7 +41,7 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
             ApiKeyRepository repository,
             UserRepository userRepository,
             EncryptionService encryptionService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.tenantService = tenantService;
         this.userRepository = userRepository;
         this.encryptionService = encryptionService;
