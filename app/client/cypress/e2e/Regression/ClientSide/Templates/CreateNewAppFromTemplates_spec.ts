@@ -50,6 +50,8 @@ describe(
 
       agHelper.AssertElementVisibility(reconnectDatasourceLocators.Modal, true);
       agHelper.AssertElementAbsence(homePage._createAppFromTemplatesDialog);
+      agHelper.GetNClick(reconnectDatasourceLocators.SkipToAppBtn, 0, true);
+      agHelper.WaitUntilEleDisappear(reconnectDatasourceLocators.SkipToAppBtn);
     });
   },
 );
