@@ -29,15 +29,15 @@ export const useAnvilWidgetClick = (
   );
 
   // Callback function for handling click events on AnvilFlexComponent in Edit mode
-  const onClickCaptureFn = useCallback(
-    function () {
+  const onClickCaptureFn: React.MouseEventHandler = useCallback(
+    function (e) {
       // Dispatch a custom event when the Anvil widget is clicked and focused
       if (ref.current && allowSelectionRef.current) {
         ref.current.dispatchEvent(
           new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
             bubbles: true,
             cancelable: true,
-            detail: { widgetId: widgetId },
+            detail: { widgetId, clickEvent: e },
           }),
         );
       }

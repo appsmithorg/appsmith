@@ -42,7 +42,7 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
         element?.dispatchEvent(
           new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
             bubbles: true,
-            detail: { widgetId: widgetId },
+            detail: { widgetId, clickEvent: e },
           }),
         );
       }
