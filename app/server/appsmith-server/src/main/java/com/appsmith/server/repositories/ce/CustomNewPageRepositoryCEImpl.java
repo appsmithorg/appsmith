@@ -4,7 +4,6 @@ import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -67,9 +66,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria applicationIdCriteria = where(NewPage.Fields.applicationId).is(applicationId);
         // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist.
         // To handle this, only fetch non-deleted pages
-        Criteria activeEditModeCriteria = where(
-                        NewPage.Fields.unpublishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
-                .is(null);
+        Criteria activeEditModeCriteria =
+                where(NewPage.Fields.unpublishedPage_deletedAt).is(null);
         return queryBuilder()
                 .criteria(applicationIdCriteria, activeEditModeCriteria)
                 .permission(aclPermission)
@@ -87,15 +85,14 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         criteria.add(idCriterion);
 
         if (Boolean.TRUE.equals(viewMode)) {
-            layoutsKey = NewPage.Fields.publishedPage + "." + fieldName(QNewPage.newPage.publishedPage.layouts);
+            layoutsKey = NewPage.Fields.publishedPage_layouts;
         } else {
-            layoutsKey = NewPage.Fields.unpublishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.layouts);
+            layoutsKey = NewPage.Fields.unpublishedPage_layouts;
 
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
             // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriterion = where(NewPage.Fields.unpublishedPage + "."
-                            + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
-                    .is(null);
+            Criteria deletedCriterion =
+                    where(NewPage.Fields.unpublishedPage_deletedAt).is(null);
             criteria.add(deletedCriterion);
         }
         layoutsIdKey = layoutsKey + "." + FieldName.ID;
@@ -117,9 +114,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         if (Boolean.FALSE.equals(viewMode)) {
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
             // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriterion = where(NewPage.Fields.unpublishedPage + "."
-                            + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
-                    .is(null);
+            Criteria deletedCriterion =
+                    where(NewPage.Fields.unpublishedPage_deletedAt).is(null);
             criteria.add(deletedCriterion);
         }
 
@@ -141,9 +137,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         if (Boolean.FALSE.equals(viewMode)) {
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
             // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriteria = where(NewPage.Fields.unpublishedPage + "."
-                            + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
-                    .is(null);
+            Criteria deletedCriteria =
+                    where(NewPage.Fields.unpublishedPage_deletedAt).is(null);
             criteria.add(deletedCriteria);
         }
 
@@ -152,20 +147,20 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
-        ArrayList<String> includedFields = new ArrayList<>(List.of(
+        List<String> includedFields = List.of(
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
                 NewPage.Fields.policies,
-                (NewPage.Fields.unpublishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.name)),
-                (NewPage.Fields.unpublishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.icon)),
-                (NewPage.Fields.unpublishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.isHidden)),
-                (NewPage.Fields.unpublishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.slug)),
-                (NewPage.Fields.unpublishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.customSlug)),
-                (NewPage.Fields.publishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.name)),
-                (NewPage.Fields.publishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.icon)),
-                (NewPage.Fields.publishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.isHidden)),
-                (NewPage.Fields.publishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.slug)),
-                (NewPage.Fields.publishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.customSlug))));
+                NewPage.Fields.unpublishedPage_name,
+                NewPage.Fields.unpublishedPage_icon,
+                NewPage.Fields.unpublishedPage_isHidden,
+                NewPage.Fields.unpublishedPage_slug,
+                NewPage.Fields.unpublishedPage_customSlug,
+                NewPage.Fields.publishedPage_name,
+                NewPage.Fields.publishedPage_icon,
+                NewPage.Fields.publishedPage_isHidden,
+                NewPage.Fields.publishedPage_slug,
+                NewPage.Fields.publishedPage_customSlug);
 
         Criteria idsCriterion = where("id").in(ids);
 
@@ -180,9 +175,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         String nameKey;
 
         if (Boolean.TRUE.equals(viewMode)) {
-            nameKey = NewPage.Fields.publishedPage + "." + fieldName(QNewPage.newPage.publishedPage.name);
+            nameKey = NewPage.Fields.publishedPage_name;
         } else {
-            nameKey = NewPage.Fields.unpublishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.name);
+            nameKey = NewPage.Fields.unpublishedPage_name;
         }
         return where(nameKey).is(name);
     }
@@ -220,24 +215,15 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
         Criteria applicationIdCriteria = where(NewPage.Fields.applicationId).in(applicationIds);
-        String unpublishedSlugFieldPath = String.format(
-                "%s.%s", NewPage.Fields.unpublishedPage, fieldName(QNewPage.newPage.unpublishedPage.slug));
-        String unpublishedCustomSlugFieldPath = String.format(
-                "%s.%s", NewPage.Fields.unpublishedPage, fieldName(QNewPage.newPage.unpublishedPage.customSlug));
-        String publishedSlugFieldPath =
-                String.format("%s.%s", NewPage.Fields.publishedPage, fieldName(QNewPage.newPage.publishedPage.slug));
-        String publishedCustomSlugFieldPath = String.format(
-                "%s.%s", NewPage.Fields.publishedPage, fieldName(QNewPage.newPage.publishedPage.customSlug));
-        String applicationIdFieldPath = NewPage.Fields.applicationId;
 
         return queryBuilder()
                 .criteria(applicationIdCriteria)
                 .fields(
-                        unpublishedSlugFieldPath,
-                        unpublishedCustomSlugFieldPath,
-                        publishedSlugFieldPath,
-                        publishedCustomSlugFieldPath,
-                        applicationIdFieldPath)
+                        NewPage.Fields.unpublishedPage_slug,
+                        NewPage.Fields.unpublishedPage_customSlug,
+                        NewPage.Fields.publishedPage_slug,
+                        NewPage.Fields.publishedPage_customSlug,
+                        NewPage.Fields.applicationId)
                 .permission(aclPermission)
                 .all();
     }
