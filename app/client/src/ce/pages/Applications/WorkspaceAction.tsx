@@ -47,9 +47,8 @@ function WorkspaceAction({
   const isCreatingApplication = Boolean(
     useSelector(getIsCreatingApplicationByWorkspaceId(workspace.id)),
   );
-  const isCreateAppFromTemplatesEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_create_app_from_templates_enabled,
-  );
+  const isCreateAppFromTemplatesEnabled = true;
+  useFeatureFlag(FEATURE_FLAG.release_show_create_app_from_templates_enabled);
 
   const openActionMenu = useCallback(() => {
     setIsActionMenuOpen(true);
@@ -99,7 +98,7 @@ function WorkspaceAction({
         {<Divider className="!block mb-[2px]" />}
         {isCreateAppFromTemplatesEnabled && (
           <MenuItem
-            data-testid="t--workspace-action-start-from-template"
+            data-testid="t--workspace-action-create-app-from-template"
             disabled={!hasCreateNewApplicationPermission}
             onSelect={() => onStartFromTemplate(workspaceId)}
             startIcon="layout-2-line"
