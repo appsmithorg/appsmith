@@ -50,8 +50,8 @@ describe(
       agHelper.GetNClick("//h1[text()='Customer Messaging Tool']");
       agHelper.GetNClick(templates.locators._templateViewForkButton);
 
-      agHelper.AssertElementAbsence(homePage._createAppFromTemplatesDialog);
       agHelper.AssertElementVisibility(reconnectDatasourceLocators.Modal, true);
+      agHelper.AssertElementAbsence(homePage._createAppFromTemplatesDialog);
     });
   },
 );
