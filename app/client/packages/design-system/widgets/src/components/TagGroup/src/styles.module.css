@@ -23,7 +23,7 @@
   height: var(--sizing-5);
   color: var(--color-fg);
   background-color: var(--color-bg-neutral-subtle);
-  border-radius: var(--border-radius-1);
+  border-radius: var(--border-radius-elevation-3);
   padding: 0 var(--inner-spacing-1);
   outline: none;
   cursor: default;

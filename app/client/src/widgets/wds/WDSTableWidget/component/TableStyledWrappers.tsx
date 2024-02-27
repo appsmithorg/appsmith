@@ -54,7 +54,7 @@ export const TableWrapper = styled.div<{
   border-style: solid;
   border-width: ${({ borderWidth }) => `${borderWidth}px`};
   border-color: ${({ borderColor }) => borderColor};
-  border-radius: ${({ borderRadius }) => borderRadius};
+  border-radius: var(--border-radius-elevation-3);
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;
   display: flex;

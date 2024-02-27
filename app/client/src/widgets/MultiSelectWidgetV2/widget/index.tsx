@@ -48,6 +48,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -161,6 +162,9 @@ class MultiSelectWidget extends BaseWidget<
       ) {
         let modify;
 
+        const dynamicPropertyPathList: DynamicPath[] = [
+          ...(widget.dynamicPropertyPathList || []),
+        ];
         if (queryConfig.select) {
           modify = {
             sourceData: queryConfig.select.data,
@@ -172,10 +176,20 @@ class MultiSelectWidget extends BaseWidget<
             serverSideFiltering: true,
             onFilterUpdate: queryConfig.select.run,
           };
+
+          if (
+            !!MultiSelectWidget.getFeatureFlag(
+              FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
+            )
+          )
+            dynamicPropertyPathList.push({ key: "sourceData" });
         }
 
         return {
           modify,
+          dynamicUpdates: {
+            dynamicPropertyPathList,
+          },
         };
       },
     };
