@@ -30,4 +30,6 @@ export interface ButtonGroupItemComponentProps {
   iconAlign?: ButtonProps["iconPosition"];
   onClick?: string;
   itemType: "SEPARATOR" | "BUTTON";
+  buttonVariant?: ButtonProps["variant"];
+  buttonColor?: ButtonProps["color"];
 }

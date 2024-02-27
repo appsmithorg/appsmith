@@ -176,6 +176,10 @@
     min-inline-size: var(--sizing-9);
     block-size: var(--sizing-9);
   }
+
+  &[data-size="medium"]:not([data-icon-button]) {
+    min-inline-size: var(--sizing-14);
+  }
 }
 
 /**

@@ -2,16 +2,13 @@ import React, { forwardRef } from "react";
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef } from "@react-types/shared";
-import { Item, Menu, MenuList } from "../../Menu";
 import { useListState } from "@react-stately/list";
 
 import styles from "./styles.module.css";
-import type { ButtonGroupProps } from "../../../index";
-import { useActionGroup } from "./useActionGroup";
-import { IconButton } from "../../IconButton";
-import { ActionGroupItem } from "./ActionGroupItem";
+import type { ButtonGroupItemProps, ButtonGroupProps } from "./types";
+import { ButtonGroupItem } from "./ButtonGroupItem";
 
-const _ActionGroup = <T extends object>(
+const _ButtonGroup = <T extends object>(
   props: ButtonGroupProps<T>,
   ref: DOMRef<HTMLDivElement>,
 ) => {
@@ -28,35 +25,18 @@ const _ActionGroup = <T extends object>(
   } = props;
   const domRef = useDOMRef(ref);
   const state = useListState({ ...props, suppressTextValueWarning: true });
-  const { actionGroupProps, isMeasuring, visibleItems } = useActionGroup(
-    props,
-    state,
-    domRef,
-  );
 
-  let children = [...state.collection];
-  const menuChildren = children.slice(visibleItems);
-  children = children.slice(0, visibleItems);
-
-  const style = {
-    flexBasis: isMeasuring ? "100%" : undefined,
-    display: "flex",
-  };
+  const children = [...state.collection];
 
   return (
     <FocusScope>
-      <div
-        style={{
-          ...style,
-        }}
-      >
+      <div className={styles.container}>
         <div
-          className={styles.actionGroup}
+          className={styles.buttonGroup}
           data-density={Boolean(density) ? density : undefined}
           data-orientation={orientation}
           data-overflow={overflowMode}
           ref={domRef}
-          {...actionGroupProps}
           {...others}
         >
           {children.map((item) => {
@@ -65,12 +45,17 @@ const _ActionGroup = <T extends object>(
             }
 
             return (
-              <ActionGroupItem
-                color={color}
+              <ButtonGroupItem
+                color={
+                  (item.props.color as ButtonGroupItemProps<object>["color"]) ??
+                  color
+                }
                 icon={item.props.icon}
                 iconPosition={item.props.iconPosition}
                 isDisabled={
-                  Boolean(state.disabledKeys.has(item.key)) || isDisabled
+                  Boolean(state.disabledKeys.has(item.key)) ||
+                  Boolean(isDisabled) ||
+                  item.props.isDisabled
                 }
                 isLoading={item.props.isLoading}
                 item={item}
@@ -78,26 +63,18 @@ const _ActionGroup = <T extends object>(
                 onPress={() => onAction?.(item.key)}
                 size={Boolean(size) ? size : undefined}
                 state={state}
-                variant={variant}
+                variant={
+                  (item.props
+                    .variant as ButtonGroupItemProps<object>["variant"]) ??
+                  variant
+                }
               />
             );
           })}
-          {menuChildren?.length > 0 && (
-            <Menu onAction={onAction}>
-              <IconButton color={color} icon="dots" variant={variant} />
-              <MenuList>
-                {menuChildren.map((item) => (
-                  <Item isSeparator={item.props.isSeparator} key={item.key}>
-                    {item.rendered}
-                  </Item>
-                ))}
-              </MenuList>
-            </Menu>
-          )}
         </div>
       </div>
     </FocusScope>
   );
 };
 
-export const ActionGroup = forwardRef(_ActionGroup);
+export const ButtonGroup = forwardRef(_ButtonGroup);

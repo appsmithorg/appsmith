@@ -80,6 +80,7 @@ import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
 import { WDSModalWidget } from "./wds/WDSModalWidget";
 import { WDSStatBoxWidget } from "./wds/WDSStatBoxWidget";
 import { WDSKeyValueWidget } from "./wds/WDSKeyValueWidget";
+import { WDSInlineButtonGroupWidget } from "./wds/WDSIntlineButtonGroupWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -171,6 +172,7 @@ const WDSWidgets = [
   WDSModalWidget,
   WDSStatBoxWidget,
   WDSKeyValueWidget,
+  WDSInlineButtonGroupWidget,
 ];
 
 const Widgets = [

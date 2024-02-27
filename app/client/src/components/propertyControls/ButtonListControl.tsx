@@ -16,7 +16,7 @@ interface State {
 }
 
 class ButtonListControl extends BaseControl<
-  ControlProps & { allowSeparators?: boolean },
+  ControlProps & { allowSeparators?: boolean; allowSpatialGrouping?: boolean },
   State
 > {
   constructor(props: ControlProps) {
@@ -35,7 +35,31 @@ class ButtonListControl extends BaseControl<
     ) {
       this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
     }
+
+    if (
+      prevProps.widgetProperties.allowSpatialGrouping !==
+      this.props.widgetProperties.allowSpatialGrouping
+    ) {
+      this.onChangeSpatialGrouping(
+        this.props.widgetProperties.allowSpatialGrouping,
+      );
+    }
   }
+
+  onChangeSpatialGrouping = (isSelected: boolean) => {
+    if (isSelected) {
+      this.addOption({ isSeparator: true });
+    } else {
+      // remove existing separators
+      const menuItems = this.getMenuItems();
+
+      const updatedMenuItems = menuItems.filter(
+        (item: any) => item.itemType === "BUTTON",
+      );
+
+      this.updateItems(updatedMenuItems);
+    }
+  };
 
   getMenuItems = () => {
     const menuItems: Array<{
@@ -68,6 +92,7 @@ class ButtonListControl extends BaseControl<
   onEdit = (index: number) => {
     const menuItems = this.getMenuItems();
     const targetMenuItem = menuItems[index];
+
     this.props.openNextPanel({
       index,
       ...targetMenuItem,
@@ -76,6 +101,10 @@ class ButtonListControl extends BaseControl<
   };
 
   render() {
+    const hasSeparator = this.getMenuItems().some(
+      (item: any) => item.itemType === "SEPARATOR",
+    );
+
     return (
       <div className="flex flex-col gap-1">
         <DraggableListControl
@@ -99,8 +128,9 @@ class ButtonListControl extends BaseControl<
           updateOption={this.updateOption}
         />
 
-        <Flex justifyContent="end">
-          {this.props.allowSeparators && (
+        <Flex gap="spaces-3" justifyContent="end">
+          {(this.props.allowSeparators ||
+            (this.props.allowSpatialGrouping && !hasSeparator)) && (
             <Button
               className="self-end"
               kind="tertiary"
@@ -185,11 +215,12 @@ class ButtonListControl extends BaseControl<
         isDisabled: false,
         itemType: isSeparator ? "SEPARATOR" : "BUTTON",
         isVisible: true,
+        buttonVariant: "filled",
       },
     };
 
     if (this.props.widgetProperties.type === "BUTTON_GROUP_WIDGET") {
-      /**
+      /**c
        * These properties are required for "BUTTON_GROUP_WIDGET" but not for
        * "WDS_BUTTON_GROUP_WIDGET"
        */
@@ -205,6 +236,21 @@ class ButtonListControl extends BaseControl<
         ...groupButtons[newGroupButtonId],
         ...optionalButtonGroupItemProperties,
       };
+    }
+
+    // if the widget is a WDS_BUTTON_GROUP_WIDGET, and button already have filled button variant in groupButtons,
+    // then we should add a secondary button ( outlined button ) instead of simple button
+    if (this.props.widgetProperties.type === "WDS_INLINE_BUTTON_GROUP_WIDGET") {
+      const filledButtonVariant = groupButtonsArray.find(
+        (groupButton: any) => groupButton.buttonVariant === "filled",
+      );
+
+      if (filledButtonVariant) {
+        groupButtons[newGroupButtonId] = {
+          ...groupButtons[newGroupButtonId],
+          buttonVariant: "outlined",
+        };
+      }
     }
 
     this.updateProperty(this.props.propertyName, groupButtons);
