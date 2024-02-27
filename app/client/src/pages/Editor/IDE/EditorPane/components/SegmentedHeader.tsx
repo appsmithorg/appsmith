@@ -79,7 +79,9 @@ const SegmentedHeader = () => {
           startIcon="add-line"
         />
       ) : null}
-      {isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen ? (
+      {isSideBySideEnabled &&
+      editorMode === EditorViewMode.SplitScreen &&
+      segment !== EditorEntityTab.UI ? (
         <Button
           id="editor-mode-maximize"
           isIconButton

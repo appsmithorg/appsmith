@@ -19,6 +19,8 @@ const anvilWidgetStyleProps: CSSProperties = {
   // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
   overflow: "hidden",
   zIndex: Layers.positionedWidget,
+  // add transition ease-in animation when there is a flexgrow value change
+  transition: "flex-grow 0.1s ease-in",
 };
 
 /**

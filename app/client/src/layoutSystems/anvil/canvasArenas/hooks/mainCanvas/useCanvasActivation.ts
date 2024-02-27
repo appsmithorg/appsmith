@@ -13,6 +13,7 @@ import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 
 // Z-Index values for activated and deactivated states
 export const AnvilCanvasZIndex = {
+  // we can decrease the z-index once we are able to provide fix for the issue #28471
   activated: Indices.Layer10.toString(),
   deactivated: "",
 };

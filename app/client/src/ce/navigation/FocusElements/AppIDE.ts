@@ -91,9 +91,8 @@ import {
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
-import { getIDETabs } from "selectors/ideSelectors";
-import { setIDETabs } from "actions/ideActions";
-import { IDETabsDefaultValue } from "reducers/uiReducers/ideReducer";
+import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
+import { setJSTabs, setQueryTabs } from "actions/ideActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
@@ -250,6 +249,14 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
   ],
   [FocusEntity.QUERY_LIST]: [
     {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.IDETabs,
+      selector: getQueryTabs,
+      setter: setQueryTabs,
+      defaultValue: [],
+      persist: true,
+    },
+    {
       type: FocusElementConfigType.URL,
       name: FocusElement.SelectedQuery,
       selector: identifyEntityFromPath,
@@ -264,6 +271,14 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       selector: identifyEntityFromPath,
       setter: setSelectedJSObject,
       defaultValue: getFirstJSObject,
+    },
+    {
+      type: FocusElementConfigType.Redux,
+      name: FocusElement.IDETabs,
+      selector: getJSTabs,
+      setter: setJSTabs,
+      defaultValue: [],
+      persist: true,
     },
   ],
   [FocusEntity.WIDGET_LIST]: [
@@ -286,13 +301,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.SelectedSegment,
       selector: getSelectedSegment,
       setter: setSelectedSegment,
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.IDETabs,
-      selector: getIDETabs,
-      setter: setIDETabs,
-      defaultValue: IDETabsDefaultValue,
     },
     {
       type: FocusElementConfigType.Redux,
