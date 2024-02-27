@@ -27,14 +27,11 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -55,10 +52,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     private final PolicyGenerator policyGenerator;
 
     public ActionCollectionServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ActionCollectionRepository repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
@@ -70,10 +64,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             DefaultResourcesService<ActionCollection> defaultResourcesService,
             ModuleMetadataService moduleMetadataService) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 newActionService,

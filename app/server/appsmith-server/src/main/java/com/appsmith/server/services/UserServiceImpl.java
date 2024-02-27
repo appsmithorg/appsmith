@@ -39,8 +39,6 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -50,7 +48,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -94,10 +91,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     private final UserServiceHelper userServiceHelper;
 
     public UserServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             UserRepository repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
@@ -125,10 +119,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 workspaceService,
                 analyticsService,

@@ -35,13 +35,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
@@ -79,10 +76,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     private final UserUtils userUtils;
 
     public PermissionGroupServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             PermissionGroupRepository repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
@@ -99,10 +93,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
             UserUtils userUtils) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 sessionUserService,

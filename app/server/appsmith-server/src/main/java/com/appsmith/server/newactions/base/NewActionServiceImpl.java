@@ -54,15 +54,12 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -93,10 +90,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final PolicyGenerator policyGenerator;
 
     public NewActionServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             NewActionRepository repository,
             AnalyticsService analyticsService,
             DatasourceService datasourceService,
@@ -123,10 +117,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             WorkflowPermission workflowPermission,
             ModuleMetadataService moduleMetadataService) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 datasourceService,

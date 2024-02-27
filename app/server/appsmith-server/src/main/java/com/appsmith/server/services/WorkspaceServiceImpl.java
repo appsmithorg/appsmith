@@ -17,12 +17,9 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
@@ -34,10 +31,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
     private final EnvironmentService environmentService;
 
     public WorkspaceServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             WorkspaceRepository repository,
             AnalyticsService analyticsService,
             PluginRepository pluginRepository,
@@ -56,10 +50,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
             EnvironmentService environmentService) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 pluginRepository,

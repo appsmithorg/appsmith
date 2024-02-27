@@ -13,12 +13,9 @@ import com.appsmith.server.services.AnalyticsService;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -33,22 +30,12 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
     private final ContextBasedJsLibService<Package> packageContextBasedJsLibService;
 
     public CustomJSLibServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             CustomJSLibRepository repository,
             AnalyticsService analyticsService,
             ContextBasedJsLibService<Application> applicationContextBasedJsLibService,
             ContextBasedJsLibService<Package> packageContextBasedJsLibService) {
-        super(
-                scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
-                repository,
-                analyticsService,
-                applicationContextBasedJsLibService);
+        super(validator, repository, analyticsService, applicationContextBasedJsLibService);
         this.packageContextBasedJsLibService = packageContextBasedJsLibService;
     }
 
