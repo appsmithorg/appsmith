@@ -34,7 +34,6 @@ import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce_compatible.UserServiceCECompatibleImpl;
 import com.appsmith.server.solutions.PolicySolution;
-import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -103,7 +102,6 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PolicySolution policySolution,
             CommonConfig commonConfig,
             EmailConfig emailConfig,
-            UserChangedHandler userChangedHandler,
             EncryptionService encryptionService,
             UserDataService userDataService,
             TenantService tenantService,
@@ -127,7 +125,6 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 passwordResetTokenRepository,
                 passwordEncoder,
                 commonConfig,
-                userChangedHandler,
                 encryptionService,
                 userDataService,
                 tenantService,

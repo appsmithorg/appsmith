@@ -22,7 +22,6 @@ import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +52,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private final FeatureFlagService featureFlagService;
 
-    private final UserChangedHandler userChangedHandler;
-
     private final ApplicationRepository applicationRepository;
 
     private final TenantService tenantService;
@@ -75,7 +72,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
-            UserChangedHandler userChangedHandler,
             ApplicationRepository applicationRepository,
             TenantService tenantService) {
         super(validator, repository, analyticsService);
@@ -84,7 +80,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         this.assetService = assetService;
         this.sessionUserService = sessionUserService;
         this.featureFlagService = featureFlagService;
-        this.userChangedHandler = userChangedHandler;
         this.applicationRepository = applicationRepository;
         this.tenantService = tenantService;
     }

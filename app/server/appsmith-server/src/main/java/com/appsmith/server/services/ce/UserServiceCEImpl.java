@@ -36,7 +36,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -95,7 +94,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PasswordEncoder passwordEncoder;
 
     private final CommonConfig commonConfig;
-    private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
     private final UserDataService userDataService;
     private final TenantService tenantService;
@@ -128,7 +126,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PasswordResetTokenRepository passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
-            UserChangedHandler userChangedHandler,
             EncryptionService encryptionService,
             UserDataService userDataService,
             TenantService tenantService,
@@ -145,7 +142,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.commonConfig = commonConfig;
-        this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
         this.userDataService = userDataService;
         this.tenantService = tenantService;
@@ -609,7 +605,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
-        return repository.save(existingUser).map(userChangedHandler::publish);
+        return repository.save(existingUser);
     }
 
     @Override
@@ -648,7 +644,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                     exchange == null
                                             ? repository.findByEmail(user.getEmail())
                                             : sessionUserService.refreshCurrentUser(exchange)))
-                    .map(userChangedHandler::publish)
                     .cache();
             monos.add(updatedUserMono.then());
         } else {

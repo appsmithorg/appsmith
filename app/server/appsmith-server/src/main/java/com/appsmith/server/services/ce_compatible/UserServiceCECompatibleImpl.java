@@ -22,7 +22,6 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
-import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,6 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             PasswordResetTokenRepository passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
-            UserChangedHandler userChangedHandler,
             EncryptionService encryptionService,
             UserDataService userDataService,
             TenantService tenantService,
@@ -59,7 +57,6 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 passwordResetTokenRepository,
                 passwordEncoder,
                 commonConfig,
-                userChangedHandler,
                 encryptionService,
                 userDataService,
                 tenantService,
