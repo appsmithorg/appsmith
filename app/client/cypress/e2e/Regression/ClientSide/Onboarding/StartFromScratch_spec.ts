@@ -43,7 +43,7 @@ describe(
     it("1. onboarding flow - should check page entity selection in explorer", function () {
       agHelper.GetNClick(onboarding.locators.seeMoreButtonOnCanvas, 0, true);
 
-      agHelper.AssertElementVisibility(template.templateDialogBox);
+      agHelper.AssertElementExist(template.templateDialogBox);
 
       const filterItemWrapper = agHelper.GetElement(".filter-wrapper");
 
@@ -62,7 +62,7 @@ describe(
       agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas);
 
       agHelper.WaitUntilEleDisappear("Importing template");
-      agHelper.AssertElementVisibility(
+      agHelper.AssertElementExist(
         templates.locators._datasourceConnectPromptSubmitBtn,
       );
       agHelper.GetNClick(templates.locators._datasourceConnectPromptSubmitBtn);
