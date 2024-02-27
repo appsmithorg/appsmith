@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import type { AppState } from "@appsmith/reducers";
@@ -43,6 +43,10 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { isChangePermitted = false, isDeletePermitted = false } = props;
+
+  useEffect(() => {
+    if (!isMenuOpen) setConfirmDelete(false);
+  }, [isMenuOpen]);
 
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
