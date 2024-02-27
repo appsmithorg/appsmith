@@ -21,13 +21,15 @@ describe(
       });
     });
 
+    beforeEach(() => {
+      homePage.OpenTemplatesDialogInStartFromTemplates(workspaceName);
+    });
+
     afterEach(() => {
       homePage.NavigateToHome();
     });
 
     it("1. Should be able to create new app from template list page", () => {
-      homePage.OpenTemplatesDialogInStartFromTemplates(workspaceName);
-
       agHelper.GetNClick(templates.locators._templatesCardForkButton);
 
       agHelper.AssertElementVisibility(locators._sidebar);
@@ -35,8 +37,6 @@ describe(
     });
 
     it("2. Should be able to create new app from template detail page", () => {
-      homePage.OpenTemplatesDialogInStartFromTemplates(workspaceName);
-
       agHelper.GetNClick(templates.locators._templateCard);
       agHelper.GetNClick(templates.locators._templateViewForkButton);
 
@@ -45,8 +45,6 @@ describe(
     });
 
     it("3. When reconnect modal is shown, `start with templates` dialog should not be visible", () => {
-      homePage.OpenTemplatesDialogInStartFromTemplates(workspaceName);
-
       agHelper.GetNClick("//h1[text()='Customer Messaging Tool']");
       agHelper.GetNClick(templates.locators._templateViewForkButton);
 
