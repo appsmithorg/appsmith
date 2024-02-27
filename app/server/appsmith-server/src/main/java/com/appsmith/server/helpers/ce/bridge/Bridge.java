@@ -47,6 +47,11 @@ public class Bridge extends Criteria {
 
     @Override
     public Document getCriteriaObject() {
+        if (criteriaList.isEmpty()) {
+            throw new UnsupportedOperationException(
+                    "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
+        }
+
         return new Criteria().andOperator(criteriaList.toArray(new Criteria[0])).getCriteriaObject();
     }
 }
