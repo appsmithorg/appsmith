@@ -19,7 +19,7 @@ export const useJSAdd = () => {
   const dispatch = useDispatch();
   return useCallback(() => {
     dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
-  }, [dispatch]);
+  }, [dispatch, pageId]);
 };
 
 export const useGroupedAddJsOperations = (): GroupedAddOperations => {
