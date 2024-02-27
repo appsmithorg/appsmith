@@ -198,16 +198,34 @@ const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
     {},
   );
 
+const getDataTree = (data: any, evalOrder: string[]) => {
+  const addErrors = Object.keys(data).reduce((acc: any, key: string) => {
+    const __evaluation__ = data[key].__evaluation__;
+    if (!__evaluation__) return acc;
+
+    acc[key] = {};
+    set(acc[key], "__evaluation__", __evaluation__);
+    return acc;
+  }, {});
+  return evalOrder.reduce((acc: any, evalPath: string) => {
+    const value = get(data, evalPath);
+    set(acc, evalPath, value);
+    return acc;
+  }, addErrors);
+};
 const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
   ignoreLargeKeys: any,
+  evalOrder: string[],
 ): DiffWithReferenceState[] => {
   const attachDirectly: DiffWithReferenceState[] = [];
   const ignoreLargeKeysHasBeenAttached = new Set();
   const attachLater: DiffWithReferenceState[] = [];
+  const oldData = getDataTree(oldDataTree, evalOrder);
+  const newData = getDataTree(dataTree, evalOrder);
   const updates =
-    diff(oldDataTree, dataTree, (path, key) => {
+    diff(oldData, newData, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
 
       const { path: setPath, segmentedPath } = generateWithKey(path, key);
@@ -283,10 +301,16 @@ const generateDiffUpdates = (
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
+  evalOrder: string[],
   identicalEvalPathsPatches?: Record<string, string>,
 ): DiffWithReferenceState[] => {
   const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
-  const updates = generateDiffUpdates(oldDataTree, dataTree, ignoreLargeKeys);
+  const updates = generateDiffUpdates(
+    oldDataTree,
+    dataTree,
+    ignoreLargeKeys,
+    evalOrder,
+  );
   return updates;
 };
 
@@ -294,6 +318,7 @@ export const generateSerialisedUpdates = (
   prevState: any,
   currentState: any,
   identicalEvalPathsPatches: any,
+  evalOrder: string[],
 ): {
   serialisedUpdates: string;
   error?: { type: string; message: string };
@@ -301,6 +326,7 @@ export const generateSerialisedUpdates = (
   const updates = generateOptimisedUpdates(
     prevState,
     currentState,
+    evalOrder,
     identicalEvalPathsPatches,
   );
 
@@ -327,6 +353,7 @@ export const generateSerialisedUpdates = (
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
   dataTreeEvaluator: any,
+  evalOrder: string[],
 ) => {
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
@@ -335,6 +362,7 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     dataTreeEvaluator.getPrevState(),
     dataTree,
     identicalEvalPathsPatches,
+    evalOrder,
   );
 
   if (error) {
