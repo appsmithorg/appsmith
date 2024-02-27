@@ -29,7 +29,6 @@ import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
-import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
 
@@ -184,7 +183,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
           isProtectedMode ||
           isAppSettingsPaneWithNavigationTabOpen
             ? isWDSV2Enabled
-              ? "var(--bg-color)"
+              ? ""
               : selectedTheme.properties.colors.backgroundColor
             : "initial"
         }
@@ -203,7 +202,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
             !isAnvilLayout,
           "mt-24": shouldShowSnapShotBanner,
         })}
-        id={CANVAS_VIEWPORT}
         isAppSettingsPaneWithNavigationTabOpen={
           isAppSettingsPaneWithNavigationTabOpen
         }
