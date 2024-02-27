@@ -118,6 +118,10 @@ export class LightModeTheme implements ColorModeTheme {
       bdOnPositive: this.bdOnPositive.to("sRGB").toString(),
       bdOnNegative: this.bdOnNegative.to("sRGB").toString(),
       bdOnWarning: this.bdOnWarning.to("sRGB").toString(),
+
+      bdElevation1: this.bdElevation1.to("sRGB").toString(),
+      bdElevation2: this.bdElevation2.to("sRGB").toString(),
+      bdElevation3: this.bdElevation3.to("sRGB").toString(),
     };
   };
 
@@ -1192,6 +1196,28 @@ export class LightModeTheme implements ColorModeTheme {
 
     // Lightness of bgWarning is known, no additional checks like in bdOnAccent / bdOnNeutral
     color.oklch.l -= 0.33;
+
+    return color;
+  }
+
+  /*
+   * Elevation border colors
+   */
+
+  private get bdElevation1() {
+    const color = this.bdNeutral.clone();
+
+    return color;
+  }
+
+  private get bdElevation2() {
+    const color = this.bdNeutral.clone();
+
+    return color;
+  }
+
+  private get bdElevation3() {
+    const color = this.bdNeutral.clone();
 
     return color;
   }
