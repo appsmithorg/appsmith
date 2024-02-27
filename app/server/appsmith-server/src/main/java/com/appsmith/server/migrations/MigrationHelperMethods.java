@@ -232,9 +232,8 @@ public class MigrationHelperMethods {
      * .newAction.id, type=NewAction.class
      */
     public static <T extends BaseDomain> List<T> fetchAllDomainObjectsUsingId(
-            String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
-        final List<T> domainObject =
-                mongoTemplate.find(query(where(fieldName(path)).is(id)), type);
+            String id, MongoTemplate mongoTemplate, String path, Class<T> type) {
+        final List<T> domainObject = mongoTemplate.find(query(where(path).is(id)), type);
         return domainObject;
     }
 

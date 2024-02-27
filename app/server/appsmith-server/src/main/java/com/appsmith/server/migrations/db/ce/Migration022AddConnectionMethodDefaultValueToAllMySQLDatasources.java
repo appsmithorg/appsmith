@@ -3,7 +3,6 @@ package com.appsmith.server.migrations.db.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.QDatasourceStorage;
 import com.appsmith.server.domains.Plugin;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -51,7 +50,7 @@ public class Migration022AddConnectionMethodDefaultValueToAllMySQLDatasources {
          */
         mysqlDatasources.parallelStream().map(Datasource::getId).forEach(id -> {
             List<DatasourceStorage> datasourceStorageList = fetchAllDomainObjectsUsingId(
-                    id, mongoTemplate, QDatasourceStorage.datasourceStorage.datasourceId, DatasourceStorage.class);
+                    id, mongoTemplate, DatasourceStorage.Fields.datasourceId, DatasourceStorage.class);
             datasourceStorageList.stream()
                     .filter(datasourceStorage -> datasourceStorage.getDatasourceConfiguration() != null)
                     .forEach(datasourceStorage -> {
