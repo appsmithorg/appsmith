@@ -73,7 +73,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 })
                 .flatMap(updatedJSLibDTOSet ->
                         contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOSet))
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
+                .map(count -> count > 0);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 })
                 .flatMap(updatedJSLibDTOList ->
                         contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOList))
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
+                .map(count -> count > 0);
     }
 
     @Override

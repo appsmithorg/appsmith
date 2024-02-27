@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -31,14 +30,14 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
 
     @Override
     public Mono<User> findByEmail(String email, AclPermission aclPermission) {
-        Criteria emailCriteria = where(fieldName(QUser.user.email)).is(email);
+        Criteria emailCriteria = where(User.Fields.email).is(email);
         return queryBuilder().criteria(emailCriteria).permission(aclPermission).one();
     }
 
     @Override
     public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
-        Criteria emailCriteria = where(fieldName(QUser.user.email)).is(email);
-        Criteria tenantIdCriteria = where(fieldName(QUser.user.tenantId)).is(tenantId);
+        Criteria emailCriteria = where(User.Fields.email).is(email);
+        Criteria tenantIdCriteria = where(User.Fields.tenantId).is(tenantId);
 
         Criteria andCriteria = new Criteria();
         andCriteria.andOperator(emailCriteria, tenantIdCriteria);
@@ -57,7 +56,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     @Override
     public Mono<Boolean> isUsersEmpty() {
         final Query q = query(new Criteria());
-        q.fields().include(fieldName(QUser.user.email));
+        q.fields().include(User.Fields.email);
         // Basically limit to system generated emails plus 1 more.
         q.limit(getSystemGeneratedUserEmails().size() + 1);
         return mongoOperations

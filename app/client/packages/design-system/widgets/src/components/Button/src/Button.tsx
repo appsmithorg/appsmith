@@ -4,6 +4,7 @@ import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import { getTypographyClassName } from "@design-system/theming";
 import { Button as HeadlessButton } from "@design-system/headless";
 import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
+import type { SIZES } from "../../../shared";
 
 import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
@@ -34,7 +35,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
     return (
       <>
         <span aria-hidden={isLoading ? true : undefined} data-content="">
-          {icon && <Icon name={icon} />}
+          {icon && <Icon name={icon} size={size as keyof typeof SIZES} />}
           {Boolean(children) && (
             <Text fontWeight={600} lineClamp={1} textAlign="center">
               {children}

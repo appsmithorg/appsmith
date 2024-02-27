@@ -9,7 +9,6 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -196,7 +195,7 @@ public class MigrationHelperMethods {
         }
 
         userIds.forEach(userId -> {
-            Query query = new Query(new Criteria(fieldName(QUser.user.id)).is(userId));
+            Query query = new Query(new Criteria(User.Fields.id).is(userId));
             User user = mongoTemplate.findOne(query, User.class);
             if (user != null) {
                 // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.

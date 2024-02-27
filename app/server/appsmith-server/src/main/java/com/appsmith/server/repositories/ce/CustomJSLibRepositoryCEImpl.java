@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.QCustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -28,7 +27,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
 
     @Override
     public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
-        Criteria criteria = where(fieldName(QCustomJSLib.customJSLib.uidString)).is(customJSLib.getUidString());
+        Criteria criteria = where(CustomJSLib.Fields.uidString).is(customJSLib.getUidString());
 
         return queryBuilder().criteria(criteria).one();
     }
@@ -40,8 +39,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
                 .map(CustomJSLibContextDTO::getUidString)
                 .collect(Collectors.toSet());
 
-        Criteria criteria =
-                Criteria.where(fieldName(QCustomJSLib.customJSLib.uidString)).in(uidStrings);
+        Criteria criteria = Criteria.where(CustomJSLib.Fields.uidString).in(uidStrings);
 
         return queryBuilder().criteria(criteria).all();
     }
