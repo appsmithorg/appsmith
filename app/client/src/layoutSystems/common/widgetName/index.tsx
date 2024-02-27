@@ -34,6 +34,7 @@ import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
@@ -81,6 +82,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -149,6 +151,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       !isAutoCanvasResizing &&
       !resizingOrDragging &&
       !isPreviewMode &&
+      !isCanvasPreviewMode &&
       !isAppSettingsPaneWithNavigationTabOpen &&
       !isMultiSelected &&
       (isSnipingMode

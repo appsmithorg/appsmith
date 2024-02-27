@@ -19,6 +19,7 @@ import {
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
+import { getCanvasPreviewMode } from "../../../selectors/ideSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -91,6 +92,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   );
 
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
 
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
@@ -107,6 +109,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       !isDistributingSpace &&
       !props.resizeDisabled &&
       !isPreviewMode &&
+      !isCanvasPreviewMode &&
       focusWidget(props.widgetId);
     e.stopPropagation();
   };

@@ -22,6 +22,7 @@ import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks
 import { getIsPropertyPaneVisible } from "./propertyPaneSelectors";
 import { combinedPreviewModeSelector } from "./editorSelectors";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -179,6 +180,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     getAppMode,
     combinedPreviewModeSelector,
     getIsAutoHeightWithLimitsChanging,
+    getCanvasPreviewMode,
     (
       focusedWidgetId,
       isTableFilterPaneVisible,
@@ -188,6 +190,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
       appMode,
       isPreviewMode,
       isAutoHeightWithLimitsChanging,
+      canvasPreviewMode,
     ) => {
       const isFocused = focusedWidgetId === widgetId;
 
@@ -199,7 +202,8 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
         appMode !== APP_MODE.EDIT ||
         !isFocused ||
         isTableFilterPaneVisible ||
-        isAutoHeightWithLimitsChanging
+        isAutoHeightWithLimitsChanging ||
+        canvasPreviewMode
       );
     },
   );

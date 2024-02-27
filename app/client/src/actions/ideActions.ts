@@ -38,3 +38,10 @@ export const setQueryTabs = (tabs: string[]) => {
     payload: tabs,
   };
 };
+
+export const setCanvasPreviewMode = (isInPreview: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_CANVAS_PREVIEW_MODE,
+    payload: isInPreview,
+  };
+};
