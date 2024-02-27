@@ -42,6 +42,7 @@ export const StyledTab = styled(Flex)`
   }
 
   &.active {
+    background: var(--ads-v2-colors-control-field-default-bg);
     border-top: 2px solid var(--ads-v2-color-bg-brand);
     border-left: 1px solid var(--ads-v2-color-border);
     border-right: 1px solid var(--ads-v2-color-border);
