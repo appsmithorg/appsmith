@@ -15,7 +15,6 @@ import org.springframework.data.annotation.Transient;
 
 import java.util.Set;
 import java.util.regex.Matcher;
-import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Setter
