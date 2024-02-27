@@ -131,10 +131,7 @@ public class ActionCollectionServiceImplTest {
         pagePermission = new PagePermissionImpl();
         actionPermission = new ActionPermissionImpl();
         actionCollectionService = new ActionCollectionServiceImpl(
-                scheduler,
                 validator,
-                mongoConverter,
-                null,
                 actionCollectionRepository,
                 analyticsService,
                 newActionService,
