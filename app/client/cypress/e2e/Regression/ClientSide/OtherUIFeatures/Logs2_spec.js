@@ -285,7 +285,8 @@ describe("Debugger logs", { tags: ["@tag.Debugger"] }, function () {
     });
 
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    _.agHelper.GetNClick(_.locators._errorTab);
+    _.agHelper.AssertElementVisibility(".t--debugger-count");
+    _.debuggerHelper.ClickDebuggerIcon();
 
     _.debuggerHelper.ClicklogEntityLink();
 
