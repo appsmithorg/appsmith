@@ -66,7 +66,7 @@ describe(
 
       apiPage.SelectPaneTab("Pagination");
       EditorNavigation.ShowCanvas();
-      debuggerHelper.ClickDebuggerIcon();
+      // The Debugger should already be open here as it was opened before
       debuggerHelper.ClickLogsTab();
       debuggerHelper.ClicklogEntityLink(true);
 
