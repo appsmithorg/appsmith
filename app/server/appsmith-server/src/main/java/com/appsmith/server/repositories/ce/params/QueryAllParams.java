@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce.params;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import lombok.NonNull;
@@ -82,11 +83,19 @@ public class QueryAllParams<T extends BaseDomain> {
         return criteria(List.of(criteria));
     }
 
-    public QueryAllParams<T> criteria(List<Criteria> criterias) {
-        if (criterias == null) {
+    public QueryAllParams<T> criteria(List<Criteria> criteria) {
+        if (criteria == null) {
             return this;
         }
-        this.criteria.addAll(criterias);
+
+        for (Criteria c : criteria) {
+            if (c instanceof Bridge b && b.getCriteriaObject().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
+            }
+            this.criteria.add(c);
+        }
+
         return this;
     }
 
