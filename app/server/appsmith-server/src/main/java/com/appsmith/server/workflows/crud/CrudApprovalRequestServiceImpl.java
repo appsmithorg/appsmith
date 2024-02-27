@@ -33,13 +33,10 @@ import io.jsonwebtoken.lang.Collections;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.util.List;
@@ -69,10 +66,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
     private final SessionUserService sessionUserService;
 
     public CrudApprovalRequestServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ApprovalRequestRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
@@ -81,7 +75,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
             UserRepository userRepository,
             PermissionGroupService permissionGroupService,
             SessionUserService sessionUserService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.policySolution = policySolution;
         this.workflowRepository = workflowRepository;
         this.userGroupRepository = userGroupRepository;

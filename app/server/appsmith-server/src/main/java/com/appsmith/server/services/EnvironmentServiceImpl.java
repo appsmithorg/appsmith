@@ -25,13 +25,10 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -70,10 +67,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCECompatibleImpl i
 
     @Autowired
     public EnvironmentServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             EnvironmentRepository repository,
             AnalyticsService analyticsService,
             PolicyGenerator policyGenerator,
@@ -83,14 +77,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCECompatibleImpl i
             DatasourceStorageRepository datasourceStorageRepository,
             DatasourceRepository datasourceRepository,
             PluginRepository pluginRepository) {
-        super(
-                scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
-                repository,
-                analyticsService,
-                workspaceService);
+        super(validator, repository, analyticsService, workspaceService);
         this.workspaceService = workspaceService;
         this.policyGenerator = policyGenerator;
         this.permissionGroupRepository = permissionGroupRepository;

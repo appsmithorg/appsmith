@@ -19,12 +19,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import jakarta.validation.Validator;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
 import java.util.Map;
@@ -44,16 +41,13 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
     private final WorkflowRepository workflowRepository;
 
     protected InteractApprovalRequestServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ApprovalRequestRepository repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             WorkflowProxyHelper workflowProxyHelper,
             WorkflowRepository workflowRepository) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.workflowProxyHelper = workflowProxyHelper;
         this.workflowRepository = workflowRepository;

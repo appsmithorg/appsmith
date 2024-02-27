@@ -31,14 +31,11 @@ import com.appsmith.server.workflows.helpers.WorkflowHelper;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
 import jakarta.validation.Validator;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
 import java.util.List;
@@ -63,10 +60,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
     private final LayoutCollectionService layoutCollectionService;
 
     public CrudWorkflowServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             WorkflowRepository repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
@@ -80,7 +74,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
             CrudWorkflowEntityService crudWorkflowEntityService,
             ActionCollectionService actionCollectionService,
             LayoutCollectionService layoutCollectionService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.crudWorkflowEntityService = crudWorkflowEntityService;
         this.newActionService = newActionService;
         this.sessionUserService = sessionUserService;

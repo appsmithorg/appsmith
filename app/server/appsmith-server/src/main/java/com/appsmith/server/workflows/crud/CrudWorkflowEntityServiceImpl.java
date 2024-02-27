@@ -23,12 +23,9 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
 import jakarta.validation.Validator;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.util.Optional;
@@ -45,10 +42,7 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
     private final PolicyGenerator policyGenerator;
 
     public CrudWorkflowEntityServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             WorkflowRepository repository,
             AnalyticsService analyticsService,
             WorkflowPermission workflowPermission,
@@ -57,7 +51,7 @@ public class CrudWorkflowEntityServiceImpl extends CrudWorkflowEntityServiceCECo
             DatasourcePermission datasourcePermission,
             ActionPermission actionPermission,
             PolicyGenerator policyGenerator) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.workflowPermission = workflowPermission;
         this.newActionService = newActionService;
         this.datasourceService = datasourceService;

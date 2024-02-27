@@ -36,8 +36,6 @@ import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -46,7 +44,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -109,10 +106,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     private final ConfigService configService;
 
     public UserGroupServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             UserGroupRepository repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
@@ -129,7 +123,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
             ProvisionUtils provisionUtils,
             EmailService emailService,
             ConfigService configService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.policyGenerator = policyGenerator;

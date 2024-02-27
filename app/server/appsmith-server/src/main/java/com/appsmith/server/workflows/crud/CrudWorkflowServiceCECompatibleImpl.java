@@ -7,25 +7,17 @@ import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.workflows.base.BaseWorkflowServiceImpl;
 import jakarta.validation.Validator;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 @Component
 public class CrudWorkflowServiceCECompatibleImpl extends BaseWorkflowServiceImpl
         implements CrudWorkflowServiceCECompatible {
 
     public CrudWorkflowServiceCECompatibleImpl(
-            Scheduler scheduler,
-            Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
-            WorkflowRepository repository,
-            AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+            Validator validator, WorkflowRepository repository, AnalyticsService analyticsService) {
+        super(validator, repository, analyticsService);
     }
 
     @Override
