@@ -5,7 +5,6 @@ import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserDataServiceCEImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,6 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
-            UserChangedHandler userChangedHandler,
             ApplicationRepository applicationRepository,
             TenantService tenantService) {
 
@@ -34,7 +32,6 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
                 assetService,
                 releaseNotesService,
                 featureFlagService,
-                userChangedHandler,
                 applicationRepository,
                 tenantService);
     }
