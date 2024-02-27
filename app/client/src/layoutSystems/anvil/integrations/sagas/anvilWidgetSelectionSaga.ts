@@ -71,7 +71,6 @@ export function* selectAnvilWidget(
       type === SelectionRequestType.ShiftSelect
     ) {
       e.stopPropagation();
-      clickEvent.stopPropagation();
     }
   }
   log.debug("Time taken to select widget", performance.now() - start, "ms");
