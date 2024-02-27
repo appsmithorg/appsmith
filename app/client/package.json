@@ -250,7 +250,7 @@
     "@sentry/webpack-plugin": "^1.18.9",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",
-    "@testing-library/react-hooks": "^7.0.2",
+    "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "13.5.0",
     "@types/codemirror": "^0.0.96",
     "@types/deep-diff": "^1.0.0",
