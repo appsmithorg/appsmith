@@ -1450,7 +1450,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         List.of(application.getId()),
                         List.of(
                                 "id",
-                                fieldName(QNewAction.newAction.unpublishedAction) + "."
+                                NewAction.Fields.unpublishedAction + "."
                                         + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
                                         + fieldName(QNewAction.newAction.unpublishedAction.datasource.id))))
                 .collectList()

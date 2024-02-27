@@ -9,7 +9,6 @@ import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
@@ -85,7 +84,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
@@ -651,7 +649,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             updates.setName(inputName);
             updatedUserMono = sessionUserService
                     .getCurrentUser()
-                    .flatMap(user -> update(user.getEmail(), updates, fieldName(QUser.user.email))
+                    .flatMap(user -> update(user.getEmail(), updates, User.Fields.email)
                             .then(
                                     exchange == null
                                             ? repository.findByEmail(user.getEmail())
