@@ -333,7 +333,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
                     }
                 }))
-                .map(updateResult -> Math.toIntExact(updateResult.getModifiedCount()));
+                .map(updateResult -> Math.toIntExact(updateResult.getMatchedCount()));
     }
 
     public Mono<T> updateExecuteAndFind(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
