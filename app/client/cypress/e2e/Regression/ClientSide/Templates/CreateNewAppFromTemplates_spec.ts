@@ -11,14 +11,12 @@ describe(
   { tags: ["@tag.excludeForAirgap", "@tag.Workspace", "@tag.Templates"] },
   function () {
     let workspaceName: string;
-    let applicationName: string;
 
     before(() => {
       homePage.NavigateToHome();
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         workspaceName = `workspace-${uid}`;
-        applicationName = `application-${uid}`;
         homePage.CreateNewWorkspace(workspaceName);
       });
     });
