@@ -135,6 +135,7 @@ import type {
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
@@ -173,6 +174,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       name: "Table",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       needsHeightForContent: true,

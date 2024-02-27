@@ -132,6 +132,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -4420,8 +4421,9 @@ public class GitServiceCETest {
         // create three app with master as the default branch
         String defaultAppId = createBranchedApplication(branchList);
 
-        Mockito.when(applicationService.updateProtectedBranches(Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Test error")));
+        doReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Test error")))
+                .when(applicationService)
+                .updateProtectedBranches(Mockito.any(), Mockito.any());
 
         Mono<List<String>> updateProtectedBranchesMono = gitService.updateProtectedBranches(defaultAppId, List.of());
 

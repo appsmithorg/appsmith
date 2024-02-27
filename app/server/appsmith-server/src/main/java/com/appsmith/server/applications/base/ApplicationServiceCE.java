@@ -6,7 +6,6 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.services.CrudService;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,7 +36,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> update(String defaultApplicationId, Application application, String branchName);
 
-    Mono<UpdateResult> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName);
+    Mono<Integer> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName);
 
     Mono<Application> createDefaultApplication(Application object);
 
@@ -87,7 +86,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     String getRandomAppCardColor();
 
-    Mono<UpdateResult> setAppTheme(
+    Mono<Integer> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);

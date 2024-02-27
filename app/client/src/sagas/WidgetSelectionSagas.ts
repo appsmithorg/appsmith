@@ -54,6 +54,7 @@ import {
 import { getModalWidgetType } from "selectors/widgetSelectors";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -328,7 +329,11 @@ function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   const widgetId = action.payload.widgetIds[0];
   if (widgetId) {
     const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
-    quickScrollToWidget(widgetId, allWidgets);
+    const widgetIdSelector: string = yield select(
+      getWidgetSelectorByWidgetId,
+      widgetId,
+    );
+    quickScrollToWidget(widgetId, widgetIdSelector, allWidgets);
   }
 }
 
