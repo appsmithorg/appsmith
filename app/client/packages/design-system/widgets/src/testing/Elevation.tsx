@@ -8,8 +8,11 @@ export const Elevation = () => {
       padding="spacing-6"
       style={{
         background: "var(--color-bg-elevation-1)",
-        boxShadow: "var(--box-shadow-1)",
-        borderRadius: "var(--border-radius-elevation-3)",
+        // boxShadow: "var(--box-shadow-1)",
+        borderColor: "var(--color-bd-elevation-1)",
+        borderWidth: 1,
+        borderStyle: "solid",
+        borderRadius: "var(--border-radius-elevation-1)",
       }}
     >
       <Flex
@@ -17,8 +20,11 @@ export const Elevation = () => {
         padding="spacing-6"
         style={{
           background: "var(--color-bg-elevation-2)",
-          boxShadow: "var(--box-shadow-2)",
-          borderRadius: "var(--border-radius-elevation-3)",
+          // boxShadow: "var(--box-shadow-2)",
+          borderColor: "var(--color-bd-elevation-2)",
+          borderWidth: 1,
+          borderStyle: "solid",
+          borderRadius: "var(--border-radius-elevation-2)",
         }}
       >
         <Flex
@@ -26,7 +32,10 @@ export const Elevation = () => {
           padding="spacing-6"
           style={{
             background: "var(--color-bg-elevation-3)",
-            boxShadow: "var(--box-shadow-3)",
+            // boxShadow: "var(--box-shadow-3)",
+            borderColor: "var(--color-bd-elevation-3)",
+            borderWidth: 1,
+            borderStyle: "solid",
             borderRadius: "var(--border-radius-elevation-3)",
           }}
         >
