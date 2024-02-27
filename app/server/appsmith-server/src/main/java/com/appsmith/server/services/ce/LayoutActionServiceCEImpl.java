@@ -420,7 +420,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     embeddedDatasource.setIsTemplate(datasource.getIsTemplate());
 
                     return analyticsService
-                            .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
+                            .sendCreateEvent(
+                                    newAction1, newActionService.getAnalyticsProperties(newAction1, eventContext))
                             .thenReturn(zippedActions.getT1());
                 });
     }

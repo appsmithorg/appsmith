@@ -181,6 +181,7 @@ export const useCanvasDragging = (
           stickyCanvasRef.current.height,
         );
         slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.deactivated;
+        stickyCanvasRef.current.style.zIndex = AnvilCanvasZIndex.deactivated;
         slidingArenaRef.current.style.backgroundColor = "unset";
         slidingArenaRef.current.style.color = "unset";
         slidingArenaRef.current.innerText = "";
@@ -188,6 +189,7 @@ export const useCanvasDragging = (
       } else {
         // If currently dragged, set the z-index to activate the canvas
         slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.activated;
+        stickyCanvasRef.current.style.zIndex = AnvilCanvasZIndex.activated;
       }
     }
   }, [isCurrentDraggedCanvas]);

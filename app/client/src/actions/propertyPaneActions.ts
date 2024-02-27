@@ -96,3 +96,10 @@ export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
     payload,
   };
 };
+
+export const setShowCreateNewModal = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_SHOW_CREATE_NEW_MODAL,
+    payload,
+  };
+};
