@@ -20,7 +20,6 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -88,7 +87,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -1472,11 +1470,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Flux<BaseDomain> datasourceFlux = applicationMono
                 .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
                         List.of(application.getId()),
-                        List.of(
-                                "id",
-                                NewAction.Fields.unpublishedAction + "."
-                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
-                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource.id))))
+                        List.of(BaseDomain.Fields.id, NewAction.Fields.unpublishedAction_datasource_id)))
                 .collectList()
                 .map(actions -> {
                     return actions.stream()

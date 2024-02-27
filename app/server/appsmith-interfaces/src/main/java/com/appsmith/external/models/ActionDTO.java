@@ -14,12 +14,14 @@ import org.springframework.data.annotation.Transient;
 
 import java.util.Set;
 import java.util.regex.Matcher;
+import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString(callSuper = true)
 @QueryEmbeddable
+@FieldNameConstants
 public class ActionDTO extends ActionCE_DTO implements Reusable {
     @Transient
     @JsonView(Views.Public.class)
@@ -91,4 +93,6 @@ public class ActionDTO extends ActionCE_DTO implements Reusable {
         this.setIsPublic(null);
         this.setPackageId(null);
     }
+
+    public static class Fields extends ActionCE_DTO.Fields {}
 }
