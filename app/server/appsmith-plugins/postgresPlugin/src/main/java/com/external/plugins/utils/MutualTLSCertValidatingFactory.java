@@ -10,17 +10,12 @@ import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Properties;
 
 public class MutualTLSCertValidatingFactory extends WrappedFactory {
-
-    static {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-    }
 
     public MutualTLSCertValidatingFactory(Properties info) throws Exception {
         // Convert String certificates and keys to objects
@@ -33,9 +28,6 @@ public class MutualTLSCertValidatingFactory extends WrappedFactory {
 
         // Client key and this assumes we are using RSA keys
         PrivateKey privateKey;
-
-        /*PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(info.getProperty("clientKeyString")));
-        privateKey = java.security.KeyFactory.getInstance("RSA").generatePrivate(spec);*/
 
         if (RSAKeyUtil.isPkcs1Key(info.getProperty("clientKeyString"))) {
             String rsaKey = RSAKeyUtil.replaceHeaderAndFooterFromKey(info.getProperty("clientKeyString"));
