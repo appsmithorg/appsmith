@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -350,9 +351,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 where(NewAction.Fields.publishedAction + ".datasource._id").is(new ObjectId(datasourceId));
 
         Criteria datasourceCriteria =
-                new Criteria().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
+                notDeleted().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
 
-        return queryBuilder().criteria(datasourceCriteria).count();
+        Query query = new Query();
+        query.addCriteria(datasourceCriteria);
+
+        return mongoOperations.count(query, NewAction.class);
     }
 
     @Override
