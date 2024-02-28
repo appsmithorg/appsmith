@@ -5,6 +5,7 @@ import {
   combinedPreviewModeSelector,
   snipingModeSelector,
 } from "./editorSelectors";
+import { getCanvasPreviewMode } from "./ideSelectors";
 
 export const getIsDragging = (state: AppState) =>
   state.ui.widgetDragResize.isDragging;
@@ -23,6 +24,7 @@ export const getShouldAllowDrag = createSelector(
   getIsDragging,
   getIsDraggingDisabledInEditor,
   combinedPreviewModeSelector,
+  getCanvasPreviewMode,
   snipingModeSelector,
   getIsAppSettingsPaneWithNavigationTabOpen,
   (
@@ -30,6 +32,7 @@ export const getShouldAllowDrag = createSelector(
     isDragging,
     isDraggingDisabled,
     isPreviewMode,
+    isCanvasPreviewMode,
     isSnipingMode,
     isAppSettingsPaneWithNavigationTabOpen,
   ) => {
@@ -39,6 +42,7 @@ export const getShouldAllowDrag = createSelector(
       !isDraggingDisabled &&
       !isSnipingMode &&
       !isPreviewMode &&
+      !isCanvasPreviewMode &&
       !isAppSettingsPaneWithNavigationTabOpen
     );
   },

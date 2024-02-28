@@ -16,6 +16,7 @@ const initialState: IDEState = {
   view: EditorViewMode.FullScreen,
   pagesActive: false,
   tabs: IDETabsDefaultValue,
+  canvasPreviewMode: false,
 };
 
 const ideReducer = createReducer(initialState, {
@@ -65,6 +66,13 @@ const ideReducer = createReducer(initialState, {
       ),
     },
   }),
+  [ReduxActionTypes.SET_CANVAS_PREVIEW_MODE]: (
+    state: IDEState,
+    action: ReduxAction<boolean>,
+  ): IDEState => ({
+    ...state,
+    canvasPreviewMode: action.payload,
+  }),
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
   },
@@ -74,6 +82,7 @@ export interface IDEState {
   view: EditorViewMode;
   pagesActive: boolean;
   tabs: IDETabs;
+  canvasPreviewMode: boolean;
 }
 
 export interface IDETabs {

@@ -28,6 +28,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { GridDefaults } from "constants/WidgetConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 const StyledIframe = styled.iframe<{
   componentWidth: number;
@@ -305,11 +306,13 @@ export const mapStateToProps = (
   ownProps: CustomComponentProps,
 ) => {
   const isPreviewMode = combinedPreviewModeSelector(state);
+  const isCanvasPreviewMode = getCanvasPreviewMode(state);
 
   return {
     needsOverlay:
       (ownProps.renderMode === "EDITOR" &&
         !isPreviewMode &&
+        !isCanvasPreviewMode &&
         ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId) ||
       getIsAutoHeightWithLimitsChanging(state),
   };

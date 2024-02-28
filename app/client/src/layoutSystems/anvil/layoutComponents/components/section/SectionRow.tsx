@@ -3,14 +3,18 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { FlexLayout, type FlexLayoutProps } from "../FlexLayout";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 export const SectionRow = (props: FlexLayoutProps) => {
   const isPreviewMode = useSelector(previewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
   return (
     <FlexLayout
       {...props}
       wrap={
-        !isPreviewMode && props.renderMode === RenderModes.CANVAS
+        !isPreviewMode &&
+        !isCanvasPreviewMode &&
+        props.renderMode === RenderModes.CANVAS
           ? "nowrap"
           : "wrap"
       }

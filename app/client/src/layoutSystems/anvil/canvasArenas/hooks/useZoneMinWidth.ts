@@ -12,6 +12,7 @@ import { getWidgetSizeConfiguration } from "layoutSystems/anvil/utils/widgetUtil
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
 import isObject from "lodash/isObject";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 export function useZoneMinWidth() {
   const childrenMap: Record<string, WidgetProps> =
@@ -19,8 +20,14 @@ export function useZoneMinWidth() {
   const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
   const renderMode: RenderModes = useSelector(getRenderMode);
   const isPreviewMode: boolean = useSelector(combinedPreviewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
 
-  if (renderMode === RenderModes.CANVAS && !isPreviewMode) return "auto";
+  if (
+    renderMode === RenderModes.CANVAS &&
+    (!isPreviewMode || !isCanvasPreviewMode)
+  ) {
+    return "auto";
+  }
 
   let minWidth = 0;
 

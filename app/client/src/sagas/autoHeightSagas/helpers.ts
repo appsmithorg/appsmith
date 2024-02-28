@@ -18,12 +18,14 @@ import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
+  const isCanvasPreviewMode: boolean = yield select(getCanvasPreviewMode);
   const appMode: APP_MODE = yield select(getAppMode);
 
-  return isPreviewMode || appMode === APP_MODE.PUBLISHED;
+  return isPreviewMode || isCanvasPreviewMode || appMode === APP_MODE.PUBLISHED;
 }
 
 export function* shouldAllInvisibleWidgetsInAutoHeightContainersCollapse() {
