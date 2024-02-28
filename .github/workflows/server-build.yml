@@ -183,7 +183,8 @@ jobs:
           fi
           if ! mvn test "${args[@]}"; then
             find . -type f -name 'TEST-*.xml'
-            grep -B1 '<failure ' $(find . -type f -name 'TEST-*.xml')
+            grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
+              | awk -F\" '/<testcase / {print $4 "#" $2}'
             cat ./appsmith-plugins/restApiPlugin/target/surefire-reports/TEST-com.external.plugins.RestApiPluginTest.xml
             # Collect failed tests from surefire reports into a txt file.
             grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
