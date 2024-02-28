@@ -14,6 +14,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private readonly seedIsGreen: boolean;
   private readonly seedIsRed: boolean;
   private readonly seedIsVeryDark: boolean;
+  private readonly seedIsVeryLight: boolean;
   private readonly seedIsYellow: boolean;
 
   constructor(color: ColorTypes) {
@@ -26,6 +27,7 @@ export class DarkModeTheme implements ColorModeTheme {
       isGreen,
       isRed,
       isVeryDark,
+      isVeryLight,
       isYellow,
       lightness,
     } = new ColorsAccessor(color);
@@ -38,6 +40,7 @@ export class DarkModeTheme implements ColorModeTheme {
     this.seedIsGreen = isGreen;
     this.seedIsRed = isRed;
     this.seedIsVeryDark = isVeryDark;
+    this.seedIsVeryLight = isVeryLight;
     this.seedIsYellow = isYellow;
   }
 
@@ -1152,7 +1155,13 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdElevation1() {
     const color = this.bdNeutral.clone();
 
-    color.oklch.l -= 0.55;
+    if (this.seedIsVeryLight) {
+      color.oklch.l = 0.13;
+    }
+
+    if (!this.seedIsVeryLight) {
+      color.oklch.l -= 0.75;
+    }
 
     return color;
   }
