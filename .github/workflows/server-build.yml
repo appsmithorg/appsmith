@@ -175,13 +175,14 @@ jobs:
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
+          set -o xtrace
           args=()
           if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
             failed_tests="${{ steps.failed_tests.outputs.tests }}"
             args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
           fi
-          args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
           if ! mvn test "${args[@]}"; then
+            find . -type f -name 'TEST-*.xml'
             # Collect failed tests from surefire reports into a txt file.
             grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
               | awk -F\" '/<testcase / {print $4 "#" $2}' \
@@ -201,6 +202,8 @@ jobs:
                 > /dev/null
             fi
             exit 1
+          else
+            find . -type f -name 'TEST-*.xml'
           fi
 
       # Set status = failedtest
