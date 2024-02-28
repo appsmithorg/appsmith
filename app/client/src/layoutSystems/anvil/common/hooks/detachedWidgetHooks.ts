@@ -14,6 +14,7 @@ import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
 import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 /**
  * This hook is used to select and focus on a detached widget
@@ -24,6 +25,7 @@ import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPos
 export function useHandleDetachedWidgetSelect(widgetId: string) {
   const dispatch = useDispatch();
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
 
   const className = getAnvilWidgetDOMId(widgetId);
   const element = document.querySelector(`.${className}`);
@@ -53,7 +55,9 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
     // It makes sure to check if the app mode is preview or not
     const handleWidgetFocus = (e: any) => {
       if (e.eventPhase === 2) {
-        !isPreviewMode && dispatch(focusWidget(widgetId));
+        !isPreviewMode &&
+          !isCanvasPreviewMode &&
+          dispatch(focusWidget(widgetId));
       }
     };
 

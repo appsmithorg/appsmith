@@ -7,7 +7,7 @@ import {
 } from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
@@ -28,6 +28,7 @@ import {
 } from "constants/AppConstants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { setCanvasPreviewMode } from "actions/ideActions";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -215,3 +216,28 @@ export const useIsEditorPaneSegmentsEnabled = () => {
 
   return isEditorSegmentsReleaseEnabled || isEditorSegmentsRolloutEnabled;
 };
+
+export function useCanvasViewModeListener() {
+  const { pathname } = useLocation();
+  const dispatch = useDispatch();
+  const mouseMoveHandler = (e: MouseEvent) => {
+    const currentFocus = identifyEntityFromPath(pathname);
+    const focusedOnCanvas = [
+      FocusEntity.CANVAS,
+      FocusEntity.PROPERTY_PANE,
+    ].includes(currentFocus.entity);
+    if (e.altKey) {
+      dispatch(setCanvasPreviewMode(focusedOnCanvas));
+    } else {
+      dispatch(setCanvasPreviewMode(!focusedOnCanvas));
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("mousemove", mouseMoveHandler);
+
+    return () => {
+      window.removeEventListener("mousemove", mouseMoveHandler);
+    };
+  }, [pathname]);
+}

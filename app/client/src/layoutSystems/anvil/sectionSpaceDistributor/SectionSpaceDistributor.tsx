@@ -8,6 +8,7 @@ import { getWidgetByID } from "sagas/selectors";
 import { getDefaultSpaceDistributed } from "./utils/spaceRedistributionSagaUtils";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
 import { getAnvilZoneBoundaryOffset } from "./utils/spaceDistributionEditorUtils";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;
@@ -109,6 +110,7 @@ export const SectionSpaceDistributor = (
 ) => {
   const { zones } = props;
   const isPreviewMode = useSelector(previewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
   const isDragging = useSelector(
     (state) => state.ui.widgetDragResize.isDragging,
   );
@@ -120,6 +122,7 @@ export const SectionSpaceDistributor = (
   // Check if space can be redistributed
   const canRedistributeSpace =
     !isPreviewMode &&
+    !isCanvasPreviewMode &&
     !isDragging &&
     allZonePositionsAreAvailable &&
     zones.length > 1;

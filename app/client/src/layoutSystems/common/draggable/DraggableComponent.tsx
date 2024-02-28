@@ -19,7 +19,7 @@ import {
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
-import { getCanvasPreviewMode } from "../../../selectors/ideSelectors";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;

@@ -46,6 +46,7 @@ import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -224,6 +225,7 @@ function useUpdateRows(
 export function DropTargetComponent(props: DropTargetComponentProps) {
   // Get if this is in preview mode.
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -348,6 +350,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       isResizing ||
       isAutoHeightWithLimitsChanging) &&
     !isPreviewMode &&
+    !isCanvasPreviewMode &&
     !isAppSettingsPaneWithNavigationTabOpen &&
     !props.useAutoLayout;
 

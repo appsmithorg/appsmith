@@ -65,6 +65,7 @@ import {
   computeFinalRowCols,
   computeFinalAutoLayoutRowCols,
 } from "layoutSystems/common/resizer/ResizableUtils";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -80,6 +81,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -325,6 +327,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode &&
+    !isCanvasPreviewMode &&
     !isAppSettingsPaneWithNavigationTabOpen;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 

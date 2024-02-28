@@ -6,6 +6,7 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import AutoHeightOverlayWithStateContext from "./AutoHeightOverlayWithStateContext";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 export interface MinMaxHeightProps {
   maxDynamicHeight: number;
@@ -32,6 +33,7 @@ const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> =
     } = useSelector((state: AppState) => state.ui.widgetDragResize);
 
     const isPreviewMode = useSelector(combinedPreviewModeSelector);
+    const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
     const isAppSettingsPaneWithNavigationTabOpen = useSelector(
       getIsAppSettingsPaneWithNavigationTabOpen,
     );
@@ -42,7 +44,9 @@ const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> =
 
     if (
       isWidgetSelected &&
-      (!isPreviewMode || !isAppSettingsPaneWithNavigationTabOpen)
+      (!isPreviewMode ||
+        !isCanvasPreviewMode ||
+        !isAppSettingsPaneWithNavigationTabOpen)
     ) {
       return (
         <AutoHeightOverlayWithStateContext isHidden={isHidden} {...props} />

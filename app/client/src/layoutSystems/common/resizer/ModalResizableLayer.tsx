@@ -23,6 +23,7 @@ import {
   combinedPreviewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 const minSize = 100;
 
 /**
@@ -100,8 +101,10 @@ export const ModalResizableLayer = ({
     });
   };
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
   const isSnipingMode = useSelector(snipingModeSelector);
-  const enableResizing = !isSnipingMode && !isPreviewMode;
+  const enableResizing =
+    !isSnipingMode && !isPreviewMode && !isCanvasPreviewMode;
   return (
     <ModalResizable
       allowResize

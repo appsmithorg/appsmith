@@ -7,6 +7,7 @@ import {
   isCurrentWidgetFocused,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 export function useWidgetBorderStyles(widgetId: string) {
   const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
@@ -22,7 +23,8 @@ export function useWidgetBorderStyles(widgetId: string) {
   );
 
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
-  if (isPreviewMode) {
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
+  if (isPreviewMode || isCanvasPreviewMode) {
     return {};
   }
 

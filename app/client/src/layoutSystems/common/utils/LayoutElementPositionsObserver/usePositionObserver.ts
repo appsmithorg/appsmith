@@ -7,6 +7,7 @@ import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import { getCanvasPreviewMode } from "selectors/ideSelectors";
 export type ObservableElementType = "widget" | "layout";
 
 export function useObserveDetachedWidget(widgetId: string) {
@@ -14,8 +15,9 @@ export function useObserveDetachedWidget(widgetId: string) {
   // This is because the positions need to be observed only to enable
   // editor features
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
   const appMode = useSelector(getAppMode);
-  if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
+  if (isPreviewMode || isCanvasPreviewMode || appMode === APP_MODE.PUBLISHED) {
     return;
   }
   const className = getAnvilWidgetDOMId(widgetId);
@@ -50,13 +52,18 @@ export function usePositionObserver(
   ref: RefObject<HTMLDivElement>,
 ) {
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
   const appMode = useSelector(getAppMode);
 
   useEffect(() => {
     // We don't need the observer in preview mode or the published app
     // This is because the positions need to be observed only to enable
     // editor features
-    if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
+    if (
+      isPreviewMode ||
+      isCanvasPreviewMode ||
+      appMode === APP_MODE.PUBLISHED
+    ) {
       return;
     }
 
