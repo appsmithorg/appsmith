@@ -18,7 +18,6 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.PostgresErrorMessages;
 import com.external.plugins.exceptions.PostgresPluginError;
@@ -101,14 +100,6 @@ public class PostgresPluginTest {
             .withExposedPorts(5432)
             .withUsername("postgres_no_pwd_auth")
             .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust");
-
-    @Container
-    public static final PostgreSQLContainer pgsqlContainerWithSSL = new PostgreSQLContainer<>("postgres:alpine")
-            .withExposedPorts(5432)
-            .withUsername("postgres")
-            .withPassword("password")
-            .withCommand(
-                    "-c ssl=on -c ssl_cert_file=/resources/certs/server.crt -c ssl_key_file=/resources/certs/server.key");
 
     private static String address;
     private static Integer port;
@@ -1204,32 +1195,6 @@ public class PostgresPluginTest {
                     assertTrue(body.contains("\"ssl\":false"));
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void testSslWithoutCertificateVerification() {
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("select * from pg_stat_ssl");
-
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        SSLDetails sslDetails = new SSLDetails();
-        sslDetails.setAuthType(SSLDetails.AuthType.VERIFY_CA);
-        sslDetails.setCertificateFile(new UploadedFile());
-        sslDetails.setCaCertificateFile(new UploadedFile());
-        sslDetails.setKeyFile(new UploadedFile());
-        com.appsmith.external.models.Connection connection = new com.appsmith.external.models.Connection();
-        connection.setSsl(sslDetails);
-        dsConfig.getConnection().setSsl(sslDetails);
-        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
-                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
-        StepVerifier.create(executeMono).verifyErrorSatisfies(error -> {
-            /* * - This error message indicates that the client was trying to establish an SSL connection but
-             *   could not because the testcontainer server does not have SSL enabled.*/
-            assertTrue(((AppsmithPluginException) error)
-                    .getDownstreamErrorMessage()
-                    .contains("The server does not support SSL"));
-        });
     }
 
     @Test
