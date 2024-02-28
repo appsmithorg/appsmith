@@ -44,6 +44,7 @@ parts.push(`
   servers {
     trusted_proxies static 0.0.0.0/0
   }
+  order rate_limit before basicauth
 }
 
 (file_server) {
@@ -111,6 +112,14 @@ parts.push(`
   redir /supervisor /supervisor/
   handle_path /supervisor/* {
     import reverse_proxy 9001
+  }
+
+  rate_limit {
+    zone dynamic_zone {
+         key {http.request.remote_ip}
+         events 15
+         window 1s
+    }
   }
 
   handle_errors {
