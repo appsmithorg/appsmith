@@ -182,16 +182,7 @@ jobs:
             args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
           fi
           if ! mvn test "${args[@]}"; then
-            find . -type f -name 'TEST-*.xml'
-            echo "==============================================="
-            gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<failure / {print cur_test}' $(find . -type f -name 'TEST-*.xml')
-            echo "==============================================="
-            echo "==============================================="
-            awk -F\" '/<testcase / {cur_test = $4 "#" $2} /<failure / {print cur_test}' $(find . -type f -name 'TEST-*.xml')
-            echo "==============================================="
-            # Collect failed tests from surefire reports into a txt file.
-            grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
-              | awk -F\" '/\<testcase / {print $4 "#" $2}' \
+            gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<failure / {print cur_test}' $(find . -type f -name 'TEST-*.xml') \
               > failed-server-tests.txt
             if [[ -s failed-server-tests.txt ]]; then
               content="$(
@@ -208,8 +199,6 @@ jobs:
                 > /dev/null
             fi
             exit 1
-          else
-            find . -type f -name 'TEST-*.xml'
           fi
 
       # Set status = failedtest
