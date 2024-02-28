@@ -19,7 +19,6 @@ import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
-import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -45,7 +44,6 @@ const Wrapper = styled.section<{
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
-  const isCanvasPreviewMode = useSelector(getCanvasPreviewMode);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -74,11 +72,7 @@ const Canvas = (props: CanvasProps) => {
    */
   let backgroundForCanvas: string;
 
-  if (
-    isPreviewMode ||
-    isCanvasPreviewMode ||
-    isAppSettingsPaneWithNavigationTabOpen
-  ) {
+  if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
     backgroundForCanvas = "initial";
   } else {
     backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
