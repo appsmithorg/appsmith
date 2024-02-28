@@ -10,23 +10,13 @@ describe(
   "Create new application from template",
   { tags: ["@tag.excludeForAirgap", "@tag.Workspace", "@tag.Templates"] },
   function () {
-    let workspaceName: string;
-
-    before(() => {
-      homePage.NavigateToHome();
-      agHelper.GenerateUUID();
-      cy.get("@guid").then((uid) => {
-        workspaceName = `workspace-${uid}`;
-        homePage.CreateNewWorkspace(workspaceName);
-      });
-    });
-
     beforeEach(() => {
-      homePage.OpenTemplatesDialogInStartFromTemplates(workspaceName);
-    });
-
-    afterEach(() => {
-      homePage.NavigateToHome();
+      cy.url().then((url) => {
+        if (!url.endsWith("applications")) {
+          homePage.NavigateToHome();
+        }
+      });
+      homePage.OpenTemplatesDialogInStartFromTemplates();
     });
 
     it("1. Should be able to create new app from template list page", () => {

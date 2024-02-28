@@ -329,16 +329,11 @@ export class HomePage {
     if (appname) this.RenameApplication(appname);
   }
 
-  public OpenTemplatesDialogInStartFromTemplates(workspaceName: string) {
+  public OpenTemplatesDialogInStartFromTemplates() {
     featureFlagIntercept({
       release_show_create_app_from_templates_enabled: true,
     });
-
-    this.agHelper.GetNClick(
-      this._existingWorkspaceCreateNewApp(workspaceName),
-      0,
-      true,
-    );
+    this.agHelper.GetNClick(this._homePageAppCreateBtn, 0, true);
     this.agHelper.GetNClick(this._newButtonCreateApplicationFromTemplates);
     this.agHelper.AssertElementVisibility(this._createAppFromTemplatesDialog);
   }
