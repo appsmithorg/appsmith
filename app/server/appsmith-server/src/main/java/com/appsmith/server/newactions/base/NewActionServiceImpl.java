@@ -167,7 +167,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 return this.findById(analyticEventDTO.getResourceId(), AclPermission.EXECUTE_ACTIONS)
                         .filter(newAction -> newAction.getPluginType().equals(PluginType.JS))
                         .flatMap(newAction -> {
-                            Map<String, Object> analyticsProperties = getAnalyticsProperties(newAction);
+                            Map<String, Object> analyticsProperties = getAnalyticsProperties(newAction, null);
                             analyticsProperties.put(FieldName.AUDIT_LOGS_ORIGIN, origin);
                             if (analyticEventDTO.getMetadata().containsKey(FieldName.AUDIT_LOGS_VIEW_MODE)) {
                                 if (null != analyticEventDTO.getMetadata().get(FieldName.AUDIT_LOGS_VIEW_MODE)) {
