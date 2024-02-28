@@ -4,6 +4,8 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.HttpMethodConverter;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DatasourceStorage;
@@ -672,7 +674,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
                         return actionDTO;
                     })
-                    .flatMap(action -> layoutActionService.createSingleAction(action, Boolean.FALSE));
+                    .flatMap(action -> layoutActionService.createAction(
+                            action, new AppsmithEventContext(AppsmithEventContextType.GENERATE_PAGE), Boolean.FALSE));
         });
     }
 
