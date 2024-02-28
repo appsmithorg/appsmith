@@ -185,10 +185,11 @@ jobs:
             find . -type f -name 'TEST-*.xml'
             grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
               | awk -F\" '/<testcase / {print $4 "#" $2}'
-            cat ./appsmith-plugins/restApiPlugin/target/surefire-reports/TEST-com.external.plugins.RestApiPluginTest.xml
+            grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
+              | awk -F\" '/\<testcase / {print $4 "#" $2}'
             # Collect failed tests from surefire reports into a txt file.
             grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
-              | awk -F\" '/<testcase / {print $4 "#" $2}' \
+              | awk -F\" '/\<testcase / {print $4 "#" $2}' \
               > failed-server-tests.txt
             if [[ -s failed-server-tests.txt ]]; then
               content="$(
