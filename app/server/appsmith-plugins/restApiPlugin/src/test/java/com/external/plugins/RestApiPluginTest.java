@@ -1893,7 +1893,7 @@ public class RestApiPluginTest {
                     assertTrue(
                             result.getPluginErrorDetails()
                                     .getDownstreamErrorMessage()
-                                    .contains("Host not allowed.x"),
+                                    .contains("Host not allowed."),
                             "Unexpected error message. Did this fail for a different reason?");
                 })
                 .verifyComplete();
