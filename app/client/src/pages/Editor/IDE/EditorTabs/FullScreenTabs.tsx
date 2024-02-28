@@ -49,7 +49,7 @@ const FullScreenTabs = () => {
         isIconButton
         kind="tertiary"
         onClick={setSplitScreenMode}
-        startIcon="minimize"
+        startIcon="minimize-v3"
       />
     </Container>
   );
