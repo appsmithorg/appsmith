@@ -165,7 +165,9 @@ class ActionExecutionSolutionCEImplTest {
                 configService,
                 tenantService);
 
-        Mockito.when(observationRegistry.isNoop()).thenReturn(true);
+        ObservationRegistry.ObservationConfig mockObservationConfig =
+                Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
     @BeforeEach
