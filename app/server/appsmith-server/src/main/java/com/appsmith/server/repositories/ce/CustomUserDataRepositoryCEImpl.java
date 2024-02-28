@@ -14,8 +14,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
@@ -28,14 +26,10 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
-    public Mono<Void> saveReleaseNotesViewedVersion(String userId, String version) {
-        return mongoOperations
-                .upsert(
-                        query(where(UserData.Fields.userId).is(userId)),
-                        Update.update(UserData.Fields.releaseNotesViewedVersion, version)
-                                .setOnInsert(UserData.Fields.userId, userId),
-                        UserData.class)
-                .then();
+    public Mono<Integer> saveReleaseNotesViewedVersion(String userId, String version) {
+        return queryBuilder()
+                .criteria(bridge().equal(UserData.Fields.userId, userId))
+                .updateFirst(Update.update(UserData.Fields.releaseNotesViewedVersion, version));
     }
 
     @Override

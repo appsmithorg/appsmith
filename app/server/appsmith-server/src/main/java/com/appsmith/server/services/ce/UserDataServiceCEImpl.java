@@ -174,7 +174,17 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                         .getDefaultTenantId()
                         .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId())))
-                .flatMap(userId -> repository.saveReleaseNotesViewedVersion(userId, version))
+                .flatMap(userId -> repository
+                        .saveReleaseNotesViewedVersion(userId, version)
+                        .flatMap(count -> {
+                            if (count == 0) {
+                                final UserData userData = new UserData();
+                                userData.setReleaseNotesViewedVersion(version);
+                                userData.setUserId(user.getId());
+                                return repository.save(userData).then();
+                            }
+                            return Mono.empty();
+                        }))
                 .thenReturn(user);
     }
 
