@@ -183,10 +183,10 @@ jobs:
           fi
           if ! mvn test "${args[@]}"; then
             find . -type f -name 'TEST-*.xml'
+            grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml')
+            grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') | awk '/testcase/'
             grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
-              | awk -F\" '/<testcase / {print $4 "#" $2}'
-            grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
-              | awk -F\" '/\<testcase / {print $4 "#" $2}'
+              | awk -F\" '/<testcase / {print "SSK:" $4 "#" $2}'
             # Collect failed tests from surefire reports into a txt file.
             grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
               | awk -F\" '/\<testcase / {print $4 "#" $2}' \
