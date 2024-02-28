@@ -13,11 +13,10 @@ import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
+  DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
-  INSPECT_ENTITY,
-  DEBUGGER_ERRORS,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -26,26 +25,17 @@ import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import EntityDeps from "./Debugger/EntityDependecies";
 import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
 import { Button, Callout, Flex, SegmentedControl } from "design-system";
+import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
-import {
-  getDebuggerSelectedTab,
-  getErrorCount,
-  getResponsePaneHeight,
-} from "selectors/debuggerSelectors";
+import { getErrorCount } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import {
-  setDebuggerSelectedTab,
-  setResponsePaneHeight,
-  showDebugger,
-} from "actions/debuggerActions";
 import LogAdditionalInfo from "./Debugger/ErrorLogs/components/LogAdditionalInfo";
 import {
   JsonWrapper,
@@ -59,6 +49,10 @@ import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
 import BindDataButton from "../../pages/Editor/QueryEditor/BindDataButton";
+import { setApiPaneDebuggerState } from "actions/apiPaneActions";
+import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 interface TextStyleProps {
   accent: "primary" | "secondary" | "error";
@@ -312,12 +306,19 @@ function ApiResponseView(props: Props) {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const errorCount = useSelector(getErrorCount);
+  const { open, responseTabHeight, selectedTab } = useSelector(
+    getApiPaneDebuggerState,
+  );
+
+  const ideViewMode = useSelector(getIDEViewMode);
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
     });
-    dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(
+      setApiPaneDebuggerState({ selectedTab: DEBUGGER_TAB_KEYS.ERROR_TAB }),
+    );
   }, []);
 
   const onRunClick = () => {
@@ -380,7 +381,7 @@ function ApiResponseView(props: Props) {
         panelComponent: responseTabComponent(
           dataType.key,
           actionResponse?.body,
-          responsePaneHeight,
+          responseTabHeight,
         ),
       };
     });
@@ -401,8 +402,6 @@ function ApiResponseView(props: Props) {
       (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
-  // get the selected tab in the response pane.
-  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
   // update the selected tab in the response pane.
   const updateSelectedResponseTab = useCallback((tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
@@ -410,13 +409,12 @@ function ApiResponseView(props: Props) {
         source: "API_PANE",
       });
     }
-    dispatch(setDebuggerSelectedTab(tabKey));
+    dispatch(setApiPaneDebuggerState({ selectedTab: tabKey }));
   }, []);
-  // get the height of the response pane.
-  const responsePaneHeight = useSelector(getResponsePaneHeight);
+
   // update the height of the response pane on resize.
   const updateResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setResponsePaneHeight(height));
+    dispatch(setApiPaneDebuggerState({ responseTabHeight: height }));
   }, []);
 
   // get request timestamp formatted to human readable format.
@@ -427,7 +425,7 @@ function ApiResponseView(props: Props) {
     name: currentActionConfig ? currentActionConfig.name : "API",
     id: currentActionConfig?.id || "",
   };
-  const tabs = [
+  const tabs: BottomTab[] = [
     {
       key: "response",
       title: "Response",
@@ -526,7 +524,7 @@ function ApiResponseView(props: Props) {
                       {responseTabComponent(
                         selectedControl || segmentedControlOptions[0]?.value,
                         actionResponse?.body,
-                        responsePaneHeight,
+                        responseTabHeight,
                       )}
                     </SegmentedControlContainer>
                   ) : null}
@@ -579,32 +577,34 @@ function ApiResponseView(props: Props) {
         </ResponseTabWrapper>
       ),
     },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
-    },
   ];
+
+  if (ideViewMode === EditorViewMode.FullScreen) {
+    tabs.push(
+      {
+        key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+        title: createMessage(DEBUGGER_ERRORS),
+        count: errorCount,
+        panelComponent: <ErrorLogs />,
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+        title: createMessage(DEBUGGER_LOGS),
+        panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
+      },
+    );
+  }
 
   // close the debugger
   //TODO: move this to a common place
-  const onClose = () => dispatch(showDebugger(false));
+  const onClose = () => dispatch(setApiPaneDebuggerState({ open: false }));
+
+  if (!open) return null;
 
   return (
     <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>
       <Resizer
-        initialHeight={responsePaneHeight}
+        initialHeight={responseTabHeight}
         onResizeComplete={(height: number) => {
           updateResponsePaneHeight(height);
         }}
@@ -659,7 +659,7 @@ function ApiResponseView(props: Props) {
         <EntityBottomTabs
           expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={updateSelectedResponseTab}
-          selectedTabKey={selectedResponseTab}
+          selectedTabKey={selectedTab || ""}
           tabs={tabs}
         />
         <CloseDebugger
