@@ -102,7 +102,7 @@ public class UserDataServiceTest {
 
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
-                    assertThat(userData.getReleaseNotesViewedVersion()).isEqualTo("version-1");
+                    assertThat(userData.getReleaseNotesViewedVersion()).isEqualTo("version-1x");
                 })
                 .verifyComplete();
     }

@@ -182,6 +182,10 @@ jobs:
           fi
           args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
           if ! mvn test "${args[@]}"; then
+            # Collect failed tests from surefire reports into a txt file.
+            grep -oB1 '<failure ' $(find . -type f -name 'TEST-*.xml') \
+              | awk -F\" '/<testcase / {print $4 "#" $2}' \
+              > failed-server-tests.txt
             if [[ -s failed-server-tests.txt ]]; then
               content="$(
                 echo "## Failed server tests"
