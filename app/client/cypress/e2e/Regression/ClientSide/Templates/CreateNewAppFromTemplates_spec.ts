@@ -11,11 +11,7 @@ describe(
   { tags: ["@tag.excludeForAirgap", "@tag.Workspace", "@tag.Templates"] },
   function () {
     beforeEach(() => {
-      cy.url().then((url) => {
-        if (!url.endsWith("applications")) {
-          homePage.NavigateToHome();
-        }
-      });
+      homePage.NavigateToHome();
       homePage.OpenTemplatesDialogInStartFromTemplates();
     });
 
