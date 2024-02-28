@@ -69,22 +69,19 @@ export class RunService {
         },
       });
 
-      const runResponse: RunResponse = {
+      return {
         success: true,
         message: "Workflow run started succesfully",
         data: {
           workflowRunId: workflowRunId,
         },
       };
-
-      return runResponse;
     } catch (err) {
-      const runResponse: RunResponse = {
+      return {
         success: false,
         message: "Workflow instance failed to start",
         data: err.message,
       };
-      return runResponse;
     }
   }
 
@@ -107,8 +104,18 @@ export class RunService {
 
       // @ts-expect-error: resumeSignal expects the body to be passed as a parameter
       await handle.signal(resumeSignal, body);
+      return {
+        success: true,
+        message: "Request resolved succesfully",
+        data: {},
+      };
     } catch (err) {
       error("Error while executing inbox resolution request", err);
+      return {
+        success: false,
+        message: "Request resolution failed: " + err.message,
+        data: {},
+      };
     }
   }
 }
