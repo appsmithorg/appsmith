@@ -462,6 +462,10 @@ export class HomePage {
           this.agHelper.ClickButton("Get started");
         }
       });
+    this.agHelper.WaitUntilEleAppear(
+      this.onboarding.locators.skipStartFromData,
+    );
+    this.agHelper.GetNClick(this.onboarding.locators.skipStartFromData);
     this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
   }
 

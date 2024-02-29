@@ -202,10 +202,6 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
       ApplicationApi.fetchAllApplicationsOfWorkspace,
       activeWorkspaceId,
     );
-    const isEnabledForCreateNew: boolean = yield select(
-      selectFeatureFlagCheck,
-      FEATURE_FLAG.ab_create_new_apps_enabled,
-    );
     const workspaces: Workspace[] = yield select(getFetchedWorkspaces);
     const isOnboardingApplicationId: string = yield select(
       getCurrentApplicationIdForCreateNewApp,
@@ -224,11 +220,7 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
       });
 
       // This will initialise the current workspace to first only during onboarding
-      if (
-        isEnabledForCreateNew &&
-        workspaces.length > 0 &&
-        !!isOnboardingApplicationId
-      ) {
+      if (workspaces.length > 0 && !!isOnboardingApplicationId) {
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: workspaces[0],

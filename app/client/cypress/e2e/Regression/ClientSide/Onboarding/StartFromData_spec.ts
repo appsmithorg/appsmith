@@ -17,8 +17,6 @@ describe(
       featureFlagIntercept(
         {
           ab_show_templates_instead_of_blank_canvas_enabled: true,
-          ab_create_new_apps_enabled: true,
-          ab_start_with_data_default_enabled: true,
         },
         false,
       );
