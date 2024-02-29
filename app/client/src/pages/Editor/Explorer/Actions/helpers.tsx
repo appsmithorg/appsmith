@@ -57,6 +57,7 @@ export const resolveActionURL = ({
   if (pluginType === PluginType.SAAS) {
     return saasEditorApiIdURL({
       parentEntityId,
+      // It is safe to assume at this date, that only Google Sheets uses and will use PluginType.SAAS
       pluginPackageName: PluginPackageName.GOOGLE_SHEETS,
       apiId: id,
     });
