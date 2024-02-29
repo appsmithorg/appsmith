@@ -27,13 +27,14 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Mono<Application> getArtifactById(String applicationId, AclPermission aclPermission) {
         return applicationService
-            .findById(applicationId, aclPermission)
-            .switchIfEmpty(Mono.error(new AppsmithException(
-                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
+                .findById(applicationId, aclPermission)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
     }
 
     @Override
-    public Mono<Application> getArtifactByDefaultIdAndBranchName(String defaultArtifactId, String branchName, AclPermission aclPermission) {
+    public Mono<Application> getArtifactByDefaultIdAndBranchName(
+            String defaultArtifactId, String branchName, AclPermission aclPermission) {
         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultArtifactId, aclPermission);
     }
 

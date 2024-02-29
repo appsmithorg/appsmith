@@ -90,10 +90,7 @@ public interface ImportServiceCE {
             String workspaceId, String artifactId, String branchName, ArtifactExchangeJson artifactExchangeJson);
 
     Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
-            String workspaceId,
-            String artifactId,
-            ImportableArtifact importableArtifact,
-            ArtifactType artifactType);
+            String workspaceId, String artifactId, ImportableArtifact importableArtifact, ArtifactType artifactType);
 
     Mono<List<Datasource>> findDatasourceByArtifactId(
             String workspaceId, String defaultArtifactId, ArtifactType artifactType);

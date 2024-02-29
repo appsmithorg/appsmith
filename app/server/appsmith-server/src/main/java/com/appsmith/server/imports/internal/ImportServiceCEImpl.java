@@ -114,8 +114,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param artifactType : type of the json which is getting imported
      * @return : Json entity which implements ArtifactExchangeJson
      */
-    public Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(
-            Part filePart, ArtifactType artifactType) {
+    public Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart, ArtifactType artifactType) {
 
         final MediaType contentType = filePart.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
@@ -130,8 +129,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     DataBufferUtils.release(dataBuffer);
                     return new String(data);
                 })
-                .map(jsonString ->
-                        getArtifactBasedImportService(artifactType).extractArtifactExchangeJson(jsonString));
+                .map(jsonString -> getArtifactBasedImportService(artifactType).extractArtifactExchangeJson(jsonString));
     }
 
     /**
@@ -387,10 +385,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
-            String workspaceId,
-            String artifactId,
-            ImportableArtifact importableArtifact,
-            ArtifactType artifactType) {
+            String workspaceId, String artifactId, ImportableArtifact importableArtifact, ArtifactType artifactType) {
 
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService = getArtifactBasedImportService(artifactType);
 

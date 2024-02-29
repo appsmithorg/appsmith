@@ -1,6 +1,7 @@
 package com.appsmith.external.git;
 
 import com.appsmith.external.models.ApplicationGitReference;
+import com.appsmith.external.models.ArtifactGitReference;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import reactor.core.publisher.Mono;
 
@@ -29,7 +30,7 @@ public interface FileInterface {
      *       --page2
      */
     Mono<Path> saveApplicationToGitRepo(
-            Path baseRepoSuffix, ApplicationGitReference applicationGitReference, String branchName)
+            Path baseRepoSuffix, ArtifactGitReference artifactGitReference, String branchName)
             throws IOException, GitAPIException;
 
     /**

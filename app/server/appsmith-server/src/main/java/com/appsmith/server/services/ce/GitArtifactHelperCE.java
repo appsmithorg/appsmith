@@ -10,5 +10,6 @@ public interface GitArtifactHelperCE<T extends ExportableArtifact> {
 
     Mono<T> getArtifactById(String artifactId, AclPermission aclPermission);
 
-    Mono<T> getArtifactByDefaultIdAndBranchName(String defaultArtifactId, String branchName, AclPermission aclPermission);
+    Mono<T> getArtifactByDefaultIdAndBranchName(
+            String defaultArtifactId, String branchName, AclPermission aclPermission);
 }

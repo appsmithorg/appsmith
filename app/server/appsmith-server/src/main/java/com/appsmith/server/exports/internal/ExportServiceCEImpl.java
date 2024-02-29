@@ -83,10 +83,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
 
     @Override
     public Mono<? extends ArtifactExchangeJson> exportByExportableArtifactIdAndBranchName(
-            String artifactId,
-            String branchName,
-            SerialiseArtifactObjective objective,
-            ArtifactType artifactType) {
+            String artifactId, String branchName, SerialiseArtifactObjective objective, ArtifactType artifactType) {
 
         // We require this to be present, without this we can't move further ahead
         if (artifactType == null) {
@@ -286,8 +283,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 artifactId, branchName, SerialiseArtifactObjective.SHARE, artifactType);
     }
 
-    public Mono<ExportFileDTO> getArtifactFile(
-            String artifactId, String branchName, ArtifactType artifactType) {
+    public Mono<ExportFileDTO> getArtifactFile(String artifactId, String branchName, ArtifactType artifactType) {
         return exportByArtifactIdAndBranchName(artifactId, branchName, artifactType)
                 .doOnNext(artifactExchangeJson -> artifactExchangeJson.setModifiedResources(null))
                 .map(artifactExchangeJson -> {

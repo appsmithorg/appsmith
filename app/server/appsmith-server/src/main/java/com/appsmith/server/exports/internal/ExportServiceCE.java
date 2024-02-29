@@ -12,10 +12,7 @@ public interface ExportServiceCE {
     ArtifactBasedExportService<?, ?> getContextBasedExportService(ArtifactType artifactType);
 
     Mono<? extends ArtifactExchangeJson> exportByExportableArtifactIdAndBranchName(
-            String artifactId,
-            String branchName,
-            SerialiseArtifactObjective objective,
-            ArtifactType artifactType);
+            String artifactId, String branchName, SerialiseArtifactObjective objective, ArtifactType artifactType);
 
     /**
      * This function will give the artifact the resources to rebuild the artifact in import artifact flow

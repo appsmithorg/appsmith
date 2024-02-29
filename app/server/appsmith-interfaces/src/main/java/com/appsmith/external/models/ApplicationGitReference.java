@@ -14,7 +14,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class ApplicationGitReference extends ApplicationGitReferenceCE {
+public class ApplicationGitReference extends ApplicationGitReferenceCE implements ArtifactGitReference {
 
     Map<String, Object> moduleInstances;
     Map<String, Object> sourceModules;

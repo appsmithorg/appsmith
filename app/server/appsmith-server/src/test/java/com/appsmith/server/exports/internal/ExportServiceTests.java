@@ -1428,9 +1428,7 @@ public class ExportServiceTests {
 
         Mono<Application> result = exportService
                 .exportByArtifactId(
-                        savedApplication.getId(),
-                        SerialiseArtifactObjective.VERSION_CONTROL,
-                        ArtifactType.APPLICATION)
+                        savedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
@@ -1489,9 +1487,7 @@ public class ExportServiceTests {
 
         Mono<Application> result = exportService
                 .exportByArtifactId(
-                        savedApplication.getId(),
-                        SerialiseArtifactObjective.VERSION_CONTROL,
-                        ArtifactType.APPLICATION)
+                        savedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
@@ -1809,8 +1805,7 @@ public class ExportServiceTests {
         PageDTO applicationPageDTO = applicationPageService.createPage(pageDTO).block();
 
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(
-                        applicationPageDTO.getApplicationId(), "", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName(applicationPageDTO.getApplicationId(), "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)

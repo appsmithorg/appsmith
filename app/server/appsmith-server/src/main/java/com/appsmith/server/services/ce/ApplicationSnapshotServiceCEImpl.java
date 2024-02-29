@@ -46,9 +46,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 */
                 .flatMap(branchedAppId -> Mono.zip(
                         exportService.exportByArtifactId(
-                                branchedAppId,
-                                SerialiseArtifactObjective.VERSION_CONTROL,
-                                ArtifactType.APPLICATION),
+                                branchedAppId, SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION),
                         Mono.just(branchedAppId)))
                 .flatMapMany(objects -> {
                     String branchedAppId = objects.getT2();

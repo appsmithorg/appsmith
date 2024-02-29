@@ -1425,10 +1425,7 @@ public class AuditLogServiceTest {
                 .forkApplicationToWorkspaceWithEnvironment(
                         createdApplication.getId(), createdWorkspace.getId(), environmentId)
                 .flatMap(application1 -> importService.getArtifactImportDTO(
-                        application1.getWorkspaceId(),
-                        application1.getId(),
-                        application1,
-                        ArtifactType.APPLICATION))
+                        application1.getWorkspaceId(), application1.getId(), application1, ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
 
