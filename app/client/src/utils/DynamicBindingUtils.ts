@@ -1,8 +1,7 @@
 import _, { get, isString } from "lodash";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import type { Action } from "entities/Action";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { Severity } from "entities/AppsmithConsole";
+import type { WidgetProps } from "widgets/types";
 import {
   getEntityNameAndPropertyPath,
   isAction,
@@ -13,7 +12,9 @@ import {
 import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
-import { ViewTypes } from "components/formControls/utils";
+import { ViewTypes } from "components/formControls/BaseControl";
+import { PropertyEvaluationErrorType } from "widgets/types";
+import type { DynamicPath } from "widgets/types";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -150,17 +151,6 @@ export interface EvalError {
   type: EvalErrorTypes;
   message: string;
   context?: Record<string, any>;
-}
-
-export interface DynamicPath {
-  key: string;
-  value?: string;
-}
-
-export interface WidgetDynamicPathListProps {
-  dynamicBindingPathList?: DynamicPath[];
-  dynamicTriggerPathList?: DynamicPath[];
-  dynamicPropertyPathList?: DynamicPath[];
 }
 
 export interface EntityWithBindings {
@@ -371,52 +361,6 @@ export const getEvalValuePath = (
     options.isPopulated,
   );
 };
-
-export enum PropertyEvaluationErrorType {
-  VALIDATION = "VALIDATION",
-  PARSE = "PARSE",
-  LINT = "LINT",
-}
-
-export enum PropertyEvaluationErrorCategory {
-  ACTION_INVOCATION_IN_DATA_FIELD = "ACTION_INVOCATION_IN_DATA_FIELD",
-}
-export interface PropertyEvaluationErrorKind {
-  category: PropertyEvaluationErrorCategory;
-  rootcause: string;
-}
-
-export interface DataTreeError {
-  raw: string;
-  errorMessage: Error;
-  severity: Severity.WARNING | Severity.ERROR;
-}
-
-export interface EvaluationError extends DataTreeError {
-  errorType:
-    | PropertyEvaluationErrorType.PARSE
-    | PropertyEvaluationErrorType.VALIDATION;
-  originalBinding?: string;
-  kind?: Partial<PropertyEvaluationErrorKind>;
-}
-
-export interface LintError extends DataTreeError {
-  errorType: PropertyEvaluationErrorType.LINT;
-  errorSegment: string;
-  originalBinding: string;
-  variables: (string | undefined | null)[];
-  code: string;
-  line: number;
-  ch: number;
-  originalPath?: string;
-}
-
-export interface DataTreeEvaluationProps {
-  __evaluation__?: {
-    errors: Record<string, EvaluationError[]>;
-    evaluatedValues?: Record<string, unknown>;
-  };
-}
 
 export const PropertyEvalErrorTypeDebugMessage: Record<
   PropertyEvaluationErrorType,

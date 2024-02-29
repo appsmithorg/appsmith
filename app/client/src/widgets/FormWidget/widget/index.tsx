@@ -1,7 +1,7 @@
 import type React from "react";
 import _, { get, some } from "lodash";
 import equal from "fast-deep-equal/es6";
-import type { WidgetProps } from "../../BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import type { ContainerComponentProps } from "widgets/ContainerWidget/component";

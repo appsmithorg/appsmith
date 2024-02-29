@@ -5,7 +5,7 @@ import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";

@@ -14,7 +14,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { generateClassName } from "utils/generators";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import ModalComponent from "../component";

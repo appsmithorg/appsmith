@@ -1,11 +1,6 @@
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { isBoolean, get, set, isString } from "lodash";
-import type {
-  ConditionalOutput,
-  FormConfigEvalObject,
-  FormEvalOutput,
-} from "reducers/evaluationReducers/formEvaluationReducer";
-import type { FormConfigType, HiddenType } from "./BaseControl";
+import { ViewTypes, type FormConfigType, type HiddenType } from "./BaseControl";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
@@ -20,6 +15,11 @@ import {
 } from "@appsmith/constants/messages";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { InputTypes } from "components/constants";
+import type {
+  FormConfigEvalObject,
+  FormEvalOutput,
+  ConditionalOutput,
+} from "./formControlTypes";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
@@ -277,11 +277,6 @@ export const isHidden = (
   }
   return !!hiddenConfig;
 };
-
-export enum ViewTypes {
-  JSON = "json",
-  COMPONENT = "component",
-}
 
 export const alternateViewTypeInputConfig = () => {
   return {

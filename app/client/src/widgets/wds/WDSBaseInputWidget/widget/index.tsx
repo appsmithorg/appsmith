@@ -1,5 +1,5 @@
 import BaseWidget from "widgets/BaseWidget";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

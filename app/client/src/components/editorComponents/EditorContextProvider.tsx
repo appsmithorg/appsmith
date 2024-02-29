@@ -3,23 +3,17 @@ import React, { createContext, useCallback, useMemo, useRef } from "react";
 import { connect } from "react-redux";
 import { get, set } from "lodash";
 
-import type { WidgetOperation } from "widgets/BaseWidget";
-
 import { updateWidget } from "actions/pageActions";
 import {
   executeTrigger,
   disableDragAction,
   focusWidget,
 } from "actions/widgetActions";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import {
   updateWidgetPropertyRequest,
   deleteWidgetProperty as deletePropertyAction,
   batchUpdateWidgetProperty as batchUpdatePropertyAction,
 } from "actions/controlActions";
-
-import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 import type { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 import {
@@ -33,11 +27,6 @@ import {
   deleteMetaWidgets,
   updateMetaWidgetProperty,
 } from "actions/metaWidgetActions";
-import type {
-  ModifyMetaWidgetPayload,
-  DeleteMetaWidgetsPayload,
-  UpdateMetaWidgetPropertyPayload,
-} from "reducers/entityReducers/metaWidgetsReducer";
 import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
 
@@ -45,66 +34,14 @@ import {
   checkContainersForAutoHeightAction,
   updateWidgetAutoHeightAction,
 } from "actions/autoHeightActions";
-import type { WidgetSelectionRequest } from "actions/widgetSelectionActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   updatePositionsOnTabChange,
   updateWidgetDimensionAction,
 } from "actions/autoLayoutActions";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
+import type { EditorContextType } from "./editorContextTypes";
 
-export interface EditorContextType<TCache = unknown> {
-  executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
-  updateWidget?: (
-    operation: WidgetOperation,
-    widgetId: string,
-    payload: any,
-  ) => void;
-  triggerEvalOnMetaUpdate?: () => void;
-  updateWidgetProperty?: (
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ) => void;
-  resetChildrenMetaProperty?: (widgetId: string) => void;
-  disableDrag?: (disable: boolean) => void;
-  occupiedSpaces?: { [containerWidgetId: string]: OccupiedSpace[] };
-  deleteWidgetProperty?: (widgetId: string, propertyPaths: string[]) => void;
-  batchUpdateWidgetProperty?: (
-    widgetId: string,
-    updates: BatchPropertyUpdatePayload,
-    shouldReplay: boolean,
-  ) => void;
-  syncUpdateWidgetMetaProperty?: (
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ) => void;
-  syncBatchUpdateWidgetMetaProperties?: (
-    batchMetaUpdates: UpdateWidgetMetaPropertyPayload[],
-  ) => void;
-  updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
-  updateWidgetDimension?: (
-    widgetId: string,
-    width: number,
-    height: number,
-  ) => void;
-  checkContainersForAutoHeight?: () => void;
-  modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
-  setWidgetCache?: <TAltCache = void>(
-    widgetId: string,
-    data: TCache | TAltCache,
-  ) => void;
-  getWidgetCache?: <TAltCache = void>(
-    widgetId: string,
-  ) => TAltCache extends void ? TCache : TAltCache;
-  deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
-  updateMetaWidgetProperty?: (payload: UpdateMetaWidgetPropertyPayload) => void;
-  selectWidgetRequest?: WidgetSelectionRequest;
-  updatePositionsOnTabChange?: (widgetId: string, selectedTab: string) => void;
-  updateOneClickBindingOptionsVisibility?: (visibility: boolean) => void;
-  unfocusWidget?: () => void;
-}
 export const EditorContext: Context<EditorContextType> = createContext({});
 
 type EditorContextProviderProps = EditorContextType & {

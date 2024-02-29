@@ -28,8 +28,8 @@ import type {
   MetaWidgets,
 } from "./widget";
 import { DEFAULT_TEMPLATE_HEIGHT, DynamicPathType } from "./widget";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { WidgetProps } from "widgets/types";
+import type { DynamicPath } from "widgets/types";
 import {
   combineDynamicBindings,
   getDynamicBindings,

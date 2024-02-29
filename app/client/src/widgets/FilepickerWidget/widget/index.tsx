@@ -1,6 +1,6 @@
 import React from "react";
 import type { Uppy } from "@uppy/core";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "../../BaseWidget";
 import FilePickerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";

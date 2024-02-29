@@ -30,7 +30,6 @@ import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import type { SourceEntity } from "entities/AppsmithConsole";
@@ -47,6 +46,7 @@ import QueryEditorHeader from "./QueryEditorHeader";
 import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
 import QueryResponseTab from "./QueryResponseTab";
 import DatasourceSelector from "./DatasourceSelector";
+import type { FormEvalOutput } from "components/formControls/formControlTypes";
 
 const QueryFormContainer = styled.form`
   flex: 1;

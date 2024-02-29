@@ -1,5 +1,5 @@
 import type { ModalWidgetProps } from "./types";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import * as config from "./../config";
 import type { AnvilConfig } from "WidgetProvider/constants";

@@ -1,5 +1,5 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import type { LintError } from "utils/DynamicBindingUtils";
+import type { LintError } from "widgets/types";
 import { isNil } from "lodash";
 import {
   EvaluationScriptType,

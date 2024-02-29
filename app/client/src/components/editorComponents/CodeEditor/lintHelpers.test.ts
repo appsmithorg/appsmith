@@ -1,6 +1,6 @@
-import { Severity } from "entities/AppsmithConsole";
-import type { LintError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { Severity } from "widgets/types";
+import type { LintError } from "widgets/types";
+import { PropertyEvaluationErrorType } from "widgets/types";
 import {
   INVALID_JSOBJECT_START_STATEMENT,
   INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,

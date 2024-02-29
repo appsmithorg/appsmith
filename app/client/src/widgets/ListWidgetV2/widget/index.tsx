@@ -6,7 +6,6 @@ import React, { createRef } from "react";
 import { floor, isEmpty, isNil, isString } from "lodash";
 import { klona } from "klona";
 import hash from "object-hash";
-import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import derivedProperties from "./parseDerivedProperties";
 import ListComponent, { ListComponentEmpty } from "../component";
@@ -17,7 +16,6 @@ import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
 import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -38,7 +36,7 @@ import {
 } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetState } from "../../BaseWidget";
+import type { WidgetState, WidgetProps, WidgetOperation } from "widgets/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   TabContainerWidgetProps,
@@ -53,6 +51,7 @@ import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",

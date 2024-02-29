@@ -55,7 +55,7 @@ import {
   batchUpdateWidgetProperty,
   updateMultipleWidgetPropertiesAction,
 } from "actions/controlActions";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
 import {
   getEntityDynamicBindingPathList,
   getWidgetDynamicPropertyPathList,
@@ -65,7 +65,7 @@ import {
   isPathADynamicBinding,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import _, { cloneDeep, get, isString, set, uniq } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
 import { generateReactKey } from "utils/generators";

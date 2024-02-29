@@ -7,7 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import ButtonGroupComponent from "../component";

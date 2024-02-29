@@ -1,6 +1,6 @@
 import * as Factory from "factory.ts";
 import { generateReactKey } from "utils/generators";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export const FormFactory = Factory.Sync.makeFactory<WidgetProps>({
   backgroundColor: "Gray",

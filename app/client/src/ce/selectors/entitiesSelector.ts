@@ -38,11 +38,11 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+  type EvaluationError,
+} from "widgets/types";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";

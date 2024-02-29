@@ -1,4 +1,4 @@
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import type {
   TabContainerWidgetProps,

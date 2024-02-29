@@ -1,7 +1,8 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
-import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import { Severity } from "widgets/types";
 import styled from "styled-components";
 import { Classes, getTypographyByKey } from "design-system-old";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";

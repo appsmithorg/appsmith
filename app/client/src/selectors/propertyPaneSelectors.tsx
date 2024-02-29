@@ -17,7 +17,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { getLayoutSystemType } from "./layoutSystemSelectors";

@@ -26,11 +26,15 @@ import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
-import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import type { EvalError } from "utils/DynamicBindingUtils";
+
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
-import type { WidgetProps } from "widgets/BaseWidget";
+import {
+  PropertyEvaluationErrorType,
+  type EvaluationError,
+  type WidgetProps,
+} from "widgets/types";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -75,7 +79,6 @@ import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
-import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
@@ -105,6 +108,7 @@ import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSele
 import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import type { FormEvaluationState } from "components/formControls/formControlTypes";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(

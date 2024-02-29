@@ -72,7 +72,7 @@ import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
-import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
+import type { FormEvalOutput } from "components/formControls/formControlTypes";
 import { validateResponse } from "./ErrorSagas";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";

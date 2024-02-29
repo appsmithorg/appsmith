@@ -1,6 +1,6 @@
 import type { Intent as BlueprintIntent } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export interface DropdownOption {
   label?: string | number;

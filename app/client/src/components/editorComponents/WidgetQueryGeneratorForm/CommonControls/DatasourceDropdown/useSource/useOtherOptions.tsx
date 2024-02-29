@@ -7,7 +7,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { useParams } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import {
   createMessage,
   DATASOURCE_DROPDOWN_OPTIONS,

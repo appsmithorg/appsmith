@@ -13,7 +13,7 @@ import React from "react";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { WidgetState } from "../../BaseWidget";
+import type { WidgetState } from "widgets/types";
 import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
 import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
@@ -36,7 +36,7 @@ import {
   WIDGET_TAGS,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";

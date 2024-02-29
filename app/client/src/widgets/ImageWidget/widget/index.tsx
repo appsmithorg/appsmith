@@ -1,6 +1,6 @@
 import { RenderModes } from "constants/WidgetConstants";
 import * as React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import ImageComponent from "../component";
 

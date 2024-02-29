@@ -1,4 +1,4 @@
-import { Severity } from "entities/AppsmithConsole";
+import { Severity } from "widgets/types";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";

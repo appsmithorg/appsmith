@@ -10,7 +10,7 @@ import {
 } from "constants/WidgetConstants";
 import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import type { WidgetProps } from "./BaseWidget";
+import type { WidgetProps } from "./types";
 import { rgbaMigrationConstantV56 } from "../WidgetProvider/constants";
 import {
   borderRadiusUtility,

@@ -5,10 +5,10 @@ import { NAVIGATION_DELAY } from "../costants";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import { getFormEvaluationState } from "selectors/formSelectors";
-import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isEmpty } from "lodash";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { isActionSaving } from "@appsmith/selectors/entitiesSelector";
+import type { FormEvaluationState } from "components/formControls/formControlTypes";
 
 export default class QueryPaneNavigation extends ActionPaneNavigation {
   constructor(entityInfo: EntityInfo) {

@@ -1,13 +1,9 @@
 import { createMessage } from "@appsmith/constants/messages";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
-import type {
-  FormEvalOutput,
-  ConditionalOutput,
-} from "reducers/evaluationReducers/formEvaluationReducer";
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log } from "entities/AppsmithConsole";
-import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
 import {
   ENTITY_TYPE,
   PLATFORM_ERROR,
@@ -25,6 +21,11 @@ import { isPlainObject, isString } from "lodash";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { klona } from "klona/lite";
 import { apiFailureResponseInterceptor } from "@appsmith/api/ApiUtils";
+import type {
+  ConditionalOutput,
+  FormEvalOutput,
+} from "components/formControls/formControlTypes";
+import { Severity } from "widgets/types";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (

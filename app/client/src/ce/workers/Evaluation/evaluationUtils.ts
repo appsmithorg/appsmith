@@ -1,9 +1,12 @@
-import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  PropertyEvaluationErrorType,
+  type EvaluationError,
+} from "widgets/types";
 import {
   EVAL_ERROR_PATH,
   isChildPropertyPath,
   isDynamicValue,
-  PropertyEvaluationErrorType,
   isPathDynamicTrigger,
   isPathADynamicBinding,
 } from "utils/DynamicBindingUtils";

@@ -12,8 +12,8 @@ import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getAppsmithScriptSchema } from "widgets/CustomWidget/component/constants";
 // import { DebuggerLogType } from "../../types";
-// import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-// import { Severity } from "entities/AppsmithConsole";
+// import { PropertyEvaluationErrorType } from "widgets/types";
+// import { Severity } from "widgets/types";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { Spinner } from "design-system";
 import {
@@ -21,9 +21,9 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { DebuggerLogType } from "../../types";
-import type { LintError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { Severity } from "entities/AppsmithConsole";
+import type { LintError } from "widgets/types";
+import { PropertyEvaluationErrorType } from "widgets/types";
+import { Severity } from "widgets/types";
 import { isUndefined } from "lodash";
 
 export default function JSEditor(props: ContentProps) {

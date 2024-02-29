@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import React from "react";
 import useWidgetConfig from "utils/hooks/useWidgetConfig";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,

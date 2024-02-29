@@ -49,7 +49,8 @@ import type { JSObjectNameReduxState } from "reducers/uiReducers/jsObjectNameRed
 import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
 import type { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
 import type { CrudInfoModalReduxState } from "reducers/uiReducers/crudInfoModalReducer";
-import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
+import type { FormEvaluationState } from "components/formControls/formControlTypes";
+
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import type { AppThemingState } from "reducers/uiReducers/appThemingReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";

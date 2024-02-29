@@ -9,7 +9,7 @@ import type { Color } from "constants/Colors";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { pick } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import type { ContainerStyle } from "widgets/ContainerWidget/component";
 import type { TextAlign } from "../component";
@@ -31,7 +31,7 @@ import type {
   PropertyUpdates,
 } from "WidgetProvider/constants";
 import { get } from "lodash";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const MAX_HTML_PARSING_LENGTH = 1000;

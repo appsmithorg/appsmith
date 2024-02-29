@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
 
-import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import type { EditorContextType } from "components/editorComponents/editorContextTypes";
 
 type MetaWidgetContextProviderProps =
   React.PropsWithChildren<EditorContextType>;

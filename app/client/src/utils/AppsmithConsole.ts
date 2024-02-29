@@ -6,11 +6,12 @@ import {
 } from "actions/debuggerActions";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { LogActionPayload, Log } from "entities/AppsmithConsole";
-import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
 import moment from "moment";
 import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";
 import { isEmpty } from "lodash";
+import { Severity } from "widgets/types";
 
 // * @param payload - payload of the error
 //  * @param severity - severity of the error

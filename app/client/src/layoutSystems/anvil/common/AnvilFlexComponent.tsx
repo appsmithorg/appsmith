@@ -8,7 +8,7 @@ import {
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import type { AnvilFlexComponentProps } from "../utils/types";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { Layers } from "constants/Layers";

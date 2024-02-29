@@ -3,7 +3,8 @@ import {
   getModuleInstanceInvalidErrors,
   type ENTITY_TYPE,
 } from "@appsmith/entities/AppsmithConsole/utils";
-import { Severity } from "entities/AppsmithConsole";
+import type { EvaluationError } from "widgets/types";
+import { Severity } from "widgets/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getEntityNameAndPropertyPath,
@@ -11,7 +12,7 @@ import {
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { get } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";

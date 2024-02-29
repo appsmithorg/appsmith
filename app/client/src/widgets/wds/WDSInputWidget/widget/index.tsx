@@ -19,7 +19,7 @@ import type { InputWidgetProps } from "./types";
 import { mergeWidgetConfig } from "utils/helpers";
 import { parseText, validateInput } from "./helper";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import type { SetterConfig } from "entities/AppTheming";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import derivedProperties from "./parsedDerivedProperties";

@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";

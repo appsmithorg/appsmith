@@ -6,7 +6,7 @@ import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/cons
 import type { RenderModes } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { getRenderMode } from "selectors/editorSelectors";
 import { denormalize } from "utils/canvasStructureHelpers";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";

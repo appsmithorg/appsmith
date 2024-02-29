@@ -5,7 +5,7 @@ import type {
   ConditionalOutput,
   FormEvalOutput,
   FormEvaluationState,
-} from "./formEvaluationReducer";
+} from "components/formControls/formControlTypes";
 
 // // Type for the object that will store the eval output for the app
 export type TriggerValuesEvaluationState = Record<string, FormEvalOutput>;

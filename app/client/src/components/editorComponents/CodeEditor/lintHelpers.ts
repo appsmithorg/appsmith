@@ -1,8 +1,8 @@
 import { last, isNumber, isEmpty } from "lodash";
 import type { Annotation, Position } from "codemirror";
-import type { LintError } from "utils/DynamicBindingUtils";
+import type { LintError } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { Severity } from "entities/AppsmithConsole";
+import { Severity } from "widgets/types";
 import {
   CODE_EDITOR_START_POSITION,
   LintTooltipDirection,

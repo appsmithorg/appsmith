@@ -3,7 +3,7 @@ import type {
   Positioning,
   Spacing,
 } from "layoutSystems/common/utils/constants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export interface TabContainerWidgetProps extends WidgetProps {
   tabId: string;

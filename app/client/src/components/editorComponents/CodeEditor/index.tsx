@@ -78,7 +78,7 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
+import type { EvaluationError, LintError } from "widgets/types";
 import { getEvalErrorPath, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   addEventToHighlightedElement,

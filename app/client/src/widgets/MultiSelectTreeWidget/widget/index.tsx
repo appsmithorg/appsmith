@@ -14,7 +14,7 @@ import type { ReactNode } from "react";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {

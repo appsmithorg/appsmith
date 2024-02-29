@@ -28,7 +28,7 @@ import { modText } from "utils/helpers";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getPathNavigationUrl } from "selectors/navigationSelectors";
 import { Button, Icon, Link, toast, Tooltip } from "design-system";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {

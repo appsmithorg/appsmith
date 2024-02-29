@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { ChildrenMapContext } from "../context/childrenMapContext";
 import { renderLayouts } from "../utils/layouts/renderUtils";
 import { RenderModes } from "constants/WidgetConstants";

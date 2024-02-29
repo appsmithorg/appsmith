@@ -7,7 +7,8 @@ import { getAppStoreData } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
-import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import { Severity } from "widgets/types";
 import moment from "moment";
 import type {
   TClearStoreDescription,

@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import type { CurrencyInputComponentProps } from "../component";
 import CurrencyInputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

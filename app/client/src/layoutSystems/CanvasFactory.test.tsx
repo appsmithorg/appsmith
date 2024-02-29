@@ -5,7 +5,7 @@ import { renderAppsmithCanvas } from "./CanvasFactory";
 import { render } from "test/testUtils";
 import React from "react";
 import store from "store";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { LayoutSystemTypes } from "./types";
 import * as layoutSystemSelectors from "selectors/layoutSystemSelectors";
 

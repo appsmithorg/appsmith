@@ -1,4 +1,4 @@
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import withMeta from "widgets/MetaHOC";
 import { withLazyRender } from "widgets/withLazyRender";
 import type BaseWidget from "widgets/BaseWidget";

@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

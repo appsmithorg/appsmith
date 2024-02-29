@@ -10,7 +10,7 @@ import type {
   ConditionalOutput,
   DynamicValues,
   FormEvaluationState,
-} from "reducers/evaluationReducers/formEvaluationReducer";
+} from "components/formControls/formControlTypes";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "@appsmith/actions/evaluationActionsList";
 import type { Action, ActionConfig } from "entities/Action";
 import type { FormConfigType } from "components/formControls/BaseControl";

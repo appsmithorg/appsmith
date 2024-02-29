@@ -1,4 +1,4 @@
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonPlacement } from "components/constants";

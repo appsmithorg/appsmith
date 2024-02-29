@@ -1,5 +1,5 @@
 import type { RecaptchaType } from "components/constants";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 
 import type { ButtonComponentProps } from "../component";
 

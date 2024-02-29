@@ -23,7 +23,7 @@ import {
   getDataTreeForAutocomplete,
   getPathEvalErrors,
 } from "selectors/dataTreeSelectors";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox } from "design-system";

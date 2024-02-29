@@ -4,7 +4,7 @@ import type {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { CANVAS_DEFAULT_MIN_ROWS } from "constants/AppConstants";

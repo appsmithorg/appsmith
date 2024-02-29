@@ -5,7 +5,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import _, { defaults, omit } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";

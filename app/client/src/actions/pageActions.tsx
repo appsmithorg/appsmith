@@ -11,9 +11,9 @@ import {
   WidgetReduxActionTypes,
   ReplayReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { WidgetOperation } from "widgets/BaseWidget";
+import type { WidgetOperation } from "widgets/types";
 import type {
   FetchPageRequest,
   FetchPageResponse,

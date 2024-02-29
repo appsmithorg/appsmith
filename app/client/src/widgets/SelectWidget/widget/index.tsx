@@ -15,7 +15,7 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "../../BaseWidget";
 import SelectComponent from "../component";
 import type { DropdownOption } from "../constants";
@@ -54,7 +54,7 @@ import type {
 
 import IconSVG from "../icon.svg";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {

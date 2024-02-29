@@ -8,7 +8,7 @@ import type { JSLibrary } from "workers/common/JSLibrary";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type { AppState } from "@appsmith/reducers";
-import type { LintError } from "utils/DynamicBindingUtils";
+import type { LintError } from "widgets/types";
 import { get, set, uniq } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";

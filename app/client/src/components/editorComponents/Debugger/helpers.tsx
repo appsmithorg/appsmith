@@ -1,5 +1,6 @@
 import type { Log } from "entities/AppsmithConsole";
-import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import { Severity } from "widgets/types";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "design-system-old";

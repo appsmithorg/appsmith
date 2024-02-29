@@ -132,7 +132,7 @@ import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { nestDSL, flattenDSL, LATEST_DSL_VERSION } from "@shared/dsl";
 import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";

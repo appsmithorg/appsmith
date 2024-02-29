@@ -1,16 +1,15 @@
 import type { ValidationConfig } from "constants/PropertyControlConstants";
-import { Severity } from "entities/AppsmithConsole";
+import type { EvaluationError } from "widgets/types";
+import { PropertyEvaluationErrorType, Severity } from "widgets/types";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isObject, isUndefined, set } from "lodash";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
   getEvalValuePath,
   isPathDynamicTrigger,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   addErrorToEntityProperty,

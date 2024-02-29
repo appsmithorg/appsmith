@@ -1,5 +1,5 @@
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 // Layout system types that Appsmith provides

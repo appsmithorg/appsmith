@@ -13,7 +13,7 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "../../BaseWidget";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";

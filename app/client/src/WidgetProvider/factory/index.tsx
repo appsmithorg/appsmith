@@ -2,7 +2,7 @@ import type {
   PropertyPaneConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
 import type {

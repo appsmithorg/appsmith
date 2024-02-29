@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { ChildrenMapContext } from "layoutSystems/anvil/context/childrenMapContext";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {

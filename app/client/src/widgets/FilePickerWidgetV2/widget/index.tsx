@@ -15,7 +15,7 @@ import shallowequal from "shallowequal";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { importUppy, isUppyLoaded } from "utils/importUppy";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";

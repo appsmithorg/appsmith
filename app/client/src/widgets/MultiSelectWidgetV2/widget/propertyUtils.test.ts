@@ -2,7 +2,7 @@ import type { LoDashStatic } from "lodash";
 import { set } from "lodash";
 import _ from "lodash";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import {
   labelKeyValidation,
   getLabelValueAdditionalAutocompleteData,

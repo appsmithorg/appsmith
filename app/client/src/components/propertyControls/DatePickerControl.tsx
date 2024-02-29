@@ -3,7 +3,7 @@ import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import moment from "moment";
 import { TimePrecision } from "@blueprintjs/datetime";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { DatePicker } from "design-system";
 import { isDynamicValue } from "utils/DynamicBindingUtils";

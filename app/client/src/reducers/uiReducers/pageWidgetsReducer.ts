@@ -4,7 +4,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 import type { FlattenedDSL } from "@shared/dsl";
 import { flattenDSL } from "@shared/dsl";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export interface PageWidgetsReduxState {
   [pageId: string]: {

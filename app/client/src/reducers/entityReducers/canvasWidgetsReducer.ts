@@ -4,7 +4,7 @@ import type {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { uniq, get, set } from "lodash";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";

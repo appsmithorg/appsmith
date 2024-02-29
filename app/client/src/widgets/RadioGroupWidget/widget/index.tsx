@@ -15,7 +15,7 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "../../BaseWidget";
 import RadioGroupComponent from "../component";
 import type { RadioOption } from "../constants";

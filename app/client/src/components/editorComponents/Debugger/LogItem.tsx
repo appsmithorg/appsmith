@@ -1,7 +1,8 @@
 import { Collapse } from "@blueprintjs/core";
 import { isString } from "lodash";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
-import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import { Severity } from "widgets/types";
 import type { PropsWithChildren } from "react";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";

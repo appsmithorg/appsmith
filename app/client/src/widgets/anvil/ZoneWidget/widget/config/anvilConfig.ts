@@ -1,7 +1,7 @@
 import type { AnvilConfig, SizeConfig } from "WidgetProvider/constants";
 import { RenderModes } from "constants/WidgetConstants";
 import { MOBILE_BREAKPOINT } from "layoutSystems/anvil/utils/constants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export const anvilConfig: AnvilConfig = {
   isLargeWidget: true,

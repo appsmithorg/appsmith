@@ -4,7 +4,7 @@ import type { AdditionalAutoLayoutProperties } from "layoutSystems/autolayout/ca
 import type { AdditionalFixedLayoutProperties } from "layoutSystems/fixedlayout/canvas/types";
 import { map } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 type LayoutSystemProps =
   | AdditionalFixedLayoutProperties

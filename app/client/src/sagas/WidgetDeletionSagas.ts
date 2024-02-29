@@ -28,7 +28,7 @@ import {
 import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import {
   getSelectedWidget,
   getWidget,

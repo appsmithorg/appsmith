@@ -19,7 +19,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import IconSVG from "../icon.svg";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";

@@ -1,5 +1,5 @@
 import type { ButtonProps, COLORS, IconProps } from "@design-system/widgets";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { IconName } from "@blueprintjs/icons";
 
 export interface MenuItem {

@@ -1,5 +1,5 @@
 import type { IconButtonProps, IconProps } from "@design-system/widgets";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName: IconProps["name"];

@@ -1,6 +1,6 @@
 import React from "react";
 import type { SetterConfig } from "entities/AppTheming";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 
 import {

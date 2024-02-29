@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { LintError } from "utils/DynamicBindingUtils";
+import type { LintError } from "widgets/types";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetLintErrorsAction } from "actions/lintingActions";
 import { isEqual } from "lodash";
