@@ -183,6 +183,11 @@ jobs:
           if ! mvn test "${args[@]}"; then
             gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<failure / {print cur_test}' $(find . -type f -name 'TEST-*.xml') \
               > failed-server-tests.txt
+            echo "Report files found:"
+            find . -type f -name 'TEST-*.xml'
+            echo "Test case and failure lines:"
+            grep -E 'testcase|failure' $(find . -type f -name 'TEST-*.xml')
+            echo "No failed tests found"
             if [[ -s failed-server-tests.txt ]]; then
               content="$(
                 echo "## Failed server tests"
