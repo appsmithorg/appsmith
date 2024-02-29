@@ -337,6 +337,14 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         Mono<ApplicationJson> applicationJsonMono =
                 applicationTemplateService.getApplicationJsonFromTemplate(buildingBlockDTO.getTemplateId());
 
+        applicationJsonMono.flatMap(applicationJson -> {
+            return this.importResourceInPage(
+                    buildingBlockDTO.getWorkspaceId(),
+                    buildingBlockDTO.getPageId(),
+                    buildingBlockDTO.getApplicationId(),
+                    branchName,
+                    applicationJson);
+        });
         return Mono.just("");
     }
 }
