@@ -9,7 +9,7 @@ import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/t
 import type { AnvilFlexComponentProps } from "../utils/types";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { WidgetConfigProps } from "WidgetProvider/constants";
+import type { WidgetConfigProps } from "WidgetProvider/types";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";

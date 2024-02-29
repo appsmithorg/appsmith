@@ -56,7 +56,7 @@ import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer
 import type { SettingsReduxState } from "@appsmith/reducers/settingsReducer";
 import SettingsReducer from "@appsmith/reducers/settingsReducer";
 import type { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 import type { TenantReduxState } from "@appsmith/reducers/tenantReducer";
 import tenantReducer from "@appsmith/reducers/tenantReducer";

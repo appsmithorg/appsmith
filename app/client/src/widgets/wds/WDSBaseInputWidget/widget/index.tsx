@@ -9,8 +9,8 @@ import IconSVG from "../icon.svg";
 import type { BaseInputWidgetProps } from "./types";
 import { propertyPaneContentConfig } from "./contentConfig";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetBaseConfiguration } from "WidgetProvider/types";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 
 class WDSBaseInputWidget<
   T extends BaseInputWidgetProps,

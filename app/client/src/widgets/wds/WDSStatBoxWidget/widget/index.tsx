@@ -14,7 +14,7 @@ import {
 } from "./../config";
 import { StatBoxComponent } from "../component";
 import type { StatBoxWidgetProps } from "./types";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 
 class WDSStatBoxWidget extends BaseWidget<StatBoxWidgetProps, WidgetState> {
   constructor(props: StatBoxWidgetProps) {

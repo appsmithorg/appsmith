@@ -12,7 +12,7 @@ import {
 } from "./../config";
 import type { IconButtonWidgetProps, IconButtonWidgetState } from "./types";
 import { IconButtonComponent } from "../component";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 
 class WDSIconButtonWidget extends BaseWidget<
   IconButtonWidgetProps,

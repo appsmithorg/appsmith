@@ -25,7 +25,7 @@ import type { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
 import orderBy from "lodash/orderBy";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { ThemeProp } from "WidgetProvider/types";
 
 const MenuButtonContainer = styled.div`
   width: 100%;

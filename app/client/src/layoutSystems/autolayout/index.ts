@@ -12,7 +12,7 @@ import {
   getAutoDimensionsConfig,
   getAutoLayoutWidgetConfig,
 } from "layoutSystems/common/utils/commonUtils";
-import type { AutoDimensionOptions } from "WidgetProvider/constants";
+import type { AutoDimensionOptions } from "WidgetProvider/types";
 
 /**
  * getAutoLayoutDimensionsConfig

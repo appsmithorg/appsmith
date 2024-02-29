@@ -1,5 +1,5 @@
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
-import type { AnvilConfig, SizeConfig } from "WidgetProvider/constants";
+import type { AnvilConfig, SizeConfig } from "WidgetProvider/types";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";

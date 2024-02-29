@@ -15,7 +15,7 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 
 export const ReduxSagaChannels = {

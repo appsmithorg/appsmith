@@ -64,7 +64,7 @@ export {};
 // } from "./migrations/ModalWidget";
 // import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 // import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
-// import type { DSLWidget } from "WidgetProvider/constants";
+// import type { DSLWidget } from "WidgetProvider/types";
 // import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 // import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 // import {

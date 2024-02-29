@@ -1,5 +1,5 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import type { WidgetBaseConfiguration } from "WidgetProvider/types";
 import IconSVG from "../../icon.svg";
 import ThumbnailSVG from "../../thumbnail.svg";
 

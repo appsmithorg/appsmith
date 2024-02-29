@@ -9,7 +9,7 @@ import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getRenderMode } from "selectors/editorSelectors";
 import { denormalize } from "utils/canvasStructureHelpers";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
 import { useEffect, useMemo } from "react";

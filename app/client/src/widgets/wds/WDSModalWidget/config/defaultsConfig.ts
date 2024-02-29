@@ -1,4 +1,4 @@
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,

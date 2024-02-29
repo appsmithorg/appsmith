@@ -141,7 +141,7 @@ import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/per
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import type { WidgetProps, WidgetState } from "./BaseWidget";
 import BaseWidget from "./BaseWidget";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 
 const SkeletonWrapper = styled.div`
   height: 100%;

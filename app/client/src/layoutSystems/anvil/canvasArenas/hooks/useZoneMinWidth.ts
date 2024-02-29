@@ -7,7 +7,7 @@ import {
   combinedPreviewModeSelector,
   getRenderMode,
 } from "selectors/editorSelectors";
-import type { SizeConfig } from "WidgetProvider/constants";
+import type { SizeConfig } from "WidgetProvider/types";
 import { getWidgetSizeConfiguration } from "layoutSystems/anvil/utils/widgetUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";

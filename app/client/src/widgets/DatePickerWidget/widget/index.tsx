@@ -10,7 +10,7 @@ import moment from "moment";
 import type { DatePickerType } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import type { SetterConfig } from "entities/AppTheming";
 import IconSVG from "../icon.svg";
 import { ValidationTypes } from "constants/types";

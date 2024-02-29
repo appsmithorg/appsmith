@@ -20,7 +20,7 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 // import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 const unHandledWidgets = ["LIST_WIDGET"];
