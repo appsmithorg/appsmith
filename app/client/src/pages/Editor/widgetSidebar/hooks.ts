@@ -1,7 +1,6 @@
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getAllTemplates } from "actions/templateActions";
 import type { WidgetTags } from "constants/WidgetConstants";
-import { widgetCardTagMaxRenderList } from "constants/WidgetConstants";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetCards } from "selectors/editorSelectors";
@@ -10,49 +9,47 @@ import {
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { groupWidgetCardsByTags, setWidgetTagMaxRender } from "../utils";
-
-const getMaxWidgetsPerTag = (): Record<string, boolean> => {
-  const maxWidgetsPerTag: Record<string, boolean> = {};
-
-  Object.entries(widgetCardTagMaxRenderList).forEach(([tag, maxValue]) => {
-    maxWidgetsPerTag[tag] = !!maxValue;
-  });
-
-  return maxWidgetsPerTag;
-};
+import { groupWidgetCardsByTags } from "../utils";
 
 /**
  * Custom hook for managing UI explorer items including widgets and building blocks.
- * @returns Object containing grouped cards, cards with max render list, all cards, show max widgets per tag state, and handle toggle function.
+ * @returns Object containing grouped cards and cards.
  */
 export const useUIExplorerItems = () => {
   const dispatch = useDispatch();
-  const templatesCount = useSelector(templatesCountSelector);
-  const [showMaxWidgetsPerTag, setShowMaxWidgetsPerTag] = useState<
+  // check if entities have loaded
+  const isBuildingBlocksLoaded =
+    useSelector(templatesCountSelector) > 0 ? true : false;
+
+  const [entityLoading, setEntityLoading] = useState<
     Record<WidgetTags, boolean>
-  >(getMaxWidgetsPerTag());
-  const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
-  const releaseDragDropBuildingBlocks = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
+  >({
+    "Building Blocks": !isBuildingBlocksLoaded,
+    Suggested: false,
+    Inputs: false,
+    Buttons: false,
+    Select: false,
+    Display: false,
+    Layout: false,
+    Media: false,
+    Toggles: false,
+    Sliders: false,
+    Content: false,
+    External: false,
+  });
+  const releaseDragDropBuildingBlocks = true;
+  useFeatureFlag(FEATURE_FLAG.release_drag_drop_building_blocks_enabled);
   const widgetCards = useSelector(getWidgetCards);
   const buildingBlockCards = useSelector(getBuildingBlockExplorerCards);
 
+  // handle loading async entities
   useEffect(() => {
-    if (!templatesCount) {
+    if (!isBuildingBlocksLoaded) {
       dispatch(getAllTemplates());
     } else {
-      setIsLoadingTemplates(false);
+      setEntityLoading((prev) => ({ ...prev, "Building Blocks": false }));
     }
-  }, [dispatch, templatesCount]);
-
-  const toggleMaxWidgetsPerTag = (tag: WidgetTags): void => {
-    setShowMaxWidgetsPerTag((prevState) => ({
-      ...prevState,
-      [tag]: !prevState[tag],
-    }));
-  };
+  }, [dispatch, isBuildingBlocksLoaded]);
 
   const cards = useMemo(
     () => [
@@ -64,17 +61,9 @@ export const useUIExplorerItems = () => {
 
   const groupedCards = useMemo(() => groupWidgetCardsByTags(cards), [cards]);
 
-  const groupedCardsWithMaxRenderPerTag = useMemo(
-    () => setWidgetTagMaxRender(groupedCards, showMaxWidgetsPerTag),
-    [groupedCards, showMaxWidgetsPerTag],
-  );
-
   return {
     groupedCards,
-    groupedCardsWithMaxRenderPerTag,
     cards,
-    showMaxWidgetsPerTag,
-    toggleMaxWidgetsPerTag,
-    isLoadingTemplates,
+    entityLoading,
   };
 };
