@@ -31,7 +31,7 @@ import store from "store";
 import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
-import type { PluginErrorDetails } from "api/ActionAPI";
+import type { PluginErrorDetails } from "api/actionAPITypes";
 import showToast from "sagas/ToastSagas";
 
 /**

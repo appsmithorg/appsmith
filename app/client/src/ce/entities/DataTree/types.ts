@@ -1,4 +1,4 @@
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/actionAPITypes";
 import type { PluginId } from "api/PluginApi";
 import type { ValidationConfig } from "constants/types";
 import type { ActionConfig, PluginType } from "entities/Action";

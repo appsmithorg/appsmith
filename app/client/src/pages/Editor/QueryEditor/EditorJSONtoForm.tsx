@@ -26,7 +26,7 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/actionAPITypes";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
