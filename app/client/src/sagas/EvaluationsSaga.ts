@@ -76,7 +76,6 @@ import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
-import type { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import {
@@ -89,6 +88,7 @@ import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
+  FormEvalActionPayload,
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
