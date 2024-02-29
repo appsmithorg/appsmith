@@ -16,7 +16,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
-import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
+import type { AutoCanvasDraggingArenaProps } from "../types";
 import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import {
   LayoutDirection,
