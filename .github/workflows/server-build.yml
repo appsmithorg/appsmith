@@ -187,7 +187,7 @@ jobs:
             echo "Report files found:"
             find . -type f -name 'TEST-*.xml'
             echo "Test case failure lines:"
-            grep -oB1 'failure' $(find . -type f -name 'TEST-*.xml')
+            grep -FoB1 '<failure ' $(find . -type f -name 'TEST-*.xml') || true
             if [[ -s failed-server-tests.txt ]]; then
               content="$(
                 echo "## Failed server tests"
