@@ -8,6 +8,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
+  Spinner,
   Text,
 } from "design-system";
 import { sortBy } from "lodash";
@@ -15,10 +16,20 @@ import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import SeeMoreButton from "./SeeMoreButton";
 import WidgetCard from "./WidgetCard";
+import styled from "styled-components";
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 70px;
+  margin-bottom: 70px;
+`;
 
 interface Props {
   tag: string;
   cardsForThisTag: WidgetCardProps[];
+  isLoading: boolean;
 }
 
 const UIEntityList = (props: Props) => {
@@ -30,6 +41,23 @@ const UIEntityList = (props: Props) => {
     ? props.cardsForThisTag.length
     : initialEntityCountForExplorerTag[props.tag as WidgetTags] ||
       props.cardsForThisTag.length;
+
+  if (props.isLoading) {
+    return (
+      <LoadingWrapper key={props.tag}>
+        <CollapsibleHeader arrowPosition="start">
+          <Text
+            className="select-none"
+            color="var(--ads-v2-color-gray-600)"
+            kind="heading-xs"
+          >
+            {props.tag}
+          </Text>
+        </CollapsibleHeader>
+        <Spinner size={"lg"} />
+      </LoadingWrapper>
+    );
+  }
 
   return (
     <Collapsible

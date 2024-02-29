@@ -8,7 +8,7 @@ import type {
   WidgetTags,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { CollapsibleHeader, SearchInput, Spinner, Text } from "design-system";
+import { SearchInput, Text } from "design-system";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -16,15 +16,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityList from "./UIEntityList";
 import { useUIExplorerItems } from "./hooks";
-import styled from "styled-components";
-
-const LoadingWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 70px;
-  margin-bottom: 70px;
-`;
 
 function UIEntitySidebar({ isActive }: { isActive: boolean }) {
   const { cards, entityLoading, groupedCards } = useUIExplorerItems();
@@ -124,24 +115,8 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
         <div>
           {Object.keys(filteredCards).map((tag) => {
             const cardsForThisTag = filteredCards[tag as WidgetTags];
-            if (entityLoading[tag as WidgetTags]) {
-              return (
-                <LoadingWrapper key={tag}>
-                  <CollapsibleHeader arrowPosition="start">
-                    <Text
-                      className="select-none"
-                      color="var(--ads-v2-color-gray-600)"
-                      kind="heading-xs"
-                    >
-                      {tag}
-                    </Text>
-                  </CollapsibleHeader>
-                  <Spinner size={"lg"} />
-                </LoadingWrapper>
-              );
-            }
 
-            if (!cardsForThisTag?.length) {
+            if (!cardsForThisTag?.length && !entityLoading[tag as WidgetTags]) {
               return null;
             }
 
@@ -156,6 +131,7 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
             return (
               <UIEntityList
                 cardsForThisTag={cardsForThisTag}
+                isLoading={entityLoading[tag as WidgetTags]}
                 key={tag}
                 tag={tag}
               />
