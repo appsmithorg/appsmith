@@ -17,7 +17,7 @@ import type {
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { importUppy, isUppyLoaded } from "utils/importUppy";
 import type { SetterConfig } from "entities/AppTheming";
 import IconSVG from "../icon.svg";

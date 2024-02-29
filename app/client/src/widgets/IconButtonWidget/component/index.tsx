@@ -17,7 +17,7 @@ import {
 } from "widgets/WidgetUtils";
 import Interweave from "interweave";
 import { Popover2 } from "@blueprintjs/popover2";
-import type { ThemeProp } from "WidgetProvider/types";
+import type { ThemeProp } from "constants/DefaultTheme";
 
 const ToolTipWrapper = styled.div`
   height: 100%;

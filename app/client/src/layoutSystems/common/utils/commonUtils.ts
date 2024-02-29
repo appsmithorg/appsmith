@@ -2,7 +2,7 @@ import type {
   AutoDimensionOptions,
   AutoLayoutConfig,
   WidgetSizeConfig,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";

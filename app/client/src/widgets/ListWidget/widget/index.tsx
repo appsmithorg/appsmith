@@ -39,11 +39,7 @@ import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  type FlattenedWidgetProps,
-  type DSLWidget,
-} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
@@ -61,7 +57,9 @@ import type {
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+  FlattenedWidgetProps,
+  DSLWidget,
+} from "WidgetProvider/types";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";

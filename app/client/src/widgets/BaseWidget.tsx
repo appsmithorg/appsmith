@@ -32,6 +32,7 @@ import type {
 } from "utils/DynamicBindingUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type {
+  AutocompletionDefinitions,
   AnvilConfig,
   AutoLayoutConfig,
   CanvasWidgetStructure,
@@ -39,9 +40,8 @@ import type {
   WidgetBaseConfiguration,
   WidgetDefaultProps,
   WidgetMethods,
-} from "../WidgetProvider/constants";
+} from "../WidgetProvider/types";
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
-import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,

@@ -12,7 +12,7 @@ import type {
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import InputComponent from "../component";
 import { INPUT_TYPES } from "../constants";
 import type { InputWidgetProps } from "./types";

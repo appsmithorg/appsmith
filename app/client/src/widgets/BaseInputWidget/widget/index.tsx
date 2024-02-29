@@ -21,7 +21,7 @@ import IconSVG from "../icon.svg";
 import type {
   WidgetBaseConfiguration,
   WidgetDefaultProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 class BaseInputWidget<
