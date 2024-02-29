@@ -24,6 +24,11 @@ interface StickyCanvasArenaRef {
   slidingArenaRef: RefObject<HTMLDivElement>;
 }
 
+const StickyCanvas = styled.canvas`
+  position: absolute;
+  pointer-events: none;
+`;
+
 /**
  * we use IntersectionObserver to detect the amount of canvas(stickyCanvasRef) that is interactable at any point of time
  * and resize and reposition it wrt to the slider(slidingArenaRef).
@@ -199,14 +204,11 @@ export const StickyCanvasArena = forwardRef(
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
       it will only be as big as its viewable area so maximum size would be less
   than screen width and height in all cases. */}
-        <canvas
+        <StickyCanvas
           data-sl="canvas-mq" // attribute to enable canvas on smartlook
           data-testid={canvasId}
           id={canvasId}
           ref={stickyCanvasRef}
-          style={{
-            position: "absolute",
-          }}
         />
         <StyledCanvasSlider
           data-testid={sliderId}

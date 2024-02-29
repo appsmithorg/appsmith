@@ -15,7 +15,6 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
@@ -50,15 +49,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -99,10 +95,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     @Autowired
     public ApplicationServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ApplicationRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
@@ -118,7 +111,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.policySolution = policySolution;
         this.configService = configService;
         this.responseUtils = responseUtils;
@@ -266,12 +259,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (application.getApplicationVersion() != null) {
             int appVersion = application.getApplicationVersion();
             if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.INVALID_PARAMETER,
-                        QApplication.application
-                                .applicationVersion
-                                .getMetadata()
-                                .getName()));
+                return Mono.error(
+                        new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
             }
         }
         return repository.save(application).flatMap(this::setTransientFields);
@@ -342,11 +331,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 if (appVersion < ApplicationVersion.EARLIEST_VERSION
                         || appVersion > ApplicationVersion.LATEST_VERSION) {
                     return Mono.error(new AppsmithException(
-                            AppsmithError.INVALID_PARAMETER,
-                            QApplication.application
-                                    .applicationVersion
-                                    .getMetadata()
-                                    .getName()));
+                            AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
                 }
             }
 
