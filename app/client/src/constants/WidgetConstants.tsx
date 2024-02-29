@@ -248,7 +248,7 @@ export type WidgetCardsGroupedByTags = Record<WidgetTags, WidgetCardProps[]>;
 
 // Initial items to display as default when loading entities in the explorer
 export const initialEntityCountForExplorerTag: Partial<
-  Record<WidgetTags, number | null>
+  Record<WidgetTags, number>
 > = {
   "Building Blocks": 9, // render only 9 items initially
 };
