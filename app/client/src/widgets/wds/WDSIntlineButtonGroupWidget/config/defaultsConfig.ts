@@ -3,9 +3,6 @@ import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
   widgetName: "InlineButtons",
-  orientation: "horizontal",
-  buttonVariant: "filled",
-  buttonColor: "accent",
   isDisabled: false,
   isVisible: true,
   version: 1,

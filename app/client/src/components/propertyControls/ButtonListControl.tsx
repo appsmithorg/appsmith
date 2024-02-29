@@ -35,31 +35,7 @@ class ButtonListControl extends BaseControl<
     ) {
       this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
     }
-
-    if (
-      prevProps.widgetProperties.allowSpatialGrouping !==
-      this.props.widgetProperties.allowSpatialGrouping
-    ) {
-      this.onChangeSpatialGrouping(
-        this.props.widgetProperties.allowSpatialGrouping,
-      );
-    }
   }
-
-  onChangeSpatialGrouping = (isSelected: boolean) => {
-    if (isSelected) {
-      this.addOption({ isSeparator: true });
-    } else {
-      // remove existing separators
-      const menuItems = this.getMenuItems();
-
-      const updatedMenuItems = menuItems.filter(
-        (item: any) => item.itemType === "BUTTON",
-      );
-
-      this.updateItems(updatedMenuItems);
-    }
-  };
 
   getMenuItems = () => {
     const menuItems: Array<{
