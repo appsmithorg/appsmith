@@ -12,24 +12,31 @@ export enum JSEditorTab {
   SETTINGS = "SETTINGS",
 }
 
+export interface JSPaneDebuggerState {
+  open: boolean;
+  responseTabHeight: number;
+  selectedTab?: string;
+}
+
 export interface JsPaneReduxState {
   isCreating: boolean;
-  isFetching: boolean;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
   selectedConfigTab: JSEditorTab;
-  responseTabHeight: number;
+  debugger: JSPaneDebuggerState;
 }
 
 const initialState: JsPaneReduxState = {
   isCreating: false,
-  isFetching: false,
   isSaving: {},
   isDeleting: {},
   isDirty: {},
-  responseTabHeight: ActionExecutionResizerHeight,
   selectedConfigTab: JSEditorTab.CODE,
+  debugger: {
+    open: false,
+    responseTabHeight: ActionExecutionResizerHeight,
+  },
 };
 
 const jsPaneReducer = createReducer(initialState, {
@@ -182,6 +189,18 @@ const jsPaneReducer = createReducer(initialState, {
     return {
       ...state,
       selectedConfigTab: selectedTab,
+    };
+  },
+  [ReduxActionTypes.SET_JS_PANE_DEBUGGER_STATE]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<Partial<JSPaneDebuggerState>>,
+  ) => {
+    return {
+      ...state,
+      debugger: {
+        ...state.debugger,
+        ...action.payload,
+      },
     };
   },
 });
