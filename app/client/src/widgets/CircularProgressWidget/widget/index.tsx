@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";

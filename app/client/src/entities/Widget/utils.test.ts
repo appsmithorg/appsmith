@@ -6,7 +6,7 @@ import {
   styleConfig,
 } from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {

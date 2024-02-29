@@ -4,7 +4,7 @@ import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,

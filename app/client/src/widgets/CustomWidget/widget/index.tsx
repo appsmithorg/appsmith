@@ -9,7 +9,7 @@ import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
 import { WIDGET_PADDING, WIDGET_TAGS } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type {
   AppThemeProperties,
   SetterConfig,

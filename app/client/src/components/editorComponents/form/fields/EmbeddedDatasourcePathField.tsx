@@ -33,7 +33,6 @@ import { AuthType } from "entities/Datasource/RestAPIForm";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
-import { ValidationTypes } from "constants/WidgetValidation";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -60,6 +59,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { ValidationTypes } from "constants/types";
 
 interface ReduxStateProps {
   workspaceId: string;

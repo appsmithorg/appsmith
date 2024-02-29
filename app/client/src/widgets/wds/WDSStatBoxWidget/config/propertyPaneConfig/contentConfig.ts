@@ -1,5 +1,5 @@
 import { COLORS } from "@design-system/widgets";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import capitalize from "lodash/capitalize";
 
 export const propertyPaneContentConfig = [

@@ -7,7 +7,7 @@ import {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { find } from "lodash";
 import React from "react";
 import { LayoutSystemTypes } from "layoutSystems/types";

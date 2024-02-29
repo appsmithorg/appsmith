@@ -6,7 +6,7 @@ import type {
 } from "widgets/TabsWidget/constants";
 import { selectedTabValidation } from "widgets/TabsWidget/widget";
 import { cloneDeep, get, isString } from "lodash";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";

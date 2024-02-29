@@ -9,8 +9,8 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import WidgetFactory from "WidgetProvider/factory";
 
-import { ValidationTypes } from "constants/WidgetValidation";
 import { RenderModes } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/types";
 
 // const WidgetTypes = WidgetFactory.widgetTypes;
 

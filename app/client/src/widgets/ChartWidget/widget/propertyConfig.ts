@@ -1,4 +1,4 @@
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
 import {

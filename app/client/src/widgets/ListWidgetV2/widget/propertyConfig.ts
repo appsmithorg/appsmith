@@ -4,7 +4,7 @@ import log from "loglevel";
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";

@@ -3,7 +3,7 @@ import type { IconName } from "@blueprintjs/icons";
 import type { ButtonPlacement, ButtonVariant } from "components/constants";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";

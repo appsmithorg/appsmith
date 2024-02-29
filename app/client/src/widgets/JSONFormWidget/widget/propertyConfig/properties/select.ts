@@ -4,7 +4,7 @@ import { getSchemaItem, getAutocompleteProperties } from "../helper";
 import type { JSONFormWidgetProps } from "../..";
 import type { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 

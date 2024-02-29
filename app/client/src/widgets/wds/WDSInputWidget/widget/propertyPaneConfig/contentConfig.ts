@@ -1,5 +1,5 @@
 import { InputTypes } from "components/constants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 import * as validations from "./validations";

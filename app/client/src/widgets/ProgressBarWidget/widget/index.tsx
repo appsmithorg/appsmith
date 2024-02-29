@@ -7,7 +7,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 import ProgressBarComponent from "../component";
 
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { Colors } from "constants/Colors";
 import { BarType } from "../constants";
 import type { Stylesheet } from "entities/AppTheming";

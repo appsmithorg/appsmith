@@ -3,7 +3,7 @@ import type { Uppy } from "@uppy/core";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import FilePickerComponent from "../component";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type Dashboard from "@uppy/dashboard";

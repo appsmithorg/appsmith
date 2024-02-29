@@ -3,7 +3,7 @@ import type { Uppy } from "@uppy/core";
 import type { UppyFile } from "@uppy/utils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";

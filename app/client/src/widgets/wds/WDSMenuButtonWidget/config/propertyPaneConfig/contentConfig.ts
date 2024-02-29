@@ -1,4 +1,4 @@
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { sourceDataArrayValidation } from "./validations";

@@ -3,7 +3,7 @@ import type { IconName } from "@blueprintjs/icons";
 import { LabelPosition } from "components/constants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import React from "react";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";

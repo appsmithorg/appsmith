@@ -4,7 +4,6 @@ import {
   createMessage,
   NAV_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
@@ -31,6 +30,7 @@ import {
   createNewAPIBasedOnParentEntity,
   createNewJSCollectionBasedOnParentEntity,
 } from "@appsmith/actions/helpers";
+import type { ValidationTypes } from "constants/types";
 
 export type SelectEvent =
   | React.MouseEvent

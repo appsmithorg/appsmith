@@ -1,7 +1,7 @@
 import type { ButtonBorderRadius } from "components/constants";
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React, { lazy, Suspense } from "react";
 import type ReactPlayer from "react-player";
