@@ -6,6 +6,7 @@ import {X509Certificate} from "crypto"
 // The custom domain is expected to only have the domain. So if it has a protocol, we ignore the whole value.
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
+const RATE_LIMIT = (process.env.__APPSMITH_RATE_LIMIT__ || 15)
 
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
@@ -117,7 +118,7 @@ parts.push(`
   rate_limit {
     zone dynamic_zone {
          key {http.request.remote_ip}
-         events 15
+         events ${RATE_LIMIT}
          window 1s
     }
   }
