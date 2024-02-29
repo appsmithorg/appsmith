@@ -61,6 +61,9 @@ export const NameWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 50%;
+  overflow: hidden;
+
   input {
     margin: 0;
     box-sizing: border-box;

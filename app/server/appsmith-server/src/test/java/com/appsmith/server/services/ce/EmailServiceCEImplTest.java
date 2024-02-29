@@ -30,6 +30,7 @@ import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_TO_WORKSP
 import static com.appsmith.server.constants.ce.EmailConstantsCE.PRIMARY_LINK_TEXT;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.PRIMARY_LINK_URL;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.RESET_URL;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.WORKSPACE_URL;
 import static graphql.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -178,5 +179,13 @@ class EmailServiceCEImplTest {
         emailService
                 .sendInstanceAdminInviteEmail(invitedUser, invitingUser, originHeader, true)
                 .block();
+    }
+
+    @Test
+    void testInviteWorkspaceUrl() {
+        String inviteUrl = "https://example.com";
+        String workspaceId = "testWorkspaceId";
+        assertThat(String.format(WORKSPACE_URL, inviteUrl, workspaceId))
+                .isEqualTo("https://example.com/applications?workspaceId=testWorkspaceId");
     }
 }

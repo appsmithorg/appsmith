@@ -22,21 +22,13 @@ import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.appsmith.server.solutions.UserChangedHandler;
-import com.mongodb.DBObject;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
@@ -45,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 
 public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String>
         implements UserDataServiceCE {
@@ -59,8 +52,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private final FeatureFlagService featureFlagService;
 
-    private final UserChangedHandler userChangedHandler;
-
     private final ApplicationRepository applicationRepository;
 
     private final TenantService tenantService;
@@ -73,10 +64,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Autowired
     public UserDataServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             UserDataRepository repository,
             AnalyticsService analyticsService,
             UserRepository userRepository,
@@ -84,16 +72,14 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
-            UserChangedHandler userChangedHandler,
             ApplicationRepository applicationRepository,
             TenantService tenantService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
         this.assetService = assetService;
         this.sessionUserService = sessionUserService;
         this.featureFlagService = featureFlagService;
-        this.userChangedHandler = userChangedHandler;
         this.applicationRepository = applicationRepository;
         this.tenantService = tenantService;
     }
@@ -159,24 +145,11 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, UserData.Fields.userId));
         }
 
-        Query query = new Query(Criteria.where(UserData.Fields.userId).is(userId));
-
-        // In case the update is not used to update the policies, then set the policies to null to ensure that the
-        // existing policies are not overwritten.
-        if (resource.getPolicies().isEmpty()) {
-            resource.setPolicies(null);
-        }
-
-        DBObject update = getDbObject(resource);
-
-        Update updateObj = new Update();
-        Map<String, Object> updateMap = update.toMap();
-        updateMap.entrySet().stream().forEach(entry -> updateObj.set(entry.getKey(), entry.getValue()));
-
-        return mongoTemplate
-                .updateFirst(query, updateObj, resource.getClass())
-                .flatMap(updateResult ->
-                        updateResult.getMatchedCount() == 0 ? Mono.empty() : repository.findByUserId(userId))
+        return repository
+                .queryBuilder()
+                .criteria(bridge().equal(UserData.Fields.userId, userId))
+                .updateFirst(resource)
+                .flatMap(count -> count == 0 ? Mono.empty() : repository.findByUserId(userId))
                 .flatMap(analyticsService::sendUpdateEvent);
     }
 

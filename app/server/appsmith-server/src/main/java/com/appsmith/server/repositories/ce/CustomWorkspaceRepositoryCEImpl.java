@@ -10,8 +10,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -52,16 +50,6 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
-    }
-
-    @Override
-    public Mono<Void> updateUserRoleNames(String userId, String userName) {
-        return mongoOperations
-                .updateMulti(
-                        Query.query(Criteria.where("userRoles.userId").is(userId)),
-                        Update.update("userRoles.$.name", userName),
-                        Workspace.class)
-                .then();
     }
 
     @Override
