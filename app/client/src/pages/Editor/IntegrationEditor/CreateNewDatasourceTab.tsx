@@ -198,7 +198,7 @@ function CreateNewSaasIntegration({
     <>
       <StyledDivider />
       <div id="new-saas-api" ref={newSaasAPIRef}>
-        <Text kind="heading-m">SaaS Integrations</Text>
+        <Text kind="heading-m">SaaS integrations</Text>
         <NewApiScreen
           history={history}
           isCreating={isCreating}
@@ -224,7 +224,7 @@ function CreateNewAIIntegration({
     <>
       <StyledDivider />
       <div id="new-ai-query">
-        <Text kind="heading-m">AI Integrations</Text>
+        <Text kind="heading-m">AI integrations</Text>
         <AIDataSources
           history={history}
           isCreating={isCreating}
