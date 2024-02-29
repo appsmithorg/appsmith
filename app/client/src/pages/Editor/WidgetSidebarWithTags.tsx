@@ -5,7 +5,7 @@ import { getWidgetCards } from "selectors/editorSelectors";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { debounce, sortBy } from "lodash";
 import Fuse from "fuse.js";
-import type { WidgetCardProps } from "widgets/BaseWidget";
+import type { WidgetCardProps } from "constants/WidgetConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   SUGGESTED_WIDGETS_ORDER,

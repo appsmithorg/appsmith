@@ -8,7 +8,8 @@ import type {
 } from "@appsmith/api/ApplicationApi";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
-import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetCardProps } from "constants/WidgetConstants";
 import type {
   LayoutOnLoadActionErrors,
   PageAction,

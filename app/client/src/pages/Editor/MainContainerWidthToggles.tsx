@@ -3,15 +3,13 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
-import type {
-  AppLayoutConfig,
-  SupportedLayouts,
-} from "reducers/entityReducers/pageListReducer";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
 import { Icon, SegmentedControl, Tooltip } from "design-system";
+import type { SupportedLayouts } from "api/pagetypes";
 
 const StyledSegmentedControl = styled(SegmentedControl)`
   > .ads-v2-segmented-control__segments-container {

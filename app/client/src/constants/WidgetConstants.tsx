@@ -1,7 +1,6 @@
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
-import type { WidgetCardProps } from "widgets/BaseWidget";
+import type { SupportedLayouts } from "api/pagetypes";
 export type WidgetType = FactoryWidgetType;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
@@ -240,6 +239,19 @@ export const WIDGET_TAGS = {
   CONTENT: "Content",
   EXTERNAL: "External",
 } as const;
+
+export interface WidgetCardProps {
+  rows: number;
+  columns: number;
+  type: WidgetType;
+  key?: string;
+  displayName: string;
+  icon: string;
+  thumbnail?: string;
+  isBeta?: boolean;
+  tags?: WidgetTags[];
+  isSearchWildcard?: boolean;
+}
 
 export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];
 

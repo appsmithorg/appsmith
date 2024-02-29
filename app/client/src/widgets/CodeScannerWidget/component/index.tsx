@@ -7,7 +7,6 @@ import styled, { createGlobalStyle, css } from "styled-components";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { getBrowserInfo, getPlatformOS, PLATFORM_OS } from "utils/helpers";
 import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import log from "loglevel";
@@ -30,6 +29,7 @@ import { usePageVisibility } from "react-page-visibility";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "widgets/utils";
 import { isMobile } from "react-device-detect";
+import type { SupportedLayouts } from "api/pagetypes";
 
 const CameraOfflineIcon = importSvg(
   async () => import("assets/icons/widget/camera/camera-offline.svg"),

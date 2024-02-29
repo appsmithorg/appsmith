@@ -1,7 +1,7 @@
 import React from "react";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import type { WidgetCardProps } from "widgets/BaseWidget";
+import type { WidgetCardProps } from "constants/WidgetConstants";
 import PaneWrapper from "pages/common/PaneWrapper";
 
 interface WidgetCardPaneProps {

@@ -9,7 +9,8 @@ import type {
   AppLayoutConfig,
   PageListReduxState,
 } from "reducers/entityReducers/pageListReducer";
-import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetCardProps } from "constants/WidgetConstants";
 
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ApplicationVersion } from "@appsmith/actions/applicationActions";
