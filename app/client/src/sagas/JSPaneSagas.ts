@@ -57,6 +57,7 @@ import {
   updateJSCollectionBodySuccess,
   updateJSFunction,
   executeJSFunctionInit,
+  setJsPaneDebuggerState,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -95,14 +96,13 @@ import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import {
   getJSActionNameToDisplay,
   getJSActionPathNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
+import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -438,15 +438,16 @@ export function* handleExecuteJSFunctionSaga(data: {
     // open response tab in debugger on runnning or page load js action.
 
     if (doesURLPathContainCollectionId || openDebugger) {
-      yield put(showDebugger(true));
+      yield put(setJsPaneDebuggerState({ open: true }));
 
-      const debuggerSelectedTab: ReturnType<typeof getDebuggerSelectedTab> =
-        yield select(getDebuggerSelectedTab);
+      const { selectedTab: debuggerSelectedTab } = yield select(
+        getJsPaneDebuggerState,
+      );
 
       yield put(
-        setDebuggerSelectedTab(
-          debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-        ),
+        setJsPaneDebuggerState({
+          selectedTab: debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        }),
       );
     }
     yield put({
@@ -496,8 +497,12 @@ export function* handleExecuteJSFunctionSaga(data: {
   } catch (error) {
     // open response tab in debugger on runnning js action.
     if (doesURLPathContainCollectionId) {
-      yield put(showDebugger(true));
-      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+      yield put(
+        setJsPaneDebuggerState({
+          open: true,
+          selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        }),
+      );
     }
     AppsmithConsole.addErrors([
       {
