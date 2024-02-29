@@ -72,6 +72,23 @@ export const Template = (args) => {
   {Template.bind({})}
 </Story>
 
+# Responsive
+
+<Story name="Responsive">
+  <div style={{ width: 150 }}>
+    <ButtonGroup variant="outlined">
+      <Item key="option-1">Option 1</Item>
+      <Item key="option-2">Option 2</Item>
+      <Item key="option-3" icon="file">
+        {"Option 3"}
+      </Item>
+      <Item key="option-4" icon="trash" iconPosition="end" color="negative">
+        {"Option 4"}
+      </Item>
+    </ButtonGroup>
+  </div>
+</Story>
+
 ## ButtonGroupItem usage
 
 <Story name="ButtonGroupItem usage">

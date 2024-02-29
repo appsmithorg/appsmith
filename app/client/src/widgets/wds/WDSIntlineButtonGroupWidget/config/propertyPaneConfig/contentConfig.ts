@@ -184,27 +184,6 @@ export const propertyPaneContentConfig = [
     sectionName: "General",
     children: [
       {
-        helpText: "Controls widget orientation",
-        propertyName: "orientation",
-        label: "Orientation",
-        controlType: "ICON_TABS",
-        fullWidth: true,
-        options: [
-          {
-            label: "Horizontal",
-            value: "horizontal",
-          },
-          {
-            label: "Vertical",
-            value: "vertical",
-          },
-        ],
-        defaultValue: "horizontal",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
         helpText: "Controls the visibility of the widget",
         propertyName: "isVisible",
         label: "Visible",

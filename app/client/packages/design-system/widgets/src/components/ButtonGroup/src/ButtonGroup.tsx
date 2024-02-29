@@ -7,6 +7,7 @@ import { useListState } from "@react-stately/list";
 import styles from "./styles.module.css";
 import type { ButtonGroupItemProps, ButtonGroupProps } from "./types";
 import { ButtonGroupItem } from "./ButtonGroupItem";
+import { useButtonGroup } from "./useButtonGroup";
 
 const _ButtonGroup = <T extends object>(
   props: ButtonGroupProps<T>,
@@ -17,7 +18,6 @@ const _ButtonGroup = <T extends object>(
     density = "regular",
     isDisabled,
     onAction,
-    orientation = "horizontal",
     overflowMode = "collapse",
     size = "medium",
     variant = "filled",
@@ -25,18 +25,33 @@ const _ButtonGroup = <T extends object>(
   } = props;
   const domRef = useDOMRef(ref);
   const state = useListState({ ...props, suppressTextValueWarning: true });
+  const { buttonGroupProps, isMeasuring, orientation } = useButtonGroup(
+    props,
+    state,
+    domRef,
+  );
 
   const children = [...state.collection];
 
+  const style = {
+    flexBasis: isMeasuring ? "100%" : undefined,
+    display: "flex",
+  };
+
   return (
     <FocusScope>
-      <div className={styles.container}>
+      <div
+        style={{
+          ...style,
+        }}
+      >
         <div
           className={styles.buttonGroup}
           data-density={Boolean(density) ? density : undefined}
           data-orientation={orientation}
           data-overflow={overflowMode}
           ref={domRef}
+          {...buttonGroupProps}
           {...others}
         >
           {children.map((item) => {

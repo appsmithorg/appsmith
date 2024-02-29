@@ -46,8 +46,6 @@ export const defaultsConfig = {
       widgetId: "",
       id: "button4",
       index: 3,
-      iconName: "bookmark",
-      iconAlign: "start",
       buttonVariant: "filled",
       buttonColor: "accent",
     },

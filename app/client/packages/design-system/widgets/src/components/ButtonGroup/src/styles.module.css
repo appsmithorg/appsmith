@@ -1,125 +1,25 @@
 @import "../../../shared/colors/colors.module.css";
 
-.container {
-  container-type: inline-size;
-  container-name: buttonGroupContainer;
-  width: 100%;
-}
-
 .buttonGroup {
   display: flex;
+  width: 100%;
+  gap: var(--inner-spacing-2);
 
-  &:has([data-icon-button]) [data-button]:nth-last-child(2) {
-    min-inline-size: var(--sizing-14);
+  & :is([data-button]) {
+    min-inline-size: fit-content;
   }
 
   &[data-orientation="vertical"] {
     flex-direction: column;
+    align-items: center;
   }
 
-  &[data-overflow="collapse"] {
-    flex-wrap: nowrap;
-  }
-
-  &:not([data-density="compact"]) {
-    gap: var(--inner-spacing-2);
+  &[data-orientation="vertical"] :is([data-button]) {
+    min-inline-size: 100%;
+    max-inline-size: none;
   }
 
   & :is([data-separator]) {
     flex-grow: 1;
-  }
-
-  &[data-density="compact"] {
-    /* increasing z index to make sure the focused button is on top of the others */
-    & [data-button]:not([data-disabled]):focus-visible {
-      z-index: 1;
-    }
-
-    & [data-button]:first-child {
-      border-bottom-right-radius: 0;
-    }
-
-    & [data-button]:last-of-type {
-      border-top-left-radius: 0;
-    }
-
-    & [data-button]:not(:first-child):not(:last-of-type) {
-      border-radius: 0;
-    }
-
-    /**
-    * ----------------------------------------------------------------------------
-    * Horizontal orientation
-    *-----------------------------------------------------------------------------
-    */
-    &[data-orientation="horizontal"] [data-button]:not(:last-of-type) {
-      border-right-width: var(--border-width-1);
-    }
-
-    &[data-orientation="horizontal"] [data-button]:first-child {
-      border-top-right-radius: 0;
-    }
-
-    &[data-orientation="horizontal"] [data-button]:last-of-type {
-      border-bottom-left-radius: 0;
-    }
-
-    &[data-orientation="horizontal"] [data-variant="outlined"] {
-      margin-right: calc(-1 * var(--border-width-1));
-    }
-
-    /**
-    * ----------------------------------------------------------------------------
-    * Vertical orientation
-    *-----------------------------------------------------------------------------
-    */
-    &[data-orientation="vertical"] [data-button]:not(:last-of-type) {
-      border-bottom-width: var(--border-width-1);
-    }
-
-    &[data-orientation="vertical"] [data-button]:first-child {
-      border-bottom-left-radius: 0;
-    }
-
-    &[data-orientation="vertical"] [data-button]:last-of-type {
-      border-top-right-radius: 0;
-    }
-
-    &[data-orientation="vertical"] [data-variant="outlined"] {
-      margin-bottom: calc(-1 * var(--border-width-1));
-    }
-
-    /**
-    * ----------------------------------------------------------------------------
-    * Filled variant
-    *-----------------------------------------------------------------------------
-    */
-    & [data-variant="filled"] {
-      border-width: 0;
-    }
-
-    @each $color in colors {
-      & [data-variant="filled"][data-color="$(color)"] {
-        border-color: var(--color-bd-on-$(color));
-      }
-    }
-
-    /**
-    * ----------------------------------------------------------------------------
-    * Outlined variant
-    *-----------------------------------------------------------------------------
-    */
-
-    @each $color in colors {
-      & [data-variant="outlined"][data-color="$(color)"] {
-        border-color: var(--color-bd-$(color));
-      }
-    }
-  }
-
-  @container buttonGroupContainer (width < 320px) {
-    .container & {
-      flex-direction: column;
-    }
   }
 }
