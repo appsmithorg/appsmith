@@ -19,6 +19,6 @@ public class ApprovalRequestCreationDTO {
     String requestName;
     String message;
     Map<String, Object> metadata;
-    Set<String> allowedResolutions;
+    Set<String> resolutions;
     String runId;
 }

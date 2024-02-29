@@ -133,7 +133,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
                     AppsmithError.INVALID_APPROVAL_REQUEST_CREATION, "Both users and groups can't be empty."));
         }
 
-        if (ValidationUtils.isEmptyParam(approvalRequestCreationDTO.getAllowedResolutions())) {
+        if (ValidationUtils.isEmptyParam(approvalRequestCreationDTO.getResolutions())) {
             return Mono.error(new AppsmithException(
                     AppsmithError.INVALID_APPROVAL_REQUEST_CREATION, "Allowed resolutions can't be empty."));
         }
@@ -189,7 +189,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
         approvalRequest.setMessage(approvalRequestCreationDTO.getMessage());
         approvalRequest.setWorkflowId(approvalRequestCreationDTO.getWorkflowId());
         approvalRequest.setCreationMetadata(approvalRequestCreationDTO.getMetadata());
-        approvalRequest.setAllowedResolutions(approvalRequestCreationDTO.getAllowedResolutions());
+        approvalRequest.setAllowedResolutions(approvalRequestCreationDTO.getResolutions());
         approvalRequest.setRunId(approvalRequestCreationDTO.getRunId());
         return approvalRequest;
     }

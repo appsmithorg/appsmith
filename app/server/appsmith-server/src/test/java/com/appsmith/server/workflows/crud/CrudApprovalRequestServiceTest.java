@@ -267,7 +267,7 @@ class CrudApprovalRequestServiceTest {
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
         approvalRequestCreationDTO.setWorkflowId("random-workflow-id");
         approvalRequestCreationDTO.setRequestToUsers(Set.of("random"));
-        approvalRequestCreationDTO.setAllowedResolutions(Set.of("resolution1", "resolution2"));
+        approvalRequestCreationDTO.setResolutions(Set.of("resolution1", "resolution2"));
         Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
 
@@ -290,8 +290,8 @@ class CrudApprovalRequestServiceTest {
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
         approvalRequestCreationDTO.setWorkflowId("random-workflow-id");
         approvalRequestCreationDTO.setRequestToUsers(Set.of("api_user"));
-        Set<String> allowedResolutions = Set.of("resolution1, resolution2");
-        approvalRequestCreationDTO.setAllowedResolutions(allowedResolutions);
+        Set<String> resolutions = Set.of("resolution1, resolution2");
+        approvalRequestCreationDTO.setResolutions(resolutions);
         approvalRequestCreationDTO.setRunId("random-run-id");
         Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
@@ -314,8 +314,8 @@ class CrudApprovalRequestServiceTest {
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
         approvalRequestCreationDTO.setWorkflowId(workflow.getId());
         approvalRequestCreationDTO.setRequestToGroups(Set.of("random-group-id"));
-        Set<String> allowedResolutions = Set.of("resolution1", "resolution2");
-        approvalRequestCreationDTO.setAllowedResolutions(allowedResolutions);
+        Set<String> resolutions = Set.of("resolution1", "resolution2");
+        approvalRequestCreationDTO.setResolutions(resolutions);
         approvalRequestCreationDTO.setRunId("random-run-id");
         Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
@@ -339,8 +339,8 @@ class CrudApprovalRequestServiceTest {
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
         approvalRequestCreationDTO.setWorkflowId(workflow.getId());
         approvalRequestCreationDTO.setRequestToUsers(Set.of("random-username"));
-        Set<String> allowedResolutions = Set.of("resolution1", "resolution2");
-        approvalRequestCreationDTO.setAllowedResolutions(allowedResolutions);
+        Set<String> resolutions = Set.of("resolution1", "resolution2");
+        approvalRequestCreationDTO.setResolutions(resolutions);
         approvalRequestCreationDTO.setRunId("random-run-id");
         Mono<ApprovalRequestResponseDTO> approvalRequestMono =
                 crudApprovalRequestService.createApprovalRequest(approvalRequestCreationDTO);
@@ -876,14 +876,14 @@ class CrudApprovalRequestServiceTest {
     private ApprovalRequestResponseDTO createTestApprovalRequest(
             String approvalRequestTitle,
             String approvalRequestMessage,
-            Set<String> allowedResolutions,
+            Set<String> resolutions,
             String approvalRequestRunId,
             User user,
             UserGroupDTO userGroupDTO) {
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
         approvalRequestCreationDTO.setRequestName(approvalRequestTitle);
         approvalRequestCreationDTO.setMessage(approvalRequestMessage);
-        approvalRequestCreationDTO.setAllowedResolutions(allowedResolutions);
+        approvalRequestCreationDTO.setResolutions(resolutions);
         approvalRequestCreationDTO.setWorkflowId(workflow.getId());
         approvalRequestCreationDTO.setRunId(approvalRequestRunId);
         if (Objects.nonNull(user)) {
