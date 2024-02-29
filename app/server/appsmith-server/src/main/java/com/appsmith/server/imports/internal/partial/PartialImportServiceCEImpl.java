@@ -17,6 +17,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.BuildingBlockDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -28,6 +29,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationTemplateService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -70,11 +72,23 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final ImportableService<ActionCollection> actionCollectionImportableService;
     private final NewPageService newPageService;
     private final RefactoringService refactoringService;
+    private final ApplicationTemplateService applicationTemplateService;
 
     @Override
     public Mono<Application> importResourceInPage(
             String workspaceId, String applicationId, String pageId, String branchName, Part file) {
+        return importService
+                .extractArtifactExchangeJson(file, ArtifactJsonType.APPLICATION)
+                .flatMap(artifactExchangeJson -> importResourceInPage(
+                        workspaceId, applicationId, pageId, branchName, (ApplicationJson) artifactExchangeJson));
+    }
 
+    private Mono<Application> importResourceInPage(
+            String workspaceId,
+            String applicationId,
+            String pageId,
+            String branchName,
+            ApplicationJson applicationJson) {
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
 
         Mono<String> branchedPageIdMono =
@@ -83,12 +97,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
 
         // Extract file and get App Json
-        Mono<Application> partiallyImportedAppMono = importService
-                .extractArtifactExchangeJson(file, ArtifactJsonType.APPLICATION)
-                .zipWith(getImportApplicationPermissions())
-                .flatMap(tuple -> {
-                    ApplicationJson applicationJson = (ApplicationJson) tuple.getT1();
-                    ImportArtifactPermissionProvider permissionProvider = tuple.getT2();
+        Mono<Application> partiallyImportedAppMono = getImportApplicationPermissions()
+                .flatMap(permissionProvider -> {
                     // Set Application in App JSON, remove the pages other than the one to be imported in
                     // Set the current page in the JSON to be imported
                     // Debug and get the value from getImportApplicationMono method if any difference
@@ -320,5 +330,13 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     });
                     return Mono.just(pageName);
                 }));
+    }
+
+    @Override
+    public Mono<String> importBuildingBlock(BuildingBlockDTO buildingBlockDTO, String branchName) {
+        Mono<ApplicationJson> applicationJsonMono =
+                applicationTemplateService.getApplicationJsonFromTemplate(buildingBlockDTO.getTemplateId());
+
+        return Mono.just("");
     }
 }
