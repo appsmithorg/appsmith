@@ -1,7 +1,8 @@
 import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 import { ACTION_TYPE, JSACTION_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+
 import { createSelector } from "reselect";
 import {
   getCurrentActions,

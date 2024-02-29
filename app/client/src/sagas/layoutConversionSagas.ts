@@ -4,14 +4,13 @@ import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getPageWidgets } from "@appsmith/selectors/entitiesSelector";
 import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
 import convertToAutoLayout from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import {
   createSnapshotSaga,
   deleteApplicationSnapshotSaga,
@@ -27,6 +26,7 @@ import {
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { nestDSL } from "@shared/dsl";
+import type { SupportedLayouts } from "api/pagetypes";
 
 /**
  * This method is used to convert from auto-layout to fixed layout

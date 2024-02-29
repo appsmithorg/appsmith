@@ -5,7 +5,7 @@ import BaseWidget from "widgets/BaseWidget";
 import ImageComponent from "../component";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";

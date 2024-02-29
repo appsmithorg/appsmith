@@ -6,12 +6,12 @@ import type {
 } from "widgets/TabsWidget/constants";
 import { selectedTabValidation } from "widgets/TabsWidget/widget";
 import { cloneDeep, get, isString } from "lodash";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import * as Sentry from "@sentry/react";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 
 function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {

@@ -12,7 +12,6 @@ import type {
   CSSUnit,
   PositionType,
   RenderMode,
-  WidgetTags,
   WidgetType,
 } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
@@ -548,19 +547,6 @@ export interface WidgetProps
   isDefaultClickDisabled?: boolean;
 
   [key: string]: any;
-}
-
-export interface WidgetCardProps {
-  rows: number;
-  columns: number;
-  type: WidgetType;
-  key?: string;
-  displayName: string;
-  icon: string;
-  thumbnail?: string;
-  isBeta?: boolean;
-  tags?: WidgetTags[];
-  isSearchWildcard?: boolean;
 }
 
 export const WidgetOperations = {

@@ -3,7 +3,7 @@ import type {
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { memoize } from "lodash";
 import log from "loglevel";
 import type { WidgetType } from ".";

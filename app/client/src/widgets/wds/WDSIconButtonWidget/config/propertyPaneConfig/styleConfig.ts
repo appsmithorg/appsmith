@@ -1,6 +1,6 @@
 import { capitalize } from "lodash";
 import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 
 export const propertyPaneStyleConfig = [
   {

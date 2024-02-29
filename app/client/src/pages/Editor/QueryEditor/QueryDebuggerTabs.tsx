@@ -19,7 +19,7 @@ import {
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Schema from "components/editorComponents/Debugger/Schema";
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/actionAPITypes";
 import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";

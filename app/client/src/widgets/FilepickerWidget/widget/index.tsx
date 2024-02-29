@@ -3,7 +3,7 @@ import type { Uppy } from "@uppy/core";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import FilePickerComponent from "../component";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type Dashboard from "@uppy/dashboard";
@@ -11,7 +11,7 @@ import shallowequal from "shallowequal";
 import _ from "lodash";
 import FileDataTypes from "./FileDataTypes";
 import log from "loglevel";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AutocompletionDefinitions,

@@ -3,7 +3,7 @@ import { LabelPosition } from "components/constants";
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TextSize } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import React, { lazy, Suspense } from "react";
 import showdown from "showdown";
 import { retryPromise } from "utils/AppsmithUtils";

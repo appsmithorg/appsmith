@@ -14,9 +14,9 @@ import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "WidgetProvider/types";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationConfig } from "constants/types";
 import type { ValidationResponse } from "constants/WidgetValidation";
 
 export function totalRecordsCountValidation(

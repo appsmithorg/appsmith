@@ -1,4 +1,4 @@
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import type { HiddenFnParams } from "../helper";
 import { getSchemaItem, getAutocompleteProperties } from "../helper";

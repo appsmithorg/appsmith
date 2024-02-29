@@ -1,7 +1,7 @@
 import React from "react";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";

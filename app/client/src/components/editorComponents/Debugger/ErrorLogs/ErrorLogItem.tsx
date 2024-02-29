@@ -5,7 +5,7 @@ import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled from "styled-components";
 import { Classes, getTypographyByKey } from "design-system-old";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { PluginErrorDetails } from "api/ActionAPI";
+import type { PluginErrorDetails } from "api/actionAPITypes";
 import LogCollapseData from "./components/LogCollapseData";
 import LogAdditionalInfo from "./components/LogAdditionalInfo";
 import LogEntityLink from "./components/LogEntityLink";

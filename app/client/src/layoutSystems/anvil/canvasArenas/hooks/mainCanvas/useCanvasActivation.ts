@@ -13,7 +13,7 @@ import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 
 // Z-Index values for activated and deactivated states
 export const AnvilCanvasZIndex = {

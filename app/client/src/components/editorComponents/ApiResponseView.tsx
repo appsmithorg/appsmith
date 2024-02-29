@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/actionAPITypes";
 import { formatBytes } from "utils/helpers";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";

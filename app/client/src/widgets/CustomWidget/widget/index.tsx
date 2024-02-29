@@ -9,14 +9,14 @@ import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
 import { WIDGET_PADDING, WIDGET_TAGS } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type {
   AppThemeProperties,
   SetterConfig,
   Stylesheet,
 } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DEFAULT_MODEL } from "../constants";

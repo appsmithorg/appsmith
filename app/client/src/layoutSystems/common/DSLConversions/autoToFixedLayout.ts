@@ -5,7 +5,6 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
 import {
   alterLayoutForDesktop,
@@ -18,7 +17,8 @@ import {
   getLeftColumn,
   getRightColumn,
 } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
+import type { SupportedLayouts } from "api/pagetypes";
 
 const deletedResponsiveProperties = [
   "mobileLeftColumn",

@@ -2,7 +2,7 @@ import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { RenderMode } from "constants/WidgetConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { Stylesheet } from "entities/AppTheming";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {

@@ -5,7 +5,7 @@ import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { compact, get, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";

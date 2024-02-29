@@ -4,7 +4,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 import equal from "fast-deep-equal/es6";

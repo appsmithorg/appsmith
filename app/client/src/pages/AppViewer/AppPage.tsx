@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import { useSelector } from "react-redux";
 import {
   getCurrentApplication,

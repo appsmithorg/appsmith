@@ -27,7 +27,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";

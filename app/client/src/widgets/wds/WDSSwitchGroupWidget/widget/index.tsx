@@ -3,7 +3,7 @@ import xor from "lodash/xor";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 import { Switch, SwitchGroup } from "@design-system/widgets";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

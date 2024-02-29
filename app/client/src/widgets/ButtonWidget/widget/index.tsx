@@ -12,7 +12,7 @@ import {
 } from "components/constants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";

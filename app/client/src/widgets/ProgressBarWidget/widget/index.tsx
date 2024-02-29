@@ -7,11 +7,11 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 import ProgressBarComponent from "../component";
 
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { Colors } from "constants/Colors";
 import { BarType } from "../constants";
 import type { Stylesheet } from "entities/AppTheming";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 

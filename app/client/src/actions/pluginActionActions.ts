@@ -1,4 +1,4 @@
-import type { ActionResponse, PaginationField } from "api/ActionAPI";
+import type { PaginationField } from "api/ActionAPI";
 import type {
   EvaluationReduxAction,
   AnyReduxAction,
@@ -17,6 +17,7 @@ import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import type { ApiResponse } from "api/ApiResponses";
 import type { JSCollection } from "entities/JSCollection";
+import type { ActionResponse } from "api/actionAPITypes";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {

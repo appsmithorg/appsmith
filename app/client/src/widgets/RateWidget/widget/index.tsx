@@ -5,7 +5,7 @@ import RateComponent from "../component";
 import type { RateSize } from "../constants";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";

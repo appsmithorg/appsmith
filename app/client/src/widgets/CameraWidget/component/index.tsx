@@ -20,7 +20,6 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
@@ -43,11 +42,12 @@ import {
   MediaCaptureActionTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { ThemeProp } from "WidgetProvider/types";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "../../utils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import type { SupportedLayouts } from "api/pagetypes";
 
 const CameraOfflineIcon = importSvg(
   async () => import("assets/icons/widget/camera/camera-offline.svg"),

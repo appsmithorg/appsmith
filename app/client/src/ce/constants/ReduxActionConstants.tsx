@@ -8,13 +8,14 @@ import type {
 } from "@appsmith/api/ApplicationApi";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
-import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetCardProps } from "constants/WidgetConstants";
 import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 
 export const ReduxSagaChannels = {

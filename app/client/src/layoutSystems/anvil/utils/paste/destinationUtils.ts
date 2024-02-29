@@ -1,6 +1,6 @@
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { CopiedWidgetData, PasteDestinationInfo } from "./types";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { getWidgetHierarchy } from "./utils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";

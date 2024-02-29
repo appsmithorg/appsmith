@@ -1,5 +1,5 @@
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { ValidationTypes } from "constants/types";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 
 export const propertyPaneContentConfig = [
   {

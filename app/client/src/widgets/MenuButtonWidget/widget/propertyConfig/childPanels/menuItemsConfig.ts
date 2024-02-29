@@ -1,4 +1,4 @@
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 
 export default {
   editableTitle: true,

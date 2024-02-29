@@ -1,6 +1,6 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { isArray } from "lodash";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -10,7 +10,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { Layers } from "constants/Layers";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
@@ -19,7 +19,7 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
