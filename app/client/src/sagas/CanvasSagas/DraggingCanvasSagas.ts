@@ -3,45 +3,45 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import { toast } from "design-system";
+import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
+import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
+import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { toast } from "design-system";
-import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export interface WidgetMoveParams {
   widgetId: string;
@@ -466,12 +466,24 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
   return widgets;
 }
 
+function* dragBuildingBlocksIntoCanvas() {
+  // buildingBlock: WidgetDraggingUpdateParams,
+  // console.log(
+  //   "🚀 ~ function*dragBuildingBlocksIntoCanvas ~ buildingBlock:",
+  //   buildingBlock,
+  // );
+}
+
 export default function* draggingCanvasSagas() {
   yield all([
     takeLatest(ReduxActionTypes.WIDGETS_MOVE, moveWidgetsSaga),
     takeLatest(
       ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
       addWidgetAndMoveWidgetsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_INIT,
+      dragBuildingBlocksIntoCanvas,
     ),
   ]);
 }

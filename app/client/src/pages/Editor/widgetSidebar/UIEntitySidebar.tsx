@@ -57,9 +57,8 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
   const [isSearching, setIsSearching] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
 
-  const releaseDragDropBuildingBlocks = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
+  const releaseDragDropBuildingBlocks = true;
+  useFeatureFlag(FEATURE_FLAG.release_drag_drop_building_blocks_enabled);
 
   const searchWildcards = useMemo(
     () =>

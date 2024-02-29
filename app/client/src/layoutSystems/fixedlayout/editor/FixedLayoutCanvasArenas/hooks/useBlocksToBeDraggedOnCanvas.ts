@@ -39,6 +39,7 @@ import {
   updateBottomRow as updateBottomRowHelper,
   getDragCenterSpace,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
+import { dragBuildingBlockToCanvas } from "actions/templateActions";
 
 /**
  * useBlocksToBeDraggedOnCanvas, provides information or functions/methods related to drag n drop,
@@ -239,15 +240,22 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const dispatchDrop = (
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
   ) => {
+    const containsBuildingBlock = draggedBlocksToUpdate.some(
+      (each) => each.type === "BUILDING_BLOCK",
+    );
     if (isNewWidget) {
-      const newWidget = draggedBlocksToUpdate.find(
-        (each) => each.updateWidgetParams.operation === "ADD_CHILD",
-      );
-      const movedWidgets = draggedBlocksToUpdate.filter(
-        (each) => each.updateWidgetParams.operation !== "ADD_CHILD",
-      );
-      if (newWidget) {
-        addNewWidget(newWidget, movedWidgets);
+      if (containsBuildingBlock) {
+        dragBuildingBlockToCanvas(draggedBlocksToUpdate[0]);
+      } else {
+        const newWidget = draggedBlocksToUpdate.find(
+          (each) => each.updateWidgetParams.operation === "ADD_CHILD",
+        );
+        const movedWidgets = draggedBlocksToUpdate.filter(
+          (each) => each.updateWidgetParams.operation !== "ADD_CHILD",
+        );
+        if (newWidget) {
+          addNewWidget(newWidget, movedWidgets);
+        }
       }
     } else {
       bulkMoveWidgets(draggedBlocksToUpdate);
