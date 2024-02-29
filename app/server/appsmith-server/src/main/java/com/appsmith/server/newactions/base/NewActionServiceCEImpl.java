@@ -445,7 +445,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return Flux.fromIterable(newActionList)
                 .flatMap(this::validateAction)
                 .collectList()
-                .flatMap(repository::bulkInsert);
+                .flatMapMany(repository::insert)
+                .then();
     }
 
     @Override

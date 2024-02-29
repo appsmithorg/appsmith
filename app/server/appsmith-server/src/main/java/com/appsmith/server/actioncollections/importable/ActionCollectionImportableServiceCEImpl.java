@@ -237,7 +237,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                         newActionCollections.size(),
                                         existingActionCollections.size());
                                 return repository
-                                        .bulkInsert(newActionCollections)
+                                        .insert(newActionCollections)
                                         .then(repository.bulkUpdate(existingActionCollections))
                                         .thenReturn(resultDTO);
                             });
