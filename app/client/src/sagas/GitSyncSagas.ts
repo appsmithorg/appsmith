@@ -32,7 +32,6 @@ import type {
   GenerateSSHKeyPairReduxAction,
   GenerateSSHKeyPairResponsePayload,
   GetSSHKeyPairReduxAction,
-  GetSSHKeyResponseData,
   GitStatusParams,
 } from "actions/gitSyncActions";
 import {
@@ -121,6 +120,7 @@ import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
 import { gitExtendedSagas } from "@appsmith/sagas/GitExtendedSagas";
+import type { GetSSHKeyResponseData } from "actions/gitSyncActionsTypes";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};

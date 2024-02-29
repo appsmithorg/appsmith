@@ -7,7 +7,8 @@ import {
 import log from "loglevel";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
-import { flushErrors, safeCrashApp } from "actions/errorActions";
+import type { ErrorPayloadType } from "actions/errorActionUtils";
+import { flushErrors, safeCrashApp } from "actions/errorActionUtils";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
 import {
@@ -154,11 +155,6 @@ export function extractClientDefinedErrorMetadata(
   }
 }
 
-export interface ErrorPayloadType {
-  code?: number | string;
-  message?: string;
-  crash?: boolean;
-}
 const ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {

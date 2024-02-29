@@ -411,6 +411,8 @@ export interface LintError extends DataTreeError {
   originalPath?: string;
 }
 
+export type LintErrorsStore = Record<string, LintError[]>;
+
 export interface DataTreeEvaluationProps {
   __evaluation__?: {
     errors: Record<string, EvaluationError[]>;

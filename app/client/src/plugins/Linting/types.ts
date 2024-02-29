@@ -3,12 +3,11 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type {
   createEvaluationContext,
   EvaluationScriptType,
 } from "workers/Evaluation/evaluate";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
+import type { DependencyMap, LintErrorsStore } from "utils/DynamicBindingUtils";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { JSLibrary } from "workers/common/JSLibrary";
 

@@ -65,7 +65,6 @@ import type { EditorContextState } from "@appsmith/reducers/uiReducers/editorCon
 import type { LibraryState } from "reducers/uiReducers/libraryReducer";
 import type { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
-import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import lintErrorReducer from "reducers/lintingReducers";
 import type { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
@@ -80,6 +79,7 @@ import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integ
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
+import type { LintErrorsStore } from "utils/DynamicBindingUtils";
 
 export const reducerObject = {
   entities: entityReducer,

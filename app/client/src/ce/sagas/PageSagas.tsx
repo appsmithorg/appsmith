@@ -114,7 +114,6 @@ import {
 
 import WidgetFactory from "WidgetProvider/factory";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
 import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
 import {
   checkAndLogErrorsIfCyclicDependency,
@@ -145,6 +144,10 @@ import type { DSLWidget } from "WidgetProvider/constants";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import {
+  waitForWidgetConfigBuild,
+  failFastApiCalls,
+} from "entities/Engine/AppEngineUtils";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,

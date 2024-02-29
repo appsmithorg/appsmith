@@ -10,7 +10,7 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import ProfileDropdown from "./ProfileDropdown";
-import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
+import { flushErrorsAndRedirect } from "actions/errorActions";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { Indices } from "constants/Layers";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
@@ -19,6 +19,7 @@ import { getCurrentApplication } from "selectors/editorSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { flushErrors } from "actions/errorActionUtils";
 
 const StyledPageHeader = styled(StyledHeader)`
   box-shadow: none;

@@ -16,12 +16,12 @@ import {
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import FocusRetention from "sagas/FocusRetentionSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
-import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
 import UsagePulse from "usagePulse";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
+import { flushErrors } from "actions/errorActionUtils";
 
 let previousPath: string;
 

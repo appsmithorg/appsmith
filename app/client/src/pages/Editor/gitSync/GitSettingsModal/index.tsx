@@ -9,7 +9,6 @@ import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import styled from "styled-components";
 import Menu from "../Menu";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import {
   BRANCH,
   CONTINUOUS_DELIVERY,
@@ -26,6 +25,7 @@ import {
   useHasManageDefaultBranchPermission,
   useHasManageProtectedBranchesPermission,
 } from "../hooks/gitPermissionHooks";
+import { GitSettingsTab } from "actions/gitSyncActionsTypes";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {

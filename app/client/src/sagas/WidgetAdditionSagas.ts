@@ -35,7 +35,7 @@ import {
   GRID_DENSITY_MIGRATION_V1,
   BlueprintOperationTypes,
 } from "WidgetProvider/constants";
-import { getPropertiesToUpdate } from "./WidgetOperationSagas";
+import { getPropertiesToUpdate } from "./WidgetOperationUtils";
 import { klona as clone } from "klona/full";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";

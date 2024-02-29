@@ -9,8 +9,6 @@ import { getPersistentAppStore } from "constants/AppConstants";
 import type { APP_MODE } from "entities/App";
 import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
-import type { InitConsolidatedApi } from "sagas/InitSagas";
-import { failFastApiCalls } from "sagas/InitSagas";
 import { getDefaultPageId } from "sagas/selectors";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import history from "utils/history";
@@ -19,6 +17,8 @@ import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { restoreIDEEditorViewMode } from "actions/ideActions";
+import { failFastApiCalls } from "./AppEngineUtils";
+import type { InitConsolidatedApi } from "api/ApiTypes";
 
 export interface AppEnginePayload {
   applicationId?: string;
