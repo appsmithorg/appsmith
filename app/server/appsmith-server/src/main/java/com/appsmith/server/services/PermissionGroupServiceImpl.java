@@ -8,8 +8,6 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -57,7 +55,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USER_GROUPS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -309,7 +306,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                             .collect(Collectors.toList());
 
                     Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds);
+                    String path = PermissionGroup.Fields.assignedToGroupIds;
 
                     updateObj.set(path, assignedToGroupIds);
                     Mono<Integer> updatePermissionGroupResultMono =
@@ -621,10 +618,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
      * @return
      */
     private Flux<PermissionGroup> getRoleNamesAssignedToUserIds(Set<String> userIds) {
-        List<String> includeFields = List.of(
-                fieldName(QPermissionGroup.permissionGroup.id),
-                fieldName(QPermissionGroup.permissionGroup.name),
-                fieldName(QPermissionGroup.permissionGroup.policies));
+        List<String> includeFields =
+                List.of(PermissionGroup.Fields.id, PermissionGroup.Fields.name, PermissionGroup.Fields.policies);
         return repository
                 .findAllByAssignedToUserIn(userIds, Optional.of(includeFields), Optional.empty())
                 .filter(role -> !permissionGroupHelper.isUserManagementRole(role));
@@ -634,13 +629,12 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
      * The method will get all the roles assigned to group.
      **/
     private Flux<PermissionGroup> getRolesAssignedToGroupIdsWithoutPermission(Set<String> groupIds) {
-        List<String> includeFields = List.of(
-                fieldName(QPermissionGroup.permissionGroup.id), fieldName(QPermissionGroup.permissionGroup.name));
+        List<String> includeFields = List.of(PermissionGroup.Fields.id, PermissionGroup.Fields.name);
         return repository.findAllByAssignedToGroupIds(groupIds, Optional.of(includeFields), Optional.empty());
     }
 
     private Flux<PermissionGroup> getRoleNamesAssignedToUserIdsViaGroups(Set<String> userIds) {
-        List<String> includeFields = List.of(fieldName(QUserGroup.userGroup.id));
+        List<String> includeFields = List.of(UserGroup.Fields.id);
         return userGroupRepository
                 .findAllByUsersIn(userIds, Optional.empty(), Optional.of(includeFields))
                 .mapNotNull(UserGroup::getId)
@@ -661,11 +655,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
         Mono<Void> updateRolesMono = Flux.fromIterable(roles)
                 .flatMap(role -> {
                     Update update = new Update();
-                    update.set(
-                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), role.getAssignedToUserIds());
-                    update.set(
-                            fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds),
-                            role.getAssignedToGroupIds());
+                    update.set(PermissionGroup.Fields.assignedToUserIds, role.getAssignedToUserIds());
+                    update.set(PermissionGroup.Fields.assignedToGroupIds, role.getAssignedToGroupIds());
                     return repository.updateById(role.getId(), update);
                 })
                 .then();
@@ -692,11 +683,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
         Mono<Void> updateRolesMono = Flux.fromIterable(roles)
                 .flatMap(role -> {
                     Update update = new Update();
-                    update.set(
-                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), role.getAssignedToUserIds());
-                    update.set(
-                            fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds),
-                            role.getAssignedToGroupIds());
+                    update.set(PermissionGroup.Fields.assignedToUserIds, role.getAssignedToUserIds());
+                    update.set(PermissionGroup.Fields.assignedToGroupIds, role.getAssignedToGroupIds());
                     return repository.updateById(role.getId(), update);
                 })
                 .then();
@@ -742,7 +730,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                     assignedToUserIds.remove(user.getId());
 
                     Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+                    String path = PermissionGroup.Fields.assignedToUserIds;
 
                     updateObj.set(path, assignedToUserIds);
                     Mono<Integer> updateAssignedToUserIdsForRoleMono = repository.updateById(pg.getId(), updateObj);
@@ -774,7 +762,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         Update updateAssignedToUserIdsUpdate = new Update();
         updateAssignedToUserIdsUpdate
-                .addToSet(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+                .addToSet(PermissionGroup.Fields.assignedToUserIds)
                 .each(userIds.toArray());
 
         Mono<Integer> permissionGroupUpdateMono = repository.updateById(pg.getId(), updateAssignedToUserIdsUpdate);

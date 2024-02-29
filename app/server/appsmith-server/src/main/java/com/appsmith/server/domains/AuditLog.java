@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -15,6 +16,7 @@ import java.util.Set;
 @ToString
 @Document
 @NoArgsConstructor
+@FieldNameConstants
 public class AuditLog extends BaseDomain {
     String event;
 
@@ -56,4 +58,6 @@ public class AuditLog extends BaseDomain {
     public boolean isNew() {
         return super.isNew();
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

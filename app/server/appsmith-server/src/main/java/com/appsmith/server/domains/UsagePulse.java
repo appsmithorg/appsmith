@@ -3,11 +3,13 @@ package com.appsmith.server.domains;
 import com.appsmith.external.models.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
 @Document
+@FieldNameConstants
 public class UsagePulse extends BaseDomain {
 
     private String email;
@@ -18,4 +20,6 @@ public class UsagePulse extends BaseDomain {
     private String tenantId;
     private Boolean viewMode;
     private Boolean isAnonymousUser;
+
+    public static class Fields extends BaseDomain.Fields {}
 }

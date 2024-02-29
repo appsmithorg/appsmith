@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.repositories.ce.CustomTenantRepositoryCEImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -21,7 +20,7 @@ public class CustomTenantRepositoryImpl extends CustomTenantRepositoryCEImpl imp
 
     @Override
     public Mono<Tenant> findBySlug(String slug, AclPermission aclPermission) {
-        Criteria slugCriteria = Criteria.where(fieldName(QTenant.tenant.slug)).is(slug);
+        Criteria slugCriteria = Criteria.where(Tenant.Fields.slug).is(slug);
 
         return queryBuilder().criteria(slugCriteria).permission(aclPermission).one();
     }

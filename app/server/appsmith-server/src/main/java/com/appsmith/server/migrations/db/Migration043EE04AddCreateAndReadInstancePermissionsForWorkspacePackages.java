@@ -1,7 +1,6 @@
 package com.appsmith.server.migrations.db;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.mongodb.client.FindIterable;
@@ -29,7 +28,6 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGE_INSTANCES;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -37,9 +35,9 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class Migration043EE04AddCreateAndReadInstancePermissionsForWorkspacePackages {
 
     private final MongoTemplate mongoTemplate;
-    private static final String POLICIES = fieldName(QWorkspace.workspace.policies);
-    private static final String ID = fieldName(QWorkspace.workspace.id);
-    private static final String DEFAULT_PERMISSION_GROUPS = fieldName(QWorkspace.workspace.defaultPermissionGroups);
+    private static final String POLICIES = Workspace.Fields.policies;
+    private static final String ID = Workspace.Fields.id;
+    private static final String DEFAULT_PERMISSION_GROUPS = Workspace.Fields.defaultPermissionGroups;
 
     public Migration043EE04AddCreateAndReadInstancePermissionsForWorkspacePackages(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -96,8 +94,8 @@ public class Migration043EE04AddCreateAndReadInstancePermissionsForWorkspacePack
                 allWorkspacePolicies.addAll(toBeAddedPolicies);
                 dbWorkspace.setPolicies(allWorkspacePolicies);
 
-                Query workspaceUpdateQuery = new Query()
-                        .addCriteria(where(fieldName(QWorkspace.workspace.id)).is(dbWorkspace.getId()));
+                Query workspaceUpdateQuery =
+                        new Query().addCriteria(where(Workspace.Fields.id).is(dbWorkspace.getId()));
                 Update workspaceUpdate = new Update().set(POLICIES, dbWorkspace.getPolicies());
                 Pair<Query, Update> updatePair = Pair.of(workspaceUpdateQuery, workspaceUpdate);
 

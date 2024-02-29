@@ -4,9 +4,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QTenant;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -31,8 +28,7 @@ public class AppsmithResources {
         Config instanceConfig = getInstanceConfig(mongoTemplate);
         String instanceAdminRoleId = (String) instanceConfig.getConfig().get(DEFAULT_PERMISSION_GROUP);
         Query instanceAdminRoleQuery = new Query();
-        instanceAdminRoleQuery.addCriteria(
-                where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminRoleId));
+        instanceAdminRoleQuery.addCriteria(where(PermissionGroup.Fields.id).is(instanceAdminRoleId));
         return mongoTemplate.findOne(instanceAdminRoleQuery, PermissionGroup.class);
     }
 
@@ -43,13 +39,13 @@ public class AppsmithResources {
 
     public static Tenant getDefaultTenant(MongoTemplate mongoTemplate) {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is(DEFAULT));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is(DEFAULT));
         return mongoTemplate.findOne(tenantQuery, Tenant.class);
     }
 
     public static User getProvisionUser(MongoTemplate mongoTemplate) {
         Query provisionUserQuery = new Query();
-        provisionUserQuery.addCriteria(where(fieldName(QUser.user.email)).is(PROVISIONING_USER));
+        provisionUserQuery.addCriteria(where(User.Fields.email).is(PROVISIONING_USER));
         return mongoTemplate.findOne(provisionUserQuery, User.class);
     }
 
@@ -68,8 +64,7 @@ public class AppsmithResources {
         Config instanceConfig = getProvisionConfig(mongoTemplate);
         String instanceAdminRoleId = (String) instanceConfig.getConfig().get(DEFAULT_PERMISSION_GROUP);
         Query instanceAdminRoleQuery = new Query();
-        instanceAdminRoleQuery.addCriteria(
-                where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminRoleId));
+        instanceAdminRoleQuery.addCriteria(where(PermissionGroup.Fields.id).is(instanceAdminRoleId));
         return mongoTemplate.findOne(instanceAdminRoleQuery, PermissionGroup.class);
     }
 }

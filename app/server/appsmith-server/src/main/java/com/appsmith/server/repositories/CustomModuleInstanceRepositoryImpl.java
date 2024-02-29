@@ -43,8 +43,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
 
     @Override
     public Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID) {
-        Criteria moduleIdCriteria =
-                where(fieldName(QModuleInstance.moduleInstance.moduleUUID)).is(moduleUUID);
+        Criteria moduleIdCriteria = where(ModuleInstance.Fields.moduleUUID).is(moduleUUID);
 
         return queryBuilder().criteria(moduleIdCriteria).count();
     }
@@ -87,7 +86,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     @Override
     public Mono<ModuleInstance> findByBranchNameAndDefaultModuleInstanceId(
             String branchName, String defaultModuleInstanceId, AclPermission permission) {
-        final String defaultResources = fieldName(QModuleInstance.moduleInstance.defaultResources);
+        final String defaultResources = ModuleInstance.Fields.defaultResources;
         Criteria defaultModuleInstanceIdCriteria =
                 where(defaultResources + "." + FieldName.MODULE_INSTANCE_ID).is(defaultModuleInstanceId);
         Criteria branchCriteria =
@@ -101,8 +100,8 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     @Override
     public Flux<ModuleInstance> findAllByRootModuleInstanceId(
             String rootModuleInstanceId, List<String> projectionFields, Optional<AclPermission> permission) {
-        Criteria rootModuleInstanceIdCriterion = where(fieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
-                .is(rootModuleInstanceId);
+        Criteria rootModuleInstanceIdCriterion =
+                where(ModuleInstance.Fields.rootModuleInstanceId).is(rootModuleInstanceId);
 
         return queryBuilder()
                 .criteria(rootModuleInstanceIdCriterion)
@@ -113,8 +112,8 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
 
     @Override
     public Flux<ModuleInstance> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
-        Criteria applicationCriteria = Criteria.where(fieldName(QModuleInstance.moduleInstance.applicationId))
-                .in(applicationIds);
+        Criteria applicationCriteria =
+                Criteria.where(ModuleInstance.Fields.applicationId).in(applicationIds);
         return queryBuilder()
                 .criteria(applicationCriteria)
                 .fields(includedFields)
@@ -124,7 +123,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     @Override
     public Flux<ModuleInstance> findAllByApplicationId(String applicationId, Optional<AclPermission> permission) {
         Criteria applicationIdCriterion =
-                where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
+                where(ModuleInstance.Fields.applicationId).is(applicationId);
         List<Criteria> criteria = new ArrayList<>();
         criteria.add(applicationIdCriterion);
         return queryBuilder()
@@ -136,10 +135,10 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     @Override
     public Mono<Void> archiveDeletedUnpublishedModuleInstances(String applicationId, AclPermission permission) {
         Criteria applicationIdCriterion =
-                where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
+                where(ModuleInstance.Fields.applicationId).is(applicationId);
         String unpublishedDeletedAtFieldName = String.format(
                 "%s.%s",
-                fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance),
+                ModuleInstance.Fields.unpublishedModuleInstance,
                 fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt));
         Criteria deletedFromUnpublishedCriteria =
                 where(unpublishedDeletedAtFieldName).ne(null);
@@ -181,16 +180,14 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
         List<Criteria> criteria = new ArrayList<>();
         Criteria originModuleIdCriterion = new Criteria()
                 .orOperator(
-                        where(fieldName(QModuleInstance.moduleInstance.originModuleId))
-                                .is(sourceModule.getOriginModuleId()),
+                        where(ModuleInstance.Fields.originModuleId).is(sourceModule.getOriginModuleId()),
                         new Criteria()
                                 .andOperator(
-                                        where(fieldName(QModuleInstance.moduleInstance.originModuleId))
+                                        where(ModuleInstance.Fields.originModuleId)
                                                 .isNull(),
-                                        where(fieldName(QModuleInstance.moduleInstance.moduleUUID))
-                                                .is(sourceModule.getModuleUUID())));
+                                        where(ModuleInstance.Fields.moduleUUID).is(sourceModule.getModuleUUID())));
 
-        Criteria notDeletedCriterion = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
+        Criteria notDeletedCriterion = where(ModuleInstance.Fields.unpublishedModuleInstance + "."
                         + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
                 .is(null);
 
@@ -206,7 +203,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     @Override
     public Flux<ModuleInstance> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permissionOptional) {
-        final String defaultResources = fieldName(QModuleInstance.moduleInstance.defaultResources);
+        final String defaultResources = ModuleInstance.Fields.defaultResources;
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         return queryBuilder()
@@ -217,8 +214,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
 
     @Override
     public Mono<Long> getModuleInstanceCountByApplicationId(String applicationId, Optional<AclPermission> permission) {
-        Criteria moduleIdCriteria =
-                where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
+        Criteria moduleIdCriteria = where(ModuleInstance.Fields.applicationId).is(applicationId);
 
         return queryBuilder()
                 .criteria(moduleIdCriteria)
@@ -229,11 +225,11 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     @Override
     public Flux<ModuleInstance> findAllUncomposedByApplicationIds(
             List<String> applicationIds, List<String> projectionFields) {
-        Criteria applicationCriteria = Criteria.where(fieldName(QModuleInstance.moduleInstance.applicationId))
-                .in(applicationIds);
+        Criteria applicationCriteria =
+                Criteria.where(ModuleInstance.Fields.applicationId).in(applicationIds);
 
-        Criteria notComposedCriteria = Criteria.where(fieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
-                .exists(false);
+        Criteria notComposedCriteria =
+                Criteria.where(ModuleInstance.Fields.rootModuleInstanceId).exists(false);
 
         return queryBuilder()
                 .criteria(applicationCriteria, notComposedCriteria)

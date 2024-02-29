@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -21,6 +22,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @NoArgsConstructor
 @Document
 @QueryEntity
+@FieldNameConstants
 public class Workflow extends BranchAwareDomain {
 
     @NotNull @JsonView(Views.Public.class)
@@ -79,4 +81,6 @@ public class Workflow extends BranchAwareDomain {
     public Boolean isWorkflowPublished() {
         return Objects.nonNull(this.lastDeployedAt);
     }
+
+    public static class Fields extends BranchAwareDomain.Fields {}
 }

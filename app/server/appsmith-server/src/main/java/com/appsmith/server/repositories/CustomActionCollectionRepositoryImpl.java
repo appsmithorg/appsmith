@@ -5,8 +5,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QActionCollection;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomActionCollectionRepositoryCEImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -50,9 +50,8 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     @Override
     public Flux<ActionCollection> findAllByRootModuleInstanceId(
             String moduleInstanceId, List<String> projectionFields, Optional<AclPermission> permission) {
-        Criteria rootModuleInstanceIdCriterion = Criteria.where(
-                        fieldName(QActionCollection.actionCollection.rootModuleInstanceId))
-                .is(moduleInstanceId);
+        Criteria rootModuleInstanceIdCriterion =
+                Criteria.where(ActionCollection.Fields.rootModuleInstanceId).is(moduleInstanceId);
         return queryBuilder()
                 .criteria(rootModuleInstanceIdCriterion)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
@@ -92,16 +91,14 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     }
 
     private Criteria getModuleInstanceNonExistenceCriterion() {
-        Criteria nonModuleInstanceCollectionCriterion = where(
-                        fieldName(QActionCollection.actionCollection.rootModuleInstanceId))
-                .exists(false);
+        Criteria nonModuleInstanceCollectionCriterion =
+                where(ActionCollection.Fields.rootModuleInstanceId).exists(false);
         return nonModuleInstanceCollectionCriterion;
     }
 
     private Criteria getModuleInstanceExistenceCriterion() {
-        Criteria moduleInstanceCollectionCriterion = where(
-                        fieldName(QActionCollection.actionCollection.rootModuleInstanceId))
-                .exists(true);
+        Criteria moduleInstanceCollectionCriterion =
+                where(ActionCollection.Fields.rootModuleInstanceId).exists(true);
         return moduleInstanceCollectionCriterion;
     }
 
@@ -114,8 +111,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     @Override
     public Flux<ActionCollection> findByWorkflowIds(
             List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
-        Criteria workflowCriteria =
-                Criteria.where(fieldName(QNewAction.newAction.workflowId)).in(workflowIds);
+        Criteria workflowCriteria = Criteria.where(NewAction.Fields.workflowId).in(workflowIds);
         return queryBuilder()
                 .criteria(workflowCriteria)
                 .fields(includeFields.orElse(null))
@@ -144,7 +140,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         // In case an action has been deleted in edit mode, but still exists in deployed mode, ActionCollection object
         // would exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriterion = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+        Criteria deletedCriterion = where(ActionCollection.Fields.unpublishedCollection + "."
                         + fieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
                 .is(null);
         List<Criteria> criteriaList = List.of(contextIdAndContextTypeCriteria, deletedCriterion);
@@ -179,11 +175,10 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     @Override
     public Mono<Void> archiveDeletedUnpublishedActionsCollectionsForWorkflows(
             String workflowId, AclPermission aclPermission) {
-        Criteria workflowIdCriteria =
-                where(fieldName(QActionCollection.actionCollection.workflowId)).is(workflowId);
+        Criteria workflowIdCriteria = where(ActionCollection.Fields.workflowId).is(workflowId);
         String unpublishedDeletedAtFieldName = String.format(
                 "%s.%s",
-                fieldName(QActionCollection.actionCollection.unpublishedCollection),
+                ActionCollection.Fields.unpublishedCollection,
                 fieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt));
         Criteria deletedFromUnpublishedCriteria =
                 where(unpublishedDeletedAtFieldName).ne(null);
@@ -252,8 +247,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
         }
         Criteria moduleIdCriteria = Criteria.where(moduleIdPath).is(moduleId);
 
-        Criteria isPublicCriteria =
-                where(fieldName(QActionCollection.actionCollection.isPublic)).is(Boolean.TRUE);
+        Criteria isPublicCriteria = where(ActionCollection.Fields.isPublic).is(Boolean.TRUE);
 
         criteria.add(moduleIdCriteria);
         criteria.add(isPublicCriteria);
@@ -263,12 +257,11 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     @Override
     public Flux<ActionCollection> findAllUncomposedByApplicationIds(
             List<String> applicationIds, List<String> includeFields) {
-        Criteria applicationCriteria = Criteria.where(fieldName(QActionCollection.actionCollection.applicationId))
-                .in(applicationIds);
+        Criteria applicationCriteria =
+                Criteria.where(ActionCollection.Fields.applicationId).in(applicationIds);
 
-        Criteria notComposedCriteria = Criteria.where(
-                        fieldName(QActionCollection.actionCollection.rootModuleInstanceId))
-                .exists(false);
+        Criteria notComposedCriteria =
+                Criteria.where(ActionCollection.Fields.rootModuleInstanceId).exists(false);
 
         return queryBuilder()
                 .criteria(applicationCriteria, notComposedCriteria)

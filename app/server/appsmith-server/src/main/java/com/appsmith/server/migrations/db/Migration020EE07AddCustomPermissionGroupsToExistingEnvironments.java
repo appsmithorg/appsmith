@@ -3,16 +3,11 @@ package com.appsmith.server.migrations.db;
 import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Environment;
-import com.appsmith.external.models.QDatasource;
-import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.migrations.CompatibilityUtils;
 import com.google.common.collect.Sets;
@@ -63,15 +58,12 @@ public class Migration020EE07AddCustomPermissionGroupsToExistingEnvironments {
         Criteria appLevelPermissionGroupsCriteria = new Criteria()
                 .andOperator(
                         olderCheckForDeletedCriteria(),
-                        Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                                .is("Application"));
+                        Criteria.where(PermissionGroup.Fields.defaultDomainType).is("Application"));
         Query appLevelPermissionGroupsQuery = new Query().addCriteria(appLevelPermissionGroupsCriteria);
         appLevelPermissionGroupsQuery
                 .fields()
                 .include(
-                        fieldName(QPermissionGroup.permissionGroup.id),
-                        fieldName(QPermissionGroup.permissionGroup.name),
-                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId));
+                        PermissionGroup.Fields.id, PermissionGroup.Fields.name, PermissionGroup.Fields.defaultDomainId);
 
         List<PermissionGroup> appLevelPermissionGroups =
                 mongoTemplate.find(appLevelPermissionGroupsQuery, PermissionGroup.class);
@@ -103,9 +95,8 @@ public class Migration020EE07AddCustomPermissionGroupsToExistingEnvironments {
                 .addCriteria(new Criteria()
                         .andOperator(
                                 notDeletedCriteria,
-                                Criteria.where(fieldName(QApplication.application.id))
-                                        .in(appIdToPermissionGroupIdsMap.keySet())));
-        fetchApplicationWorkspaceIdsQuery.fields().include(fieldName(QApplication.application.workspaceId));
+                                Criteria.where(Application.Fields.id).in(appIdToPermissionGroupIdsMap.keySet())));
+        fetchApplicationWorkspaceIdsQuery.fields().include(Application.Fields.workspaceId);
 
         final Query performanceOptimizedApplicationQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, fetchApplicationWorkspaceIdsQuery, Application.class);
@@ -132,9 +123,7 @@ public class Migration020EE07AddCustomPermissionGroupsToExistingEnvironments {
         Query fetchWorkspaceDefaultGroupsQuery = new Query().addCriteria(notDeletedCriteria);
         fetchWorkspaceDefaultGroupsQuery
                 .fields()
-                .include(
-                        fieldName(QWorkspace.workspace.defaultPermissionGroups),
-                        fieldName(QWorkspace.workspace.policies));
+                .include(Workspace.Fields.defaultPermissionGroups, Workspace.Fields.policies);
 
         final Query performanceOptimizedWorkspaceQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, fetchWorkspaceDefaultGroupsQuery, Workspace.class);
@@ -165,12 +154,9 @@ public class Migration020EE07AddCustomPermissionGroupsToExistingEnvironments {
         // For each datasource, pick the permission groups that are part of execute datasources permission
         // but are not a default permission group
         Query fetchDatasourcesQuery = new Query()
-                .addCriteria(notDeletedCriteria
-                        .and(fieldName(QDatasource.datasource.workspaceId))
-                        .exists(true));
-        fetchDatasourcesQuery
-                .fields()
-                .include(fieldName(QDatasource.datasource.workspaceId), fieldName(QDatasource.datasource.policies));
+                .addCriteria(
+                        notDeletedCriteria.and(Datasource.Fields.workspaceId).exists(true));
+        fetchDatasourcesQuery.fields().include(Datasource.Fields.workspaceId, Datasource.Fields.policies);
 
         final Query performanceOptimizedDatasourceQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, fetchDatasourcesQuery, Datasource.class);
@@ -191,7 +177,7 @@ public class Migration020EE07AddCustomPermissionGroupsToExistingEnvironments {
             }
             // When executing with app viewer permission groups, update production environment
             Criteria applicableEnvironmentsCriteria = getApplicableEnvironmentsCriteria(workspaceId)
-                    .and(fieldName(QEnvironment.environment.name))
+                    .and(Environment.Fields.name)
                     .is(CommonFieldName.PRODUCTION_ENVIRONMENT);
             Query query = new Query().addCriteria(applicableEnvironmentsCriteria);
 
@@ -208,7 +194,7 @@ public class Migration020EE07AddCustomPermissionGroupsToExistingEnvironments {
                     }
                     // When executing without app viewer permission groups, update staging environment
                     Criteria applicableEnvironmentsCriteria = getApplicableEnvironmentsCriteria(workspaceId)
-                            .and(fieldName(QEnvironment.environment.name))
+                            .and(Environment.Fields.name)
                             .is(CommonFieldName.STAGING_ENVIRONMENT);
                     Query query = new Query().addCriteria(applicableEnvironmentsCriteria);
 
@@ -224,9 +210,8 @@ public class Migration020EE07AddCustomPermissionGroupsToExistingEnvironments {
                 .andOperator(
                         olderCheckForDeletedCriteria(),
                         newerCheckForDeletedCriteria(),
-                        Criteria.where(fieldName(QEnvironment.environment.workspaceId))
-                                .is(workspaceId),
-                        Criteria.where(fieldName(QEnvironment.environment.policies))
+                        Criteria.where(Environment.Fields.workspaceId).is(workspaceId),
+                        Criteria.where(Environment.Fields.policies)
                                 .elemMatch(new Criteria()
                                         .andOperator(Criteria.where("permission")
                                                 .is(AclPermission.EXECUTE_ENVIRONMENTS.getValue())))

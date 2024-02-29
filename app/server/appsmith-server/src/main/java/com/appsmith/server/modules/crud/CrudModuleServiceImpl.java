@@ -404,8 +404,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     private Update prepareUpdatableFieldsForModule(ModuleDTO moduleDTO) {
         Update updateObj = new Update();
-        String inputsPath = fieldName(QModule.module.unpublishedModule) + "."
-                + fieldName(QModule.module.unpublishedModule.inputsForm);
+        String inputsPath =
+                Module.Fields.unpublishedModule + "." + fieldName(QModule.module.unpublishedModule.inputsForm);
 
         ObjectUtils.setIfNotEmpty(updateObj, inputsPath, moduleDTO.getInputsForm());
 

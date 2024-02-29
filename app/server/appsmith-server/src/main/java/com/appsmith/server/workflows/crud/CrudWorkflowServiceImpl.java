@@ -8,7 +8,6 @@ import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.QWorkflow;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
@@ -41,8 +40,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl implements CrudWorkflowService {
@@ -209,8 +206,8 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
                     if (updateObj.getUpdateObject().isEmpty()) {
                         return Mono.just(dbWorkflow);
                     }
-                    updateObj.set(fieldName(QWorkflow.workflow.updatedAt), Instant.now());
-                    updateObj.set(fieldName(QWorkflow.workflow.modifiedBy), currentUser.getUsername());
+                    updateObj.set(Workflow.Fields.updatedAt, Instant.now());
+                    updateObj.set(Workflow.Fields.modifiedBy, currentUser.getUsername());
 
                     return repository
                             .update(workflowId, updateObj, workflowPermission.getEditPermission())
@@ -234,9 +231,9 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
 
     private Update createUpdateObjectForSelectiveFields(Workflow workflowUpdate) {
         Update updateObj = new Update();
-        String iconPath = fieldName(QWorkflow.workflow.icon);
-        String colorPath = fieldName(QWorkflow.workflow.color);
-        String namePath = fieldName(QWorkflow.workflow.name);
+        String iconPath = Workflow.Fields.icon;
+        String colorPath = Workflow.Fields.color;
+        String namePath = Workflow.Fields.name;
 
         ObjectUtils.setIfNotEmpty(updateObj, iconPath, workflowUpdate.getIcon());
         ObjectUtils.setIfNotEmpty(updateObj, colorPath, workflowUpdate.getColor());

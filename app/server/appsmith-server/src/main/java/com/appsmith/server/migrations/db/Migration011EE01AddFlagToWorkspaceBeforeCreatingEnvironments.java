@@ -1,7 +1,6 @@
 package com.appsmith.server.migrations.db;
 
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -12,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -55,10 +53,7 @@ public class Migration011EE01AddFlagToWorkspaceBeforeCreatingEnvironments {
                                 .orOperator(
                                         where(FieldName.DELETED_AT).exists(false),
                                         where(FieldName.DELETED_AT).is(null)),
-                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
-                                .exists(true),
-                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
-                                .not()
-                                .size(0));
+                        where(Workspace.Fields.defaultPermissionGroups).exists(true),
+                        where(Workspace.Fields.defaultPermissionGroups).not().size(0));
     }
 }

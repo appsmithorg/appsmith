@@ -3,7 +3,6 @@ package com.appsmith.server.migrations;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
@@ -14,10 +13,6 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QTenant;
-import com.appsmith.server.domains.QUsagePulse;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.UsagePulse;
@@ -73,7 +68,7 @@ public class DatabaseChangelogEE {
     public void addTenantAdminPermissionsToInstanceAdmin(
             MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query instanceConfigurationQuery = new Query();
@@ -85,8 +80,7 @@ public class DatabaseChangelogEE {
                 (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
 
         Query permissionGroupQuery = new Query();
-        permissionGroupQuery.addCriteria(
-                where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
+        permissionGroupQuery.addCriteria(where(PermissionGroup.Fields.id).is(instanceAdminPermissionGroupId));
 
         PermissionGroup instanceAdminPGBeforeChanges =
                 mongoTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
@@ -152,7 +146,7 @@ public class DatabaseChangelogEE {
     @ChangeSet(order = "004", id = "add-brand-tenant-configuration", author = "")
     public void addBrandTenantConfiguration(MongoTemplate mongoTemplate) {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
         if (Objects.nonNull(defaultTenant.getTenantConfiguration())) {
@@ -280,7 +274,7 @@ public class DatabaseChangelogEE {
         }
 
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         PermissionGroup defaultRoleForUser = new PermissionGroup();
@@ -300,9 +294,9 @@ public class DatabaseChangelogEE {
 
         Query userQuery = new Query();
         userQuery
-                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()))
-                .addCriteria(where(fieldName(QUser.user.email)).ne(FieldName.ANONYMOUS_USER))
-                .addCriteria(where(fieldName(QUser.user.deletedAt)).is(null));
+                .addCriteria(where(User.Fields.tenantId).is(tenant.getId()))
+                .addCriteria(where(User.Fields.email).ne(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(User.Fields.deletedAt).is(null));
         userQuery.fields().include("_id", "email");
         List<User> users = mongoTemplate.find(userQuery, User.class);
 
@@ -341,9 +335,7 @@ public class DatabaseChangelogEE {
                 Criteria.where("policies.permission").is(MANAGE_DATASOURCES.getValue());
         Criteria notCreateDatasourceActionsPermissionCriteria =
                 Criteria.where("policies.permission").ne(CREATE_DATASOURCE_ACTIONS.getValue());
-        datasourceQuery
-                .fields()
-                .include(fieldName(QDatasource.datasource.id), fieldName(QDatasource.datasource.policies));
+        datasourceQuery.fields().include(Datasource.Fields.id, Datasource.Fields.policies);
         datasourceQuery.addCriteria(
                 manageDatasourcePermissionCriteria.andOperator(notCreateDatasourceActionsPermissionCriteria));
         List<Datasource> datasourceList = mongoTemplate.find(datasourceQuery, Datasource.class);
@@ -371,8 +363,7 @@ public class DatabaseChangelogEE {
         ensureIndexes(
                 mongoTemplate,
                 UsagePulse.class,
-                makeIndex(fieldName(QUsagePulse.usagePulse.createdAt), FieldName.DELETED)
-                        .named("createdAt_deleted_compound_index"));
+                makeIndex(UsagePulse.Fields.createdAt, FieldName.DELETED).named("createdAt_deleted_compound_index"));
     }
 
     /**
@@ -385,12 +376,12 @@ public class DatabaseChangelogEE {
     public void removeStaleUsagePulses(MongoTemplate mongoTemplate) {
         final Update update = new Update();
         final Instant deletedAt = Instant.now();
-        update.set(fieldName(QUsagePulse.usagePulse.deletedAt), deletedAt);
+        update.set(UsagePulse.Fields.deletedAt, deletedAt);
         update.set(FieldName.DELETED, true);
 
         Query invalidUsagePulseQuery = new Query();
         invalidUsagePulseQuery
-                .addCriteria(where(fieldName(QUsagePulse.usagePulse.tenantId)).exists(false))
+                .addCriteria(where(UsagePulse.Fields.tenantId).exists(false))
                 .addCriteria(where(FieldName.DELETED).ne(true));
 
         mongoTemplate.updateMulti(invalidUsagePulseQuery, update, UsagePulse.class);

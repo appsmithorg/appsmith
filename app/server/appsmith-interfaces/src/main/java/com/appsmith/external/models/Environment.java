@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
 @Document
 @NoArgsConstructor
+@FieldNameConstants
 public class Environment extends BaseDomain {
 
     String workspaceId;
@@ -25,4 +27,6 @@ public class Environment extends BaseDomain {
         this.setName(name);
         this.setIsDefault(CommonFieldName.PRODUCTION_ENVIRONMENT.equals(name));
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

@@ -5,8 +5,6 @@ import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.migrations.CompatibilityUtils;
@@ -23,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -59,8 +56,7 @@ public class Migration011EE02AddEnvironmentsToExistingWorkspaces {
             List<String> defaultPermissionGroupIds =
                     workspace.getDefaultPermissionGroups().stream().toList();
             List<PermissionGroup> permissionGroups = mongoTemplate.find(
-                    query(where(fieldName(QPermissionGroup.permissionGroup.id)).in(defaultPermissionGroupIds)),
-                    PermissionGroup.class);
+                    query(where(PermissionGroup.Fields.id).in(defaultPermissionGroupIds)), PermissionGroup.class);
 
             if (CollectionUtils.isNullOrEmpty(permissionGroups)) {
                 log.debug(
@@ -112,9 +108,7 @@ public class Migration011EE02AddEnvironmentsToExistingWorkspaces {
             });
 
             mongoTemplate.updateFirst(
-                    new Query()
-                            .addCriteria(
-                                    where(fieldName(QWorkspace.workspace.id)).is(workspace.getId())),
+                    new Query().addCriteria(where(Workspace.Fields.id).is(workspace.getId())),
                     new Update().set(migrationFlag, true),
                     Workspace.class);
         });

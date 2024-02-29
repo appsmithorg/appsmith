@@ -11,7 +11,6 @@ import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -40,7 +39,6 @@ import java.util.Set;
 
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 @Slf4j
@@ -130,9 +128,9 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     public Mono<List<ActionCollection>> archiveActionCollectionByWorkflowId(
             String workflowId, Optional<AclPermission> permission) {
         List<String> includeFields = List.of(
-                fieldName(QActionCollection.actionCollection.id),
-                fieldName(QActionCollection.actionCollection.publishedCollection),
-                fieldName(QActionCollection.actionCollection.unpublishedCollection));
+                ActionCollection.Fields.id,
+                ActionCollection.Fields.publishedCollection,
+                ActionCollection.Fields.unpublishedCollection);
         return repository
                 .findByWorkflowId(workflowId, permission, Optional.of(includeFields))
                 .flatMap(actionCollection -> {

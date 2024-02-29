@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.QWorkflow;
 import com.appsmith.server.domains.Workflow;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -35,7 +34,7 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
     @Override
     public Flux<Workflow> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
         Criteria workspaceCriterion =
-                Criteria.where(fieldName(QWorkflow.workflow.workspaceId)).is(workspaceId);
+                Criteria.where(Workflow.Fields.workspaceId).is(workspaceId);
 
         return queryBuilder()
                 .criteria(workspaceCriterion)
@@ -46,8 +45,7 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
     @Override
     public Flux<Workflow> findAllById(
             List<String> workflowIds, Optional<AclPermission> permission, Optional<List<String>> includeFields) {
-        Criteria workflowIdCriteria =
-                Criteria.where(fieldName(QWorkflow.workflow.id)).in(workflowIds);
+        Criteria workflowIdCriteria = Criteria.where(Workflow.Fields.id).in(workflowIds);
         return queryBuilder()
                 .criteria(workflowIdCriteria)
                 .fields(includeFields.orElse(null))
@@ -69,7 +67,7 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
     public Mono<Void> updateGeneratedTokenForWorkflow(
             String workflowId, boolean tokenGenerated, Optional<AclPermission> aclPermission) {
         Update generatedTokenUpdate = new Update();
-        generatedTokenUpdate.set(fieldName(QWorkflow.workflow.tokenGenerated), tokenGenerated);
+        generatedTokenUpdate.set(Workflow.Fields.tokenGenerated, tokenGenerated);
         return queryBuilder()
                 .byId(workflowId)
                 .permission(aclPermission.orElse(null))

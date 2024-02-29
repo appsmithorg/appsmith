@@ -8,7 +8,6 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.ProvisionResourceMetadata;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -80,7 +79,6 @@ import static com.appsmith.server.constants.QueryParams.START_INDEX;
 import static com.appsmith.server.constants.ce.FieldNameCE.CLOUD_HOSTED_EXTRA_PROPS;
 import static com.appsmith.server.dtos.UsersForGroupDTO.validate;
 import static com.appsmith.server.enums.ProvisionResourceType.GROUP;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -590,7 +588,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
                     usersInGroup.remove(user.getId());
 
                     Update updateObj = new Update();
-                    String path = fieldName(QUserGroup.userGroup.users);
+                    String path = UserGroup.Fields.users;
 
                     updateObj.set(path, usersInGroup);
                     return repository.updateById(userGroup.getId(), updateObj).then(Mono.defer(() -> {

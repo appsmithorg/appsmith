@@ -1,7 +1,6 @@
 package com.appsmith.server.migrations.solutions;
 
 import com.appsmith.external.models.Environment;
-import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.migrations.solutions.ce.DatasourceStorageMigrationSolutionCE;
 import com.appsmith.server.migrations.utils.CompatibilityUtils;
@@ -14,7 +13,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -24,9 +22,7 @@ public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrati
     @Override
     public Map<String, String> getDefaultEnvironmentsMap(MongoTemplate mongoTemplate) {
         Query defaultEnvironmentQuery = new Query().addCriteria(nonDeletedDefaultEnvironmentCriteria());
-        defaultEnvironmentQuery
-                .fields()
-                .include(fieldName(QEnvironment.environment.id), fieldName(QEnvironment.environment.workspaceId));
+        defaultEnvironmentQuery.fields().include(Environment.Fields.id, Environment.Fields.workspaceId);
 
         final Query performanceOptimizedDefaultEnvironmentQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, defaultEnvironmentQuery, Environment.class);
@@ -64,8 +60,8 @@ public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrati
                 .andOperator(
                         olderCheckForDeletedCriteria(),
                         newerCheckForDeletedCriteria(),
-                        where(fieldName(QEnvironment.environment.workspaceId)).exists(true),
-                        where(fieldName(QEnvironment.environment.workspaceId)).ne(null),
-                        where(fieldName(QEnvironment.environment.isDefault)).is(true));
+                        where(Environment.Fields.workspaceId).exists(true),
+                        where(Environment.Fields.workspaceId).ne(null),
+                        where(Environment.Fields.isDefault).is(true));
     }
 }

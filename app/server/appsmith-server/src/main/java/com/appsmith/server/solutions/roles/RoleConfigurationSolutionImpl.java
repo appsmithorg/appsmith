@@ -4,8 +4,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Environment;
-import com.appsmith.external.models.QDatasource;
-import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.ActionCollection;
@@ -17,14 +15,8 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QActionCollection;
-import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QModule;
-import com.appsmith.server.domains.QModuleInstance;
 import com.appsmith.server.domains.QNewAction;
-import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPackage;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
@@ -713,14 +705,14 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         }
 
         if (toBeAdded != null) {
-            List<String> projectionFieldNames1 = List.of(fieldName(QNewPage.newPage.applicationId));
+            List<String> projectionFieldNames1 = List.of(NewPage.Fields.applicationId);
             Mono<String> workspaceIdMono = newPageRepository
                     .queryBuilder()
                     .byId(id)
                     .fields(projectionFieldNames1)
                     .one()
                     .flatMap(newPage -> {
-                        List<String> projectionFieldNames = List.of(fieldName(QApplication.application.workspaceId));
+                        List<String> projectionFieldNames = List.of(Application.Fields.workspaceId);
                         return applicationRepository
                                 .queryBuilder()
                                 .byId(newPage.getApplicationId())
@@ -803,7 +795,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         // Add permissions to all private entities within this module instances
         // This includes actions, actions collections and module instances
         Mono<Long> newActionsMono = newActionRepository
-                .findAllByRootModuleInstanceId(id, List.of(fieldName(QNewAction.newAction.id)), Optional.empty(), true)
+                .findAllByRootModuleInstanceId(id, List.of(NewAction.Fields.id), Optional.empty(), true)
                 .map(newAction -> {
                     sideEffectsClassMap.put(newAction.getId(), NewAction.class);
 
@@ -815,8 +807,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                 .reduce(0L, Long::sum)
                 .switchIfEmpty(Mono.just(0L));
         Mono<Long> collectionsMono = actionCollectionRepository
-                .findAllByRootModuleInstanceId(
-                        id, List.of(fieldName(QActionCollection.actionCollection.id)), Optional.empty())
+                .findAllByRootModuleInstanceId(id, List.of(ActionCollection.Fields.id), Optional.empty())
                 .map(actionCollection -> {
                     sideEffectsClassMap.put(actionCollection.getId(), ActionCollection.class);
 
@@ -829,8 +820,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                 .reduce(0L, Long::sum)
                 .switchIfEmpty(Mono.just(0L));
         Mono<Long> moduleInstancesMono = moduleInstanceRepository
-                .findAllByRootModuleInstanceId(
-                        id, List.of(fieldName(QModuleInstance.moduleInstance.id)), Optional.empty())
+                .findAllByRootModuleInstanceId(id, List.of(ModuleInstance.Fields.id), Optional.empty())
                 .map(moduleInstance -> {
                     sideEffectsClassMap.put(moduleInstance.getId(), ModuleInstance.class);
 
@@ -896,9 +886,8 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
-        List<String> projectionFieldNames = List.of(
-                fieldName(QModuleInstance.moduleInstance.originModuleId),
-                fieldName(QModuleInstance.moduleInstance.workspaceId));
+        List<String> projectionFieldNames =
+                List.of(ModuleInstance.Fields.originModuleId, ModuleInstance.Fields.workspaceId);
         Mono<ModuleInstance> moduleInstanceMono = moduleInstanceRepository
                 .queryBuilder()
                 .byId(id)
@@ -907,8 +896,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                 .cache();
         Flux<Module> moduleFlux = moduleInstanceMono
                 .flatMapMany(moduleInstance -> {
-                    List<String> moduleFields =
-                            List.of(fieldName(QModule.module.id), fieldName(QModule.module.packageId));
+                    List<String> moduleFields = List.of(Module.Fields.id, Module.Fields.packageId);
                     Mono<Module> byIdMono = moduleRepository
                             .queryBuilder()
                             .byId(moduleInstance.getOriginModuleId())
@@ -1212,7 +1200,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
-        List<String> includedFields = List.of(fieldName(QNewAction.newAction.id));
+        List<String> includedFields = List.of(NewAction.Fields.id);
         Flux<String> actionFlux = newActionRepository
                 .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionId), includedFields)
                 .map(NewAction::getId);
@@ -1600,9 +1588,9 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
 
     private Flux<PermissionGroup> findPermissionGroupsByIds(Set<String> ids) {
         List<String> includeFields = new ArrayList<>(List.of(
-                fieldName(QPermissionGroup.permissionGroup.id),
-                fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
-                fieldName(QPermissionGroup.permissionGroup.defaultDomainType)));
+                PermissionGroup.Fields.id,
+                PermissionGroup.Fields.defaultDomainId,
+                PermissionGroup.Fields.defaultDomainType));
         return permissionGroupRepository.findAllByIdsWithoutPermission(ids, includeFields);
     }
 
@@ -1613,18 +1601,18 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             String roleId,
             Map<String, List<AclPermission>> toBeAddedPermissions,
             Map<String, List<AclPermission>> toBeRemovedPermissions) {
-        List<String> includeFieldsForPage = List.of(fieldName(QNewPage.newPage.id));
+        List<String> includeFieldsForPage = List.of(NewPage.Fields.id);
         List<String> includeFieldsForAction = List.of(
-                fieldName(QNewAction.newAction.id),
-                fieldName(QNewAction.newAction.unpublishedAction) + "."
+                NewAction.Fields.id,
+                NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.datasource.id),
-                fieldName(QNewAction.newAction.publishedAction) + "."
+                NewAction.Fields.publishedAction + "."
                         + fieldName(QNewAction.newAction.publishedAction.datasource) + "."
                         + fieldName(QNewAction.newAction.publishedAction.datasource.id));
-        List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
-        List<String> includedFieldsForModuleInstance = List.of(
-                fieldName(QModuleInstance.moduleInstance.id), fieldName(QModuleInstance.moduleInstance.sourceModuleId));
+        List<String> includeFieldsForActionCollection = List.of(ActionCollection.Fields.id);
+        List<String> includedFieldsForModuleInstance =
+                List.of(ModuleInstance.Fields.id, ModuleInstance.Fields.sourceModuleId);
 
         Mono<List<NewPage>> allPagesInApplicationMono = newPageRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(applicationId), includeFieldsForPage)
@@ -1819,8 +1807,8 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             String roleId,
             Map<String, List<AclPermission>> toBeAddedPermissions,
             Map<String, List<AclPermission>> toBeRemovedPermissions) {
-        List<String> includeFieldsForDatasource = List.of(fieldName(QDatasource.datasource.id));
-        List<String> includedFieldsForModule = List.of(fieldName(QModule.module.id));
+        List<String> includeFieldsForDatasource = List.of(Datasource.Fields.id);
+        List<String> includedFieldsForModule = List.of(Module.Fields.id);
         List<String> includedFieldsForPackage = List.of(fieldName(QPackage.package$.id));
         Mono<List<Datasource>> allDatasourcesInWorkspaceMono = datasourceRepository
                 .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includeFieldsForDatasource)
@@ -1899,8 +1887,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             String applicationRoleType,
             Map<String, List<AclPermission>> toBeAddedPermissions,
             Map<String, List<AclPermission>> toBeRemovedPermissions) {
-        List<String> includedEnvironmentFields =
-                List.of(fieldName(QEnvironment.environment.id), fieldName(QEnvironment.environment.isDefault));
+        List<String> includedEnvironmentFields = List.of(Environment.Fields.id, Environment.Fields.isDefault);
         Mono<List<Environment>> allEnvironmentsInWorkspaceMono = environmentRepository
                 .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includedEnvironmentFields)
                 .collectList();
@@ -1967,14 +1954,14 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             Map<String, List<AclPermission>> toBeAddedPermissions,
             Map<String, List<AclPermission>> toBeRemovedPermissions) {
         List<String> includeFieldsForAction = List.of(
-                fieldName(QNewAction.newAction.id),
-                fieldName(QNewAction.newAction.unpublishedAction) + "."
+                NewAction.Fields.id,
+                NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.datasource.id),
-                fieldName(QNewAction.newAction.publishedAction) + "."
+                NewAction.Fields.publishedAction + "."
                         + fieldName(QNewAction.newAction.publishedAction.datasource) + "."
                         + fieldName(QNewAction.newAction.publishedAction.datasource.id));
-        List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
+        List<String> includeFieldsForActionCollection = List.of(ActionCollection.Fields.id);
 
         Mono<List<NewAction>> allActionsInWorkflowMono = newActionRepository
                 .findByWorkflowIds(List.of(workflowId), Optional.empty(), Optional.of(includeFieldsForAction), FALSE)
@@ -1991,8 +1978,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                 .collectList()
                 .cache();
 
-        List<String> includedEnvironmentFields =
-                List.of(fieldName(QEnvironment.environment.id), fieldName(QEnvironment.environment.isDefault));
+        List<String> includedEnvironmentFields = List.of(Environment.Fields.id, Environment.Fields.isDefault);
         Mono<List<Environment>> allEnvironmentsInWorkspaceMono = environmentRepository
                 .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includedEnvironmentFields)
                 .collectList();

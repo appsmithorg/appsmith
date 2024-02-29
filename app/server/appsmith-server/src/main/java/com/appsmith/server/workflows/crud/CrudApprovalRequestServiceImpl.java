@@ -5,7 +5,6 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.ApprovalRequestStatus;
 import com.appsmith.server.domains.ApprovalRequest;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QApprovalRequest;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workflow;
@@ -52,7 +51,6 @@ import static com.appsmith.server.constants.FieldName.APPROVAL_REQUEST_ROLE_PREF
 import static com.appsmith.server.constants.FieldName.ASCENDING;
 import static com.appsmith.server.constants.FieldName.WORKFLOW;
 import static com.appsmith.server.constants.QueryParams.SORT;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCECompatibleImpl
@@ -195,11 +193,11 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
     }
 
     private Optional<Sort> getSortForGetApprovalRequests(MultiValueMap<String, String> filters) {
-        Sort defaultSort = Sort.by(Sort.Direction.DESC, fieldName(QApprovalRequest.approvalRequest.createdAt));
+        Sort defaultSort = Sort.by(Sort.Direction.DESC, ApprovalRequest.Fields.createdAt);
         if (filters.containsKey(SORT) && StringUtils.isEmpty(filters.getFirst(SORT))) {
             String sortOrder = filters.getFirst(SORT);
             if (ASCENDING.equalsIgnoreCase(sortOrder)) {
-                return Optional.of(Sort.by(Sort.Direction.ASC, fieldName(QApprovalRequest.approvalRequest.createdAt)));
+                return Optional.of(Sort.by(Sort.Direction.ASC, ApprovalRequest.Fields.createdAt));
             }
         }
         return Optional.of(defaultSort);
@@ -224,7 +222,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
                     Update updatePoliciesForApprovalRequest = new Update();
                     ObjectUtils.setIfNotEmpty(
                             updatePoliciesForApprovalRequest,
-                            fieldName(QApprovalRequest.approvalRequest.policies),
+                            ApprovalRequest.Fields.policies,
                             approvalRequest1WithPolicies.getPolicies());
                     return repository.updateAndReturn(
                             approvalRequest.getId(), updatePoliciesForApprovalRequest, Optional.empty());

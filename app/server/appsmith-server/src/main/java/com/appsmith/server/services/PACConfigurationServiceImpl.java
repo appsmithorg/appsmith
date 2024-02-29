@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AccessControlConstants;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -20,8 +19,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 @Slf4j
@@ -71,9 +68,7 @@ public class PACConfigurationServiceImpl extends PACConfigurationServiceCECompat
                         .collectList();
                 groupsUsersIsPartOfMono = userGroupRepository
                         .getAllByUsersIn(
-                                Set.of(user.getId()),
-                                Optional.of(List.of(fieldName(QUserGroup.userGroup.name))),
-                                Optional.empty())
+                                Set.of(user.getId()), Optional.of(List.of(UserGroup.Fields.name)), Optional.empty())
                         .map(UserGroup::getName)
                         .collectList();
             }

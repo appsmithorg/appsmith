@@ -20,7 +20,6 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
@@ -72,7 +71,6 @@ import java.util.Set;
 
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 @Slf4j
@@ -451,7 +449,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
     @Override
     public Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission) {
-        List<String> includeFields = List.of(fieldName(QNewAction.newAction.id));
+        List<String> includeFields = List.of(NewAction.Fields.id);
         return repository
                 .findByWorkflowId(workflowId, permission, Optional.of(includeFields), Boolean.FALSE)
                 .filter(newAction -> {

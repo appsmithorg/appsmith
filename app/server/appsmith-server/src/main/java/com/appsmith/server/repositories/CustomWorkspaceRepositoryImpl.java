@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.ce.CustomWorkspaceRepositoryCEImpl;
 import com.appsmith.server.services.SessionUserService;
@@ -29,8 +28,7 @@ public class CustomWorkspaceRepositoryImpl extends CustomWorkspaceRepositoryCEIm
     @Override
     public Flux<Workspace> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields) {
         return queryBuilder()
-                .criteria(
-                        Criteria.where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId))
+                .criteria(Criteria.where(Workspace.Fields.tenantId).is(tenantId))
                 .fields(includeFields)
                 .all();
     }

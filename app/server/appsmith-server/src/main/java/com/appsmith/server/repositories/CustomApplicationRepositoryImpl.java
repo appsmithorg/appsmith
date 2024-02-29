@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.repositories.ce.CustomApplicationRepositoryCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.NonNull;
@@ -125,7 +124,7 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
     @Override
     public Flux<Application> getAllApplicationsInWorkspace(String workspaceId, Optional<AclPermission> aclPermission) {
         Criteria workspaceIdCriteria =
-                Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+                Criteria.where(Application.Fields.workspaceId).is(workspaceId);
         return queryBuilder()
                 .criteria(workspaceIdCriteria)
                 .permission(aclPermission.orElse(null))

@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.db;
 
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -14,7 +13,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -52,20 +50,14 @@ public class Migration006EE01AddFlagToWorkspaceBeforeInviteUsersPolicyToApplicat
                 .exists(false)
                 .andOperator(
                         notDeleted(),
-                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
-                                .exists(true),
-                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
-                                .not()
-                                .size(0));
+                        where(Workspace.Fields.defaultPermissionGroups).exists(true),
+                        where(Workspace.Fields.defaultPermissionGroups).not().size(0));
         Criteria criteriaWorkspacesUpdatedWithFlag = where(migrationFlag)
                 .exists(true)
                 .andOperator(
                         notDeleted(),
-                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
-                                .exists(true),
-                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
-                                .not()
-                                .size(0));
+                        where(Workspace.Fields.defaultPermissionGroups).exists(true),
+                        where(Workspace.Fields.defaultPermissionGroups).not().size(0));
 
         Query queryWorkspacesToBeUpdatedWithFlag = new Query().addCriteria(criteriaWorkspacesToBeUpdatedWithFlag);
         Query queryWorkspacesUpdatedWithFlag = new Query().addCriteria(criteriaWorkspacesUpdatedWithFlag);

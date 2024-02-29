@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -20,6 +21,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @ToString
 @NoArgsConstructor
 @Document
+@FieldNameConstants
 public class Module extends BranchAwareDomain {
 
     // Fields in module that are not allowed to change between published and unpublished versions
@@ -73,4 +75,6 @@ public class Module extends BranchAwareDomain {
         this.setPublishedModule(null);
         super.sanitiseToExportDBObject();
     }
+
+    public static class Fields extends BranchAwareDomain.Fields {}
 }

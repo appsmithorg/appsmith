@@ -50,42 +50,38 @@ public class CustomAuditLogRepositoryImpl extends BaseAppsmithRepositoryImpl<Aud
         List<Criteria> criteriaList = new ArrayList<>();
 
         if (isDate) {
-            criteriaList.add(where(fieldName(QAuditLog.auditLog.timestamp))
-                    .gte(startDate)
-                    .lte(endDate));
+            criteriaList.add(where(AuditLog.Fields.timestamp).gte(startDate).lte(endDate));
         }
 
         if (!Optional.ofNullable(events).isEmpty() && events.size() > 0) {
-            criteriaList.add(where(fieldName(QAuditLog.auditLog.event)).in(events));
+            criteriaList.add(where(AuditLog.Fields.event).in(events));
         }
 
         if (!Optional.ofNullable(emails).isEmpty() && emails.size() > 0) {
-            criteriaList.add(where(fieldName(QAuditLog.auditLog.user) + "." + fieldName(QAuditLog.auditLog.user.email))
+            criteriaList.add(where(AuditLog.Fields.user + "." + fieldName(QAuditLog.auditLog.user.email))
                     .in(emails));
         }
 
         if (!Optional.ofNullable(resourceType).isEmpty() && !resourceType.isEmpty()) {
-            criteriaList.add(
-                    where(fieldName(QAuditLog.auditLog.resource) + "." + fieldName(QAuditLog.auditLog.resource.type))
-                            .is(resourceType));
+            criteriaList.add(where(AuditLog.Fields.resource + "." + fieldName(QAuditLog.auditLog.resource.type))
+                    .is(resourceType));
         }
 
         if (!Optional.ofNullable(resourceId).isEmpty() && !resourceId.isEmpty()) {
-            criteriaList.add(
-                    where(fieldName(QAuditLog.auditLog.resource) + "." + fieldName(QAuditLog.auditLog.resource.id))
-                            .is(resourceId));
+            criteriaList.add(where(AuditLog.Fields.resource + "." + fieldName(QAuditLog.auditLog.resource.id))
+                    .is(resourceId));
         }
 
         Sort sort;
         if (sortOrder > 0) {
-            sort = Sort.by(Sort.Direction.ASC, fieldName(QAuditLog.auditLog.timestamp));
+            sort = Sort.by(Sort.Direction.ASC, AuditLog.Fields.timestamp);
             if (!Optional.ofNullable(cursor).isEmpty() && !cursor.isEmpty()) {
-                criteriaList.add(where(fieldName(QAuditLog.auditLog.id)).gt(new ObjectId(cursor)));
+                criteriaList.add(where(AuditLog.Fields.id).gt(new ObjectId(cursor)));
             }
         } else {
-            sort = Sort.by(Sort.Direction.DESC, fieldName(QAuditLog.auditLog.timestamp));
+            sort = Sort.by(Sort.Direction.DESC, AuditLog.Fields.timestamp);
             if (!Optional.ofNullable(cursor).isEmpty() && !cursor.isEmpty()) {
-                criteriaList.add(where(fieldName(QAuditLog.auditLog.id)).lt(new ObjectId(cursor)));
+                criteriaList.add(where(AuditLog.Fields.id).lt(new ObjectId(cursor)));
             }
         }
         return queryBuilder()
@@ -101,18 +97,17 @@ public class CustomAuditLogRepositoryImpl extends BaseAppsmithRepositoryImpl<Aud
     public Mono<Long> updateAuditLogByEventNameUserAndTimeStamp(
             String eventName, String userEmail, String resourceId, long time, String name, int timeLimit) {
         Update update = new Update();
-        update.set(fieldName(QAuditLog.auditLog.timestamp), new Date(time))
-                .set(fieldName(QAuditLog.auditLog.resource) + "." + fieldName(QAuditLog.auditLog.resource.name), name);
+        update.set(AuditLog.Fields.timestamp, new Date(time))
+                .set(AuditLog.Fields.resource + "." + fieldName(QAuditLog.auditLog.resource.name), name);
 
         long lastUpdatedTimeCriteria = Instant.now().minusSeconds(timeLimit).toEpochMilli();
         Query query = new Query();
-        query.addCriteria(where(fieldName(QAuditLog.auditLog.event)).is(eventName));
-        query.addCriteria(where(fieldName(QAuditLog.auditLog.user) + "." + fieldName(QAuditLog.auditLog.user.email))
+        query.addCriteria(where(AuditLog.Fields.event).is(eventName));
+        query.addCriteria(where(AuditLog.Fields.user + "." + fieldName(QAuditLog.auditLog.user.email))
                 .is(userEmail));
-        query.addCriteria(where(fieldName(QAuditLog.auditLog.timestamp)).gte(new Date(lastUpdatedTimeCriteria)));
-        query.addCriteria(
-                where(fieldName(QAuditLog.auditLog.resource) + "." + fieldName(QAuditLog.auditLog.resource.id))
-                        .is(resourceId));
+        query.addCriteria(where(AuditLog.Fields.timestamp).gte(new Date(lastUpdatedTimeCriteria)));
+        query.addCriteria(where(AuditLog.Fields.resource + "." + fieldName(QAuditLog.auditLog.resource.id))
+                .is(resourceId));
 
         return mongoOperations.updateFirst(query, update, AuditLog.class).map(UpdateResult::getModifiedCount);
     }

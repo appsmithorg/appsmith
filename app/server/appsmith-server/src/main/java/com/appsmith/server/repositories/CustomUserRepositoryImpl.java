@@ -4,7 +4,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.repositories.ce.CustomUserRepositoryCEImpl;
@@ -55,8 +54,8 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     @Override
     public Flux<String> getAllUserEmail(String defaultTenantId) {
         Query query = new Query();
-        query.addCriteria(where(fieldName(QUser.user.tenantId)).is(defaultTenantId));
-        query.fields().include(fieldName(QUser.user.email));
+        query.addCriteria(where(User.Fields.tenantId).is(defaultTenantId));
+        query.fields().include(User.Fields.email);
         return mongoOperations.find(query, User.class).map(User::getEmail);
     }
 
@@ -68,10 +67,9 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
             int pageLimit,
             Optional<AclPermission> aclPermission) {
         List<Criteria> criteriaList = new ArrayList<>();
-        Criteria tenantIdCriteria = where(fieldName(QUser.user.tenantId)).is(defaultTenantId);
+        Criteria tenantIdCriteria = where(User.Fields.tenantId).is(defaultTenantId);
         criteriaList.add(tenantIdCriteria);
-        List<String> includedFields = List.of(
-                fieldName(QUser.user.email), fieldName(QUser.user.isProvisioned), fieldName(QUser.user.policies));
+        List<String> includedFields = List.of(User.Fields.email, User.Fields.isProvisioned, User.Fields.policies);
         List<Criteria> criteriaListFromFilters = getCriteriaListFromFilters(filters);
         criteriaList.addAll(criteriaListFromFilters);
 
@@ -85,7 +83,7 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
                 sortDirection = Sort.Direction.ASC;
             }
         }
-        Sort sort = Sort.by(sortDirection, fieldName(QUser.user.email));
+        Sort sort = Sort.by(sortDirection, User.Fields.email);
 
         return queryBuilder()
                 .criteria(criteriaList)
@@ -101,10 +99,10 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     public Mono<PagedDomain<User>> getUsersWithParamsPaginated(
             int count, int startIndex, List<String> filterEmails, Optional<AclPermission> aclPermission) {
         List<Criteria> criteriaList = new ArrayList<>();
-        Sort sortWithEmail = Sort.by(Sort.Direction.ASC, fieldName(QUser.user.email));
+        Sort sortWithEmail = Sort.by(Sort.Direction.ASC, User.Fields.email);
         // Keeping this a case-insensitive, because provisioning clients require case-insensitive searches on emails.
         if (CollectionUtils.isNotEmpty(filterEmails)) {
-            criteriaList.add(where(fieldName(QUser.user.email)).regex(getStringsToRegex(filterEmails), "i"));
+            criteriaList.add(where(User.Fields.email).regex(getStringsToRegex(filterEmails), "i"));
         }
         Flux<User> userFlux = queryBuilder()
                 .criteria(criteriaList)
@@ -127,10 +125,9 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     @Override
     public Flux<String> getUserEmailsByIdsAndTenantId(
             List<String> userIds, String tenantId, Optional<AclPermission> aclPermission) {
-        Criteria criteriaUserIds = Criteria.where(fieldName(QUser.user.id)).in(userIds);
-        Criteria criteriaTenantId =
-                Criteria.where(fieldName(QUser.user.tenantId)).is(tenantId);
-        List<String> includeFields = List.of(fieldName(QUser.user.email));
+        Criteria criteriaUserIds = Criteria.where(User.Fields.id).in(userIds);
+        Criteria criteriaTenantId = Criteria.where(User.Fields.tenantId).is(tenantId);
+        List<String> includeFields = List.of(User.Fields.email);
         return queryBuilder()
                 .criteria(criteriaUserIds, criteriaTenantId)
                 .fields(includeFields)
@@ -142,7 +139,7 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     @Override
     public Mono<Long> countAllUsersByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =
-                Criteria.where(fieldName(QUser.user.isProvisioned)).is(isProvisioned);
+                Criteria.where(User.Fields.isProvisioned).is(isProvisioned);
         return queryBuilder()
                 .criteria(criteriaIsProvisioned)
                 .permission(aclPermission.orElse(null))
@@ -153,8 +150,8 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     public Mono<Boolean> updateUserPoliciesAndIsProvisionedWithoutPermission(
             String id, Boolean isProvisioned, Set<Policy> policies) {
         Update updateUser = new Update();
-        updateUser.set(fieldName(QUser.user.isProvisioned), isProvisioned);
-        updateUser.set(fieldName(QUser.user.policies), policies);
+        updateUser.set(User.Fields.isProvisioned, isProvisioned);
+        updateUser.set(User.Fields.policies, policies);
         return queryBuilder().byId(id).updateFirst(updateUser).thenReturn(Boolean.TRUE);
     }
 
@@ -162,7 +159,7 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     public Flux<User> getAllUsersByIsProvisioned(
             boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =
-                Criteria.where(fieldName(QUser.user.isProvisioned)).is(isProvisioned);
+                Criteria.where(User.Fields.isProvisioned).is(isProvisioned);
         return queryBuilder()
                 .criteria(criteriaIsProvisioned)
                 .fields(includeFields.orElse(null))
@@ -175,13 +172,13 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         if (StringUtils.hasLength(filters.getFirst(PROVISIONED_FILTER))) {
             String provisionValue = filters.getFirst(PROVISIONED_FILTER).toLowerCase();
             if (provisionValue.equals(Boolean.TRUE.toString())) {
-                criteriaList.add(where(fieldName(QUser.user.isProvisioned)).is(Boolean.TRUE));
+                criteriaList.add(where(User.Fields.isProvisioned).is(Boolean.TRUE));
             } else if (provisionValue.equals(Boolean.FALSE.toString())) {
-                criteriaList.add(where(fieldName(QUser.user.isProvisioned)).is(Boolean.FALSE));
+                criteriaList.add(where(User.Fields.isProvisioned).is(Boolean.FALSE));
             }
         }
         if (StringUtils.hasLength(filters.getFirst(SEARCH_TERM))) {
-            criteriaList.add(Criteria.where(fieldName(QUser.user.email))
+            criteriaList.add(Criteria.where(User.Fields.email)
                     .regex(".*" + Pattern.quote(filters.getFirst(SEARCH_TERM)) + ".*", "i"));
         }
         return criteriaList;
@@ -190,14 +187,14 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     @Override
     public Mono<Boolean> makeUserPristineBasedOnLoginSourceAndTenantId(LoginSource loginSource, String tenantId) {
         List<Criteria> criterias = new ArrayList<>();
-        Criteria criteriaLoginSource = where(fieldName(QUser.user.source)).is(loginSource);
-        Criteria tenantIdCriteria = where(fieldName(QUser.user.tenantId)).is(tenantId);
+        Criteria criteriaLoginSource = where(User.Fields.source).is(loginSource);
+        Criteria tenantIdCriteria = where(User.Fields.tenantId).is(tenantId);
         criterias.add(tenantIdCriteria);
         criterias.add(criteriaLoginSource);
 
         Update update = new Update();
-        update.set(fieldName(QUser.user.source), LoginSource.FORM);
-        update.set(fieldName(QUser.user.isEnabled), false);
+        update.set(User.Fields.source, LoginSource.FORM);
+        update.set(User.Fields.isEnabled, false);
         return queryBuilder().criteria(criterias).updateAll(update).map(count -> count > 0);
     }
 
