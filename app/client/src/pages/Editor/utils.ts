@@ -6,15 +6,11 @@ import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembl
 import WidgetFactory from "WidgetProvider/factory";
 import type { ActionResponse } from "api/ActionAPI";
 import type {
-  GroupedWidgetCardsWithMaxRenderList,
   WidgetCardsGroupedByTags,
   WidgetTags,
   WidgetType,
 } from "constants/WidgetConstants";
-import {
-  WIDGET_TAGS,
-  widgetCardTagMaxRenderList,
-} from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { debounce, random } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
@@ -339,50 +335,4 @@ export const actionResponseDisplayDataFormats = (
     responseDataTypes,
     responseDisplayFormat,
   };
-};
-
-/**
- * Sets the maximum items to render for each group of widget cards based on provided criteria.
- * @param groupedWidgets - Grouped widget cards based on tags.
- * @param showMaxWidgetsPerTag - Object indicating whether to show full list for each widget tag.
- * @returns Grouped widget cards with maximum items to render.
- */
-export const setWidgetTagMaxRender = (
-  groupedWidgets: WidgetCardsGroupedByTags,
-  showMaxWidgetsPerTag: Record<WidgetTags, boolean>,
-): GroupedWidgetCardsWithMaxRenderList => {
-  const groupedWidgetCardsWithMaxRender: GroupedWidgetCardsWithMaxRenderList =
-    {} as GroupedWidgetCardsWithMaxRenderList;
-
-  Object.entries(groupedWidgets).forEach(([tag, widgets]) => {
-    const tagValue = tag as WidgetTags;
-
-    // Retrieve maximum number to render for the current tag
-    const maxRenderValue = widgetCardTagMaxRenderList[tagValue] || null;
-
-    // Initialize group if not already present
-    if (!groupedWidgetCardsWithMaxRender[tagValue]) {
-      groupedWidgetCardsWithMaxRender[tagValue] = {
-        data: [],
-        maxRenderList: maxRenderValue,
-      };
-    }
-
-    // Determine how many items to push into the render list based on criteria
-    let howManyToPushIn: number = widgets.length + 1; // If no criteria, return all widgets
-    const shouldLimitWidgetsToMax = showMaxWidgetsPerTag[tagValue];
-
-    if (shouldLimitWidgetsToMax) {
-      howManyToPushIn = maxRenderValue as number;
-    }
-
-    // Push widgets into render list based on the determined count
-    widgets.forEach((widget, index) => {
-      if (index < howManyToPushIn) {
-        groupedWidgetCardsWithMaxRender[tagValue].data.push(widget);
-      }
-    });
-  });
-
-  return groupedWidgetCardsWithMaxRender;
 };

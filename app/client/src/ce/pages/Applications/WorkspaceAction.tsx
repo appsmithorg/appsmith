@@ -99,7 +99,7 @@ function WorkspaceAction({
         {<Divider className="!block mb-[2px]" />}
         {isCreateAppFromTemplatesEnabled && (
           <MenuItem
-            data-testid="t--workspace-action-start-from-template"
+            data-testid="t--workspace-action-create-app-from-template"
             disabled={!hasCreateNewApplicationPermission}
             onSelect={() => onStartFromTemplate(workspaceId)}
             startIcon="layout-2-line"

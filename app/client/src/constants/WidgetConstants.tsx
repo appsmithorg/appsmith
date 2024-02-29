@@ -246,30 +246,11 @@ export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];
 
 export type WidgetCardsGroupedByTags = Record<WidgetTags, WidgetCardProps[]>;
 
-export interface WidgetCardWithMaxRenderList {
-  data: WidgetCardProps[];
-  maxRenderList: number | null;
-}
-
-export type GroupedWidgetCardsWithMaxRenderList = Record<
-  WidgetTags,
-  WidgetCardWithMaxRenderList
->;
-
-// max cards to display as default when loading widget cards in explorer
-export const widgetCardTagMaxRenderList: Record<WidgetTags, number | null> = {
-  Suggested: null, // If null, render all items within the explorer tag
+// Initial items to display as default when loading entities in the explorer
+export const initialEntityCountForExplorerTag: Partial<
+  Record<WidgetTags, number>
+> = {
   "Building Blocks": 9, // render only 9 items initially
-  Inputs: null,
-  Buttons: null,
-  Select: null,
-  Display: null,
-  Layout: null,
-  Media: null,
-  Toggles: null,
-  Sliders: null,
-  Content: null,
-  External: null,
 };
 
 export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {

@@ -26,12 +26,12 @@ import { actionResponseDisplayDataFormats } from "../utils";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasExecuteActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { getResponsePaneHeight } from "selectors/debuggerSelectors";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { isString } from "lodash";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import BindDataButton from "./BindDataButton";
+import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 
 const HelpSection = styled.div``;
 
@@ -84,7 +84,7 @@ const QueryResponseTab = (props: Props) => {
   const actionResponse = useSelector((state) =>
     getActionData(state, currentActionConfig.id),
   );
-  const responsePaneHeight = useSelector(getResponsePaneHeight);
+  const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
 
   const { responseDataTypes, responseDisplayFormat } =
     actionResponseDisplayDataFormats(actionResponse);
@@ -99,7 +99,7 @@ const QueryResponseTab = (props: Props) => {
         panelComponent: responseTabComponent(
           dataType.key,
           output,
-          responsePaneHeight,
+          responseTabHeight,
         ),
       };
     });
@@ -278,7 +278,7 @@ const QueryResponseTab = (props: Props) => {
             {responseTabComponent(
               selectedControl || segmentedControlOptions[0]?.value,
               output,
-              responsePaneHeight,
+              responseTabHeight,
             )}
           </ResponseDataContainer>
         )}

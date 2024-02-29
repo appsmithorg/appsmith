@@ -4,61 +4,26 @@ import {
 } from "@appsmith/constants/messages";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
-  GroupedWidgetCardsWithMaxRenderList,
+  WidgetCardsGroupedByTags,
   WidgetTags,
-  WidgetCardWithMaxRenderList,
 } from "constants/WidgetConstants";
-import {
-  WIDGET_TAGS,
-  SUGGESTED_WIDGETS_ORDER,
-} from "constants/WidgetConstants";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleHeader,
-  SearchInput,
-  Spinner,
-  Text,
-} from "design-system";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { SearchInput, Text } from "design-system";
 import Fuse from "fuse.js";
-import { debounce, sortBy } from "lodash";
+import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { groupWidgetCardsByTags, setWidgetTagMaxRender } from "../utils";
-import SeeMoreButton from "./SeeMoreButton";
-import WidgetCard from "./WidgetCard";
+import { groupWidgetCardsByTags } from "../utils";
+import UIEntityList from "./UIEntityList";
 import { useUIExplorerItems } from "./hooks";
-import styled from "styled-components";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-
-const LoadingWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 70px;
-  margin-bottom: 70px;
-`;
 
 function UIEntitySidebar({ isActive }: { isActive: boolean }) {
-  const {
-    cards,
-    groupedCards,
-    groupedCardsWithMaxRenderPerTag,
-    isLoadingTemplates,
-    showMaxWidgetsPerTag,
-    toggleMaxWidgetsPerTag,
-  } = useUIExplorerItems();
+  const { cards, entityLoading, groupedCards } = useUIExplorerItems();
   const [filteredCards, setFilteredCards] =
-    useState<GroupedWidgetCardsWithMaxRenderList>(
-      groupedCardsWithMaxRenderPerTag,
-    );
+    useState<WidgetCardsGroupedByTags>(groupedCards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
-
-  const releaseDragDropBuildingBlocks = true;
-  useFeatureFlag(FEATURE_FLAG.release_drag_drop_building_blocks_enabled);
 
   const searchWildcards = useMemo(
     () =>
@@ -96,18 +61,13 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
       const searchResult = fuse.search(keyword);
 
       setFilteredCards(
-        setWidgetTagMaxRender(
-          groupWidgetCardsByTags(
-            searchResult.length > 0 ? searchResult : searchWildcards,
-          ),
-          showMaxWidgetsPerTag,
+        groupWidgetCardsByTags(
+          searchResult.length > 0 ? searchResult : searchWildcards,
         ),
       );
       setIsEmpty(searchResult.length === 0);
     } else {
-      setFilteredCards(
-        setWidgetTagMaxRender(groupedCards, showMaxWidgetsPerTag),
-      );
+      setFilteredCards(groupedCards);
       setIsSearching(false);
       setIsEmpty(false);
     }
@@ -118,8 +78,8 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
   }, 300);
 
   useEffect(() => {
-    setFilteredCards(setWidgetTagMaxRender(groupedCards, showMaxWidgetsPerTag));
-  }, [groupedCardsWithMaxRenderPerTag]);
+    setFilteredCards(groupedCards);
+  }, [groupedCards]);
 
   return (
     <div
@@ -154,33 +114,9 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
         )}
         <div>
           {Object.keys(filteredCards).map((tag) => {
-            const cardsForThisTag: WidgetCardWithMaxRenderList =
-              filteredCards[tag as WidgetTags];
+            const cardsForThisTag = filteredCards[tag as WidgetTags];
 
-            const showBuildingBlocksLoading =
-              isLoadingTemplates &&
-              tag === WIDGET_TAGS.BUILDING_BLOCKS &&
-              releaseDragDropBuildingBlocks;
-
-            /* Show loading indicator only for Building Blocks */
-            if (showBuildingBlocksLoading) {
-              return (
-                <LoadingWrapper key={tag}>
-                  <CollapsibleHeader arrowPosition="start">
-                    <Text
-                      className="select-none"
-                      color="var(--ads-v2-color-gray-600)"
-                      kind="heading-xs"
-                    >
-                      {tag}
-                    </Text>
-                  </CollapsibleHeader>
-                  <Spinner size={"lg"} />
-                </LoadingWrapper>
-              );
-            }
-
-            if (!cardsForThisTag?.data.length) {
+            if (!cardsForThisTag?.length && !entityLoading[tag as WidgetTags]) {
               return null;
             }
 
@@ -193,44 +129,12 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
             }
 
             return (
-              <Collapsible
-                className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${tag
-                  .toLowerCase()
-                  .replace(/ /g, "-")}`}
-                isOpen
+              <UIEntityList
+                cardsForThisTag={cardsForThisTag}
+                isLoading={entityLoading[tag as WidgetTags]}
                 key={tag}
-              >
-                <CollapsibleHeader arrowPosition="start">
-                  <Text
-                    className="select-none"
-                    color="var(--ads-v2-color-gray-600)"
-                    kind="heading-xs"
-                  >
-                    {tag}
-                  </Text>
-                </CollapsibleHeader>
-                <CollapsibleContent>
-                  <div className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch">
-                    {tag === WIDGET_TAGS.SUGGESTED_WIDGETS
-                      ? sortBy(
-                          cardsForThisTag.data,
-                          (widget) => SUGGESTED_WIDGETS_ORDER[widget.type],
-                        ).map((card) => (
-                          <WidgetCard details={card} key={card.key} />
-                        ))
-                      : cardsForThisTag.data.map((card) => (
-                          <WidgetCard details={card} key={card.key} />
-                        ))}
-                  </div>
-                  <SeeMoreButton
-                    hidden={cardsForThisTag.maxRenderList ? false : true}
-                    showSeeLess={!showMaxWidgetsPerTag[tag as WidgetTags]}
-                    toggleSeeMore={() =>
-                      toggleMaxWidgetsPerTag(tag as WidgetTags)
-                    }
-                  />
-                </CollapsibleContent>
-              </Collapsible>
+                tag={tag}
+              />
             );
           })}
         </div>
