@@ -2,7 +2,7 @@ import type {
   AutoDimensionOptions,
   AutoDimensionValues,
   AutoLayoutConfig,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import {
   getAutoDimensionsConfig,
   restructureWidgetSizeConfig,

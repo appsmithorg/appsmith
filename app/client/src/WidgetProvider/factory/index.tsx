@@ -13,7 +13,7 @@ import type {
   FlattenedWidgetProps,
   WidgetConfigProps,
   WidgetMethods,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import {
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,

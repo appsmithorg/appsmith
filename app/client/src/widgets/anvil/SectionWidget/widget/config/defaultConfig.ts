@@ -1,8 +1,8 @@
-import {
-  BlueprintOperationTypes,
-  type FlattenedWidgetProps,
-  type WidgetDefaultProps,
-} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type {
+  FlattenedWidgetProps,
+  WidgetDefaultProps,
+} from "WidgetProvider/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
