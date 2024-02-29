@@ -4,7 +4,7 @@ import BaseWidget from "../../BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import moment from "moment";
 import type { DatePickerType } from "../constants";
@@ -13,6 +13,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 import IconSVG from "../icon.svg";
+import { ValidationTypes } from "constants/types";
 
 function defaultDateValidation(
   value: unknown,

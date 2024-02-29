@@ -1,4 +1,4 @@
-import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationConfig } from "constants/types";
 import { Severity } from "entities/AppsmithConsole";
 import type {
   WidgetEntity,

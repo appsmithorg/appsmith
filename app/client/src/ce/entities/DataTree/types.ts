@@ -1,6 +1,6 @@
 import type { ActionResponse } from "api/ActionAPI";
 import type { PluginId } from "api/PluginApi";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationConfig } from "constants/types";
 import type { ActionConfig, PluginType } from "entities/Action";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";

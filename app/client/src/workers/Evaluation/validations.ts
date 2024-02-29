@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import type { ValidationResponse, Validator } from "constants/WidgetValidation";
+import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/types";
 import _, {
   compact,
@@ -15,7 +15,7 @@ import _, {
 } from "lodash";
 
 import moment from "moment";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationConfig, Validator } from "constants/types";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
