@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field, getFormValues } from "redux-form";
 import { Button, Tag, Text, toast } from "design-system";

@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import type { InputType } from "components/constants";

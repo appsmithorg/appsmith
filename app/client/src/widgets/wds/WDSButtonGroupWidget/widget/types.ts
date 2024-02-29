@@ -1,5 +1,5 @@
 import type { ActionGroupProps } from "@design-system/widgets";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { ButtonGroupItemComponentProps } from "../component/types";
 
 export type ButtonsList = Record<string, ButtonGroupItemComponentProps>;

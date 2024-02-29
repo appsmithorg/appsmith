@@ -1,4 +1,4 @@
-import type { WidgetBaseProps } from "widgets/BaseWidget";
+import type { WidgetBaseProps } from "widgets/types";
 import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { checkForOnClick } from "widgets/WidgetUtils";

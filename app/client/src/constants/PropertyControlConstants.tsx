@@ -1,16 +1,17 @@
-import { getPropertyControlTypes } from "components/propertyControls";
 import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 import type { PropertyUpdates } from "WidgetProvider/types";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { ValidationConfig } from "./types";
+import type { ControlType } from "constants/types";
+import type { TruthyPrimitiveTypes } from "utils/TypeHelpers";
 
-const ControlTypes = getPropertyControlTypes();
-export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
+export type AdditionalDynamicDataTree = Record<
+  string,
+  Record<string, unknown> | TruthyPrimitiveTypes
+>;
 
 export interface PropertyPaneSectionConfig {
   sectionName: string;
@@ -118,4 +119,27 @@ export type PropertyPaneConfig =
 
 export interface ActionValidationConfigMap {
   [configProperty: string]: ValidationConfig;
+}
+
+export interface UpdateWidgetPropertyPayload {
+  widgetId: string;
+  updates: BatchPropertyUpdatePayload;
+  dynamicUpdates?: {
+    dynamicBindingPathList?: DynamicPath[];
+    dynamicTriggerPathList?: DynamicPath[];
+    dynamicPropertyPathList?: DynamicPath[];
+  };
+  shouldReplay?: boolean;
+}
+
+export interface BatchPropertyUpdatePayload {
+  modify?: Record<string, unknown>; //Key value pairs of paths and values to update
+  remove?: string[]; //Array of paths to delete
+  triggerPaths?: string[]; // Array of paths in the modify and remove list which are trigger paths
+  postUpdateAction?: ReduxActionType; // Array of action types we need to dispatch after property updates.
+}
+
+export interface DynamicPath {
+  key: string;
+  value?: string;
 }

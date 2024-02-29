@@ -1,11 +1,6 @@
 import type { Def } from "tern";
-import type { TruthyPrimitiveTypes } from "utils/TypeHelpers";
 import { generateTypeDef } from "./defCreatorUtils";
-
-export type AdditionalDynamicDataTree = Record<
-  string,
-  Record<string, unknown> | TruthyPrimitiveTypes
->;
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 
 export const customTreeTypeDefCreator = (data: AdditionalDynamicDataTree) => {
   const extraDefsToDefine: Def = {};

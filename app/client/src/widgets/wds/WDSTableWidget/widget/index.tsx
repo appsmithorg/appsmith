@@ -19,7 +19,7 @@ import _, {
   xorWith,
 } from "lodash";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import {
   RenderModes,
@@ -85,7 +85,7 @@ import {
 } from "./utilities";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import type { BatchPropertyUpdatePayload } from "constants/PropertyControlConstants";
 import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
@@ -132,7 +132,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";

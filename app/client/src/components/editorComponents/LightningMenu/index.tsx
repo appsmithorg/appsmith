@@ -1,7 +1,7 @@
 import React from "react";
 import { Directions } from "utils/helpers";
 import type { Action } from "entities/Action";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { getLightningMenuOptions } from "./helpers";
 import { LightningMenuTrigger } from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";

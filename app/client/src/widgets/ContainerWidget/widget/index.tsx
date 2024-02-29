@@ -3,7 +3,7 @@ import React from "react";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/types";
 import { compact, get, map, sortBy } from "lodash";

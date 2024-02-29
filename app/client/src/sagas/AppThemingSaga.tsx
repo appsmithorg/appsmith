@@ -30,7 +30,7 @@ import type { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import type { UpdateWidgetPropertyPayload } from "constants/PropertyControlConstants";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
 import type { ApiResponse } from "api/ApiResponses";

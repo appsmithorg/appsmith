@@ -9,7 +9,7 @@ import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import type { UpdateWidgetPropertyPayload } from "constants/PropertyControlConstants";
 import {
   batchUpdateMultipleWidgetProperties,
   batchUpdateWidgetProperty,
@@ -19,7 +19,7 @@ import {
 import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import type { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 import {
   getEvalValuePath,
   isDynamicValue,
@@ -53,7 +53,7 @@ import {
   setSelectedPropertyPanel,
 } from "actions/propertyPaneActions";
 import WidgetFactory from "WidgetProvider/factory";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";

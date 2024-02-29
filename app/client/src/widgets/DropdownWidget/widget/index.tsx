@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "../../types";
 import BaseWidget from "../../BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "../component";

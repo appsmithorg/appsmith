@@ -26,10 +26,10 @@ import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
 import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 import { getLocale } from "utils/helpers";
-import { DynamicHeight } from "utils/WidgetFeatures";
-import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
+import { DynamicHeight } from "widgets/types";
+import type { WidgetPositionProps, WidgetProps } from "./types";
 import {
   COMPACT_MODE_MIN_ROWS,
   rgbaMigrationConstantV56,

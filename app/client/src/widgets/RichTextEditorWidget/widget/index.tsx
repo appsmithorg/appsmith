@@ -13,7 +13,7 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "../../types";
 import BaseWidget from "../../BaseWidget";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -26,7 +26,7 @@ import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "widgets/types";
 import IconSVG from "../icon.svg";
 
 import type {

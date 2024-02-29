@@ -1,7 +1,7 @@
 import React from "react";
 
 import BaseWidget from "widgets/BaseWidget";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 
 import IconSVG from "../icon.svg";
 

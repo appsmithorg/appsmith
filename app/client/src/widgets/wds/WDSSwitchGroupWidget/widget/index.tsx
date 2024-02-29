@@ -1,7 +1,7 @@
 import React from "react";
 import xor from "lodash/xor";
 import BaseWidget from "widgets/BaseWidget";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import type { SetterConfig } from "entities/AppTheming";
 import type { AnvilConfig } from "WidgetProvider/types";
 import { Switch, SwitchGroup } from "@design-system/widgets";

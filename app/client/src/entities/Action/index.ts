@@ -1,5 +1,5 @@
 import type { EmbeddedRestDatasource } from "entities/Datasource";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 import _ from "lodash";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import type { Plugin } from "api/PluginApi";

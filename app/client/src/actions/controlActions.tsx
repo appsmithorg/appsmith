@@ -1,10 +1,10 @@
-import type {
-  ReduxAction,
-  ReduxActionType,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type {
+  BatchPropertyUpdatePayload,
+  UpdateWidgetPropertyPayload,
+} from "constants/PropertyControlConstants";
 import type { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 export const updateWidgetPropertyRequest = (
   widgetId: string,
@@ -20,13 +20,6 @@ export const updateWidgetPropertyRequest = (
     },
   };
 };
-
-export interface BatchPropertyUpdatePayload {
-  modify?: Record<string, unknown>; //Key value pairs of paths and values to update
-  remove?: string[]; //Array of paths to delete
-  triggerPaths?: string[]; // Array of paths in the modify and remove list which are trigger paths
-  postUpdateAction?: ReduxActionType; // Array of action types we need to dispatch after property updates.
-}
 
 export const batchUpdateWidgetProperty = (
   widgetId: string,
@@ -114,17 +107,6 @@ export interface UpdateWidgetPropertyRequestPayload {
   widgetId: string;
   propertyPath: string;
   propertyValue: any;
-}
-
-export interface UpdateWidgetPropertyPayload {
-  widgetId: string;
-  updates: BatchPropertyUpdatePayload;
-  dynamicUpdates?: {
-    dynamicBindingPathList?: DynamicPath[];
-    dynamicTriggerPathList?: DynamicPath[];
-    dynamicPropertyPathList?: DynamicPath[];
-  };
-  shouldReplay?: boolean;
 }
 
 export interface UpdateCanvasLayoutPayload {

@@ -1,7 +1,7 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TextSize } from "constants/WidgetConstants";
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import DatePickerComponent from "../component";
 
@@ -29,7 +29,7 @@ import type {
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import moment from "moment";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "widgets/types";
 import IconSVG from "../icon.svg";
 import type {
   SnipingModeProperty,

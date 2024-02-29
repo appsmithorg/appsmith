@@ -12,14 +12,14 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 import {
   isDynamicValue,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import WidgetFactory from "WidgetProvider/factory";
-// import { DynamicHeight } from "utils/WidgetFeatures";
-import type { WidgetProps } from "widgets/BaseWidget";
+// import { DynamicHeight } from "widgets/types";
+import type { WidgetProps } from "widgets/types";
 import type { DSLWidget } from "WidgetProvider/types";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 

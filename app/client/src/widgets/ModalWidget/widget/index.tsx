@@ -14,7 +14,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { generateClassName } from "utils/generators";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
@@ -34,7 +34,7 @@ import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "widgets/types";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { modalPreset } from "layoutSystems/autolayout/layoutComponents/presets/ModalPreset";

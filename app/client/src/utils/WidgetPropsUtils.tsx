@@ -1,7 +1,8 @@
 import type { FetchPageResponse } from "api/PageApi";
 import type { WidgetConfigProps } from "WidgetProvider/types";
-import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
-import { WidgetOperations } from "widgets/BaseWidget";
+import type { WidgetOperation } from "widgets/types";
+import type { WidgetProps } from "widgets/types";
+import { WidgetOperations } from "widgets/types";
 import type { RenderMode } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,

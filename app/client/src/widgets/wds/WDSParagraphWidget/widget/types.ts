@@ -1,3 +1,3 @@
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export interface TextWidgetProps extends WidgetProps {}

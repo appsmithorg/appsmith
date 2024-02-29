@@ -2,7 +2,7 @@ import _ from "lodash";
 import React from "react";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import { CurrencyInputComponent } from "../component";

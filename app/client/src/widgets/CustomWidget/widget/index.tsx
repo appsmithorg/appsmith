@@ -2,7 +2,7 @@ import React from "react";
 
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 
 import CustomComponent from "../component";
@@ -33,7 +33,7 @@ import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DynamicHeight, type WidgetFeatures } from "utils/WidgetFeatures";
+import { DynamicHeight, type WidgetFeatures } from "widgets/types";
 
 const StyledLink = styled(Link)`
   display: inline-block;

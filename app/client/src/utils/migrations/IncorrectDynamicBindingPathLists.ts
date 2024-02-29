@@ -1,7 +1,7 @@
 import WidgetFactory from "WidgetProvider/factory";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import _ from "lodash";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { DSLWidget } from "WidgetProvider/types";
 

@@ -16,7 +16,7 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { getUniqueKeysFromSourceData } from "widgets/MenuButtonWidget/widget/helper";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";

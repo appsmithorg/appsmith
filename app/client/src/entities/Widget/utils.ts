@@ -4,7 +4,7 @@ import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { get, isObject, isUndefined, omitBy } from "lodash";
 import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { ValidationConfig } from "constants/types";
 
 /**

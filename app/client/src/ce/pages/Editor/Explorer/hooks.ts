@@ -4,7 +4,7 @@ import type { AppState } from "@appsmith/reducers";
 import { compact, get, groupBy } from "lodash";
 import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import log from "loglevel";
 import produce from "immer";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";

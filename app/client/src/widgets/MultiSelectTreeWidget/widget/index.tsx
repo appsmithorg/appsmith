@@ -14,7 +14,7 @@ import type { ReactNode } from "react";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {
@@ -30,7 +30,7 @@ import type {
 } from "WidgetProvider/types";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "widgets/types";
 import IconSVG from "../icon.svg";
 
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";

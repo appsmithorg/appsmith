@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 

@@ -1,4 +1,4 @@
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export interface OptionProps {
   label?: string;

@@ -31,7 +31,7 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import type { WidgetProps } from "./BaseWidget";
+import type { WidgetProps } from "./types";
 import type BaseWidget from "./BaseWidget";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import { Positioning } from "layoutSystems/common/utils/constants";

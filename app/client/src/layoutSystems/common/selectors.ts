@@ -10,7 +10,7 @@ import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { getErrorCount } from "layoutSystems/common/widgetName/utils";
 import type { LayoutElementPositions } from "./types";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { WidgetNameData } from "./WidgetNamesCanvas/WidgetNameTypes";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 

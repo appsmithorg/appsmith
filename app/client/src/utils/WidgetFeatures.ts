@@ -5,30 +5,9 @@ import type {
 } from "constants/PropertyControlConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetFeatureConfig } from "widgets/types";
+import { RegisteredWidgetFeatures, DynamicHeight } from "widgets/types";
 import type BaseWidget from "widgets/BaseWidget";
-
-export enum RegisteredWidgetFeatures {
-  DYNAMIC_HEIGHT = "dynamicHeight",
-}
-
-interface WidgetFeatureConfig {
-  active: boolean;
-  defaultValue?: DynamicHeight;
-  sectionIndex: number;
-  helperText?: (props?: WidgetProps) => PropertyPaneControlConfig["helperText"];
-}
-
-export type WidgetFeatures = Record<
-  RegisteredWidgetFeatures,
-  WidgetFeatureConfig
->;
-
-export enum DynamicHeight {
-  AUTO_HEIGHT = "AUTO_HEIGHT",
-  FIXED = "FIXED",
-  AUTO_HEIGHT_WITH_LIMITS = "AUTO_HEIGHT_WITH_LIMITS",
-}
 
 /* This contains all properties which will be added
    to a widget, automatically, by the Appsmith platform

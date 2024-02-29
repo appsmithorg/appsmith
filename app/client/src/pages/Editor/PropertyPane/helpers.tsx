@@ -6,7 +6,7 @@ import type {
 import { debounce } from "lodash";
 import { useCallback, useState } from "react";
 import { layoutSystemBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { Callout } from "design-system";
 import React from "react";
 import WidgetFactory from "WidgetProvider/factory";

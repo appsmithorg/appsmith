@@ -17,7 +17,7 @@ import {
 import { isLargeWidget } from "../../widgetUtils";
 import { anvilWidgets } from "widgets/anvil/constants";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,

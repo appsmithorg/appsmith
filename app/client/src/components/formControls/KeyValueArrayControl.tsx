@@ -8,7 +8,7 @@ import { Field, FieldArray } from "redux-form";
 import styled from "styled-components";
 import type { ControlProps, ControlData } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import type { InputProps } from "design-system";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";

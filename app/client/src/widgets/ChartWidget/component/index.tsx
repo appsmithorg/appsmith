@@ -13,7 +13,7 @@ import type {
 
 import log from "loglevel";
 import equal from "fast-deep-equal/es6";
-import type { WidgetPositionProps } from "widgets/BaseWidget";
+import type { WidgetPositionProps } from "widgets/types";
 import { ChartErrorComponent } from "./ChartErrorComponent";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 import { dataClickCallbackHelper, isBasicEChart } from "./helpers";

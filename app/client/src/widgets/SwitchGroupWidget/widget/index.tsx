@@ -5,7 +5,7 @@ import { ValidationTypes } from "constants/types";
 import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { isString, xor } from "lodash";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 
 import { LabelPosition } from "components/constants";

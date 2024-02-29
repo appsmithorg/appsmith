@@ -14,7 +14,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 

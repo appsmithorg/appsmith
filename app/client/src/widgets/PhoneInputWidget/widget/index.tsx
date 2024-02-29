@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import type { PhoneInputComponentProps } from "../component";
 import PhoneInputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -37,7 +37,7 @@ import type {
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "widgets/types";
 import { getDefaultISDCode } from "../component/ISDCodeDropdown";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";

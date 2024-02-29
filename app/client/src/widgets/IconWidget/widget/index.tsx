@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "../../types";
 import BaseWidget from "../../BaseWidget";
 import styled from "styled-components";
 import type { IconType } from "../component";

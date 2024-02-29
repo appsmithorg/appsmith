@@ -2,7 +2,7 @@ import React from "react";
 
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 
 import { Colors } from "constants/Colors";

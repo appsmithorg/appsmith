@@ -5,7 +5,7 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/types";
 import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { FileDataTypes } from "WidgetProvider/constants";
 import { DefaultMobileCameraTypes } from "WidgetProvider/types";

@@ -1,9 +1,7 @@
-import {
-  RegisteredWidgetFeatures,
-  WidgetFeatureProps,
-} from "utils/WidgetFeatures";
+import { WidgetFeatureProps } from "utils/WidgetFeatures";
+import { RegisteredWidgetFeatures } from "widgets/types";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { DSLWidget } from "WidgetProvider/types";
 import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";

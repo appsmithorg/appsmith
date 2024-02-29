@@ -5,7 +5,7 @@ import {
   type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { generateReactKey } from "utils/generators";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { mockInputProps } from "mocks/widgetProps/input";

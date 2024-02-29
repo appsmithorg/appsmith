@@ -16,7 +16,7 @@ import {
   propertyPaneContent,
   propertyPaneStyle,
 } from "./config";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import BaseWidget from "widgets/BaseWidget";
 import type { ReactNode } from "react";

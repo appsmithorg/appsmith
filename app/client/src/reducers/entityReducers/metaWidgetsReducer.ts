@@ -4,8 +4,8 @@ import { klona } from "klona";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import type { WidgetProps } from "widgets/types";
+import type { BatchPropertyUpdatePayload } from "constants/PropertyControlConstants";
 import type { UpdateWidgetsPayload } from "./canvasWidgetsReducer";
 
 export interface MetaWidgetsReduxState {

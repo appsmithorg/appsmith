@@ -1,7 +1,7 @@
 import _, { get, isString } from "lodash";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import type { Action } from "entities/Action";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
@@ -14,6 +14,7 @@ import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -150,11 +151,6 @@ export interface EvalError {
   type: EvalErrorTypes;
   message: string;
   context?: Record<string, any>;
-}
-
-export interface DynamicPath {
-  key: string;
-  value?: string;
 }
 
 export interface WidgetDynamicPathListProps {

@@ -4,12 +4,12 @@ import type { ValidationConfig } from "constants/types";
 import type { ActionConfig, PluginType } from "entities/Action";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
-import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetConfigProps } from "WidgetProvider/types";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { AppDataState } from "reducers/entityReducers/appReducer";
@@ -19,6 +19,7 @@ import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEn
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 

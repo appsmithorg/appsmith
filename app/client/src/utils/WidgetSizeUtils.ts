@@ -3,7 +3,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import type { WidgetType } from "../WidgetProvider/factory";
 import WidgetFactory from "../WidgetProvider/factory";

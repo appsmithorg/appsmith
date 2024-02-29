@@ -1,5 +1,5 @@
 import { Component } from "react";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import type { InputType } from "components/constants";
 import type { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { DropdownOption } from "design-system-old";

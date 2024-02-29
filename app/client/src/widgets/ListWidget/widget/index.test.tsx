@@ -1,6 +1,6 @@
 import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import ListWidget from ".";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 describe("Autocomplete suggestions test", () => {
   it("lists the right autocomplete suggestions", () => {

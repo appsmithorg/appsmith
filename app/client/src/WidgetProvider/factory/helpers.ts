@@ -11,7 +11,7 @@ import WidgetFactory from ".";
 import type {
   RegisteredWidgetFeatures,
   WidgetFeatures,
-} from "../../utils/WidgetFeatures";
+} from "../../widgets/types";
 import {
   PropertyPaneConfigTemplates,
   WidgetFeaturePropertyPaneEnhancements,

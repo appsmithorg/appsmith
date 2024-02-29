@@ -6,7 +6,7 @@ import {
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { BatchAction } from "actions/batchActions";
 import { batchAction } from "actions/batchActions";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { PartialExportParams } from "sagas/PartialImportExportSagas";
 
 export const widgetInitialisationSuccess = () => {

@@ -37,7 +37,7 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import { QUERY_TYPE } from "WidgetQueryGenerators/types";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import ActionAPI from "api/ActionAPI";

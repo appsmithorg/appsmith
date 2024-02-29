@@ -1,6 +1,6 @@
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import MapComponent from "../component";
 

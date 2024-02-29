@@ -3,7 +3,7 @@ import { formValueSelector } from "redux-form";
 import { connect } from "react-redux";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import {
   EditorSize,

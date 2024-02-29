@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import type { AppState } from "@appsmith/reducers";
 import { formValueSelector } from "redux-form";

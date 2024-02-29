@@ -2,7 +2,7 @@ import React, { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getRenderMode } from "selectors/modeSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import withWidgetProps from "widgets/withWidgetProps";
 import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
 

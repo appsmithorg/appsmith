@@ -2,7 +2,7 @@ import type {
   PropertyPaneConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
 import type {
@@ -30,7 +30,7 @@ import {
   WidgetFeaturePropertyEnhancements,
   WidgetFeatureProps,
 } from "../../utils/WidgetFeatures";
-import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
+import type { RegisteredWidgetFeatures } from "../../widgets/types";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
 import produce from "immer";

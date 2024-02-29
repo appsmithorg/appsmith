@@ -37,7 +37,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import ListComponent, {

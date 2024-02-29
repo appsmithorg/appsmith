@@ -1,5 +1,9 @@
 import type { ValidationResponse } from "./WidgetValidation";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { getPropertyControlTypes } from "components/propertyControls";
+
+const ControlTypes = getPropertyControlTypes();
+export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
 
 export type Validator = (
   config: ValidationConfig,

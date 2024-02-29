@@ -1,7 +1,7 @@
 import { LabelOrientation } from "../constants";
 import type { ChartWidgetProps } from ".";
 import type { ChartData } from "../constants";
-import type { WidgetError } from "widgets/BaseWidget";
+import type { WidgetError } from "widgets/types";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { RenderModes } from "constants/WidgetConstants";
 

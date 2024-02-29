@@ -9,7 +9,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import { parseSchemaItem } from "widgets/WidgetUtils";
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import type { UpdateWidgetPropertyPayload } from "constants/PropertyControlConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 /**

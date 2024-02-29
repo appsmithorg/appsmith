@@ -13,7 +13,7 @@ import {
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
 import { NavigationMethod } from "utils/history";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 /**
  * This saga selects widgets in the Anvil Layout system

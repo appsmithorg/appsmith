@@ -16,7 +16,7 @@ import {
 } from "lodash";
 import equal from "fast-deep-equal/es6";
 
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -34,7 +34,7 @@ import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import type { ReactTableFilter } from "../component/Constants";
 import { OperatorTypes } from "../component/Constants";
@@ -54,7 +54,7 @@ import {
   SortOrderTypes,
 } from "../component/Constants";
 import tablePropertyPaneConfig from "./propertyConfig";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import type { BatchPropertyUpdatePayload } from "constants/PropertyControlConstants";
 import type { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
@@ -72,7 +72,7 @@ import type {
 import { cloneDeep, set } from "lodash";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type {
   SnipingModeProperty,

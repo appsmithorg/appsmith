@@ -16,7 +16,7 @@ import {
 import formControlTypes from "utils/formControl/formControlTypes";
 import { getAllBindingPathsForGraphqlPagination } from "utils/editor/EditorBindingPaths";
 import EditorControlTypes from "utils/editor/EditorControlTypes";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "constants/PropertyControlConstants";
 
 const dynamicFields = [
   formControlTypes.QUERY_DYNAMIC_TEXT,

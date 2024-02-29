@@ -6,7 +6,7 @@ import {
   LabelOrientation,
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
 } from "../constants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export const isLabelOrientationApplicableFor = (chartType: string) =>
   LABEL_ORIENTATION_COMPATIBLE_CHARTS.includes(chartType);

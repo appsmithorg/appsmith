@@ -1,8 +1,8 @@
 import { get } from "lodash";
 import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { DynamicHeight, RegisteredWidgetFeatures } from "utils/WidgetFeatures";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { DynamicHeight, RegisteredWidgetFeatures } from "widgets/types";
+import type { WidgetProps } from "widgets/types";
 import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,

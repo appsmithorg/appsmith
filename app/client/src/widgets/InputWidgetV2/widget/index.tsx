@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -39,7 +39,7 @@ import type {
 } from "WidgetProvider/types";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "widgets/types";
 
 import IconSVG from "../icon.svg";
 

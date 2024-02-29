@@ -15,7 +15,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { APP_MODE } from "entities/App";
 import { useLocation } from "react-router";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 

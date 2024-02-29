@@ -7,7 +7,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import styled from "styled-components";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { shouldUpdateWidgetHeightAutomatically } from "widgets/WidgetUtils";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 

@@ -1,4 +1,4 @@
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import type {
   ControlBuilder,
   ControlProps,

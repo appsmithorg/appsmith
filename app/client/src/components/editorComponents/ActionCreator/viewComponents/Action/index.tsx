@@ -3,7 +3,7 @@ import ActionTree from "./ActionTree";
 import { useApisQueriesAndJsActionOptions } from "../../helpers";
 import type { TActionBlock } from "../../types";
 import { actionToCode, codeToAction } from "../../utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 
 interface TRootActionProps {
   code: string;

@@ -1,4 +1,4 @@
-import type { WidgetRowCols } from "widgets/BaseWidget";
+import type { WidgetRowCols } from "widgets/types";
 import { GridDefaults } from "constants/WidgetConstants";
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { ReflowDirection } from "reflow/reflowTypes";

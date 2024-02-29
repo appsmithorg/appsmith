@@ -10,7 +10,7 @@ import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "../../types";
 import BaseWidget from "../../BaseWidget";
 import CheckboxComponent from "../component";
 import type {

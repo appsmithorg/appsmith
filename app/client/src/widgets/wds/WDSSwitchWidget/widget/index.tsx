@@ -7,7 +7,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import * as config from "./../config";
 import BaseWidget from "widgets/BaseWidget";
 import type { SwitchWidgetProps } from "./types";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import type { AnvilConfig } from "WidgetProvider/types";
 
 class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {

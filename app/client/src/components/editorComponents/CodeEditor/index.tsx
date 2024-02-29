@@ -110,7 +110,7 @@ import {
 } from "./utils/autoIndentUtils";
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import {
   getCodeEditorLastCursorPosition,
   getIsInputFieldFocused,

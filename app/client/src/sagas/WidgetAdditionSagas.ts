@@ -27,7 +27,7 @@ import {
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import WidgetFactory from "WidgetProvider/factory";
 import omit from "lodash/omit";
 import produce from "immer";

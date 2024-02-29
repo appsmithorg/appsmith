@@ -5,7 +5,7 @@ import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { FileDataTypes } from "WidgetProvider/constants";
 import AudioRecorderComponent from "../component";

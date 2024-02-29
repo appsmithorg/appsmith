@@ -5,7 +5,7 @@ import React, { useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import FlexBoxComponent from "../common/flexCanvas/FlexBoxComponent";
 import type { AdditionalAutoLayoutProperties } from "./types";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { LayoutDirection } from "layoutSystems/common/utils/constants";
 
 /**
