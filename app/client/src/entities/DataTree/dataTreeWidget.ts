@@ -8,7 +8,7 @@ import type {
   WidgetEntityConfig,
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE } from "./dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type {
   OverridingPropertyPaths,
   PropertyOverrideDependency,
