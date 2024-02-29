@@ -6,7 +6,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
-import { getRenderMode } from "./editorSelectors";
+import { getRenderMode } from "./modeSelectors";
 import { getIsMobileBreakPoint } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import type { LayoutSystemTypes } from "layoutSystems/types";
