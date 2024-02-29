@@ -117,6 +117,10 @@ export const getPluginIcon = (plugin?: Plugin) => {
   return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
 };
 
+export const getPluginEntityIcon = (plugin?: Plugin) => {
+  return <EntityIcon>{getPluginIcon(plugin)}</EntityIcon>;
+};
+
 const StyledTag = styled.div<{ color: string }>`
   font-size: 8px;
   width: 40px;

@@ -79,7 +79,9 @@ const SegmentedHeader = () => {
           startIcon="add-line"
         />
       ) : null}
-      {isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen ? (
+      {isSideBySideEnabled &&
+      editorMode === EditorViewMode.SplitScreen &&
+      segment !== EditorEntityTab.UI ? (
         <Button
           id="editor-mode-maximize"
           isIconButton
@@ -87,7 +89,7 @@ const SegmentedHeader = () => {
           onClick={() =>
             dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen))
           }
-          startIcon="maximize"
+          startIcon="maximize-v3"
         />
       ) : null}
     </Container>
