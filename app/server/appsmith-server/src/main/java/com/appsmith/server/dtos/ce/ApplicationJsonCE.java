@@ -6,7 +6,7 @@ import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
@@ -117,8 +117,8 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     String widgets;
 
     @Override
-    public ArtifactJsonType getArtifactJsonType() {
-        return ArtifactJsonType.APPLICATION;
+    public ArtifactType getArtifactJsonType() {
+        return ArtifactType.APPLICATION;
     }
 
     @Override

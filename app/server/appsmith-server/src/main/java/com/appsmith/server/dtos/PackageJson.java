@@ -4,7 +4,7 @@ import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.ImportableArtifact;
@@ -77,8 +77,8 @@ public class PackageJson implements ArtifactExchangeJson {
     String widgets;
 
     @Override
-    public ArtifactJsonType getArtifactJsonType() {
-        return ArtifactJsonType.PACKAGE;
+    public ArtifactType getArtifactJsonType() {
+        return ArtifactType.PACKAGE;
     }
 
     @Override

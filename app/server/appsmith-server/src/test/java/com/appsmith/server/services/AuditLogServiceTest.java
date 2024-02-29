@@ -24,7 +24,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.constants.FieldName;
@@ -1141,7 +1141,7 @@ public class AuditLogServiceTest {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         ApplicationImportDTO applicationImportDTO = importService
                 .extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, createdWorkspace.getId(), null, ArtifactJsonType.APPLICATION)
+                        filePart, createdWorkspace.getId(), null, ArtifactType.APPLICATION)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
         Application createdApplication = applicationImportDTO.getApplication();
@@ -1207,7 +1207,7 @@ public class AuditLogServiceTest {
         String resourceType = auditLogService.getResourceType(application);
 
         ApplicationJson applicationJSon = exportService
-                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .block();
 
@@ -1428,7 +1428,7 @@ public class AuditLogServiceTest {
                         application1.getWorkspaceId(),
                         application1.getId(),
                         application1,
-                        ArtifactJsonType.APPLICATION))
+                        ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
 

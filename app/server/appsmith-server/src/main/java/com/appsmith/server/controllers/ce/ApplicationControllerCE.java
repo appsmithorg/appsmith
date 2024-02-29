@@ -57,7 +57,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 
 @Slf4j
 @RequestMapping(Url.APPLICATION_URL)

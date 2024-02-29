@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -90,7 +90,7 @@ public class ApplicationSnapshotServiceUnitTest {
                 .thenReturn(Mono.just(branchedAppId));
 
         Mockito.when(exportService.exportByArtifactId(
-                        branchedAppId, SerialiseArtifactObjective.VERSION_CONTROL, ArtifactJsonType.APPLICATION))
+                        branchedAppId, SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION))
                 .thenAnswer(getTypeSafeMockAnswer(applicationJson));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))

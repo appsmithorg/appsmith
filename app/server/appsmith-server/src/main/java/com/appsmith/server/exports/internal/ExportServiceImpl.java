@@ -1,7 +1,7 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Package;
@@ -46,10 +46,10 @@ public class ExportServiceImpl extends ExportServiceCEImpl implements ExportServ
     }
 
     @Override
-    public ArtifactBasedExportService<?, ?> getContextBasedExportService(@NonNull ArtifactJsonType artifactJsonType) {
-        return switch (artifactJsonType) {
+    public ArtifactBasedExportService<?, ?> getContextBasedExportService(@NonNull ArtifactType artifactType) {
+        return switch (artifactType) {
             case PACKAGE -> this.packageExportService;
-            default -> super.getContextBasedExportService(artifactJsonType);
+            default -> super.getContextBasedExportService(artifactType);
         };
     }
 }

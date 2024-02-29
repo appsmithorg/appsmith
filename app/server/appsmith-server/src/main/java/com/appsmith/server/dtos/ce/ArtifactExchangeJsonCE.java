@@ -3,7 +3,7 @@ package com.appsmith.server.dtos.ce;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ExportableArtifact;
@@ -24,7 +24,7 @@ public interface ArtifactExchangeJsonCE {
 
     void setServerSchemaVersion(Integer serverSchemaVersion);
 
-    ArtifactJsonType getArtifactJsonType();
+    ArtifactType getArtifactJsonType();
 
     ImportableArtifact getImportableArtifact();
 

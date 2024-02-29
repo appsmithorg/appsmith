@@ -81,7 +81,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;

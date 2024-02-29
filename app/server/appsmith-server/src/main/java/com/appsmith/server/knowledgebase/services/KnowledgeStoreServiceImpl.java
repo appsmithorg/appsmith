@@ -38,7 +38,7 @@ import reactor.util.function.Tuple2;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.ProcessingStatus.IDLE;
 import static com.appsmith.server.constants.ProcessingStatus.IN_PROGRESS;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.KNOWLEDGE_BASE_GENERATION;

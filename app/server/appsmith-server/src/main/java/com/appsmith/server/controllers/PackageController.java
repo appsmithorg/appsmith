@@ -36,7 +36,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-import static com.appsmith.server.constants.ArtifactJsonType.PACKAGE;
+import static com.appsmith.server.constants.ArtifactType.PACKAGE;
 
 @Slf4j
 @RequestMapping(Url.PACKAGE_URL)

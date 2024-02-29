@@ -9,7 +9,7 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
@@ -255,7 +255,7 @@ public class ActionExecutionOOSPluginsTest {
                         return applicationService
                                 .save(application)
                                 .zipWhen(application1 -> exportService.exportByArtifactIdAndBranchName(
-                                        application1.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION));
+                                        application1.getId(), gitData.getBranchName(), ArtifactType.APPLICATION));
                     })
                     // Assign the branchName to all the resources connected to the application
                     .flatMap(tuple -> importService.importArtifactInWorkspaceFromGit(

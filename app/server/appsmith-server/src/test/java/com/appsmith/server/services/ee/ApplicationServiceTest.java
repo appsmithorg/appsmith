@@ -9,7 +9,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -253,7 +253,7 @@ public class ApplicationServiceTest {
                 })
                 // Assign the branchName to all the resources connected to the application
                 .flatMap(application -> exportService.exportByArtifactIdAndBranchName(
-                        application.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION))
+                        application.getId(), gitData.getBranchName(), ArtifactType.APPLICATION))
                 .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
                         workspaceId, gitConnectedApp.getId(), applicationJson, gitData.getBranchName()))
                 .map(importableArtifact -> (Application) importableArtifact)

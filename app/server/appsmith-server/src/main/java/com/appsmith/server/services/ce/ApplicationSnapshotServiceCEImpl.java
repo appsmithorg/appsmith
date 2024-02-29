@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
@@ -48,7 +48,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                         exportService.exportByArtifactId(
                                 branchedAppId,
                                 SerialiseArtifactObjective.VERSION_CONTROL,
-                                ArtifactJsonType.APPLICATION),
+                                ArtifactType.APPLICATION),
                         Mono.just(branchedAppId)))
                 .flatMapMany(objects -> {
                     String branchedAppId = objects.getT2();

@@ -1,7 +1,7 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportableArtifactDTO;
@@ -14,7 +14,7 @@ import java.util.List;
 public interface ImportServiceCE {
 
     /**
-     * This method provides the importService specific to the artifact based on the ArtifactJsonType.
+     * This method provides the importService specific to the artifact based on the ArtifactType.
      * time complexity is O(1), as the map from which the service is being passes is pre-computed
      * @param artifactExchangeJson : Entity Json which is implementing the artifactExchangeJson
      * @return import-service which is implementing the ContextBasedServiceInterface
@@ -24,23 +24,23 @@ public interface ImportServiceCE {
             getArtifactBasedImportService(ArtifactExchangeJson artifactExchangeJson);
 
     /**
-     * This method provides the importService specific to the artifact based on the ArtifactJsonType.
+     * This method provides the importService specific to the artifact based on the ArtifactType.
      * time complexity is O(1), as the map from which the service is being passes is pre-computed
-     * @param artifactJsonType : Type of Json serialisation
+     * @param artifactType : Type of Json serialisation
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     ArtifactBasedImportService<
                     ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
-            getArtifactBasedImportService(ArtifactJsonType artifactJsonType);
+            getArtifactBasedImportService(ArtifactType artifactType);
 
     /**
      * This method takes a file part and makes a Json entity which implements the ArtifactExchangeJson interface
      *
      * @param filePart           : filePart from which the contents would be made
-     * @param artifactJsonType : type of the dataExchangeJson
+     * @param artifactType : type of the dataExchangeJson
      * @return : Json entity which implements ArtifactExchangeJson
      */
-    Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart, ArtifactJsonType artifactJsonType);
+    Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart, ArtifactType artifactType);
 
     /**
      * Hydrates an ImportableArtifact within the specified workspace by saving the provided JSON file.
@@ -49,10 +49,10 @@ public interface ImportServiceCE {
      *                    The ImportableArtifact implements the ImportableArtifact interface.
      * @param workspaceId The identifier for the destination workspace.
      * @param artifactId
-     * @param  artifactJsonType
+     * @param  artifactType
      */
     Mono<? extends ImportableArtifactDTO> extractArtifactExchangeJsonAndSaveArtifact(
-            Part filePart, String workspaceId, String artifactId, ArtifactJsonType artifactJsonType);
+            Part filePart, String workspaceId, String artifactId, ArtifactType artifactType);
 
     /**
      * Saves the provided ArtifactExchangeJson within the specified workspace.
@@ -93,8 +93,8 @@ public interface ImportServiceCE {
             String workspaceId,
             String artifactId,
             ImportableArtifact importableArtifact,
-            ArtifactJsonType artifactJsonType);
+            ArtifactType artifactType);
 
     Mono<List<Datasource>> findDatasourceByArtifactId(
-            String workspaceId, String defaultArtifactId, ArtifactJsonType artifactJsonType);
+            String workspaceId, String defaultArtifactId, ArtifactType artifactType);
 }

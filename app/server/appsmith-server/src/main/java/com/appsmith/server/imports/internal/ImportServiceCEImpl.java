@@ -3,7 +3,7 @@ package com.appsmith.server.imports.internal;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ImportableArtifact;
@@ -77,7 +77,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This method provides the importService specific to the artifact based on the ArtifactJsonType.
+     * This method provides the importService specific to the artifact based on the ArtifactType.
      * time complexity is O(1), as the map from which the service is being passes is pre-computed
      *
      * @param artifactExchangeJson : Entity Json which is implementing the artifactExchangeJson
@@ -91,17 +91,17 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * This method provides the importService specific to the artifact based on the ArtifactJsonType.
+     * This method provides the importService specific to the artifact based on the ArtifactType.
      * time complexity is O(1), as the map from which the service is being passes is pre-computed
      *
-     * @param artifactJsonType : Type of Json serialisation
+     * @param artifactType : Type of Json serialisation
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     @Override
     public ArtifactBasedImportService<
                     ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
-            getArtifactBasedImportService(ArtifactJsonType artifactJsonType) {
-        return switch (artifactJsonType) {
+            getArtifactBasedImportService(ArtifactType artifactType) {
+        return switch (artifactType) {
             case APPLICATION -> applicationImportService;
             default -> applicationImportService;
         };
@@ -111,11 +111,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * This method takes a file part and makes a Json entity which implements the ArtifactExchangeJson interface
      *
      * @param filePart         : filePart from which the contents would be made
-     * @param artifactJsonType : type of the json which is getting imported
+     * @param artifactType : type of the json which is getting imported
      * @return : Json entity which implements ArtifactExchangeJson
      */
     public Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(
-            Part filePart, ArtifactJsonType artifactJsonType) {
+            Part filePart, ArtifactType artifactType) {
 
         final MediaType contentType = filePart.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
@@ -131,7 +131,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     return new String(data);
                 })
                 .map(jsonString ->
-                        getArtifactBasedImportService(artifactJsonType).extractArtifactExchangeJson(jsonString));
+                        getArtifactBasedImportService(artifactType).extractArtifactExchangeJson(jsonString));
     }
 
     /**
@@ -143,13 +143,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public Mono<? extends ImportableArtifactDTO> extractArtifactExchangeJsonAndSaveArtifact(
-            Part filePart, String workspaceId, String artifactId, ArtifactJsonType artifactJsonType) {
+            Part filePart, String workspaceId, String artifactId, ArtifactType artifactType) {
 
         if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        Mono<ImportableArtifactDTO> importedContextMono = extractArtifactExchangeJson(filePart, artifactJsonType)
+        Mono<ImportableArtifactDTO> importedContextMono = extractArtifactExchangeJson(filePart, artifactType)
                 .zipWhen(contextJson -> {
                     if (StringUtils.isEmpty(artifactId)) {
                         return importNewArtifactInWorkspaceFromJson(workspaceId, contextJson);
@@ -159,7 +159,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .flatMap(tuple2 -> {
                     ImportableArtifact context = tuple2.getT2();
-                    return getArtifactImportDTO(context.getWorkspaceId(), context.getId(), context, artifactJsonType);
+                    return getArtifactImportDTO(context.getWorkspaceId(), context.getId(), context, artifactType);
                 });
 
         return Mono.create(
@@ -382,7 +382,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param workspaceId        ID in which the context is to be merged
      * @param artifactId         default ID of the artifact where this artifactExchangeJson is going to get merged with
      * @param importableArtifact the context (i.e. application, packages which is imported)
-     * @param artifactJsonType   the Json entity from which the import is happening
+     * @param artifactType   the Json entity from which the import is happening
      * @return ImportableArtifactDTO
      */
     @Override
@@ -390,11 +390,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             String workspaceId,
             String artifactId,
             ImportableArtifact importableArtifact,
-            ArtifactJsonType artifactJsonType) {
+            ArtifactType artifactType) {
 
-        ArtifactBasedImportService<?, ?, ?> contextBasedImportService = getArtifactBasedImportService(artifactJsonType);
+        ArtifactBasedImportService<?, ?, ?> contextBasedImportService = getArtifactBasedImportService(artifactType);
 
-        return findDatasourceByArtifactId(workspaceId, artifactId, artifactJsonType)
+        return findDatasourceByArtifactId(workspaceId, artifactId, artifactType)
                 .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .map(tuple2 -> {
                     List<Datasource> datasourceList = tuple2.getT1();
@@ -743,9 +743,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     @Override
     public Mono<List<Datasource>> findDatasourceByArtifactId(
-            String workspaceId, String defaultArtifactId, ArtifactJsonType artifactJsonType) {
+            String workspaceId, String defaultArtifactId, ArtifactType artifactType) {
 
-        return getArtifactBasedImportService(artifactJsonType)
+        return getArtifactBasedImportService(artifactType)
                 .getDatasourceIdSetConsumedInArtifact(defaultArtifactId)
                 .flatMap(datasourceIdSet -> {
                     return datasourceImportableService

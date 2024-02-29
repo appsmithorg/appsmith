@@ -4,7 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
@@ -74,8 +74,8 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     }
 
     @Override
-    public ArtifactBasedExportService<?, ?> getContextBasedExportService(@NonNull ArtifactJsonType artifactJsonType) {
-        return switch (artifactJsonType) {
+    public ArtifactBasedExportService<?, ?> getContextBasedExportService(@NonNull ArtifactType artifactType) {
+        return switch (artifactType) {
             case APPLICATION -> applicationExportService;
             default -> applicationExportService;
         };
@@ -86,14 +86,14 @@ public class ExportServiceCEImpl implements ExportServiceCE {
             String artifactId,
             String branchName,
             SerialiseArtifactObjective objective,
-            ArtifactJsonType artifactJsonType) {
+            ArtifactType artifactType) {
 
         // We require this to be present, without this we can't move further ahead
-        if (artifactJsonType == null) {
+        if (artifactType == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ARTIFACT_CONTEXT));
         }
 
-        ArtifactBasedExportService<?, ?> artifactBasedExportService = getContextBasedExportService(artifactJsonType);
+        ArtifactBasedExportService<?, ?> artifactBasedExportService = getContextBasedExportService(artifactType);
         Map<String, String> artifactContextConstantMap = artifactBasedExportService.getConstantsMap();
         String idConstant = artifactContextConstantMap.get(FieldName.ID);
 
@@ -263,32 +263,32 @@ public class ExportServiceCEImpl implements ExportServiceCE {
      * Since we are moving towards unique-id artifacts for Git (under considerations), this would be main method moving forward.
      * @param artifactId : ID of the artifact to be exported
      * @param objective : objective of serialisation, it could be for version-control, sharing, or some other purpose
-     * @param artifactJsonType : Type of Artifact.
+     * @param artifactType : Type of Artifact.
      * @return A json which extends Artifact exchange json i.e. ApplicationJson
      */
     @Override
     public Mono<? extends ArtifactExchangeJson> exportByArtifactId(
-            String artifactId, SerialiseArtifactObjective objective, ArtifactJsonType artifactJsonType) {
-        return exportByExportableArtifactIdAndBranchName(artifactId, null, objective, artifactJsonType);
+            String artifactId, SerialiseArtifactObjective objective, ArtifactType artifactType) {
+        return exportByExportableArtifactIdAndBranchName(artifactId, null, objective, artifactType);
     }
 
     /**
      * This method is explicitly for exporting applications which is present in different branches.
      * @param artifactId : ID of the artifact to be exported
      * @param branchName : branch name of the artifact in case it's git connected
-     * @param artifactJsonType : Type of Artifact.
+     * @param artifactType : Type of Artifact.
      * @return A json which extends Artifact exchange json i.e. ApplicationJson
      */
     @Override
     public Mono<? extends ArtifactExchangeJson> exportByArtifactIdAndBranchName(
-            String artifactId, String branchName, ArtifactJsonType artifactJsonType) {
+            String artifactId, String branchName, ArtifactType artifactType) {
         return exportByExportableArtifactIdAndBranchName(
-                artifactId, branchName, SerialiseArtifactObjective.SHARE, artifactJsonType);
+                artifactId, branchName, SerialiseArtifactObjective.SHARE, artifactType);
     }
 
     public Mono<ExportFileDTO> getArtifactFile(
-            String artifactId, String branchName, ArtifactJsonType artifactJsonType) {
-        return exportByArtifactIdAndBranchName(artifactId, branchName, artifactJsonType)
+            String artifactId, String branchName, ArtifactType artifactType) {
+        return exportByArtifactIdAndBranchName(artifactId, branchName, artifactType)
                 .doOnNext(artifactExchangeJson -> artifactExchangeJson.setModifiedResources(null))
                 .map(artifactExchangeJson -> {
                     String stringifiedFile = gson.toJson(artifactExchangeJson);

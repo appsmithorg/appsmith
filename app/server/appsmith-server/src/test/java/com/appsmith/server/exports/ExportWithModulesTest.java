@@ -1,7 +1,7 @@
 package com.appsmith.server.exports;
 
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.ModuleInstance;
@@ -214,7 +214,7 @@ class ExportWithModulesTest {
                     return updateLayoutService
                             .updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)
                             .then(exportService.exportByArtifactIdAndBranchName(
-                                    testApp.getId(), "", ArtifactJsonType.APPLICATION))
+                                    testApp.getId(), "", ArtifactType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
@@ -255,7 +255,7 @@ class ExportWithModulesTest {
 
         final Mono<ApplicationJson> resultMono = updateLayoutService
                 .updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)
-                .then(exportService.exportByArtifactIdAndBranchName(applicationId, "", ArtifactJsonType.APPLICATION))
+                .then(exportService.exportByArtifactIdAndBranchName(applicationId, "", ArtifactType.APPLICATION))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)

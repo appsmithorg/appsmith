@@ -4,7 +4,6 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -27,6 +26,7 @@ import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +57,9 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     private final SessionUserService sessionUserService;
     private final UserDataService userDataService;
     private final UserService userService;
+
     private final AnalyticsService analyticsService;
+    private final ObservationRegistry observationRegistry;
 
     private final ExportService exportService;
     private final ImportService importService;
@@ -81,9 +83,9 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         return redisUtils.releaseFileLock(defaultArtifactId);
     }
 
-    // TODO: refactor ArtifactJsonType to ArtifactType
-    public GitArtifactHelper<?> getArtifactGitService(@NonNull ArtifactJsonType artifactJsonType) {
-        return switch (artifactJsonType) {
+    // TODO: refactor ArtifactType to ArtifactType
+    public GitArtifactHelper<?> getArtifactGitService(@NonNull ArtifactType artifactType) {
+        return switch (artifactType) {
             case APPLICATION -> gitApplicationHelper;
             default -> gitApplicationHelper;
         };
@@ -111,7 +113,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         String defaultArtifactId, String branchName, boolean isFileLock, boolean compareRemote) {
 
         // This variable is just for testing purpose, will be removed with a method parameter.
-        ArtifactJsonType artifactJsonType = ArtifactJsonType.APPLICATION;
+        ArtifactType artifactType = ArtifactType.APPLICATION;
 
         if (StringUtils.isEmptyOrNull(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
@@ -119,7 +121,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
         final String finalBranchName = branchName.replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
 
-        GitArtifactHelper<?> artifactGitHelper = getArtifactGitService(artifactJsonType);
+        GitArtifactHelper<?> artifactGitHelper = getArtifactGitService(artifactType);
         AclPermission artifactEditPermission = artifactGitHelper.getArtifactEditPermission();
 
         Mono<? extends ExportableArtifact> branchedAppMono = artifactGitHelper
@@ -131,12 +133,12 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
            1. Copy resources from DB to local repo
            2. Fetch the current status from local repo
         */
-        Mono<GitStatusDTO> statusMono = Mono.zip(getGitArtifactMetadata(defaultArtifactId, artifactJsonType), branchedAppMono)
+        Mono<GitStatusDTO> statusMono = Mono.zip(getGitArtifactMetadata(defaultArtifactId, artifactType), branchedAppMono)
             .flatMap(tuple2 -> {
                 GitArtifactMetadata gitArtifactMetadata = tuple2.getT1();
                 ExportableArtifact branchedArtifact = tuple2.getT2();
                 Mono<? extends ArtifactExchangeJson> exportedArtifactJsonMono = exportService
-                    .exportByArtifactId(branchedArtifact.getId(), VERSION_CONTROL, artifactJsonType)
+                    .exportByArtifactId(branchedArtifact.getId(), VERSION_CONTROL, artifactType)
                     .elapsed()
                     .map(longTuple2 -> {
                         log.debug("export took: {}", longTuple2.getT1());
@@ -298,25 +300,27 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
      * 1. Checkout (if required) to the branch to make sure we are comparing the right branch
      * 2. Run a git fetch command to fetch the latest changes from the remote
      *
-     * @param defaultApplicationId Default application id
-     * @param branchName           name of the branch to compare with remote
-     * @param isFileLock           whether to add file lock or not
+     * @param defaultArtifactId Default application id
+     * @param branchName        name of the branch to compare with remote
+     * @param isFileLock        whether to add file lock or not
+     * @param artifactType
      * @return Mono of {@link BranchTrackingStatus}
      */
     @Override
-    public Mono<BranchTrackingStatus> fetchRemoteChanges(
-        String defaultApplicationId, String branchName, boolean isFileLock) {
+    public Mono<BranchTrackingStatus> fetchRemoteChanges(String defaultArtifactId, String branchName, boolean isFileLock, ArtifactType artifactType) {
+
         if (StringUtils.isEmptyOrNull(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
+
         final String finalBranchName = branchName.replaceFirst("origin/", "");
 
         Mono<Application> applicationMono = applicationService
             .findByBranchNameAndDefaultApplicationId(
-                finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
+                finalBranchName, defaultArtifactId, applicationPermission.getEditPermission())
             .cache(); // caching as it'll be also used when sending analytics
         Mono<User> currUserMono = sessionUserService.getCurrentUser(); // will be used to send analytics event
-        Mono<BranchTrackingStatus> fetchRemoteStatusMono = getGitArtifactMetadata(defaultApplicationId, )
+        Mono<BranchTrackingStatus> fetchRemoteStatusMono = getGitArtifactMetadata(defaultArtifactId, )
             .flatMap(gitApplicationMetadata -> {
                 if (isFileLock) {
                     // Add file lock to avoid sending wrong info on the status
@@ -350,7 +354,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     .then(branchedStatusMono)
                     .flatMap(branchTrackingStatus -> {
                         if (isFileLock) {
-                            return releaseFileLock(defaultApplicationId).thenReturn(branchTrackingStatus);
+                            return releaseFileLock(defaultArtifactId).thenReturn(branchTrackingStatus);
                         }
                         return Mono.just(branchTrackingStatus);
                     })
@@ -361,7 +365,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                 */
                         log.error(
                             "Error to fetch from remote for application: {}, branch: {}",
-                            defaultApplicationId,
+                            defaultArtifactId,
                             branchName,
                             throwable);
                         return Mono.error(new AppsmithException(
@@ -385,9 +389,9 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         });
     }
 
-    public Mono<GitArtifactMetadata> getGitArtifactMetadata(String defaultApplicationId, ArtifactJsonType artifactJsonType) {
+    public Mono<GitArtifactMetadata> getGitArtifactMetadata(String defaultApplicationId, ArtifactType artifactType) {
 
-        GitArtifactHelper<?> gitArtifactHelper = getArtifactGitService(artifactJsonType);
+        GitArtifactHelper<?> gitArtifactHelper = getArtifactGitService(artifactType);
 
         AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
         Mono<? extends ExportableArtifact> defaultArtifactMono  = gitArtifactHelper.getArtifactById(defaultApplicationId, artifactEditPermission);
