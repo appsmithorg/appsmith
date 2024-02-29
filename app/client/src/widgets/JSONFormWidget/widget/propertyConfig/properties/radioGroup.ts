@@ -1,6 +1,6 @@
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/types";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";

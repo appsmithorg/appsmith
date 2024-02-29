@@ -11,7 +11,7 @@ import type {
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,

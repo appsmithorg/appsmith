@@ -7,7 +7,7 @@ import {
 import type { Datasource } from "entities/Datasource";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
+import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 import { getPluginByPackageName } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "WidgetProvider/factory";

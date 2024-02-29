@@ -1,6 +1,6 @@
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/types";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { get } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { SchemaItem } from "widgets/JSONFormWidget/constants";

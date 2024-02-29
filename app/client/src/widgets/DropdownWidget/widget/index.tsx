@@ -7,7 +7,7 @@ import _ from "lodash";
 import type { DropdownOption } from "../constants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/types";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";

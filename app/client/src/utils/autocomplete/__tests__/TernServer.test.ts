@@ -7,7 +7,7 @@ import CodemirrorTernService, {
 } from "../CodemirrorTernService";
 import { AutocompleteDataType } from "../AutocompleteDataType";
 import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import _ from "lodash";
 import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
 import type CodeMirror from "codemirror";
