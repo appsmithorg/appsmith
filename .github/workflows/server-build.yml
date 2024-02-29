@@ -180,8 +180,9 @@ jobs:
             failed_tests="${{ steps.failed_tests.outputs.tests }}"
             args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
           fi
-          args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
           if ! mvn test "${args[@]}"; then
+            gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<failure / {print cur_test}' $(find . -type f -name 'TEST-*.xml') \
+              > failed-server-tests.txt
             if [[ -s failed-server-tests.txt ]]; then
               content="$(
                 echo "## Failed server tests"
