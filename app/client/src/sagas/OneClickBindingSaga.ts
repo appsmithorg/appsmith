@@ -150,6 +150,10 @@ function* BindWidgetToDatasource(
       },
     );
 
+    // This property is used in backend to segregate create and execute action
+    // events based on whether it was one click binding or generate crud
+    commonActionPayload.accelerator = "one-click-binding";
+
     const queryNameMap: Record<string, string> = {};
 
     const actionRequestPayloadList: Partial<Action> &

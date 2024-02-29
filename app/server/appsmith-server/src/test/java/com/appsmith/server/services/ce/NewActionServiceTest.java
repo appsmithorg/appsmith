@@ -20,11 +20,13 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -113,5 +115,20 @@ public class NewActionServiceTest {
                     });
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * This test is to check the value of accelerator property in analytic events
+     */
+    @Test
+    @WithUserDetails("api_user")
+    public void validateAcceleratorAnalyticProperties() {
+        String applicationId = UUID.randomUUID().toString();
+
+        NewAction action = createActionObject("Action1", applicationId, actionPermission.getEditPermission());
+
+        Map<String, Object> analyticProperties = newActionService.getAnalyticsProperties(action);
+
+        assertEquals("no-accelerator", analyticProperties.get("accelerator"));
     }
 }

@@ -4,8 +4,6 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.HttpMethodConverter;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.helpers.AppsmithEventContext;
-import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DatasourceStorage;
@@ -131,6 +129,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private static final String INSERT_FORM = "insert_form";
 
     private static final String PRIMARY_KEY = "__primaryKey__";
+
+    private static final String GENERATE_CRUD_ACCELERATOR = "generate-crud-page";
 
     // Widget fields those need to be mapped between template DB table and user's DB table in for which we are
     // generating
@@ -613,6 +613,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             actionDTO.setPageId(pageId);
             actionDTO.setName(templateAction.getUnpublishedAction().getName());
             actionDTO.setDefaultResources(templateAction.getDefaultResources());
+            actionDTO.setAccelerator(GENERATE_CRUD_ACCELERATOR);
 
             String actionBody = templateActionConfiguration.getBody();
             actionDTO.setActionConfiguration(templateActionConfiguration);
@@ -674,8 +675,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
                         return actionDTO;
                     })
-                    .flatMap(action -> layoutActionService.createAction(
-                            action, new AppsmithEventContext(AppsmithEventContextType.GENERATE_PAGE), Boolean.FALSE));
+                    .flatMap(action -> layoutActionService.createSingleAction(action, Boolean.FALSE));
         });
     }
 

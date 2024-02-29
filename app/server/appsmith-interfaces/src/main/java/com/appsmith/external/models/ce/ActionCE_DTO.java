@@ -170,6 +170,9 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Internal.class)
     protected Instant updatedAt;
 
+    @JsonView(Views.Public.class)
+    String accelerator;
+
     @Override
     @JsonView(Views.Public.class)
     public String getValidName() {

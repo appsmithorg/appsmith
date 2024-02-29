@@ -164,6 +164,9 @@ export interface BaseAction {
   // added here to avoid ts error in entitiesSelector file, in practice
   // will always be undefined for non js actions
   isMainJSCollection?: boolean;
+  // Denotes how the action was created, whether it was through
+  // one click binding/ generate crud/ manually (no accelerator)
+  accelerator: string;
 }
 
 interface BaseApiAction extends BaseAction {

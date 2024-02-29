@@ -66,6 +66,7 @@ import java.util.UUID;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
@@ -1231,6 +1232,36 @@ public class CreateDBTablePageSolutionTests {
                             assertThat(((Map<String, Object>) formData.get("smartSubstitution")).get(DATA))
                                     .isEqualTo(true);
                         }
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createPageWithValidPageIdForPostgresqlDS_validateAccelerator() {
+
+        resource.setApplicationId(testApp.getId());
+        PageDTO newPage = new PageDTO();
+        newPage.setApplicationId(testApp.getId());
+        newPage.setName("crud-admin-page");
+
+        Mono<PageDTO> resultMono = applicationPageService
+                .createPage(newPage)
+                .flatMap(savedPage ->
+                        solution.createPageFromDBTable(savedPage.getId(), resource, testDefaultEnvironmentId, ""))
+                .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
+
+        StepVerifier.create(resultMono.zipWhen(pageDTO -> getActions(pageDTO.getId())))
+                .assertNext(tuple -> {
+                    PageDTO page = tuple.getT1();
+                    List<NewAction> actions = tuple.getT2();
+
+                    assertThat(actions).hasSize(4);
+                    for (NewAction action : actions) {
+                        ActionDTO unpublishedAction = action.getUnpublishedAction();
+                        String accelerator = unpublishedAction.getAccelerator();
+                        assertEquals(accelerator, "generate-crud-page");
                     }
                 })
                 .verifyComplete();
