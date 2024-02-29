@@ -7,7 +7,7 @@ import type { RenderModes } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getRenderMode } from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/modeSelectors";
 import { denormalize } from "utils/canvasStructureHelpers";
 import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import { getWidgets } from "sagas/selectors";

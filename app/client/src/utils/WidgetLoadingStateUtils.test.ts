@@ -4,7 +4,7 @@ import type {
   ActionEntity,
   JSActionEntity,
 } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import {
   findLoadingEntities,
   getEntityDependantPaths,

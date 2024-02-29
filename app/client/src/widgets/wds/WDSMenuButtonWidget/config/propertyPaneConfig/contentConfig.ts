@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { sourceDataArrayValidation } from "./validations";
 import { configureMenuItemsConfig, menuItemsConfig } from "./childPanels";
 import { updateMenuItemsSource } from "../helper";

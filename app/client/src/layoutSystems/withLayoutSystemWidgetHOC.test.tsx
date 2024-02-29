@@ -1,6 +1,6 @@
 import { RenderModes } from "constants/WidgetConstants";
 import React from "react";
-import * as editorSelectors from "selectors/editorSelectors";
+import * as modeSelectors from "selectors/modeSelectors";
 import { WidgetTypeFactories } from "test/factories/Widgets/WidgetTypeFactories";
 import { render } from "test/testUtils";
 import InputWidget from "widgets/InputWidgetV2/widget";
@@ -17,7 +17,7 @@ describe("Layout System HOC's Tests", () => {
       const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -37,7 +37,7 @@ describe("Layout System HOC's Tests", () => {
         isVisible: true,
       });
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -60,7 +60,7 @@ describe("Layout System HOC's Tests", () => {
         isVisible: true,
       });
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -81,7 +81,7 @@ describe("Layout System HOC's Tests", () => {
       const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -101,7 +101,7 @@ describe("Layout System HOC's Tests", () => {
       const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -122,7 +122,7 @@ describe("Layout System HOC's Tests", () => {
         isVisible: true,
       });
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -146,7 +146,7 @@ describe("Layout System HOC's Tests", () => {
         isVisible: true,
       });
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -168,7 +168,7 @@ describe("Layout System HOC's Tests", () => {
       const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -189,7 +189,7 @@ describe("Layout System HOC's Tests", () => {
       const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -209,7 +209,7 @@ describe("Layout System HOC's Tests", () => {
         renderMode: RenderModes.CANVAS,
       });
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -229,7 +229,7 @@ describe("Layout System HOC's Tests", () => {
         renderMode: RenderModes.PAGE,
       });
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -245,7 +245,7 @@ describe("Layout System HOC's Tests", () => {
       const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")

@@ -5,7 +5,7 @@ import {
   defaultOptionValidation,
   optionsCustomValidation,
 } from "./validations";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 
 export const propertyPaneContentConfig = [
   {

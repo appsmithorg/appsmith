@@ -11,7 +11,7 @@ import shallowequal from "shallowequal";
 import _ from "lodash";
 import FileDataTypes from "./FileDataTypes";
 import log from "loglevel";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AutocompletionDefinitions,

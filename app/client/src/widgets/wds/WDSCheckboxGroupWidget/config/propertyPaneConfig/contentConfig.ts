@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/types";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { defaultSelectedValuesValidation } from "./validations";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 

@@ -1,5 +1,5 @@
 import { getPropertyControlTypes } from "components/propertyControls";
-import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";

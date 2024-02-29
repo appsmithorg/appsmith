@@ -11,7 +11,7 @@ import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { useNewActionName } from "./helpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,

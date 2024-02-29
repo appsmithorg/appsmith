@@ -34,7 +34,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { KeyValuePair } from "entities/Action";
 import equal from "fast-deep-equal/es6";
