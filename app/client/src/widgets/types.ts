@@ -186,3 +186,8 @@ export enum DynamicHeight {
   FIXED = "FIXED",
   AUTO_HEIGHT_WITH_LIMITS = "AUTO_HEIGHT_WITH_LIMITS",
 }
+
+export interface DynamicPath {
+  key: string;
+  value?: string;
+}

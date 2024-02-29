@@ -56,7 +56,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 import { toast } from "design-system";
 import {
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,

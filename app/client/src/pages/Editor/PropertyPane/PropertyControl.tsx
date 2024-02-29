@@ -19,7 +19,7 @@ import {
 import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import type { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 import {
   getEvalValuePath,
   isDynamicValue,

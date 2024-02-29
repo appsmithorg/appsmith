@@ -12,7 +12,7 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 import {
   isDynamicValue,
   isPathDynamicTrigger,

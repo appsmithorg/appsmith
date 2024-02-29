@@ -34,7 +34,7 @@ import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import type { ReactTableFilter } from "../component/Constants";
 import { OperatorTypes } from "../component/Constants";

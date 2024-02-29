@@ -29,7 +29,7 @@ import type {
 } from "./widget";
 import { DEFAULT_TEMPLATE_HEIGHT, DynamicPathType } from "./widget";
 import type { WidgetProps } from "widgets/types";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 import {
   combineDynamicBindings,
   getDynamicBindings,

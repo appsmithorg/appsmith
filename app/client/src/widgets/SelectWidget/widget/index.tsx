@@ -54,7 +54,7 @@ import type {
 
 import IconSVG from "../icon.svg";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {

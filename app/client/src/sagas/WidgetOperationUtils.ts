@@ -27,7 +27,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 import {
   getDynamicBindings,
   combineDynamicBindings,
@@ -71,11 +71,11 @@ import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { Positioning } from "layoutSystems/common/utils/constants";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
-import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
-import {
-  getWidgetLayoutMetaInfo,
-  type WidgetLayoutPositionInfo,
-} from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+import type {
+  CopiedWidgetData,
+  WidgetLayoutPositionInfo,
+} from "layoutSystems/anvil/utils/paste/types";
+import { getWidgetLayoutMetaInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 

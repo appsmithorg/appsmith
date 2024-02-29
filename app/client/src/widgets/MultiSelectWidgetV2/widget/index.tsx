@@ -48,7 +48,7 @@ import { DynamicHeight } from "widgets/types";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,

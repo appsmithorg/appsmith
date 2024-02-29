@@ -131,7 +131,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   FlexVerticalAlignment,

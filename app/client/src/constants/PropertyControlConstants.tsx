@@ -3,7 +3,7 @@ import type { CodeEditorExpected } from "components/editorComponents/CodeEditor"
 import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 import type { PropertyUpdates } from "WidgetProvider/types";
-import type { WidgetProps } from "widgets/types";
+import type { DynamicPath, WidgetProps } from "widgets/types";
 import type { ValidationConfig } from "./types";
 import type { ControlType } from "constants/types";
 import type { TruthyPrimitiveTypes } from "utils/TypeHelpers";
@@ -137,9 +137,4 @@ export interface BatchPropertyUpdatePayload {
   remove?: string[]; //Array of paths to delete
   triggerPaths?: string[]; // Array of paths in the modify and remove list which are trigger paths
   postUpdateAction?: ReduxActionType; // Array of action types we need to dispatch after property updates.
-}
-
-export interface DynamicPath {
-  key: string;
-  value?: string;
 }

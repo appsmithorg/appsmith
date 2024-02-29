@@ -26,7 +26,7 @@ import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
 import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 import { getLocale } from "utils/helpers";
 import { DynamicHeight } from "widgets/types";
 import type { WidgetPositionProps, WidgetProps } from "./types";

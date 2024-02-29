@@ -19,7 +19,7 @@ import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEn
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 

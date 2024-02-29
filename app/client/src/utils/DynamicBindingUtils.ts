@@ -14,7 +14,7 @@ import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;

@@ -31,7 +31,7 @@ import type {
   PropertyUpdates,
 } from "WidgetProvider/types";
 import { get } from "lodash";
-import type { DynamicPath } from "constants/PropertyControlConstants";
+import type { DynamicPath } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
