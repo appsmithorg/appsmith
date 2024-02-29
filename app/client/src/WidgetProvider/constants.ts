@@ -25,8 +25,6 @@ export enum FileDataTypes {
   Array = "Array",
 }
 
-export type AlignWidget = "LEFT" | "RIGHT";
-
 export enum AlignWidgetTypes {
   LEFT = "LEFT",
   RIGHT = "RIGHT",

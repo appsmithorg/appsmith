@@ -16,15 +16,15 @@ import {
   DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import {
-  BlueprintOperationTypes,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
-  type AutoLayoutConfig,
-  type WidgetBaseConfiguration,
-  type WidgetDefaultProps,
-  type FlattenedWidgetProps,
-} from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  AutoLayoutConfig,
+  WidgetBaseConfiguration,
+  WidgetDefaultProps,
+  FlattenedWidgetProps,
+} from "WidgetProvider/types";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import IconSVG from "../icon.svg";
 import { ButtonBoxShadowTypes } from "components/constants";

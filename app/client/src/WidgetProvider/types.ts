@@ -19,7 +19,6 @@ import type {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { Theme } from "constants/DefaultTheme";
 
 export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
@@ -166,10 +165,6 @@ export type GetSnipingModeUpdates = (
 
 export type GetCanvasHeightOffset = (widgetProps: WidgetProps) => number;
 
-export interface ThemeProp {
-  theme: Theme;
-}
-
 export type SnipingModeProperty = Record<
   SnipingModeSupportedKeys,
   string | boolean
@@ -242,130 +237,4 @@ const staticProps = omit(
   "bottomRowBeforeCollapse",
 );
 
-export interface Theme {
-  radii: Array<number>;
-  fontSizes: Array<number>;
-  drawerWidth: string;
-  spaces: Array<number>;
-  fontWeights: Array<number>;
-  colors: any;
-  typography: Typography;
-  lineHeights: Array<number>;
-  fonts: {
-    code: FontFamily;
-    text: FontFamily;
-  };
-  borders: ThemeBorder[];
-  evaluatedValuePopup: {
-    width: number;
-    height: number;
-  };
-  propertyPane: PropertyPaneTheme;
-  headerHeight: string;
-  smallHeaderHeight: string;
-  bottomBarHeight: string;
-  pageTabsHeight: string;
-  integrationsPageUnusableHeight: string;
-  backBanner: string;
-  homePage: any;
-  sidebarWidth: string;
-  canvasBottomPadding: number;
-  navbarMenuHeight: string;
-  navbarMenuLineHeight: string;
-  sideNav: {
-    minWidth: number;
-    maxWidth: number;
-    bgColor: Color;
-    fontColor: Color;
-    activeItemBGColor: Color;
-    navItemHeight: number;
-  };
-  card: {
-    minWidth: number;
-    minHeight: number;
-    titleHeight: number;
-    divider: ThemeBorder;
-  };
-  dropdown: {
-    [Skin.LIGHT]: {
-      hoverBG: ShadeColor;
-      hoverText: ShadeColor;
-      inActiveBG: ShadeColor;
-      inActiveText: ShadeColor;
-      border: Color;
-      background: Color;
-    };
-    [Skin.DARK]: {
-      hoverBG: ShadeColor;
-      hoverText: ShadeColor;
-      inActiveBG: ShadeColor;
-      inActiveText: ShadeColor;
-      border: Color;
-      background: Color;
-    };
-  };
-  authCard: {
-    width: number;
-    dividerSpacing: number;
-    formMessageWidth: number;
-  };
-  shadows: string[];
-  widgets: {
-    tableWidget: {
-      selectHighlightColor: Color;
-    };
-  };
-  pageContentWidth: number;
-  tabPanelHeight: number;
-  alert: Record<string, { color: Color }>;
-  lightningMenu: {
-    [Skin.DARK]: {
-      default: {
-        color: Color;
-        background: Color;
-      };
-      active: {
-        color: Color;
-        background: Color;
-      };
-      hover: {
-        color: Color;
-        background: Color;
-      };
-      none: {
-        color: string;
-        background: string;
-      };
-    };
-    [Skin.LIGHT]: {
-      default: {
-        color: string;
-        background: string;
-      };
-      active: {
-        color: string;
-        background: string;
-      };
-      hover: {
-        color: string;
-        background: string;
-      };
-      none: {
-        color: string;
-        background: string;
-      };
-    };
-  };
-  iconSizes: IconSizeType;
-  actionSidePane: {
-    width: number;
-  };
-  onboarding: {
-    statusBarHeight: number;
-  };
-  settings: {
-    footerHeight: number;
-    footerShadow: string;
-    linkBg: string;
-  };
-}
+export type AlignWidget = "LEFT" | "RIGHT";

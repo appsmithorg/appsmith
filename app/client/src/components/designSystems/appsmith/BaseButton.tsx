@@ -6,7 +6,7 @@ import type { IButtonProps } from "@blueprintjs/core";
 import { Button, Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 
-import type { Theme } from "constants/DefaultTheme";
+import type { Theme, ThemeProp } from "constants/DefaultTheme";
 
 import _ from "lodash";
 import type {
@@ -20,7 +20,6 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import type { ThemeProp } from "WidgetProvider/types";
 
 const getCustomTextColor = (
   theme: Theme,

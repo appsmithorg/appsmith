@@ -29,7 +29,7 @@ import { WIDGET_TAGS } from "constants/WidgetConstants";
 import type {
   AutocompletionDefinitions,
   FlattenedWidgetProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
