@@ -36,7 +36,10 @@ import type {
 } from "api/PluginApi";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
-import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
+import {
+  GROUP_TYPES,
+  type ExplorerFileEntity,
+} from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
@@ -1042,20 +1045,20 @@ export const selectFilesForExplorer = createSelector(
       ...workflowActions,
       ...workflowJsActions,
     ].reduce((acc, file) => {
-      let group = "";
+      let group;
       if (file.config.pluginType === PluginType.JS) {
-        group = "JS Objects";
+        group = GROUP_TYPES.JS_ACTIONS;
       } else if (file.config.pluginType === PluginType.API) {
         group = isEmbeddedRestDatasource(file.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+          ? GROUP_TYPES.API
+          : datasourceIdToNameMap[file.config.datasource.id] ?? GROUP_TYPES.API;
       } else if (file.config.pluginType === PluginType.AI) {
         group = isEmbeddedAIDataSource(file.config.datasource)
-          ? "AI Queries"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
+          ? GROUP_TYPES.AI
+          : datasourceIdToNameMap[file.config.datasource.id] ?? GROUP_TYPES.AI;
       } else if (file.config.pluginType === PluginType.INTERNAL) {
         // TODO: Add a group for internal actions, currently only Workflow actions are internal
-        group = "Workflows";
+        group = GROUP_TYPES.WORKFLOWS;
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }

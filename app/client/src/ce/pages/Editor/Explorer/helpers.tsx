@@ -40,9 +40,17 @@ export interface ExplorerURLParams {
   pageId: string;
 }
 
+export enum GROUP_TYPES {
+  API = "APIs",
+  AI = "AI Queries",
+  WORKFLOWS = "Workflows",
+  JS_ACTIONS = "JS Objects",
+  PACKAGES = "Packages",
+}
+
 export interface ExplorerFileEntity {
   type: PluginType | "group";
-  group?: string;
+  group?: GROUP_TYPES | string; // Adding string to support datasource names as groups
   entity: ActionData | JSCollectionData;
 }
 
