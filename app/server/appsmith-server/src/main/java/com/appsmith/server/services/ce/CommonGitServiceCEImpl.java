@@ -41,7 +41,6 @@ import reactor.util.retry.Retry;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -167,17 +166,17 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
                     GitArtifactMetadata gitData = exportableArtifact.getGitArtifactMetadata();
                     gitData.setGitAuth(defaultArtifactMetadata.getGitAuth());
-                    Path repoSuffix = Paths.get(
-                            exportableArtifact.getWorkspaceId(),
-                            gitData.getDefaultApplicationId(),
-                            gitData.getRepoName());
+
+                    Path repoSuffix = artifactGitHelper.getRepoSuffixPath(
+                            exportableArtifact.getWorkspaceId(), gitData.getDefaultArtifactId(), gitData.getRepoName());
 
                     try {
                         // Create a Mono to fetch the status from remote
-                        Path repoSuffixForFetchRemote = Paths.get(
+                        Path repoSuffixForFetchRemote = artifactGitHelper.getRepoSuffixPath(
                                 exportableArtifact.getWorkspaceId(),
-                                gitData.getDefaultApplicationId(),
+                                gitData.getDefaultArtifactId(),
                                 gitData.getRepoName());
+
                         GitAuth gitAuth = gitData.getGitAuth();
                         Mono<String> fetchRemoteMono;
 
@@ -330,7 +329,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
                     gitData.setGitAuth(defaultArtifactMetadata.getGitAuth());
 
-                    Path repoSuffix = Paths.get(
+                    Path repoSuffix = artifactGitHelper.getRepoSuffixPath(
                             artifact.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
 
                     Path repoPath = gitExecutor.createRepoPath(repoSuffix);
@@ -394,9 +393,9 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 FieldName.FLOW_NAME,
                 flowName,
                 FieldName.APPLICATION_ID,
-                gitArtifactMetadata.getDefaultApplicationId(),
+                gitArtifactMetadata.getDefaultArtifactId(),
                 "appId",
-                gitArtifactMetadata.getDefaultApplicationId(),
+                gitArtifactMetadata.getDefaultArtifactId(),
                 FieldName.BRANCH_NAME,
                 gitArtifactMetadata.getBranchName(),
                 "organizationId",

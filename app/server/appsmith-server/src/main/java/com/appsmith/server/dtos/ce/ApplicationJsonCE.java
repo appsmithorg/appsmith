@@ -33,7 +33,7 @@ import java.util.Set;
 public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
 
     @JsonView({Views.Public.class, Views.Export.class})
-    ArtifactJsonType artifactJsonType = ArtifactJsonType.APPLICATION;
+    ArtifactType artifactJsonType = ArtifactType.APPLICATION;
 
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema

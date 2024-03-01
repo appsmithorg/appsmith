@@ -30,7 +30,7 @@ import java.util.Map;
 public class PackageJson implements ArtifactExchangeJson {
 
     @JsonView({Views.Public.class, Views.Export.class})
-    ArtifactJsonType artifactJsonType = ArtifactJsonType.PACKAGE;
+    ArtifactType artifactJsonType = ArtifactType.PACKAGE;
 
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema

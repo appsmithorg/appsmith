@@ -1,6 +1,6 @@
 package com.appsmith.server.converters;
 
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.converters.ce.ArtifactExchangeJsonAdapterCE;
 import com.appsmith.server.dtos.PackageJson;
 import com.google.gson.Gson;
@@ -16,6 +16,6 @@ public class ArtifactExchangeJsonAdapter extends ArtifactExchangeJsonAdapterCE {
     @Override
     protected void populateArtifactTypeRegistry() {
         super.populateArtifactTypeRegistry();
-        this.artifactTypeRegistry.put(ArtifactJsonType.PACKAGE, PackageJson.class);
+        this.artifactTypeRegistry.put(ArtifactType.PACKAGE, PackageJson.class);
     }
 }

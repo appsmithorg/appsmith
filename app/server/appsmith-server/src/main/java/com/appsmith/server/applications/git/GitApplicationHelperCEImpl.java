@@ -14,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -41,5 +44,10 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public AclPermission getArtifactEditPermission() {
         return applicationPermission.getEditPermission();
+    }
+
+    @Override
+    public Path getRepoSuffixPath(String workspaceId, String artifactId, String repoName) {
+        return Paths.get(workspaceId, artifactId, repoName);
     }
 }
