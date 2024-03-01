@@ -103,6 +103,7 @@ import {
   getJSActionPathNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
+import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -459,6 +460,9 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
     });
 
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, true, collectionId, isDirty);
+
     yield put(
       logActionExecutionForAudit({
         actionName: action.name,
@@ -504,6 +508,10 @@ export function* handleExecuteJSFunctionSaga(data: {
         }),
       );
     }
+
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, false, collectionId, false);
+
     AppsmithConsole.addErrors([
       {
         payload: {

@@ -18,6 +18,25 @@ declare global {
   }
 }
 
+const parentContextTypeTokens = ["pkg", "workflow"];
+
+// For app, function was returning app name due to the way app urls are structured
+// So this function will only return the parent context for pkg and workflow
+function getParentContextFromURL(location: Location) {
+  const pathSplit = location.pathname.split("/");
+  let type = parentContextTypeTokens[0];
+  const editorIndex = pathSplit.findIndex((path) =>
+    parentContextTypeTokens.includes(path),
+  );
+  if (editorIndex !== -1) {
+    type = pathSplit[editorIndex];
+
+    const id = pathSplit[editorIndex + 1];
+
+    return { id, type };
+  }
+}
+
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
@@ -141,6 +160,7 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
+    const parentContext = getParentContextFromURL(windowDoc.location);
     const instanceId = AnalyticsUtil.instanceId;
     const appId = getApplicationId(windowDoc.location);
     const { appVersion, segment } = getAppsmithConfigs();
@@ -150,7 +170,7 @@ class AnalyticsUtil {
         user = {
           userId: userData.username,
           email: userData.email,
-          appId: appId,
+          appId,
           source: "cloud",
         };
       } else {
@@ -169,7 +189,12 @@ class AnalyticsUtil {
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
-    finalEventData = { ...finalEventData, instanceId, version: appVersion.id };
+    finalEventData = {
+      ...finalEventData,
+      instanceId,
+      version: appVersion.id,
+      ...(parentContext ? { parentContext } : {}),
+    };
 
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
