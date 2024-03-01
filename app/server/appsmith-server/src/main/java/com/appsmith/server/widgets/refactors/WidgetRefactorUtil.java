@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -27,6 +28,7 @@ import java.util.stream.StreamSupport;
 public class WidgetRefactorUtil {
 
     private final AstService astService;
+    private final ObjectMapper objectMapper;
 
     public Mono<Set<String>> refactorNameInDsl(
             JsonNode dsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
@@ -189,5 +191,9 @@ public class WidgetRefactorUtil {
                 })
                 .collect(Collectors.toSet());
         return refactorBindingsMono;
+    }
+
+    public JsonNode convertDslStringToJsonNode(String dslString) {
+        return objectMapper.convertValue(dslString, JsonNode.class);
     }
 }

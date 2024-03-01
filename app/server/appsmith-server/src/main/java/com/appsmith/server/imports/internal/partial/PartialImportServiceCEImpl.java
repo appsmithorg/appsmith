@@ -18,6 +18,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.BuildingBlockDTO;
+import com.appsmith.server.dtos.BuildingBlockImportDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -29,6 +30,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationTemplateService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -38,16 +40,19 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.widgets.refactors.WidgetRefactorUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -76,6 +81,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final RefactoringService refactoringService;
     private final ApplicationTemplateService applicationTemplateService;
     private final WidgetRefactorUtil widgetRefactorUtil;
+    private final ApplicationPageService applicationPageService;
 
     @Override
     public Mono<Application> importResourceInPage(
@@ -83,10 +89,11 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         return importService
                 .extractArtifactExchangeJson(file, ArtifactJsonType.APPLICATION)
                 .flatMap(artifactExchangeJson -> importResourceInPage(
-                        workspaceId, applicationId, pageId, branchName, (ApplicationJson) artifactExchangeJson));
+                        workspaceId, applicationId, pageId, branchName, (ApplicationJson) artifactExchangeJson))
+                .map(BuildingBlockImportDTO::getApplication);
     }
 
-    private Mono<Application> importResourceInPage(
+    private Mono<BuildingBlockImportDTO> importResourceInPage(
             String workspaceId,
             String applicationId,
             String pageId,
@@ -202,7 +209,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             .then(Mono.just(application));
                 })
                 // Update the refactored names of the actions and action collections in the DSL bindings
-                /*.flatMap(application -> {
+                .flatMap(application -> {
+                    final JsonNode dsl = widgetRefactorUtil.convertDslStringToJsonNode(applicationJson.getWidgets());
                     return Flux.fromIterable(mappedImportableResourcesDTO
                                     .getRefactoringNameReference()
                                     .keySet())
@@ -210,11 +218,19 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 String refactoredName = mappedImportableResourcesDTO
                                         .getRefactoringNameReference()
                                         .get(name);
-                                return widgetRefactorUtil.refactorNameInDsl();
+                                return widgetRefactorUtil.refactorNameInDsl(
+                                        dsl,
+                                        name,
+                                        refactoredName,
+                                        applicationPageService.getEvaluationVersion(),
+                                        Pattern.compile(name));
                             })
                             .collectList()
-                            .then(Mono.just(application));
-                })*/
+                            .flatMap(refactoredDsl -> {
+                                applicationJson.setWidgets(dsl.toString());
+                                return Mono.just(application);
+                            });
+                })
                 .as(transactionalOperator::transactional);
 
         // Send Analytics event
@@ -227,10 +243,13 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     FieldName.APPLICATION_ID, application.getId(),
                     FieldName.WORKSPACE_ID, application.getWorkspaceId(),
                     FieldName.EVENT_DATA, eventData);
+            BuildingBlockImportDTO buildingBlockImportDTO = new BuildingBlockImportDTO();
+            buildingBlockImportDTO.setApplication(application);
+            buildingBlockImportDTO.setWidgetDsl(applicationJson.getWidgets());
 
             return analyticsService
                     .sendEvent(AnalyticsEvents.PARTIAL_IMPORT.getEventName(), user.getUsername(), data)
-                    .thenReturn(application);
+                    .thenReturn(buildingBlockImportDTO);
         });
     }
 
@@ -356,12 +375,13 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         Mono<ApplicationJson> applicationJsonMono =
                 applicationTemplateService.getApplicationJsonFromTemplate(buildingBlockDTO.getTemplateId());
 
-        applicationJsonMono.flatMap(applicationJson -> this.importResourceInPage(
-                buildingBlockDTO.getWorkspaceId(),
-                buildingBlockDTO.getPageId(),
-                buildingBlockDTO.getApplicationId(),
-                branchName,
-                applicationJson));
-        return Mono.just("");
+        return applicationJsonMono
+                .flatMap(applicationJson -> this.importResourceInPage(
+                        buildingBlockDTO.getWorkspaceId(),
+                        buildingBlockDTO.getPageId(),
+                        buildingBlockDTO.getApplicationId(),
+                        branchName,
+                        applicationJson))
+                .map(BuildingBlockImportDTO::getWidgetDsl);
     }
 }
