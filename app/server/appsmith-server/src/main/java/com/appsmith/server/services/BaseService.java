@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -136,7 +137,7 @@ public abstract class BaseService<
 
     @Override
     public Map<String, Object> getAnalyticsProperties(T savedResource) {
-        return null;
+        return new HashMap<>();
     }
 
     /**
