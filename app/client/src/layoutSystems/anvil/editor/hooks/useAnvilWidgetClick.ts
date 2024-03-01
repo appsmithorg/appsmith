@@ -37,7 +37,12 @@ export const useAnvilWidgetClick = (
           new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
             bubbles: true,
             cancelable: true,
-            detail: { widgetId, clickEvent: e },
+            detail: {
+              widgetId,
+              metaKey: e.metaKey,
+              ctrlKey: e.ctrlKey,
+              shiftKey: e.shiftKey,
+            },
           }),
         );
       }
