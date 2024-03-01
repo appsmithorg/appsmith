@@ -1,4 +1,4 @@
-import React, { useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 import { useCallback } from "react";
 import { navigateToEntity } from "actions/editorActions";
