@@ -14,6 +14,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private readonly seedIsGreen: boolean;
   private readonly seedIsRed: boolean;
   private readonly seedIsVeryDark: boolean;
+  private readonly seedIsVeryLight: boolean;
   private readonly seedIsYellow: boolean;
 
   constructor(color: ColorTypes) {
@@ -26,6 +27,7 @@ export class DarkModeTheme implements ColorModeTheme {
       isGreen,
       isRed,
       isVeryDark,
+      isVeryLight,
       isYellow,
       lightness,
     } = new ColorsAccessor(color);
@@ -38,6 +40,7 @@ export class DarkModeTheme implements ColorModeTheme {
     this.seedIsGreen = isGreen;
     this.seedIsRed = isRed;
     this.seedIsVeryDark = isVeryDark;
+    this.seedIsVeryLight = isVeryLight;
     this.seedIsYellow = isYellow;
   }
 
@@ -118,6 +121,10 @@ export class DarkModeTheme implements ColorModeTheme {
       bdOnPositive: this.bdOnPositive.to("sRGB").toString(),
       bdOnNegative: this.bdOnNegative.to("sRGB").toString(),
       bdOnWarning: this.bdOnWarning.to("sRGB").toString(),
+
+      bdElevation1: this.bdElevation1.to("sRGB").toString(),
+      bdElevation2: this.bdElevation2.to("sRGB").toString(),
+      bdElevation3: this.bdElevation3.to("sRGB").toString(),
     };
   };
 
@@ -1137,6 +1144,40 @@ export class DarkModeTheme implements ColorModeTheme {
 
     // Lightness of bgWarning is known, no additional checks like in bdOnAccent / bdOnNeutral
     color.oklch.l -= 0.25;
+
+    return color;
+  }
+
+  /*
+   * Elevation border colors
+   */
+
+  private get bdElevation1() {
+    const color = this.bdNeutral.clone();
+
+    if (this.seedIsVeryLight) {
+      color.oklch.l = 0.13;
+    }
+
+    if (!this.seedIsVeryLight) {
+      color.oklch.l -= 0.75;
+    }
+
+    return color;
+  }
+
+  private get bdElevation2() {
+    const color = this.bdElevation1.clone();
+
+    color.oklch.l += 0.015;
+
+    return color;
+  }
+
+  private get bdElevation3() {
+    const color = this.bdElevation2.clone();
+
+    color.oklch.l += 0.035;
 
     return color;
   }

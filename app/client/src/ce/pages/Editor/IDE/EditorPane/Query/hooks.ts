@@ -23,6 +23,7 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "@appsmith/constants/routes/appRoutes";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import ApiEditor from "pages/Editor/APIEditor";
 import type { UseRoutes } from "@appsmith/entities/IDE/constants";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
@@ -114,13 +115,20 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
         path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
       },
       {
-        key: "QueryEditor",
+        key: "SAASEditor",
         component: QueryEditor,
         exact: true,
         path: [
-          path + "/api/:apiId", // SAAS path
-          path + "/:queryId",
+          BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
         ],
+      },
+      {
+        key: "QueryEditor",
+        component: QueryEditor,
+        exact: true,
+        path: [path + "/:queryId"],
       },
     ];
   }

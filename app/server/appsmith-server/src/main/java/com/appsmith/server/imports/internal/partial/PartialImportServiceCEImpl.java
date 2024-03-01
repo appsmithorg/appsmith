@@ -5,7 +5,6 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -87,7 +86,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     public Mono<Application> importResourceInPage(
             String workspaceId, String applicationId, String pageId, String branchName, Part file) {
         return importService
-                .extractArtifactExchangeJson(file, ArtifactJsonType.APPLICATION)
+                .extractArtifactExchangeJson(file)
                 .flatMap(artifactExchangeJson -> importResourceInPage(
                         workspaceId, applicationId, pageId, branchName, (ApplicationJson) artifactExchangeJson))
                 .map(BuildingBlockImportDTO::getApplication);

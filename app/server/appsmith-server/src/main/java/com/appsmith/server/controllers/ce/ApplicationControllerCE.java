@@ -297,8 +297,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
-        return fileMono.flatMap(file -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        file, workspaceId, applicationId, APPLICATION))
+        return fileMono.flatMap(file ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(file, workspaceId, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 

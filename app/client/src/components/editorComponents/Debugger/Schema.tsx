@@ -8,11 +8,11 @@ import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
 } from "@appsmith/selectors/entitiesSelector";
-import { getResponsePaneHeight } from "selectors/debuggerSelectors";
 import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
 import { find } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
+import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 
 interface Props {
   datasourceId: string;
@@ -24,7 +24,7 @@ const Schema = (props: Props) => {
   const datasourceStructure = useSelector((state) =>
     getDatasourceStructureById(state, props.datasourceId),
   );
-  const responsePaneHeight = useSelector(getResponsePaneHeight);
+  const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
   const [selectedTable, setSelectedTable] = useState<string>();
 
   const selectedTableItems = find(datasourceStructure?.tables, [
@@ -69,7 +69,7 @@ const Schema = (props: Props) => {
     <Flex
       flexDirection="row"
       gap="spaces-2"
-      height={`${responsePaneHeight - 45}px`}
+      height={`${responseTabHeight - 45}px`}
       maxWidth="70rem"
       overflow="hidden"
     >
@@ -94,7 +94,7 @@ const Schema = (props: Props) => {
         borderLeft="1px solid var(--ads-v2-color-border)"
         flex="1"
         flexDirection="column"
-        height={`${responsePaneHeight - 45}px`}
+        height={`${responseTabHeight - 45}px`}
         justifyContent={
           isLoading || columns.length === 0 ? "center" : "flex-start"
         }
