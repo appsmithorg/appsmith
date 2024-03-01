@@ -25,7 +25,7 @@ export function* selectAnvilWidget(
   const start = performance.now();
   const { e, widgetId } = action.payload;
   const {
-    detail: { ctrlKey, metaKey, shiftKey },
+    detail: { clickEvent },
   } = e;
   const isPropPaneVisible: boolean = yield select(getIsPropertyPaneVisible);
   const isWidgetAlreadySelected: boolean = yield select(
@@ -45,9 +45,9 @@ export function* selectAnvilWidget(
     !isWidgetAlreadySelected
   ) {
     let type: SelectionRequestType = SelectionRequestType.One;
-    if (metaKey || ctrlKey) {
+    if (clickEvent.metaKey || clickEvent.ctrlKey) {
       type = SelectionRequestType.PushPop;
-    } else if (shiftKey) {
+    } else if (clickEvent.shiftKey) {
       type = SelectionRequestType.ShiftSelect;
     }
 
