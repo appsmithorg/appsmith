@@ -516,9 +516,9 @@ export const AI_INCORRECT_FEEDBACK_BUTTON_LABEL = () => "Incorrect response";
 export const GIT_CD_LICENSED_DESC = () =>
   "Automatically deploy updates to end users by triggering pulls from your preferred deployment tool.";
 export const GIT_CD_ENABLED_TOAST = () =>
-  "Continuous deployment configured successfully.";
+  "Continuous delivery configured successfully.";
 export const GIT_CD_DISABLED_TOAST = () =>
-  "Continuous deployment disabled successfully.";
+  "Continuous delivery disabled successfully.";
 export const GIT_CD_COPY_ENDPOINT = () => "Copy cURL";
 export const GIT_CD_RECONFIGURE_API_KEY_CTA = () => "Re-configure bearer token";
 export const GIT_CD_RECONFIGURE_API_KEY_DESC = () =>
