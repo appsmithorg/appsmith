@@ -1,6 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.Module;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.dtos.ce.MappedImportableResourcesCE_DTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,6 +18,8 @@ public class MappedImportableResourcesDTO extends MappedImportableResourcesCE_DT
     Map<String, String> moduleInstanceRefToIdMap = new HashMap<>();
     // moduleUUID -> module
     Map<String, Module> moduleUUIDToModuleMap = new ConcurrentHashMap<>();
+    // packageUUID -> package
+    Map<String, Package> packageUUIDToPackageMap = new ConcurrentHashMap<>();
     // moduleUUID -> exportableModule
     Map<String, ExportableModule> moduleUUIDToExportableModuleMap = new ConcurrentHashMap<>();
 }

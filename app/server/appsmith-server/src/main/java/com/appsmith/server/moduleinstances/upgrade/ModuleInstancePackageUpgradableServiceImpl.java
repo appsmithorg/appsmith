@@ -67,12 +67,15 @@ public class ModuleInstancePackageUpgradableServiceImpl implements PackageUpgrad
         // TODO: Update dynamic binding path list
 
         existingModuleInstance.setOriginModuleId(createdModuleInstanceDTO.getOriginModuleId());
+        existingModuleInstance.setPackageUUID(
+                publishingMetaDTO.getPublishedPackage().getPackageUUID());
         existingModuleInstance.setSourceModuleId(createdModuleInstanceDTO.getSourceModuleId());
         existingModuleInstanceDTO.setVersion(createdModuleInstanceDTO.getVersion());
 
         // TODO: Do this validation step properly in a centralized method
         existingModuleInstanceDTO.setIsValid(true);
         existingModuleInstanceDTO.setInvalids(Set.of());
+        existingModuleInstanceDTO.setInvalidState(null);
 
         crudModuleInstanceService.extractAndSetJsonPathKeys(existingModuleInstance);
 
