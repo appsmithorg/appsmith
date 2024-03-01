@@ -46,10 +46,6 @@ const _Radio = (props: RadioProps, ref: RadioRef) => {
     inputRef,
   );
 
-  if (inputProps.tabIndex === -1) {
-    delete inputProps.tabIndex;
-  }
-
   return (
     <label
       {...hoverProps}
