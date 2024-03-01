@@ -6,7 +6,10 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { RenderModes } from "constants/WidgetConstants";
+import {
+  BUILDING_BLOCK_EXPLORER_TYPE,
+  RenderModes,
+} from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type {
   CanvasWidgetsReduxState,
@@ -476,9 +479,24 @@ function* addNewTabChildSaga(
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 
+function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
+  if (addEntityAction.payload.type === BUILDING_BLOCK_EXPLORER_TYPE) {
+    const skeletonWidget: ReduxAction<WidgetAddChild> = {
+      ...addEntityAction,
+      payload: {
+        ...addEntityAction.payload,
+        type: "SKELETON_WIDGET",
+      },
+    };
+    yield call(addChildSaga, skeletonWidget);
+  } else {
+    yield call(addChildSaga, addEntityAction);
+  }
+}
+
 export default function* widgetAdditionSagas() {
   yield all([
-    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
+    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addUIEntitySaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD, addNewTabChildSaga),
   ]);
 }

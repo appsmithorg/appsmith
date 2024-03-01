@@ -466,24 +466,12 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
   return widgets;
 }
 
-function* dragBuildingBlocksIntoCanvas() {
-  // buildingBlock: WidgetDraggingUpdateParams,
-  // console.log(
-  //   "🚀 ~ function*dragBuildingBlocksIntoCanvas ~ buildingBlock:",
-  //   buildingBlock,
-  // );
-}
-
 export default function* draggingCanvasSagas() {
   yield all([
     takeLatest(ReduxActionTypes.WIDGETS_MOVE, moveWidgetsSaga),
     takeLatest(
       ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
       addWidgetAndMoveWidgetsSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_INIT,
-      dragBuildingBlocksIntoCanvas,
     ),
   ]);
 }
