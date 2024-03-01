@@ -253,6 +253,12 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                             module.setVersion(aPackage.getVersion());
                             module.setPackageUUID(aPackage.getPackageUUID());
 
+                            if (moduleDTO.getGitSyncId() == null) {
+                                module.setGitSyncId(aPackage.getId() + "_" + new ObjectId());
+                            } else {
+                                module.setGitSyncId(moduleDTO.getGitSyncId());
+                            }
+
                             Set<Policy> modulePolicyMap = policyGenerator.getAllChildPolicies(
                                     aPackage.getPolicies(), Package.class, Module.class);
                             module.setPolicies(modulePolicyMap);

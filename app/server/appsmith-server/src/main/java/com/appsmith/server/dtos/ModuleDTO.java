@@ -75,6 +75,11 @@ public class ModuleDTO implements Identifiable {
     @JsonView(Views.Public.class)
     Object settingsForm;
 
+    // This is the same as the primary domain's git sync id
+    @Transient
+    @JsonView(Views.Internal.class)
+    String gitSyncId;
+
     public void sanitiseToExportDBObject() {
         this.resetTransientFields();
         if (this.getLayouts() != null) {
