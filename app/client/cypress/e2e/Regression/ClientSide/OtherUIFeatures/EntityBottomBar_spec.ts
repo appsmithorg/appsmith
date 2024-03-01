@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
 import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
-describe("Entity bottom bar", () => {
+describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
   it("1. Debugger should be closable", () => {
     //Verify if bottom bar is closed.
     _.debuggerHelper.AssertClosed();
@@ -32,17 +32,14 @@ describe("Entity bottom bar", () => {
     _.debuggerHelper.AssertSelectedTab("Response");
     //verify if bottom bar is closed on switching to canvas page.
     EditorNavigation.ShowCanvas();
-    _.debuggerHelper.AssertSelectedTab("Errors");
+    _.debuggerHelper.AssertClosed();
   });
 
   it("3. Api bottom pane should be collapsable", () => {
     _.apiPage.CreateAndFillApi(
       _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
     );
-    //Verify that the errors tab is still open.
-    _.debuggerHelper.AssertSelectedTab("Errors");
-    //Verify if bottom bar is closed on clicking close icon in API page.
-    _.debuggerHelper.CloseBottomBar();
+    //Verify that the errors tab is still closed.
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar opens on clicking debugger icon in api page.
     _.debuggerHelper.ClickDebuggerIcon();
@@ -60,12 +57,11 @@ describe("Entity bottom bar", () => {
   it("4. Bottom bar in Datasource", () => {
     //Verify if bottom bar remain open on shifting to create new datasource page.
     _.dataSources.NavigateToDSCreateNew();
-    //Expecting errors tab to be closed as previous selected tab was response.
-    //And response tab is not part of datasource page.
+    //Expecting errors tab to be closed as this is now a datasource
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar opens on clicking debugger icon in datasource page.
     _.debuggerHelper.ClickDebuggerIcon();
-    _.debuggerHelper.AssertClosed();
+    _.debuggerHelper.AssertOpen(PageType.DataSources);
   });
 
   it(
