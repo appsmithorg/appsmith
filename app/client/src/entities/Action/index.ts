@@ -166,7 +166,7 @@ export interface BaseAction {
   isMainJSCollection?: boolean;
   // Denotes how the action was created, whether it was through
   // one click binding/ generate crud/ manually (no accelerator)
-  accelerator: string;
+  accelerator?: string;
 }
 
 interface BaseApiAction extends BaseAction {
