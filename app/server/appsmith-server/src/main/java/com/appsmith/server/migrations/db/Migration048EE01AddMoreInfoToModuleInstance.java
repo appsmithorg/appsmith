@@ -71,7 +71,15 @@ public class Migration048EE01AddMoreInfoToModuleInstance {
                 ModuleInstance moduleInstance = mongoTemplate.getConverter().read(ModuleInstance.class, doc);
 
                 Module module = getOrFetchModuleInfo(moduleInstance.getSourceModuleId());
+                if (module == null) {
+                    // source module can be null in case of orphan module instance
+                    continue;
+                }
                 Package publishedPackage = getOrFetchPackageInfo(module.getPackageId());
+                if (publishedPackage == null) {
+                    // Ideally execution should not reach here as module cannot exist without its respective package
+                    continue;
+                }
 
                 Query moduleInstanceUpdateQuery = new Query()
                         .addCriteria(where(fieldName(QModuleInstance.moduleInstance.id))
