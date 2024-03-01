@@ -1,6 +1,11 @@
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import type { DraggedWidget } from "../utils/anvilTypes";
+
 import type { LayoutElementPositions } from "layoutSystems/common/types";
+import type {
+  AnvilHighlightInfo,
+  DraggedWidget,
+  HighlightPayload,
+} from "../utils/anvilTypes";
 
 export enum AnvilDraggedWidgetTypesEnum {
   SECTION = "SECTION",
@@ -31,4 +36,14 @@ export interface AnvilDnDStates {
   layoutElementPositions: LayoutElementPositions;
   dragMeta: AnvilDragMeta;
   mainCanvasLayoutId: string;
+}
+
+export interface AnvilHighlightingCanvasProps {
+  anvilDragStates: AnvilDnDStates;
+  layoutId: string;
+  deriveAllHighlightsFn: (
+    layoutElementPositions: LayoutElementPositions,
+    draggedWidgets: DraggedWidget[],
+  ) => HighlightPayload;
+  onDrop: (renderedBlock: AnvilHighlightInfo) => void;
 }
