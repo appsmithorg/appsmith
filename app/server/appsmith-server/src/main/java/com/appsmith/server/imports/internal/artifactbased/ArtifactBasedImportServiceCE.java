@@ -19,8 +19,6 @@ import java.util.Set;
 public interface ArtifactBasedImportServiceCE<
         T extends ImportableArtifact, U extends ImportableArtifactDTO, V extends ArtifactExchangeJson> {
 
-    V extractArtifactExchangeJson(String jsonString);
-
     ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(
             Set<String> userPermissions);
 

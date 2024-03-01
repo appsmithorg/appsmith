@@ -132,21 +132,19 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             newAction.setPluginId(mappedExportableResourcesDTO.getPluginMap().get(newAction.getPluginId()));
             newAction.setWorkspaceId(null);
             newAction.setPolicies(null);
-            if (hasExportableDatasource(newAction)) {
-                // Only add the datasource for this action to dbNamesUsed if it is not a module action
-                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                        newAction.getPublishedAction(),
-                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                        mappedExportableResourcesDTO.getPluginMap(),
-                        null,
-                        true));
-                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                        newAction.getUnpublishedAction(),
-                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                        mappedExportableResourcesDTO.getPluginMap(),
-                        null,
-                        true));
-            }
+            // Only add the datasource for this action to dbNamesUsed if it is not a module action
+            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+                    newAction.getPublishedAction(),
+                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                    mappedExportableResourcesDTO.getPluginMap(),
+                    null,
+                    true));
+            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+                    newAction.getUnpublishedAction(),
+                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                    mappedExportableResourcesDTO.getPluginMap(),
+                    null,
+                    true));
 
             // Set unique id for action
             if (newAction.getUnpublishedAction() != null) {
@@ -157,9 +155,5 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             }
         });
         return dbNamesUsedInActions;
-    }
-
-    protected boolean hasExportableDatasource(NewAction newAction) {
-        return true;
     }
 }
