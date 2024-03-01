@@ -13,7 +13,7 @@ import type {
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
-import { extractWidgetIdsFromLayoutProps } from "../layoutUtils";
+import { extractWidgetIdsFromLayoutProps } from "../baseLayoutUtils";
 import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("Layouts - additionUtils tests", () => {
