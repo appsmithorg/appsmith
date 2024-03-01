@@ -449,7 +449,7 @@ class CrudModuleServiceTest {
         moduleDTO.setName("GetAllUsersModule");
         moduleDTO.setInputsForm(List.of(new ModuleInputForm(
                 "id", "", List.of(new ModuleInput("id1", "label", "propertyName", "controlType", "defaultValue")))));
-        Mono<ModuleDTO> updateModuleMono = crudModuleService.updateModule(moduleDTO, moduleRef.get());
+        Mono<ModuleDTO> updateModuleMono = crudModuleService.updateModule(moduleRef.get(), moduleDTO);
 
         StepVerifier.create(updateModuleMono)
                 .assertNext(updatedModule -> {

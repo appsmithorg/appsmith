@@ -41,7 +41,7 @@ public class NewActionPackageExportableServiceImpl extends PackageExportableUtil
         } else {
             actionDTO = newAction.getPublishedAction();
         }
-        actionDTO.setPageId(
+        actionDTO.setModuleId(
                 mappedExportableResourcesDTO.getContextIdToNameMap().get(actionDTO.getModuleId() + resourceMode));
 
         if (!StringUtils.isEmpty(actionDTO.getCollectionId())

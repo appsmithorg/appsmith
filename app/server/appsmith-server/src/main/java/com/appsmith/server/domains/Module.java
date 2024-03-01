@@ -22,7 +22,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @NoArgsConstructor
 @Document
 @FieldNameConstants
-public class Module extends BranchAwareDomain {
+public class Module extends BranchAwareDomain implements Context {
 
     // Fields in module that are not allowed to change between published and unpublished versions
     @JsonView(Views.Export.class)

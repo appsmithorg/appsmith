@@ -24,17 +24,18 @@ import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.permissions.PackagePermission;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Slf4j
-@Component
+@Service
 public class PackageExportServiceImpl implements ArtifactBasedExportService<Package, PackageJson> {
 
     private final CrudPackageService crudPackageService;
@@ -45,28 +46,8 @@ public class PackageExportServiceImpl implements ArtifactBasedExportService<Pack
     private final ExportableService<NewAction> newActionExportableService;
     private final ExportableService<ActionCollection> actionCollectionExportableService;
     private final ExportableService<ModuleInstance> moduleInstanceExportableService;
-    private final Map<String, String> packageConstantsMap = new HashMap<>();
-
-    public PackageExportServiceImpl(
-            CrudPackageService crudPackageService,
-            PackagePermission packagePermission,
-            CrudModuleService crudModuleService,
-            ModulePermission modulePermission,
-            ExportableService<Module> moduleExportableService,
-            ExportableService<NewAction> newActionExportableService,
-            ExportableService<ActionCollection> actionCollectionExportableService,
-            ExportableService<ModuleInstance> moduleInstanceExportableService) {
-        this.crudPackageService = crudPackageService;
-        this.packagePermission = packagePermission;
-        this.crudModuleService = crudModuleService;
-        this.modulePermission = modulePermission;
-        this.moduleExportableService = moduleExportableService;
-        this.newActionExportableService = newActionExportableService;
-        this.actionCollectionExportableService = actionCollectionExportableService;
-        this.moduleInstanceExportableService = moduleInstanceExportableService;
-        packageConstantsMap.putAll(
-                Map.of(FieldName.ARTIFACT_CONTEXT, FieldName.PACKAGE, FieldName.ID, FieldName.PACKAGE_ID));
-    }
+    private final Map<String, String> packageConstantsMap =
+            Map.of(FieldName.ARTIFACT_CONTEXT, FieldName.PACKAGE, FieldName.ID, FieldName.PACKAGE_ID);
 
     @Override
     public PackageJson createNewArtifactExchangeJson() {

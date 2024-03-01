@@ -7,7 +7,6 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
@@ -15,7 +14,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ExportableModule;
@@ -30,7 +28,10 @@ import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
+import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
@@ -64,10 +65,13 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
 
     private final CrudModuleInstanceService crudModuleInstanceService;
     private final ModuleInstanceRepository repository;
-    private final PagePermission pagePermission;
     private final ModuleInstancePermission moduleInstancePermission;
+    private final PagePermission pagePermission;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
+    private final CrudPackageService crudPackageService;
+    private final CrudModuleService crudModuleService;
+    private final ModulePermission modulePermission;
     private final DefaultResourcesService<ModuleInstance> defaultResourcesService;
     private final DefaultResourcesService<ModuleInstanceDTO> dtoDefaultResourcesService;
     private final DefaultResourcesService<NewAction> newActionDefaultResourcesService;
@@ -89,19 +93,21 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
             Mono<? extends ImportableArtifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
-        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+        Mono<Void> createModuleReferencesMono =
+                validateAndCreateModuleReferences(artifactExchangeJson, mappedImportableResourcesDTO, importingMetaDTO);
 
-        List<ModuleInstance> moduleInstanceList = applicationJson.getModuleInstanceList();
+        List<ModuleInstance> moduleInstanceList = artifactExchangeJson.getModuleInstanceList();
 
         if (moduleInstanceList == null) {
             moduleInstanceList = new ArrayList<>();
         }
 
-        Mono<List<ModuleInstance>> importedModuleInstancesMono = Mono.justOrEmpty(moduleInstanceList);
+        Mono<List<ModuleInstance>> importedModuleInstancesMono =
+                createModuleReferencesMono.then(Mono.justOrEmpty(moduleInstanceList));
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             importedModuleInstancesMono = importedModuleInstancesMono.map(moduleInstanceList1 -> {
                 List<NewPage> importedNewPages = mappedImportableResourcesDTO.getContextMap().values().stream()
-                        .map(branchAwareDomain -> (NewPage) branchAwareDomain)
+                        .map(context -> (NewPage) context)
                         .distinct()
                         .toList();
 
@@ -123,9 +129,9 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
         return Mono.zip(importedModuleInstancesMono, importableArtifactMono)
                 .flatMap(tuple2 -> {
                     List<ModuleInstance> moduleInstances = tuple2.getT1();
-                    Application importedApplication = (Application) tuple2.getT2();
+                    ImportableArtifact importableArtifact = tuple2.getT2();
                     return importModuleInstances(
-                            moduleInstances, importedApplication, importingMetaDTO, mappedImportableResourcesDTO);
+                            moduleInstances, importableArtifact, importingMetaDTO, mappedImportableResourcesDTO);
                 })
                 .flatMap(importModuleInstanceResultDTO -> {
                     log.info("Module instances imported. result: {}", importModuleInstanceResultDTO.getGist());
@@ -174,6 +180,44 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 .then();
     }
 
+    private Mono<Void> validateAndCreateModuleReferences(
+            ArtifactExchangeJson artifactExchangeJson,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            ImportingMetaDTO importingMetaDTO) {
+        List<ExportableModule> sourceModuleList = CollectionUtils.isEmpty(artifactExchangeJson.getSourceModuleList())
+                ? new ArrayList<>()
+                : artifactExchangeJson.getSourceModuleList();
+
+        Map<String, Module> moduleUUIDToModuleMap = mappedImportableResourcesDTO.getModuleUUIDToModuleMap();
+        Map<String, ExportableModule> moduleUUIDToExportableModuleMap =
+                mappedImportableResourcesDTO.getModuleUUIDToExportableModuleMap();
+
+        sourceModuleList.stream().forEach(exportableModule -> {
+            moduleUUIDToExportableModuleMap.put(exportableModule.getModuleUUID(), exportableModule);
+        });
+
+        // For each package in this list, check if the workspace already has such a definition
+        // If it does, we can assume that module instance import will succeed validation (if ACL allows)
+        //     For this, map the package UUID-version combo to the existing packageId in workspace
+        // If it does not, we will need to mark the corresponding module instances as invalid
+        //     Absence of UUID-version entry in the map will indicate such a state
+
+        // No actual import is performed for packages here
+        return crudPackageService
+                .getAllPublishedPackagesByUniqueRef(importingMetaDTO.getWorkspaceId(), sourceModuleList)
+                .flatMap(aPackage -> {
+                    // TODO: What happens if this instance has also created a package from this unique ref,
+                    //  and has reached this version, but with a separate interface/definition ?
+                    return crudModuleService
+                            .getAllModules(aPackage.getId(), modulePermission.getReadPermission())
+                            .doOnNext(module -> {
+                                moduleUUIDToModuleMap.put(module.getModuleUUID(), module);
+                            })
+                            .collectList();
+                })
+                .then();
+    }
+
     private void renamePageInModuleInstances(
             List<ModuleInstance> moduleInstanceList, String oldPageName, String newPageName) {
         for (ModuleInstance moduleInstance : moduleInstanceList) {
@@ -185,20 +229,20 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
 
     private Mono<ImportModuleInstanceResultDTO> importModuleInstances(
             List<ModuleInstance> moduleInstanceList,
-            Application importedApplication,
+            ImportableArtifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         Mono<Map<String, ModuleInstance>> moduleInstancesInCurrentAppMono =
-                getModuleInstancesInCurrentAppMono(importedApplication).collectMap(ModuleInstance::getGitSyncId);
+                getModuleInstancesInCurrentAppMono(importableArtifact).collectMap(ModuleInstance::getGitSyncId);
 
         Mono<Map<String, ModuleInstance>> moduleInstancesInBranchesMono;
-        if (importedApplication.getGitApplicationMetadata() != null) {
+        if (importableArtifact.getGitArtifactMetadata() != null) {
             final String defaultApplicationId =
-                    importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
+                    importableArtifact.getGitArtifactMetadata().getDefaultArtifactId();
             moduleInstancesInBranchesMono = repository
                     .findByDefaultApplicationId(defaultApplicationId, Optional.empty())
                     .filter(moduleInstance ->
-                            !Objects.equals(moduleInstance.getApplicationId(), importedApplication.getId()))
+                            !Objects.equals(moduleInstance.getApplicationId(), importableArtifact.getId()))
                     .filter(moduleInstance -> moduleInstance.getGitSyncId() != null)
                     .collectMap(ModuleInstance::getGitSyncId);
         } else {
@@ -231,10 +275,9 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                         // If pageId is missing in the moduleInstanceDTO create a fallback pageId
                         final String fallbackParentPageId = unpublishedModuleInstance.getPageId();
 
-                        if (importedApplication.getGitApplicationMetadata() != null) {
-                            final String defaultApplicationId = importedApplication
-                                    .getGitApplicationMetadata()
-                                    .getDefaultApplicationId();
+                        if (importableArtifact.getGitArtifactMetadata() != null) {
+                            final String defaultApplicationId =
+                                    importableArtifact.getGitArtifactMetadata().getDefaultArtifactId();
                             if (moduleInstancesInBranches.containsKey(moduleInstance.getGitSyncId())) {
                                 ModuleInstance branchedModuleInstance =
                                         moduleInstancesInBranches.get(moduleInstance.getGitSyncId());
@@ -513,7 +556,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 savedModuleInstance.getId());
     }
 
-    private Flux<ModuleInstance> getModuleInstancesInCurrentAppMono(Application importedApplication) {
+    private Flux<ModuleInstance> getModuleInstancesInCurrentAppMono(ImportableArtifact importedApplication) {
         return repository.findByApplicationId(importedApplication.getId());
     }
 
@@ -580,7 +623,11 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
             MappedImportableResourcesDTO mappedImportableResourcesDTO, ModuleInstance moduleInstance) {
         Map<String, Module> moduleUUIDToModuleMap = mappedImportableResourcesDTO.getModuleUUIDToModuleMap();
         ModuleInstanceDTO moduleInstanceDTO = moduleInstance.getUnpublishedModuleInstance();
-        if (moduleUUIDToModuleMap.containsKey(moduleInstance.getModuleUUID())) {
+        if (moduleUUIDToModuleMap.containsKey(moduleInstance.getModuleUUID())
+                && moduleUUIDToModuleMap
+                        .get(moduleInstance.getModuleUUID())
+                        .getVersion()
+                        .equals(moduleInstanceDTO.getVersion())) {
             moduleInstance.setSourceModuleId(
                     moduleUUIDToModuleMap.get(moduleInstance.getModuleUUID()).getId());
             moduleInstance.setOriginModuleId(

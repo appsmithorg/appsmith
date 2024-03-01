@@ -90,7 +90,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -189,8 +188,8 @@ class ImportWithModulesTest {
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         List<PermissionGroup> permissionGroups = workspaceMono
@@ -439,7 +438,7 @@ class ImportWithModulesTest {
 
         // First import the app
         ApplicationImportDTO applicationImportDTO = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
 
@@ -781,7 +780,7 @@ class ImportWithModulesTest {
 
         // Then import the app
         ApplicationImportDTO applicationImportDTO = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
 

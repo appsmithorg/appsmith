@@ -140,8 +140,8 @@ public class PackageController {
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.PACKAGE_ID, required = false) String packageId) {
         log.debug("Going to import package in workspace with id: {}", workspaceId);
-        return fileMono.flatMap(file ->
-                        importService.extractArtifactExchangeJsonAndSaveArtifact(file, workspaceId, packageId, PACKAGE))
+        return fileMono.flatMap(
+                        file -> importService.extractArtifactExchangeJsonAndSaveArtifact(file, workspaceId, packageId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 }

@@ -88,13 +88,6 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
                 importedApplicationMono,
                 applicationJson);
 
-        Mono<Void> importedModulesMono = moduleImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson);
-
         Mono<Void> importedModuleInstancesMono = moduleInstanceImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
@@ -102,9 +95,7 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
                 importedApplicationMono,
                 applicationJson);
 
-        Mono<Void> moduleInstanceMono = importedModulesMono.then(Mono.defer(() -> importedModuleInstancesMono));
-
-        Mono<Void> pageDependentsMono = moduleInstanceMono
+        Mono<Void> pageDependentsMono = importedModuleInstancesMono
                 .thenMany(Flux.defer(() -> Flux.merge(pageDependentImportables)))
                 .then();
 

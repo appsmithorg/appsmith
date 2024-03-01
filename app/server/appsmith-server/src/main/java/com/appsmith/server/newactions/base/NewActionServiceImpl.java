@@ -17,6 +17,7 @@ import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -384,6 +385,28 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    public Flux<NewAction> findAllByPackageIdAndViewMode(String packageId, Boolean viewMode) {
+        return repository
+                .findByPackageId(packageId)
+                // In case of view mode being true, filter out all the actions which haven't been published
+                .flatMap(action -> {
+                    if (Boolean.TRUE.equals(viewMode)) {
+                        // In case we are trying to fetch published actions but this action has not been published, do
+                        // not return
+                        if (action.getPublishedAction() == null) {
+                            return Mono.empty();
+                        }
+                    }
+                    // No need to handle the edge case of unpublished action not being present. This is not possible
+                    // because every created action starts from an unpublishedAction state.
+
+                    return Mono.just(action);
+                })
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
+    }
+
+    @Override
     public Mono<List<NewAction>> archiveActionsByModuleId(String moduleId) {
         return repository
                 .findAllNonJSActionsByModuleId(moduleId)
@@ -661,6 +684,16 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
                 moduleInstance.getPolicies(), ModuleInstance.class, NewAction.class);
         action.setPolicies(documentPolicies);
+    }
+
+    @Override
+    public void generateAndSetActionPolicies(Module module, NewAction newAction) {
+        if (module == null) {
+            throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "No module found to copy policies from.");
+        }
+        Set<Policy> documentPolicies =
+                policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
+        newAction.setPolicies(documentPolicies);
     }
 
     @Override

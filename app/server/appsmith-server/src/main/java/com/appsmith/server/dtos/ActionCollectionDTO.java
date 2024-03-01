@@ -1,6 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.helpers.Reusable;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ce.ActionCollectionCE_DTO;
@@ -48,6 +49,7 @@ public class ActionCollectionDTO extends ActionCollectionCE_DTO implements Reusa
     @Override
     public void populateTransientFields(ActionCollection actionCollection) {
         super.populateTransientFields(actionCollection);
+        this.setPackageId(actionCollection.getPackageId());
         this.moduleInstanceId = actionCollection.getModuleInstanceId();
         this.rootModuleInstanceId = actionCollection.getRootModuleInstanceId();
         this.isPublic = actionCollection.getIsPublic();
@@ -75,6 +77,15 @@ public class ActionCollectionDTO extends ActionCollectionCE_DTO implements Reusa
         this.setModuleInstanceId(null);
         this.setRootModuleInstanceId(null);
         this.setIsPublic(null);
+    }
+
+    @Override
+    public String calculateContextId() {
+        if (this.getContextType() == null || CreatorContextType.PAGE.equals(this.getContextType())) {
+            return super.calculateContextId();
+        } else {
+            return this.getModuleId();
+        }
     }
 
     public static class Fields extends ActionCollectionCE_DTO.Fields {}

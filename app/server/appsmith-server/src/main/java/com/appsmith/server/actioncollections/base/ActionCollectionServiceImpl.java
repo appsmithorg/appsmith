@@ -9,6 +9,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -215,6 +216,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     @Override
     public Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection) {
         return super.generateActionCollectionViewDTO(actionCollection).map(actionCollectionViewDTO -> {
+            actionCollectionViewDTO.setPackageId(actionCollection.getPackageId());
             if (StringUtils.isNotBlank(actionCollection.getWorkflowId())) {
                 actionCollectionViewDTO.setWorkflowId(actionCollection.getWorkflowId());
             }
@@ -265,6 +267,13 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
         }
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
                 moduleInstance.getPolicies(), ModuleInstance.class, NewAction.class);
+        actionCollection.setPolicies(documentPolicies);
+    }
+
+    @Override
+    public void generateAndSetPolicies(Module module, ActionCollection actionCollection) {
+        Set<Policy> documentPolicies =
+                policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
         actionCollection.setPolicies(documentPolicies);
     }
 

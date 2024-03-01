@@ -47,14 +47,20 @@ public class NewAction extends NewActionCE {
             ActionDTO unpublishedAction = this.getUnpublishedAction();
             if (unpublishedAction != null) {
                 unpublishedAction.setActionConfiguration(null);
-                unpublishedAction.setDatasource(null);
+                if (unpublishedAction.getDatasource() != null) {
+                    unpublishedAction.getDatasource().setId(null);
+                    unpublishedAction.getDatasource().setWorkspaceId(null);
+                }
                 unpublishedAction.setDynamicBindingPathList(null);
                 unpublishedAction.setJsonPathKeys(null);
             }
             ActionDTO publishedAction = this.getPublishedAction();
             if (publishedAction != null) {
                 publishedAction.setActionConfiguration(null);
-                publishedAction.setDatasource(null);
+                if (publishedAction.getDatasource() != null) {
+                    publishedAction.getDatasource().setId(null);
+                    publishedAction.getDatasource().setWorkspaceId(null);
+                }
                 publishedAction.setDynamicBindingPathList(null);
                 publishedAction.setJsonPathKeys(null);
             }

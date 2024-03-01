@@ -537,7 +537,7 @@ class AutoUpgradePackageTest {
         sourceQueryModuleDTO.setInputsForm(moduleInputsForm);
 
         ModuleDTO updatedSourceQueryModuleDTO = crudModuleService
-                .updateModule(sourceQueryModuleDTO, sourceQueryModuleDTO.getId())
+                .updateModule(sourceQueryModuleDTO.getId(), sourceQueryModuleDTO)
                 .block();
 
         ModuleEntitiesDTO entitiesDTO = crudModuleEntityService

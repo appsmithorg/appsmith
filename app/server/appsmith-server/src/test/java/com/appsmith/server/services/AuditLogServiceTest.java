@@ -1140,8 +1140,7 @@ public class AuditLogServiceTest {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         ApplicationImportDTO applicationImportDTO = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, createdWorkspace.getId(), null, ArtifactJsonType.APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, createdWorkspace.getId(), null)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
         Application createdApplication = applicationImportDTO.getApplication();

@@ -301,6 +301,8 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         }
         criteria.add(jsInclusionOrExclusionCriteria);
 
+        criteria.add(notDeleted());
+
         return queryBuilder()
                 .criteria(criteria)
                 .permission(optionalPermission.orElse(null))

@@ -96,7 +96,7 @@ public class ExecutableOnModuleLoadServiceImpl implements ExecutableOnLoadServic
                     //                    return packageService
                     //                            .saveLastEditInformation(moduleDTO.getPackageId())
                     //                            .then(moduleService.updateModule(moduleDTO, moduleDTO.getId()));
-                    return moduleService.updateModule(moduleDTO, moduleDTO.getId());
+                    return moduleService.updateModule(moduleDTO.getId(), moduleDTO);
                 })
                 .flatMap(moduleDTO -> {
                     List<Layout> layoutList = moduleDTO.getLayouts();

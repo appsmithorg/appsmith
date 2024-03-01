@@ -4,6 +4,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
@@ -37,4 +38,6 @@ public interface ActionCollectionService extends ActionCollectionServiceCE {
     Mono<ActionCollectionDTO> getPublicActionCollection(String moduleId, ResourceModes resourceMode);
 
     void generateAndSetPolicies(ModuleInstance moduleInstance, ActionCollection actionCollection);
+
+    void generateAndSetPolicies(Module module, ActionCollection actionCollection);
 }

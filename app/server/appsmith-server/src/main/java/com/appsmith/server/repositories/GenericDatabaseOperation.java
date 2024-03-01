@@ -7,6 +7,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -272,7 +273,7 @@ public class GenericDatabaseOperation {
      * @param domain - Domain object to check
      * @return - true if the resource is branchable, false otherwise
      */
-    private boolean isBranchableResouce(BaseDomain domain) {
+    private boolean isBranchableResource(BaseDomain domain) {
         return StringUtils.isNotEmpty(getBranchResourceIdKey(domain));
     }
 
@@ -311,6 +312,8 @@ public class GenericDatabaseOperation {
             return "defaultResources.actionId";
         } else if (domain instanceof ActionCollection) {
             return "defaultResources.collectionId";
+        } else if (domain instanceof ModuleInstance) {
+            return "defaultResources.moduleInstanceId";
         } else {
             return null;
         }
@@ -373,45 +376,49 @@ public class GenericDatabaseOperation {
             obj.setPolicies(policies);
 
             // Update across all the branches if it is a branchable object and connected to git
-            if (isBranchableResouce(obj) && isConnectedToGit(obj)) {
+            if (isBranchableResource(obj) && isConnectedToGit(obj)) {
 
                 // If it is a application, then inherit policies from Application to invisible the pages
-                if (obj instanceof Application) {
+                if (obj instanceof Application domain) {
                     Mono<UpdateResult> updateBranchedApplicationPolicies = mongoOperations.updateMulti(
-                            getBranchedApplicationQuery((Application) obj), Update.update("policies", policies), clazz);
+                            getBranchedApplicationQuery(domain), Update.update("policies", policies), clazz);
                     Mono<Long> inheritPoliciesForInvisibleBranchedPages =
-                            inheritPoliciesForBranchedOnlyPagesFromApplication((Application) obj);
+                            inheritPoliciesForBranchedOnlyPagesFromApplication(domain);
                     Mono<Long> inheritPoliciesFromApplicationForAllRelatedThemes =
-                            inheritPoliciesFromApplicationForAllRelatedThemes((Application) obj);
+                            inheritPoliciesFromApplicationForAllRelatedThemes(domain);
                     return Mono.when(
                                     updateBranchedApplicationPolicies,
                                     inheritPoliciesForInvisibleBranchedPages,
                                     inheritPoliciesFromApplicationForAllRelatedThemes)
                             .thenReturn(1L);
                     // If it is a page, then inherit policies from Page to invisible the actions
-                } else if (obj instanceof NewPage) {
+                } else if (obj instanceof NewPage domain) {
                     Mono<UpdateResult> updateBranchedPagePolicies = mongoOperations.updateMulti(
-                            getBranchedPageQuery((NewPage) obj), Update.update("policies", policies), clazz);
+                            getBranchedPageQuery(domain), Update.update("policies", policies), clazz);
                     Mono<Long> inheritPoliciesForInvisibleActions =
-                            inheritPoliciesForBranchedOnlyActionsFromPage(((NewPage) obj));
+                            inheritPoliciesForBranchedOnlyActionsFromPage(domain);
                     Mono<Long> inheritPoliciesForInvisibleActionCollection =
-                            inheritPoliciesForBranchedOnlyActionCollectionsFromPage(((NewPage) obj));
+                            inheritPoliciesForBranchedOnlyActionCollectionsFromPage(domain);
                     return Mono.when(
                                     updateBranchedPagePolicies,
                                     inheritPoliciesForInvisibleActions,
                                     inheritPoliciesForInvisibleActionCollection)
                             .thenReturn(1L);
-                } else if (obj instanceof NewAction) {
+                } else if (obj instanceof NewAction domain) {
                     return mongoOperations
-                            .updateMulti(
-                                    getBranchedActionQuery((NewAction) obj), Update.update("policies", policies), clazz)
+                            .updateMulti(getBranchedActionQuery(domain), Update.update("policies", policies), clazz)
                             .then(Mono.just(1L));
-                } else if (obj instanceof ActionCollection) {
+                } else if (obj instanceof ActionCollection domain) {
                     return mongoOperations
                             .updateMulti(
-                                    getBranchedActionCollectionQuery((ActionCollection) obj),
+                                    getBranchedActionCollectionQuery(domain),
                                     Update.update("policies", policies),
                                     clazz)
+                            .then(Mono.just(1L));
+                } else if (obj instanceof ModuleInstance domain) {
+                    return mongoOperations
+                            .updateMulti(
+                                    getBranchedModuleInstanceQuery(domain), Update.update("policies", policies), clazz)
                             .then(Mono.just(1L));
                 }
             }
@@ -492,6 +499,13 @@ public class GenericDatabaseOperation {
     private Query getBranchedActionCollectionQuery(ActionCollection actionCollection) {
         Criteria branchedApplicationCriteria = where(getBranchResourceIdKey(actionCollection))
                 .is(actionCollection.getDefaultResources().getCollectionId());
+        Criteria criteria = new Criteria().andOperator(branchedApplicationCriteria, notDeleted());
+        return Query.query(criteria);
+    }
+
+    private Query getBranchedModuleInstanceQuery(ModuleInstance moduleInstance) {
+        Criteria branchedApplicationCriteria = where(getBranchResourceIdKey(moduleInstance))
+                .is(moduleInstance.getDefaultResources().getModuleInstanceId());
         Criteria criteria = new Criteria().andOperator(branchedApplicationCriteria, notDeleted());
         return Query.query(criteria);
     }

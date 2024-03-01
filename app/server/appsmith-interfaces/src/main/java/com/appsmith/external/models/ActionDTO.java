@@ -88,10 +88,20 @@ public class ActionDTO extends ActionCE_DTO implements Reusable {
     @Override
     protected void resetTransientFields() {
         super.resetTransientFields();
+        this.setPackageId(null);
         this.setModuleInstanceId(null);
         this.setRootModuleInstanceId(null);
         this.setIsPublic(null);
         this.setPackageId(null);
+    }
+
+    @Override
+    public String calculateContextId() {
+        if (this.getContextType() == null || CreatorContextType.PAGE.equals(this.getContextType())) {
+            return super.calculateContextId();
+        } else {
+            return this.getModuleId();
+        }
     }
 
     public static class Fields extends ActionCE_DTO.Fields {}

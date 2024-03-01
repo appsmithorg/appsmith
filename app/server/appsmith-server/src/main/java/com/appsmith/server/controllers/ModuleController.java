@@ -64,7 +64,7 @@ public class ModuleController {
     public Mono<ResponseDTO<ModuleDTO>> updateModule(
             @PathVariable String moduleId, @RequestBody @Valid ModuleDTO moduleResource) {
         return crudModuleService
-                .updateModule(moduleResource, moduleId)
+                .updateModule(moduleId, moduleResource)
                 .map(moduleDTO -> new ResponseDTO<>(HttpStatus.OK.value(), moduleDTO, null));
     }
 
