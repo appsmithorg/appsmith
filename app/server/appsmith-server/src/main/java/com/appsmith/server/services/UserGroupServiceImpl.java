@@ -8,7 +8,6 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.ProvisionResourceMetadata;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -36,8 +35,6 @@ import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -46,7 +43,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -83,7 +79,6 @@ import static com.appsmith.server.constants.QueryParams.START_INDEX;
 import static com.appsmith.server.constants.ce.FieldNameCE.CLOUD_HOSTED_EXTRA_PROPS;
 import static com.appsmith.server.dtos.UsersForGroupDTO.validate;
 import static com.appsmith.server.enums.ProvisionResourceType.GROUP;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -109,10 +104,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     private final ConfigService configService;
 
     public UserGroupServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             UserGroupRepository repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
@@ -129,7 +121,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
             ProvisionUtils provisionUtils,
             EmailService emailService,
             ConfigService configService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.policyGenerator = policyGenerator;
@@ -596,7 +588,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
                     usersInGroup.remove(user.getId());
 
                     Update updateObj = new Update();
-                    String path = fieldName(QUserGroup.userGroup.users);
+                    String path = UserGroup.Fields.users;
 
                     updateObj.set(path, usersInGroup);
                     return repository.updateById(userGroup.getId(), updateObj).then(Mono.defer(() -> {

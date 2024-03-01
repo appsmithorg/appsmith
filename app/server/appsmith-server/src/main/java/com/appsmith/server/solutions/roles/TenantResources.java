@@ -4,8 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
@@ -53,7 +51,6 @@ import static com.appsmith.server.constants.FieldName.CUSTOM_ROLES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
 import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
 import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPermissionDTOsAndUpdateMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getHierarchicalLateralPermMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getLateralPermMap;
@@ -355,19 +352,17 @@ public class TenantResources {
     }
 
     private Flux<UserGroup> getAllUserGroups(String tenantId) {
-        List<String> includeFields = new ArrayList<>(List.of(
-                fieldName(QUserGroup.userGroup.policies),
-                fieldName(QUserGroup.userGroup.name),
-                fieldName(QUserGroup.userGroup.isProvisioned)));
+        List<String> includeFields = new ArrayList<>(
+                List.of(UserGroup.Fields.policies, UserGroup.Fields.name, UserGroup.Fields.isProvisioned));
         return userGroupRepository.findAllByTenantIdWithoutPermission(tenantId, includeFields);
     }
 
     private Flux<PermissionGroup> getAllPermissionGroups(String tenantId) {
         List<String> includeFields = new ArrayList<>(List.of(
-                fieldName(QPermissionGroup.permissionGroup.policies),
-                fieldName(QPermissionGroup.permissionGroup.name),
-                fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
-                fieldName(QPermissionGroup.permissionGroup.defaultDomainType)));
+                PermissionGroup.Fields.policies,
+                PermissionGroup.Fields.name,
+                PermissionGroup.Fields.defaultDomainId,
+                PermissionGroup.Fields.defaultDomainType));
         return permissionGroupRepository.findAllByTenantIdWithoutPermission(tenantId, includeFields);
     }
 

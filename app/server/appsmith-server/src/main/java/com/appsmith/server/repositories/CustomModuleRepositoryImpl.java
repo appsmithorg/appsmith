@@ -29,7 +29,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
 
     @Override
     public Flux<Module> getAllModulesByPackageId(String packageId, AclPermission permission) {
-        Criteria packageCriteria = where(fieldName(QModule.module.packageId)).is(packageId);
+        Criteria packageCriteria = where(Module.Fields.packageId).is(packageId);
 
         return queryBuilder().criteria(packageCriteria).permission(permission).all();
     }
@@ -37,7 +37,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     @Override
     public Flux<Module> getAllModulesByPackageIds(
             List<String> packageIds, List<String> projectionFields, Optional<AclPermission> permissionOptional) {
-        Criteria packageIdsCriteria = where(fieldName(QModule.module.packageId)).in(packageIds);
+        Criteria packageIdsCriteria = where(Module.Fields.packageId).in(packageIds);
 
         return queryBuilder()
                 .criteria(packageIdsCriteria)
@@ -48,8 +48,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
 
     @Override
     public Flux<Module> getAllConsumableModulesByPackageIds(List<String> packageIds, AclPermission permission) {
-        Criteria packageIdInCriteria =
-                where(fieldName(QModule.module.packageId)).in(packageIds);
+        Criteria packageIdInCriteria = where(Module.Fields.packageId).in(packageIds);
         return queryBuilder()
                 .criteria(packageIdInCriteria)
                 .permission(permission)
@@ -67,11 +66,9 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
         criteria.add(idCriterion);
 
         if (ResourceModes.VIEW.equals(resourceModes)) {
-            layoutsKey =
-                    fieldName(QModule.module.publishedModule) + "." + fieldName(QModule.module.publishedModule.layouts);
+            layoutsKey = Module.Fields.publishedModule + "." + fieldName(QModule.module.publishedModule.layouts);
         } else {
-            layoutsKey = fieldName(QModule.module.unpublishedModule) + "."
-                    + fieldName(QModule.module.unpublishedModule.layouts);
+            layoutsKey = Module.Fields.unpublishedModule + "." + fieldName(QModule.module.unpublishedModule.layouts);
         }
         layoutsIdKey = layoutsKey + "." + FieldName.ID;
 
@@ -84,7 +81,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     @Override
     public Flux<Module> findAllByIds(
             Set<String> ids, List<String> projectionFields, Optional<AclPermission> permission) {
-        Criteria idCriteria = where(fieldName(QModule.module.id)).in(ids);
+        Criteria idCriteria = where(Module.Fields.id).in(ids);
         return queryBuilder()
                 .criteria(idCriteria)
                 .fields(Optional.ofNullable(projectionFields).orElse(null))
@@ -96,9 +93,9 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     public Mono<Module> findConsumableModuleByPackageIdAndOriginModuleId(
             String packageId, String originModuleId, Optional<AclPermission> permission) {
         List<Criteria> criteria = new ArrayList<>();
-        Criteria packageIdAndOriginModuleIdCriterion = where(fieldName(QModule.module.packageId))
+        Criteria packageIdAndOriginModuleIdCriterion = where(Module.Fields.packageId)
                 .is(packageId)
-                .and(fieldName(QModule.module.originModuleId))
+                .and(Module.Fields.originModuleId)
                 .is(originModuleId);
 
         criteria.add(packageIdAndOriginModuleIdCriterion);
@@ -112,8 +109,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     public Flux<Module> findAllByOriginModuleId(
             String originModuleId, List<String> projectionFields, Optional<AclPermission> permissionOptional) {
         List<Criteria> criteria = new ArrayList<>();
-        Criteria originModuleIdCriterion =
-                where(fieldName(QModule.module.originModuleId)).is(originModuleId);
+        Criteria originModuleIdCriterion = where(Module.Fields.originModuleId).is(originModuleId);
 
         criteria.add(originModuleIdCriterion);
         return queryBuilder()
@@ -126,8 +122,7 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     @Override
     public Flux<Module> findAllByModuleUUID(String moduleUUID, Optional<AclPermission> permission) {
         List<Criteria> criteria = new ArrayList<>();
-        Criteria moduleUUIDCriterion =
-                Criteria.where(fieldName(QModule.module.moduleUUID)).is(moduleUUID);
+        Criteria moduleUUIDCriterion = Criteria.where(Module.Fields.moduleUUID).is(moduleUUID);
         criteria.add(moduleUUIDCriterion);
 
         return queryBuilder()

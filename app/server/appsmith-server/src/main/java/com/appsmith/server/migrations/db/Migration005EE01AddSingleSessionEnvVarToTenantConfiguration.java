@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.db;
 
-import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import io.mongock.api.annotations.ChangeUnit;
@@ -13,7 +12,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.util.Objects;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ENABLE_SINGLE_SESSION_PER_USER;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -31,7 +29,7 @@ public class Migration005EE01AddSingleSessionEnvVarToTenantConfiguration {
     @Execution
     public void addSingleSessionEnvVarToTenantConfiguration() {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         boolean singleSessionPerUserEnabled =

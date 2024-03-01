@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Environment;
-import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.CustomEnvironmentRepositoryCEImpl;
@@ -33,15 +32,15 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
     }
 
     private static Criteria environmentIdCriteria(String environmentId) {
-        return where(fieldName(QEnvironment.environment.id)).is(environmentId);
+        return where(Environment.Fields.id).is(environmentId);
     }
 
     private static Criteria workspaceIdCriteria(String workspaceId) {
-        return where(fieldName(QEnvironment.environment.workspaceId)).is(workspaceId);
+        return where(Environment.Fields.workspaceId).is(workspaceId);
     }
 
     private static Criteria nameCriteria(String name) {
-        return where(fieldName(QEnvironment.environment.name)).is(name);
+        return where(Environment.Fields.name).is(name);
     }
 
     @Override

@@ -12,11 +12,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApiKeyRepository;
 import com.appsmith.server.repositories.UserRepository;
 import jakarta.validation.Validator;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -32,16 +29,13 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
     private final EncryptionService encryptionService;
 
     public ApiKeyServiceImpl(
-            MongoConverter mongoConverter,
             Validator validator,
-            ReactiveMongoTemplate reactiveMongoTemplate,
-            Scheduler scheduler,
             AnalyticsService analyticsService,
             TenantService tenantService,
             ApiKeyRepository repository,
             UserRepository userRepository,
             EncryptionService encryptionService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.tenantService = tenantService;
         this.userRepository = userRepository;
         this.encryptionService = encryptionService;

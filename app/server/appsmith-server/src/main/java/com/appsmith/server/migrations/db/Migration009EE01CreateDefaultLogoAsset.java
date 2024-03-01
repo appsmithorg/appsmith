@@ -1,7 +1,6 @@
 package com.appsmith.server.migrations.db;
 
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.QAsset;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import io.mongock.api.annotations.ChangeUnit;
@@ -42,8 +41,7 @@ public class Migration009EE01CreateDefaultLogoAsset {
         // dependency
         // for default Appsmith logo for email templates.
         Query defaultAppsmithLogoQuery = new Query();
-        defaultAppsmithLogoQuery.addCriteria(
-                Criteria.where(fieldName(QAsset.asset.name)).is(APPSMITH_DEFAULT_LOGO));
+        defaultAppsmithLogoQuery.addCriteria(Criteria.where(Asset.Fields.name).is(APPSMITH_DEFAULT_LOGO));
         Asset defaultLogoAsset = mongoTemplate.findOne(defaultAppsmithLogoQuery, Asset.class);
         if (defaultLogoAsset == null) {
             defaultLogoAsset = createAsset(logoPath);
@@ -56,18 +54,17 @@ public class Migration009EE01CreateDefaultLogoAsset {
         // Attach asset prefix to match the naming conventions for asset urls.
         String defaultLogoSpec = ASSET_PREFIX + defaultLogoAsset.getId();
 
-        String whiteLabelLogoFieldName = fieldName(QTenant.tenant.tenantConfiguration) + "."
-                + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo);
+        String whiteLabelLogoFieldName =
+                Tenant.Fields.tenantConfiguration + "." + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo);
 
         Query query = new Query();
-        query.addCriteria(Criteria.where(fieldName(QTenant.tenant.tenantConfiguration))
+        query.addCriteria(Criteria.where(Tenant.Fields.tenantConfiguration)
                 .exists(true)
                 .andOperator(Criteria.where(whiteLabelLogoFieldName).exists(false)));
 
         Update update = new Update();
         update.set(
-                fieldName(QTenant.tenant.tenantConfiguration) + "."
-                        + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo),
+                Tenant.Fields.tenantConfiguration + "." + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo),
                 defaultLogoSpec);
         // Ideally we expect single update as the multi-tenancy is not available, but this makes sure to provide a
         // fallback for all the tenants once multi-tenancy is introduced

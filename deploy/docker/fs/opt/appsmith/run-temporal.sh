@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 setup_temporal_server(){
   echo "Setting up Temporal Server ..."
@@ -69,17 +69,22 @@ setup_temporal_postgres(){
 }
 
 
-# Check if temporal and temporal_visibility schemas exist in postgres. If not, create them.
-appsmith_db_exists=$(psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname = 'appsmith'")
-temporal_schema_exists=$(psql -U postgres -tAc "SELECT 1 FROM pg_namespace WHERE nspname = 'temporal'")
-temporal_visibility_schema_exists=$(psql -U postgres -tAc "SELECT 1 FROM pg_namespace WHERE nspname = 'temporal_visibility'")
+## Check if temporal and temporal_visibility schemas exist in postgres. If not, create them.
+# appsmith_db_exists=$(psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname = 'appsmith'")
+# temporal_schema_exists=$(psql -U postgres -tAc "SELECT 1 FROM pg_namespace WHERE nspname = 'temporal'")
+# temporal_visibility_schema_exists=$(psql -U postgres -tAc "SELECT 1 FROM pg_namespace WHERE nspname = 'temporal_visibility'")
 
-if [ "$appsmith_db_exists" != "1" ] || [ "$temporal_schema_exists" != "1" ] || [ "$temporal_visibility_schema_exists" != "1" ]; then
-    setup_temporal_postgres
-fi
+#if [ "$appsmith_db_exists" != "1" ] || [ "$temporal_schema_exists" != "1" ] || [ "$temporal_visibility_schema_exists" != "1" ]; then
+ #   setup_temporal_postgres
+#fi
 
 
 # Run this func in parallel process. It will wait for server to start and then run required steps.
 setup_temporal_server &
 
-exec /opt/temporal/temporal-server --env development-postgres start
+# exec /opt/temporal/temporal-server --env development-postgres start
+
+exec /opt/temporal/cli/bin/temporal server start-dev \
+    --log-level error \
+    --db-filename /appsmith-stacks/data/temporal/temporal.db \
+    --headless # disable web ui

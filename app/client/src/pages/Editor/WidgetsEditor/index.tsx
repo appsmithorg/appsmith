@@ -11,6 +11,7 @@ import {
   previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
+import { CANVAS_VIEWPORT } from "../../../constants/componentClassNameConstants";
 import { LayoutSystemTypes } from "../../../layoutSystems/types";
 import { getLayoutSystemType } from "../../../selectors/layoutSystemSelectors";
 import NavigationPreview from "./NavigationPreview";
@@ -217,8 +218,7 @@ function WidgetsEditor() {
 
             <PageViewWrapper
               className={classNames({
-                "relative flex flex-row w-full justify-center overflow-hidden":
-                  true,
+                "relative flex flex-row w-full justify-center": true,
                 "select-none pointer-events-none":
                   isAppSettingsPaneWithNavigationTabOpen,
               })}
@@ -229,6 +229,7 @@ function WidgetsEditor() {
                       NAVIGATION_SETTINGS.ORIENTATION.SIDE && isAppSidebarPinned
                   : false
               }
+              id={CANVAS_VIEWPORT}
               isPreview={isPreviewMode || isProtectedMode}
               isPublished={isPublished}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}

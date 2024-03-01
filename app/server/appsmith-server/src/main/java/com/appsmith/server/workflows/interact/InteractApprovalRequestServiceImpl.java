@@ -2,7 +2,6 @@ package com.appsmith.server.workflows.interact;
 
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.ApprovalRequest;
-import com.appsmith.server.domains.QApprovalRequest;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ApprovalRequestResolutionDTO;
@@ -19,12 +18,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import jakarta.validation.Validator;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
 import java.util.Map;
@@ -34,7 +30,6 @@ import static com.appsmith.server.acl.AclPermission.RESOLVE_APPROVAL_REQUESTS;
 import static com.appsmith.server.constants.ApprovalRequestStatus.RESOLVED;
 import static com.appsmith.server.constants.FieldName.REQUEST;
 import static com.appsmith.server.constants.FieldName.WORKFLOW;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestServiceCECompatibleImpl
@@ -44,16 +39,13 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
     private final WorkflowRepository workflowRepository;
 
     protected InteractApprovalRequestServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ApprovalRequestRepository repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             WorkflowProxyHelper workflowProxyHelper,
             WorkflowRepository workflowRepository) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.workflowProxyHelper = workflowProxyHelper;
         this.workflowRepository = workflowRepository;
@@ -128,12 +120,12 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
     private Update createApprovalRequestResolutionUpdate(
             ApprovalRequestResolutionDTO approvalRequestResolutionDTO, User user) {
         Update updateObj = new Update();
-        String resolutionStatusPath = fieldName(QApprovalRequest.approvalRequest.resolutionStatus);
-        String resolutionReasonPath = fieldName(QApprovalRequest.approvalRequest.resolutionReason);
-        String resolutionPath = fieldName(QApprovalRequest.approvalRequest.resolution);
-        String resolvedAtPath = fieldName(QApprovalRequest.approvalRequest.resolvedAt);
-        String resolvedByPath = fieldName(QApprovalRequest.approvalRequest.resolvedBy);
-        String resolutionMetadataPath = fieldName(QApprovalRequest.approvalRequest.resolutionMetadata);
+        String resolutionStatusPath = ApprovalRequest.Fields.resolutionStatus;
+        String resolutionReasonPath = ApprovalRequest.Fields.resolutionReason;
+        String resolutionPath = ApprovalRequest.Fields.resolution;
+        String resolvedAtPath = ApprovalRequest.Fields.resolvedAt;
+        String resolvedByPath = ApprovalRequest.Fields.resolvedBy;
+        String resolutionMetadataPath = ApprovalRequest.Fields.resolutionMetadata;
 
         ObjectUtils.setIfNotEmpty(updateObj, resolutionStatusPath, RESOLVED);
         ObjectUtils.setIfNotEmpty(updateObj, resolutionReasonPath, approvalRequestResolutionDTO.getResolutionReason());

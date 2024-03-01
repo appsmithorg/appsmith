@@ -42,7 +42,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             MongoTemplate mongoTemplate) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper, mongoTemplate);
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -60,13 +60,13 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     public Flux<NewAction> findAllUncomposedNonJSActionsByApplicationIds(
             List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria =
-                Criteria.where(fieldName(QNewAction.newAction.applicationId)).in(applicationIds);
+                Criteria.where(NewAction.Fields.applicationId).in(applicationIds);
         // Query only the non-JS actions as the JS actions are stored in the actionCollection collection
         Criteria nonJsActionCriteria =
-                Criteria.where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+                Criteria.where(NewAction.Fields.pluginType).ne(PluginType.JS);
 
-        Criteria notComposedCriteria = Criteria.where(fieldName(QNewAction.newAction.rootModuleInstanceId))
-                .exists(false);
+        Criteria notComposedCriteria =
+                Criteria.where(NewAction.Fields.rootModuleInstanceId).exists(false);
 
         return queryBuilder()
                 .criteria(applicationCriteria, nonJsActionCriteria, notComposedCriteria)
@@ -77,7 +77,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     @Override
     public Flux<NewAction> findAllByActionCollectionIdWithoutPermissions(
             List<String> collectionIds, List<String> includeFields) {
-        String actionCollectionCriteriaQueryString = fieldName(QNewAction.newAction.unpublishedAction) + "."
+        String actionCollectionCriteriaQueryString = NewAction.Fields.unpublishedAction + "."
                 + fieldName(QNewAction.newAction.unpublishedAction.collectionId);
         Criteria actionCollectionCriteria =
                 Criteria.where(actionCollectionCriteriaQueryString).in(collectionIds);
@@ -91,12 +91,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     public Flux<NewAction> findAllNonJSActionsByModuleId(String moduleId) {
         List<Criteria> criteria = new ArrayList<>();
 
-        String moduleIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
+        String moduleIdPath =
+                NewAction.Fields.unpublishedAction + "." + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
         Criteria moduleIdCriteria = Criteria.where(moduleIdPath).is(moduleId);
 
-        Criteria nonJsTypeCriteria =
-                where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        Criteria nonJsTypeCriteria = where(NewAction.Fields.pluginType).ne(PluginType.JS);
 
         criteria.add(moduleIdCriteria);
         criteria.add(nonJsTypeCriteria);
@@ -109,19 +108,17 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         String moduleIdPath;
         if (resourceMode == ResourceModes.EDIT) {
-            moduleIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+            moduleIdPath = NewAction.Fields.unpublishedAction + "."
                     + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
         } else {
-            moduleIdPath = fieldName(QNewAction.newAction.publishedAction) + "."
-                    + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
+            moduleIdPath =
+                    NewAction.Fields.publishedAction + "." + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
         }
         Criteria moduleIdCriteria = Criteria.where(moduleIdPath).is(moduleId);
 
-        Criteria nonJsTypeCriteria =
-                where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        Criteria nonJsTypeCriteria = where(NewAction.Fields.pluginType).ne(PluginType.JS);
 
-        Criteria isPublicCriteria =
-                where(fieldName(QNewAction.newAction.isPublic)).is(Boolean.TRUE);
+        Criteria isPublicCriteria = where(NewAction.Fields.isPublic).is(Boolean.TRUE);
 
         criteria.add(moduleIdCriteria);
         criteria.add(nonJsTypeCriteria);
@@ -137,12 +134,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             boolean includeJs) {
         List<Criteria> criteria = new ArrayList<>();
 
-        String moduleInstanceIdPath = fieldName(QNewAction.newAction.moduleInstanceId);
+        String moduleInstanceIdPath = NewAction.Fields.moduleInstanceId;
         Criteria moduleInstanceIdCriteria = Criteria.where(moduleInstanceIdPath).is(rootModuleInstanceId);
 
         if (!includeJs) {
-            Criteria nonJsTypeCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+            Criteria nonJsTypeCriteria = where(NewAction.Fields.pluginType).ne(PluginType.JS);
             criteria.add(nonJsTypeCriteria);
         }
 
@@ -159,24 +155,24 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             String moduleId, AclPermission permission) {
         List<Criteria> criteriaList = new ArrayList<>();
 
-        Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria executeOnLoadCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad))
                 .is(Boolean.TRUE);
         criteriaList.add(executeOnLoadCriteria);
 
-        Criteria setByUserCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria setByUserCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.userSetOnLoad))
                 .is(Boolean.TRUE);
         criteriaList.add(setByUserCriteria);
 
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria pageCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .is(moduleId);
         criteriaList.add(pageCriteria);
 
         // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
         // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+        Criteria deletedCriteria = where(NewAction.Fields.unpublishedAction + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
                 .is(null);
         criteriaList.add(deletedCriteria);
@@ -200,12 +196,10 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             Optional<List<String>> includeFields,
             Boolean includeJs) {
         List<Criteria> criteria = new ArrayList<>();
-        Criteria workflowCriteria =
-                Criteria.where(fieldName(QNewAction.newAction.workflowId)).in(workflowIds);
+        Criteria workflowCriteria = Criteria.where(NewAction.Fields.workflowId).in(workflowIds);
         criteria.add(workflowCriteria);
         if (!includeJs) {
-            Criteria nonJsTypeCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+            Criteria nonJsTypeCriteria = where(NewAction.Fields.pluginType).ne(PluginType.JS);
             criteria.add(nonJsTypeCriteria);
         }
 
@@ -218,12 +212,10 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
     @Override
     public Mono<Void> archiveDeletedUnpublishedActionsForWorkflows(String workflowId, AclPermission aclPermission) {
-        Criteria workflowIdCriteria =
-                where(fieldName(QNewAction.newAction.workflowId)).is(workflowId);
+        Criteria workflowIdCriteria = where(NewAction.Fields.workflowId).is(workflowId);
         String unpublishedDeletedAtFieldName = String.format(
                 "%s.%s",
-                fieldName(QNewAction.newAction.unpublishedAction),
-                fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
+                NewAction.Fields.unpublishedAction, fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
         Criteria deletedFromUnpublishedCriteria =
                 where(unpublishedDeletedAtFieldName).ne(null);
 
@@ -239,8 +231,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
     @Override
     public Mono<Void> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
-        Criteria workflowIdCriteria =
-                where(fieldName(QNewAction.newAction.workflowId)).is(workflowId);
+        Criteria workflowIdCriteria = where(NewAction.Fields.workflowId).is(workflowId);
 
         return copyUnpublishedActionToPublishedActionForActions(aclPermission, workflowIdCriteria);
     }
@@ -248,9 +239,9 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     @Override
     public Flux<NewAction> findPublicActionsByModuleInstanceId(
             String moduleInstanceId, Optional<AclPermission> permission) {
-        Criteria publicActionInModuleInstanceCriteria = Criteria.where(fieldName(QNewAction.newAction.moduleInstanceId))
+        Criteria publicActionInModuleInstanceCriteria = Criteria.where(NewAction.Fields.moduleInstanceId)
                 .is(moduleInstanceId)
-                .and((fieldName(QNewAction.newAction.isPublic)))
+                .and((NewAction.Fields.isPublic))
                 .is(Boolean.TRUE);
 
         return queryBuilder()
@@ -304,13 +295,13 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
-            jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
+            jsInclusionOrExclusionCriteria = where(NewAction.Fields.pluginType).is(PluginType.JS);
         } else {
-            jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+            jsInclusionOrExclusionCriteria = where(NewAction.Fields.pluginType).ne(PluginType.JS);
         }
         criteria.add(jsInclusionOrExclusionCriteria);
+
+        criteria.add(notDeleted());
 
         return queryBuilder()
                 .criteria(criteria)
@@ -328,7 +319,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         List<Criteria> criteriaList = new ArrayList<>();
         String contextIdPath;
         switch (contextType) {
-            case WORKFLOW -> contextIdPath = fieldName(QNewAction.newAction.workflowId);
+            case WORKFLOW -> contextIdPath = NewAction.Fields.workflowId;
             case MODULE -> contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
             default -> contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.moduleId);
         }
@@ -340,7 +331,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         if (!includeJs) {
             Criteria jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+                    where(NewAction.Fields.pluginType).ne(PluginType.JS);
             criteriaList.add(jsInclusionOrExclusionCriteria);
         }
 
@@ -357,7 +348,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         List<Criteria> criteriaList = new ArrayList<>();
         String contextIdPath;
         switch (contextType) {
-            case WORKFLOW -> contextIdPath = fieldName(QNewAction.newAction.workflowId);
+            case WORKFLOW -> contextIdPath = NewAction.Fields.workflowId;
             case MODULE -> contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
             default -> contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.moduleId);
         }
@@ -372,8 +363,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
 
         Criteria jsInclusionOrExclusionCriteria = new Criteria();
         if (!includeJs) {
-            jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+            jsInclusionOrExclusionCriteria = where(NewAction.Fields.pluginType).ne(PluginType.JS);
         }
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
@@ -393,11 +383,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     private Criteria getModuleInstanceNonExistenceCriterion() {
-        return where(fieldName(QNewAction.newAction.rootModuleInstanceId)).exists(false);
+        return where(NewAction.Fields.rootModuleInstanceId).exists(false);
     }
 
     private Criteria getModuleInstanceExistenceCriterion() {
-        return where(fieldName(QNewAction.newAction.rootModuleInstanceId)).exists(true);
+        return where(NewAction.Fields.rootModuleInstanceId).exists(true);
     }
 
     @Override
@@ -464,8 +454,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
                 .is(actionCollectionId);
         String unpublishedDeletedAtFieldName = String.format(
                 "%s.%s",
-                fieldName(QNewAction.newAction.unpublishedAction),
-                fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
+                NewAction.Fields.unpublishedAction, fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
         Criteria deletedFromUnpublishedCriteria =
                 where(unpublishedDeletedAtFieldName).ne(null);
 
@@ -505,8 +494,8 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
                             AggregationOperation matchAggregation = Aggregation.match(collectionIdCriteria);
                             AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
                             AggregationOperation addFieldsOperation = Aggregation.addFields()
-                                    .addField(fieldName(QNewAction.newAction.publishedAction))
-                                    .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
+                                    .addField(NewAction.Fields.publishedAction)
+                                    .withValueOf(Fields.field(NewAction.Fields.unpublishedAction))
                                     .build();
                             Aggregation combinedAggregation = Aggregation.newAggregation(
                                     matchAggregation,

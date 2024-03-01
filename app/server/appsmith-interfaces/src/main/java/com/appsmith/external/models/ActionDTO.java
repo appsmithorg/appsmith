@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.util.Set;
@@ -20,6 +21,7 @@ import java.util.regex.Matcher;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @QueryEmbeddable
+@FieldNameConstants
 public class ActionDTO extends ActionCE_DTO implements Reusable {
     @Transient
     @JsonView(Views.Public.class)
@@ -86,9 +88,21 @@ public class ActionDTO extends ActionCE_DTO implements Reusable {
     @Override
     protected void resetTransientFields() {
         super.resetTransientFields();
+        this.setPackageId(null);
         this.setModuleInstanceId(null);
         this.setRootModuleInstanceId(null);
         this.setIsPublic(null);
         this.setPackageId(null);
     }
+
+    @Override
+    public String calculateContextId() {
+        if (this.getContextType() == null || CreatorContextType.PAGE.equals(this.getContextType())) {
+            return super.calculateContextId();
+        } else {
+            return this.getModuleId();
+        }
+    }
+
+    public static class Fields extends ActionCE_DTO.Fields {}
 }

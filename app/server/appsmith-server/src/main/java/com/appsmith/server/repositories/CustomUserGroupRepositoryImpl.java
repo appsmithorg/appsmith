@@ -3,12 +3,10 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
@@ -48,7 +46,7 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     @Override
     public Flux<UserGroup> findAllByTenantId(
             String tenantId, MultiValueMap<String, String> filters, AclPermission aclPermission) {
-        Criteria criteria = where(fieldName(QUserGroup.userGroup.tenantId)).is(tenantId);
+        Criteria criteria = where(UserGroup.Fields.tenantId).is(tenantId);
         List<Criteria> criteriaListFromFilters = getCriteriaListFromFilters(filters);
         List<Criteria> allCriteria = new ArrayList<>();
         allCriteria.add(criteria);
@@ -58,15 +56,14 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
 
     @Override
     public Flux<UserGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields) {
-        Criteria criteria = where(fieldName(QUserGroup.userGroup.tenantId)).is(tenantId);
+        Criteria criteria = where(UserGroup.Fields.tenantId).is(tenantId);
         return queryBuilder().criteria(criteria).fields(includeFields).all();
     }
 
     @Override
     public Mono<UserGroup> findByIdAndTenantIdithoutPermission(String id, String tenantId) {
-        Criteria idCriteria = where(fieldName(QUserGroup.userGroup.id)).is(id);
-        Criteria tenantIdCriteria =
-                where(fieldName(QUserGroup.userGroup.tenantId)).is(tenantId);
+        Criteria idCriteria = where(UserGroup.Fields.id).is(id);
+        Criteria tenantIdCriteria = where(UserGroup.Fields.tenantId).is(tenantId);
 
         Criteria andCriteria = new Criteria();
         andCriteria.andOperator(idCriteria, tenantIdCriteria, notDeleted());
@@ -78,22 +75,22 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
 
     @Override
     public Flux<UserGroup> findAllByIds(Set<String> ids, AclPermission aclPermission) {
-        Criteria criteria = where(fieldName(QUserGroup.userGroup.id)).in(ids);
+        Criteria criteria = where(UserGroup.Fields.id).in(ids);
         return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     public Flux<UserGroup> findAllByUsersIn(Set<String> userIds, AclPermission aclPermission) {
-        Criteria criteria = where(fieldName(QUserGroup.userGroup.users)).in(userIds);
+        Criteria criteria = where(UserGroup.Fields.users).in(userIds);
         return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     @Override
-    public Mono<UpdateResult> updateById(String id, Update updateObj) {
+    public Mono<Void> updateById(String id, Update updateObj) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         Query query = new Query(Criteria.where("id").is(id));
-        return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
+        return mongoOperations.updateFirst(query, updateObj, this.genericDomain).then();
     }
 
     @Override
@@ -104,8 +101,7 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     @Override
     public Flux<UserGroup> getAllByUsersIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
-        Criteria criteriaUserIdsIn =
-                where(fieldName(QUserGroup.userGroup.users)).in(userIds);
+        Criteria criteriaUserIdsIn = where(UserGroup.Fields.users).in(userIds);
         return queryBuilder()
                 .criteria(criteriaUserIdsIn)
                 .fields(includeFields.orElse(null))
@@ -121,14 +117,14 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
             List<String> filterUserIds,
             Optional<AclPermission> aclPermission) {
         List<Criteria> criteriaList = new ArrayList<>();
-        Sort sortWithEmail = Sort.by(Sort.Direction.ASC, fieldName(QUserGroup.userGroup.name));
+        Sort sortWithEmail = Sort.by(Sort.Direction.ASC, UserGroup.Fields.name);
         // Keeping this a case-insensitive, because provisioning clients require case-insensitive searches on group
         // names.
         if (CollectionUtils.isNotEmpty(groupNames)) {
-            criteriaList.add(where(fieldName(QUserGroup.userGroup.name)).regex(getStringsToRegex(groupNames), "i"));
+            criteriaList.add(where(UserGroup.Fields.name).regex(getStringsToRegex(groupNames), "i"));
         }
         if (!Optional.ofNullable(filterUserIds).isEmpty() && filterUserIds.size() > 0) {
-            criteriaList.add(where(fieldName(QUserGroup.userGroup.users)).in(filterUserIds));
+            criteriaList.add(where(UserGroup.Fields.users).in(filterUserIds));
         }
         Flux<UserGroup> userFlux = queryBuilder()
                 .criteria(criteriaList)
@@ -151,7 +147,7 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     @Override
     public Mono<Long> countAllUserGroupsByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =
-                Criteria.where(fieldName(QUserGroup.userGroup.isProvisioned)).is(isProvisioned);
+                Criteria.where(UserGroup.Fields.isProvisioned).is(isProvisioned);
         return queryBuilder()
                 .criteria(criteriaIsProvisioned)
                 .permission(aclPermission.orElse(null))
@@ -162,7 +158,7 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     public Flux<UserGroup> getAllUserGroupsByIsProvisioned(
             boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =
-                Criteria.where(fieldName(QUserGroup.userGroup.isProvisioned)).is(isProvisioned);
+                Criteria.where(UserGroup.Fields.isProvisioned).is(isProvisioned);
         return queryBuilder()
                 .criteria(criteriaIsProvisioned)
                 .fields(includeFields.orElse(null))
@@ -174,10 +170,10 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     public Mono<Boolean> updateProvisionedUserGroupsPoliciesAndIsProvisionedWithoutPermission(
             Boolean isProvisioned, Set<Policy> policies) {
         Criteria criteriaIsProvisioned =
-                Criteria.where(fieldName(QUserGroup.userGroup.isProvisioned)).is(true);
+                Criteria.where(UserGroup.Fields.isProvisioned).is(true);
         Update updateGroup = new Update();
-        updateGroup.set(fieldName(QUserGroup.userGroup.isProvisioned), isProvisioned);
-        updateGroup.set(fieldName(QUserGroup.userGroup.policies), policies);
+        updateGroup.set(UserGroup.Fields.isProvisioned, isProvisioned);
+        updateGroup.set(UserGroup.Fields.policies, policies);
         return updateByCriteriaWithoutPermission(List.of(criteriaIsProvisioned), updateGroup)
                 .thenReturn(Boolean.TRUE);
     }
@@ -185,7 +181,7 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     @Override
     public Flux<UserGroup> findAllByUsersIn(
             Set<String> userIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
-        Criteria criteria = where(fieldName(QUserGroup.userGroup.users)).in(userIds);
+        Criteria criteria = where(UserGroup.Fields.users).in(userIds);
         return queryBuilder()
                 .criteria(criteria)
                 .fields(includeFields.orElse(null))
@@ -198,11 +194,9 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
         if (StringUtils.isNotEmpty(filters.getFirst(PROVISIONED_FILTER))) {
             String provisionValue = filters.getFirst(PROVISIONED_FILTER).toLowerCase();
             if (provisionValue.equals(Boolean.TRUE.toString())) {
-                criteriaList.add(
-                        where(fieldName(QUserGroup.userGroup.isProvisioned)).is(Boolean.TRUE));
+                criteriaList.add(where(UserGroup.Fields.isProvisioned).is(Boolean.TRUE));
             } else if (provisionValue.equals(Boolean.FALSE.toString())) {
-                criteriaList.add(
-                        where(fieldName(QUserGroup.userGroup.isProvisioned)).is(Boolean.FALSE));
+                criteriaList.add(where(UserGroup.Fields.isProvisioned).is(Boolean.FALSE));
             }
         }
         return criteriaList;

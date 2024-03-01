@@ -8,7 +8,6 @@ import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.QWorkflow;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
@@ -31,21 +30,16 @@ import com.appsmith.server.workflows.helpers.WorkflowHelper;
 import com.appsmith.server.workflows.permission.WorkflowPermission;
 import jakarta.validation.Validator;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl implements CrudWorkflowService {
@@ -63,10 +57,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
     private final LayoutCollectionService layoutCollectionService;
 
     public CrudWorkflowServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             WorkflowRepository repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
@@ -80,7 +71,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
             CrudWorkflowEntityService crudWorkflowEntityService,
             ActionCollectionService actionCollectionService,
             LayoutCollectionService layoutCollectionService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.crudWorkflowEntityService = crudWorkflowEntityService;
         this.newActionService = newActionService;
         this.sessionUserService = sessionUserService;
@@ -215,8 +206,8 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
                     if (updateObj.getUpdateObject().isEmpty()) {
                         return Mono.just(dbWorkflow);
                     }
-                    updateObj.set(fieldName(QWorkflow.workflow.updatedAt), Instant.now());
-                    updateObj.set(fieldName(QWorkflow.workflow.modifiedBy), currentUser.getUsername());
+                    updateObj.set(Workflow.Fields.updatedAt, Instant.now());
+                    updateObj.set(Workflow.Fields.modifiedBy, currentUser.getUsername());
 
                     return repository
                             .update(workflowId, updateObj, workflowPermission.getEditPermission())
@@ -240,9 +231,9 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
 
     private Update createUpdateObjectForSelectiveFields(Workflow workflowUpdate) {
         Update updateObj = new Update();
-        String iconPath = fieldName(QWorkflow.workflow.icon);
-        String colorPath = fieldName(QWorkflow.workflow.color);
-        String namePath = fieldName(QWorkflow.workflow.name);
+        String iconPath = Workflow.Fields.icon;
+        String colorPath = Workflow.Fields.color;
+        String namePath = Workflow.Fields.name;
 
         ObjectUtils.setIfNotEmpty(updateObj, iconPath, workflowUpdate.getIcon());
         ObjectUtils.setIfNotEmpty(updateObj, colorPath, workflowUpdate.getColor());

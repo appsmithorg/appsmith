@@ -3,7 +3,6 @@ package com.appsmith.server.workflows.helpers;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
@@ -37,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -181,7 +179,7 @@ class WorkflowHelperTest {
                 .collectList()
                 .block();
         assertThat(workflowRoles).hasSize(0);
-        Criteria userEmailCriteria = Criteria.where(fieldName(QUser.user.email))
+        Criteria userEmailCriteria = Criteria.where(User.Fields.email)
                 .is(workflowHelper.generateWorkflowBotUserEmail(workflow).toLowerCase());
         Query userEmailQuery = Query.query(userEmailCriteria);
         List<User> userList = reactiveMongoOperations

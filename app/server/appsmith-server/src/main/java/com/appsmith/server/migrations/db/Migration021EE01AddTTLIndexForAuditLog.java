@@ -1,7 +1,6 @@
 package com.appsmith.server.migrations.db;
 
 import com.appsmith.server.domains.AuditLog;
-import com.appsmith.server.domains.QAuditLog;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -12,7 +11,6 @@ import org.springframework.data.mongodb.core.index.Index;
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 @ChangeUnit(order = "021-ee-01", id = "ttl-index-for-audit-log", author = " ")
@@ -30,7 +28,7 @@ public class Migration021EE01AddTTLIndexForAuditLog {
 
     @Execution
     public void createNewTTLIndexCreatedTimeAuditLog() {
-        String createdAtField = fieldName(QAuditLog.auditLog.createdAt);
+        String createdAtField = AuditLog.Fields.createdAt;
         long expireAfterSeconds = 31536000; // One year in seconds (365 days * 24 hours * 60 minutes * 60 seconds)
 
         // drop index if it exists

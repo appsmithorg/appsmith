@@ -21,6 +21,7 @@ import { getIsCreatingPackage } from "@appsmith/selectors/packageSelectors";
 import {
   IMPORT_BTN_LABEL,
   NEW_APP,
+  NEW_APP_FROM_TEMPLATE,
   NEW_PACKAGE,
   NEW_WORKFLOW,
   WORKSPACE_ACTION_BUTTON,
@@ -36,6 +37,8 @@ import {
   getIsCreatingWorkflow,
   getShowWorkflowFeature,
 } from "@appsmith/selectors/workflowSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const StyledCreateNewButton = styled(Button)`
   margin-left: var(--ads-spaces-3);
@@ -46,6 +49,7 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
     enableImportExport,
     isMobile,
     onCreateNewApplication,
+    onStartFromTemplate,
     setSelectedWorkspaceIdForImportApplication,
     workspace,
     workspaceId,
@@ -63,6 +67,9 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
   );
   const isCreatingWorkflow = useSelector((state) =>
     getIsCreatingWorkflow(state, workspaceId),
+  );
+  const isCreateAppFromTemplatesEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_create_app_from_templates_enabled,
   );
 
   const openActionMenu = useCallback(() => {
@@ -159,6 +166,16 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
           </MenuItem>
         )}
         <Divider className="!block mb-[2px]" />
+        {isCreateAppFromTemplatesEnabled && (
+          <MenuItem
+            data-testid="t--workspace-action-start-from-template"
+            disabled={!hasCreateNewApplicationPermission}
+            onSelect={() => onStartFromTemplate(workspaceId)}
+            startIcon="layout-2-line"
+          >
+            {createMessage(NEW_APP_FROM_TEMPLATE)}
+          </MenuItem>
+        )}
         {enableImportExport && hasCreateNewApplicationPermission && (
           <MenuItem
             data-testid="t--workspace-import-app"

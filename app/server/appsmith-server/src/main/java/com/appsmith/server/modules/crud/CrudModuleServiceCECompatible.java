@@ -14,7 +14,7 @@ import java.util.Set;
 public interface CrudModuleServiceCECompatible extends BaseModuleServiceCECompatible {
     Mono<ModuleDTO> createModule(ModuleDTO moduleDTO);
 
-    Mono<ModuleDTO> updateModule(ModuleDTO moduleResource, String moduleId);
+    Mono<ModuleDTO> updateModule(String moduleId, ModuleDTO moduleResource);
 
     Flux<String> findPackageIdsByModuleIds(Set<String> ids, Optional<AclPermission> permission);
 

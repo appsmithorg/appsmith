@@ -3,7 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.ce.CustomPermissionGroupRepositoryCEImpl;
@@ -38,20 +37,19 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
 
     @Override
     public Flux<PermissionGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields) {
-        Criteria criteria =
-                where(fieldName(QPermissionGroup.permissionGroup.tenantId)).is(tenantId);
+        Criteria criteria = where(PermissionGroup.Fields.tenantId).is(tenantId);
         return queryBuilder().criteria(criteria).fields(includeFields).all();
     }
 
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(
             String userGroupId, String workspaceId, AclPermission permission) {
-        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds))
-                .in(userGroupId);
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .is(workspaceId);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .is(Workspace.class.getSimpleName());
+        Criteria assignedToUserIdCriteria =
+                where(PermissionGroup.Fields.assignedToGroupIds).in(userGroupId);
+        Criteria defaultWorkspaceIdCriteria =
+                where(PermissionGroup.Fields.defaultDomainId).is(workspaceId);
+        Criteria defaultDomainTypeCriteria =
+                where(PermissionGroup.Fields.defaultDomainType).is(Workspace.class.getSimpleName());
         return queryBuilder()
                 .criteria(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
@@ -60,8 +58,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
 
     @Override
     public Flux<PermissionGroup> findAllById(Set<String> ids, AclPermission permission) {
-        Criteria criteria =
-                where(fieldName(QPermissionGroup.permissionGroup.id)).in(ids);
+        Criteria criteria = where(PermissionGroup.Fields.id).in(ids);
         return queryBuilder()
                 .criteria(criteria)
                 .fields((List<String>) null)
@@ -71,8 +68,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
 
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission permission) {
-        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                .in(userIds);
+        Criteria criteria = where(PermissionGroup.Fields.assignedToUserIds).in(userIds);
         return queryBuilder()
                 .criteria(criteria)
                 .fields((List<String>) null)
@@ -86,8 +82,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     }
 
     public Flux<PermissionGroup> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
-        Criteria criteria =
-                where(fieldName(QPermissionGroup.permissionGroup.id)).in(ids);
+        Criteria criteria = where(PermissionGroup.Fields.id).in(ids);
         return queryBuilder().criteria(criteria).fields(includeFields).all();
     }
 
@@ -113,10 +108,10 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     @Override
     public Flux<PermissionGroup> findByDefaultApplicationIds(
             Set<String> applicationIds, Optional<AclPermission> permission) {
-        Criteria defaultApplicationIdsCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .in(applicationIds);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .is(Application.class.getSimpleName());
+        Criteria defaultApplicationIdsCriteria =
+                where(PermissionGroup.Fields.defaultDomainId).in(applicationIds);
+        Criteria defaultDomainTypeCriteria =
+                where(PermissionGroup.Fields.defaultDomainType).is(Application.class.getSimpleName());
         return queryBuilder()
                 .criteria(defaultApplicationIdsCriteria, defaultDomainTypeCriteria)
                 .permission(permission.orElse(null))
@@ -126,12 +121,12 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultDomainIdAndDefaultDomainType(
             String userId, String defaultDomainId, String defaultDomainType, Optional<AclPermission> aclPermission) {
-        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                .in(userId);
-        Criteria defaultApplicationIdsCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .is(defaultDomainId);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .is(defaultDomainType);
+        Criteria assignedToUserIdCriteria =
+                where(PermissionGroup.Fields.assignedToUserIds).in(userId);
+        Criteria defaultApplicationIdsCriteria =
+                where(PermissionGroup.Fields.defaultDomainId).is(defaultDomainId);
+        Criteria defaultDomainTypeCriteria =
+                where(PermissionGroup.Fields.defaultDomainType).is(defaultDomainType);
         return queryBuilder()
                 .criteria(assignedToUserIdCriteria, defaultApplicationIdsCriteria, defaultDomainTypeCriteria)
                 .permission(aclPermission.orElse(null))
@@ -141,12 +136,12 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     @Override
     public Flux<PermissionGroup> findAllByAssignedToGroupIdAndDefaultDomainIdAndDefaultDomainType(
             String groupId, String defaultDomainId, String defaultDomainType, Optional<AclPermission> aclPermission) {
-        Criteria assignedToGroupIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds))
-                .in(groupId);
-        Criteria defaultApplicationIdsCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .is(defaultDomainId);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .is(defaultDomainType);
+        Criteria assignedToGroupIdCriteria =
+                where(PermissionGroup.Fields.assignedToGroupIds).in(groupId);
+        Criteria defaultApplicationIdsCriteria =
+                where(PermissionGroup.Fields.defaultDomainId).is(defaultDomainId);
+        Criteria defaultDomainTypeCriteria =
+                where(PermissionGroup.Fields.defaultDomainType).is(defaultDomainType);
         return queryBuilder()
                 .criteria(assignedToGroupIdCriteria, defaultApplicationIdsCriteria, defaultDomainTypeCriteria)
                 .permission(aclPermission.orElse(null))
@@ -156,8 +151,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIds(
             Set<String> userIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission) {
-        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                .in(userIds);
+        Criteria criteria = where(PermissionGroup.Fields.assignedToUserIds).in(userIds);
         return queryBuilder()
                 .criteria(criteria)
                 .fields(listIncludeFields.orElse(null))
@@ -168,8 +162,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     @Override
     public Flux<PermissionGroup> findAllByAssignedToGroupIds(
             Set<String> groupIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission) {
-        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds))
-                .in(groupIds);
+        Criteria criteria = where(PermissionGroup.Fields.assignedToGroupIds).in(groupIds);
         return queryBuilder()
                 .criteria(criteria)
                 .fields(listIncludeFields.orElse(null))

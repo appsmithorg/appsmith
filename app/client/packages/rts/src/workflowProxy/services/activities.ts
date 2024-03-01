@@ -1,5 +1,5 @@
 import { RTS_BASE_API_URL } from "@constants/routes";
-import type { ExecuteInboxCreationRequest as InboxCreationRequest } from "@workflowProxy/constants/types";
+import type { WorkflowRequestCreationPayload } from "@workflowProxy/constants/types";
 import {
   EXECUTE_ENDPOINT,
   ASSIGN_REQUEST_ENDPOINT,
@@ -80,12 +80,9 @@ export async function createWorkflowRequest(
     Accept: "application/json",
   };
   // @ts-expect-error: userParams is has the pending approval details
-  const body: InboxCreationRequest = {
+  const body: WorkflowRequestCreationPayload = {
     workflowId: appsmithWorkflowId,
     runId: workflowRunId,
-    allowedResolutions: !!userParams.allowedResolutions
-      ? userParams.allowedResolutions
-      : ["Approve", "Reject"],
     ...userParams,
   };
   return await fetch(`${RTS_BASE_API_URL}${ASSIGN_REQUEST_ENDPOINT}`, {

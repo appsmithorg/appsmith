@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.QUserApiKey;
 import com.appsmith.server.domains.UserApiKey;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -18,8 +17,7 @@ public class CustomApiKeyRepositoryImpl extends BaseAppsmithRepositoryImpl<UserA
 
     @Override
     public Flux<UserApiKey> getByUserIdWithoutPermission(String userId) {
-        Criteria criteriaUserId =
-                Criteria.where(fieldName(QUserApiKey.userApiKey.userId)).is(userId);
+        Criteria criteriaUserId = Criteria.where(UserApiKey.Fields.userId).is(userId);
         return queryBuilder().criteria(criteriaUserId).all();
     }
 }

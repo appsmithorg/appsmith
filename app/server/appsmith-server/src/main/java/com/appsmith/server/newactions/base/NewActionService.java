@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionViewDTO;
@@ -17,6 +18,8 @@ import java.util.Optional;
 
 public interface NewActionService extends NewActionServiceCE {
     Mono<NewAction> sendNewActionAnalyticsEvent(AnalyticEventDTO analyticEventDTO, String origin);
+
+    Flux<NewAction> findAllByPackageIdAndViewMode(String packageId, Boolean viewMode);
 
     Mono<List<NewAction>> archiveActionsByModuleId(String moduleId);
 
@@ -57,4 +60,6 @@ public interface NewActionService extends NewActionServiceCE {
             boolean includeJs);
 
     void generateAndSetActionPolicies(ModuleInstance moduleInstance, NewAction action);
+
+    void generateAndSetActionPolicies(Module module, NewAction newAction);
 }

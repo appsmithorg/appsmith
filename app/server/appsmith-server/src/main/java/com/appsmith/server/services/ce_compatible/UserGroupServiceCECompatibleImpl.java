@@ -15,13 +15,10 @@ import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.List;
 
@@ -29,13 +26,8 @@ import java.util.List;
 public class UserGroupServiceCECompatibleImpl extends BaseService<UserGroupRepository, UserGroup, String>
         implements UserGroupServiceCECompatible {
     public UserGroupServiceCECompatibleImpl(
-            Scheduler scheduler,
-            Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
-            UserGroupRepository repository,
-            AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+            Validator validator, UserGroupRepository repository, AnalyticsService analyticsService) {
+        super(validator, repository, analyticsService);
     }
 
     @Override

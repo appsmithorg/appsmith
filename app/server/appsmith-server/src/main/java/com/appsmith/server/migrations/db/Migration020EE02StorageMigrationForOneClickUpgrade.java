@@ -2,8 +2,6 @@ package com.appsmith.server.migrations.db;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.QDatasource;
-import com.appsmith.external.models.QDatasourceStorage;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.migrations.CompatibilityUtils;
 import com.appsmith.server.migrations.solutions.DatasourceStorageMigrationSolution;
@@ -23,7 +21,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.migrations.solutions.DatasourceStorageMigrationSolution.newerCheckForDeletedCriteria;
 import static com.appsmith.server.migrations.solutions.DatasourceStorageMigrationSolution.olderCheckForDeletedCriteria;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -100,12 +97,8 @@ public class Migration020EE02StorageMigrationForOneClickUpgrade {
             try {
                 mongoTemplate.updateFirst(
                         new Query()
-                                .addCriteria(where(fieldName(QDatasourceStorage.datasourceStorage.id))
-                                        .is(datasourceStorage.getId())),
-                        new Update()
-                                .set(
-                                        fieldName(QDatasourceStorage.datasourceStorage.environmentId),
-                                        defaultEnvironmentId),
+                                .addCriteria(where(DatasourceStorage.Fields.id).is(datasourceStorage.getId())),
+                        new Update().set(DatasourceStorage.Fields.environmentId, defaultEnvironmentId),
                         DatasourceStorage.class);
             } catch (DuplicateKeyException duplicateKeyException) {
                 log.warn(
@@ -125,8 +118,7 @@ public class Migration020EE02StorageMigrationForOneClickUpgrade {
                         olderCheckForDeletedCriteria(),
                         // New check for deleted
                         newerCheckForDeletedCriteria(),
-                        where(fieldName(QDatasourceStorage.datasourceStorage.environmentId))
-                                .is(unusedEnvKey));
+                        where(DatasourceStorage.Fields.environmentId).is(unusedEnvKey));
     }
 
     public Criteria datasourceWorkspaceIdCriteria() {
@@ -136,17 +128,15 @@ public class Migration020EE02StorageMigrationForOneClickUpgrade {
                         olderCheckForDeletedCriteria(),
                         // New check for deleted
                         newerCheckForDeletedCriteria(),
-                        where(fieldName(QDatasource.datasource.workspaceId)).exists(true),
-                        where(fieldName(QDatasource.datasource.workspaceId)).ne(null));
+                        where(Datasource.Fields.workspaceId).exists(true),
+                        where(Datasource.Fields.workspaceId).ne(null));
     }
 
     public ConcurrentMap<String, String> getDatasourceIdToWorkspaceIdMap(MongoTemplate mongoTemplate) {
 
         final Query datasourceQuery = query(datasourceWorkspaceIdCriteria()).cursorBatchSize(1024);
 
-        datasourceQuery
-                .fields()
-                .include(fieldName(QDatasource.datasource.id), fieldName(QDatasource.datasource.workspaceId));
+        datasourceQuery.fields().include(Datasource.Fields.id, Datasource.Fields.workspaceId);
 
         final Query performanceOptimizedDatasourceQuery =
                 com.appsmith.server.migrations.utils.CompatibilityUtils.optimizeQueryForNoCursorTimeout(

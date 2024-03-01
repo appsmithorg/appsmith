@@ -6,7 +6,6 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -289,21 +288,20 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         // Fetch published action collections
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriterion = where(completeFieldName(QActionCollection.actionCollection.publishedCollection.pageId))
-                    .is(pageId);
+            pageCriterion =
+                    where(ActionCollection.Fields.publishedCollection_pageId).is(pageId);
             criteria.add(pageCriterion);
         }
         // Fetch unpublished action collections
         else {
-            pageCriterion = where(completeFieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
-                    .is(pageId);
+            pageCriterion =
+                    where(ActionCollection.Fields.unpublishedCollection_pageId).is(pageId);
             criteria.add(pageCriterion);
 
             // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
             // ActionCollection object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(
-                            completeFieldName(QActionCollection.actionCollection.unpublishedCollection.deletedAt))
+            Criteria deletedCriteria = where(ActionCollection.Fields.unpublishedCollection_deletedAt)
                     .is(null);
             criteria.add(deletedCriteria);
         }

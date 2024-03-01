@@ -7,8 +7,6 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QUser;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -50,7 +48,6 @@ import static com.appsmith.server.constants.FieldName.PROVISIONING_STATUS;
 import static com.appsmith.server.constants.FieldName.REMOVED;
 import static com.appsmith.server.constants.FieldName.RETAINED;
 import static com.appsmith.server.enums.ProvisionStatus.INACTIVE;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Component
 @AllArgsConstructor
@@ -237,9 +234,8 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
     @NotNull protected Mono<Boolean> deleteAllProvisionedUsersAndGroupsAndUpdateAllAssociatedRoles() {
         // We are interested only in the policies and email of the provisioned User resources.
         // We are interested only in the policies and users of the provisioned UserGroup resources.
-        List<String> includeFieldsUsers = List.of(fieldName(QUser.user.policies), fieldName(QUser.user.email));
-        List<String> includeFieldsGroups =
-                List.of(fieldName(QUser.user.policies), fieldName(QUserGroup.userGroup.users));
+        List<String> includeFieldsUsers = List.of(User.Fields.policies, User.Fields.email);
+        List<String> includeFieldsGroups = List.of(User.Fields.policies, UserGroup.Fields.users);
         // find all User with isProvisioned == true
         Mono<List<User>> provisionedUsersMono = userRepository
                 .getAllUsersByIsProvisioned(Boolean.TRUE, Optional.of(includeFieldsUsers), Optional.empty())
@@ -291,7 +287,7 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
     }
 
     protected Mono<Boolean> updateAllProvisionedUsersDeleteAndManagePolicyWithSuperAdminAndUserManagementRole() {
-        List<String> includeFieldsUsers = List.of(fieldName(QUser.user.policies));
+        List<String> includeFieldsUsers = List.of(User.Fields.policies);
         Flux<User> provisionedUserFlux = userRepository
                 .getAllUsersByIsProvisioned(Boolean.TRUE, Optional.of(includeFieldsUsers), Optional.empty())
                 .cache();

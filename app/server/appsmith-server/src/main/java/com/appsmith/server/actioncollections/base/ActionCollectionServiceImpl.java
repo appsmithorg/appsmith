@@ -9,9 +9,9 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -27,14 +27,11 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +40,6 @@ import java.util.Set;
 
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 @Slf4j
@@ -55,10 +51,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     private final PolicyGenerator policyGenerator;
 
     public ActionCollectionServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ActionCollectionRepository repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
@@ -70,10 +63,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             DefaultResourcesService<ActionCollection> defaultResourcesService,
             ModuleMetadataService moduleMetadataService) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 newActionService,
@@ -139,9 +129,9 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     public Mono<List<ActionCollection>> archiveActionCollectionByWorkflowId(
             String workflowId, Optional<AclPermission> permission) {
         List<String> includeFields = List.of(
-                fieldName(QActionCollection.actionCollection.id),
-                fieldName(QActionCollection.actionCollection.publishedCollection),
-                fieldName(QActionCollection.actionCollection.unpublishedCollection));
+                ActionCollection.Fields.id,
+                ActionCollection.Fields.publishedCollection,
+                ActionCollection.Fields.unpublishedCollection);
         return repository
                 .findByWorkflowId(workflowId, permission, Optional.of(includeFields))
                 .flatMap(actionCollection -> {
@@ -226,6 +216,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
     @Override
     public Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection) {
         return super.generateActionCollectionViewDTO(actionCollection).map(actionCollectionViewDTO -> {
+            actionCollectionViewDTO.setPackageId(actionCollection.getPackageId());
             if (StringUtils.isNotBlank(actionCollection.getWorkflowId())) {
                 actionCollectionViewDTO.setWorkflowId(actionCollection.getWorkflowId());
             }
@@ -276,6 +267,13 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
         }
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
                 moduleInstance.getPolicies(), ModuleInstance.class, NewAction.class);
+        actionCollection.setPolicies(documentPolicies);
+    }
+
+    @Override
+    public void generateAndSetPolicies(Module module, ActionCollection actionCollection) {
+        Set<Policy> documentPolicies =
+                policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
         actionCollection.setPolicies(documentPolicies);
     }
 

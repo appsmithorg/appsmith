@@ -3,8 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.caching.annotations.Cache;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.userAcl;
 
@@ -77,9 +74,8 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
 
     private Mono<Set<String>> getAllPermissionGroupsAssignedToUser(User user) {
 
-        Criteria assignedToUserIdsCriteria = Criteria.where(
-                        fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                .is(user.getId());
+        Criteria assignedToUserIdsCriteria =
+                Criteria.where(PermissionGroup.Fields.assignedToUserIds).is(user.getId());
         Criteria notDeletedCriteria = notDeleted();
 
         Criteria andCriteria = new Criteria();
@@ -89,7 +85,7 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
         query.addCriteria(andCriteria);
 
         // Since we are only interested in the permission group ids, we can project only the id field.
-        query.fields().include(fieldName(QPermissionGroup.permissionGroup.id));
+        query.fields().include(PermissionGroup.Fields.id);
 
         return mongoOperations
                 .find(query, PermissionGroup.class)
@@ -99,21 +95,19 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
 
     private Mono<Set<String>> getPermissionGroupsOfGroupsForUser(String userId) {
 
-        Criteria userCriteria =
-                Criteria.where(fieldName(QUserGroup.userGroup.users)).is(userId);
+        Criteria userCriteria = Criteria.where(UserGroup.Fields.users).is(userId);
 
         Query userGroupQuery = new Query();
         userGroupQuery.addCriteria(userCriteria);
         // Since we are only interested in id, don't fetch anything else
-        userGroupQuery.fields().include(fieldName(QUserGroup.userGroup.id));
+        userGroupQuery.fields().include(UserGroup.Fields.id);
 
         return mongoOperations
                 .find(userGroupQuery, UserGroup.class)
                 .map(UserGroup::getId)
                 .collectList()
                 .flatMap(userGroups -> {
-                    Criteria assignedToGroupIdsCriteria = Criteria.where(
-                                    fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds))
+                    Criteria assignedToGroupIdsCriteria = Criteria.where(PermissionGroup.Fields.assignedToGroupIds)
                             .in(userGroups);
                     Criteria notDeletedCriteria = notDeleted();
 
@@ -123,7 +117,7 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
                     Query permissionGroupQuery = new Query();
                     permissionGroupQuery.addCriteria(andCriteria);
                     // Since we are only interested in id, don't fetch anything else
-                    permissionGroupQuery.fields().include(fieldName(QPermissionGroup.permissionGroup.id));
+                    permissionGroupQuery.fields().include(PermissionGroup.Fields.id);
 
                     return mongoOperations
                             .find(permissionGroupQuery, PermissionGroup.class)

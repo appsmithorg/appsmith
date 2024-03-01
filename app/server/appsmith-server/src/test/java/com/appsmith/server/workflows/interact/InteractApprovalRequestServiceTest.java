@@ -649,13 +649,13 @@ public class InteractApprovalRequestServiceTest {
     private ApprovalRequestResponseDTO createTestApprovalRequest(
             String approvalRequestTitle,
             String approvalRequestMessage,
-            Set<String> allowedResolutions,
+            Set<String> resolutions,
             User user,
             UserGroupDTO userGroupDTO) {
         ApprovalRequestCreationDTO approvalRequestCreationDTO = new ApprovalRequestCreationDTO();
         approvalRequestCreationDTO.setRequestName(approvalRequestTitle);
         approvalRequestCreationDTO.setMessage(approvalRequestMessage);
-        approvalRequestCreationDTO.setAllowedResolutions(allowedResolutions);
+        approvalRequestCreationDTO.setResolutions(resolutions);
         approvalRequestCreationDTO.setWorkflowId(workflow.getId());
         approvalRequestCreationDTO.setRunId("random-run-id");
         if (Objects.nonNull(user)) {

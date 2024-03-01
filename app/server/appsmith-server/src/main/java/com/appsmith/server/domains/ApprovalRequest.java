@@ -8,6 +8,7 @@ import com.querydsl.core.annotations.QueryEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -19,6 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Document
 @QueryEntity
+@FieldNameConstants
 public class ApprovalRequest extends BaseDomain {
     @JsonView(Views.Public.class)
     String requestName;
@@ -60,4 +62,6 @@ public class ApprovalRequest extends BaseDomain {
     public Instant getCreationTime() {
         return this.createdAt;
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

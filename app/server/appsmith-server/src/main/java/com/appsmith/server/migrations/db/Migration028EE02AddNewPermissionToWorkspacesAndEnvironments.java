@@ -3,13 +3,9 @@ package com.appsmith.server.migrations.db;
 import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.migrations.CompatibilityUtils;
@@ -30,7 +26,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.migrations.db.Migration028EE01AddMigrationFlagForCustomEnvironment.CUSTOM_ENVIRONMENT_MIGRATION_FLAG;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -49,9 +44,9 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
 
     private final MongoTemplate mongoTemplate;
-    private static final String POLICIES = fieldName(QWorkspace.workspace.policies);
-    private static final String ID = fieldName(QWorkspace.workspace.id);
-    private static final String DEFAULT_PERMISSION_GROUPS = fieldName(QWorkspace.workspace.defaultPermissionGroups);
+    private static final String POLICIES = Workspace.Fields.policies;
+    private static final String ID = Workspace.Fields.id;
+    private static final String DEFAULT_PERMISSION_GROUPS = Workspace.Fields.defaultPermissionGroups;
     private final Map<String, Set<String>> workspaceIdToAppShareDeveloperPermissionGroupIds = new HashMap<>();
     private Map<String, Set<String>> workspaceToPermissionGroupIdMap = new HashMap<>();
 
@@ -96,8 +91,7 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
                     defaultPermissionGroupsSet.stream().toList();
 
             List<PermissionGroup> permissionGroups = mongoTemplate.find(
-                    query(where(fieldName(QPermissionGroup.permissionGroup.id)).in(defaultPermissionGroupIds)),
-                    PermissionGroup.class);
+                    query(where(PermissionGroup.Fields.id).in(defaultPermissionGroupIds)), PermissionGroup.class);
 
             if (CollectionUtils.isNullOrEmpty(permissionGroups)) {
                 log.debug(
@@ -169,8 +163,8 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
                                 workspaceExecuteEnvironmentsPolicy));
             }
 
-            Query workspaceUpdateQuery = new Query()
-                    .addCriteria(where(fieldName(QWorkspace.workspace.id)).is(dbWorkspace.getId()));
+            Query workspaceUpdateQuery =
+                    new Query().addCriteria(where(Workspace.Fields.id).is(dbWorkspace.getId()));
             Update workspaceUpdate =
                     new Update().set(POLICIES, dbWorkspace.getPolicies()).unset(CUSTOM_ENVIRONMENT_MIGRATION_FLAG);
             mongoTemplate.updateFirst(workspaceUpdateQuery, workspaceUpdate, Workspace.class);
@@ -226,8 +220,7 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
                         dbEnvironment.getPolicies().addAll(Set.of(manageEnvironmentsPolicy, deleteEnvironmentsPolicy));
 
                         Query environmentQuery = new Query()
-                                .addCriteria(where(fieldName(QEnvironment.environment.id))
-                                        .is(dbEnvironment.getId()));
+                                .addCriteria(where(Environment.Fields.id).is(dbEnvironment.getId()));
                         Update environmentUpdate = new Update()
                                 .set(POLICIES, dbEnvironment.getPolicies())
                                 .unset(CUSTOM_ENVIRONMENT_MIGRATION_FLAG);
@@ -241,7 +234,7 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
     }
 
     private static Criteria getEnvironmentCriteria(String workspaceId) {
-        return Criteria.where(fieldName(QEnvironment.environment.workspaceId)).is(workspaceId);
+        return Criteria.where(Environment.Fields.workspaceId).is(workspaceId);
     }
 
     private static Policy getWorkspaceCreateEnvironmentPolicy(Set<String> adminAndDeveloperPermissionGroupId) {
@@ -321,16 +314,12 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
         Criteria appLevelPermissionGroupsCriteria = new Criteria()
                 .andOperator(
                         notDeleted(),
-                        Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                                .is("Application"));
+                        Criteria.where(PermissionGroup.Fields.defaultDomainType).is("Application"));
 
         Query appLevelPermissionGroupsQuery = new Query().addCriteria(appLevelPermissionGroupsCriteria);
         appLevelPermissionGroupsQuery
                 .fields()
-                .include(
-                        ID,
-                        fieldName(QPermissionGroup.permissionGroup.name),
-                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId));
+                .include(ID, PermissionGroup.Fields.name, PermissionGroup.Fields.defaultDomainId);
 
         List<PermissionGroup> appLevelPermissionGroups =
                 mongoTemplate.find(appLevelPermissionGroupsQuery, PermissionGroup.class);
@@ -370,9 +359,8 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
                 .addCriteria(new Criteria()
                         .andOperator(
                                 notDeleted(),
-                                Criteria.where(fieldName(QApplication.application.id))
-                                        .in(appIdToPermissionGroupIdsMap.keySet())));
-        fetchApplicationWorkspaceIdsQuery.fields().include(fieldName(QApplication.application.workspaceId));
+                                Criteria.where(Application.Fields.id).in(appIdToPermissionGroupIdsMap.keySet())));
+        fetchApplicationWorkspaceIdsQuery.fields().include(Application.Fields.workspaceId);
 
         final Query performanceOptimizedApplicationQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, fetchApplicationWorkspaceIdsQuery, Application.class);

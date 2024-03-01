@@ -1,7 +1,6 @@
 package com.appsmith.server.migrations.db;
 
 import com.appsmith.server.domains.License;
-import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -12,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.StringUtils;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -30,7 +28,7 @@ public class Migration021EE04UpdateLicensePlanForDefaultTenant {
     @Execution
     public void updateLicensePlanForTenant() {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is(DEFAULT));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is(DEFAULT));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
         if (defaultTenant == null) {
             log.debug("Unable to find default tenant");

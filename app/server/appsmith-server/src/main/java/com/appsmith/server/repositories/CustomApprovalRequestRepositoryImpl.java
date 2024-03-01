@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ApprovalRequest;
-import com.appsmith.server.domains.QApprovalRequest;
 import com.appsmith.server.dtos.PagedDomain;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,8 +52,7 @@ public class CustomApprovalRequestRepositoryImpl extends BaseAppsmithRepositoryI
             startIndex = NO_SKIP;
         }
         List<Criteria> criteriaList = new ArrayList<>(getCriteriaListFromFilters(filters));
-        Sort sort =
-                sortWith.orElse(Sort.by(Sort.Direction.DESC, fieldName(QApprovalRequest.approvalRequest.createdAt)));
+        Sort sort = sortWith.orElse(Sort.by(Sort.Direction.DESC, ApprovalRequest.Fields.createdAt));
         Mono<Long> countMono = queryBuilder()
                 .criteria(criteriaList)
                 .permission(aclPermission.orElse(null))
@@ -79,32 +77,32 @@ public class CustomApprovalRequestRepositoryImpl extends BaseAppsmithRepositoryI
         if (MapUtils.isNotEmpty(filters)) {
             if (filters.containsKey(STATUS)) {
                 List<String> approvalRequestStatus = filters.get(STATUS);
-                criteriaList.add(Criteria.where(fieldName(QApprovalRequest.approvalRequest.resolutionStatus))
-                        .in(approvalRequestStatus));
+                criteriaList.add(
+                        Criteria.where(ApprovalRequest.Fields.resolutionStatus).in(approvalRequestStatus));
             }
 
             if (filters.containsKey(RESOLUTION)) {
                 List<String> approvalRequestStatus = filters.get(RESOLUTION);
-                criteriaList.add(Criteria.where(fieldName(QApprovalRequest.approvalRequest.resolution))
-                        .in(approvalRequestStatus));
+                criteriaList.add(
+                        Criteria.where(ApprovalRequest.Fields.resolution).in(approvalRequestStatus));
             }
 
             if (filters.containsKey(RESOLVED_BY)) {
                 List<String> approvalRequestStatus = filters.get(RESOLVED_BY);
-                criteriaList.add(Criteria.where(fieldName(QApprovalRequest.approvalRequest.resolvedBy))
-                        .in(approvalRequestStatus));
+                criteriaList.add(
+                        Criteria.where(ApprovalRequest.Fields.resolvedBy).in(approvalRequestStatus));
             }
 
             if (filters.containsKey(WORKFLOW_ID)) {
                 List<String> approvalRequestsForWorkflowId = filters.get(WORKFLOW_ID);
-                criteriaList.add(Criteria.where(fieldName(QApprovalRequest.approvalRequest.workflowId))
-                        .in(approvalRequestsForWorkflowId));
+                criteriaList.add(
+                        Criteria.where(ApprovalRequest.Fields.workflowId).in(approvalRequestsForWorkflowId));
             }
 
             if (filters.containsKey(REQUEST_NAME)) {
                 List<String> approvalRequestsForRequestName = filters.get(REQUEST_NAME);
-                criteriaList.add(Criteria.where(fieldName(QApprovalRequest.approvalRequest.requestName))
-                        .in(approvalRequestsForRequestName));
+                criteriaList.add(
+                        Criteria.where(ApprovalRequest.Fields.requestName).in(approvalRequestsForRequestName));
             }
         }
         return criteriaList;

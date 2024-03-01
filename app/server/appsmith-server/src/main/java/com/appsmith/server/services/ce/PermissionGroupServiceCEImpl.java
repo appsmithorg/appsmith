@@ -23,13 +23,10 @@ import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -57,10 +54,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     private PermissionGroup publicPermissionGroup = null;
 
     public PermissionGroupServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             PermissionGroupRepository repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
@@ -70,7 +64,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
             ConfigRepository configRepository,
             PermissionGroupPermission permissionGroupPermission) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.userRepository = userRepository;

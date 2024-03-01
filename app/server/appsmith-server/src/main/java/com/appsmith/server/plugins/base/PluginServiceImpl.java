@@ -17,15 +17,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginManager;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,10 +40,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
     private final Set<String> oosPluginsPackageNames = Set.of("saas-plugin", "google-sheets-plugin");
 
     public PluginServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             PluginRepository repository,
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
@@ -56,10 +50,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
             ObjectMapper objectMapper,
             AirgapInstanceConfig airgapInstanceConfig) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 workspaceService,

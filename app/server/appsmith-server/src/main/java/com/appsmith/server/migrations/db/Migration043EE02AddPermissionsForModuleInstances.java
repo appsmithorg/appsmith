@@ -2,8 +2,6 @@ package com.appsmith.server.migrations.db;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QNewPage;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
@@ -26,16 +24,15 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 @ChangeUnit(order = "043-ee-02", id = "add-default-permission-for-modules", author = "")
 public class Migration043EE02AddPermissionsForModuleInstances {
 
-    private static final String POLICIES = fieldName(QWorkspace.workspace.policies);
-    private static final String ID = fieldName(QWorkspace.workspace.id);
-    private static final String DEFAULT_PERMISSION_GROUPS = fieldName(QWorkspace.workspace.defaultPermissionGroups);
+    private static final String POLICIES = Workspace.Fields.policies;
+    private static final String ID = Workspace.Fields.id;
+    private static final String DEFAULT_PERMISSION_GROUPS = Workspace.Fields.defaultPermissionGroups;
     private final MongoTemplate mongoTemplate;
 
     public Migration043EE02AddPermissionsForModuleInstances(MongoTemplate mongoTemplate) {
@@ -101,8 +98,8 @@ public class Migration043EE02AddPermissionsForModuleInstances {
 
                 existingPolicies.add(pageModuleInstancePolicy);
 
-                Query newPageUpdateQuery = new Query()
-                        .addCriteria(where(fieldName(QNewPage.newPage.id)).is(dbNewPage.getId()));
+                Query newPageUpdateQuery =
+                        new Query().addCriteria(where(NewPage.Fields.id).is(dbNewPage.getId()));
                 Update newPageUpdate = new Update().set(POLICIES, dbNewPage.getPolicies());
                 Pair<Query, Update> updatePair = Pair.of(newPageUpdateQuery, newPageUpdate);
 

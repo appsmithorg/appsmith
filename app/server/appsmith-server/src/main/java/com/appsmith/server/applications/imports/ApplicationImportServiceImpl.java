@@ -24,7 +24,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.google.gson.Gson;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -48,7 +47,6 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            Gson gson,
             ImportableService<Theme> themeImportableService,
             ImportableService<NewPage> newPageImportableService,
             ImportableService<CustomJSLib> customJSLibImportableService,
@@ -66,7 +64,6 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
                 applicationPermission,
                 pagePermission,
                 actionPermission,
-                gson,
                 themeImportableService,
                 newPageImportableService,
                 customJSLibImportableService,
@@ -91,13 +88,6 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
                 importedApplicationMono,
                 applicationJson);
 
-        Mono<Void> importedModulesMono = moduleImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson);
-
         Mono<Void> importedModuleInstancesMono = moduleInstanceImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
@@ -105,9 +95,7 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
                 importedApplicationMono,
                 applicationJson);
 
-        Mono<Void> moduleInstanceMono = importedModulesMono.then(Mono.defer(() -> importedModuleInstancesMono));
-
-        Mono<Void> pageDependentsMono = moduleInstanceMono
+        Mono<Void> pageDependentsMono = importedModuleInstancesMono
                 .thenMany(Flux.defer(() -> Flux.merge(pageDependentImportables)))
                 .then();
 

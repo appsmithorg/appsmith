@@ -37,9 +37,11 @@ import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ModuleRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.validations.EntityValidationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.ClassPathResource;
@@ -81,7 +83,9 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     private final RefactoringService refactoringService;
 
     public CrudModuleServiceImpl(
+            Validator validator,
             ModuleRepository repository,
+            AnalyticsService analyticsService,
             ModulePermission modulePermission,
             PolicyGenerator policyGenerator,
             NewActionService newActionService,
@@ -96,7 +100,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             ModulePublicEntityService<ActionCollection> actionCollectionModulePublicEntityService,
             PackageMetadataService packageMetadataService,
             RefactoringService refactoringService) {
-        super(repository);
+        super(validator, repository, analyticsService);
         this.repository = repository;
         this.modulePermission = modulePermission;
         this.policyGenerator = policyGenerator;
@@ -253,14 +257,25 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                             module.setVersion(aPackage.getVersion());
                             module.setPackageUUID(aPackage.getPackageUUID());
 
-                            Set<Policy> modulePolicyMap = policyGenerator.getAllChildPolicies(
-                                    aPackage.getPolicies(), Package.class, Module.class);
-                            module.setPolicies(modulePolicyMap);
+                            generateAndSetPolicies(aPackage, module);
+
+                            if (moduleDTO.getGitSyncId() == null) {
+                                module.setGitSyncId(aPackage.getId() + "_" + new ObjectId());
+                            } else {
+                                module.setGitSyncId(moduleDTO.getGitSyncId());
+                            }
 
                             module.setUnpublishedModule(moduleDTO);
 
                             return Mono.just(module).zipWith(Mono.just(aPackage.getWorkspaceId()));
                         }));
+    }
+
+    @Override
+    public void generateAndSetPolicies(Package aPackage, Module module) {
+        Set<Policy> modulePolicyMap =
+                policyGenerator.getAllChildPolicies(aPackage.getPolicies(), Package.class, Module.class);
+        module.setPolicies(modulePolicyMap);
     }
 
     private Mono<ModuleDTO> saveModuleAndCreatePublicEntity(Module module, String workspaceId) {
@@ -330,7 +345,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<ModuleDTO> updateModule(ModuleDTO moduleDTO, String moduleId) {
+    public Mono<ModuleDTO> updateModule(String moduleId, ModuleDTO moduleDTO) {
         return repository
                 .findById(moduleId, modulePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
@@ -404,8 +419,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     private Update prepareUpdatableFieldsForModule(ModuleDTO moduleDTO) {
         Update updateObj = new Update();
-        String inputsPath = fieldName(QModule.module.unpublishedModule) + "."
-                + fieldName(QModule.module.unpublishedModule.inputsForm);
+        String inputsPath =
+                Module.Fields.unpublishedModule + "." + fieldName(QModule.module.unpublishedModule.inputsForm);
 
         ObjectUtils.setIfNotEmpty(updateObj, inputsPath, moduleDTO.getInputsForm());
 
@@ -435,6 +450,11 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         return repository
                 .findByIdAndLayoutsIdAndViewMode(creatorId, layoutId, permission, resourceModes)
                 .flatMap(module -> generateModuleByViewMode(module, resourceModes));
+    }
+
+    @Override
+    public Mono<Module> save(Module module) {
+        return repository.save(module);
     }
 
     @Override

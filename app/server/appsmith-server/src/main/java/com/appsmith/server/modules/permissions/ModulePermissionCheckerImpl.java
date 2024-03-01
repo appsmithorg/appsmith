@@ -3,7 +3,6 @@ package com.appsmith.server.modules.permissions;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Module;
-import com.appsmith.server.domains.QModule;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.packages.permissions.PackagePermission;
@@ -18,8 +17,6 @@ import reactor.util.function.Tuple2;
 import java.util.List;
 import java.util.Optional;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
-
 @Service
 @RequiredArgsConstructor
 public class ModulePermissionCheckerImpl implements ModulePermissionChecker {
@@ -30,11 +27,8 @@ public class ModulePermissionCheckerImpl implements ModulePermissionChecker {
 
     @Override
     public Mono<Module> findById(String moduleId, AclPermission permission) {
-        List<String> projectionFieldNames = List.of(
-                fieldName(QModule.module.id),
-                fieldName(QModule.module.packageUUID),
-                fieldName(QModule.module.policies),
-                fieldName(QModule.module.moduleUUID));
+        List<String> projectionFieldNames =
+                List.of(Module.Fields.id, Module.Fields.packageUUID, Module.Fields.policies, Module.Fields.moduleUUID);
         return repository
                 .queryBuilder()
                 .byId(moduleId)

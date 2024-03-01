@@ -129,6 +129,19 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<PackageDTO> createPackage(PackageDTO packageToBeCreated, String workspaceId) {
+        return this.createPackageWithCustomRetries(packageToBeCreated, workspaceId, false)
+                .flatMap(createdPackage -> setTransientFieldsFromPackageToPackageDTO(
+                        createdPackage, createdPackage.getUnpublishedPackage()));
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<Package> createPackageWithPreciseName(PackageDTO packageToBeCreated, String workspaceId) {
+        return this.createPackageWithCustomRetries(packageToBeCreated, workspaceId, true);
+    }
+
+    private Mono<Package> createPackageWithCustomRetries(
+            PackageDTO packageToBeCreated, String workspaceId, boolean isPrecise) {
         if (ValidationUtils.isEmptyParam(packageToBeCreated.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
@@ -148,8 +161,16 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     User currentUser = tuple2.getT2();
                     Package newPackage = new Package();
                     newPackage.setWorkspaceId(workspace.getId());
-                    newPackage.setPackageUUID(new ObjectId().toString());
-                    newPackage.setVersion(PackageUtils.getNextVersion(null));
+                    if (StringUtils.hasText(packageToBeCreated.getPackageUUID())) {
+                        newPackage.setPackageUUID(packageToBeCreated.getPackageUUID());
+                    } else {
+                        newPackage.setPackageUUID(new ObjectId().toString());
+                    }
+                    if (StringUtils.hasText(packageToBeCreated.getVersion())) {
+                        newPackage.setVersion(packageToBeCreated.getVersion());
+                    } else {
+                        newPackage.setVersion(PackageUtils.getNextVersion(null));
+                    }
 
                     newPackage.setUnpublishedPackage(packageToBeCreated);
                     packageToBeCreated.setCustomJSLibs(new HashSet<>());
@@ -161,9 +182,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     newPackage.setModifiedBy(currentUser.getUsername());
                     newPackage.setLastEditedAt(Instant.now());
 
-                    return createSuffixedPackage(newPackage, packageToBeCreated.getName(), 0)
-                            .flatMap(createdPackage -> setTransientFieldsFromPackageToPackageDTO(
-                                    createdPackage, createdPackage.getUnpublishedPackage()));
+                    return createSuffixedPackage(newPackage, packageToBeCreated.getName(), isPrecise ? 6 : 0);
                 });
     }
 
@@ -225,7 +244,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         // Retrieve all module DTOs for the package in edit mode
         Mono<List<ModuleDTO>> modulesMono = crudModuleService.getAllModuleDTOs(packageId, ResourceModes.EDIT);
 
-        // Combine the results of the above Monos
+        // Combine the results of the above monos
         return Mono.zip(packageDataMono, modulesMono).flatMap(tuple -> {
             // Extract packageDTO and moduleDTOs from the tuple
             PackageDTO packageDTO = tuple.getT1();
@@ -421,5 +440,10 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                         originPackageId, Optional.of(packagePermission.getCreatePackageModuleInstancePermission()))
                 .flatMap(aPackage ->
                         setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getPublishedPackage()));
+    }
+
+    @Override
+    public Mono<Package> findById(String packageId, AclPermission permission) {
+        return repository.findById(packageId, permission);
     }
 }

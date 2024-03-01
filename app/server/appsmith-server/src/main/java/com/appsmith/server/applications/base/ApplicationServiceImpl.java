@@ -52,12 +52,9 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -106,10 +103,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
     private final ModuleInstanceMetadataService moduleInstanceMetadataService;
 
     public ApplicationServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ApplicationRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
@@ -135,10 +129,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             ModuleInstanceMetadataService moduleInstanceMetadataService) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 policySolution,

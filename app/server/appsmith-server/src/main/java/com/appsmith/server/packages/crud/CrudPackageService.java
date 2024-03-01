@@ -1,5 +1,6 @@
 package com.appsmith.server.packages.crud;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 public interface CrudPackageService extends BasePackageService, CrudPackageServiceCECompatible {
 
-    Mono<PackageDTO> createPackage(PackageDTO packageToBeCreated, String workspaceId);
+    Mono<Package> createPackageWithPreciseName(PackageDTO packageToBeCreated, String workspaceId);
 
     Mono<List<PackageDTO>> getAllEditablePackages();
 
@@ -31,4 +32,6 @@ public interface CrudPackageService extends BasePackageService, CrudPackageServi
     Flux<Package> getUniquePublishedReference(Set<String> packageIds);
 
     Mono<PackageDTO> getLatestConsumablePackageByOriginPackageId(String originPackageId);
+
+    Mono<Package> findById(String packageId, AclPermission permission);
 }

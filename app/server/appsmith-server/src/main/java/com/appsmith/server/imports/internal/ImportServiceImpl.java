@@ -1,31 +1,45 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.converters.ArtifactExchangeJsonAdapter;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
+import com.appsmith.server.dtos.ImportableArtifactDTO;
+import com.appsmith.server.dtos.PackageImportDTO;
+import com.appsmith.server.dtos.PackageJson;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
-import org.springframework.stereotype.Component;
+import com.google.gson.GsonBuilder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
-@Component
+@Service
 public class ImportServiceImpl extends ImportServiceCEImpl implements ImportService {
+
+    private final ArtifactBasedImportService<Package, PackageImportDTO, PackageJson> packageImportService;
 
     public ImportServiceImpl(
             ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson> applicationImportService,
+            ArtifactBasedImportService<Package, PackageImportDTO, PackageJson> packageImportService,
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
             PermissionGroupRepository permissionGroupRepository,
             TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ImportableService<Plugin> pluginImportableService,
-            ImportableService<Datasource> datasourceImportableService) {
+            ImportableService<Datasource> datasourceImportableService,
+            GsonBuilder gsonBuilder,
+            ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter) {
         super(
                 applicationImportService,
                 sessionUserService,
@@ -34,6 +48,19 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
                 transactionalOperator,
                 analyticsService,
                 pluginImportableService,
-                datasourceImportableService);
+                datasourceImportableService,
+                gsonBuilder,
+                artifactExchangeJsonAdapter);
+        this.packageImportService = packageImportService;
+    }
+
+    @Override
+    public ArtifactBasedImportService<
+                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+            getArtifactBasedImportService(ArtifactJsonType artifactJsonType) {
+        return switch (artifactJsonType) {
+            case PACKAGE -> packageImportService;
+            default -> super.getArtifactBasedImportService(artifactJsonType);
+        };
     }
 }

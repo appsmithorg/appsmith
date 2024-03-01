@@ -4,7 +4,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PagedDomain;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -25,7 +24,7 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
 
     Flux<UserGroup> findAllByUsersIn(Set<String> userIds, AclPermission aclPermission);
 
-    Mono<UpdateResult> updateById(String id, Update updateObj);
+    Mono<Void> updateById(String id, Update updateObj);
 
     Mono<UserGroup> findByIdAndTenantIdithoutPermission(String id, String tenantId);
 

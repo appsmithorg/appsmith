@@ -31,6 +31,11 @@ public class ModulePermissionImpl implements ModulePermission {
     }
 
     @Override
+    public AclPermission getActionCreatePermission() {
+        return AclPermission.MANAGE_MODULES;
+    }
+
+    @Override
     public AclPermission getReadPermission() {
         return AclPermission.READ_MODULES;
     }

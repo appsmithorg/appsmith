@@ -14,12 +14,9 @@ import com.appsmith.server.services.EnvironmentServiceImpl;
 import com.appsmith.server.services.WorkspaceService;
 import jakarta.validation.Validator;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Map;
 
@@ -50,14 +47,11 @@ public class EnvironmentServiceCECompatibleImpl extends BaseService<EnvironmentR
     private final WorkspaceService workspaceService;
 
     public EnvironmentServiceCECompatibleImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             EnvironmentRepository repository,
             AnalyticsService analyticsService,
             @Lazy WorkspaceService workspaceService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
     }
 

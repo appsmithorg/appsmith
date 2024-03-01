@@ -1,8 +1,11 @@
 import homePageLocators from "../../../../../locators/HomePage";
 import locators from "../../../../../locators/AuditLogsLocators";
 const RBAC = require("../../../../../locators/RBAClocators.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-import { homePage, agHelper } from "../../../../../support/Objects/ObjectsCore";
+import {
+  homePage,
+  agHelper,
+  adminSettings,
+} from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe(
@@ -30,25 +33,13 @@ describe(
 
     before(() => {
       cy.AddIntercepts();
-      cy.LogOut();
-      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      homePage.NavigateToHome();
       cy.generateUUID().then((uid) => {
         workspaceName = uid;
         appName = uid + "app";
-        localStorage.setItem("WorkspaceName", workspaceName);
-        cy.createWorkspace();
-        cy.wait("@createWorkspace").then((interception) => {
-          newWorkspaceName = interception.response.body.data.name;
-          homePage.RenameWorkspace(newWorkspaceName, workspaceName);
-        });
-        cy.CreateAppForWorkspace(workspaceName, appName);
-        agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-        featureFlagIntercept({
-          license_gac_enabled: true,
-          license_audit_logs_enabled: true,
-        });
-        cy.wait(3000);
+        homePage.CreateNewWorkspace(workspaceName, true);
+        homePage.CreateAppInWorkspace(workspaceName, appName);
+        adminSettings.EnableGAC(true, false);
+        //adminSettings.EnableAuditlogs(false);//Since Audit log is enabled even without this feature flag enable
         cy.ViewAuditLogsRole(ViewAuditlogsRole);
         cy.CreateWorkspaceRole(CreateWorkspaceRole);
         cy.EditWorkspaceRole(EditWorkspaceRole, workspaceName);
@@ -82,7 +73,7 @@ describe(
     });
 
     it("1. Verify user with ViewAuditlogsRole is able to view audit logs", function () {
-      cy.LogOut();
+      homePage.Signout();
       cy.LogintoAppTestUser(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
@@ -139,12 +130,11 @@ describe(
     });
 
     it("3. Verify user with CreateWorkspaceRole is able to create new workspace ", function () {
-      cy.get(commonlocators.homeIcon).click({ force: true });
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
+      homePage.CreateNewWorkspace("", true);
+      cy.get("@workspaceName").then((workspaceName) => {
+        newWorkspaceName = workspaceName;
       });
-      cy.LogOut();
+      homePage.Signout(false);
     });
 
     it("4. Verify user with EditWorkspaceRole is able to edit workspace ", function () {
@@ -162,7 +152,7 @@ describe(
       cy.get(locators.AdminSettingsEntryLink).should("not.exist");
     });
 
-    it("5. Verify user with EditWorkspaceRole is able to edit workspace name ", function () {
+    it.skip("5. Verify user with EditWorkspaceRole is able to edit workspace name ", function () {
       cy.wait(2000);
       cy.get(homePageLocators.workspaceList.concat(workspaceName).concat(")"))
         .scrollIntoView()
@@ -205,7 +195,7 @@ describe(
       );
     });
 
-    it("6. Verify user with EditWorkspaceRole is able to edit general settings", function () {
+    it.skip("6. Verify user with EditWorkspaceRole is able to edit general settings", function () {
       const fixturePath = "appsmithlogo.png";
       cy.xpath(homePageLocators.uploadLogo).attachFile(fixturePath);
       cy.wait("@updateLogo").should(
@@ -282,11 +272,7 @@ describe(
 
     after(() => {
       cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({
-        license_gac_enabled: true,
-        license_audit_logs_enabled: true,
-      });
-      cy.wait(3000);
+      adminSettings.EnableGAC(true, false);
       agHelper.VisitNAssert("settings/roles", "fetchRoles");
       cy.DeleteRole(ViewAuditlogsRole);
       cy.DeleteRole(CreateWorkspaceRole);

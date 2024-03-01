@@ -1,9 +1,8 @@
 package com.appsmith.server.solutions.roles;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Environment;
-import com.appsmith.external.models.QBaseDomain;
-import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
@@ -1151,7 +1150,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
     public CommonAppsmithObjectData getDataFromRepositoryForAllTabs() {
 
         // Fetch all the required objects.
-        List<String> includeFields = List.of(fieldName(QBaseDomain.baseDomain.policies));
+        List<String> includeFields = List.of(BaseDomain.Fields.policies);
 
         List<String> workspaceIncludeFields = new ArrayList<>(includeFields);
         workspaceIncludeFields.add(FieldName.NAME);
@@ -1187,9 +1186,9 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .cache();
 
         List<String> datasourceIncludeFields = new ArrayList<>(includeFields);
-        datasourceIncludeFields.add(fieldName(QDatasource.datasource.name));
-        datasourceIncludeFields.add(fieldName(QDatasource.datasource.pluginId));
-        datasourceIncludeFields.add(fieldName(QDatasource.datasource.workspaceId));
+        datasourceIncludeFields.add(Datasource.Fields.name);
+        datasourceIncludeFields.add(Datasource.Fields.pluginId);
+        datasourceIncludeFields.add(Datasource.Fields.workspaceId);
         Flux<Datasource> datasourceFlux = workspaceIdsMono
                 .flatMapMany(workspaceIds -> datasourceRepository.findAllByWorkspaceIdsWithoutPermission(
                         workspaceIds, datasourceIncludeFields))
@@ -1201,11 +1200,11 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         Flux<NewPage> pagesFlux = applicationIdsMono
                 .flatMapMany(applicationIds -> {
                     List<String> pageIncludeFields = new ArrayList<>(includeFields);
-                    pageIncludeFields.add(fieldName(QNewAction.newAction.applicationId));
-                    pageIncludeFields.add(fieldName(QNewPage.newPage.unpublishedPage) + "."
-                            + fieldName(QNewPage.newPage.unpublishedPage.name));
-                    pageIncludeFields.add(fieldName(QNewPage.newPage.publishedPage) + "."
-                            + fieldName(QNewPage.newPage.publishedPage.name));
+                    pageIncludeFields.add(NewAction.Fields.applicationId);
+                    pageIncludeFields.add(
+                            NewPage.Fields.unpublishedPage + "." + fieldName(QNewPage.newPage.unpublishedPage.name));
+                    pageIncludeFields.add(
+                            NewPage.Fields.publishedPage + "." + fieldName(QNewPage.newPage.publishedPage.name));
                     return pageRepository.findAllByApplicationIdsWithoutPermission(applicationIds, pageIncludeFields);
                 })
                 .cache();
@@ -1213,17 +1212,17 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         Flux<NewAction> actionFlux = applicationIdsMono
                 .flatMapMany(applicationIds -> {
                     List<String> actionIncludeFields = new ArrayList<>(includeFields);
-                    actionIncludeFields.add(fieldName(QNewAction.newAction.pluginId));
-                    actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                    actionIncludeFields.add(NewAction.Fields.pluginId);
+                    actionIncludeFields.add(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.name));
-                    actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                    actionIncludeFields.add(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.pageId));
-                    actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                    actionIncludeFields.add(NewAction.Fields.unpublishedAction + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
                             + fieldName(QNewAction.newAction.unpublishedAction.datasource.id));
-                    actionIncludeFields.add(fieldName(QNewAction.newAction.publishedAction) + "."
+                    actionIncludeFields.add(NewAction.Fields.publishedAction + "."
                             + fieldName(QNewAction.newAction.publishedAction.name));
-                    actionIncludeFields.add(fieldName(QNewAction.newAction.publishedAction) + "."
+                    actionIncludeFields.add(NewAction.Fields.publishedAction + "."
                             + fieldName(QNewAction.newAction.publishedAction.pageId));
                     return actionRepository.findAllUncomposedNonJSActionsByApplicationIds(
                             applicationIds, actionIncludeFields);
@@ -1233,16 +1232,14 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         Flux<ActionCollection> actionCollectionFlux = applicationIdsMono
                 .flatMapMany(applicationIds -> {
                     List<String> actionCollectionIncludeFields = new ArrayList<>(includeFields);
-                    actionCollectionIncludeFields.add(
-                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                                    + fieldName(QActionCollection.actionCollection.unpublishedCollection.name));
-                    actionCollectionIncludeFields.add(
-                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                                    + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId));
-                    actionCollectionIncludeFields.add(fieldName(QActionCollection.actionCollection.publishedCollection)
-                            + "." + fieldName(QActionCollection.actionCollection.publishedCollection.name));
-                    actionCollectionIncludeFields.add(fieldName(QActionCollection.actionCollection.publishedCollection)
-                            + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
+                    actionCollectionIncludeFields.add(ActionCollection.Fields.unpublishedCollection + "."
+                            + fieldName(QActionCollection.actionCollection.unpublishedCollection.name));
+                    actionCollectionIncludeFields.add(ActionCollection.Fields.unpublishedCollection + "."
+                            + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId));
+                    actionCollectionIncludeFields.add(ActionCollection.Fields.publishedCollection + "."
+                            + fieldName(QActionCollection.actionCollection.publishedCollection.name));
+                    actionCollectionIncludeFields.add(ActionCollection.Fields.publishedCollection + "."
+                            + fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
 
                     return actionCollectionRepository.findAllUncomposedByApplicationIds(
                             applicationIds, actionCollectionIncludeFields);
@@ -1305,10 +1302,10 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .collectList()
                 .flatMap(workflows -> {
                     List<String> workflowActionsIncludeFields = new ArrayList<>(includeFields);
-                    workflowActionsIncludeFields.add(fieldName(QNewAction.newAction.workflowId));
-                    workflowActionsIncludeFields.add(fieldName(QNewAction.newAction.publishedAction));
-                    workflowActionsIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction));
-                    workflowActionsIncludeFields.add(fieldName(QNewAction.newAction.pluginId));
+                    workflowActionsIncludeFields.add(NewAction.Fields.workflowId);
+                    workflowActionsIncludeFields.add(NewAction.Fields.publishedAction);
+                    workflowActionsIncludeFields.add(NewAction.Fields.unpublishedAction);
+                    workflowActionsIncludeFields.add(NewAction.Fields.pluginId);
                     List<String> workflowIds =
                             workflows.stream().map(Workflow::getId).toList();
                     return actionRepository
@@ -1322,10 +1319,9 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .collectList()
                 .flatMap(workflows -> {
                     List<String> workflowActionsIncludeFields = new ArrayList<>(includeFields);
-                    workflowActionsIncludeFields.add(fieldName(QActionCollection.actionCollection.workflowId));
-                    workflowActionsIncludeFields.add(fieldName(QActionCollection.actionCollection.publishedCollection));
-                    workflowActionsIncludeFields.add(
-                            fieldName(QActionCollection.actionCollection.unpublishedCollection));
+                    workflowActionsIncludeFields.add(ActionCollection.Fields.workflowId);
+                    workflowActionsIncludeFields.add(ActionCollection.Fields.publishedCollection);
+                    workflowActionsIncludeFields.add(ActionCollection.Fields.unpublishedCollection);
                     List<String> workflowIds =
                             workflows.stream().map(Workflow::getId).toList();
                     return actionCollectionRepository

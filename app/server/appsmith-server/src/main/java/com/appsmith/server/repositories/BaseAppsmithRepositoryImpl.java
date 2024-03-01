@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -27,8 +26,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> extends B
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
-    public Mono<UpdateResult> updateByCriteriaWithoutPermission(
-            List<Criteria> criteriaList, UpdateDefinition updateObj) {
+    public Mono<Void> updateByCriteriaWithoutPermission(List<Criteria> criteriaList, UpdateDefinition updateObj) {
         if (criteriaList == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "criteriaList"));
         }
@@ -39,6 +37,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> extends B
         List<Criteria> allCriterias = new ArrayList<>(criteriaList);
         allCriterias.add(notDeleted());
         Query query = new Query(new Criteria().andOperator(allCriterias));
-        return mongoOperations.updateMulti(query, updateObj, this.genericDomain);
+        return mongoOperations.updateMulti(query, updateObj, this.genericDomain).then();
     }
 }

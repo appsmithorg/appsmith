@@ -333,6 +333,15 @@ public class ActionCollectionPackageUpgradableServiceImpl implements PackageUpgr
                         simulatedActionCollection.setGitSyncId(existingInvalidActionCollection.getGitSyncId());
                         simulatedActionCollection.setDefaultResources(
                                 existingInvalidActionCollection.getDefaultResources());
+                        if (existingInvalidActionCollection
+                                .getId()
+                                .equals(existingInvalidActionCollection
+                                        .getDefaultResources()
+                                        .getCollectionId())) {
+                            simulatedActionCollection
+                                    .getDefaultResources()
+                                    .setCollectionId(simulatedActionCollection.getId());
+                        }
                     }
 
                     List<NewAction> newActionsToSave = originCollectionIdToSimulatedJSActionsMap.get(

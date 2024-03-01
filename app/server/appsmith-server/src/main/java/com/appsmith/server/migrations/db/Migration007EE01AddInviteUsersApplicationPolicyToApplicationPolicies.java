@@ -1,10 +1,8 @@
 package com.appsmith.server.migrations.db;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -22,7 +20,6 @@ import java.util.List;
 
 import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.migrations.db.Migration006EE01AddFlagToWorkspaceBeforeInviteUsersPolicyToApplicationPolicyMigration.migrationFlag;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -72,17 +69,13 @@ public class Migration007EE01AddInviteUsersApplicationPolicyToApplicationPolicie
          * Step 5: Dp an UpdateFirst on workspace to unset the migrationFlag. This would mean that the migration for all
          * applications inside the workspace happened successfully.
          */
-        List<String> includedFields =
-                List.of(fieldName(QWorkspace.workspace.id), fieldName(QWorkspace.workspace.defaultPermissionGroups));
+        List<String> includedFields = List.of(Workspace.Fields.id, Workspace.Fields.defaultPermissionGroups);
         Criteria notDeletedMigrationFlagCriteria = new Criteria()
                 .andOperator(
                         notDeleted(),
                         where(migrationFlag).is(true),
-                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
-                                .exists(true),
-                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
-                                .not()
-                                .size(0));
+                        where(Workspace.Fields.defaultPermissionGroups).exists(true),
+                        where(Workspace.Fields.defaultPermissionGroups).not().size(0));
         Query workspaceQuery =
                 new Query().addCriteria(notDeletedMigrationFlagCriteria).cursorBatchSize(1024);
         /*
@@ -133,8 +126,7 @@ public class Migration007EE01AddInviteUsersApplicationPolicyToApplicationPolicie
                 .permissionGroups(workspace.getDefaultPermissionGroups())
                 .build();
 
-        Criteria criteriaWorkspaceId =
-                where(fieldName(QApplication.application.workspaceId)).is(workspace.getId());
+        Criteria criteriaWorkspaceId = where(Application.Fields.workspaceId).is(workspace.getId());
         Criteria criteriaAllApplicationsToBeUpdated = criteriaWorkspaceId.andOperator(notDeleted());
         Criteria criteriaApplicationsWhereInviteUsersPermissionExists = Criteria.where("policies.permission")
                 .is(INVITE_USERS_APPLICATIONS.getValue())
@@ -143,7 +135,7 @@ public class Migration007EE01AddInviteUsersApplicationPolicyToApplicationPolicie
                 .ne(INVITE_USERS_APPLICATIONS.getValue())
                 .andOperator(criteriaWorkspaceId, notDeleted());
         Criteria criteriaApplicationsWhichHaveInviteUsersPermissionWithWorkspacePermissionGroup = Criteria.where(
-                        fieldName(QBaseDomain.baseDomain.policies))
+                        BaseDomain.Fields.policies)
                 .elemMatch(Criteria.where("permissionGroups")
                         .in(workspace.getDefaultPermissionGroups())
                         .and("permission")
@@ -159,8 +151,7 @@ public class Migration007EE01AddInviteUsersApplicationPolicyToApplicationPolicie
                 new Query().addCriteria(criteriaApplicationsWhichHaveInviteUsersPermissionWithWorkspacePermissionGroup);
 
         Update updateAddInviteUsersToApplicationsPolicy = new Update();
-        updateAddInviteUsersToApplicationsPolicy.addToSet(
-                fieldName(QApplication.application.policies), inviteUsersApplicationPolicy);
+        updateAddInviteUsersToApplicationsPolicy.addToSet(Application.Fields.policies, inviteUsersApplicationPolicy);
         Update updateExistingInviteUsersToApplicationPolicy = new Update();
         updateExistingInviteUsersToApplicationPolicy
                 .addToSet("policies.$.permissionGroups")
@@ -196,8 +187,8 @@ public class Migration007EE01AddInviteUsersApplicationPolicyToApplicationPolicie
             throw new AppsmithException(AppsmithError.MIGRATION_FAILED, migrationId, reasonForFailure, migrationNote);
         }
         // Unset the Migration flag to signify that the migration for all applications in this workspace succeeded.
-        Query workspaceIdQuery = new Query()
-                .addCriteria(where(fieldName(QWorkspace.workspace.id)).is(workspace.getId()));
+        Query workspaceIdQuery =
+                new Query().addCriteria(where(Workspace.Fields.id).is(workspace.getId()));
         mongoTemplate.updateFirst(workspaceIdQuery, new Update().unset(migrationFlag), Workspace.class);
     }
 }

@@ -1,7 +1,6 @@
 package com.appsmith.server.migrations.db;
 
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import io.mongock.api.annotations.ChangeUnit;
@@ -16,7 +15,6 @@ import java.nio.file.NoSuchFileException;
 import java.util.Objects;
 
 import static com.appsmith.server.migrations.db.ce.Migration021MoveGoogleMapsKeyToTenantConfiguration.commentEnvInFile;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -38,7 +36,7 @@ public class Migration027EEAddHideWatermarkEnvVarToTenantConfiguration {
     @Execution
     public void executeMigration() throws IOException {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         final String envName = "APPSMITH_HIDE_WATERMARK";

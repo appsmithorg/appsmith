@@ -5,7 +5,6 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.ApprovalRequestStatus;
 import com.appsmith.server.domains.ApprovalRequest;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QApprovalRequest;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workflow;
@@ -33,13 +32,10 @@ import io.jsonwebtoken.lang.Collections;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.util.List;
@@ -55,7 +51,6 @@ import static com.appsmith.server.constants.FieldName.APPROVAL_REQUEST_ROLE_PREF
 import static com.appsmith.server.constants.FieldName.ASCENDING;
 import static com.appsmith.server.constants.FieldName.WORKFLOW;
 import static com.appsmith.server.constants.QueryParams.SORT;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCECompatibleImpl
@@ -69,10 +64,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
     private final SessionUserService sessionUserService;
 
     public CrudApprovalRequestServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ApprovalRequestRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
@@ -81,7 +73,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
             UserRepository userRepository,
             PermissionGroupService permissionGroupService,
             SessionUserService sessionUserService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.policySolution = policySolution;
         this.workflowRepository = workflowRepository;
         this.userGroupRepository = userGroupRepository;
@@ -139,7 +131,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
                     AppsmithError.INVALID_APPROVAL_REQUEST_CREATION, "Both users and groups can't be empty."));
         }
 
-        if (ValidationUtils.isEmptyParam(approvalRequestCreationDTO.getAllowedResolutions())) {
+        if (ValidationUtils.isEmptyParam(approvalRequestCreationDTO.getResolutions())) {
             return Mono.error(new AppsmithException(
                     AppsmithError.INVALID_APPROVAL_REQUEST_CREATION, "Allowed resolutions can't be empty."));
         }
@@ -195,17 +187,17 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
         approvalRequest.setMessage(approvalRequestCreationDTO.getMessage());
         approvalRequest.setWorkflowId(approvalRequestCreationDTO.getWorkflowId());
         approvalRequest.setCreationMetadata(approvalRequestCreationDTO.getMetadata());
-        approvalRequest.setAllowedResolutions(approvalRequestCreationDTO.getAllowedResolutions());
+        approvalRequest.setAllowedResolutions(approvalRequestCreationDTO.getResolutions());
         approvalRequest.setRunId(approvalRequestCreationDTO.getRunId());
         return approvalRequest;
     }
 
     private Optional<Sort> getSortForGetApprovalRequests(MultiValueMap<String, String> filters) {
-        Sort defaultSort = Sort.by(Sort.Direction.DESC, fieldName(QApprovalRequest.approvalRequest.createdAt));
+        Sort defaultSort = Sort.by(Sort.Direction.DESC, ApprovalRequest.Fields.createdAt);
         if (filters.containsKey(SORT) && StringUtils.isEmpty(filters.getFirst(SORT))) {
             String sortOrder = filters.getFirst(SORT);
             if (ASCENDING.equalsIgnoreCase(sortOrder)) {
-                return Optional.of(Sort.by(Sort.Direction.ASC, fieldName(QApprovalRequest.approvalRequest.createdAt)));
+                return Optional.of(Sort.by(Sort.Direction.ASC, ApprovalRequest.Fields.createdAt));
             }
         }
         return Optional.of(defaultSort);
@@ -230,7 +222,7 @@ public class CrudApprovalRequestServiceImpl extends CrudApprovalRequestServiceCE
                     Update updatePoliciesForApprovalRequest = new Update();
                     ObjectUtils.setIfNotEmpty(
                             updatePoliciesForApprovalRequest,
-                            fieldName(QApprovalRequest.approvalRequest.policies),
+                            ApprovalRequest.Fields.policies,
                             approvalRequest1WithPolicies.getPolicies());
                     return repository.updateAndReturn(
                             approvalRequest.getId(), updatePoliciesForApprovalRequest, Optional.empty());

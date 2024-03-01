@@ -15,7 +15,6 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserApiKey;
 import com.appsmith.server.domains.Workflow;
@@ -86,7 +85,6 @@ import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -391,7 +389,7 @@ class InteractWorkflowServiceTest {
         User workflowBotUser = userRepository
                 .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(userEmail)
                 .block();
-        Criteria userEmailCriteria = Criteria.where(fieldName(QUser.user.email)).is(userEmail);
+        Criteria userEmailCriteria = Criteria.where(User.Fields.email).is(userEmail);
         Query userEmailQuery = Query.query(userEmailCriteria);
 
         Boolean archived = interactWorkflowService
@@ -567,7 +565,7 @@ class InteractWorkflowServiceTest {
         User workflowBotUser = userRepository
                 .findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(userEmail)
                 .block();
-        Criteria userEmailCriteria = Criteria.where(fieldName(QUser.user.email)).is(userEmail);
+        Criteria userEmailCriteria = Criteria.where(User.Fields.email).is(userEmail);
         Query userEmailQuery = Query.query(userEmailCriteria);
 
         Boolean archived = interactWorkflowService

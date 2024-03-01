@@ -2,7 +2,7 @@ import axios from "axios";
 import type {
   AppsmithExecuteActionDTO,
   ExecuteAppsmithActivityRequest,
-  ExecuteInboxCreationRequest,
+  WorkflowRequestCreationPayload,
 } from "@workflowProxy/constants/types";
 import { findDatatype, validateResponse } from "./utils";
 
@@ -117,7 +117,7 @@ export class ExecuteService {
    * @returns
    */
   static async executeInboxCreationRequest(
-    request: ExecuteInboxCreationRequest,
+    request: WorkflowRequestCreationPayload,
     headers: Record<string, any>,
   ): Promise<any> {
     try {

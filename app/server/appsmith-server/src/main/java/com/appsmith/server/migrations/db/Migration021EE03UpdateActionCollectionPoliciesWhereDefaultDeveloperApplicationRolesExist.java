@@ -4,8 +4,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QActionCollection;
-import com.appsmith.server.domains.QPermissionGroup;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -21,7 +19,6 @@ import java.util.List;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
@@ -69,19 +66,18 @@ public class Migration021EE03UpdateActionCollectionPoliciesWhereDefaultDeveloper
     }
 
     private static List<Criteria> criteriaListAllActionCollectionsByApplicationId(String applicationId) {
-        Criteria criteriaApplicationId = Criteria.where(fieldName(QActionCollection.actionCollection.applicationId))
-                .is(applicationId);
+        Criteria criteriaApplicationId =
+                Criteria.where(ActionCollection.Fields.applicationId).is(applicationId);
         Criteria criteriaNotDeleted = notDeleted();
         return List.of(criteriaApplicationId, criteriaNotDeleted);
     }
 
     @NotNull private static Query queryAllDefaultDeveloperRoles() {
-        Criteria criteriaDefaultDomainTypeApplication = Criteria.where(
-                        fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .is(Application.class.getSimpleName());
+        Criteria criteriaDefaultDomainTypeApplication =
+                Criteria.where(PermissionGroup.Fields.defaultDomainType).is(Application.class.getSimpleName());
         Criteria criteriaNotDeleted = notDeleted();
-        Criteria criteriaStartsWithDeveloper = Criteria.where(fieldName(QPermissionGroup.permissionGroup.name))
-                .regex(FieldName.APPLICATION_DEVELOPER + "(.+)");
+        Criteria criteriaStartsWithDeveloper =
+                Criteria.where(PermissionGroup.Fields.name).regex(FieldName.APPLICATION_DEVELOPER + "(.+)");
         Criteria allCriteria = new Criteria()
                 .andOperator(criteriaNotDeleted, criteriaDefaultDomainTypeApplication, criteriaStartsWithDeveloper);
         return new Query(allCriteria);

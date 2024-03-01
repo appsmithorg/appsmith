@@ -171,11 +171,18 @@ spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
 spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
 
 function finalizeIndexHtml() {
-  const info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
+  let info = null;
+  try {
+    info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
+  } catch(e) {
+    // info will be empty, that's okay.
+    console.error("Error reading info.json", e)
+  }
+
   const extraEnv = {
-    APPSMITH_VERSION_ID: info.version ?? "",
-    APPSMITH_VERSION_SHA: info.commitSha ?? "",
-    APPSMITH_VERSION_RELEASE_DATE: info.imageBuiltAt ?? "",
+    APPSMITH_VERSION_ID: info?.version ?? "",
+    APPSMITH_VERSION_SHA: info?.commitSha ?? "",
+    APPSMITH_VERSION_RELEASE_DATE: info?.imageBuiltAt ?? "",
   }
 
   let content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replace(

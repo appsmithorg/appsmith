@@ -4,8 +4,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -61,8 +59,7 @@ public class Migration010EE01AssignSuperUsersToDefaultRole {
         String defaultRoleId = defaultRoleConfigDetails.getAsString(DEFAULT_PERMISSION_GROUP);
 
         Query queryDefaultRole = new Query();
-        queryDefaultRole.addCriteria(
-                where(fieldName(QPermissionGroup.permissionGroup.id)).is(defaultRoleId));
+        queryDefaultRole.addCriteria(where(PermissionGroup.Fields.id).is(defaultRoleId));
 
         String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
         Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
@@ -71,16 +68,15 @@ public class Migration010EE01AssignSuperUsersToDefaultRole {
                 .map(String::toLowerCase)
                 .map(email -> {
                     Query userQuery = new Query();
-                    userQuery.addCriteria(where(fieldName(QUser.user.email)).is(email));
+                    userQuery.addCriteria(where(User.Fields.email).is(email));
                     User user = mongoTemplate.findOne(userQuery, User.class);
                     return user.getId();
                 })
                 .collect(Collectors.toSet());
 
         evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, cacheableRepositoryHelper);
-        Update updateAddUsersToDefaultRole = new Update()
-                .addToSet(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                .each(updatedUserIds.toArray());
+        Update updateAddUsersToDefaultRole =
+                new Update().addToSet(PermissionGroup.Fields.assignedToUserIds).each(updatedUserIds.toArray());
         mongoTemplate.updateFirst(queryDefaultRole, updateAddUsersToDefaultRole, PermissionGroup.class);
     }
 }

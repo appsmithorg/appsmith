@@ -2,11 +2,9 @@ package com.appsmith.server.migrations.db;
 
 import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.models.Environment;
-import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.migrations.utils.CompatibilityUtils;
 import io.mongock.api.annotations.ChangeUnit;
@@ -57,7 +55,7 @@ public class Migration020EE05AddPublicPermissionGroupToEnvironments {
                 .andOperator(
                         olderCheckForDeletedCriteria(),
                         newerCheckForDeletedCriteria(),
-                        Criteria.where(fieldName(QApplication.application.policies))
+                        Criteria.where(Application.Fields.policies)
                                 .elemMatch(new Criteria()
                                         .andOperator(
                                                 Criteria.where("permission")
@@ -68,7 +66,7 @@ public class Migration020EE05AddPublicPermissionGroupToEnvironments {
                 .exists(true);
 
         Query publicApplicationsQuery = new Query().addCriteria(publicApplicationsCriteria);
-        publicApplicationsQuery.fields().include(fieldName(QApplication.application.workspaceId));
+        publicApplicationsQuery.fields().include(Application.Fields.workspaceId);
 
         final Query performanceOptimizedpublicApplicationsQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, publicApplicationsQuery, Application.class);
@@ -84,13 +82,11 @@ public class Migration020EE05AddPublicPermissionGroupToEnvironments {
                 .andOperator(
                         olderCheckForDeletedCriteria(),
                         newerCheckForDeletedCriteria(),
-                        Criteria.where(fieldName(QEnvironment.environment.name))
-                                .is(CommonFieldName.PRODUCTION_ENVIRONMENT),
-                        Criteria.where(fieldName(QEnvironment.environment.workspaceId))
-                                .in(workspaceIds),
+                        Criteria.where(Environment.Fields.name).is(CommonFieldName.PRODUCTION_ENVIRONMENT),
+                        Criteria.where(Environment.Fields.workspaceId).in(workspaceIds),
                         // We're adding this last criterion to avoid updating environments that are already updated
                         // In case of re-runs
-                        Criteria.where(fieldName(QEnvironment.environment.policies))
+                        Criteria.where(Environment.Fields.policies)
                                 .elemMatch(new Criteria()
                                         .andOperator(
                                                 Criteria.where("permission")

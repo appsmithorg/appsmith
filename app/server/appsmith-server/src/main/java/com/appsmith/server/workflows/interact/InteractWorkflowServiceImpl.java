@@ -36,15 +36,12 @@ import com.appsmith.server.workflows.permission.WorkflowPermission;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -79,10 +76,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
     private final WorkflowProxyHelper workflowProxyHelper;
 
     public InteractWorkflowServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             WorkflowRepository repository,
             AnalyticsService analyticsService,
             WorkflowPermission workflowPermission,
@@ -98,7 +92,7 @@ public class InteractWorkflowServiceImpl extends InteractWorkflowServiceCECompat
             ActionPermission actionPermission,
             ActionCollectionService actionCollectionService,
             WorkflowProxyHelper workflowProxyHelper) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.workflowPermission = workflowPermission;
         this.userRepository = userRepository;
         this.permissionGroupRepository = permissionGroupRepository;

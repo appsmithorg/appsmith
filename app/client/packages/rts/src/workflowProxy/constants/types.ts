@@ -39,15 +39,16 @@ export interface ExecuteAppsmithActivityRequest {
   >;
 }
 
-export interface ExecuteInboxCreationRequest {
+export interface WorkflowRequestCreationPayload {
   workflowId: string;
   runId: string;
-  requestToUsers: string[];
-  requestToGroups: string[];
-  title: string;
-  description: string;
-  userInfo?: Record<string, any>;
-  allowedResolutions: string[];
+  requestName: string;
+  resolutions: string[];
+  message?: string;
+  metadata?: Record<string, any>;
+  // either one of requestToUsers or requestToGroups should be present
+  requestToUsers?: string[];
+  requestToGroups?: string[];
 }
 
 export interface ExecuteInboxResolutionRequest {

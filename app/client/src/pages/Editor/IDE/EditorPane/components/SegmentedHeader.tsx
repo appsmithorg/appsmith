@@ -89,7 +89,7 @@ const SegmentedHeader = () => {
           onClick={() =>
             dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen))
           }
-          startIcon="maximize"
+          startIcon="maximize-v3"
         />
       ) : null}
     </Container>

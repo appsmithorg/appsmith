@@ -2,8 +2,6 @@ package com.appsmith.server.migrations.db;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.mongodb.client.FindIterable;
@@ -34,7 +32,6 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGES;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -43,9 +40,9 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class Migration043EE01AddPermissionsForPackages {
 
     private final MongoTemplate mongoTemplate;
-    private static final String POLICIES = fieldName(QWorkspace.workspace.policies);
-    private static final String ID = fieldName(QWorkspace.workspace.id);
-    private static final String DEFAULT_PERMISSION_GROUPS = fieldName(QWorkspace.workspace.defaultPermissionGroups);
+    private static final String POLICIES = Workspace.Fields.policies;
+    private static final String ID = Workspace.Fields.id;
+    private static final String DEFAULT_PERMISSION_GROUPS = Workspace.Fields.defaultPermissionGroups;
 
     public Migration043EE01AddPermissionsForPackages(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -141,8 +138,8 @@ public class Migration043EE01AddPermissionsForPackages {
 
                 dbWorkspace.getPolicies().addAll(packagePolicies);
 
-                Query workspaceUpdateQuery = new Query()
-                        .addCriteria(where(fieldName(QWorkspace.workspace.id)).is(dbWorkspace.getId()));
+                Query workspaceUpdateQuery =
+                        new Query().addCriteria(where(Workspace.Fields.id).is(dbWorkspace.getId()));
                 Update workspaceUpdate = new Update().set(POLICIES, dbWorkspace.getPolicies());
                 Pair<Query, Update> updatePair = Pair.of(workspaceUpdateQuery, workspaceUpdate);
 
@@ -219,16 +216,12 @@ public class Migration043EE01AddPermissionsForPackages {
         Criteria workspacePermissionGroupsCriteria = new Criteria()
                 .andOperator(
                         notDeleted(),
-                        Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                                .is("Workspace"));
+                        Criteria.where(PermissionGroup.Fields.defaultDomainType).is("Workspace"));
 
         Query workspacePermissionGroupsQuery = new Query().addCriteria(workspacePermissionGroupsCriteria);
         workspacePermissionGroupsQuery
                 .fields()
-                .include(
-                        ID,
-                        fieldName(QPermissionGroup.permissionGroup.name),
-                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId));
+                .include(ID, PermissionGroup.Fields.name, PermissionGroup.Fields.defaultDomainId);
 
         List<PermissionGroup> workspacePermissionGroups =
                 mongoTemplate.find(workspacePermissionGroupsQuery, PermissionGroup.class);

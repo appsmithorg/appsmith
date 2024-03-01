@@ -1,6 +1,7 @@
 package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
@@ -16,10 +17,10 @@ import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
@@ -53,15 +54,12 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -74,7 +72,6 @@ import java.util.Set;
 
 import static com.appsmith.server.helpers.ContextTypeUtils.isModuleContext;
 import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 @Slf4j
@@ -92,10 +89,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final PolicyGenerator policyGenerator;
 
     public NewActionServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             NewActionRepository repository,
             AnalyticsService analyticsService,
             DatasourceService datasourceService,
@@ -122,10 +116,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             WorkflowPermission workflowPermission,
             ModuleMetadataService moduleMetadataService) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 datasourceService,
@@ -175,7 +166,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 return this.findById(analyticEventDTO.getResourceId(), AclPermission.EXECUTE_ACTIONS)
                         .filter(newAction -> newAction.getPluginType().equals(PluginType.JS))
                         .flatMap(newAction -> {
-                            Map<String, Object> analyticsProperties = getAnalyticsProperties(newAction);
+                            Map<String, Object> analyticsProperties = getAnalyticsProperties(newAction, null);
                             analyticsProperties.put(FieldName.AUDIT_LOGS_ORIGIN, origin);
                             if (analyticEventDTO.getMetadata().containsKey(FieldName.AUDIT_LOGS_VIEW_MODE)) {
                                 if (null != analyticEventDTO.getMetadata().get(FieldName.AUDIT_LOGS_VIEW_MODE)) {
@@ -394,6 +385,28 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    public Flux<NewAction> findAllByPackageIdAndViewMode(String packageId, Boolean viewMode) {
+        return repository
+                .findByPackageId(packageId)
+                // In case of view mode being true, filter out all the actions which haven't been published
+                .flatMap(action -> {
+                    if (Boolean.TRUE.equals(viewMode)) {
+                        // In case we are trying to fetch published actions but this action has not been published, do
+                        // not return
+                        if (action.getPublishedAction() == null) {
+                            return Mono.empty();
+                        }
+                    }
+                    // No need to handle the edge case of unpublished action not being present. This is not possible
+                    // because every created action starts from an unpublishedAction state.
+
+                    return Mono.just(action);
+                })
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
+    }
+
+    @Override
     public Mono<List<NewAction>> archiveActionsByModuleId(String moduleId) {
         return repository
                 .findAllNonJSActionsByModuleId(moduleId)
@@ -459,7 +472,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
     @Override
     public Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission) {
-        List<String> includeFields = List.of(fieldName(QNewAction.newAction.id));
+        List<String> includeFields = List.of(NewAction.Fields.id);
         return repository
                 .findByWorkflowId(workflowId, permission, Optional.of(includeFields), Boolean.FALSE)
                 .filter(newAction -> {
@@ -599,9 +612,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Map<String, Object> getAnalyticsProperties(NewAction savedAction) {
+    public Map<String, Object> getAnalyticsProperties(NewAction savedAction, AppsmithEventContext eventContext) {
         ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
-        Map<String, Object> analyticsProperties = super.getAnalyticsProperties(savedAction);
+        Map<String, Object> analyticsProperties = super.getAnalyticsProperties(savedAction, eventContext);
         analyticsProperties.put(
                 FieldName.WORKFLOW_ID,
                 ObjectUtils.defaultIfNull(
@@ -671,6 +684,16 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
                 moduleInstance.getPolicies(), ModuleInstance.class, NewAction.class);
         action.setPolicies(documentPolicies);
+    }
+
+    @Override
+    public void generateAndSetActionPolicies(Module module, NewAction newAction) {
+        if (module == null) {
+            throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "No module found to copy policies from.");
+        }
+        Set<Policy> documentPolicies =
+                policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, NewAction.class);
+        newAction.setPolicies(documentPolicies);
     }
 
     @Override

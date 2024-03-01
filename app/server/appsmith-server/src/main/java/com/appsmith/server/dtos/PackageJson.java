@@ -29,6 +29,9 @@ import java.util.Map;
 @Setter
 public class PackageJson implements ArtifactExchangeJson {
 
+    @JsonView({Views.Public.class, Views.Export.class})
+    ArtifactJsonType artifactJsonType = ArtifactJsonType.PACKAGE;
+
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
     @JsonView({Views.Public.class, Views.Export.class})
@@ -75,11 +78,6 @@ public class PackageJson implements ArtifactExchangeJson {
 
     @JsonView({Views.Public.class, Views.Export.class})
     String widgets;
-
-    @Override
-    public ArtifactType getArtifactJsonType() {
-        return ArtifactType.PACKAGE;
-    }
 
     @Override
     public ImportableArtifact getImportableArtifact() {

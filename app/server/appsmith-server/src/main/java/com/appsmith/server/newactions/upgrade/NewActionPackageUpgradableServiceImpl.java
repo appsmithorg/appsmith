@@ -151,6 +151,13 @@ public class NewActionPackageUpgradableServiceImpl implements PackageUpgradableS
                         NewAction existingInvalidAction = invalidActionFQNToExistingActionMap.get(fullyQualifiedName);
 
                         simulatedNewAction.setDefaultResources(existingInvalidAction.getDefaultResources());
+                        if (existingInvalidAction
+                                .getId()
+                                .equals(existingInvalidAction
+                                        .getDefaultResources()
+                                        .getActionId())) {
+                            simulatedNewAction.getDefaultResources().setActionId(simulatedNewAction.getId());
+                        }
                         simulatedNewAction.setGitSyncId(existingInvalidAction.getGitSyncId());
 
                         ActionDTO simulatedActionDTO = simulatedNewAction.getUnpublishedAction();

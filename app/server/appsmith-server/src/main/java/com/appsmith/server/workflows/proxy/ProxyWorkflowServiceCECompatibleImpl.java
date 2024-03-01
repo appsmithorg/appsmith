@@ -6,12 +6,9 @@ import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.workflows.base.BaseWorkflowServiceCECompatibleImpl;
 import jakarta.validation.Validator;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Map;
 
@@ -19,13 +16,8 @@ import java.util.Map;
 public class ProxyWorkflowServiceCECompatibleImpl extends BaseWorkflowServiceCECompatibleImpl
         implements ProxyWorkflowServiceCECompatible {
     public ProxyWorkflowServiceCECompatibleImpl(
-            Scheduler scheduler,
-            Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
-            WorkflowRepository repository,
-            AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+            Validator validator, WorkflowRepository repository, AnalyticsService analyticsService) {
+        super(validator, repository, analyticsService);
     }
 
     @Override

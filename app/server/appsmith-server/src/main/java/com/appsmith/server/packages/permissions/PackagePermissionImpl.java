@@ -11,6 +11,11 @@ public class PackagePermissionImpl implements PackagePermission {
     }
 
     @Override
+    public AclPermission getGitConnectPermission() {
+        return AclPermission.CONNECT_TO_GIT;
+    }
+
+    @Override
     public AclPermission getModuleCreatePermission() {
         return AclPermission.PACKAGE_CREATE_MODULES;
     }

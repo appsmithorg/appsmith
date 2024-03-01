@@ -136,7 +136,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithLongHeader_thenVerifyErrorStatus() throws IOException {
 
-        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any(), any()))
+        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any()))
                 .thenAnswer(importableArtifactDTOAnswer(new ApplicationImportDTO()));
 
         final String fileName = getFileName(130 * 1024);
@@ -167,7 +167,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
-        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any(), any()))
+        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any()))
                 .thenAnswer(importableArtifactDTOAnswer(new ApplicationImportDTO()));
 
         final String fileName = getFileName(2 * 1024);

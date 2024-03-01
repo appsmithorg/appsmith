@@ -56,11 +56,25 @@ export default class RunController extends BaseController {
   async executeInboxResolutionRequest(req: Request, res: Response) {
     try {
       const result = await RunService.executeInboxResolutionRequest(req.body);
-      return super.sendResponse(res, result);
+      if (result.success) {
+        return super.sendResponse(
+          res,
+          result.data,
+          result.message,
+          StatusCodes.OK,
+        );
+      } else {
+        return super.sendError(
+          res,
+          "Request resolution failed: " + result.message,
+          result.data,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        );
+      }
     } catch (err) {
       return super.sendError(
         res,
-        "Workflow resolution has failed",
+        "Request resolution has failed",
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );

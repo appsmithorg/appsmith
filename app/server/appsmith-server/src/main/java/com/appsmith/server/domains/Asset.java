@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.MediaType;
 
@@ -11,6 +12,7 @@ import org.springframework.http.MediaType;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
+@FieldNameConstants
 public class Asset extends BaseDomain {
 
     public Asset(MediaType mediaType, byte[] data) {

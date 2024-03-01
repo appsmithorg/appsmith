@@ -189,8 +189,8 @@ class ImportWithModulesTest {
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         List<PermissionGroup> permissionGroups = workspaceMono
@@ -439,7 +439,7 @@ class ImportWithModulesTest {
 
         // First import the app
         ApplicationImportDTO applicationImportDTO = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
 
@@ -781,7 +781,7 @@ class ImportWithModulesTest {
 
         // Then import the app
         ApplicationImportDTO applicationImportDTO = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .block();
 

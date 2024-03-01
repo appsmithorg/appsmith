@@ -2,12 +2,10 @@ package com.appsmith.server.migrations.db;
 
 import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.models.Environment;
-import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QPermissionGroup;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -48,12 +46,10 @@ public class Migration021EE03RemoveStagingEnvAccessForAllCustomRoles {
         Criteria appViewerPermissionGroupsCriteria = new Criteria()
                 .andOperator(
                         olderCheckForDeletedCriteria(),
-                        Criteria.where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                                .in("Application", "Workspace"),
-                        Criteria.where(fieldName(QPermissionGroup.permissionGroup.name))
-                                .regex("^App Viewer"));
+                        Criteria.where(PermissionGroup.Fields.defaultDomainType).in("Application", "Workspace"),
+                        Criteria.where(PermissionGroup.Fields.name).regex("^App Viewer"));
         Query appViewerPermissionGroupsQuery = new Query().addCriteria(appViewerPermissionGroupsCriteria);
-        appViewerPermissionGroupsQuery.fields().include(fieldName(QPermissionGroup.permissionGroup.id));
+        appViewerPermissionGroupsQuery.fields().include(PermissionGroup.Fields.id);
 
         List<String> appViewerPermissionGroupIds = mongoTemplate.stream(
                         appViewerPermissionGroupsQuery, PermissionGroup.class)
@@ -69,14 +65,13 @@ public class Migration021EE03RemoveStagingEnvAccessForAllCustomRoles {
                 .andOperator(
                         olderCheckForDeletedCriteria(),
                         newerCheckForDeletedCriteria(),
-                        Criteria.where(fieldName(QEnvironment.environment.policies))
+                        Criteria.where(Environment.Fields.policies)
                                 .elemMatch(new Criteria()
                                         .andOperator(Criteria.where("permission")
                                                 .is(AclPermission.EXECUTE_ENVIRONMENTS.getValue())))
                                 .and("policies.permissionGroups")
                                 .exists(true),
-                        Criteria.where(fieldName(QEnvironment.environment.name))
-                                .is(CommonFieldName.STAGING_ENVIRONMENT));
+                        Criteria.where(Environment.Fields.name).is(CommonFieldName.STAGING_ENVIRONMENT));
         Query query = new Query().addCriteria(applicableEnvironmentsCriteria);
 
         Update environmentUpdateQuery =

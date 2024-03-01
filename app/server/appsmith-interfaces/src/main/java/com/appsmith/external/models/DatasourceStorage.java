@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
@@ -24,6 +25,7 @@ import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATAS
 @AllArgsConstructor
 @NoArgsConstructor
 @Document
+@FieldNameConstants
 public class DatasourceStorage extends BaseDomain {
 
     @JsonView(Views.Public.class)
@@ -150,4 +152,6 @@ public class DatasourceStorage extends BaseDomain {
         return (DEFAULT_REST_DATASOURCE.equals(this.name) || DEFAULT_APPSMITH_AI_DATASOURCE.equals(this.name))
                 && !StringUtils.hasText(this.datasourceId);
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

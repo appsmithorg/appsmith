@@ -160,15 +160,15 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
 
     private Update prepareUpdatableFieldsForModuleInstance(ModuleInstanceDTO moduleInstanceDTO, boolean isRefactor) {
         Update updateObj = new Update();
-        String inputsPath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
+        String inputsPath = ModuleInstance.Fields.unpublishedModuleInstance + "."
                 + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.inputs);
-        String dynamicBindingPathListPath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
+        String dynamicBindingPathListPath = ModuleInstance.Fields.unpublishedModuleInstance + "."
                 + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.dynamicBindingPathList);
-        String jsonPathKeysPath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
+        String jsonPathKeysPath = ModuleInstance.Fields.unpublishedModuleInstance + "."
                 + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.jsonPathKeys);
 
         if (isRefactor) {
-            String namePath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
+            String namePath = ModuleInstance.Fields.unpublishedModuleInstance + "."
                     + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.name);
             ObjectUtils.setIfNotEmpty(updateObj, namePath, moduleInstanceDTO.getName());
         }

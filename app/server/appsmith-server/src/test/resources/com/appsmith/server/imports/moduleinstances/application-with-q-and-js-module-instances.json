@@ -4,6 +4,7 @@
       "moduleUUID": "qmUUID",
       "type": "QUERY_MODULE",
       "unpublishedModuleInstance": {
+        "version": "0.0.1",
         "name": "QueryModule1_1",
         "contextType": "PAGE",
         "pageId": "Page1",
@@ -27,6 +28,7 @@
       "moduleUUID": "jsmUUID",
       "type": "JS_MODULE",
       "unpublishedModuleInstance": {
+        "version": "0.0.1",
         "name": "JSModule1_1",
         "contextType": "PAGE",
         "pageId": "Page1",

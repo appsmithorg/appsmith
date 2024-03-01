@@ -24,7 +24,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
-class SearchEntitySolutionTest {
+class SearchEntitySolutionCETest {
 
     @Autowired
     ApplicationPageService applicationPageService;

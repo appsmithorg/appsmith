@@ -901,7 +901,7 @@ class CrudModuleInstanceServiceTest {
                 .block();
 
         // Update the module with the new input
-        crudModuleService.updateModule(createdModule, createdModule.getId()).block();
+        crudModuleService.updateModule(createdModule.getId(), createdModule).block();
 
         // Publish the package again
         publishPackageService
