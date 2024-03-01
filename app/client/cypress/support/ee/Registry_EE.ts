@@ -5,6 +5,8 @@ import { MultipleEnvironments } from "../Pages/MultipleEnvironments";
 import { RBACHelper } from "../RBACHelper";
 import { Provisioning } from "../Pages/ProvisioningHelper";
 import { License } from "../Pages/LicenseHelper";
+import { GitSync } from "../Pages/GitSync";
+import GitExtended from "../Pages/GitExtended";
 
 export class ObjectsRegistry extends CE_ObjectsRegistry {
   private static multipleEnv__: MultipleEnvironments;
@@ -37,5 +39,13 @@ export class ObjectsRegistry extends CE_ObjectsRegistry {
       ObjectsRegistry.license__ = new License();
     }
     return ObjectsRegistry.license__;
+  }
+
+  private static gitExtended__: GitExtended;
+  static get GitExtended(): GitExtended {
+    if (ObjectsRegistry.gitExtended__ === undefined) {
+      ObjectsRegistry.gitExtended__ = new GitExtended();
+    }
+    return ObjectsRegistry.gitExtended__;
   }
 }

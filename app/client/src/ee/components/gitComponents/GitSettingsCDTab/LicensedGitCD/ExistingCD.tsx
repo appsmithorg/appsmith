@@ -37,7 +37,7 @@ function ExistingCD() {
   }, [selectedBranch, defaultBranchName]);
 
   return (
-    <div className="pt-2">
+    <div className="pt-2" data-testid="t--cd-existing">
       <LastDeployment />
       <Divider className="d-block mt-6 mb-6" />
       <GenerateAPIKey

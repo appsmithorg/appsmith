@@ -63,7 +63,7 @@ function DisableCDModal() {
       open={showDisableCDModal}
     >
       <ModalContent
-        data-testid="t--git-disable-cd-modal"
+        data-testid="t--cd-disable-modal"
         style={{ width: "640px" }}
       >
         <ModalHeader style={{ margin: 0 }}>
@@ -74,7 +74,7 @@ function DisableCDModal() {
             {createMessage(GIT_CD_DISABLE_CD_DESC)}
           </DescText>
           <StyledCheckbox
-            data-testid="t--git-disable-cd-confirm-checkbox"
+            data-testid="t--cd-disable-confirm-checkbox"
             isSelected={confirmed}
             onChange={(isSelected) => {
               setConfirmed(isSelected);
@@ -85,7 +85,7 @@ function DisableCDModal() {
         </ModalBody>
         <ModalFooter>
           <Button
-            className="t--git-disable-cd-modal-btn"
+            data-testid="t--cd-disable-confirm-btn"
             isDisabled={!confirmed}
             isLoading={toggleCdLoading}
             kind="primary"

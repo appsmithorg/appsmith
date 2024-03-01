@@ -49,7 +49,7 @@ function ReconfigureCDKeyModal() {
       open={showModal}
     >
       <ModalContent
-        data-testid="t--reconfigure-cd-key-modal"
+        data-testid="t--cd-reconfigure-key-modal"
         style={{ width: "640px" }}
       >
         <ModalHeader style={{ margin: 0 }}>
@@ -62,7 +62,7 @@ function ReconfigureCDKeyModal() {
         </ModalBody>
         <ModalFooter>
           <Button
-            className="t--reconfigure-cd-key-cta-button"
+            data-testid="t--cd-reconfigure-key-btn"
             kind="primary"
             onClick={handleDisableAutocommit}
             size="md"
