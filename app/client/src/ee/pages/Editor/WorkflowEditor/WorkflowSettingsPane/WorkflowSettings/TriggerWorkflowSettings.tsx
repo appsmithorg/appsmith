@@ -65,8 +65,11 @@ function TriggerWorkflowSettings() {
           isDisabled={isWorkflowTokenGenerating}
           isSelected={isWorkflowTokenGenerated}
           onChange={() => {
-            AnalyticsUtil.logEvent("TOGGLE_WORKFLOW_TOKEN", {
-              tokeGenerated: !isWorkflowTokenGenerated,
+            const analyticsEvent = isWorkflowTokenGenerated
+              ? "ENABLE_WORKFLOW_WEBHOOK"
+              : "DISABLE_WORKFLOW_WEBHOOK";
+            AnalyticsUtil.logEvent(analyticsEvent, {
+              workflowId: currentWorkflowId,
             });
             currentWorkflowId &&
               dispatch(
@@ -91,6 +94,10 @@ function TriggerWorkflowSettings() {
               <Button
                 kind="tertiary"
                 onClick={() => {
+                  AnalyticsUtil.logEvent("COPY_WORKFLOW_WEBHOOK", {
+                    workflowId: currentWorkflowId,
+                    copy: path,
+                  });
                   toast.show("Copied to clipboard", { kind: "success" });
                   copy(path);
                 }}
