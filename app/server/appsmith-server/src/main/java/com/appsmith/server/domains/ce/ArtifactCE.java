@@ -23,6 +23,10 @@ public interface ArtifactCE {
 
     String getPublishedThemeId();
 
+    void makePristine();
+
+    void sanitiseToExportDBObject();
+
     void setUnpublishedThemeId(String themeId);
 
     void setPublishedThemeId(String themeId);

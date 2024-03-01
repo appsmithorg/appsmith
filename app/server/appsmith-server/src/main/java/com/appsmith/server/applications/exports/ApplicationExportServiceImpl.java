@@ -4,7 +4,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -68,7 +68,7 @@ public class ApplicationExportServiceImpl extends ApplicationExportServiceCEImpl
     public Flux<Void> generateArtifactSpecificExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         Flux<Void> artifactSpecificExportableCE = super.generateArtifactSpecificExportables(

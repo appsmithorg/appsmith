@@ -8,7 +8,7 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
@@ -124,7 +124,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         GitArtifactHelper<?> artifactGitHelper = getArtifactGitService(artifactType);
         AclPermission artifactEditPermission = artifactGitHelper.getArtifactEditPermission();
 
-        Mono<? extends ExportableArtifact> branchedAppMono = artifactGitHelper
+        Mono<? extends Artifact> branchedAppMono = artifactGitHelper
                 .getArtifactByDefaultIdAndBranchName(defaultArtifactId, finalBranchName, artifactEditPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR)))
                 .cache();
@@ -137,7 +137,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                         getGitArtifactMetadata(defaultArtifactId, artifactType), branchedAppMono)
                 .flatMap(tuple2 -> {
                     GitArtifactMetadata gitArtifactMetadata = tuple2.getT1();
-                    ExportableArtifact branchedArtifact = tuple2.getT2();
+                    Artifact branchedArtifact = tuple2.getT2();
                     Mono<? extends ArtifactExchangeJson> exportedArtifactJsonMono = exportService
                             .exportByArtifactId(branchedArtifact.getId(), VERSION_CONTROL, artifactType)
                             .elapsed()
@@ -161,7 +161,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 })
                 .flatMap(tuple -> {
                     GitArtifactMetadata defaultArtifactMetadata = tuple.getT1();
-                    ExportableArtifact exportableArtifact = tuple.getT2();
+                    Artifact exportableArtifact = tuple.getT2();
                     ArtifactExchangeJson artifactExchangeJson = tuple.getT3();
 
                     GitArtifactMetadata gitData = exportableArtifact.getGitArtifactMetadata();
@@ -262,7 +262,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     log.debug("Multi mono took: {}", elapsedTime);
                     GitStatusDTO gitStatusDTO = objects.getT2().getT1();
                     User currentUser = objects.getT2().getT2();
-                    ExportableArtifact artifact = objects.getT2().getT3();
+                    Artifact artifact = objects.getT2().getT3();
                     String flowName;
                     if (compareRemote) {
                         flowName = AnalyticsEvents.GIT_STATUS.getEventName();
@@ -300,7 +300,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         GitArtifactHelper<?> artifactGitHelper = getArtifactGitService(artifactType);
         AclPermission artifactEditPermission = artifactGitHelper.getArtifactEditPermission();
 
-        Mono<? extends ExportableArtifact> branchedArtifactMono = artifactGitHelper
+        Mono<? extends Artifact> branchedArtifactMono = artifactGitHelper
                 .getArtifactByDefaultIdAndBranchName(defaultArtifactId, finalBranchName, artifactEditPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR)))
                 .cache();
@@ -325,7 +325,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 })
                 .flatMap(tuple3 -> {
                     GitArtifactMetadata defaultArtifactMetadata = tuple3.getT1();
-                    ExportableArtifact artifact = tuple3.getT2();
+                    Artifact artifact = tuple3.getT2();
                     GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
                     gitData.setGitAuth(defaultArtifactMetadata.getGitAuth());
 
@@ -374,7 +374,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     Long elapsedTime = objects.getT1().getT1();
                     BranchTrackingStatus branchTrackingStatus = objects.getT1().getT2();
                     User currentUser = objects.getT2().getT1();
-                    ExportableArtifact artifact = objects.getT2().getT2();
+                    Artifact artifact = objects.getT2().getT2();
                     return sendUnitExecutionTimeAnalyticsEvent(
                                     AnalyticsEvents.GIT_FETCH.getEventName(), elapsedTime, currentUser, artifact)
                             .thenReturn(branchTrackingStatus);
@@ -386,7 +386,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     }
 
     private Mono<Void> sendUnitExecutionTimeAnalyticsEvent(
-            String flowName, Long elapsedTime, User currentUser, ExportableArtifact artifact) {
+            String flowName, Long elapsedTime, User currentUser, Artifact artifact) {
         GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
 
         final Map<String, Object> data = Map.of(
@@ -413,12 +413,12 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         GitArtifactHelper<?> gitArtifactHelper = getArtifactGitService(artifactType);
 
         AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
-        Mono<? extends ExportableArtifact> defaultArtifactMono =
+        Mono<? extends Artifact> defaultArtifactMono =
                 gitArtifactHelper.getArtifactById(defaultApplicationId, artifactEditPermission);
 
         return Mono.zip(defaultArtifactMono, userDataService.getForCurrentUser())
                 .map(tuple -> {
-                    ExportableArtifact artifact = tuple.getT1();
+                    Artifact artifact = tuple.getT1();
                     UserData userData = tuple.getT2();
                     Map<String, GitProfile> gitProfiles = new HashMap<>();
                     GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();

@@ -7,7 +7,6 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Theme;
 
@@ -28,7 +27,7 @@ public interface ArtifactExchangeJsonCE {
 
     Artifact getImportableArtifact();
 
-    ExportableArtifact getExportableArtifact();
+    Artifact getExportableArtifact();
 
     default void setThemes(Theme unpublishedTheme, Theme publishedTheme) {}
 

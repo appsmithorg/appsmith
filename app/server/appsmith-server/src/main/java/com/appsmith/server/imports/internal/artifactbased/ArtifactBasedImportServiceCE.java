@@ -50,8 +50,7 @@ public interface ArtifactBasedImportServiceCE<
      */
     void setJsonArtifactNameToNullBeforeUpdate(String artifactId, ArtifactExchangeJson artifactExchangeJson);
 
-    U getImportableArtifactDTO(
-        Artifact importableArtifact, List<Datasource> datasourceList, String environmentId);
+    U getImportableArtifactDTO(Artifact importableArtifact, List<Datasource> datasourceList, String environmentId);
 
     /**
      * This method sets the client & server schema version to artifacts which is inside JSON from the clientSchemaVersion

@@ -1,7 +1,7 @@
 package com.appsmith.server.jslibs.importable;
 
-import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Artifact;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;

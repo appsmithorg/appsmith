@@ -5,7 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
@@ -89,9 +89,7 @@ public class PackageExportServiceImpl implements ArtifactBasedExportService<Pack
 
     @Override
     public Mono<Void> getArtifactReadyForExport(
-            ExportableArtifact exportableArtifact,
-            ArtifactExchangeJson artifactExchangeJson,
-            ExportingMetaDTO exportingMetaDTO) {
+            Artifact exportableArtifact, ArtifactExchangeJson artifactExchangeJson, ExportingMetaDTO exportingMetaDTO) {
 
         Package aPackage = (Package) exportableArtifact;
         PackageJson packageJson = (PackageJson) artifactExchangeJson;
@@ -134,7 +132,7 @@ public class PackageExportServiceImpl implements ArtifactBasedExportService<Pack
     public Flux<Void> generateArtifactSpecificExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         return exportableArtifactMono.flatMapMany(exportableArtifact -> {
             Mono<Package> packageMono = Mono.just((Package) exportableArtifact);
@@ -153,7 +151,7 @@ public class PackageExportServiceImpl implements ArtifactBasedExportService<Pack
     public Flux<Void> generateArtifactComponentDependentExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         return exportableArtifactMono.flatMapMany(exportableArtifact -> {
             Mono<Package> packageMono = Mono.just((Package) exportableArtifact);

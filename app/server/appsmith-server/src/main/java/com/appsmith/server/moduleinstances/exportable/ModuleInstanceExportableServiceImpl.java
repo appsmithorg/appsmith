@@ -4,7 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -68,7 +68,7 @@ public class ModuleInstanceExportableServiceImpl extends ModuleInstanceExportabl
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         ArtifactBasedExportableService<ModuleInstance, ?> artifactBasedExportableService =

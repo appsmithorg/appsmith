@@ -19,8 +19,7 @@ public interface ImportServiceCE {
      * @param artifactExchangeJson : Entity Json which is implementing the artifactExchangeJson
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
-    ArtifactBasedImportService<
-                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+    ArtifactBasedImportService<? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactExchangeJson artifactExchangeJson);
 
     /**
@@ -29,8 +28,7 @@ public interface ImportServiceCE {
      * @param artifactType : Type of Json serialisation
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
-    ArtifactBasedImportService<
-                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+    ArtifactBasedImportService<? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactType artifactType);
 
     /**
@@ -88,7 +86,7 @@ public interface ImportServiceCE {
             String workspaceId, String artifactId, String branchName, ArtifactExchangeJson artifactExchangeJson);
 
     Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
-        String workspaceId, String artifactId, Artifact importableArtifact, ArtifactType artifactType);
+            String workspaceId, String artifactId, Artifact importableArtifact, ArtifactType artifactType);
 
     Mono<List<Datasource>> findDatasourceByArtifactId(
             String workspaceId, String defaultArtifactId, ArtifactType artifactType);

@@ -380,7 +380,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
-        String workspaceId, String artifactId, Artifact importableArtifact, ArtifactType artifactType) {
+            String workspaceId, String artifactId, Artifact importableArtifact, ArtifactType artifactType) {
 
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService = getArtifactBasedImportService(artifactType);
 

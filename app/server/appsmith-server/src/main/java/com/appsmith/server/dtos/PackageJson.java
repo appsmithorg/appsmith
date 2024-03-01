@@ -6,7 +6,6 @@ import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
@@ -85,7 +84,7 @@ public class PackageJson implements ArtifactExchangeJson {
     }
 
     @Override
-    public ExportableArtifact getExportableArtifact() {
+    public Artifact getExportableArtifact() {
         return this.getExportedPackage();
     }
 

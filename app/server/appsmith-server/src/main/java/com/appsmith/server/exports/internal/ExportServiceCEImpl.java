@@ -8,8 +8,8 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -126,7 +126,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
         artifactExchangeJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
         // Find the transaction artifact with appropriate permission
-        Mono<? extends ExportableArtifact> exportableArtifactMono = artifactBasedExportService
+        Mono<? extends Artifact> exportableArtifactMono = artifactBasedExportService
                 .findExistingArtifactByIdAndBranchName(artifactId, branchName, permission)
                 .map(transactionArtifact -> {
                     // Since we have moved the setting of artifactId from the repository, the MetaDTO needs to assigned
@@ -211,7 +211,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     private Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         ArtifactBasedExportService<?, ?> artifactBasedExportService =
@@ -236,7 +236,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     protected List<Mono<Void>> generateArtifactAgnosticExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         // Updates plugin map in exportable resources
@@ -313,7 +313,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
      * @param event : Analytics Event
      * @return a subclass of  which is imported or exported
      */
-    private Mono<? extends ExportableArtifact> sendExportArtifactAnalyticsEvent(
+    private Mono<? extends Artifact> sendExportArtifactAnalyticsEvent(
             ArtifactBasedExportService<?, ?> artifactBasedExportService,
             String exportableArtifactId,
             AnalyticsEvents event) {
