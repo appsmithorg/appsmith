@@ -7,7 +7,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ExportableArtifact;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
@@ -80,7 +80,7 @@ public class PackageJson implements ArtifactExchangeJson {
     String widgets;
 
     @Override
-    public ImportableArtifact getImportableArtifact() {
+    public Artifact getImportableArtifact() {
         return this.getExportedPackage();
     }
 

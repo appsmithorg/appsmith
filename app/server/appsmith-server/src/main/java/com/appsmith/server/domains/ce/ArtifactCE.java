@@ -5,7 +5,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 
 import java.util.Set;
 
-public interface ImportableArtifactCE {
+public interface ArtifactCE {
 
     String getId();
 

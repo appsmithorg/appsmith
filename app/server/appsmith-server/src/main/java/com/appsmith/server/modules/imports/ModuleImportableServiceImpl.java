@@ -2,7 +2,7 @@ package com.appsmith.server.modules.imports;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.Workspace;
@@ -60,7 +60,7 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         PackageJson packageJson = (PackageJson) artifactExchangeJson;
@@ -92,7 +92,7 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
 
     @Override
     public Mono<Void> updateImportedEntities(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
@@ -117,7 +117,7 @@ public class ModuleImportableServiceImpl implements ImportableService<Module> {
     private Mono<Tuple2<List<Module>, Map<String, String>>> getImportModulesMono(
             List<Module> importedModuleList,
             Mono<List<Module>> existingModulesMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return Mono.just(importedModuleList)

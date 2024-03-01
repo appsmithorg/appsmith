@@ -7,7 +7,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
@@ -90,7 +90,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         Mono<Void> createModuleReferencesMono =
@@ -129,7 +129,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
         return Mono.zip(importedModuleInstancesMono, importableArtifactMono)
                 .flatMap(tuple2 -> {
                     List<ModuleInstance> moduleInstances = tuple2.getT1();
-                    ImportableArtifact importableArtifact = tuple2.getT2();
+                    Artifact importableArtifact = tuple2.getT2();
                     return importModuleInstances(
                             moduleInstances, importableArtifact, importingMetaDTO, mappedImportableResourcesDTO);
                 })
@@ -229,7 +229,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
 
     private Mono<ImportModuleInstanceResultDTO> importModuleInstances(
             List<ModuleInstance> moduleInstanceList,
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         Mono<Map<String, ModuleInstance>> moduleInstancesInCurrentAppMono =
@@ -556,7 +556,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 savedModuleInstance.getId());
     }
 
-    private Flux<ModuleInstance> getModuleInstancesInCurrentAppMono(ImportableArtifact importedApplication) {
+    private Flux<ModuleInstance> getModuleInstancesInCurrentAppMono(Artifact importedApplication) {
         return repository.findByApplicationId(importedApplication.getId());
     }
 

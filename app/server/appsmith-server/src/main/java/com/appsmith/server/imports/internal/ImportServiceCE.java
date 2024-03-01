@@ -2,7 +2,7 @@ package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.ArtifactType;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
@@ -20,7 +20,7 @@ public interface ImportServiceCE {
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     ArtifactBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactExchangeJson artifactExchangeJson);
 
     /**
@@ -30,7 +30,7 @@ public interface ImportServiceCE {
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     ArtifactBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactType artifactType);
 
     /**
@@ -42,10 +42,10 @@ public interface ImportServiceCE {
     Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart);
 
     /**
-     * Hydrates an ImportableArtifact within the specified workspace by saving the provided JSON file.
+     * Hydrates an Artifact within the specified workspace by saving the provided JSON file.
      *
-     * @param filePart    The filePart representing the ImportableArtifact object to be saved.
-     *                    The ImportableArtifact implements the ImportableArtifact interface.
+     * @param filePart    The filePart representing the Artifact object to be saved.
+     *                    The Artifact implements the Artifact interface.
      * @param workspaceId The identifier for the destination workspace.
      * @param artifactId
      */
@@ -56,39 +56,39 @@ public interface ImportServiceCE {
      * Saves the provided ArtifactExchangeJson within the specified workspace.
      *
      * @param workspaceId          The identifier for the destination workspace.
-     * @param artifactExchangeJson The JSON file representing the ImportableArtifact object to be saved.
-     *                              The ImportableArtifact implements the ImportableArtifact interface.
+     * @param artifactExchangeJson The JSON file representing the Artifact object to be saved.
+     *                              The Artifact implements the Artifact interface.
      */
-    Mono<? extends ImportableArtifact> importNewArtifactInWorkspaceFromJson(
+    Mono<? extends Artifact> importNewArtifactInWorkspaceFromJson(
             String workspaceId, ArtifactExchangeJson artifactExchangeJson);
 
-    Mono<? extends ImportableArtifact> updateNonGitConnectedArtifactFromJson(
+    Mono<? extends Artifact> updateNonGitConnectedArtifactFromJson(
             String workspaceId, String artifactId, ArtifactExchangeJson artifactExchangeJson);
 
     /**
-     * Updates an existing ImportableArtifact connected to Git within the specified workspace.
+     * Updates an existing Artifact connected to Git within the specified workspace.
      *
      * @param workspaceId          The identifier for the destination workspace.
-     * @param artifactId           The ImportableArtifact id that needs to be updated with the new resources.
-     * @param artifactExchangeJson The ImportableArtifact JSON containing necessary information to update the ImportableArtifact.
+     * @param artifactId           The Artifact id that needs to be updated with the new resources.
+     * @param artifactExchangeJson The Artifact JSON containing necessary information to update the Artifact.
      * @param branchName           The name of the Git branch. Set to null if not connected to Git.
-     * @return The updated ImportableArtifact stored in the database.
+     * @return The updated Artifact stored in the database.
      */
-    Mono<? extends ImportableArtifact> importArtifactInWorkspaceFromGit(
+    Mono<? extends Artifact> importArtifactInWorkspaceFromGit(
             String workspaceId, String artifactId, ArtifactExchangeJson artifactExchangeJson, String branchName);
 
-    Mono<? extends ImportableArtifact> mergeArtifactExchangeJsonWithImportableArtifact(
+    Mono<? extends Artifact> mergeArtifactExchangeJsonWithImportableArtifact(
             String workspaceId,
             String artifactId,
             String branchName,
             ArtifactExchangeJson artifactExchangeJson,
             List<String> entitiesToImport);
 
-    Mono<? extends ImportableArtifact> restoreSnapshot(
+    Mono<? extends Artifact> restoreSnapshot(
             String workspaceId, String artifactId, String branchName, ArtifactExchangeJson artifactExchangeJson);
 
     Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
-            String workspaceId, String artifactId, ImportableArtifact importableArtifact, ArtifactType artifactType);
+        String workspaceId, String artifactId, Artifact importableArtifact, ArtifactType artifactType);
 
     Mono<List<Datasource>> findDatasourceByArtifactId(
             String workspaceId, String defaultArtifactId, ArtifactType artifactType);

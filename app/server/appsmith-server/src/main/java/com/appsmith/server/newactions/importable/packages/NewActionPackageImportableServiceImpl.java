@@ -3,7 +3,7 @@ package com.appsmith.server.newactions.importable.packages;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.Context;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
@@ -49,7 +49,7 @@ public class NewActionPackageImportableServiceImpl implements ArtifactBasedImpor
     }
 
     @Override
-    public Flux<NewAction> getExistingResourcesInCurrentArtifactFlux(ImportableArtifact artifact) {
+    public Flux<NewAction> getExistingResourcesInCurrentArtifactFlux(Artifact artifact) {
         return repository.findByPackageId(artifact.getId());
     }
 
@@ -82,7 +82,7 @@ public class NewActionPackageImportableServiceImpl implements ArtifactBasedImpor
     public void populateDefaultResources(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            ImportableArtifact artifact,
+            Artifact artifact,
             NewAction branchedNewAction,
             NewAction newAction) {
         newAction.setPackageId(artifact.getId());

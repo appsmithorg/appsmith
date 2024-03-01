@@ -4,7 +4,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -26,7 +26,7 @@ public class ActionCollectionApplicationImportableServiceImpl extends ActionColl
     }
 
     @Override
-    public Flux<ActionCollection> getExistingResourcesInCurrentArtifactFlux(ImportableArtifact artifact) {
+    public Flux<ActionCollection> getExistingResourcesInCurrentArtifactFlux(Artifact artifact) {
         return super.getExistingResourcesInCurrentArtifactFlux(artifact)
                 .filter(actionCollection -> actionCollection.getRootModuleInstanceId() == null
                         || TRUE.equals(actionCollection.getIsPublic()));

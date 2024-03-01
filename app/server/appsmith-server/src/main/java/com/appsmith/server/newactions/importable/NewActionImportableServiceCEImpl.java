@@ -6,8 +6,8 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Context;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -64,7 +64,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         List<NewAction> importedNewActionList = CollectionUtils.isEmpty(artifactExchangeJson.getActionList())
@@ -118,7 +118,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
     @Override
     public Mono<Void> updateImportedEntities(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
@@ -189,7 +189,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
      */
     private Mono<ImportActionResultDTO> createImportNewActionsMono(
             List<NewAction> importedNewActions,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
@@ -234,7 +234,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     }
 
     @NotNull private Mono<ImportActionResultDTO> importNewActions(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             List<NewAction> importedNewActionList,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
@@ -357,7 +357,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     private Context populateIdReferencesAndReturnDefaultContext(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             NewAction branchedNewAction,
             NewAction newAction) {
         ArtifactBasedImportableService<NewAction, ?> artifactBasedImportableService =

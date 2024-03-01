@@ -7,7 +7,7 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.converters.ArtifactExchangeJsonAdapter;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -75,7 +75,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public ArtifactBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactExchangeJson artifactExchangeJson) {
         return getArtifactBasedImportService(artifactExchangeJson.getArtifactJsonType());
     }
@@ -89,7 +89,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public ArtifactBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactType artifactType) {
         return switch (artifactType) {
             case APPLICATION -> applicationImportService;
@@ -126,10 +126,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * Hydrates an ImportableArtifact within the specified workspace by saving the provided JSON file.
+     * Hydrates an Artifact within the specified workspace by saving the provided JSON file.
      *
-     * @param filePart    The filePart representing the ImportableArtifact object to be saved.
-     *                    The ImportableArtifact implements the ImportableArtifact interface.
+     * @param filePart    The filePart representing the Artifact object to be saved.
+     *                    The Artifact implements the Artifact interface.
      * @param workspaceId The identifier for the destination workspace.
      */
     @Override
@@ -150,7 +150,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .flatMap(tuple2 -> {
                     ArtifactExchangeJson exchangeJson = tuple2.getT1();
-                    ImportableArtifact context = tuple2.getT2();
+                    Artifact context = tuple2.getT2();
                     return getArtifactImportDTO(
                             context.getWorkspaceId(), context.getId(), context, exchangeJson.getArtifactJsonType());
                 });
@@ -163,11 +163,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * Saves the provided ArtifactExchangeJson within the specified workspace.
      *
      * @param workspaceId          The identifier for the destination workspace.
-     * @param artifactExchangeJson The JSON file representing the ImportableArtifact object to be saved.
-     *                             The ImportableArtifact implements the ImportableArtifact interface.
+     * @param artifactExchangeJson The JSON file representing the Artifact object to be saved.
+     *                             The Artifact implements the Artifact interface.
      */
     @Override
-    public Mono<? extends ImportableArtifact> importNewArtifactInWorkspaceFromJson(
+    public Mono<? extends Artifact> importNewArtifactInWorkspaceFromJson(
             String workspaceId, ArtifactExchangeJson artifactExchangeJson) {
 
         // workspace id must be present and valid
@@ -198,7 +198,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public Mono<? extends ImportableArtifact> updateNonGitConnectedArtifactFromJson(
+    public Mono<? extends Artifact> updateNonGitConnectedArtifactFromJson(
             String workspaceId, String artifactId, ArtifactExchangeJson artifactExchangeJson) {
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
@@ -221,7 +221,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             isArtifactConnectedToGitMono = contextBasedImportService.isArtifactConnectedToGit(artifactId);
         }
 
-        Mono<ImportableArtifact> importedContextMono = isArtifactConnectedToGitMono.flatMap(isConnectedToGit -> {
+        Mono<Artifact> importedContextMono = isArtifactConnectedToGitMono.flatMap(isConnectedToGit -> {
             if (isConnectedToGit) {
                 return Mono.error(new AppsmithException(
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
@@ -261,16 +261,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * Updates an existing ImportableArtifact connected to Git within the specified workspace.
+     * Updates an existing Artifact connected to Git within the specified workspace.
      *
      * @param workspaceId          The identifier for the destination workspace.
-     * @param artifactId           The ImportableArtifact id that needs to be updated with the new resources.
-     * @param artifactExchangeJson The ImportableArtifact JSON containing necessary information to update the ImportableArtifact.
+     * @param artifactId           The Artifact id that needs to be updated with the new resources.
+     * @param artifactExchangeJson The Artifact JSON containing necessary information to update the Artifact.
      * @param branchName           The name of the Git branch. Set to null if not connected to Git.
-     * @return The updated ImportableArtifact stored in the database.
+     * @return The updated Artifact stored in the database.
      */
     @Override
-    public Mono<? extends ImportableArtifact> importArtifactInWorkspaceFromGit(
+    public Mono<? extends Artifact> importArtifactInWorkspaceFromGit(
             String workspaceId, String artifactId, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
         ArtifactBasedImportService<?, ?, ?> artifactBasedImportService =
@@ -296,7 +296,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     @Override
-    public Mono<? extends ImportableArtifact> restoreSnapshot(
+    public Mono<? extends Artifact> restoreSnapshot(
             String workspaceId, String artifactId, String branchName, ArtifactExchangeJson artifactExchangeJson) {
 
         /**
@@ -327,8 +327,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
     /**
      * This function will take the Json filePart and saves the artifact (likely an application) in workspace.
-     * It'll not create a new ImportableArtifact, it'll update the existing ImportableArtifact by appending the pages to the ImportableArtifact.
-     * The destination ImportableArtifact will be as it is, only the pages will be appended.
+     * It'll not create a new Artifact, it'll update the existing Artifact by appending the pages to the Artifact.
+     * The destination Artifact will be as it is, only the pages will be appended.
      * This method will likely be only applicable for applications
      *
      * @param workspaceId          ID in which the artifact is to be merged
@@ -337,10 +337,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param artifactExchangeJson artifactExchangeJson of the importableArtifact that will be merged to
      * @param entitiesToImport     Name of the pages that should be merged from the artifactExchangeJson.
      *                             If null or empty, all pages will be merged.
-     * @return Merged ImportableArtifact
+     * @return Merged Artifact
      */
     @Override
-    public Mono<? extends ImportableArtifact> mergeArtifactExchangeJsonWithImportableArtifact(
+    public Mono<? extends Artifact> mergeArtifactExchangeJsonWithImportableArtifact(
             String workspaceId,
             String artifactId,
             String branchName,
@@ -380,7 +380,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
-            String workspaceId, String artifactId, ImportableArtifact importableArtifact, ArtifactType artifactType) {
+        String workspaceId, String artifactId, Artifact importableArtifact, ArtifactType artifactType) {
 
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService = getArtifactBasedImportService(artifactType);
 
@@ -405,7 +405,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param appendToArtifact     Indicates whether artifactExchangeJson will be appended to the existing application or not.
      * @return The updated artifact stored in MongoDB.
      */
-    private Mono<ImportableArtifact> importArtifactInWorkspace(
+    private Mono<Artifact> importArtifactInWorkspace(
             String workspaceId,
             ArtifactExchangeJson artifactExchangeJson,
             String artifactId,
@@ -481,7 +481,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
          If the first db call inside a transaction is a Flux, then there's a chance of creating multiple mongo
          transactions which will lead to NoSuchTransaction exception.
         */
-        final Mono<? extends ImportableArtifact> importableArtifactMono = workspaceMono
+        final Mono<? extends Artifact> importableArtifactMono = workspaceMono
                 .then(Mono.defer(() -> artifactSpecificImportableEntities))
                 .then(Mono.defer(() -> contextBasedImportService.updateAndSaveArtifactInContext(
                         importedDoc.getImportableArtifact(),
@@ -490,7 +490,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         currUserMono)))
                 .cache();
 
-        final Mono<? extends ImportableArtifact> importMono = importableArtifactMono
+        final Mono<? extends Artifact> importMono = importableArtifactMono
                 .then(Mono.defer(() -> generateImportableEntities(
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
@@ -509,12 +509,12 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 })
                 .as(transactionalOperator::transactional);
 
-        final Mono<? extends ImportableArtifact> resultMono = importMono
+        final Mono<? extends Artifact> resultMono = importMono
                 .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
                         contextBasedImportService, importableArtifact, AnalyticsEvents.IMPORT))
                 .zipWith(currUserMono)
                 .flatMap(tuple -> {
-                    ImportableArtifact importableArtifact = tuple.getT1();
+                    Artifact importableArtifact = tuple.getT1();
                     User user = tuple.getT2();
                     stopwatch.stopTimer();
                     stopwatch.stopAndLogTimeInMillis();
@@ -562,9 +562,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param importingMetaDTO
      * @return
      */
-    private Mono<? extends ImportableArtifact> updateImportableEntities(
+    private Mono<? extends Artifact> updateImportableEntities(
             ArtifactBasedImportService<?, ?, ?> contextBasedImportService,
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO) {
         return contextBasedImportService.updateImportableEntities(
@@ -578,8 +578,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param importableArtifact
      * @return
      */
-    private Mono<? extends ImportableArtifact> updateImportableArtifact(
-            ArtifactBasedImportService<?, ?, ?> contextBasedImportService, ImportableArtifact importableArtifact) {
+    private Mono<? extends Artifact> updateImportableArtifact(
+            ArtifactBasedImportService<?, ?, ?> contextBasedImportService, Artifact importableArtifact) {
         return contextBasedImportService.updateImportableArtifact(importableArtifact);
     }
 
@@ -598,7 +598,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService =
@@ -648,7 +648,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         // Updates plugin map in importable resources
@@ -675,15 +675,15 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     }
 
     /**
-     * To send analytics event for import and export of ImportableArtifact i.e. application, packages
+     * To send analytics event for import and export of Artifact i.e. application, packages
      *
-     * @param importableArtifact ImportableArtifact object imported or exported
+     * @param importableArtifact Artifact object imported or exported
      * @param event              AnalyticsEvents event
-     * @return The ImportableArtifact which is imported or exported
+     * @return The Artifact which is imported or exported
      */
-    private Mono<? extends ImportableArtifact> sendImportedContextAnalyticsEvent(
+    private Mono<? extends Artifact> sendImportedContextAnalyticsEvent(
             ArtifactBasedImportService<?, ?, ?> contextBasedImportService,
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             AnalyticsEvents event) {
         // this would result in "application", "packages", or "workflows"
         String artifactContextString =
@@ -715,9 +715,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param stopwatch            : stopwatch
      * @param currentUser          : user which has initiated the import
      */
-    private Mono<ImportableArtifact> sendImportRelatedAnalyticsEvent(
+    private Mono<Artifact> sendImportRelatedAnalyticsEvent(
             ArtifactExchangeJson artifactExchangeJson,
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             Stopwatch stopwatch,
             User currentUser) {
 

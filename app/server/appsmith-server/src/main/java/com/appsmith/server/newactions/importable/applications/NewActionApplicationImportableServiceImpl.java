@@ -3,7 +3,7 @@ package com.appsmith.server.newactions.importable.applications;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -26,7 +26,7 @@ public class NewActionApplicationImportableServiceImpl extends NewActionApplicat
     }
 
     @Override
-    public Flux<NewAction> getExistingResourcesInCurrentArtifactFlux(ImportableArtifact artifact) {
+    public Flux<NewAction> getExistingResourcesInCurrentArtifactFlux(Artifact artifact) {
         return super.getExistingResourcesInCurrentArtifactFlux(artifact)
                 .filter(newAction ->
                         newAction.getRootModuleInstanceId() == null || TRUE.equals(newAction.getIsPublic()));

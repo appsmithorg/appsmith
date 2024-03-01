@@ -9,9 +9,9 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ExportableArtifact;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -120,7 +120,7 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     String widgets;
 
     @Override
-    public ImportableArtifact getImportableArtifact() {
+    public Artifact getImportableArtifact() {
         return this.getExportedApplication();
     }
 

@@ -4,7 +4,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
@@ -171,7 +171,7 @@ public class PackageImportServiceImpl implements ArtifactBasedImportService<Pack
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         // Requires moduleNameMap, moduleNameToOldNameMap, pluginMap and datasourceNameToIdMap to be present in
@@ -215,7 +215,7 @@ public class PackageImportServiceImpl implements ArtifactBasedImportService<Pack
 
     @Override
     public PackageImportDTO getImportableArtifactDTO(
-            ImportableArtifact importableArtifact, List<Datasource> datasourceList, String environmentId) {
+            Artifact importableArtifact, List<Datasource> datasourceList, String environmentId) {
         Package aPackage = (Package) importableArtifact;
         PackageImportDTO packageImportDTO = new PackageImportDTO();
         packageImportDTO.setAPackage(aPackage);
@@ -313,7 +313,7 @@ public class PackageImportServiceImpl implements ArtifactBasedImportService<Pack
 
     @Override
     public Mono<Package> updateAndSaveArtifactInContext(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currentUserMono) {
@@ -370,13 +370,13 @@ public class PackageImportServiceImpl implements ArtifactBasedImportService<Pack
     }
 
     @Override
-    public Mono<Package> updateImportableArtifact(ImportableArtifact importableArtifact) {
+    public Mono<Package> updateImportableArtifact(Artifact importableArtifact) {
         return Mono.just((Package) importableArtifact);
     }
 
     @Override
     public Mono<Package> updateImportableEntities(
-            ImportableArtifact importableContext,
+            Artifact importableContext,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO) {
         return newActionImportableService
@@ -388,7 +388,7 @@ public class PackageImportServiceImpl implements ArtifactBasedImportService<Pack
 
     @Override
     public Map<String, Object> createImportAnalyticsData(
-            ArtifactExchangeJson artifactExchangeJson, ImportableArtifact importableArtifact) {
+            ArtifactExchangeJson artifactExchangeJson, Artifact importableArtifact) {
 
         Package aPackage = (Package) importableArtifact;
         PackageJson packageJson = (PackageJson) artifactExchangeJson;
@@ -418,7 +418,7 @@ public class PackageImportServiceImpl implements ArtifactBasedImportService<Pack
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         // Updates moduleNameToIdMap and moduleNameMap in importable resources.
@@ -438,7 +438,7 @@ public class PackageImportServiceImpl implements ArtifactBasedImportService<Pack
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         List<Mono<Void>> moduleDependentImportables = getModuleDependentImportables(

@@ -21,7 +21,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @ToString
 @NoArgsConstructor
 @Document
-public class Package extends BranchAwareDomain implements ImportableArtifact, ExportableArtifact {
+public class Package extends BranchAwareDomain implements Artifact, ExportableArtifact {
 
     // Fields in package that are not allowed to change between published and unpublished versions
     @JsonView(Views.Public.class)

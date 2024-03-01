@@ -5,9 +5,9 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ExportableArtifact;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Theme;
 
@@ -26,7 +26,7 @@ public interface ArtifactExchangeJsonCE {
 
     ArtifactType getArtifactJsonType();
 
-    ImportableArtifact getImportableArtifact();
+    Artifact getImportableArtifact();
 
     ExportableArtifact getExportableArtifact();
 

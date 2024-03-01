@@ -1,7 +1,7 @@
 package com.appsmith.server.imports.internal.artifactbased;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ArtifactBasedImportServiceCE<
-        T extends ImportableArtifact, U extends ImportableArtifactDTO, V extends ArtifactExchangeJson> {
+        T extends Artifact, U extends ImportableArtifactDTO, V extends ArtifactExchangeJson> {
 
     ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(
             Set<String> userPermissions);
@@ -51,7 +51,7 @@ public interface ArtifactBasedImportServiceCE<
     void setJsonArtifactNameToNullBeforeUpdate(String artifactId, ArtifactExchangeJson artifactExchangeJson);
 
     U getImportableArtifactDTO(
-            ImportableArtifact importableArtifact, List<Datasource> datasourceList, String environmentId);
+        Artifact importableArtifact, List<Datasource> datasourceList, String environmentId);
 
     /**
      * This method sets the client & server schema version to artifacts which is inside JSON from the clientSchemaVersion
@@ -70,7 +70,7 @@ public interface ArtifactBasedImportServiceCE<
      * @return
      */
     Mono<T> updateAndSaveArtifactInContext(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currentUserMono);
@@ -83,7 +83,7 @@ public interface ArtifactBasedImportServiceCE<
      * @return
      */
     Mono<T> updateImportableEntities(
-            ImportableArtifact importableContext,
+            Artifact importableContext,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO);
 
@@ -92,10 +92,10 @@ public interface ArtifactBasedImportServiceCE<
      * @param importableArtifact : the artifact which has to be updated
      * @return
      */
-    Mono<T> updateImportableArtifact(ImportableArtifact importableArtifact);
+    Mono<T> updateImportableArtifact(Artifact importableArtifact);
 
     Map<String, Object> createImportAnalyticsData(
-            ArtifactExchangeJson artifactExchangeJson, ImportableArtifact importableArtifact);
+            ArtifactExchangeJson artifactExchangeJson, Artifact importableArtifact);
 
     /**
      * @param importingMetaDTO
@@ -109,7 +109,7 @@ public interface ArtifactBasedImportServiceCE<
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
 
     /**
@@ -124,7 +124,7 @@ public interface ArtifactBasedImportServiceCE<
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
 
     /**

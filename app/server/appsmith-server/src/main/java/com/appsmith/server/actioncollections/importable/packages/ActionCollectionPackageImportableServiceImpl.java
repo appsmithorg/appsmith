@@ -3,8 +3,8 @@ package com.appsmith.server.actioncollections.importable.packages;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Context;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -50,7 +50,7 @@ public class ActionCollectionPackageImportableServiceImpl
     }
 
     @Override
-    public Flux<ActionCollection> getExistingResourcesInCurrentArtifactFlux(ImportableArtifact artifact) {
+    public Flux<ActionCollection> getExistingResourcesInCurrentArtifactFlux(Artifact artifact) {
         return repository.findByPackageId(artifact.getId());
     }
 
@@ -84,7 +84,7 @@ public class ActionCollectionPackageImportableServiceImpl
     public void populateDefaultResources(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            ImportableArtifact artifact,
+            Artifact artifact,
             ActionCollection branchedActionCollection,
             ActionCollection actionCollection) {
         actionCollection.setPackageId(artifact.getId());

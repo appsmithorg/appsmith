@@ -4,7 +4,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.converters.ArtifactExchangeJsonAdapter;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -56,7 +56,7 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
 
     @Override
     public ArtifactBasedImportService<
-                    ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactType artifactJsonType) {
         return switch (artifactJsonType) {
             case PACKAGE -> packageImportService;
