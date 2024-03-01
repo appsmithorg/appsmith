@@ -105,7 +105,11 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
         if (Boolean.TRUE.equals(isEmbedded)) {
             // We don't care about any of the other params in this case,
             // since environments do not apply to an embedded datasource
-            return workspaceService.verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId, null);
+            if (StringUtils.hasLength(environmentId)) {
+                return workspaceService.verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId, null);
+            } else {
+                return workspaceService.getDefaultEnvironmentId(workspaceId, null);
+            }
         }
 
         return Mono.just(!StringUtils.hasText(environmentId))
