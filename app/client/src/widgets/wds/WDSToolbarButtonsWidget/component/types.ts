@@ -6,7 +6,7 @@ import type {
 import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
-export interface ButtonGroupComponentProps {
+export interface ToolbarButtonsComponentProps {
   color?: ButtonGroupProps<object>["color"];
   variant?: ButtonGroupProps<object>["variant"];
   orientation: ButtonGroupProps<object>["orientation"];
@@ -18,7 +18,7 @@ export interface ButtonGroupComponentProps {
   density?: ButtonGroupProps<object>["density"];
 }
 
-export interface ButtonGroupItemComponentProps {
+export interface ToolbarButtonsItemComponentProps {
   label?: string;
   isVisible?: boolean;
   isLoading?: boolean;

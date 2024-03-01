@@ -15,6 +15,15 @@ interface State {
   focusedIndex: number | null;
 }
 
+interface MenuItem {
+  id: string;
+  label: string;
+  isDisabled: boolean;
+  isVisible: boolean;
+  widgetId: string;
+  itemType: "SEPARATOR" | "BUTTON";
+}
+
 class ButtonListControl extends BaseControl<
   ControlProps & { allowSeparators?: boolean; allowSpatialGrouping?: boolean },
   State
@@ -38,14 +47,7 @@ class ButtonListControl extends BaseControl<
   }
 
   getMenuItems = () => {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-      isDisabled: boolean;
-      isVisible: boolean;
-      widgetId: string;
-      isSeparator: boolean;
-    }> =
+    const menuItems: MenuItem[] =
       isString(this.props.propertyValue) ||
       isUndefined(this.props.propertyValue)
         ? []
@@ -78,7 +80,7 @@ class ButtonListControl extends BaseControl<
 
   render() {
     const hasSeparator = this.getMenuItems().some(
-      (item: any) => item.itemType === "SEPARATOR",
+      (item: MenuItem) => item.itemType === "SEPARATOR",
     );
 
     return (
@@ -198,7 +200,7 @@ class ButtonListControl extends BaseControl<
     if (this.props.widgetProperties.type === "BUTTON_GROUP_WIDGET") {
       /**c
        * These properties are required for "BUTTON_GROUP_WIDGET" but not for
-       * "WDS_BUTTON_GROUP_WIDGET"
+       * "WDS_TOOLBAR_BUTTONS_GROUP_WIDGET"
        */
       const optionalButtonGroupItemProperties = {
         menuItems: {},
@@ -214,9 +216,9 @@ class ButtonListControl extends BaseControl<
       };
     }
 
-    // if the widget is a WDS_BUTTON_GROUP_WIDGET, and button already have filled button variant in groupButtons,
+    // if the widget is a WDS_INLINE_BUTTONS_WIDGET, and button already have filled button variant in groupButtons,
     // then we should add a secondary button ( outlined button ) instead of simple button
-    if (this.props.widgetProperties.type === "WDS_INLINE_BUTTON_GROUP_WIDGET") {
+    if (this.props.widgetProperties.type === "WDS_INLINE_BUTTONS_WIDGET") {
       const filledButtonVariant = groupButtonsArray.find(
         (groupButton: any) => groupButton.buttonVariant === "filled",
       );

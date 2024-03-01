@@ -1,15 +1,17 @@
 import type { Key } from "react";
 import React, { useState } from "react";
-import { ButtonGroup, Item } from "@design-system/widgets";
+import { ActionGroup, Item } from "@design-system/widgets";
 import type {
-  ButtonGroupComponentProps,
-  ButtonGroupItemComponentProps,
+  ToolbarButtonsComponentProps,
+  ToolbarButtonsItemComponentProps,
 } from "./types";
 import { sortBy } from "lodash";
 
-export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
+export const ToolbarButtonsComponent = (
+  props: ToolbarButtonsComponentProps,
+) => {
   const [loadingButtonIds, setLoadingButtonIds] = useState<
-    Array<ButtonGroupItemComponentProps["id"]>
+    Array<ToolbarButtonsItemComponentProps["id"]>
   >([]);
 
   const sortedButtons = sortBy(
@@ -28,7 +30,7 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
     })
     .map((button) => button.id);
 
-  const onActionComplete = (button: ButtonGroupItemComponentProps) => {
+  const onActionComplete = (button: ToolbarButtonsItemComponentProps) => {
     const newLoadingButtonIds = [...loadingButtonIds];
     const index = newLoadingButtonIds.indexOf(button.id);
 
@@ -50,7 +52,7 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
   };
 
   return (
-    <ButtonGroup
+    <ActionGroup
       color={props.color}
       density={props.density}
       disabledKeys={disabledKeys}
@@ -58,21 +60,19 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
       orientation={props.orientation}
       variant={props.variant}
     >
-      {sortedButtons.map((button: ButtonGroupItemComponentProps) => {
+      {sortedButtons.map((button: ToolbarButtonsItemComponentProps) => {
         return (
           <Item
-            color={button.buttonColor}
             icon={button.iconName}
             iconPosition={button.iconAlign}
             isLoading={loadingButtonIds.includes(button.id)}
             isSeparator={button.itemType === "SEPARATOR"}
             key={button.id}
-            variant={button.buttonVariant}
           >
             {button.label}
           </Item>
         );
       })}
-    </ButtonGroup>
+    </ActionGroup>
   );
 };

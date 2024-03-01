@@ -10,21 +10,21 @@ import {
   settersConfig,
   anvilConfig,
 } from "./../config";
-import type { InlineButtonGroupWidgetProps } from "./types";
-import { ButtonGroupComponent } from "../component";
+import type { InlineButtonsWidgetProps } from "./types";
+import { InlineButtonsComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AnvilConfig } from "WidgetProvider/constants";
 
-class WDSInlineButtonGroupWidget extends BaseWidget<
-  InlineButtonGroupWidgetProps,
+class WDSInlineButtonsWidget extends BaseWidget<
+  InlineButtonsWidgetProps,
   WidgetState
 > {
-  constructor(props: InlineButtonGroupWidgetProps) {
+  constructor(props: InlineButtonsWidgetProps) {
     super(props);
   }
 
-  static type = "WDS_INLINE_BUTTON_GROUP_WIDGET";
+  static type = "WDS_INLINE_BUTTONS_WIDGET";
 
   static getConfig() {
     return metaConfig;
@@ -74,7 +74,7 @@ class WDSInlineButtonGroupWidget extends BaseWidget<
 
   getWidgetView() {
     return (
-      <ButtonGroupComponent
+      <InlineButtonsComponent
         buttonsList={this.props.buttonsList}
         color={this.props.buttonColor}
         density={this.props.density}
@@ -87,4 +87,4 @@ class WDSInlineButtonGroupWidget extends BaseWidget<
   }
 }
 
-export { WDSInlineButtonGroupWidget };
+export { WDSInlineButtonsWidget };
