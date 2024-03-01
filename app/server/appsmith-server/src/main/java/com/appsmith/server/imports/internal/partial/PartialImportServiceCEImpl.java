@@ -37,6 +37,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.widgets.refactors.WidgetRefactorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.multipart.Part;
@@ -47,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -73,6 +75,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final NewPageService newPageService;
     private final RefactoringService refactoringService;
     private final ApplicationTemplateService applicationTemplateService;
+    private final WidgetRefactorUtil widgetRefactorUtil;
 
     @Override
     public Mono<Application> importResourceInPage(
@@ -144,7 +147,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             })
                             .flatMap(nameSet -> {
                                 // Fetch name of the existing resources in the page to avoid name clashing
-                                mappedImportableResourcesDTO.setRefactoringNameReference(nameSet);
+                                Map<String, String> nameMap =
+                                        nameSet.stream().collect(Collectors.toMap(name -> name, name -> name));
+                                mappedImportableResourcesDTO.setRefactoringNameReference(nameMap);
                                 return importedApplicationMono;
                             })
                             .flatMap(application -> {
@@ -196,6 +201,20 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             .update(applicationId, fieldNameValueMap, branchName)
                             .then(Mono.just(application));
                 })
+                // Update the refactored names of the actions and action collections in the DSL bindings
+                /*.flatMap(application -> {
+                    return Flux.fromIterable(mappedImportableResourcesDTO
+                                    .getRefactoringNameReference()
+                                    .keySet())
+                            .flatMap(name -> {
+                                String refactoredName = mappedImportableResourcesDTO
+                                        .getRefactoringNameReference()
+                                        .get(name);
+                                return widgetRefactorUtil.refactorNameInDsl();
+                            })
+                            .collectList()
+                            .then(Mono.just(application));
+                })*/
                 .as(transactionalOperator::transactional);
 
         // Send Analytics event
@@ -337,14 +356,12 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         Mono<ApplicationJson> applicationJsonMono =
                 applicationTemplateService.getApplicationJsonFromTemplate(buildingBlockDTO.getTemplateId());
 
-        applicationJsonMono.flatMap(applicationJson -> {
-            return this.importResourceInPage(
-                    buildingBlockDTO.getWorkspaceId(),
-                    buildingBlockDTO.getPageId(),
-                    buildingBlockDTO.getApplicationId(),
-                    branchName,
-                    applicationJson);
-        });
+        applicationJsonMono.flatMap(applicationJson -> this.importResourceInPage(
+                buildingBlockDTO.getWorkspaceId(),
+                buildingBlockDTO.getPageId(),
+                buildingBlockDTO.getApplicationId(),
+                branchName,
+                applicationJson));
         return Mono.just("");
     }
 }
