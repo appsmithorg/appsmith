@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.converters.ArtifactExchangeJsonAdapter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Plugin;
@@ -27,11 +28,15 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,6 +48,8 @@ import java.util.Map;
 import java.util.Set;
 
 @Slf4j
+@RequiredArgsConstructor
+@Service
 public class ImportServiceCEImpl implements ImportServiceCE {
 
     public static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
@@ -56,25 +63,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final AnalyticsService analyticsService;
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<Datasource> datasourceImportableService;
-
-    public ImportServiceCEImpl(
-            ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson> applicationImportService,
-            SessionUserService sessionUserService,
-            WorkspaceService workspaceService,
-            PermissionGroupRepository permissionGroupRepository,
-            TransactionalOperator transactionalOperator,
-            AnalyticsService analyticsService,
-            ImportableService<Plugin> pluginImportableService,
-            ImportableService<Datasource> datasourceImportableService) {
-        this.applicationImportService = applicationImportService;
-        this.workspaceService = workspaceService;
-        this.sessionUserService = sessionUserService;
-        this.permissionGroupRepository = permissionGroupRepository;
-        this.transactionalOperator = transactionalOperator;
-        this.analyticsService = analyticsService;
-        this.pluginImportableService = pluginImportableService;
-        this.datasourceImportableService = datasourceImportableService;
-    }
+    private final GsonBuilder gsonBuilder;
+    private final ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter;
 
     /**
      * This method provides the importService specific to the artifact based on the ArtifactJsonType.
@@ -101,21 +91,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     public ArtifactBasedImportService<
                     ? extends ImportableArtifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactJsonType artifactJsonType) {
-        return switch (artifactJsonType) {
-            case APPLICATION -> applicationImportService;
-            default -> applicationImportService;
-        };
+        return applicationImportService;
     }
 
     /**
      * This method takes a file part and makes a Json entity which implements the ArtifactExchangeJson interface
      *
-     * @param filePart         : filePart from which the contents would be made
-     * @param artifactJsonType : type of the json which is getting imported
+     * @param filePart : filePart from which the contents would be made
      * @return : Json entity which implements ArtifactExchangeJson
      */
-    public Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(
-            Part filePart, ArtifactJsonType artifactJsonType) {
+    public Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart) {
 
         final MediaType contentType = filePart.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
@@ -130,8 +115,11 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     DataBufferUtils.release(dataBuffer);
                     return new String(data);
                 })
-                .map(jsonString ->
-                        getArtifactBasedImportService(artifactJsonType).extractArtifactExchangeJson(jsonString));
+                .map(jsonString -> {
+                    gsonBuilder.registerTypeAdapter(ArtifactExchangeJson.class, artifactExchangeJsonAdapter);
+                    Gson gson = gsonBuilder.create();
+                    return gson.fromJson(jsonString, ArtifactExchangeJson.class);
+                });
     }
 
     /**
@@ -143,13 +131,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     @Override
     public Mono<? extends ImportableArtifactDTO> extractArtifactExchangeJsonAndSaveArtifact(
-            Part filePart, String workspaceId, String artifactId, ArtifactJsonType artifactJsonType) {
+            Part filePart, String workspaceId, String artifactId) {
 
         if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        Mono<ImportableArtifactDTO> importedContextMono = extractArtifactExchangeJson(filePart, artifactJsonType)
+        Mono<ImportableArtifactDTO> importedContextMono = extractArtifactExchangeJson(filePart)
                 .zipWhen(contextJson -> {
                     if (StringUtils.isEmpty(artifactId)) {
                         return importNewArtifactInWorkspaceFromJson(workspaceId, contextJson);
@@ -158,8 +146,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     }
                 })
                 .flatMap(tuple2 -> {
+                    ArtifactExchangeJson exchangeJson = tuple2.getT1();
                     ImportableArtifact context = tuple2.getT2();
-                    return getArtifactImportDTO(context.getWorkspaceId(), context.getId(), context, artifactJsonType);
+                    return getArtifactImportDTO(
+                            context.getWorkspaceId(), context.getId(), context, exchangeJson.getArtifactJsonType());
                 });
 
         return Mono.create(
@@ -435,7 +425,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         ArtifactExchangeJson importedDoc =
                 ArtifactSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(artifactExchangeJson);
 
-        // Step 2: Validation of context Json
+        // Step 2: Validation of artifact Json
         // check for validation error and raise exception if error found
         String errorField = validateArtifactExchangeJson(importedDoc);
         if (!errorField.isEmpty()) {
@@ -549,12 +539,12 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      */
     private String validateArtifactExchangeJson(ArtifactExchangeJson importedDoc) {
         // validate common schema things
-        ArtifactBasedImportService<?, ?, ?> contextBasedImportService = getArtifactBasedImportService(importedDoc);
+        ArtifactBasedImportService<?, ?, ?> artifactBasedImportService = getArtifactBasedImportService(importedDoc);
         String errorField = "";
         if (importedDoc.getImportableArtifact() == null) {
             // the error field will be either application, packages, or workflows
             errorField =
-                    contextBasedImportService.getArtifactSpecificConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
+                    artifactBasedImportService.getArtifactSpecificConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
         } else {
             // validate contextSpecific-errors
             errorField = getArtifactBasedImportService(importedDoc).validateArtifactSpecificFields(importedDoc);
