@@ -62,10 +62,10 @@ body:
     label: Severity
     description: "The impact of the issue"
     options:
-        - Critical: Broken applications
-        - High: Blocker to building
-        - Medium: Frustrating UX
-        - Low: Inconsistent UI/UX
+        - Critical (Broken applications)
+        - High (Blocker to building)
+        - Medium (Frustrating UX)
+        - Low (Inconsistent UI/UX)
   validations:
     required: true
 - type: input
