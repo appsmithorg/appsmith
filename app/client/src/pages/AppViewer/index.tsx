@@ -18,6 +18,7 @@ import AppViewerPageContainer from "./AppViewerPageContainer";
 import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
+  getIsAutoLayout,
   getViewModePageList,
 } from "selectors/editorSelectors";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -55,6 +56,7 @@ import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
 const AppViewerBody = styled.section<{
   hasPages: boolean;
   headerHeight: number;
+  $contain: string;
 }>`
   display: flex;
   flex-direction: row;
@@ -62,6 +64,7 @@ const AppViewerBody = styled.section<{
   justify-content: flex-start;
   height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
   --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
+  contain: ${({ $contain }) => $contain};
 `;
 
 const AppViewerBodyContainer = styled.div<{
@@ -116,6 +119,7 @@ function AppViewer(props: Props) {
   };
   const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
   const focusRef = useWidgetFocus();
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -212,6 +216,7 @@ function AppViewer(props: Props) {
           }
         >
           <AppViewerBody
+            $contain={isAutoLayout ? "content" : "strict"}
             className={CANVAS_SELECTOR}
             hasPages={pages.length > 1}
             headerHeight={headerHeight}

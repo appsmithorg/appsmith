@@ -36,11 +36,10 @@ public interface ImportServiceCE {
     /**
      * This method takes a file part and makes a Json entity which implements the ArtifactExchangeJson interface
      *
-     * @param filePart           : filePart from which the contents would be made
-     * @param artifactJsonType : type of the dataExchangeJson
+     * @param filePart : filePart from which the contents would be made
      * @return : Json entity which implements ArtifactExchangeJson
      */
-    Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart, ArtifactJsonType artifactJsonType);
+    Mono<? extends ArtifactExchangeJson> extractArtifactExchangeJson(Part filePart);
 
     /**
      * Hydrates an ImportableArtifact within the specified workspace by saving the provided JSON file.
@@ -49,10 +48,9 @@ public interface ImportServiceCE {
      *                    The ImportableArtifact implements the ImportableArtifact interface.
      * @param workspaceId The identifier for the destination workspace.
      * @param artifactId
-     * @param  artifactJsonType
      */
     Mono<? extends ImportableArtifactDTO> extractArtifactExchangeJsonAndSaveArtifact(
-            Part filePart, String workspaceId, String artifactId, ArtifactJsonType artifactJsonType);
+            Part filePart, String workspaceId, String artifactId);
 
     /**
      * Saves the provided ArtifactExchangeJson within the specified workspace.
