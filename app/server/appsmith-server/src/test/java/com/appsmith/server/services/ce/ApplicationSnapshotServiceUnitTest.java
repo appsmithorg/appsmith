@@ -276,10 +276,8 @@ public class ApplicationSnapshotServiceUnitTest {
                         eq(application.getWorkspaceId()),
                         eq("branched-app-id"),
                         eq("development"),
-                        argThat(applicationJson1 -> applicationJson1
-                                .getExportableArtifact()
-                                .getName()
-                                .equals(application.getName()))))
+                        argThat(applicationJson1 ->
+                                applicationJson1.getArtifact().getName().equals(application.getName()))))
                 .thenAnswer(getTypeSafeMockAnswer(application));
 
         // mock the delete spanshot to return an empty mono

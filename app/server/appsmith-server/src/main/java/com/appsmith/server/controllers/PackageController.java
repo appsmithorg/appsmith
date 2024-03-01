@@ -3,8 +3,8 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -135,7 +135,7 @@ public class PackageController {
 
     @JsonView(Views.Public.class)
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<ImportableArtifactDTO>> importPackageFromFile(
+    public Mono<ResponseDTO<ArtifactImportDTO>> importPackageFromFile(
             @RequestPart("file") Mono<Part> fileMono,
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.PACKAGE_ID, required = false) String packageId) {

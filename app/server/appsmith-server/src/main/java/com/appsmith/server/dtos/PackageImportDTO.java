@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PackageImportDTO extends ImportableArtifactDTO {
+public class PackageImportDTO extends ArtifactImportDTO {
 
     @JsonProperty("package")
     Package aPackage;

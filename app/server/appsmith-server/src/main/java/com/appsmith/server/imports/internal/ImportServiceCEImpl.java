@@ -14,7 +14,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
+import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -74,8 +74,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     @Override
-    public ArtifactBasedImportService<
-                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+    public ArtifactBasedImportService<? extends Artifact, ? extends ArtifactImportDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactExchangeJson artifactExchangeJson) {
         return getArtifactBasedImportService(artifactExchangeJson.getArtifactJsonType());
     }
@@ -88,8 +87,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
     @Override
-    public ArtifactBasedImportService<
-                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+    public ArtifactBasedImportService<? extends Artifact, ? extends ArtifactImportDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactType artifactType) {
         return switch (artifactType) {
             case APPLICATION -> applicationImportService;
@@ -133,14 +131,14 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param workspaceId The identifier for the destination workspace.
      */
     @Override
-    public Mono<? extends ImportableArtifactDTO> extractArtifactExchangeJsonAndSaveArtifact(
+    public Mono<? extends ArtifactImportDTO> extractArtifactExchangeJsonAndSaveArtifact(
             Part filePart, String workspaceId, String artifactId) {
 
         if (StringUtils.isEmpty(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        Mono<ImportableArtifactDTO> importedContextMono = extractArtifactExchangeJson(filePart)
+        Mono<ArtifactImportDTO> importedContextMono = extractArtifactExchangeJson(filePart)
                 .zipWhen(contextJson -> {
                     if (StringUtils.isEmpty(artifactId)) {
                         return importNewArtifactInWorkspaceFromJson(workspaceId, contextJson);
@@ -376,10 +374,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @param artifactId         default ID of the artifact where this artifactExchangeJson is going to get merged with
      * @param importableArtifact the context (i.e. application, packages which is imported)
      * @param artifactType   the Json entity from which the import is happening
-     * @return ImportableArtifactDTO
+     * @return ArtifactImportDTO
      */
     @Override
-    public Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
+    public Mono<? extends ArtifactImportDTO> getArtifactImportDTO(
             String workspaceId, String artifactId, Artifact importableArtifact, ArtifactType artifactType) {
 
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService = getArtifactBasedImportService(artifactType);
@@ -484,10 +482,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         final Mono<? extends Artifact> importableArtifactMono = workspaceMono
                 .then(Mono.defer(() -> artifactSpecificImportableEntities))
                 .then(Mono.defer(() -> contextBasedImportService.updateAndSaveArtifactInContext(
-                        importedDoc.getImportableArtifact(),
-                        importingMetaDTO,
-                        mappedImportableResourcesDTO,
-                        currUserMono)))
+                        importedDoc.getArtifact(), importingMetaDTO, mappedImportableResourcesDTO, currUserMono)))
                 .cache();
 
         final Mono<? extends Artifact> importMono = importableArtifactMono
@@ -541,7 +536,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         // validate common schema things
         ArtifactBasedImportService<?, ?, ?> artifactBasedImportService = getArtifactBasedImportService(importedDoc);
         String errorField = "";
-        if (importedDoc.getImportableArtifact() == null) {
+        if (importedDoc.getArtifact() == null) {
             // the error field will be either application, packages, or workflows
             errorField =
                     artifactBasedImportService.getArtifactSpecificConstantsMap().get(FieldName.ARTIFACT_CONTEXT);

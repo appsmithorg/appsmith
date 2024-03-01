@@ -10,7 +10,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
+import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.PackageImportDTO;
 import com.appsmith.server.dtos.PackageJson;
 import com.appsmith.server.imports.importable.ImportableService;
@@ -55,8 +55,7 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
     }
 
     @Override
-    public ArtifactBasedImportService<
-                    ? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+    public ArtifactBasedImportService<? extends Artifact, ? extends ArtifactImportDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactType artifactJsonType) {
         return switch (artifactJsonType) {
             case PACKAGE -> packageImportService;

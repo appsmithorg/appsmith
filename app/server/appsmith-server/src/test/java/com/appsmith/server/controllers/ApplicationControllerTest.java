@@ -8,7 +8,7 @@ import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.configurations.solutions.OidcAccessTokenUpdateSolution;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
+import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.exports.internal.partial.PartialExportService;
@@ -183,7 +183,7 @@ public class ApplicationControllerTest {
                 .isEqualTo(200);
     }
 
-    private <T extends ImportableArtifactDTO> Answer<Mono<T>> importableArtifactDTOAnswer(T object) {
+    private <T extends ArtifactImportDTO> Answer<Mono<T>> importableArtifactDTOAnswer(T object) {
         return invocationOnMock -> Mono.just(object);
     }
 }

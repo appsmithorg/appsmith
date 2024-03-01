@@ -1,5 +1,5 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.server.domains.ce.ExportableArtifactCE;
+import com.appsmith.server.domains.ce.ArtifactCE;
 
-public interface ExportableArtifact extends ExportableArtifactCE {}
+public interface Artifact extends ArtifactCE {}

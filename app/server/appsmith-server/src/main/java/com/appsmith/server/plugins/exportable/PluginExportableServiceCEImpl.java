@@ -41,7 +41,7 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
             ArtifactExchangeJson artifactExchangeJson) {
 
         return workspaceService
-                .getById(artifactExchangeJson.getExportableArtifact().getWorkspaceId())
+                .getById(artifactExchangeJson.getArtifact().getWorkspaceId())
                 .map(workspace -> workspace.getPlugins().stream()
                         .map(WorkspacePlugin::getPluginId)
                         .collect(Collectors.toSet()))

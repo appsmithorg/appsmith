@@ -288,8 +288,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 .doOnNext(artifactExchangeJson -> artifactExchangeJson.setModifiedResources(null))
                 .map(artifactExchangeJson -> {
                     String stringifiedFile = gson.toJson(artifactExchangeJson);
-                    String artifactName =
-                            artifactExchangeJson.getExportableArtifact().getName();
+                    String artifactName = artifactExchangeJson.getArtifact().getName();
                     Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
                     HttpHeaders responseHeaders = new HttpHeaders();
                     ContentDisposition contentDisposition = ContentDisposition.builder("attachment")

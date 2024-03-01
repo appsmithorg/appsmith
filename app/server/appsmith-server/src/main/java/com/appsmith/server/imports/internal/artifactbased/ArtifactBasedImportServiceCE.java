@@ -5,7 +5,7 @@ import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
+import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ArtifactBasedImportServiceCE<
-        T extends Artifact, U extends ImportableArtifactDTO, V extends ArtifactExchangeJson> {
+        T extends Artifact, U extends ArtifactImportDTO, V extends ArtifactExchangeJson> {
 
     ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(
             Set<String> userPermissions);

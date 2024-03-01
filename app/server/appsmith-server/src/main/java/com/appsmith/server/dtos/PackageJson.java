@@ -79,12 +79,7 @@ public class PackageJson implements ArtifactExchangeJson {
     String widgets;
 
     @Override
-    public Artifact getImportableArtifact() {
-        return this.getExportedPackage();
-    }
-
-    @Override
-    public Artifact getExportableArtifact() {
+    public Artifact getArtifact() {
         return this.getExportedPackage();
     }
 

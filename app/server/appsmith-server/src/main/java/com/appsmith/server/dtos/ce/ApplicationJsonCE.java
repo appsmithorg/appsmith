@@ -119,12 +119,7 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     String widgets;
 
     @Override
-    public Artifact getImportableArtifact() {
-        return this.getExportedApplication();
-    }
-
-    @Override
-    public Artifact getExportableArtifact() {
+    public Artifact getArtifact() {
         return this.getExportedApplication();
     }
 

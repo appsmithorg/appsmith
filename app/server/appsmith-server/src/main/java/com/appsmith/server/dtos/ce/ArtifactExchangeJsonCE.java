@@ -25,9 +25,7 @@ public interface ArtifactExchangeJsonCE {
 
     ArtifactType getArtifactJsonType();
 
-    Artifact getImportableArtifact();
-
-    Artifact getExportableArtifact();
+    Artifact getArtifact();
 
     default void setThemes(Theme unpublishedTheme, Theme publishedTheme) {}
 

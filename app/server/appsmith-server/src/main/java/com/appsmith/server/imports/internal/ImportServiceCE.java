@@ -4,7 +4,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
+import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
@@ -19,7 +19,7 @@ public interface ImportServiceCE {
      * @param artifactExchangeJson : Entity Json which is implementing the artifactExchangeJson
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
-    ArtifactBasedImportService<? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+    ArtifactBasedImportService<? extends Artifact, ? extends ArtifactImportDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactExchangeJson artifactExchangeJson);
 
     /**
@@ -28,7 +28,7 @@ public interface ImportServiceCE {
      * @param artifactType : Type of Json serialisation
      * @return import-service which is implementing the ContextBasedServiceInterface
      */
-    ArtifactBasedImportService<? extends Artifact, ? extends ImportableArtifactDTO, ? extends ArtifactExchangeJson>
+    ArtifactBasedImportService<? extends Artifact, ? extends ArtifactImportDTO, ? extends ArtifactExchangeJson>
             getArtifactBasedImportService(ArtifactType artifactType);
 
     /**
@@ -47,7 +47,7 @@ public interface ImportServiceCE {
      * @param workspaceId The identifier for the destination workspace.
      * @param artifactId
      */
-    Mono<? extends ImportableArtifactDTO> extractArtifactExchangeJsonAndSaveArtifact(
+    Mono<? extends ArtifactImportDTO> extractArtifactExchangeJsonAndSaveArtifact(
             Part filePart, String workspaceId, String artifactId);
 
     /**
@@ -85,7 +85,7 @@ public interface ImportServiceCE {
     Mono<? extends Artifact> restoreSnapshot(
             String workspaceId, String artifactId, String branchName, ArtifactExchangeJson artifactExchangeJson);
 
-    Mono<? extends ImportableArtifactDTO> getArtifactImportDTO(
+    Mono<? extends ArtifactImportDTO> getArtifactImportDTO(
             String workspaceId, String artifactId, Artifact importableArtifact, ArtifactType artifactType);
 
     Mono<List<Datasource>> findDatasourceByArtifactId(
