@@ -462,6 +462,7 @@ export class HomePage {
           this.agHelper.ClickButton("Get started");
         }
       });
+
     this.agHelper.WaitUntilEleAppear(
       this.onboarding.locators.skipStartFromData,
     );
