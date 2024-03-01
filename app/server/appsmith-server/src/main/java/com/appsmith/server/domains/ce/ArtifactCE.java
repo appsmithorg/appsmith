@@ -19,6 +19,8 @@ public interface ArtifactCE {
 
     GitArtifactMetadata getGitArtifactMetadata();
 
+    void setGitArtifactMetadata(GitArtifactMetadata gitArtifactMetadata);
+
     String getUnpublishedThemeId();
 
     String getPublishedThemeId();

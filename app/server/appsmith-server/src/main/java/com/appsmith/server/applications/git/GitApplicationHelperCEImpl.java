@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
@@ -49,5 +50,14 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Path getRepoSuffixPath(String workspaceId, String artifactId, String repoName) {
         return Paths.get(workspaceId, artifactId, repoName);
+    }
+
+    @Override
+    public AclPermission getArtifactGitConnectPermission() {
+        return applicationPermission.getGitConnectPermission();
+    }
+
+    @Override
+    public Mono<Path> intialiseReadMe(Artifact artifact) {
     }
 }

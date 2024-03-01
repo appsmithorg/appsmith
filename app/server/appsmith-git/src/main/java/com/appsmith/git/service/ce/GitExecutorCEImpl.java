@@ -235,7 +235,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .subscribeOn(scheduler);
     }
 
-    /** Clone the repo to the file path : container-volume/orgId/defaultAppId/repo/applicationData
+    /** Clone the repo to the file path : container-volume/orgId/defaultAppId/repo/<Data>
      *
      *  @param repoSuffix combination of orgId, defaultId and repoName
      *  @param remoteUrl ssh url of the git repo(we support cloning via ssh url only with deploy key)
@@ -244,7 +244,7 @@ public class GitExecutorCEImpl implements GitExecutor {
      *  @return defaultBranchName of the repo
      * */
     @Override
-    public Mono<String> cloneApplication(Path repoSuffix, String remoteUrl, String privateKey, String publicKey) {
+    public Mono<String> cloneRemoteIntoArtifactRepo(Path repoSuffix, String remoteUrl, String privateKey, String publicKey) {
 
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CLONE.getEventName());

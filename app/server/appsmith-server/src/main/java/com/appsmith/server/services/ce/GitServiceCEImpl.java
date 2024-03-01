@@ -752,7 +752,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                         Path repoSuffix = Paths.get(application.getWorkspaceId(), defaultApplicationId, repoName);
                         Mono<String> defaultBranchMono = gitExecutor
-                                .cloneApplication(
+                                .cloneRemoteIntoArtifactRepo(
                                         repoSuffix,
                                         gitConnectDTO.getRemoteUrl(),
                                         gitArtifactMetadata.getGitAuth().getPrivateKey(),
@@ -1682,7 +1682,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             application.getWorkspaceId(), application.getId(), gitArtifactMetadata.getRepoName());
                     GitAuth gitAuth = gitArtifactMetadata.getGitAuth();
                     return gitExecutor
-                            .cloneApplication(
+                            .cloneRemoteIntoArtifactRepo(
                                     repoPath,
                                     gitArtifactMetadata.getRemoteUrl(),
                                     gitAuth.getPrivateKey(),
@@ -2588,7 +2588,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), application.getId());
 
                     Mono<String> defaultBranchMono = gitExecutor
-                            .cloneApplication(
+                            .cloneRemoteIntoArtifactRepo(
                                     repoSuffix,
                                     gitConnectDTO.getRemoteUrl(),
                                     gitAuth.getPrivateKey(),

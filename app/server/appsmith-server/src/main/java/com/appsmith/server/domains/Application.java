@@ -276,6 +276,12 @@ public class Application extends BaseDomain implements Artifact {
         return this.gitApplicationMetadata;
     }
 
+    @JsonView(Views.Internal.class)
+    @Override
+    public void setGitArtifactMetadata(GitArtifactMetadata gitArtifactMetadata) {
+        this.gitApplicationMetadata = gitArtifactMetadata;
+    }
+
     @Override
     public String getUnpublishedThemeId() {
         return this.getEditModeThemeId();

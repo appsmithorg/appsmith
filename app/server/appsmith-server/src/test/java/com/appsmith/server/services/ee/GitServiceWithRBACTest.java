@@ -312,7 +312,7 @@ public class GitServiceWithRBACTest {
         if (StringUtils.isEmpty(branchName)) {
             branchName = DEFAULT_BRANCH;
         }
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(branchName));
         Mockito.when(gitExecutor.commitApplication(
@@ -378,7 +378,7 @@ public class GitServiceWithRBACTest {
     public void connectApplicationToGit_WithCRUDPermissionsOnWorkspaceAndApplication_ConnectSuccess()
             throws IOException, GitAPIException {
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
         Mockito.when(gitExecutor.commitApplication(
@@ -504,7 +504,7 @@ public class GitServiceWithRBACTest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_WithNoPermissions_throwException() throws IOException, GitAPIException {
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
         Mockito.when(gitExecutor.commitApplication(
@@ -1609,7 +1609,7 @@ public class GitServiceWithRBACTest {
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
 
@@ -1681,7 +1681,7 @@ public class GitServiceWithRBACTest {
         applicationJson.getExportedApplication().setName("testRepo");
         applicationJson.setDatasourceList(new ArrayList<>());
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
@@ -1860,7 +1860,7 @@ public class GitServiceWithRBACTest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(DEFAULT_BRANCH));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class)))
@@ -2148,7 +2148,7 @@ public class GitServiceWithRBACTest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(DEFAULT_BRANCH));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class)))

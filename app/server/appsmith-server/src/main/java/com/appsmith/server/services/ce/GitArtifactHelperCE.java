@@ -8,9 +8,13 @@ import java.nio.file.Path;
 
 public interface GitArtifactHelperCE<T extends Artifact> {
 
+    AclPermission getArtifactGitConnectPermission();
+
     AclPermission getArtifactEditPermission();
 
     Path getRepoSuffixPath(String workspaceId, String artifactId, String repoName);
+
+    Mono<Path> intialiseReadMe(Artifact artifact);
 
     Mono<T> getArtifactById(String artifactId, AclPermission aclPermission);
 

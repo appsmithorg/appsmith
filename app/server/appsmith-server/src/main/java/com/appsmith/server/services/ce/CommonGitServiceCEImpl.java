@@ -6,8 +6,11 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.Assets;
+import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.GitDefaultCommitMessage;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -15,12 +18,16 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
+import com.appsmith.server.dtos.GitCommitDTO;
+import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitPrivateRepoHelper;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.AnalyticsService;
@@ -33,26 +40,39 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.util.StringUtils;
+import reactor.core.Exceptions;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ce.GitConstantsCE.DEFAULT_COMMIT_MESSAGE;
+import static com.appsmith.external.constants.ce.GitConstantsCE.GIT_PROFILE_ERROR;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
 import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
+import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @RequiredArgsConstructor
 public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
+    private final GitPrivateRepoHelper gitPrivateRepoHelper;
     private final CommonGitFileUtils commonGitFileUtils;
     private final GitFileUtils gitFileUtils;
     private final RedisUtils redisUtils;
@@ -439,5 +459,480 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     gitData.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                     return gitData;
                 });
+    }
+
+    /**
+     * Connect the artifact from Appsmith to a git repo
+     * This is the prerequisite step needed to perform all the git operation for an artifact
+     * We are implementing the deployKey approach and since the deploy-keys are repo level these keys are store under artifact.
+     * Each artifact is equal to a repo in the git(and each branch creates a new artifact with default artifact as parent)
+     *
+     * @param gitConnectDTO applicationId - this is used to link the local git repo to an application
+     *                      remoteUrl - used for connecting to remote repo etc
+     * @param artifactType
+     * @return Application object with the updated data
+     */
+    @Override
+    public Mono<? extends Artifact> connectArtifactToGit(
+        String defaultArtifactId, GitConnectDTO gitConnectDTO, String originHeader, ArtifactType artifactType) {
+        /*
+         *  Connecting the application for the first time
+         *  The ssh keys is already present in application object from generate SSH key step
+         *  We would be updating the remote url and default branchName
+         * */
+
+        if (StringUtils.isEmptyOrNull(gitConnectDTO.getRemoteUrl())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
+        }
+
+        if (StringUtils.isEmptyOrNull(originHeader)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
+        }
+
+        Mono<UserData> currentUserMono = userDataService
+            .getForCurrentUser()
+            .filter(userData -> !CollectionUtils.isNullOrEmpty(userData.getGitProfiles()))
+            .switchIfEmpty(
+                Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_PROFILE_ERROR)));
+
+
+        Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(
+            gitConnectDTO.getGitProfile(), defaultArtifactId)
+            .switchIfEmpty(
+                Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_PROFILE_ERROR)));
+
+        final String browserSupportedUrl = GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl());
+        Mono<Boolean> isPrivateRepoMono = GitUtils.isRepoPrivate(browserSupportedUrl).cache();
+
+        GitArtifactHelper<?> gitArtifactHelper = getArtifactGitService(artifactType);
+
+        AclPermission connectToGitPermission = gitArtifactHelper.getArtifactGitConnectPermission();
+
+        Mono<? extends Artifact> artifactToConnectMono = gitArtifactHelper.getArtifactById(defaultArtifactId, connectToGitPermission);
+
+        Mono<? extends Artifact> connectedArtifactMono = Mono.zip(profileMono, isPrivateRepoMono, artifactToConnectMono)
+            .flatMap(tuple -> {
+                Artifact artifact = tuple.getT3();
+                boolean isRepoPrivate = tuple.getT2();
+                // Check if the repo is public
+                if (!isRepoPrivate) {
+                    return Mono.just(artifact);
+                }
+
+                // Check the limit for number of private repo
+                return gitPrivateRepoHelper
+                    .isRepoLimitReached(artifact.getWorkspaceId(), true)
+                    .flatMap(isRepoLimitReached -> {
+                        if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                            return Mono.just(artifact);
+                        }
+
+                        return addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_PRIVATE_REPO_LIMIT_EXCEEDED,
+                            artifact,
+                            AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
+                            AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
+                            true)
+                            // TODO: change the Exception to a generic exception
+                            .flatMap(ignore -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
+                    });
+            })
+            .flatMap(artifact -> {
+                GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
+                if (isDefaultGitMetadataInvalid(artifact.getGitArtifactMetadata())) {
+                    return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                } else {
+                    String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
+                    Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(artifact.getWorkspaceId(), defaultArtifactId, repoName);
+
+                    Mono<String> defaultBranchMono = gitExecutor.cloneRemoteIntoArtifactRepo(
+                            repoSuffix,
+                            gitConnectDTO.getRemoteUrl(),
+                            gitArtifactMetadata.getGitAuth().getPrivateKey(),
+                            gitArtifactMetadata.getGitAuth().getPublicKey())
+                        .onErrorResume(error -> {
+                            log.error("Error while cloning the remote repo, ", error);
+
+                            AppsmithException appsmithException = new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage());
+                            if (error instanceof TransportException) {
+                                appsmithException = new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                            } else if (error instanceof InvalidRemoteException) {
+                                appsmithException = new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage());
+                            } else if (error instanceof TimeoutException) {
+                                appsmithException = new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT);
+                            } else if (error instanceof ClassCastException) {
+                                // To catch TransportHttp cast error in case HTTP URL is passed
+                                // instead of SSH URL
+                                if (error.getMessage().contains("TransportHttp")) {
+                                    appsmithException = new AppsmithException(AppsmithError.INVALID_GIT_SSH_URL);
+                                }
+                            }
+
+                            return commonGitFileUtils.deleteLocalRepo(repoSuffix)
+                                .then(addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_CONNECT,
+                                    artifact,
+                                    error.getClass().getName(),
+                                    error.getMessage(),
+                                    artifact.getGitArtifactMetadata().getIsRepoPrivate()))
+                                .then(Mono.error(appsmithException));
+                        });
+
+                    return Mono.zip(
+                        Mono.just(artifact), defaultBranchMono, Mono.just(repoName), Mono.just(repoSuffix));
+                }
+            })
+            .flatMap(tuple -> {
+                Artifact artifact = tuple.getT1();
+                String defaultBranch = tuple.getT2();
+                String repoName = tuple.getT3();
+                Path repoPath = tuple.getT4();
+                final String artifactId = artifact.getId();
+                final String workspaceId = artifact.getWorkspaceId();
+
+                try {
+                    return commonGitFileUtils.checkIfDirectoryIsEmpty(repoPath)
+                        .zipWith(isPrivateRepoMono)
+                        .flatMap(objects -> {
+                            boolean isEmpty = objects.getT1();
+                            boolean isRepoPrivate = objects.getT2();
+                            if (!isEmpty) {
+                                return addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_CONNECT,
+                                    artifact,
+                                    AppsmithError.INVALID_GIT_REPO.getErrorType(),
+                                    AppsmithError.INVALID_GIT_REPO.getMessage(),
+                                    isRepoPrivate)
+                                    .then(Mono.error(
+                                        new AppsmithException(AppsmithError.INVALID_GIT_REPO)));
+                            } else {
+                                GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
+                                gitArtifactMetadata.setDefaultArtifactId(artifactId);
+                                gitArtifactMetadata.setBranchName(defaultBranch);
+                                gitArtifactMetadata.setDefaultBranchName(defaultBranch);
+                                gitArtifactMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
+                                gitArtifactMetadata.setRepoName(repoName);
+                                gitArtifactMetadata.setBrowserSupportedRemoteUrl(browserSupportedUrl);
+                                gitArtifactMetadata.setIsRepoPrivate(isRepoPrivate);
+                                gitArtifactMetadata.setLastCommittedAt(Instant.now());
+
+                                // Set branchName for each artifact resource
+                                return exportService
+                                    .exportByArtifactId(artifactId, VERSION_CONTROL, APPLICATION)
+                                    .flatMap(artifactExchangeJson -> {
+                                        artifactExchangeJson.getArtifact().setGitArtifactMetadata(gitArtifactMetadata);
+                                        return importService
+                                            .importArtifactInWorkspaceFromGit(
+                                                workspaceId,
+                                                artifactId,
+                                                artifactExchangeJson,
+                                                defaultBranch);
+                                    });
+                            }
+                        })
+                        .onErrorResume(e -> {
+                            if (e instanceof IOException) {
+                                return Mono.error(new AppsmithException(
+                                    AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                            }
+                            return Mono.error(e);
+                        });
+                } catch (IOException e) {
+                    log.error("Error while cloning the remote repo, {}", e.getMessage());
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                }
+            })
+            .flatMap(artifact -> {
+
+                Mono<Path> readMeMono =  gitArtifactHelper.initialiseReadme();
+
+                // find default page and initialize readme
+                String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
+                String defaultPageId = "";
+                if (!artifact.getPages().isEmpty()) {
+                    defaultPageId = artifact.getPages().stream()
+                        .filter(applicationPage ->
+                            applicationPage.getIsDefault().equals(Boolean.TRUE))
+                        .collect(Collectors.toList())
+                        .get(0)
+                        .getId();
+                }
+                String viewModeUrl = Paths.get(
+                        "/", Entity.APPLICATIONS, "/", artifact.getId(), Entity.PAGES, defaultPageId)
+                    .toString();
+                String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
+                // Initialize the repo with readme file
+                try {
+                    return Mono.zip(
+                            commonGitFileUtils
+                                .initializeReadme(
+                                    Paths.get(
+                                        artifact.getWorkspaceId(),
+                                        defaultArtifactId,
+                                        repoName,
+                                        "README.md"),
+                                    originHeader + viewModeUrl,
+                                    originHeader + editModeUrl)
+                                .onErrorMap(throwable -> {
+                                    log.error("Error while initialising git repo, {0}", throwable);
+                                    return new AppsmithException(
+                                        AppsmithError.GIT_FILE_SYSTEM_ERROR,
+                                        Exceptions.unwrap(throwable)
+                                            .getMessage());
+                                }),
+                            currentUserMono)
+                        .flatMap(tuple -> {
+                            UserData userData = tuple.getT2();
+                            GitProfile profile = userData.getGitProfileByKey(defaultArtifactId);
+                            if (profile == null
+                                || StringUtils.isEmptyOrNull(profile.getAuthorName())
+                                || Boolean.TRUE.equals(profile.getUseGlobalProfile())) {
+
+                                profile = userData.getGitProfileByKey(DEFAULT);
+                            }
+                            return gitExecutor.commitApplication(
+                                tuple.getT1(),
+                                DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason(),
+                                profile.getAuthorName(),
+                                profile.getAuthorEmail(),
+                                false,
+                                false);
+                        })
+                        .flatMap(ignore -> {
+                            // Commit and push artifact to check if the SSH key has the write access
+                            GitCommitDTO commitDTO = new GitCommitDTO();
+                            commitDTO.setDoPush(true);
+                            commitDTO.setCommitMessage(
+                                DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason());
+
+                            return this.commitApplication(
+                                    commitDTO,
+                                    defaultArtifactId,
+                                    artifact.getGitArtifactMetadata().getBranchName(),
+                                    true)
+                                .onErrorResume(error ->
+                                    // If the push fails remove all the cloned files from local repo
+                                    this.detachRemote(defaultArtifactId)
+                                        .flatMap(isDeleted -> {
+                                            if (error instanceof TransportException) {
+                                                return addAnalyticsForGitOperation(
+                                                    AnalyticsEvents.GIT_CONNECT,
+                                                    artifact,
+                                                    error.getClass()
+                                                        .getName(),
+                                                    error.getMessage(),
+                                                    artifact
+                                                        .getGitApplicationMetadata()
+                                                        .getIsRepoPrivate())
+                                                    .then(Mono.error(new AppsmithException(
+                                                        AppsmithError
+                                                            .INVALID_GIT_SSH_CONFIGURATION,
+                                                        error.getMessage())));
+                                            }
+                                            return Mono.error(new AppsmithException(
+                                                AppsmithError.GIT_ACTION_FAILED,
+                                                "push",
+                                                error.getMessage()));
+                                        }));
+                        })
+                        .then(addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_CONNECT,
+                            artifact,
+                            artifact.getGitArtifactMetadata().getIsRepoPrivate()))
+                        .map(responseUtils::updateApplicationWithDefaultResources);
+                } catch (IOException e) {
+                    log.error("Error while cloning the remote repo, {}", e.getMessage());
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                }
+            });
+
+        return Mono.create(
+            sink -> connectedArtifactMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    @Override
+    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(
+        GitProfile gitProfile, String defaultArtifactId) {
+
+        // Throw error in following situations:
+        // 1. Updating or creating global git profile (defaultApplicationId = "default") and update is made with empty
+        //    authorName or authorEmail
+        // 2. Updating or creating repo specific profile and user want to use repo specific profile but provided empty
+        //    values for authorName and email
+
+        if ((DEFAULT.equals(defaultArtifactId) || Boolean.FALSE.equals(gitProfile.getUseGlobalProfile()))
+            && StringUtils.isEmptyOrNull(gitProfile.getAuthorName())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Name"));
+        } else if ((DEFAULT.equals(defaultArtifactId) || Boolean.FALSE.equals(gitProfile.getUseGlobalProfile()))
+            && StringUtils.isEmptyOrNull(gitProfile.getAuthorEmail())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Email"));
+        } else if (StringUtils.isEmptyOrNull(defaultArtifactId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ARTIFACT_ID));
+        }
+
+        if (DEFAULT.equals(defaultArtifactId)) {
+            gitProfile.setUseGlobalProfile(null);
+        } else if (!Boolean.TRUE.equals(gitProfile.getUseGlobalProfile())) {
+            gitProfile.setUseGlobalProfile(Boolean.FALSE);
+        }
+
+        return sessionUserService
+            .getCurrentUser()
+            .flatMap(user -> userService.findByEmail(user.getEmail()))
+            .flatMap(user -> userDataService.getForUser(user.getId())
+                .flatMap(userData -> {
+                    // GitProfiles will be null if the user has not created any git profile.
+                    GitProfile savedProfile = userData.getGitProfileByKey(defaultArtifactId);
+                    GitProfile defaultGitProfile = userData.getGitProfileByKey(DEFAULT);
+
+                    if (savedProfile == null || !savedProfile.equals(gitProfile) || defaultGitProfile == null) {
+                        userData.setGitProfiles(userData.setGitProfileByKey(defaultArtifactId, gitProfile));
+
+                        // Assign appsmith user profile as a fallback git profile
+                        if (defaultGitProfile == null) {
+                            GitProfile userProfile = new GitProfile();
+                            String authorName = StringUtils.isEmptyOrNull(user.getName())
+                                ? user.getUsername().split("@")[0]
+                                : user.getName();
+                            userProfile.setAuthorEmail(user.getEmail());
+                            userProfile.setAuthorName(authorName);
+                            userProfile.setUseGlobalProfile(null);
+                            userData.setGitProfiles(userData.setGitProfileByKey(DEFAULT, userProfile));
+                        }
+
+                        // Update userData here
+                        UserData requiredUpdates = new UserData();
+                        requiredUpdates.setGitProfiles(userData.getGitProfiles());
+                        return userDataService
+                            .updateForUser(user, requiredUpdates)
+                            .map(UserData::getGitProfiles);
+                    }
+                    return Mono.just(userData.getGitProfiles());
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    // If profiles are empty use Appsmith's user profile as git default profile
+                    GitProfile profile = new GitProfile();
+                    String authorName = StringUtils.isEmptyOrNull(user.getName())
+                        ? user.getUsername().split("@")[0]
+                        : user.getName();
+
+                    profile.setAuthorName(authorName);
+                    profile.setAuthorEmail(user.getEmail());
+
+                    UserData requiredUpdates = new UserData();
+                    requiredUpdates.setGitProfiles(Map.of(DEFAULT, gitProfile));
+                    return userDataService
+                        .updateForUser(user, requiredUpdates)
+                        .map(UserData::getGitProfiles);
+                }))
+                .filter(profiles -> !CollectionUtils.isNullOrEmpty(profiles)));
+    }
+
+    @Override
+    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile) {
+        gitProfile.setUseGlobalProfile(null);
+        return updateOrCreateGitProfileForCurrentUser(gitProfile, DEFAULT);
+    }
+
+    private Mono<? extends Artifact> addAnalyticsForGitOperation(
+        AnalyticsEvents eventName, Artifact artifact, Boolean isRepoPrivate) {
+        return addAnalyticsForGitOperation(eventName, artifact, "", "", isRepoPrivate, false);
+    }
+
+    private Mono<? extends Artifact> addAnalyticsForGitOperation(
+        AnalyticsEvents eventName, String branchName, Artifact artifact) {
+        return addAnalyticsForGitOperation(eventName, artifact, null, null, null, false, null, branchName);
+    }
+
+    private Mono<? extends Artifact> addAnalyticsForGitOperation(
+        AnalyticsEvents eventName,
+        Artifact artifact,
+        String errorType,
+        String errorMessage,
+        Boolean isRepoPrivate) {
+        return addAnalyticsForGitOperation(eventName, artifact, errorType, errorMessage, isRepoPrivate, false);
+    }
+
+    private Mono<? extends Artifact> addAnalyticsForGitOperation(
+        AnalyticsEvents event,
+        Artifact artifact,
+        String errorType,
+        String errorMessage,
+        Boolean isRepoPrivate,
+        Boolean isSystemGenerated) {
+        return addAnalyticsForGitOperation(
+            event, artifact, errorType, errorMessage, isRepoPrivate, isSystemGenerated, null);
+    }
+
+    private Mono<? extends Artifact> addAnalyticsForGitOperation(
+        AnalyticsEvents event,
+        Artifact artifact,
+        String errorType,
+        String errorMessage,
+        Boolean isRepoPrivate,
+        Boolean isSystemGenerated,
+        Boolean isMergeable) {
+
+        String branchName = artifact.getGitArtifactMetadata() != null
+            ? artifact.getGitArtifactMetadata().getBranchName()
+            : null;
+        return addAnalyticsForGitOperation(
+            event, artifact, errorType, errorMessage, isRepoPrivate, isSystemGenerated, isMergeable, branchName);
+    }
+
+    private Mono<? extends Artifact> addAnalyticsForGitOperation(
+        AnalyticsEvents event,
+        Artifact artifact,
+        String errorType,
+        String errorMessage,
+        Boolean isRepoPrivate,
+        Boolean isSystemGenerated,
+        Boolean isMergeable,
+        String branchName) {
+        GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
+        Map<String, Object> analyticsProps = new HashMap<>();
+        if (gitData != null) {
+            analyticsProps.put(FieldName.APPLICATION_ID, gitData.getDefaultApplicationId());
+            analyticsProps.put("appId", gitData.getDefaultApplicationId());
+            analyticsProps.put(FieldName.BRANCH_NAME, branchName);
+            analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+            analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
+            if (event == AnalyticsEvents.GIT_COMMIT) {
+                analyticsProps.put("isAutoCommit", false);
+            }
+        }
+        // Do not include the error data points in the map for success states
+        if (!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
+            analyticsProps.put("errorMessage", errorMessage);
+            analyticsProps.put("errorType", errorType);
+        }
+        // Do not include the isMergeable for all the events
+        if (isMergeable != null) {
+            analyticsProps.put(FieldName.IS_MERGEABLE, isMergeable);
+        }
+        analyticsProps.putAll(Map.of(
+            FieldName.ORGANIZATION_ID,
+            defaultIfNull(artifact.getWorkspaceId(), ""),
+            "orgId",
+            defaultIfNull(artifact.getWorkspaceId(), ""),
+            "branchApplicationId",
+            defaultIfNull(artifact.getId(), ""),
+            "isRepoPrivate",
+            defaultIfNull(isRepoPrivate, ""),
+            "isSystemGenerated",
+            defaultIfNull(isSystemGenerated, "")));
+        final Map<String, Object> eventData =
+            Map.of(FieldName.APP_MODE, ApplicationMode.EDIT.toString(), FieldName.APPLICATION, artifact);
+        analyticsProps.put(FieldName.EVENT_DATA, eventData);
+        return sessionUserService.getCurrentUser().flatMap(user -> analyticsService
+            .sendEvent(event.getEventName(), user.getUsername(), analyticsProps)
+            .thenReturn(artifact));
+    }
+
+    private boolean isDefaultGitMetadataInvalid(GitArtifactMetadata gitArtifactMetadata) {
+        return Optional.ofNullable(gitArtifactMetadata).isEmpty()
+            || Optional.ofNullable(gitArtifactMetadata.getGitAuth()).isEmpty()
+            || StringUtils.isEmptyOrNull(gitArtifactMetadata.getGitAuth().getPrivateKey())
+            || StringUtils.isEmptyOrNull(gitArtifactMetadata.getGitAuth().getPublicKey());
     }
 }
