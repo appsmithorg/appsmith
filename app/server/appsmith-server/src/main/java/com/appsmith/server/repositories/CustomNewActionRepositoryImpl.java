@@ -42,7 +42,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             MongoTemplate mongoTemplate) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper, mongoTemplate);
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
         this.mongoTemplate = mongoTemplate;
     }
 
