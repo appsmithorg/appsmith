@@ -7,15 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class BUpdate {
+public class BridgeUpdate {
     private final List<SetOp> setOps = new ArrayList<>();
 
-    public BUpdate set(Path<?> key, Object value) {
+    public BridgeUpdate set(Path<?> key, Object value) {
         setOps.add(new SetOp(key, value));
         return this;
     }
 
-    public BUpdate set(String key, Object value) {
+    public BridgeUpdate set(String key, Object value) {
         setOps.add(new SetOp(key, value));
         return this;
     }

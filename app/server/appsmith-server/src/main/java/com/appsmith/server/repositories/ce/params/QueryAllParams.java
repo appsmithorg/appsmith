@@ -3,7 +3,7 @@ package com.appsmith.server.repositories.ce.params;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.helpers.ce.bridge.BUpdate;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import lombok.NonNull;
@@ -65,7 +65,7 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.countExecute(this);
     }
 
-    public int updateAll(@NonNull BUpdate update) {
+    public int updateAll(@NonNull BridgeUpdate update) {
         ensureNoOldStyleCriteria();
         scope = Scope.ALL;
         return repo.updateExecute2(this, update);
@@ -77,7 +77,7 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.updateExecute(this, resource);
     }
 
-    public int updateFirst(@NonNull BUpdate update) {
+    public int updateFirst(@NonNull BridgeUpdate update) {
         ensureNoOldStyleCriteria();
         scope = Scope.FIRST;
         return repo.updateExecute2(this, update);

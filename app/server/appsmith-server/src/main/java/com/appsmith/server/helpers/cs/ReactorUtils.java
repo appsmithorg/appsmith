@@ -10,15 +10,15 @@ import java.util.function.Supplier;
 public class ReactorUtils {
     private ReactorUtils() {}
 
-    public static <T> Mono<T> toMono(Supplier<Optional<T>> supplier) {
+    public static <T> Mono<T> asMono(Supplier<Optional<T>> supplier) {
         return Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(Schedulers.boundedElastic());
     }
 
-    public static <T> Mono<T> toMonoDirect(Supplier<T> supplier) {
+    public static <T> Mono<T> asMonoDirect(Supplier<T> supplier) {
         return Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(Schedulers.boundedElastic());
     }
 
-    public static <T> Flux<T> toFlux(Supplier<? extends Iterable<T>> supplier) {
+    public static <T> Flux<T> asFlux(Supplier<? extends Iterable<T>> supplier) {
         return Mono.fromSupplier(supplier).flatMapMany(Flux::fromIterable).subscribeOn(Schedulers.boundedElastic());
     }
 }

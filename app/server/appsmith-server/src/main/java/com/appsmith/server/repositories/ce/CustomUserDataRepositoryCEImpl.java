@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
-
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
 
@@ -35,7 +33,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     public int saveReleaseNotesViewedVersion(String userId, String version) {
         return queryBuilder()
-                .criteria(bridge().equal(UserData.Fields.userId, userId))
+                .criteria(Bridge.query().equal(UserData.Fields.userId, userId))
                 .updateFirst(Bridge.update().set(UserData.Fields.releaseNotesViewedVersion, version));
     }
 
@@ -91,7 +89,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
         return queryBuilder()
-                .criteria(bridge().equal(UserData.Fields.userId, userId))
+                .criteria(Bridge.query().equal(UserData.Fields.userId, userId))
                 .fields(UserData.Fields.recentlyUsedEntityIds)
                 .one()
                 .map(userData -> {

@@ -11,7 +11,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.bridge.BUpdate;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
@@ -239,7 +239,7 @@ public class PermissionGroupServiceCEImpl
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
                     assignedToUserIds.removeAll(userIds);
 
-                    BUpdate updateObj = new BUpdate();
+                    BridgeUpdate updateObj = new BridgeUpdate();
 
                     updateObj.set(PermissionGroup.Fields.assignedToUserIds, assignedToUserIds);
 
@@ -403,7 +403,7 @@ public class PermissionGroupServiceCEImpl
 
                     assignedToUserIds.remove(userId);
 
-                    BUpdate updateObj = new BUpdate();
+                    BridgeUpdate updateObj = new BridgeUpdate();
 
                     updateObj.set(PermissionGroup.Fields.assignedToUserIds, assignedToUserIds);
 

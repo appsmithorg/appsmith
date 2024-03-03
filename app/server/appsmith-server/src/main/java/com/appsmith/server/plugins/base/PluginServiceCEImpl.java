@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -56,7 +57,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.helpers.cs.ReactorUtils.toFlux;
+import static com.appsmith.server.helpers.cs.ReactorUtils.asFlux;
 
 @Slf4j
 public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRepositoryCake, Plugin, String>
@@ -134,7 +135,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
                     List<String> pluginIds = org.getPlugins().stream()
                             .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
-                    final Bridge<Plugin> criteria = Bridge.<Plugin>bridge().in(FieldName.ID, pluginIds);
+                    final BridgeQuery<Plugin> criteria = Bridge.<Plugin>query().in(FieldName.ID, pluginIds);
 
                     final String typeString = params.getFirst(FieldName.TYPE);
                     if (typeString != null) {
@@ -147,7 +148,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
                         }
                     }
 
-                    return toFlux(() ->
+                    return asFlux(() ->
                             repositoryDirect.queryBuilder().criteria(criteria).all());
                 })
                 .flatMap(plugin ->

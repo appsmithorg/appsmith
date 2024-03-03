@@ -3,7 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.helpers.ce.bridge.BUpdate;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -59,7 +58,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Optional<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
         return queryBuilder()
                 .byId(id)
-                .criteria(bridge().equal(Application.Fields.workspaceId, workspaceId))
+                .criteria(Bridge.query().equal(Application.Fields.workspaceId, workspaceId))
                 .permission(permission)
                 .one();
     }
@@ -67,7 +66,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Optional<Application> findByName(String name, AclPermission permission) {
         return queryBuilder()
-                .criteria(bridge().equal(Application.Fields.name, name))
+                .criteria(Bridge.query().equal(Application.Fields.name, name))
                 .permission(permission)
                 .one();
     }
@@ -75,7 +74,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public List<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
         return queryBuilder()
-                .criteria(bridge().equal(Application.Fields.workspaceId, workspaceId))
+                .criteria(Bridge.query().equal(Application.Fields.workspaceId, workspaceId))
                 .permission(permission)
                 .all();
     }
@@ -117,7 +116,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public List<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
         return queryBuilder()
-                .criteria(bridge().equal(Application.Fields.clonedFromApplicationId, applicationId))
+                .criteria(Bridge.query().equal(Application.Fields.clonedFromApplicationId, applicationId))
                 .permission(permission)
                 .all();
     }
@@ -158,7 +157,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public int setPages(String applicationId, List<ApplicationPage> pages) {
-        return queryBuilder().byId(applicationId).updateFirst(new BUpdate().set(Application.Fields.pages, pages));
+        return queryBuilder().byId(applicationId).updateFirst(new BridgeUpdate().set(Application.Fields.pages, pages));
     }
 
     @Override
@@ -169,12 +168,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         final Mono<Integer> setAllAsNonDefaultMono = queryBuilder()
                 .byId(applicationId)
-                .criteria(bridge().isTrue("pages.isDefault"))
+                .criteria(Bridge.query().isTrue("pages.isDefault"))
                 .updateFirst(new Update().set("pages.$.isDefault", false));
 
         final Mono<Integer> setDefaultMono = queryBuilder()
                 .byId(applicationId)
-                .criteria(bridge().equal("pages._id", new ObjectId(pageId)))
+                .criteria(Bridge.query().equal("pages._id", new ObjectId(pageId)))
                 .updateFirst(new Update().set("pages.$.isDefault", true));
 
         return setAllAsNonDefaultMono.then(setDefaultMono).then(); //*/
@@ -195,8 +194,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             AclPermission aclPermission) {
 
         return queryBuilder()
-                .criteria(bridge().equal(
-                                Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId)
+                .criteria(Bridge.query()
+                        .equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId)
                         .equal(Application.Fields.gitApplicationMetadata_branchName, branchName))
                 .fields(projectionFieldNames)
                 .permission(aclPermission)
@@ -208,8 +207,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             String defaultApplicationId, String branchName, Optional<AclPermission> aclPermission) {
 
         return queryBuilder()
-                .criteria(bridge().equal(
-                                Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId)
+                .criteria(Bridge.query()
+                        .equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId)
                         .equal(Application.Fields.gitApplicationMetadata_branchName, branchName))
                 .permission(aclPermission.orElse(null))
                 .one();
@@ -220,8 +219,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             String defaultApplicationId, AclPermission permission) {
 
         return queryBuilder()
-                .criteria(bridge().equal(
-                                Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId))
+                .criteria(Bridge.query()
+                        .equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId))
                 .permission(permission)
                 .all();
     }
@@ -229,7 +228,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Optional<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId) {
         return queryBuilder()
-                .criteria(bridge().equal(Application.Fields.workspaceId, workspaceId)
+                .criteria(Bridge.query()
+                        .equal(Application.Fields.workspaceId, workspaceId)
                         .isTrue(Application.Fields.gitApplicationMetadata_isRepoPrivate))
                 .count();
     }
@@ -238,7 +238,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public List<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId) {
         AclPermission aclPermission = applicationPermission.getEditPermission();
         return queryBuilder()
-                .criteria(bridge()
+                .criteria(Bridge.query()
                         // isRepoPrivate and gitAuth will be stored only with default application which ensures we will
                         // have only single application per repo
                         .exists(Application.Fields.gitApplicationMetadata_isRepoPrivate)
@@ -252,8 +252,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Optional<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
 
         return queryBuilder()
-                .criteria(bridge().equal(
-                                Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId))
+                .criteria(Bridge.query()
+                        .equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId))
                 .one();
     }
 
@@ -262,7 +262,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Transactional
     public int setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        final BUpdate updateObj = Bridge.update();
+        final BridgeUpdate updateObj = Bridge.update();
 
         if (StringUtils.hasLength(editModeThemeId)) {
             updateObj.set(Application.Fields.editModeThemeId, editModeThemeId);
@@ -278,7 +278,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Optional<Long> countByNameAndWorkspaceId(
             String applicationName, String workspaceId, AclPermission permission) {
         return queryBuilder()
-                .criteria(bridge().equal(Application.Fields.workspaceId, workspaceId)
+                .criteria(Bridge.query()
+                        .equal(Application.Fields.workspaceId, workspaceId)
                         .equal(Application.Fields.name, applicationName))
                 .permission(permission)
                 .count();
@@ -323,10 +324,11 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public int unprotectAllBranches(String applicationId, AclPermission permission) {
         String isProtectedFieldPath = Application.Fields.gitApplicationMetadata_isProtectedBranch;
 
-        BUpdate unsetProtected = new BUpdate().set(isProtectedFieldPath, false);
+        BridgeUpdate unsetProtected = new BridgeUpdate().set(isProtectedFieldPath, false);
 
         return queryBuilder()
-                .criteria(bridge().equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId))
+                .criteria(Bridge.query()
+                        .equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId))
                 .permission(permission)
                 .updateAll(unsetProtected);
     }

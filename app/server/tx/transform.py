@@ -15,11 +15,11 @@ FILE_CONTENTS_CACHE = {}
 SUBSCRIBE_WRAPPER = (
     "%s.subscribeOn(Schedulers.boundedElastic())"
 )
-MONO_WRAPPER = "toMono(() -> %s)"
+MONO_WRAPPER = "asMono(() -> %s)"
 MONO_WRAPPER_NON_OPTIONAL = (
     SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
 )
-FLUX_WRAPPER = "toFlux(() -> %s)"
+FLUX_WRAPPER = "asFlux(() -> %s)"
 
 
 def apply(p, tx):
@@ -224,7 +224,7 @@ def generate_cake_class(domain):
     import com.appsmith.external.models.*;
     import com.appsmith.server.acl.AclPermission;
     import com.appsmith.server.domains.*;
-    import com.appsmith.server.helpers.ce.bridge.BUpdate;
+    import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
     import com.appsmith.server.projections.*;
     import com.appsmith.server.repositories.*;
     import org.springframework.stereotype.Component;
@@ -243,8 +243,8 @@ def generate_cake_class(domain):
     import java.util.Optional;
     import java.util.Set;
 
-    import static com.appsmith.server.helpers.cs.ReactorUtils.toFlux;
-    import static com.appsmith.server.helpers.cs.ReactorUtils.toMono;
+    import static com.appsmith.server.helpers.cs.ReactorUtils.asFlux;
+    import static com.appsmith.server.helpers.cs.ReactorUtils.asMono;
 
     @Component
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{

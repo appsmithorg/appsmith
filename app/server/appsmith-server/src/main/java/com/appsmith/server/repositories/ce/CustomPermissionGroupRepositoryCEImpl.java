@@ -7,7 +7,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.bridge.BUpdate;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import jakarta.persistence.EntityManager;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<PermissionGroup>
@@ -41,7 +41,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findByAssignedToUserIdsIn(String userId) {
         return queryBuilder()
-                .criteria(bridge().jsonIn(userId, PermissionGroup.Fields.assignedToUserIds))
+                .criteria(Bridge.query().jsonIn(userId, PermissionGroup.Fields.assignedToUserIds))
                 .all();
     }
 
@@ -64,7 +64,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     @Transactional
     @Modifying
-    public int updateById(String id, BUpdate updateObj) {
+    public int updateById(String id, BridgeUpdate updateObj) {
         if (id == null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
@@ -86,7 +86,8 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
         return queryBuilder()
-                .criteria(bridge().equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName())
+                .criteria(Bridge.query()
+                        .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName())
                         .in(PermissionGroup.Fields.defaultDomainId, workspaceIds))
                 .permission(permission)
                 .all();

@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Component;
 
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
-
 @Component
 public class CustomDatasourceStorageStructureRepositoryCEImpl
         extends BaseAppsmithRepositoryImpl<DatasourceStorageStructure>
@@ -26,7 +24,8 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
     @Override
     public int updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
         return queryBuilder()
-                .criteria(bridge().equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)
+                .criteria(Bridge.query()
+                        .equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)
                         .equal(DatasourceStorageStructure.Fields.environmentId, environmentId))
                 .updateFirst(Bridge.update().set(DatasourceStorageStructure.Fields.structure, structure));
     }

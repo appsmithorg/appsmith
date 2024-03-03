@@ -6,6 +6,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.cakes.BaseCake;
@@ -32,8 +33,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
-import static com.appsmith.server.helpers.cs.ReactorUtils.toMonoDirect;
+import static com.appsmith.server.helpers.cs.ReactorUtils.asMonoDirect;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
@@ -85,9 +85,9 @@ public abstract class BaseService<
 
         // TODO(Shri): update happens with `key=id` and find happens with `id=id` criteria. This is incorrect, but is
         //   too fragile to touch right now. Need to dig in slow and deep to fix this.
-        return toMonoDirect(() -> repositoryDirect
+        return asMonoDirect(() -> repositoryDirect
                         .queryBuilder()
-                        .criteria(bridge().equal(key, (String) id))
+                        .criteria(Bridge.query().equal(key, (String) id))
                         .updateFirst(resource))
                 .flatMap(obj -> repository.findById((String) id))
                 .flatMap(savedResource ->

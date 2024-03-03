@@ -9,7 +9,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.bridge.BUpdate;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
@@ -231,7 +231,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             builder.criteria(Criteria.where(branchNamePath).is(branchName));
         }
 
-        BUpdate update = Bridge.update();
+        BridgeUpdate update = Bridge.update();
         fieldNameValueMap.forEach(update::set);
 
         final int count = builder.permission(permission).updateFirst(update);
@@ -429,7 +429,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public int updateExecute(@NonNull QueryAllParams<T> params, @NonNull T resource) {
-        final BUpdate update = new BUpdate();
+        final BridgeUpdate update = new BridgeUpdate();
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
@@ -500,11 +500,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .then();
     }
 
-    public int updateExecute(QueryAllParams<T> params, BUpdate update) {
+    public int updateExecute(QueryAllParams<T> params, BridgeUpdate update) {
         return updateExecute2(params, update);
     }
 
-    public int updateExecute2(QueryAllParams<T> params, BUpdate update) {
+    public int updateExecute2(QueryAllParams<T> params, BridgeUpdate update) {
         Set<String> permissionGroupsSet = params.getPermissionGroups();
         List<String> permissionGroups;
 
@@ -556,7 +556,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         cu.where(predicate);
 
-        for (BUpdate.SetOp op : update.getSetOps()) {
+        for (BridgeUpdate.SetOp op : update.getSetOps()) {
             Object key = op.key();
             Object value = op.value();
 
@@ -680,7 +680,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      *
      * @see FindAndModifyOptions
      */
-    public T updateAndReturn(String id, BUpdate updateObj, Optional<AclPermission> permission) {
+    public T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
         return null; /*
                                   Query query = new Query(Criteria.where("id").is(id));
 

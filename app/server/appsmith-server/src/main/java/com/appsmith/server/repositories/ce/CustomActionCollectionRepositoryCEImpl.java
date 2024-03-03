@@ -9,6 +9,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
@@ -38,7 +38,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Deprecated
     public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
-                .criteria(bridge().equal(ActionCollection.Fields.applicationId, applicationId))
+                .criteria(Bridge.query().equal(ActionCollection.Fields.applicationId, applicationId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
@@ -168,11 +168,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         String unpublishedPage = ActionCollection.Fields.unpublishedCollection_pageId;
         String publishedPage = ActionCollection.Fields.publishedCollection_pageId;
 
-        Criteria pageCriteria = new Criteria()
-                .orOperator(
-                        where(unpublishedPage).is(pageId), where(publishedPage).is(pageId));
-
-        return queryBuilder().criteria(pageCriteria).permission(aclPermission).all();
+        return queryBuilder()
+                .criteria(Bridge.or(
+                        Bridge.query().equal(unpublishedPage, pageId),
+                        Bridge.query().equal(publishedPage, pageId)))
+                .permission(aclPermission)
+                .all();
     }
 
     @Override
@@ -218,7 +219,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         return queryBuilder()
-                .criteria(bridge().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
+                .criteria(Bridge.query().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -226,7 +227,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
-                .criteria(bridge().in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds))
+                .criteria(Bridge.query().in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds))
                 .permission(permission)
                 .all();
     }
@@ -239,7 +240,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .criteria(bridge().in(FieldName.APPLICATION_ID, applicationIds))
+                .criteria(Bridge.query().in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }
@@ -272,15 +273,16 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
-        Bridge<? extends BaseDomain> spec;
+        BridgeQuery<? extends BaseDomain> spec;
 
         // Fetch published action collections
         if (Boolean.TRUE.equals(viewMode)) {
-            spec = bridge().equal(ActionCollection.Fields.publishedCollection_pageId, pageId);
+            spec = Bridge.query().equal(ActionCollection.Fields.publishedCollection_pageId, pageId);
         }
         // Fetch unpublished action collections
         else {
-            spec = bridge().equal(ActionCollection.Fields.unpublishedCollection_pageId, pageId)
+            spec = Bridge.query()
+                    .equal(ActionCollection.Fields.unpublishedCollection_pageId, pageId)
                     // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
                     // ActionCollection object
                     // would exist. To handle this, only fetch non-deleted actions

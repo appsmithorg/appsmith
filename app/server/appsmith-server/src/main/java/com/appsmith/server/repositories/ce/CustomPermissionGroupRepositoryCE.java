@@ -3,7 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.helpers.ce.bridge.BUpdate;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.AppsmithRepository;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
     List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission);
 
-    int updateById(String id, BUpdate updateObj);
+    int updateById(String id, BridgeUpdate updateObj);
 
     List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission);
 
