@@ -71,8 +71,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
-import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
+import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j

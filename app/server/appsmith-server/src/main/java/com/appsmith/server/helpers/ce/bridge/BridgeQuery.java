@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
-    protected final List<Check> checks = new ArrayList<>();
+    final List<Check> checks = new ArrayList<>();
 
     protected BridgeQuery() {}
 
