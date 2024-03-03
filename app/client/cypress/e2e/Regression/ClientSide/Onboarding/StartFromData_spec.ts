@@ -22,7 +22,11 @@ describe(
       );
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
+        homePage.SignUp(
+          `${uid}@appsmithtest.com`,
+          uid as unknown as string,
+          false,
+        );
         onboarding.closeIntroModal();
       });
     });

@@ -441,7 +441,11 @@ export class HomePage {
     }
   }
 
-  public SignUp(uname: string, pswd: string) {
+  public SignUp(
+    uname: string,
+    pswd: string,
+    skipToApplication: boolean = true,
+  ) {
     this.agHelper.VisitNAssert("/user/signup");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
@@ -463,10 +467,12 @@ export class HomePage {
         }
       });
 
-    this.agHelper.WaitUntilEleAppear(
-      this.onboarding.locators.skipStartFromData,
-    );
-    this.agHelper.GetNClick(this.onboarding.locators.skipStartFromData);
+    if (skipToApplication) {
+      this.agHelper.WaitUntilEleAppear(
+        this.onboarding.locators.skipStartFromData,
+      );
+      this.agHelper.GetNClick(this.onboarding.locators.skipStartFromData);
+    }
     this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
   }
 
