@@ -217,6 +217,8 @@
 
             <version>${mockito.version}</version>
 
+            <scope>test</scope>
+
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/mockwebserver3 -->
